@@ -102,7 +102,7 @@ class _ZikrCounterState extends State<ZikrCounter> {
                     Semantics(
                       button: true,
                       label: l10n.tasbeehCountOne,
-                      value: '$count',
+                      value: localizeDigits('$count', l10n),
                       excludeSemantics: true,
                       onTap: _increment,
                       child: Column(

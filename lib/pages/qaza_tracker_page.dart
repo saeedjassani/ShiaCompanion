@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart' show NumberFormat;
 import 'package:flutter/services.dart';
 
 import '../constants.dart';
@@ -499,15 +500,8 @@ class _QazaEditResult {
   final int completed;
 }
 
-String _formatCount(int value) {
-  final digits = value.toString();
-  final buffer = StringBuffer();
-  for (var i = 0; i < digits.length; i++) {
-    if (i > 0 && (digits.length - i) % 3 == 0) buffer.write(',');
-    buffer.write(digits[i]);
-  }
-  return buffer.toString();
-}
+/// "1,234", in the app language's digits and grouping.
+String _formatCount(int value) => NumberFormat.decimalPattern().format(value);
 
 class _QazaEstimate {
   const _QazaEstimate({required this.prayerDays, required this.fasts});

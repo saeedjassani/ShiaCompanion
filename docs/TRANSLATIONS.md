@@ -76,13 +76,21 @@ notifications), home menu labels (analytics ids), Azan option ids - so each
 has a display mapping instead: `localizedPrayerName`, `homeMenuDisplayLabel`,
 `AzaanOption.name`. Analytics labels and `debugPrint` messages stay English.
 
-Numbers are written in the app language's own digits (٠-٩ in Arabic). Give
-`int` placeholders `"format": "decimalPattern"` when the message shows the
-number, format dates and numbers with intl's `DateFormat`/`NumberFormat`,
-and pass any number put together by hand (`'$count'`, `'$hour:$minute'`)
-through `localizeDigits` before it reaches the screen. Arabic formats with
-intl's `ar_EG` locale, since plain `ar` writes 0-9 (`formattingLocale` in
-`lib/l10n/app_language.dart`).
+Numbers are written in the app language's own digits: ٠-٩ in Arabic, ۰-۹
+in Persian and Urdu, ૦-૯ in Gujarati (`zeroDigit` in
+`lib/l10n/app_language.dart`). Give `int` placeholders `"format":
+"decimalPattern"` when the message shows the number, format dates and
+numbers with intl's `DateFormat`/`NumberFormat`, and pass any number put
+together by hand (`'$count'`, `'$hour:$minute'`) through `localizeDigits`
+before it reaches the screen - a clock time the app writes itself ("05:12
+pm") through `localizeClockTime`, which also swaps its am/pm for the
+language's `timeAm`/`timePm`. intl's own data writes Urdu and Gujarati in
+0-9 and has no usable Urdu am/pm, so `applyIntlSymbols` patches intl's
+tables with the app's choices (re-run by `IntlSymbolsDelegate` after
+Material's localizations load). Write digits in an ARB value in the
+language's own digits too, except ICU selectors (`=1{`), emails, URLs and
+version numbers in Latin text. Parse anything typed with `asciiDigits`
+first, so "۳۳:۳۳" works as well as "33:33".
 
 ### Keeping translations in step
 

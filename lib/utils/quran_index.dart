@@ -1,3 +1,4 @@
+import '../l10n/l10n.dart';
 import '../constants.dart';
 import '../pages/zikr/zikr_content_parser.dart';
 import '../services/zikr_translations.dart';
@@ -143,7 +144,7 @@ List<SurahInfo> allSurahs() {
       surahInfoFor(number) ??
           SurahInfo(
             number: number,
-            englishName: 'Surah $number',
+            englishName: L10n.current.quranSurahNumber(number),
             arabicName: '',
             uid: uid,
             ayahCount: surahAyahCounts[number - 1],
@@ -178,7 +179,9 @@ SurahInfo? surahInfoFor(int surah) {
 
   return SurahInfo(
     number: surah,
-    englishName: englishName.isEmpty ? 'Surah $surah' : englishName,
+    englishName: englishName.isEmpty
+        ? L10n.current.quranSurahNumber(surah)
+        : englishName,
     arabicName: arabicName,
     uid: uid,
     ayahCount: surahAyahCounts[surah - 1],

@@ -762,7 +762,7 @@ class _AzanStepState extends State<_AzanStep> {
           longitude: longitude,
           timeZone: prayerTimeZoneFor(now),
         ))
-          entry.name: localizeDigits(entry.time),
+          entry.name: localizeClockTime(entry.time),
       };
     } catch (e) {
       debugPrint('Setup could not work out prayer times: $e');
@@ -1098,7 +1098,7 @@ class _FontStepState extends State<_FontStep> {
             SizedBox(
               width: 48,
               child: Text(
-                arabicFontSize.toInt().toString(),
+                localizeDigits('${arabicFontSize.toInt()}', context.l10n),
                 textAlign: TextAlign.center,
                 style: ShiaText.secondary.copyWith(color: colors.textMuted),
               ),

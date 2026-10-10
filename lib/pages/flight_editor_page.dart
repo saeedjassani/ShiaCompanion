@@ -70,7 +70,9 @@ class _FlightEditorPageState extends State<FlightEditorPage> {
     final airport = await pushPageRoute<Airport>(
       context,
       AirportPickerPage(
-        title: isOrigin ? context.l10n.flightDepartureAirport : context.l10n.flightArrivalAirport,
+        title: isOrigin
+            ? context.l10n.flightDepartureAirport
+            : context.l10n.flightArrivalAirport,
       ),
     );
     if (airport == null || !mounted) return;
@@ -152,8 +154,7 @@ class _FlightEditorPageState extends State<FlightEditorPage> {
       return;
     }
     if (origin.iata == destination.iata) {
-      setState(() =>
-          _errorText = context.l10n.flightAirportsMustDiffer);
+      setState(() => _errorText = context.l10n.flightAirportsMustDiffer);
       return;
     }
 
@@ -171,19 +172,16 @@ class _FlightEditorPageState extends State<FlightEditorPage> {
 
     final resolved = ResolvedFlight.resolve(flight);
     if (resolved == null) {
-      setState(() => _errorText =
-          context.l10n.flightTimeZoneUnresolved);
+      setState(() => _errorText = context.l10n.flightTimeZoneUnresolved);
       return;
     }
     if (resolved.duration <= Duration.zero) {
-      setState(() => _errorText =
-          context.l10n.flightArrivalBeforeDeparture);
+      setState(() => _errorText = context.l10n.flightArrivalBeforeDeparture);
       return;
     }
     if (resolved.duration >= const Duration(hours: 24)) {
-      setState(() => _errorText =
-          context.l10n
-              .flightDurationTooLong(formatFlightDuration(resolved.duration)));
+      setState(() => _errorText = context.l10n
+          .flightDurationTooLong(formatFlightDuration(resolved.duration)));
       return;
     }
 
@@ -260,11 +258,12 @@ class _FlightEditorPageState extends State<FlightEditorPage> {
                   decoration: revampFieldDecoration(
                     context,
                     label: l10n.flightNumberLabel,
-                    hint: 'e.g. TK 80',
+                    hint: l10n.flightNumberHint,
                   ),
                 ),
               ),
-              if (_errorText != null) section(_ErrorBanner(message: _errorText!)),
+              if (_errorText != null)
+                section(_ErrorBanner(message: _errorText!)),
               section(
                 PageButton(
                   label: _isEditing ? l10n.flightSaveChanges : l10n.flightSave,

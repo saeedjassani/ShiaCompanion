@@ -17,11 +17,22 @@ final RegExp _trailingArabic = RegExp(
 /// [title] split into its words and the Arabic it ends with, if it does:
 /// `("Dua al-Hujjah", "اِلٰهِيْ بِحَقِّ مَنْ نَاجَاكَ")`. Arabic inside the
 /// title ("Ziyarat Rajabiyah (الحمد الله …)") stays where it is.
+///
+/// A title written wholly in Arabic script - a translated one ("5: سورۃ
+/// المائدہ") - is not split: there is no English name in it to lead with,
+/// and splitting would leave only its number.
 ({String text, String? arabic}) splitTrailingArabic(String title) {
   final match = _trailingArabic.firstMatch(title.trim());
-  if (match == null) return (text: title, arabic: null);
+  if (match == null || !_nonArabicLetter.hasMatch(match.group(1)!)) {
+    return (text: title, arabic: null);
+  }
   return (text: match.group(1)!, arabic: match.group(2)!.trim());
 }
+
+/// A letter in any script but Arabic's: the "Dua al-Hujjah" a title leads
+/// with before its Arabic.
+final RegExp _nonArabicLetter =
+    RegExp(r'[^\P{L}\p{Script=Arabic}]', unicode: true);
 
 /// A zikr's row in a list (docs/DESIGN_SPEC.md, "Lists"): the title, with
 /// the Arabic it ends in on a line of its own, right-aligned in the reader's

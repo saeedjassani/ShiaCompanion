@@ -291,7 +291,7 @@ class _QiblaFinderState extends State<QiblaFinder> {
         headingDegrees: _isLive ? heading : 0,
         targetBearingDegrees: _targetBearing,
         qiblaBearingDegrees: _qiblaBearing,
-        targetLabel: _target.city,
+        targetLabel: _target.displayCity(context.l10n),
         isAligned: _isLive && _isAlignedAt(heading),
         isLive: _isLive,
       ),
@@ -543,7 +543,7 @@ class _TargetCard extends StatelessWidget {
     return Semantics(
       button: true,
       label: '${l10n.qiblaPointingTowards} '
-          '${l10n.qiblaTargetIn(target.name, target.city)}',
+          '${l10n.qiblaTargetIn(target.displayName(l10n), target.displayCity(l10n))}',
       hint: l10n.qiblaChangeTarget,
       excludeSemantics: true,
       onTap: onTap,
@@ -562,7 +562,8 @@ class _TargetCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 1),
                 Text(
-                  l10n.qiblaTargetIn(target.name, target.city),
+                  l10n.qiblaTargetIn(
+                      target.displayName(l10n), target.displayCity(l10n)),
                   style: ShiaText.cardTitle.copyWith(color: colors.text),
                 ),
               ],
@@ -615,10 +616,11 @@ class _TurnInstruction extends StatelessWidget {
       message = l10n.qiblaWaitingForLocation;
       color = colors.textMuted;
     } else if (!isLive) {
-      message = l10n.qiblaBearingFromNorth(target.name, formatBearing(bearing));
+      message = l10n.qiblaBearingFromNorth(
+          target.displayName(l10n), formatBearing(bearing));
       color = colors.text;
     } else if (isAligned) {
-      message = l10n.qiblaFacing(target.name);
+      message = l10n.qiblaFacing(target.displayName(l10n));
       color = colors.success;
     } else {
       final offset = relativeBearingDegrees(headingDegrees, bearing);
@@ -909,12 +911,12 @@ class _SiteTile extends StatelessWidget {
                 : OutlineIcon(OutlineGlyph.pin, size: 20, color: colors.accent),
           ),
           title: Text(
-            site.name,
+            site.displayName(context.l10n),
             style: TextStyle(
               fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
             ),
           ),
-          subtitle: Text(site.place),
+          subtitle: Text(site.displayPlace(context.l10n)),
           trailing: origin == null
               ? null
               : Padding(
@@ -975,9 +977,9 @@ class _AboutCompassDialog extends StatelessWidget {
                   ? context.l10n.qiblaDeclinationUnknownBody
                   : declination >= 0
                       ? context.l10n.qiblaDeclinationEast(
-                          declination.abs().toStringAsFixed(1))
+                          localizeDigits(declination.abs().toStringAsFixed(1)))
                       : context.l10n.qiblaDeclinationWest(
-                          declination.abs().toStringAsFixed(1)),
+                          localizeDigits(declination.abs().toStringAsFixed(1))),
               style: theme.textTheme.bodyMedium?.copyWith(height: 1.45),
             ),
             const SizedBox(height: 14),
@@ -1002,5 +1004,6 @@ class _AboutCompassDialog extends StatelessWidget {
 /// better than the width of a city and a decimal would imply otherwise.
 String formatDistanceKm(double kilometres) {
   if (kilometres < 1) return L10n.current.qiblaDistanceHere;
-  return '${NumberFormat.decimalPattern().format(kilometres.round())} km';
+  return L10n.current
+      .distanceKm(NumberFormat.decimalPattern().format(kilometres.round()));
 }

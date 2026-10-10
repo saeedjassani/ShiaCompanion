@@ -24,9 +24,8 @@ String describeRecitationPosition(
   bool compact = false,
 }) {
   final ayah = verse.ayah ?? 1;
-  final surahName =
-      surahInfoFor(verse.surah)?.displayName ??
-          L10n.current.quranSurahNumber(verse.surah);
+  final surahName = surahInfoFor(verse.surah)?.displayName ??
+      L10n.current.quranSurahNumber(verse.surah);
   if (!byJuz) {
     return ayah == 1 ? surahName : L10n.current.quranSurahAyah(surahName, ayah);
   }
@@ -37,7 +36,7 @@ String describeRecitationPosition(
   return juzStart == VerseKey(verse.surah, ayah)
       ? juzLabel
       : compact
-          ? '$juzLabel · ${verse.surah}:$ayah'
+          ? '$juzLabel · ${localizeDigits('${verse.surah}:$ayah')}'
           : '$juzLabel · ${L10n.current.quranSurahAyah(surahName, ayah)}';
 }
 
@@ -115,7 +114,9 @@ class _RecitationTrackSheetState extends State<_RecitationTrackSheet> {
       initial: _position ?? const VerseKey(1, 1),
       browseByJuz: readByJuz,
       describe: (verse) => describeRecitationPosition(verse, byJuz: readByJuz),
-      confirmVerb: _isEditing ? context.l10n.trackContinueFrom : context.l10n.trackStartAt,
+      confirmVerb: _isEditing
+          ? context.l10n.trackContinueFrom
+          : context.l10n.trackStartAt,
     );
     if (picked == null || !mounted) return;
     setState(() {

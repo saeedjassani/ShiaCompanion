@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:path_provider/path_provider.dart';
 
+import '../l10n/l10n.dart';
 import '../models/zikr_audio_track.dart';
 import 'analytics_service.dart';
 
@@ -551,12 +552,16 @@ class AudioDownloadStore extends ChangeNotifier {
 
 /// "12.3 MB", "850 KB" - a size the way a phone's storage screen shows it.
 String formatAudioBytes(int bytes) {
+  final strings = L10n.current;
   if (bytes >= 1024 * 1024 * 1024) {
-    return '${(bytes / (1024 * 1024 * 1024)).toStringAsFixed(1)} GB';
+    return strings.sizeGigabytes(localizeDigits(
+        (bytes / (1024 * 1024 * 1024)).toStringAsFixed(1), strings));
   }
   if (bytes >= 1024 * 1024) {
     final mb = bytes / (1024 * 1024);
-    return '${mb >= 100 ? mb.round() : mb.toStringAsFixed(1)} MB';
+    return strings.sizeMegabytes(localizeDigits(
+        mb >= 100 ? '${mb.round()}' : mb.toStringAsFixed(1), strings));
   }
-  return '${(bytes / 1024).ceil()} KB';
+  return strings
+      .sizeKilobytes(localizeDigits('${(bytes / 1024).ceil()}', strings));
 }

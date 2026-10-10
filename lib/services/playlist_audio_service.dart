@@ -225,7 +225,7 @@ class PlaylistAudioService extends ChangeNotifier {
               tag: MediaItem(
                 id: 'playlist:${playlist.id}#$i',
                 title: queue[i].title,
-                album: playlist.name,
+                album: playlist.displayName,
                 artist: queue[i].track.artist,
               ),
             ),

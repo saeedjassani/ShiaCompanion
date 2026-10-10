@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 
 import '../theme/shia_colors.dart';
+import '../l10n/l10n.dart';
 import '../utils/geo_utils.dart';
 
 /// The compass rose.
@@ -406,5 +407,5 @@ class _CompassDialPainter extends CustomPainter {
 
 /// `NNE · 34°` — the compass point and the number, which answer different
 /// questions: the letters say roughly where to turn, the number confirms it.
-String formatBearing(double bearing) =>
-    '${compassLabel(bearing)} · ${normalizeBearing(bearing).round()}°';
+String formatBearing(double bearing) => '${compassLabel(bearing)} · '
+    '${localizeDigits('${normalizeBearing(bearing).round()}')}°';

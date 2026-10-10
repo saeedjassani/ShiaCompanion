@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 
+import '../l10n/l10n.dart';
 import 'zikr_audio_track.dart';
 
 /// A reader-made audio playlist: an ordered list of zikrs whose recitations
@@ -46,6 +47,20 @@ class ZikrPlaylist {
 
   final String id;
   final String name;
+
+  /// [name] as shown: a starter playlist the reader has not renamed is
+  /// named in the app language ("Morning" is stored, "صبح" shown); any
+  /// other name is the reader's own.
+  String get displayName {
+    final strings = L10n.current;
+    return switch ((id, name)) {
+      ('default-morning', 'Morning') => strings.playlistDefaultMorning,
+      ('default-thursday', 'Thursday') => strings.playlistDefaultThursday,
+      ('default-friday', 'Friday') => strings.playlistDefaultFriday,
+      _ => name,
+    };
+  }
+
   final List<String> zikrUids;
   final DateTime updatedAt;
 

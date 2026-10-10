@@ -151,7 +151,7 @@ class _VersePositionPickerState extends State<_VersePositionPicker> {
   /// `33:33` lands on that verse, a bare `33` on the surah, `juz 22` on the
   /// juz - each opened in whichever browse mode fits what was typed.
   void _submitQuery(String raw) {
-    final query = raw.trim();
+    final query = asciiDigits(raw.trim());
     if (query.isEmpty) return;
 
     final juzMatch = _juzQueryPattern.firstMatch(query);
@@ -228,8 +228,10 @@ class _VersePositionPickerState extends State<_VersePositionPicker> {
               padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
               child: SegmentedButton<bool>(
                 segments: [
-                  ButtonSegment(value: false, label: Text(context.l10n.trackBySurah)),
-                  ButtonSegment(value: true, label: Text(context.l10n.trackByJuz)),
+                  ButtonSegment(
+                      value: false, label: Text(context.l10n.trackBySurah)),
+                  ButtonSegment(
+                      value: true, label: Text(context.l10n.trackByJuz)),
                 ],
                 selected: {_browseByJuz},
                 onSelectionChanged: (selection) =>
@@ -273,18 +275,19 @@ class _VersePositionPickerState extends State<_VersePositionPicker> {
       final juz = _juzList[unit.number - 1];
       title = context.l10n.quranJuzNumber(unit.number);
       subtitle = context.l10n.pickerJuzRange(
-          context.l10n.quranSurahAyah(
-              _surahName(juz.start.surah), juz.start.ayah ?? 1),
-          context.l10n.quranSurahAyah(
-              _surahName(juz.end.surah), juz.end.ayah ?? 1));
+          context.l10n
+              .quranSurahAyah(_surahName(juz.start.surah), juz.start.ayah ?? 1),
+          context.l10n
+              .quranSurahAyah(_surahName(juz.end.surah), juz.end.ayah ?? 1));
     } else {
       final info = _surahs[unit.number - 1];
-      title = '${info.number}. ${info.displayName}';
+      title = '${localizeDigits('${info.number}')}. ${info.displayName}';
       final firstJuz = juzOf(info.number, 1);
       final lastJuz = juzOf(info.number, info.ayahCount);
       subtitle = context.l10n.pickerSurahDetails(
           context.l10n.quranAyahCount(info.ayahCount),
-          firstJuz == lastJuz ? '$firstJuz' : '$firstJuz–$lastJuz');
+          localizeDigits(
+              firstJuz == lastJuz ? '$firstJuz' : '$firstJuz–$lastJuz'));
     }
 
     return Padding(
@@ -293,7 +296,9 @@ class _VersePositionPickerState extends State<_VersePositionPicker> {
         children: [
           if (unit != null)
             IconButton(
-              tooltip: _browseByJuz ? context.l10n.pickerAllJuz : context.l10n.pickerAllSurahs,
+              tooltip: _browseByJuz
+                  ? context.l10n.pickerAllJuz
+                  : context.l10n.pickerAllSurahs,
               icon: const Icon(Icons.arrow_back),
               onPressed: _closeUnit,
             ),
@@ -423,8 +428,8 @@ class _UnitListState extends State<_UnitList> {
         if (byJuz) {
           final juz = _juzList[index];
           title = context.l10n.quranJuzNumber(juz.number);
-          subtitle = context.l10n.pickerJuzFrom(context.l10n
-              .quranSurahAyah(_surahNameOf(juz.start.surah), juz.start.ayah ?? 1));
+          subtitle = context.l10n.pickerJuzFrom(context.l10n.quranSurahAyah(
+              _surahNameOf(juz.start.surah), juz.start.ayah ?? 1));
         } else {
           final surah = _surahs[index];
           title = surah.displayName;
@@ -564,7 +569,8 @@ class _AyahGridState extends State<_AyahGrid> {
                       child: Row(
                         children: [
                           Text(
-                            '${run.surah}. ${_surahNameOf(run.surah)}',
+                            '${localizeDigits('${run.surah}')}. '
+                            '${_surahNameOf(run.surah)}',
                             style: theme.textTheme.titleSmall?.copyWith(
                               fontWeight: FontWeight.w600,
                             ),
@@ -573,7 +579,8 @@ class _AyahGridState extends State<_AyahGrid> {
                           Text(
                             run.from == run.to
                                 ? context.l10n.pickerAyahSingle(run.from)
-                                : context.l10n.pickerAyahRange(run.from, run.to),
+                                : context.l10n
+                                    .pickerAyahRange(run.from, run.to),
                             style: theme.textTheme.bodySmall?.copyWith(
                               color: colorScheme.onSurfaceVariant,
                             ),

@@ -474,7 +474,7 @@ class _SizeRow extends StatelessWidget {
           SizedBox(
             width: 36,
             child: Text(
-              value.toInt().toString(),
+              localizeDigits('${value.toInt()}', context.l10n),
               textAlign: TextAlign.center,
               style: ShiaText.secondary.copyWith(color: colors.textMuted),
             ),

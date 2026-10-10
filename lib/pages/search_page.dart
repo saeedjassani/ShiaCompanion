@@ -940,7 +940,8 @@ class _GoToVerseCard extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            l10n.searchVerseTitle(name, '$verse'),
+                            l10n.searchVerseTitle(
+                                name, localizeDigits('$verse', l10n)),
                             style: ShiaText.cardTitle.copyWith(
                               fontSize: 18,
                               fontWeight: FontWeight.w700,

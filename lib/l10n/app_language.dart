@@ -15,6 +15,7 @@ class AppLanguage {
     required this.englishName,
     required this.nativeName,
     this.isRtl = false,
+    this.zeroDigit = '0',
     String? formattingLocale,
   }) : _formattingLocale = formattingLocale;
 
@@ -29,6 +30,12 @@ class AppLanguage {
 
   final bool isRtl;
 
+  /// The digit zero as the language writes numbers; the other nine follow
+  /// it in Unicode (٠-٩ in Arabic, ۰-۹ in Persian and Urdu, ૦-૯ in
+  /// Gujarati). intl's own data writes Urdu and Gujarati in 0-9, so the app
+  /// sets this rather than reading it from there.
+  final String zeroDigit;
+
   final String? _formattingLocale;
 
   /// The intl locale dates and numbers are written in - [code] unless the
@@ -37,6 +44,16 @@ class AppLanguage {
   String get formattingLocale => _formattingLocale ?? code;
 
   Locale get locale => Locale(code);
+
+  /// [text] with its digits 0-9 written in this language's digits.
+  String nativeDigits(String text) {
+    final offset = zeroDigit.codeUnitAt(0) - 0x30;
+    if (offset == 0) return text;
+    return String.fromCharCodes([
+      for (final unit in text.codeUnits)
+        unit >= 0x30 && unit <= 0x39 ? unit + offset : unit,
+    ]);
+  }
 
   TextDirection get textDirection =>
       isRtl ? TextDirection.rtl : TextDirection.ltr;
@@ -58,24 +75,28 @@ const List<AppLanguage> appLanguages = [
     englishName: 'Urdu',
     nativeName: 'اردو',
     isRtl: true,
+    zeroDigit: '\u06F0',
   ),
   AppLanguage(
     code: 'fa',
     englishName: 'Persian',
     nativeName: 'فارسی',
     isRtl: true,
+    zeroDigit: '\u06F0',
   ),
   AppLanguage(
     code: 'ar',
     englishName: 'Arabic',
     nativeName: 'العربية',
     isRtl: true,
+    zeroDigit: '\u0660',
     formattingLocale: 'ar_EG',
   ),
   AppLanguage(
     code: 'gu',
     englishName: 'Gujarati',
     nativeName: 'ગુજરાતી',
+    zeroDigit: '\u0AE6',
   ),
 ];
 

@@ -144,8 +144,8 @@ class RecentRecitationsPage extends StatelessWidget {
         ? '${entry.fromAyah}'
         : '${entry.fromAyah}–${entry.toAyah}';
     final verses = entry.versesRecited;
-    return '${_surahName(entry.surah)} $range · '
-        '${L10n.current.statsVerseCount(verses, '$verses')}';
+    return localizeDigits('${_surahName(entry.surah)} $range · '
+        '${L10n.current.statsVerseCount(verses, '$verses')}');
   }
 }
 

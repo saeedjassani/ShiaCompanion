@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -86,11 +87,12 @@ void main() {
 
   group('digits', () {
     test('English keeps 0-9', () {
-      expect(localizeDigits('5:25 am', lookupAppLocalizations(const Locale('en'))), '5:25 am');
+      expect(
+          localizeDigits('5:25 am', lookupAppLocalizations(const Locale('en'))),
+          '5:25 am');
     });
 
-    testWidgets('Arabic writes numbers in Arabic-Indic digits',
-        (tester) async {
+    testWidgets('Arabic writes numbers in Arabic-Indic digits', (tester) async {
       SharedPreferences.setMockInitialValues(
           {LanguageProvider.appLanguagePrefsKey: 'ar'});
       final provider = LanguageProvider();
@@ -109,6 +111,68 @@ void main() {
       expect(L10n.current.calendarDaysAgo(5), contains('٥'));
       expect(DateFormat('d').format(DateTime(2026, 10, 18)), '١٨');
       expect(NumberFormat.decimalPattern().format(1448), '١٬٤٤٨');
+    });
+
+    test('Urdu and Gujarati write their own digits, not intl\'s 0-9', () {
+      final ur = lookupAppLocalizations(const Locale('ur'));
+      final gu = lookupAppLocalizations(const Locale('gu'));
+      expect(localizeDigits('5:25', ur), '۵:۲۵');
+      expect(localizeDigits('5:25', gu), '૫:૨૫');
+      expect(asciiDigits('۳۳:۳۳ ٢ ૧૮'), '33:33 2 18');
+    });
+
+    test('a prayer time gets the language\'s am/pm', () {
+      final en = lookupAppLocalizations(const Locale('en'));
+      final ur = lookupAppLocalizations(const Locale('ur'));
+      final fa = lookupAppLocalizations(const Locale('fa'));
+      expect(localizeClockTime('05:12 pm', en), '05:12 pm');
+      expect(localizeClockTime('05:12 am', ur), '۰۵:۱۲ ${ur.timeAm}');
+      expect(localizeClockTime('7:45 PM', fa), '۷:۴۵ ${fa.timePm}');
+    });
+
+    testWidgets('Urdu dates and numbers come out in Urdu digits and am/pm',
+        (tester) async {
+      SharedPreferences.setMockInitialValues(
+          {LanguageProvider.appLanguagePrefsKey: 'ur'});
+      final provider = LanguageProvider();
+      addTearDown(() async {
+        await provider.setAppLanguage(englishLanguageCode);
+        provider.dispose();
+      });
+      await tester.runAsync(() async {
+        // Past the provider's own load, which would otherwise land after.
+        while (provider.translationLanguages.isEmpty) {
+          await Future<void>.delayed(const Duration(milliseconds: 10));
+        }
+        await provider.setAppLanguage('ur');
+      });
+
+      expect(L10n.current.calendarDaysAgo(5), contains('۵'));
+      expect(DateFormat('h:mm a').format(DateTime(2026, 10, 18, 19, 5)),
+          '۷:۰۵ ${L10n.current.timePm}');
+      expect(NumberFormat.decimalPattern().format(1448), '۱,۴۴۸');
+    });
+
+    testWidgets('Material\'s locale load does not undo the Urdu digits',
+        (tester) async {
+      String? shown;
+      await tester.pumpWidget(MaterialApp(
+        locale: const Locale('ur'),
+        supportedLocales: AppLocalizations.supportedLocales,
+        localizationsDelegates: const [
+          AppLocalizations.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+          IntlSymbolsDelegate(),
+        ],
+        home: Builder(builder: (context) {
+          shown = DateFormat('h:mm a', 'ur').format(DateTime(2026, 1, 1, 5));
+          return const SizedBox();
+        }),
+      ));
+      expect(
+          shown, '۵:۰۰ ${lookupAppLocalizations(const Locale('ur')).timeAm}');
     });
   });
 

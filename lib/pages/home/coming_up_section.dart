@@ -111,20 +111,12 @@ class ComingUpRow extends StatefulWidget {
 }
 
 class _ComingUpRowState extends State<ComingUpRow> {
-  /// Loaded once for the life of the app: events.json never changes under
-  /// a running build.
-  static Future<Map<String, dynamic>>? _events;
-
-  @override
-  void initState() {
-    super.initState();
-    _events ??= CalendarEvents.load();
-  }
-
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<Map<String, dynamic>>(
-      future: _events,
+      // In the language the row is shown in, which can change under it;
+      // CalendarEvents loads each language once.
+      future: CalendarEvents.load(languageCode: context.l10n.localeName),
       builder: (context, snapshot) {
         final now = ComingUpRow.debugNow();
         final islamicDay = islamicDayAt(now);

@@ -105,7 +105,7 @@ class ZikrReminder {
       final hour12 = ((hour + 11) % 12) + 1;
       final suffix = hour >= 12 ? 'PM' : 'AM';
       final minuteLabel = minute.toString().padLeft(2, '0');
-      return '$hour12:$minuteLabel $suffix';
+      return localizeClockTime('$hour12:$minuteLabel $suffix');
     }
 
     final prayer = localizedPrayerName(prayerName);
@@ -158,8 +158,7 @@ class ZikrReminder {
       final rawDays = json['daysOfWeek'];
       if (rawDays is List) {
         for (final rawDay in rawDays) {
-          final day =
-              rawDay is int ? rawDay : int.tryParse(rawDay.toString());
+          final day = rawDay is int ? rawDay : int.tryParse(rawDay.toString());
           if (day != null && day >= DateTime.monday && day <= DateTime.sunday) {
             days.add(day);
           }
