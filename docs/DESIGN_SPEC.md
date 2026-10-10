@@ -153,39 +153,61 @@ Top to bottom, each section hidden when it has nothing to show:
    second ("in 3h 05m 09s"; not read by screen readers). The rest follow
    in one row, in order, with no "next day" marks: what follows is later.
    Once every time shown is tomorrow's, "Up next" reads "Tomorrow". The
-   card's last row is the **next event** (see 5). Tap → Calendar & Prayer
+   card's last row is the **next event** (see 6). Tap → Calendar & Prayer
    Times; long-press → "Prayer times shown" picker (as today). No-location
    state = the round-1 "Which city are you in?" card (time-zone guess, Use
    my location, Choose city), with the event row under it too.
 3. **Continue** — up to 3 cards, newest first: Quran track
    (`RecitationTrackerManager`), dua bookmark (`ZikrBookmarksManager`),
    library chapter (`LibraryProgressStore`). Horizontal scroll on phone.
-4. **Shortcuts** — no heading. Up to 11 user-picked + fixed **All
+4. **Today** — today's recitations (`buildTodaysRecitationGroups`) as a
+   sideways strip of cards, 164 wide so a phone shows two and the edge of
+   a third: the dua, ziyarat, munajat or aamal glyph and the title, nothing
+   saying when - the heading says Today. Only tonight's or today's
+   occasion (the Night of Qadr, 15 Shaban) carries a gold **TONIGHT** or
+   **TODAY** tag beside the glyph. Order (`todayPicks`): all of tonight's and
+   today's occasion; then every dua, ziyarat and munajat of the month,
+   the weekday and every day - what centres recite (Kumayl, Nudba,
+   Ziyarat Warith and Ashura) is never left off; then other aamal and
+   rites only to make six cards. Within an occasion the Duas, Ziyarats and
+   Munajat categories come before entries known by title alone. **See
+   all** → Today's Recitations, shown only when Home leaves some of the
+   day's recitations out. Moves on by itself at Maghrib and
+   midnight; hidden when nothing is for today. Under Continue. On a phone
+   the strip scrolls sideways; from the tablet breakpoint up every card
+   shows at once, in rows as even as can be (ten three to a row are 3, 3,
+   2, 2, so no row has empty slots). Drawn on the first frame: main()
+   loads the zikr index alongside Firebase start-up and restores the Hijri
+   adjustment and location before `runApp`, and the index is loaded once
+   per run, never reset.
+5. **Shortcuts** — no heading. Up to 11 user-picked + fixed **All
    features**, four to a row: two rows for up to 7 picks, a third from 8
    (no rows setting; the grid grows with the picks). Edited from **Edit
    shortcuts** on All features, which opens the editor sheet
    (remove/drag/add, max 11). Stored in prefs
    and synced via `PreferencesSyncService` as one list for every screen
-   size. Defaults on a phone: Duas, Ziyarats, Today's Recitations,
-   Taqibaat, Calendar, Tasbeeh, Qibla (two rows). From the tablet
-   breakpoint up, Qaza Tracker, Playlists, Library and Namaz are added
+   size. Defaults on a phone: Duas, Ziyarats, Taqibaat, Namaz,
+   Calendar, Tasbeeh, Qibla (two rows). Today's Recitations is never a
+   shortcut, Home having Today (a saved pick of it is skipped). From the tablet
+   breakpoint up, Qaza Tracker, Playlists, Library and Aamal are added
    (three rows). Defaults are never synced; the first save replaces them
    on every device. A wide screen at least 900 tall (portrait tablets,
    1080p desktops) has room to spare, so it shows every feature instead:
    the reader's picks first in their order, then the rest in All features
    order, and no All features tile (nothing is left to pick; the order is
    the one saved on a phone or a smaller window).
-5. **Next event** — the prayer card's last row, not a section: the next
+6. **Next event** — the prayer card's last row, not a section: the next
    event from `buildUpcomingCalendarWidgetEvents`, counted from the Islamic
    day in effect. Date box, "In 9 days · 5 Jumada al-Awwal" (or
    "Tomorrow · …"), the title; two events on one day come joined in one
    title. While the event's day is the one in effect the row turns gold
    and says **TODAY**, or **TONIGHT** from Maghrib on its eve. Tap →
    Calendar.
-6. **Hadith of the day** — full text, source, Share button.
-7. **Get the app** — web only: a card with the official App Store and
-   Google Play badges (both, whatever the browser), under the prayer card
-   and Continue from the tablet breakpoint up, last on a phone.
+7. **Hadith of the day** — full text, source, Share button.
+8. **Get the app** — web only: a card with the official App Store and
+   Google Play badges (both, whatever the browser), last on a phone;
+   from the tablet breakpoint up it and the hadith each go under whichever
+   column is shorter (`BalancedColumns`).
 
 ### All features
 One 3-column grid in today's home order (minus Quran and Favorites, which
@@ -502,8 +524,9 @@ Recitations' groups).
 **Dashboards go two columns** at the same 880 (`WideColumns`), most-used
 on the left:
 
-- **Home** — prayer card, Continue · Shortcuts, hadith (from
-  600 already; see Home).
+- **Home** — prayer card, Continue, Today · Shortcuts, with the hadith
+  and Get the app (web) each under the shorter column so the two end
+  level (from 600 already; see Home).
 - **Settings** — the sign-in card, Appearance, Prayer times · Notifications,
   Reading, Offline audio, Support. The version line stays centred under
   both.

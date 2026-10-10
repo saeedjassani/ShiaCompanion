@@ -268,8 +268,8 @@ void main() {
       for (final label in [
         'Duas',
         'Ziyarats',
-        "Today's Recitations",
         'Taqeebat e Namaz',
+        'Namaz',
         'Calendar',
         'Tasbeeh',
         'Qibla',
@@ -286,7 +286,7 @@ void main() {
       await HomeShortcutsStore.instance.save([
         'duas',
         'ziyarats',
-        'today_s_recitations',
+        'namaz',
         'munajaat',
         'calendar_prayer_times',
         'tasbeeh_counter',
@@ -402,8 +402,8 @@ void main() {
       expect(HomeShortcutsStore.instance.ids, [
         'duas',
         'ziyarats',
-        'today_s_recitations',
         'taqeebat_e_namaz',
+        'namaz',
         'calendar_prayer_times',
         'tasbeeh_counter',
         'library',

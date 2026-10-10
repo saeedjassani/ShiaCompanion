@@ -14,6 +14,7 @@ import 'package:shia_companion/pages/setup/first_run_setup_page.dart';
 import 'package:shia_companion/services/audio_download_store.dart';
 import 'package:shia_companion/services/azan_playback_service.dart';
 import 'package:shia_companion/services/first_run_setup.dart';
+import 'package:shia_companion/services/session_refresh_service.dart';
 import 'package:shia_companion/utils/app_text_scale.dart';
 import 'package:shia_companion/utils/language_provider.dart';
 import 'package:shia_companion/utils/theme_mode.dart';
@@ -37,6 +38,9 @@ import 'widgets/audio_download_button.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  // A local asset read, started first so it runs alongside the plugin and
+  // Firebase start-up below: by the first frame Home's Today has it.
+  final zikrIndex = SessionRefreshService.loadItemsFromAssets();
 
   if (kIsWeb) {
     usePathUrlStrategy();
@@ -124,7 +128,9 @@ void main() async {
   // Decided before the first frame, so a fresh install opens straight on
   // setup rather than on Home with setup sliding over it.
   await SP.init();
+  restoreDayPreferences();
   final showFirstRunSetup = await FirstRunSetup.resolveOnLaunch();
+  await zikrIndex;
 
   runApp(MyApp(showFirstRunSetup: showFirstRunSetup));
 }
