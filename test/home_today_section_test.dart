@@ -143,20 +143,20 @@ void main() {
           ),
         );
 
-    testWidgets('shows today\'s recitations as cards, with what each is for',
+    testWidgets('shows today\'s recitations as cards, then See all for more',
         (tester) async {
       items = {
         'L1': 'The Supplication of Sunday',
         'L2': 'Namaz on Sundays',
         'L3': 'Ziyarat on Sunday',
+        'L4': 'Recommended Rites of Sunday',
+        'L5': 'Merits of Sunday',
         'E18': 'Dua Ahad',
         'G4': 'Ziyarat Ashura',
         'Q1': 'The Supplication of Thursday',
       };
       itemMetadata = {
-        'L1': {'day': '*-*-0'},
-        'L2': {'day': '*-*-0'},
-        'L3': {'day': '*-*-0'},
+        for (final uid in ['L1', 'L2', 'L3', 'L4', 'L5']) uid: {'day': '*-*-0'},
         'E18': {'day': '*-*'},
         'G4': {'day': '*-*'},
         'Q1': {'day': '*-*-4'},
@@ -168,15 +168,22 @@ void main() {
 
       expect(find.text('Today'), findsOneWidget);
       // The day's ziyarat and the every-day recitations, then rites to
-      // make up the cards.
-      expect(find.text('Ziyarat on Sunday'), findsOneWidget);
-      expect(find.text('Ziyarat Ashura'), findsOneWidget);
-      expect(find.text('Dua Ahad'), findsOneWidget);
-      expect(find.text('The Supplication of Sunday'), findsOneWidget);
-      expect(find.text('Namaz on Sundays'), findsOneWidget);
-      expect(find.text('For Sunday'), findsNWidgets(3));
-      expect(find.text('Every day'), findsNWidgets(2));
+      // make up six cards; the seventh is left to See all.
+      for (final title in [
+        'Ziyarat on Sunday',
+        'Ziyarat Ashura',
+        'Dua Ahad',
+        'The Supplication of Sunday',
+        'Namaz on Sundays',
+        'Recommended Rites of Sunday',
+      ]) {
+        expect(find.text(title), findsOneWidget, reason: title);
+      }
+      expect(find.text('Merits of Sunday'), findsNothing);
       expect(find.text('The Supplication of Thursday'), findsNothing);
+      // No caption saying when: the heading says Today.
+      expect(find.text('For Sunday'), findsNothing);
+      expect(find.text('Every day'), findsNothing);
       // One strip of cards, in order.
       expect(
         tester.getTopLeft(find.text('Ziyarat on Sunday')).dx,
@@ -185,6 +192,43 @@ void main() {
 
       await tester.tap(find.text('See all'));
       expect(seeAll, 1);
+    });
+
+    testWidgets('has no See all when every recitation is already shown',
+        (tester) async {
+      items = {'L3': 'Ziyarat on Sunday', 'G4': 'Ziyarat Ashura'};
+      itemMetadata = {
+        'L3': {'day': '*-*-0'},
+        'G4': {'day': '*-*'},
+      };
+      zikrIndexReady.value = true;
+
+      await tester.pumpWidget(app());
+
+      expect(find.text('Today'), findsOneWidget);
+      expect(find.text('Ziyarat Ashura'), findsOneWidget);
+      expect(find.text('See all'), findsNothing);
+    });
+
+    testWidgets('tags tonight\'s occasion, and nothing else', (tester) async {
+      // 20:00: without a location the night runs from 16:00.
+      final evening = DateTime(2024, 6, 16, 20);
+      TodaySection.debugNow = () => evening;
+      final night = todaysLunarDays(now: evening).night!.hijri;
+      items = {'Y9': 'Dua of the Night', 'G4': 'Ziyarat Ashura'};
+      itemMetadata = {
+        'Y9': {'day': 'N${night.hMonth}-${night.hDay}'},
+        'G4': {'day': '*-*'},
+      };
+      zikrIndexReady.value = true;
+
+      await tester.pumpWidget(app());
+
+      expect(find.text('TONIGHT'), findsOneWidget);
+      expect(
+        tester.getTopLeft(find.text('Dua of the Night')).dx,
+        lessThan(tester.getTopLeft(find.text('Ziyarat Ashura')).dx),
+      );
     });
 
     testWidgets(

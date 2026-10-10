@@ -152,7 +152,7 @@ class _TodaySectionState extends State<TodaySection> {
   void initState() {
     super.initState();
     _timer = Timer.periodic(const Duration(minutes: 1), (_) {
-      if (mounted && _signature(_rows(context.l10n)) != _shown) {
+      if (mounted && _signature(_today()) != _shown) {
         setState(() {});
       }
     });
@@ -164,18 +164,21 @@ class _TodaySectionState extends State<TodaySection> {
     super.dispose();
   }
 
-  List<(TodayPick, String)> _rows(AppLocalizations l10n) {
-    if (!zikrIndexReady.value) return const [];
-    final now = TodaySection.debugNow();
-    final today = todaysLunarDays(now: now);
-    return [
-      for (final pick in todayPicks(buildTodaysRecitationGroups(now: now)))
-        (pick, todaysRecitationGroupLabel(pick.kind, today, l10n)),
-    ];
+  /// The cards Home shows, and how many of today's recitations there are
+  /// in all - more than the cards when See all has something to add.
+  ({List<TodayPick> picks, int total}) _today() {
+    if (!zikrIndexReady.value) return (picks: const [], total: 0);
+    final groups = buildTodaysRecitationGroups(now: TodaySection.debugNow());
+    return (
+      picks: todayPicks(groups),
+      total: groups.fold(0, (sum, group) => sum + group.items.length),
+    );
   }
 
-  static String _signature(List<(TodayPick, String)> rows) =>
-      rows.map((row) => '${row.$2}\u0000${row.$1.entry.uid}').join('\u0001');
+  static String _signature(({List<TodayPick> picks, int total}) today) => [
+        today.total,
+        for (final pick in today.picks) '${pick.kind.name}:${pick.entry.uid}',
+      ].join(',');
 
   @override
   Widget build(BuildContext context) {
@@ -184,9 +187,12 @@ class _TodaySectionState extends State<TodaySection> {
       listenable: Listenable.merge([zikrIndexReady, LocationService.instance]),
       builder: (context, _) {
         final l10n = context.l10n;
-        final rows = _rows(l10n);
-        _shown = _signature(rows);
+        final today = _today();
+        _shown = _signature(today);
+        final rows = today.picks;
         if (rows.isEmpty) return const SizedBox.shrink();
+        // Only when Home leaves some of today's recitations out.
+        final more = today.total > rows.length;
         final gutter =
             EdgeInsets.symmetric(horizontal: widget.horizontalPadding);
 
@@ -198,9 +204,9 @@ class _TodaySectionState extends State<TodaySection> {
               padding: gutter,
               child: HomeSectionHeader(
                 title: l10n.homeTodayTitle,
-                actionLabel: l10n.homeTodaySeeAll,
+                actionLabel: more ? l10n.homeTodaySeeAll : null,
                 actionSemanticsLabel: l10n.homeTodaySeeAllSemantics,
-                onAction: widget.onSeeAll,
+                onAction: more ? widget.onSeeAll : null,
               ),
             ),
             const SizedBox(height: 10),
@@ -219,8 +225,7 @@ class _TodaySectionState extends State<TodaySection> {
                           if (i > 0) const SizedBox(width: _spacing),
                           SizedBox(
                             width: TodaySection.cardWidth,
-                            child:
-                                _TodayCard(pick: rows[i].$1, when: rows[i].$2),
+                            child: _TodayCard(pick: rows[i]),
                           ),
                         ],
                       ],
@@ -244,7 +249,7 @@ const double _spacing = 10;
 class _TodayGrid extends StatelessWidget {
   const _TodayGrid({required this.rows});
 
-  final List<(TodayPick, String)> rows;
+  final List<TodayPick> rows;
 
   @override
   Widget build(BuildContext context) {
@@ -271,10 +276,7 @@ class _TodayGrid extends StatelessWidget {
                   for (var i = 0; i < sizes[r]; i++) ...[
                     if (i > 0) const SizedBox(width: _spacing),
                     Expanded(
-                      child: _TodayCard(
-                        pick: rows[starts[r] + i].$1,
-                        when: rows[starts[r] + i].$2,
-                      ),
+                      child: _TodayCard(pick: rows[starts[r] + i]),
                     ),
                   ],
                 ],
@@ -297,13 +299,14 @@ List<int> todayGridRowSizes(int count, int rowCount) {
   return [for (var r = 0; r < rowCount; r++) base + (r < extra ? 1 : 0)];
 }
 
+/// One of today's recitations: its glyph and title. Tonight's or today's
+/// occasion (the Night of Qadr, 15 Shaban) also carries a Tonight or Today
+/// tag, the one thing worth saying about when; a weekday's or every day's
+/// says nothing, as the heading already says Today.
 class _TodayCard extends StatelessWidget {
-  const _TodayCard({required this.pick, required this.when});
+  const _TodayCard({required this.pick});
 
   final TodayPick pick;
-
-  /// "For Thursday", "Night of 15 Shaban".
-  final String when;
 
   static HomeGlyphType _glyph(UidTitleData entry) =>
       switch (todayRecitationType(entry)) {
@@ -320,20 +323,31 @@ class _TodayCard extends StatelessWidget {
     final title = splitTrailingArabic(
             UniversalData(entry.uid, entry.title, 0).displayTitle)
         .text;
-    // Tonight's or today's occasion, the one thing the day is about.
-    final occasion = pick.kind == TodaysRecitationKind.night ||
-        pick.kind == TodaysRecitationKind.date;
+    final tag = switch (pick.kind) {
+      TodaysRecitationKind.night => context.l10n.homeEventTonight,
+      TodaysRecitationKind.date => context.l10n.commonToday,
+      _ => null,
+    };
 
     return HomeCard(
       child: InkWell(
         onTap: () => openTodaysRecitation(context, entry,
             source: ZikrOpenSource.homeToday),
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
+          padding: const EdgeInsets.fromLTRB(14, 12, 14, 14),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              HomeGlyph(type: _glyph(entry), size: 22, color: colors.accent),
+              Row(
+                children: [
+                  HomeGlyph(
+                      type: _glyph(entry), size: 22, color: colors.accent),
+                  if (tag != null) ...[
+                    const Spacer(),
+                    _OccasionTag(tag),
+                  ],
+                ],
+              ),
               const SizedBox(height: 8),
               Text(
                 title,
@@ -344,20 +358,38 @@ class _TodayCard extends StatelessWidget {
                   color: colors.text,
                 ),
               ),
-              const Spacer(),
-              const SizedBox(height: 8),
-              Text(
-                when,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: ShiaText.caption.copyWith(
-                  height: 16 / 13,
-                  fontWeight: occasion ? FontWeight.w700 : null,
-                  color: occasion ? colors.accent : colors.textMuted,
-                ),
-              ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+}
+
+/// "TONIGHT", gold as the prayer card's event row is on its day.
+class _OccasionTag extends StatelessWidget {
+  const _OccasionTag(this.text);
+
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = ShiaColors.of(context);
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+      decoration: BoxDecoration(
+        color: colors.gold,
+        borderRadius: BorderRadius.circular(999),
+      ),
+      child: Text(
+        text.toUpperCase(),
+        maxLines: 1,
+        style: ShiaText.caption.copyWith(
+          fontSize: 11,
+          height: 14 / 11,
+          fontWeight: FontWeight.w700,
+          letterSpacing: 0.4,
+          color: colors.onGold,
         ),
       ),
     );
