@@ -139,6 +139,7 @@ void main() {
       expect(foldSearchText('سورۃ البقرہ'), foldSearchText('سورة البقرة'));
       expect(foldSearchText('موسیٰ'), foldSearchText('موسی'));
       expect(foldSearchText('۳۶: سوره یس'), '36: سوره یس');
+      expect(foldSearchText('૧૫ શાબાન'), '15 શાબાન');
       expect(foldSearchText('نماز\u200cها'), 'نماز ها');
     });
 

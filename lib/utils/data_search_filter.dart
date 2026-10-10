@@ -80,7 +80,7 @@ List<UidTitleData> filterDataSearchResults(
 /// Persian - without what people type one way or another: harakat and
 /// Quranic marks, tatweel, hamza seats (أ إ آ -> ا), the Arabic, Persian and
 /// Urdu forms of ya, kaf and ha (ي ى ئ ے -> ی, ك -> ک, ة ۀ ہ ھ -> ه), and
-/// Arabic-Indic and Persian digits. A zero-width non-joiner (Persian
+/// Arabic-Indic, Persian and Gujarati digits. A zero-width non-joiner (Persian
 /// half-space) counts as a space, so "نمازها" and "نماز‌ها" find each other
 /// only where the reader typed the space too - as they would see it.
 String foldSearchText(String text) {
@@ -98,6 +98,8 @@ String foldSearchText(String text) {
       buffer.writeCharCode(0x30 + rune - 0x0660);
     } else if (rune >= 0x06F0 && rune <= 0x06F9) {
       buffer.writeCharCode(0x30 + rune - 0x06F0);
+    } else if (rune >= 0x0AE6 && rune <= 0x0AEF) {
+      buffer.writeCharCode(0x30 + rune - 0x0AE6);
     } else {
       buffer.writeCharCode(_searchFolds[rune] ?? rune);
     }
