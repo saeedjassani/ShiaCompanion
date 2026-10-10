@@ -312,4 +312,10 @@ const Map<String, RetiredZikrRedirect> retiredZikrRedirects = {
   'P14': RetiredZikrRedirect('P1', tabIndex: 8),
   'P15': RetiredZikrRedirect('P1', tabIndex: 8),
   'P16': RetiredZikrRedirect('P1', tabIndex: 9),
+
+  /// R15 carried Ziyarat Ashura Ghair Maroofa (the lesser-known second form of
+  /// ziyarat on the day of Ashura) in the old paragraph mode, with its Arabic
+  /// run together in a few long lines - G83 is the same ziyarat line by line.
+  /// The 'R15|G83' alias keeps it listed under Muharram.
+  'R15': RetiredZikrRedirect('G83'),
 };
