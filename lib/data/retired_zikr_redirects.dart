@@ -35,7 +35,7 @@ const Map<String, RetiredZikrRedirect> retiredZikrRedirects = {
   'I26': RetiredZikrRedirect('I24', tabIndex: 1),
   'E48': RetiredZikrRedirect('I20', tabIndex: 0),
   'I25': RetiredZikrRedirect('I24', tabIndex: 0),
-  'E56': RetiredZikrRedirect('I17', tabIndex: 2),
+  'E56': RetiredZikrRedirect('I17', tabIndex: 1),
   'E106': RetiredZikrRedirect('I9', tabIndex: 2),
   'E151': RetiredZikrRedirect('I21', tabIndex: 1),
   'I16': RetiredZikrRedirect('I14', tabIndex: 0),
@@ -89,24 +89,23 @@ const Map<String, RetiredZikrRedirect> retiredZikrRedirects = {
   /// Caught in the same review sweep: I18's entire content ("Merit of
   /// reciting Bismillah along with La Haula Wa La Quwwata") is word-for-word
   /// already live inside I17 ("Ta'qeebaat of the Dawn (Fajr) Prayers")'s
-  /// second tab, under I17's own "Seventh:" numbered section (Sayyid Ibn
-  /// Tawus / Imam al-Rida narration on the Bismillah+la-hawla doxology).
-  'I18': RetiredZikrRedirect('I17', tabIndex: 1),
+  /// "Tasbih & La Hawla" tab (the Bismillah+la-hawla doxology; the Sayyid
+  /// Ibn Tawus / Imam al-Rida narration is in I17's merits).
+  'I18': RetiredZikrRedirect('I17', tabIndex: 0),
 
   /// E99's entire content ("Dua of Covenant with Almighty Allah") is
-  /// word-for-word already live inside I17's fourth tab, spanning I17's own
-  /// "Eleventh:" and "Twelfth:" numbered sections (the Prophet's morning/
-  /// evening covenant and the post-fajr salutation formula).
-  'E99': RetiredZikrRedirect('I17', tabIndex: 3),
+  /// word-for-word already live inside I17: the Prophet's morning/evening
+  /// covenant is I17's "Dua of the Covenant" tab, and the post-fajr
+  /// salutation formula is the next tab, "Salawat after Fajr".
+  'E99': RetiredZikrRedirect('I17', tabIndex: 2),
 
   /// E40's entire content ("Dua for delaying death (Ajal)") is the same
   /// Prophetic hadith and the same "Subhaanallaahi mil'al meezaan..."
-  /// glorification as I17's second tab, under I17's own "Sixth:" numbered
-  /// section - I17 additionally carries a "wa sa'atal kursiyy" tail and a
-  /// follow-on Alhamdulillah variant that E40 lacks, but it's the same
-  /// narration and the same core dhikr, just under a different numbering
-  /// scheme.
-  'E40': RetiredZikrRedirect('I17', tabIndex: 1),
+  /// glorification as in I17's "Tasbih & La Hawla" tab - I17 additionally
+  /// carries a "wa sa'atal kursiyy" tail and a follow-on Alhamdulillah
+  /// variant that E40 lacks, but it's the same narration and the same core
+  /// dhikr.
+  'E40': RetiredZikrRedirect('I17', tabIndex: 0),
 
   /// Found in a full-corpus duplicate sweep (2026-09-17), unrelated to the
   /// missing-zikr restoration project - these are old, previously-live
@@ -312,6 +311,18 @@ const Map<String, RetiredZikrRedirect> retiredZikrRedirects = {
   'P14': RetiredZikrRedirect('P1', tabIndex: 8),
   'P15': RetiredZikrRedirect('P1', tabIndex: 8),
   'P16': RetiredZikrRedirect('P1', tabIndex: 9),
+
+  /// AC16 only reported Imam al-Hadi's (a.s.) birth on 15 Dhul Hijjah, with
+  /// nothing to recite or do (docs/ZIKR_STRUCTURE.md rule 6).
+  'AC16': RetiredZikrRedirect('AC5'),
+
+  /// AB4 only recounted Imam al-Jawad's (a.s.) martyrdom on the last day of
+  /// Dhul Qa'dah, with nothing to recite or do (rule 6).
+  'AB4': RetiredZikrRedirect('AB1'),
+
+  /// R5 only narrated the siege of Imam Husayn (a.s.) on 9 Muharram (Tasua),
+  /// with nothing to recite or do (rule 6).
+  'R5': RetiredZikrRedirect('R6'),
 
   /// R15 carried Ziyarat Ashura Ghair Maroofa (the lesser-known second form of
   /// ziyarat on the day of Ashura) in the old paragraph mode, with its Arabic

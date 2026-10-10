@@ -678,7 +678,10 @@
   "AB1": {
     "title": "Dhul Qa'dah - Sunday Namaz",
     "slug": "zilqad-sunday-namaz",
-    "day": "11-*-0"
+    "day": "11-*-0",
+    "slugAliases": [
+      "the-last-day-of-zilqad"
+    ]
   },
   "AB2": {
     "title": "11th, 15th & 23rd of Dhul Qa'dah",
@@ -695,14 +698,6 @@
     "day": [
       "N11-25",
       "11-25"
-    ]
-  },
-  "AB4": {
-    "title": "The Last Day of Dhul Qa'dah",
-    "slug": "the-last-day-of-zilqad",
-    "day": [
-      "11-29",
-      "11-30"
     ]
   },
   "AC1": {
@@ -746,12 +741,6 @@
     "order": 15,
     "slug": "the-day-of-eid-al-adha-qurban",
     "day": "12-10"
-  },
-  "AC16": {
-    "title": "The Fifteenth of Dhul Hijjah",
-    "order": 16,
-    "slug": "the-fifteenth-of-zilhajj",
-    "day": "12-15"
   },
   "AC17": {
     "title": "Aamal of the Night of Eid al-Ghadir",
@@ -822,7 +811,8 @@
     "order": 1,
     "slug": "first-ten-days-of-zilhajj",
     "slugAliases": [
-      "zilhajj"
+      "zilhajj",
+      "the-fifteenth-of-zilhajj"
     ],
     "day": [
       "12-01",
@@ -3049,15 +3039,13 @@
     "slug": "the-third-of-moharram",
     "day": "01-03"
   },
-  "R5": {
-    "title": "The Ninth of Muharram",
-    "slug": "the-ninth-of-muharram",
-    "day": "01-09"
-  },
   "R6": {
     "title": "The 10th Night of Muharram",
     "slug": "the-10th-night-of-moharram-shabe-ashura",
-    "day": "N01-10"
+    "day": "N01-10",
+    "slugAliases": [
+      "the-ninth-of-muharram"
+    ]
   },
   "R7": {
     "title": "The 10th of Muharram",
