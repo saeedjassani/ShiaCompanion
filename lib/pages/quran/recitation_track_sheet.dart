@@ -252,7 +252,7 @@ class _RecitationTrackSheetState extends State<_RecitationTrackSheet> {
             ),
             onTap: _pickPosition,
           ),
-          if (canMarkEarlierRead) _buildMarkEarlierReadRow(colors, l10n),
+          if (canMarkEarlierRead) _buildMarkEarlierReadRow(l10n),
         ]),
         const SizedBox(height: 10),
         Padding(
@@ -277,20 +277,13 @@ class _RecitationTrackSheetState extends State<_RecitationTrackSheet> {
 
   /// "Count earlier verses towards progress", under a new track's start: counts what comes
   /// before it towards the Khatm without logging it as recited.
-  Widget _buildMarkEarlierReadRow(ShiaColors colors, AppLocalizations l10n) {
-    void toggle() => setState(() => _markEarlierRead = !_markEarlierRead);
-    return MergeSemantics(
-      child: CardListRow(
-        last: true,
-        title: Text(l10n.trackMarkEarlierRead),
-        subtitle: Text(l10n.trackMarkEarlierReadHint),
-        trailing: Checkbox(
-          value: _markEarlierRead,
-          activeColor: colors.accent,
-          onChanged: (_) => toggle(),
-        ),
-        onTap: toggle,
-      ),
+  Widget _buildMarkEarlierReadRow(AppLocalizations l10n) {
+    return CardSwitchRow(
+      last: true,
+      label: l10n.trackMarkEarlierRead,
+      hint: l10n.trackMarkEarlierReadHint,
+      value: _markEarlierRead,
+      onChanged: (value) => setState(() => _markEarlierRead = value),
     );
   }
 }

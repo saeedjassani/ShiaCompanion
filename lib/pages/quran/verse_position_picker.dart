@@ -288,7 +288,7 @@ class _VersePositionPickerState extends State<_VersePositionPicker> {
     }
 
     return Padding(
-      padding: EdgeInsets.fromLTRB(unit == null ? 20 : 4, 0, 20, 4),
+      padding: EdgeInsetsDirectional.fromSTEB(unit == null ? 20 : 4, 0, 20, 4),
       child: Row(
         children: [
           if (unit != null)

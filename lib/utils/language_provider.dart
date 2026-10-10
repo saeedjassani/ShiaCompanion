@@ -68,25 +68,26 @@ class LanguageProvider extends ChangeNotifier with WidgetsBindingObserver {
 
   String? get translationLanguageChoice => _translationLanguageChoice;
 
-  /// The language the app is actually shown in: the reader's choice if it
-  /// has shipped, otherwise the device's language if that has, otherwise
-  /// English.
-  AppLanguage get appLanguage {
+  /// The language the device is set to, if app text has shipped in it,
+  /// otherwise English: what the app is shown in while the reader has made
+  /// no choice of their own.
+  AppLanguage get deviceLanguage {
     final available = appTextLanguages;
-    AppLanguage? shipped(String? code) {
-      for (final language in available) {
-        if (language.code == code) return language;
-      }
-      return null;
-    }
-
-    final chosen = shipped(_appLanguageChoice);
-    if (chosen != null) return chosen;
     for (final locale in ui.PlatformDispatcher.instance.locales) {
-      final device = shipped(locale.languageCode);
-      if (device != null) return device;
+      for (final language in available) {
+        if (language.code == locale.languageCode) return language;
+      }
     }
     return englishLanguage;
+  }
+
+  /// The language the app is actually shown in: the reader's choice if it
+  /// has shipped, otherwise [deviceLanguage].
+  AppLanguage get appLanguage {
+    for (final language in appTextLanguages) {
+      if (language.code == _appLanguageChoice) return language;
+    }
+    return deviceLanguage;
   }
 
   Locale get locale => appLanguage.locale;
@@ -94,12 +95,18 @@ class LanguageProvider extends ChangeNotifier with WidgetsBindingObserver {
   /// The language zikrs are read in. Outside English, what nobody has
   /// translated into it yet is left out rather than shown in English - the
   /// reader sees the Arabic alone.
-  AppLanguage get translationLanguage {
-    final code = _translationLanguageChoice ?? appLanguage.code;
-    return _translationLanguageCodes.contains(code)
-        ? appLanguageFor(code) ?? englishLanguage
-        : englishLanguage;
-  }
+  AppLanguage get translationLanguage =>
+      _translationLanguageFor(_translationLanguageChoice ?? appLanguage.code);
+
+  /// The translation language a reader who follows the app language gets,
+  /// whatever translation language they have picked at the moment.
+  AppLanguage get appFollowingTranslationLanguage =>
+      _translationLanguageFor(appLanguage.code);
+
+  AppLanguage _translationLanguageFor(String code) =>
+      _translationLanguageCodes.contains(code)
+          ? appLanguageFor(code) ?? englishLanguage
+          : englishLanguage;
 
   Future<void> _load() async {
     await SP.init();
