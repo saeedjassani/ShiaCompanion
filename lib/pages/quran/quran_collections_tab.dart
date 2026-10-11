@@ -108,9 +108,14 @@ class QuranCollectionsSliver extends StatelessWidget {
       case QuranCollection.duas:
         return _quranDuaSlivers(context, onOpenVerse);
       case QuranCollection.imamAli:
-        return [_notedVerseSliver(quranAliVerses, onOpenVerse)];
+        return [
+          _notedVerseSliver(quranAliVerses.keys, aliRelatedNoteFor, onOpenVerse)
+        ];
       case QuranCollection.imamMahdi:
-        return [_notedVerseSliver(quranMahdiVerses, onOpenVerse)];
+        return [
+          _notedVerseSliver(
+              quranMahdiVerses.keys, mahdiRelatedNoteFor, onOpenVerse)
+        ];
       case QuranCollection.prophets:
         return _prophetStorySlivers(onOpenVerse);
       case QuranCollection.saved:
@@ -132,9 +137,14 @@ String _verseTitle(VerseKey verse) {
 /// Ayat al Kursi and the duas recited with the Quran - the non-surah zikrs of
 /// the Quran category, opened like any other zikr - followed by the duas the
 /// Quran itself contains ([quranDuas]), opened in the reader at their ayah.
+///
+/// Outside English a dua goes by its Arabic opening words rather than their
+/// transliteration, which the app shows no one but English readers.
 List<Widget> _quranDuaSlivers(
     BuildContext context, void Function(VerseKey verse) onOpenVerse) {
   final uids = quranCompanionZikrUids();
+  final arabicOpenings = context.l10n.localeName != 'en';
+  final colors = ShiaColors.of(context);
   return [
     if (uids.isNotEmpty) ...[
       SliverCardList(
@@ -175,8 +185,19 @@ List<Widget> _quranDuaSlivers(
         return CardListRow(
           first: index == 0,
           last: index == quranDuas.length - 1,
-          title: Text(dua.opening),
-          subtitle: Text('$reference · ${dua.note}'),
+          title: arabicOpenings
+              ? Text(
+                  dua.arabic,
+                  style: TextStyle(
+                    fontFamily: arabicFont,
+                    fontFamilyFallback: const ['Qalam'],
+                    fontSize: 20,
+                    height: 1.7,
+                    color: colors.text,
+                  ),
+                )
+              : Text(dua.opening),
+          subtitle: Text('$reference · ${dua.displayNote}'),
           onTap: () => onOpenVerse(dua.verse),
         );
       },
@@ -186,10 +207,13 @@ List<Widget> _quranDuaSlivers(
 
 /// A curated verse collection - the verses about Imam Ali (a.s.)
 /// ([quranAliVerses]) or Imam al-Mahdi (a.t.f.s.) ([quranMahdiVerses]) - in
-/// mushaf order, each with the note it is known by.
+/// mushaf order, each with the note it is known by, in the app language
+/// ([noteFor]).
 Widget _notedVerseSliver(
-    Map<VerseKey, String> notes, void Function(VerseKey verse) onOpen) {
-  final verses = notes.keys.toList()
+    Iterable<VerseKey> keys,
+    String? Function(VerseKey verse) noteFor,
+    void Function(VerseKey verse) onOpen) {
+  final verses = keys.toList()
     ..sort((a, b) => a.surah != b.surah
         ? a.surah.compareTo(b.surah)
         : (a.ayah ?? 0).compareTo(b.ayah ?? 0));
@@ -202,7 +226,7 @@ Widget _notedVerseSliver(
         first: index == 0,
         last: index == verses.length - 1,
         title: Text(_verseTitle(verse)),
-        subtitle: Text(notes[verse]!),
+        subtitle: Text(noteFor(verse)!),
         onTap: () => onOpen(verse),
       );
     },
@@ -223,7 +247,7 @@ List<Widget> _prophetStorySlivers(void Function(VerseKey verse) onOpen) {
         child: Padding(
           padding: EdgeInsets.only(
               top: entry.key == groups.keys.first ? 0 : 20, bottom: 8),
-          child: GroupLabel(entry.key, upperCase: false),
+          child: GroupLabel(entry.value.first.displayProphet, upperCase: false),
         ),
       ),
       SliverCardList(
@@ -237,7 +261,7 @@ List<Widget> _prophetStorySlivers(void Function(VerseKey verse) onOpen) {
           return CardListRow(
             first: index == 0,
             last: index == entry.value.length - 1,
-            title: Text(story.title),
+            title: Text(story.displayTitle),
             subtitle: Text(reference),
             onTap: () => onOpen(story.verse),
           );

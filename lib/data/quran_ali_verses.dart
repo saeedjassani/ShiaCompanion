@@ -1,4 +1,5 @@
 import '../utils/quran_index.dart';
+import 'quran_collections_i18n.dart';
 
 /// Verses widely cited in Shia tafsir as revealed about, or referring to,
 /// Imam Ali (a.s.) — alone or as part of Ahl al-Bayt.
@@ -147,5 +148,9 @@ final Map<VerseKey, String> quranAliVerses = {
 };
 
 /// The short note for [verse], or null when it is not one of the verses
-/// curated above.
-String? aliRelatedNoteFor(VerseKey verse) => quranAliVerses[verse];
+/// curated above. In the app language; the map itself holds the English.
+String? aliRelatedNoteFor(VerseKey verse) {
+  final note = quranAliVerses[verse];
+  if (note == null) return null;
+  return quranCollectionsText()?.imamAli['$verse'] ?? note;
+}

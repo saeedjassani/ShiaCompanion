@@ -1,4 +1,5 @@
 import '../utils/quran_index.dart';
+import 'quran_collections_i18n.dart';
 
 /// One episode of a prophet's story as the Quran tells it.
 class QuranStory {
@@ -15,6 +16,14 @@ class QuranStory {
 
   /// The ayah it ends on, in the same surah.
   final int endAyah;
+
+  /// [prophet] in the app language. [prophet] stays the English it is
+  /// grouped by.
+  String get displayProphet =>
+      quranCollectionsText()?.prophets[prophet] ?? prophet;
+
+  /// [title] in the app language.
+  String get displayTitle => quranCollectionsText()?.stories['$verse'] ?? title;
 }
 
 /// The stories of the prophets, grouped by prophet in the order they lived
