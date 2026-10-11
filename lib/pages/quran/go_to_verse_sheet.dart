@@ -70,7 +70,7 @@ class GoToVersePicker extends StatefulWidget {
   final bool inDialog;
 
   /// The four surahs most often opened at a verse, offered before typing.
-  static const List<int> quickPicks = [36, 18, 55, 67];
+  static const List<int> quickPicks = [36, 56, 55, 67];
 
   @override
   State<GoToVersePicker> createState() => _GoToVersePickerState();
