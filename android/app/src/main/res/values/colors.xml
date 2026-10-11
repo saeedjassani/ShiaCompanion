@@ -2,19 +2,24 @@
 <resources>
     <!-- The single source of truth for the widget palette. The Glance widgets,
          the shape drawables and the picker previews all read these, so the
-         launcher can resolve -night itself instead of us baking colours in. -->
-    <color name="widget_surface">#FF6D4C41</color>
-    <color name="widget_icon_badge">#33FFC857</color>
-    <color name="widget_primary_text">#FFFFF8F1</color>
-    <color name="widget_body_text">#FFF7E4D3</color>
-    <color name="widget_secondary_text">#FFE4C7B3</color>
-    <color name="widget_accent">#FFFFC857</color>
-    <color name="widget_highlight">#29FFC857</color>
-    <color name="widget_divider">#2EFFF8F1</color>
+         launcher can resolve -night itself instead of us baking colours in.
+         The values are the prayer card's tokens from docs/DESIGN_SPEC.md;
+         body text sits halfway between onPrayerCard and its muted tone. -->
+    <color name="widget_surface">#FF4A3426</color>
+    <!-- Matches the prayer card (docs/DESIGN_SPEC.md, "Colour tokens"):
+         no border in light mode, a 1 px one in dark. -->
+    <color name="widget_border">#00000000</color>
+    <color name="widget_icon_badge">#33E4C27A</color>
+    <color name="widget_primary_text">#FFFBF6EE</color>
+    <color name="widget_body_text">#FFEAE0D3</color>
+    <color name="widget_secondary_text">#FFD9CBB8</color>
+    <color name="widget_accent">#FFE4C27A</color>
+    <color name="widget_highlight">#29E4C27A</color>
+    <color name="widget_divider">#2EFBF6EE</color>
     <!-- Event markers on the Islamic calendar widget. events.json codes an
          event 1 for joy (green, as on the Calendar page) or 0 for mourning.
          The page's black would vanish on the widget's brown, so mourning is
          a cool silver here, apart from the warm text around it. -->
-    <color name="widget_event_joy">#FF9CD9A0</color>
-    <color name="widget_event_mourning">#FFD3D6DB</color>
+    <color name="widget_event_joy">#FF7FBF95</color>
+    <color name="widget_event_mourning">#FFC5C8CE</color>
 </resources>
