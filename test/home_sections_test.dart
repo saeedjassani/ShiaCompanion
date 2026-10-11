@@ -268,7 +268,7 @@ void main() {
       for (final label in [
         'Duas',
         'Ziyarats',
-        'Taqeebat e Namaz',
+        'Taqibaat',
         'My Stats',
         'Calendar',
         'Tasbeeh',
@@ -320,7 +320,7 @@ void main() {
       )));
 
       for (final label in [
-        'Qaza Tracker',
+        'Qaza',
         'Playlists',
         'Library',
         'My Stats'
@@ -467,7 +467,8 @@ void main() {
       expect(find.text('Favorites'), findsNothing);
       // Every feature on the page, so none is lost with the old grid.
       for (final item in allFeaturesMenuItems) {
-        expect(find.text(item.label), findsOneWidget, reason: item.label);
+        expect(find.text(item.shortLabel), findsOneWidget,
+            reason: item.shortLabel);
       }
     });
   });

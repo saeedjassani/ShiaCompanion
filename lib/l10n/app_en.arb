@@ -1962,6 +1962,30 @@
   "@menuTasbeehShort": {
     "description": "Short name of Tasbeeh Counter, for a Home shortcut tile."
   },
+  "menuTodaysRecitationsShort": "Today",
+  "@menuTodaysRecitationsShort": {
+    "description": "Short name of Today's Recitations, for a Home or All features tile."
+  },
+  "menuTaqeebatShort": "Taqibaat",
+  "@menuTaqeebatShort": {
+    "description": "Short name of Taqeebat e Namaz, for a Home or All features tile."
+  },
+  "menuBaaqeyaatShort": "Baqiyat",
+  "@menuBaaqeyaatShort": {
+    "description": "Short name of Baaqeyaat As Saalehaat, for a Home or All features tile."
+  },
+  "menuQazaShort": "Qaza",
+  "@menuQazaShort": {
+    "description": "Short name of Qaza Tracker, for a Home or All features tile."
+  },
+  "menuRakaatShort": "Rakaat",
+  "@menuRakaatShort": {
+    "description": "Short name of Rakaat Counter, for a Home or All features tile."
+  },
+  "menuFlightShort": "Flights",
+  "@menuFlightShort": {
+    "description": "Short name of Prayer Times in Flight, for a Home or All features tile."
+  },
   "homeAllFeatures": "All features",
   "@homeAllFeatures": {
     "description": "The tile, page and editor row that lists every feature of the app."

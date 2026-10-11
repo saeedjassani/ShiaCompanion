@@ -52,8 +52,9 @@ class HomeMenuItem {
 
   final String? _shortLabel;
 
-  /// What a Home shortcut calls this item, where a quarter of a phone's width
-  /// has no room for [label]: "Calendar", not "Calendar & Prayer Times".
+  /// What a Home shortcut and the All features grid call this item, on one
+  /// line where a quarter of a phone's width has no room for [label]:
+  /// "Calendar", not "Calendar & Prayer Times".
   String get shortLabel => _shortLabel ?? label;
 
   /// The key this feature's counter is recorded under (`home_menu_<id>`).
@@ -142,6 +143,7 @@ final HomeMenuItem calendarMenuItem = HomeMenuItem(
 /// See all leads.
 final HomeMenuItem todaysRecitationsMenuItem = HomeMenuItem(
   label: "Today's Recitations",
+  shortLabel: 'Today',
   analyticsId: 'today_s_recitations',
   glyphType: HomeGlyphType.todaysRecitations,
   icon: Icons.auto_stories_rounded,
@@ -153,6 +155,7 @@ final List<HomeMenuItem> homeMenuItems = List.unmodifiable([
   todaysRecitationsMenuItem,
   HomeMenuItem(
     label: 'Taqeebat e Namaz',
+  shortLabel: 'Taqibaat',
     analyticsId: 'taqeebat_e_namaz',
     glyphType: HomeGlyphType.taqeebat,
     icon: Icons.bookmarks_rounded,
@@ -204,6 +207,7 @@ final List<HomeMenuItem> homeMenuItems = List.unmodifiable([
   ),
   HomeMenuItem(
     label: 'Baaqeyaat As Saalehaat',
+  shortLabel: 'Baqiyat',
     analyticsId: 'baaqeyaat_as_saalehaat',
     glyphType: HomeGlyphType.baqeyaat,
     icon: Icons.history_edu_rounded,
@@ -229,6 +233,7 @@ final List<HomeMenuItem> homeMenuItems = List.unmodifiable([
   ),
   HomeMenuItem(
     label: 'Qaza Tracker',
+  shortLabel: 'Qaza',
     analyticsId: 'qaza_tracker',
     outlineGlyph: OutlineGlyph.calendarCheck,
     icon: Icons.event_repeat_rounded,
@@ -237,6 +242,7 @@ final List<HomeMenuItem> homeMenuItems = List.unmodifiable([
   if (supportsPrayerCounterOnCurrentPlatform)
     HomeMenuItem(
       label: 'Rakaat Counter',
+  shortLabel: 'Rakaat',
       analyticsId: 'rakaat_counter',
       glyphType: HomeGlyphType.rakaat,
       icon: Icons.touch_app_rounded,
@@ -244,6 +250,7 @@ final List<HomeMenuItem> homeMenuItems = List.unmodifiable([
     ),
   HomeMenuItem(
     label: 'Prayer Times in Flight',
+  shortLabel: 'Flights',
     analyticsId: 'prayer_times_in_flight',
     outlineGlyph: OutlineGlyph.plane,
     icon: Icons.flight_takeoff_rounded,
@@ -454,6 +461,12 @@ String homeMenuDisplayLabel(String label) {
     'Qibla' => L10n.current.menuQiblaShort,
     'Tasbeeh Counter' => L10n.current.menuTasbeehCounter,
     'Tasbeeh' => L10n.current.menuTasbeehShort,
+    'Today' => L10n.current.menuTodaysRecitationsShort,
+    'Taqibaat' => L10n.current.menuTaqeebatShort,
+    'Baqiyat' => L10n.current.menuBaaqeyaatShort,
+    'Qaza' => L10n.current.menuQazaShort,
+    'Rakaat' => L10n.current.menuRakaatShort,
+    'Flights' => L10n.current.menuFlightShort,
     'Qaza Tracker' => L10n.current.menuQazaTracker,
     'Rakaat Counter' => L10n.current.menuRakaatCounter,
     'Prayer Times in Flight' => L10n.current.menuPrayerTimesInFlight,

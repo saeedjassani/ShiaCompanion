@@ -135,7 +135,7 @@ class _FeatureGrid extends StatelessWidget {
                             ? Padding(
                                 padding: const EdgeInsets.all(2),
                                 child: ShortcutTile(
-                                  label: features[i].displayLabel,
+                                  label: features[i].displayShortLabel,
                                   tileSize: 54,
                                   onHome:
                                       onHome.contains(features[i].analyticsId),

@@ -63,8 +63,8 @@ class ShortcutsSection extends StatelessWidget {
           child: Column(
             children: [
               for (var start = 0; start < tiles.length; start += 4)
-                // Each row as tall as its tallest label, so a two-line
-                // label never leaves its neighbours' tap areas short.
+                // Each row as tall as its tallest tile, so no tile's tap
+                // area comes up short of its neighbours'.
                 IntrinsicHeight(
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -87,7 +87,7 @@ class ShortcutsSection extends StatelessWidget {
 }
 
 /// A feature on Home or on the All features page: its glyph on a well, and
-/// its name underneath, wrapping to two lines rather than truncating.
+/// its name underneath on one line.
 class ShortcutTile extends StatelessWidget {
   const ShortcutTile({
     super.key,
@@ -152,14 +152,19 @@ class ShortcutTile extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: 6),
-              Text(
-                label,
-                textAlign: TextAlign.center,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                style: (labelStyle ?? ShiaText.caption).copyWith(
-                  fontWeight: filled ? FontWeight.w600 : FontWeight.w500,
-                  color: colors.text,
+              // One line, shrunk rather than wrapped or cut if a language's
+              // name (or a large text size) is wider than the tile.
+              FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Text(
+                  label,
+                  textAlign: TextAlign.center,
+                  maxLines: 1,
+                  softWrap: false,
+                  style: (labelStyle ?? ShiaText.caption).copyWith(
+                    fontWeight: filled ? FontWeight.w600 : FontWeight.w500,
+                    color: colors.text,
+                  ),
                 ),
               ),
             ],
