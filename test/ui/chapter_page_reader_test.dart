@@ -348,7 +348,7 @@ void main() {
     // which can only have moved further into a chapter that now runs longer.
     // The reader has no size buttons of its own: the app's Text size (or the
     // system's) is what changes it.
-    tester.platformDispatcher.textScaleFactorTestValue = 1.15;
+    tester.platformDispatcher.textScaleFactorTestValue = 1.5;
     addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
     await tester.pumpAndSettle();
 

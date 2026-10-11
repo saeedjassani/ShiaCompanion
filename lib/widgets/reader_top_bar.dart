@@ -62,6 +62,10 @@ class ReaderTopBar extends StatelessWidget {
   /// Height of the progress line.
   static const double progressLineHeight = 3;
 
+  /// The largest text scale the title and sub-line take, so both lines stay
+  /// inside [barHeight].
+  static const double maxTextScale = 1.15;
+
   final String title;
 
   /// Usually a [Text]; styled here.
@@ -96,41 +100,49 @@ class ReaderTopBar extends StatelessWidget {
                   const PageBackButton(),
                   const SizedBox(width: 8),
                   Expanded(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Semantics(
-                          header: true,
-                          // Qalam only on Arabic runs: in the whole line's
-                          // fallback it drew the English ("2: Al-Baqarah")
-                          // too wherever the UI font is not registered.
-                          child: Text.rich(
-                            TextSpan(
-                              children: arabicRunSpans(shownTitle) ??
-                                  [TextSpan(text: shownTitle)],
-                            ),
-                            semanticsLabel: title,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            textAlign: TextAlign.center,
-                            style: ShiaText.cardTitle.copyWith(
-                              color: colors.text,
+                    // The bar's height is fixed (the page pads its text by
+                    // [barHeight]), and the title and sub-line fill it at
+                    // about 117%: past that the app's or the system's text
+                    // size would push them out of it. The text on the page
+                    // takes the full size.
+                    child: MediaQuery.withClampedTextScaling(
+                      maxScaleFactor: maxTextScale,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Semantics(
+                            header: true,
+                            // Qalam only on Arabic runs: in the whole line's
+                            // fallback it drew the English ("2: Al-Baqarah")
+                            // too wherever the UI font is not registered.
+                            child: Text.rich(
+                              TextSpan(
+                                children: arabicRunSpans(shownTitle) ??
+                                    [TextSpan(text: shownTitle)],
+                              ),
+                              semanticsLabel: title,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              textAlign: TextAlign.center,
+                              style: ShiaText.cardTitle.copyWith(
+                                color: colors.text,
+                              ),
                             ),
                           ),
-                        ),
-                        if (subtitle != null)
-                          DefaultTextStyle.merge(
-                            style: ShiaText.caption.copyWith(
-                              fontSize: 12,
-                              height: 16 / 12,
-                              color: colors.textMuted,
+                          if (subtitle != null)
+                            DefaultTextStyle.merge(
+                              style: ShiaText.caption.copyWith(
+                                fontSize: 12,
+                                height: 16 / 12,
+                                color: colors.textMuted,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              textAlign: TextAlign.center,
+                              child: subtitle!,
                             ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            textAlign: TextAlign.center,
-                            child: subtitle!,
-                          ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
                   const SizedBox(width: 8),
