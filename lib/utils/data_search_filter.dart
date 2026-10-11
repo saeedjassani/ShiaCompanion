@@ -33,6 +33,7 @@ List<UidTitleData> filterDataSearchResults(
     return const [];
   }
   final slugQuery = normalizeSlug(normalizedQuery);
+  final joinedQuery = _joinHyphenated(normalizedQuery);
 
   bool matchesSlug(UidTitleData entry) =>
       slugsFor != null &&
@@ -52,6 +53,9 @@ List<UidTitleData> filterDataSearchResults(
         (entry) =>
             !entry.uid.contains('|') &&
             (entry.title.toLowerCase().contains(normalizedQuery) ||
+                (joinedQuery.isNotEmpty &&
+                    _joinHyphenated(entry.title.toLowerCase())
+                        .contains(joinedQuery)) ||
                 (entry.author?.toLowerCase().contains(normalizedQuery) ??
                     false) ||
                 matchesSlug(entry) ||
@@ -61,7 +65,11 @@ List<UidTitleData> filterDataSearchResults(
       )
       .toList();
   int rankOf(UidTitleData entry) {
-    final english = searchMatchRank(entry.title, normalizedQuery);
+    var english = searchMatchRank(entry.title, normalizedQuery);
+    if (joinedQuery.isNotEmpty) {
+      english = min(
+          english, searchMatchRank(_joinHyphenated(entry.title), joinedQuery));
+    }
     final translated = foldedTranslatedTitle(entry);
     if (translated == null) return english;
     return min(english, searchMatchRank(translated, normalizedQuery));
@@ -75,6 +83,11 @@ List<UidTitleData> filterDataSearchResults(
   ranked.sort((a, b) => a.rank != b.rank ? a.rank - b.rank : a.index - b.index);
   return [for (final r in ranked) matches[r.index]];
 }
+
+/// [text] without hyphens and apostrophes, so "yasin" finds "36: Ya-Sin" and
+/// "ya-sin" finds it too.
+String _joinHyphenated(String text) =>
+    text.replaceAll(RegExp(r"[-'\u2019\u02BC`]"), '');
 
 /// [text] as search compares it: lowercased, and - for Arabic, Urdu and
 /// Persian - without what people type one way or another: harakat and

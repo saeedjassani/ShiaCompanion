@@ -26,6 +26,19 @@ void main() {
     expect(filterDataSearchResults(entries, 'al-'), [entries[3]]);
   });
 
+  test('matches across hyphens, ranking the title that starts with it first',
+      () {
+    final hyphenated = [
+      UidTitleData('G1', 'Ziyarat Aal-e-Yasin'),
+      UidTitleData('A40', '36: Ya-Sin يس'),
+    ];
+
+    expect(filterDataSearchResults(hyphenated, 'Yasin').map((e) => e.uid),
+        ['A40', 'G1']);
+    expect(filterDataSearchResults(hyphenated, 'ya-sin').map((e) => e.uid),
+        ['A40', 'G1']);
+  });
+
   test('ignores uid by default, even when the query matches one', () {
     expect(filterDataSearchResults(entries, 'g4'), isEmpty);
   });
