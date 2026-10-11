@@ -3350,15 +3350,6 @@
   "@statsActiveDays": {
     "description": "Label of the My Stats tile counting the days on which anything was recited."
   },
-  "statsThisWeek": "{count} this week",
-  "@statsThisWeek": {
-    "description": "Under a My Stats tile: how much of the total fell in the last 7 days, e.g. '12 this week'.",
-    "placeholders": {
-      "count": {
-        "type": "String"
-      }
-    }
-  },
   "statsHistoryChart": "{metric} each day: {values}",
   "@statsHistoryChart": {
     "description": "Screen-reader label of the history chart. {values} lists each bar: 'Sunday 3, Monday 2'.",

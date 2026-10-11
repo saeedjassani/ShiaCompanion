@@ -44,8 +44,8 @@ void main() {
       await t.pumpWidget(
           _host(ReaderTopBar(title: 'Dua Kumayl', progress: progress)));
       expect(find.byType(ReaderProgressLine), findsOneWidget);
-      expect(t.getSize(find.byType(ReaderTopBar)).height,
-          ReaderTopBar.barHeight);
+      expect(
+          t.getSize(find.byType(ReaderTopBar)).height, ReaderTopBar.barHeight);
     });
   });
 

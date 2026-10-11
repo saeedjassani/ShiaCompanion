@@ -1047,7 +1047,6 @@
   "statsBestMonthShort": "أفضل شهر: {month}",
   "statsTotalCaption": "{total} {caption}",
   "statsActiveDays": "أيام النشاط",
-  "statsThisWeek": "{count} هذا الأسبوع",
   "statsHistoryChart": "{metric} كل يوم: {values}",
   "remindersTitle": "تذكيرات الأذكار",
   "remindersSubtitle": "إشعار في الأيام التي تختارها، في وقت محدد أو حول وقت صلاة.",

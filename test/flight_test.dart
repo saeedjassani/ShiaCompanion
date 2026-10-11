@@ -177,8 +177,8 @@ void main() {
 
     test('flags an overnight flight recorded as landing the same day', () {
       // The classic data-entry mistake: arrival date left on the departure day.
-      final flight = _sfoToIstanbul()
-          .copyWith(arrivalLocal: DateTime(2026, 7, 30, 19, 5));
+      final flight =
+          _sfoToIstanbul().copyWith(arrivalLocal: DateTime(2026, 7, 30, 19, 5));
       final resolved = ResolvedFlight.resolve(flight)!;
 
       expect(resolved.duration.isNegative, isTrue);

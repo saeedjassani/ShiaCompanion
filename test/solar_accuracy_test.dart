@@ -44,7 +44,8 @@ class _ReferenceRow {
   /// Null where the sun never reaches the angle on that day.
   final DateTime? referenceUtc;
 
-  String get label => '$place ${date.toIso8601String().substring(0, 10)} $event';
+  String get label =>
+      '$place ${date.toIso8601String().substring(0, 10)} $event';
 }
 
 List<_ReferenceRow> _loadReference() {
@@ -223,9 +224,7 @@ void main() {
     // At the polar peak there is no night at all, so even the rule gives up
     // rather than inventing a time.
     final polarFajr = reference.firstWhere((row) =>
-        row.place == 'RoutePeak' &&
-        row.event == 'Fajr' &&
-        row.date.month == 7);
+        row.place == 'RoutePeak' && row.event == 'Fajr' && row.date.month == 7);
     expect(_computed(appDefault, polarFajr), isNull);
   });
 }

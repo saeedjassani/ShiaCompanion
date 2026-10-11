@@ -44,8 +44,7 @@ void main() {
     expect(day.day.hijri.hDay, hijriDayOf(tomorrow));
   });
 
-  test('without a location the date turns at midnight and is never an eve',
-      () {
+  test('without a location the date turns at midnight and is never an eve', () {
     for (final hour in [2, 12, 21, 23]) {
       final day = at(today.add(Duration(hours: hour)), located: false);
       expect(day.isEve, isFalse, reason: '$hour:00');

@@ -68,12 +68,10 @@ void main() {
     expect(find.text('YOUR MOST RECITED'), findsOneWidget);
     expect(find.text('Milestones'), findsNothing);
     expect(find.text('Recent sessions'), findsNothing);
-    // Lifetime totals as tiles: 7 + 141 + 19 verses over three days, and
-    // all of it within the week.
+    // Lifetime totals as tiles: 7 + 141 + 19 verses over three days.
     expect(find.text('Active days'), findsOneWidget);
     expect(find.text('167'), findsOneWidget);
-    expect(find.text('167 this week'), findsOneWidget);
-    expect(find.text('3 this week'), findsOneWidget);
+    expect(find.textContaining('this week'), findsNothing);
     expect(find.text('Sessions'), findsNothing);
     // Your most recited counts plainly: "1", not "once".
     expect(find.text('once'), findsNothing);

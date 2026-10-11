@@ -31,7 +31,10 @@ void main() {
 
     test('marks the end of each phrase', () {
       expect(
-        [for (var i = 1; i <= 100; i++) if (ZahraProgress.isTarget(i)) i],
+        [
+          for (var i = 1; i <= 100; i++)
+            if (ZahraProgress.isTarget(i)) i
+        ],
         [34, 67, 100],
       );
     });
@@ -72,8 +75,7 @@ void main() {
           reason: 'saved on every count, not only on leaving');
     });
 
-    testWidgets('completes at 100, and a tap starts it again',
-        (tester) async {
+    testWidgets('completes at 100, and a tap starts it again', (tester) async {
       await _pump(tester, {TasbeehPage.zahraCountKey: 99});
 
       await _tapPanel(tester, 1);
@@ -150,8 +152,8 @@ void main() {
 
       await tester.enterText(find.byType(TextField).first, '33');
       await tester.pump();
-      expect(SP.prefs.getStringList(TasbeehPage.targetsKey),
-          ['33', '200', '300']);
+      expect(
+          SP.prefs.getStringList(TasbeehPage.targetsKey), ['33', '200', '300']);
 
       await tester.tap(find.text('Done'));
       await tester.pumpAndSettle();

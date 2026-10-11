@@ -1047,7 +1047,6 @@
   "statsBestMonthShort": "શ્રેષ્ઠ મહિનો: {month}",
   "statsTotalCaption": "{total} {caption}",
   "statsActiveDays": "સક્રિય દિવસ",
-  "statsThisWeek": "આ અઠવાડિયે {count}",
   "statsHistoryChart": "દરરોજ {metric}: {values}",
   "remindersTitle": "ઝિક્ર રિમાઇન્ડર્સ",
   "remindersSubtitle": "તમે પસંદ કરેલા દિવસોએ, નિશ્ચિત સમયે કે નમાઝના સમયની આસપાસ એક સૂચના.",

@@ -47,8 +47,8 @@ void main() {
 
         // Convert the solved UTC instant back into Makkah local time.
         final local = instant!.add(const Duration(hours: 3));
-        final expected = dateTimeForTime24(DateTime.utc(2024, 6, 16),
-            stationary[index])!;
+        final expected =
+            dateTimeForTime24(DateTime.utc(2024, 6, 16), stationary[index])!;
         expect(
           local.difference(expected).inMinutes.abs(),
           lessThanOrEqualTo(1),
@@ -184,8 +184,8 @@ void main() {
     test('climbs, cruises, and descends', () {
       expect(altitudeFeetAt(elapsed: Duration.zero, total: total), 0);
       expect(
-        altitudeFeetAt(elapsed: const Duration(minutes: 12, seconds: 30),
-            total: total),
+        altitudeFeetAt(
+            elapsed: const Duration(minutes: 12, seconds: 30), total: total),
         closeTo(19000, 1),
       );
       expect(
@@ -210,8 +210,8 @@ void main() {
     test('scales both phases down on a hop too short for them', () {
       // A 40 minute flight cannot fit a 25 minute climb and 30 minute descent.
       const short = Duration(minutes: 40);
-      final peak = altitudeFeetAt(
-          elapsed: const Duration(minutes: 20), total: short);
+      final peak =
+          altitudeFeetAt(elapsed: const Duration(minutes: 20), total: short);
       expect(peak, closeTo(38000, 1));
       for (var minute = 0; minute <= 40; minute++) {
         expect(
@@ -360,8 +360,8 @@ void main() {
       }
 
       for (var i = 1; i < events.length; i++) {
-        expect(events[i].instantUtc!.isBefore(events[i - 1].instantUtc!),
-            isFalse);
+        expect(
+            events[i].instantUtc!.isBefore(events[i - 1].instantUtc!), isFalse);
       }
 
       // The great circle from California to Turkey runs well into the Arctic.

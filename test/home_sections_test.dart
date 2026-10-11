@@ -319,12 +319,7 @@ void main() {
         onOpenAllFeatures: () {},
       )));
 
-      for (final label in [
-        'Qaza',
-        'Playlists',
-        'Library',
-        'My Stats'
-      ]) {
+      for (final label in ['Qaza', 'Playlists', 'Library', 'My Stats']) {
         expect(find.text(label), findsOneWidget, reason: label);
       }
       // Qaza ends the second row; My Stats and All features end the third.

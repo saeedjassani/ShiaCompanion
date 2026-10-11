@@ -1047,7 +1047,6 @@
   "statsBestMonthShort": "بهترین ماه: {month}",
   "statsTotalCaption": "{total} {caption}",
   "statsActiveDays": "روزهای فعال",
-  "statsThisWeek": "{count} در این هفته",
   "statsHistoryChart": "{metric} در هر روز: {values}",
   "remindersTitle": "یادآورهای ذکر",
   "remindersSubtitle": "اعلانی در روزهایی که انتخاب می‌کنید، در ساعتی مشخص یا نسبت به وقت نماز.",

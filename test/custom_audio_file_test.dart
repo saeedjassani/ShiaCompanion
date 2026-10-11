@@ -13,7 +13,8 @@ void main() {
     root = await Directory.systemTemp.createTemp('custom_audio_test');
     pickerCache = await Directory('${root.path}/cache/file_picker/1')
         .create(recursive: true);
-    PathProviderPlatform.instance = _TempDirPathProvider('${root.path}/support');
+    PathProviderPlatform.instance =
+        _TempDirPathProvider('${root.path}/support');
   });
 
   tearDown(() => root.delete(recursive: true));

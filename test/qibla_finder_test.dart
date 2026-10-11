@@ -169,14 +169,15 @@ void main() {
     await tester.tap(find.text('Change'));
     await tester.pumpAndSettle();
 
-    final karbala = otherHolySites
-        .firstWhere((site) => site.id == 'imam_husayn_karbala');
+    final karbala =
+        otherHolySites.firstWhere((site) => site.id == 'imam_husayn_karbala');
     await tester.tap(find.text(karbala.name));
     await tester.pumpAndSettle();
 
     expect(find.text('${karbala.name}, ${karbala.city}'), findsOneWidget);
     expect(
-      find.text(formatBearing(initialBearingDegrees(_berkeley, karbala.location))),
+      find.text(
+          formatBearing(initialBearingDegrees(_berkeley, karbala.location))),
       findsOneWidget,
     );
     expect(SP.prefs.getString('qibla_target_site'), karbala.id);

@@ -33,7 +33,8 @@ void main() {
 
     expect(tester.takeException(), isNull);
     expect(
-      find.text('Open Settings in the app, tap your account, then Delete account…'),
+      find.text(
+          'Open Settings in the app, tap your account, then Delete account…'),
       findsOneWidget,
     );
   });

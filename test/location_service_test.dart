@@ -185,8 +185,8 @@ void main() {
         () async {
       final geolocator = _CountingGeolocator(
         currentPositionError: TimeoutException('no fix'),
-        lastKnownPosition:
-            _posAt(32.6, 44.0, DateTime.now().subtract(const Duration(days: 1))),
+        lastKnownPosition: _posAt(
+            32.6, 44.0, DateTime.now().subtract(const Duration(days: 1))),
       );
       GeolocatorPlatform.instance = geolocator;
 
@@ -297,8 +297,8 @@ void main() {
       });
 
       expect(service.status, LocationRefreshStatus.idle);
-      expect(seen,
-          [LocationRefreshStatus.refreshing, LocationRefreshStatus.idle]);
+      expect(
+          seen, [LocationRefreshStatus.refreshing, LocationRefreshStatus.idle]);
     });
 
     test('surfaces why a fetch failed instead of just failing', () async {

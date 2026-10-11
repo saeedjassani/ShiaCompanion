@@ -25,8 +25,13 @@ RecitationEntry _entry({
 void main() {
   group('RecitationEntry', () {
     test('versesRecited is the inclusive span of the range', () {
-      final single = _entry(id: 'a', recitedAt: DateTime.utc(2026, 1, 1), fromAyah: 5, toAyah: 5);
-      final range = _entry(id: 'b', recitedAt: DateTime.utc(2026, 1, 1), fromAyah: 1, toAyah: 20);
+      final single = _entry(
+          id: 'a', recitedAt: DateTime.utc(2026, 1, 1), fromAyah: 5, toAyah: 5);
+      final range = _entry(
+          id: 'b',
+          recitedAt: DateTime.utc(2026, 1, 1),
+          fromAyah: 1,
+          toAyah: 20);
 
       expect(single.versesRecited, 1);
       expect(range.versesRecited, 20);
@@ -124,13 +129,22 @@ void main() {
     });
 
     test('setEntry adds or overwrites by id; removeEntry deletes by id', () {
-      final entry = _entry(id: 'r_1', recitedAt: DateTime.utc(2026, 1, 1), fromAyah: 1, toAyah: 1);
+      final entry = _entry(
+          id: 'r_1',
+          recitedAt: DateTime.utc(2026, 1, 1),
+          fromAyah: 1,
+          toAyah: 1);
       final state = RecitationTrackerState.empty.setEntry(entry);
       expect(state.totalSessions, 1);
       expect(state.entries['r_1']!.label, 'Family');
 
       final overwritten = state.setEntry(
-        _entry(id: 'r_1', label: 'Personal', recitedAt: entry.recitedAt, fromAyah: 1, toAyah: 5),
+        _entry(
+            id: 'r_1',
+            label: 'Personal',
+            recitedAt: entry.recitedAt,
+            fromAyah: 1,
+            toAyah: 5),
       );
       expect(overwritten.totalSessions, 1);
       expect(overwritten.entries['r_1']!.label, 'Personal');
@@ -152,20 +166,29 @@ void main() {
         _entry(id: 'r_1', recitedAt: DateTime.utc(2026, 1, 1)),
       );
       final b = RecitationTrackerState.empty.setEntry(
-        _entry(id: 'r_2', label: 'Personal', recitedAt: DateTime.utc(2026, 1, 2)),
+        _entry(
+            id: 'r_2', label: 'Personal', recitedAt: DateTime.utc(2026, 1, 2)),
       );
 
       final merged = a.plus(b);
       expect(merged.totalSessions, 2);
 
       final mergedAgain = merged.plus(b);
-      expect(mergedAgain.totalSessions, 2, reason: 're-applying the same import must not duplicate');
+      expect(mergedAgain.totalSessions, 2,
+          reason: 're-applying the same import must not duplicate');
     });
 
     test('toJson/fromJson round trip and drop corrupt rows', () {
       final state = RecitationTrackerState.empty
-          .setEntry(_entry(id: 'r_1', recitedAt: DateTime.utc(2026, 1, 1), fromAyah: 1, toAyah: 10))
-          .setEntry(_entry(id: 'r_2', label: 'Personal', recitedAt: DateTime.utc(2026, 1, 2)))
+          .setEntry(_entry(
+              id: 'r_1',
+              recitedAt: DateTime.utc(2026, 1, 1),
+              fromAyah: 1,
+              toAyah: 10))
+          .setEntry(_entry(
+              id: 'r_2',
+              label: 'Personal',
+              recitedAt: DateTime.utc(2026, 1, 2)))
           .addCustomLabel('Majlis');
 
       final json = Map<String, dynamic>.from(state.toJson());
@@ -194,14 +217,19 @@ void main() {
       );
     });
 
-    test('setEntry registers a brand new label automatically, but not Unlabeled', () {
+    test(
+        'setEntry registers a brand new label automatically, but not Unlabeled',
+        () {
       final withCustom = RecitationTrackerState.empty.setEntry(
         _entry(id: 'a', label: 'Tahajjud', recitedAt: DateTime.utc(2026, 1, 1)),
       );
       expect(withCustom.customLabels, {'Tahajjud'});
 
       final withUnlabeled = RecitationTrackerState.empty.setEntry(
-        _entry(id: 'b', label: unlabeledRecitationLabel, recitedAt: DateTime.utc(2026, 1, 1)),
+        _entry(
+            id: 'b',
+            label: unlabeledRecitationLabel,
+            recitedAt: DateTime.utc(2026, 1, 1)),
       );
       expect(withUnlabeled.customLabels, isEmpty);
       expect(withUnlabeled.labels, isEmpty);
@@ -215,10 +243,23 @@ void main() {
 
     test('versesByLabel sums verse ranges, not tap counts', () {
       var state = RecitationTrackerState.empty
-          .setEntry(_entry(id: 'a', recitedAt: DateTime.utc(2026, 1, 1), fromAyah: 1, toAyah: 5))
-          .setEntry(_entry(id: 'b', recitedAt: DateTime.utc(2026, 1, 2), fromAyah: 6, toAyah: 10));
+          .setEntry(_entry(
+              id: 'a',
+              recitedAt: DateTime.utc(2026, 1, 1),
+              fromAyah: 1,
+              toAyah: 5))
+          .setEntry(_entry(
+              id: 'b',
+              recitedAt: DateTime.utc(2026, 1, 2),
+              fromAyah: 6,
+              toAyah: 10));
       state = state.setEntry(
-        _entry(id: 'c', label: 'Personal', recitedAt: DateTime.utc(2026, 1, 3), fromAyah: 1, toAyah: 2),
+        _entry(
+            id: 'c',
+            label: 'Personal',
+            recitedAt: DateTime.utc(2026, 1, 3),
+            fromAyah: 1,
+            toAyah: 2),
       );
 
       expect(state.sessionsByLabel['Family'], 2);
@@ -226,23 +267,44 @@ void main() {
       expect(state.versesByLabel['Personal'], 2);
     });
 
-    test('labels order by verses recited, most-recited first, ties alphabetical', () {
+    test(
+        'labels order by verses recited, most-recited first, ties alphabetical',
+        () {
       var state = RecitationTrackerState.empty;
       state = state.setEntry(
-        _entry(id: 'family', label: 'Family', recitedAt: DateTime.utc(2026, 1, 1), fromAyah: 1, toAyah: 50),
+        _entry(
+            id: 'family',
+            label: 'Family',
+            recitedAt: DateTime.utc(2026, 1, 1),
+            fromAyah: 1,
+            toAyah: 50),
       );
       state = state
-          .setEntry(_entry(id: 'zeta', label: 'Zeta', recitedAt: DateTime.utc(2026, 2, 1), fromAyah: 1, toAyah: 5))
-          .setEntry(_entry(id: 'alpha', label: 'Alpha', recitedAt: DateTime.utc(2026, 2, 2), fromAyah: 1, toAyah: 5));
+          .setEntry(_entry(
+              id: 'zeta',
+              label: 'Zeta',
+              recitedAt: DateTime.utc(2026, 2, 1),
+              fromAyah: 1,
+              toAyah: 5))
+          .setEntry(_entry(
+              id: 'alpha',
+              label: 'Alpha',
+              recitedAt: DateTime.utc(2026, 2, 2),
+              fromAyah: 1,
+              toAyah: 5));
 
       expect(state.labels, ['Family', 'Alpha', 'Zeta']);
     });
 
-    test('lastRecitedFor returns the most recent entry for that label only', () {
+    test('lastRecitedFor returns the most recent entry for that label only',
+        () {
       final state = RecitationTrackerState.empty
           .setEntry(_entry(id: 'a', recitedAt: DateTime.utc(2026, 1, 1)))
           .setEntry(_entry(id: 'b', recitedAt: DateTime.utc(2026, 1, 10)))
-          .setEntry(_entry(id: 'c', label: 'Personal', recitedAt: DateTime.utc(2026, 1, 20)));
+          .setEntry(_entry(
+              id: 'c',
+              label: 'Personal',
+              recitedAt: DateTime.utc(2026, 1, 20)));
 
       expect(state.lastRecitedFor('Family'), DateTime.utc(2026, 1, 10));
       expect(state.lastRecitedFor('Nonexistent'), isNull);
@@ -252,16 +314,22 @@ void main() {
       final now = DateTime.now();
       final state = RecitationTrackerState.empty
           .setEntry(_entry(id: 'today', recitedAt: now))
-          .setEntry(_entry(id: 'yesterday', recitedAt: now.subtract(const Duration(days: 1))))
-          .setEntry(_entry(id: 'two_days_ago', recitedAt: now.subtract(const Duration(days: 2))));
+          .setEntry(_entry(
+              id: 'yesterday',
+              recitedAt: now.subtract(const Duration(days: 1))))
+          .setEntry(_entry(
+              id: 'two_days_ago',
+              recitedAt: now.subtract(const Duration(days: 2))));
 
       expect(state.currentStreak, 3);
     });
 
-    test('currentStreak still counts when the most recent day is yesterday', () {
+    test('currentStreak still counts when the most recent day is yesterday',
+        () {
       final now = DateTime.now();
       final state = RecitationTrackerState.empty.setEntry(
-        _entry(id: 'yesterday', recitedAt: now.subtract(const Duration(days: 1))),
+        _entry(
+            id: 'yesterday', recitedAt: now.subtract(const Duration(days: 1))),
       );
 
       expect(state.currentStreak, 1);
@@ -270,7 +338,9 @@ void main() {
     test('currentStreak is zero once a day is skipped', () {
       final now = DateTime.now();
       final state = RecitationTrackerState.empty.setEntry(
-        _entry(id: 'two_days_ago', recitedAt: now.subtract(const Duration(days: 2))),
+        _entry(
+            id: 'two_days_ago',
+            recitedAt: now.subtract(const Duration(days: 2))),
       );
 
       expect(state.currentStreak, 0);
@@ -281,7 +351,9 @@ void main() {
       var state = RecitationTrackerState.empty;
       for (final offset in [10, 11, 12]) {
         state = state.setEntry(
-          _entry(id: 'run_$offset', recitedAt: now.subtract(Duration(days: offset))),
+          _entry(
+              id: 'run_$offset',
+              recitedAt: now.subtract(Duration(days: offset))),
         );
       }
       state = state.setEntry(_entry(id: 'today', recitedAt: now));
@@ -290,12 +362,19 @@ void main() {
       expect(state.currentStreak, 1);
     });
 
-    test('sessionsSince/versesSince count entries on or after the given local moment', () {
+    test(
+        'sessionsSince/versesSince count entries on or after the given local moment',
+        () {
       final now = DateTime.now();
       final state = RecitationTrackerState.empty
-          .setEntry(_entry(id: 'recent', recitedAt: now, fromAyah: 1, toAyah: 9))
           .setEntry(
-            _entry(id: 'old', recitedAt: now.subtract(const Duration(days: 30)), fromAyah: 1, toAyah: 1),
+              _entry(id: 'recent', recitedAt: now, fromAyah: 1, toAyah: 9))
+          .setEntry(
+            _entry(
+                id: 'old',
+                recitedAt: now.subtract(const Duration(days: 30)),
+                fromAyah: 1,
+                toAyah: 1),
           );
 
       expect(state.sessionsSince(now.subtract(const Duration(days: 7))), 1);
@@ -306,20 +385,39 @@ void main() {
 
     test('resumePositionFor points at the tail of the most recent entry', () {
       final state = RecitationTrackerState.empty
-          .setEntry(_entry(id: 'a', recitedAt: DateTime.utc(2026, 1, 1), surah: 2, fromAyah: 1, toAyah: 20))
-          .setEntry(_entry(id: 'b', recitedAt: DateTime.utc(2026, 1, 10), surah: 3, fromAyah: 5, toAyah: 9));
+          .setEntry(_entry(
+              id: 'a',
+              recitedAt: DateTime.utc(2026, 1, 1),
+              surah: 2,
+              fromAyah: 1,
+              toAyah: 20))
+          .setEntry(_entry(
+              id: 'b',
+              recitedAt: DateTime.utc(2026, 1, 10),
+              surah: 3,
+              fromAyah: 5,
+              toAyah: 9));
 
       expect(state.resumePositionFor('Family'), const VerseKey(3, 9));
       expect(state.resumePositionFor('Nonexistent'), isNull);
     });
 
-    test('resumePositionFor moves on to the next surah once one is finished', () {
+    test('resumePositionFor moves on to the next surah once one is finished',
+        () {
       final fatiha = RecitationTrackerState.empty.setEntry(_entry(
-          id: 'a', recitedAt: DateTime.utc(2026, 1, 1), surah: 1, fromAyah: 1, toAyah: 7));
+          id: 'a',
+          recitedAt: DateTime.utc(2026, 1, 1),
+          surah: 1,
+          fromAyah: 1,
+          toAyah: 7));
       expect(fatiha.resumePositionFor('Family'), const VerseKey(2, 1));
 
       final nas = RecitationTrackerState.empty.setEntry(_entry(
-          id: 'b', recitedAt: DateTime.utc(2026, 1, 1), surah: 114, fromAyah: 1, toAyah: 6));
+          id: 'b',
+          recitedAt: DateTime.utc(2026, 1, 1),
+          surah: 114,
+          fromAyah: 1,
+          toAyah: 6));
       expect(nas.resumePositionFor('Family'), const VerseKey(1, 1));
     });
 
@@ -485,7 +583,8 @@ void main() {
     });
 
     test('readInJuz survives a JSON round trip and is omitted when false', () {
-      final juz = _entry(id: 'j', recitedAt: DateTime.utc(2026, 1, 1), readInJuz: true);
+      final juz =
+          _entry(id: 'j', recitedAt: DateTime.utc(2026, 1, 1), readInJuz: true);
       final surah = _entry(id: 's', recitedAt: DateTime.utc(2026, 1, 1));
 
       expect(RecitationEntry.fromJson(juz.toJson())!.readInJuz, isTrue);
@@ -520,18 +619,37 @@ void main() {
     test('mostRecentPosition is null when nothing has been recited', () {
       expect(RecitationTrackerState.empty.mostRecentPosition, isNull);
       expect(
-        RecitationTrackerState.empty.addCustomLabel('Family').mostRecentPosition,
+        RecitationTrackerState.empty
+            .addCustomLabel('Family')
+            .mostRecentPosition,
         isNull,
       );
     });
 
-    test('distinctVersesRecitedFor merges overlapping and adjacent ranges, not raw sums', () {
+    test(
+        'distinctVersesRecitedFor merges overlapping and adjacent ranges, not raw sums',
+        () {
       final state = RecitationTrackerState.empty
-          .setEntry(_entry(id: 'a', recitedAt: DateTime.utc(2026, 1, 1), surah: 1, fromAyah: 1, toAyah: 5))
+          .setEntry(_entry(
+              id: 'a',
+              recitedAt: DateTime.utc(2026, 1, 1),
+              surah: 1,
+              fromAyah: 1,
+              toAyah: 5))
           // Overlaps 3-5 from the first entry: only 6-10 is new.
-          .setEntry(_entry(id: 'b', recitedAt: DateTime.utc(2026, 1, 2), surah: 1, fromAyah: 3, toAyah: 10))
+          .setEntry(_entry(
+              id: 'b',
+              recitedAt: DateTime.utc(2026, 1, 2),
+              surah: 1,
+              fromAyah: 3,
+              toAyah: 10))
           // A separate surah entirely, so it adds on top rather than merging.
-          .setEntry(_entry(id: 'c', recitedAt: DateTime.utc(2026, 1, 3), surah: 2, fromAyah: 1, toAyah: 3));
+          .setEntry(_entry(
+              id: 'c',
+              recitedAt: DateTime.utc(2026, 1, 3),
+              surah: 2,
+              fromAyah: 1,
+              toAyah: 3));
 
       // versesByLabel counts every re-read: 5 + 8 + 3 = 16.
       expect(state.versesByLabel['Family'], 16);
@@ -542,7 +660,12 @@ void main() {
 
     test('percentCompleteFor is distinct verses over the whole Quran', () {
       final state = RecitationTrackerState.empty.setEntry(
-        _entry(id: 'a', recitedAt: DateTime.utc(2026, 1, 1), surah: 1, fromAyah: 1, toAyah: 7),
+        _entry(
+            id: 'a',
+            recitedAt: DateTime.utc(2026, 1, 1),
+            surah: 1,
+            fromAyah: 1,
+            toAyah: 7),
       );
       expect(
         state.percentCompleteFor('Family'),
@@ -551,13 +674,25 @@ void main() {
       expect(state.percentCompleteFor('Nonexistent'), 0);
     });
 
-    test('dailyVerseCounts buckets verses by local calendar day within the window', () {
+    test(
+        'dailyVerseCounts buckets verses by local calendar day within the window',
+        () {
       final now = DateTime.now();
       final state = RecitationTrackerState.empty
-          .setEntry(_entry(id: 'today_1', recitedAt: now, fromAyah: 1, toAyah: 5))
-          .setEntry(_entry(id: 'today_2', label: 'Personal', recitedAt: now, fromAyah: 1, toAyah: 2))
           .setEntry(
-            _entry(id: 'yesterday', recitedAt: now.subtract(const Duration(days: 1)), fromAyah: 1, toAyah: 3),
+              _entry(id: 'today_1', recitedAt: now, fromAyah: 1, toAyah: 5))
+          .setEntry(_entry(
+              id: 'today_2',
+              label: 'Personal',
+              recitedAt: now,
+              fromAyah: 1,
+              toAyah: 2))
+          .setEntry(
+            _entry(
+                id: 'yesterday',
+                recitedAt: now.subtract(const Duration(days: 1)),
+                fromAyah: 1,
+                toAyah: 3),
           )
           .setEntry(
             _entry(

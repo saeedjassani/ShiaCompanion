@@ -1047,7 +1047,6 @@
   "statsBestMonthShort": "بہترین مہینہ: {month}",
   "statsTotalCaption": "{total} {caption}",
   "statsActiveDays": "فعال دن",
-  "statsThisWeek": "اس ہفتے {count}",
   "statsHistoryChart": "روزانہ {metric}: {values}",
   "remindersTitle": "ذکر کی یاد دہانیاں",
   "remindersSubtitle": "آپ کے منتخب کردہ دنوں میں، مقررہ وقت پر یا نماز کے آس پاس ایک اطلاع۔",

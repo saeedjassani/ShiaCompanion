@@ -40,7 +40,8 @@ void main() {
       );
     });
 
-    test('a prayer follows the app default until it is given a sound', () async {
+    test('a prayer follows the app default until it is given a sound',
+        () async {
       expect(hasCustomAzaanPreferenceForPrayer('Fajr'), isFalse);
       expect(getAzaanOptionForPrayer('Fajr').id, getSelectedAzaan().id);
 
@@ -97,8 +98,7 @@ void main() {
       expect(getAzaanOptionForPrayer('Fajr').id, 'azaan');
 
       expect(
-        azaanOptionForPreview(azaanId: 'system_default', prayerName: 'Fajr')
-            .id,
+        azaanOptionForPreview(azaanId: 'system_default', prayerName: 'Fajr').id,
         'system_default',
       );
       expect(
@@ -196,8 +196,8 @@ void main() {
 
       await AzaanOptInService.setEnabled(true);
 
-      expect(SP.prefs.getBool(notificationPreferenceKeyForPrayer('Isha')),
-          isTrue);
+      expect(
+          SP.prefs.getBool(notificationPreferenceKeyForPrayer('Isha')), isTrue);
       expect(SP.prefs.getBool(notificationPreferenceKeyForPrayer('Midnight')),
           isTrue);
       // And nothing the user never chose was switched on for them.

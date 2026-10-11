@@ -70,7 +70,8 @@ void main() {
         reason: 'an add with no entry payload cannot be replayed',
       );
       expect(
-        PendingRecitationOperation.fromJson({'id': 'x', 'kind': 'not-a-kind', 'entryId': 'r_1'}),
+        PendingRecitationOperation.fromJson(
+            {'id': 'x', 'kind': 'not-a-kind', 'entryId': 'r_1'}),
         isNull,
       );
     });
@@ -98,7 +99,8 @@ void main() {
       expect(twice.totalSessions, 1);
     });
 
-    test('remove is idempotent — replaying it after the id is gone is a no-op', () {
+    test('remove is idempotent — replaying it after the id is gone is a no-op',
+        () {
       final state = RecitationTrackerState.empty.setEntry(
         RecitationEntry(
           id: 'r_1',
@@ -118,7 +120,8 @@ void main() {
       expect(twice.entries, isEmpty);
     });
 
-    test('addLabel is idempotent — replaying it twice registers the track once', () {
+    test('addLabel is idempotent — replaying it twice registers the track once',
+        () {
       final operation = PendingRecitationOperation.addLabel('Family');
 
       final once = applyPendingRecitationOperation(
@@ -131,7 +134,9 @@ void main() {
       expect(twice.labels, ['Family']);
     });
 
-    test('applyPendingRecitationOperations applies a queue of add/remove in order', () {
+    test(
+        'applyPendingRecitationOperations applies a queue of add/remove in order',
+        () {
       final entryA = RecitationEntry(
         id: 'a',
         label: 'Family',
@@ -149,7 +154,8 @@ void main() {
         toAyah: 1,
       );
 
-      final state = applyPendingRecitationOperations(RecitationTrackerState.empty, [
+      final state =
+          applyPendingRecitationOperations(RecitationTrackerState.empty, [
         PendingRecitationOperation.add(entryA),
         PendingRecitationOperation.add(entryB),
         PendingRecitationOperation.remove('a'),
@@ -162,7 +168,8 @@ void main() {
   });
 
   group('recitationRemoteChangesFor', () {
-    RecitationEntry entry(String id, {String label = 'Family', int toAyah = 7}) {
+    RecitationEntry entry(String id,
+        {String label = 'Family', int toAyah = 7}) {
       return RecitationEntry(
         id: id,
         label: label,

@@ -44,7 +44,8 @@ void main() {
       expect(normalizeQuranArabic('رَحْمَة'), 'رحمه');
     });
 
-    test('drops the trailing ayah marker but keeps numbering inside a line', () {
+    test('drops the trailing ayah marker but keeps numbering inside a line',
+        () {
       expect(normalizeQuranArabic('قُلْ (12)'), 'قل');
     });
 
@@ -99,10 +100,10 @@ void main() {
       final verses = indexOneDocumentForTest(
         112,
         '{"title":"112","code":"012","data":'
-            '"بِسْمِ اللهِ الرَّحْمٰنِ الرَّحِيْمِ\\n'
-            'BISMILLAH\\nIn the Name of Allah\\n'
-            'قُلْ هُوَ اللّٰهُ اَحَدٌ (1)\\nQUL\\nSay: He is One\\n'
-            'اَللّٰهُ الصَّمَدُ (2)\\nALLAAH\\nGod, the Needless"}',
+        '"بِسْمِ اللهِ الرَّحْمٰنِ الرَّحِيْمِ\\n'
+        'BISMILLAH\\nIn the Name of Allah\\n'
+        'قُلْ هُوَ اللّٰهُ اَحَدٌ (1)\\nQUL\\nSay: He is One\\n'
+        'اَللّٰهُ الصَّمَدُ (2)\\nALLAAH\\nGod, the Needless"}',
       );
 
       expect(verses.map((v) => v.verse.ayah), [1, 2]);

@@ -13,7 +13,8 @@ void main() {
     expect(dateTimeForTime24(date, '05:30:00'), isNull);
   });
 
-  test('formatPrayerDateTime12 formats noon, midnight, and afternoon times', () {
+  test('formatPrayerDateTime12 formats noon, midnight, and afternoon times',
+      () {
     expect(formatPrayerDateTime12(DateTime(2024, 1, 1, 0, 5)), '12:05 am');
     expect(formatPrayerDateTime12(DateTime(2024, 1, 1, 12, 0)), '12:00 pm');
     expect(formatPrayerDateTime12(DateTime(2024, 1, 1, 13, 45)), '01:45 pm');
@@ -82,7 +83,8 @@ void main() {
     expect(readings.every((reading) => reading.displayTime.isNotEmpty), isTrue);
   });
 
-  test('resolveWidgetPrayerTimes falls back when the stored selection is unusable',
+  test(
+      'resolveWidgetPrayerTimes falls back when the stored selection is unusable',
       () {
     expect(
       resolveWidgetPrayerTimes(['fajr', 'maghrib']).map((time) => time.id),
@@ -110,7 +112,9 @@ void main() {
     );
   });
 
-  test('buildExtendedPrayerTimeEntries includes all seven names plus a Midnight entry', () {
+  test(
+      'buildExtendedPrayerTimeEntries includes all seven names plus a Midnight entry',
+      () {
     final prayerTime = getPrayerTimeObject();
 
     final entries = buildExtendedPrayerTimeEntries(
@@ -123,7 +127,16 @@ void main() {
 
     expect(
       entries.map((e) => e.name).toList(),
-      ['Fajr', 'Sunrise', 'Zuhr', 'Asr', 'Sunset', 'Maghrib', 'Isha', 'Midnight'],
+      [
+        'Fajr',
+        'Sunrise',
+        'Zuhr',
+        'Asr',
+        'Sunset',
+        'Maghrib',
+        'Isha',
+        'Midnight'
+      ],
     );
   });
 
@@ -140,7 +153,8 @@ void main() {
 
     final todayTimes = prayerTime.getPrayerTimes(date, 21.4225, 39.8262, 3.0);
     final nextDate = date.add(const Duration(days: 1));
-    final nextDayTimes = prayerTime.getPrayerTimes(nextDate, 21.4225, 39.8262, 3.0);
+    final nextDayTimes =
+        prayerTime.getPrayerTimes(nextDate, 21.4225, 39.8262, 3.0);
     final sunset = dateTimeForTime24(date, todayTimes[prayerIndexSunset]);
     final nextFajr = dateTimeForTime24(nextDate, nextDayTimes[prayerIndexFajr]);
 

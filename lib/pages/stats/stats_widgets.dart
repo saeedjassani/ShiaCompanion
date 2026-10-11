@@ -55,19 +55,17 @@ class StatsSectionTitle extends StatelessWidget {
   }
 }
 
-/// One headline number in a card: what it counts, the number in large
-/// type, and an optional line under it ("12 this week").
+/// One headline number in a card: what it counts, and the number in large
+/// type.
 class StatsTile extends StatelessWidget {
   const StatsTile({
     super.key,
     required this.label,
     required this.value,
-    this.detail,
   });
 
   final String label;
   final String value;
-  final String? detail;
 
   @override
   Widget build(BuildContext context) {
@@ -99,13 +97,6 @@ class StatsTile extends StatelessWidget {
                 ),
               ),
             ),
-            if (detail != null)
-              Text(
-                detail!,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: ShiaText.caption.copyWith(color: colors.textMuted),
-              ),
           ],
         ),
       ),

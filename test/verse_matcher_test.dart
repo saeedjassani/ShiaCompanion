@@ -25,8 +25,7 @@ void main() {
     index = await loadQuranTextIndex(_DiskAssetBundle());
   });
 
-  IndexedVerse verseAt(VerseKey key) =>
-      index.verses[index.indexOf(key)!];
+  IndexedVerse verseAt(VerseKey key) => index.verses[index.indexOf(key)!];
 
   /// Where [key] comes in the ranking for [transcript], or -1 if absent.
   int rankOf(VerseKey key, String transcript, {VerseKey? context}) {
@@ -151,7 +150,8 @@ void main() {
       expect(failures, isEmpty, reason: failures.take(10).join('; '));
     });
 
-    test('finds a long verse from only its opening, not a short verse that '
+    test(
+        'finds a long verse from only its opening, not a short verse that '
         'shares a few words', () {
       // Al-Baqarah 282 is the longest verse in the Quran. Someone reciting its
       // first dozen words should land on it.
@@ -263,7 +263,8 @@ void main() {
       // outrank a verse in the surah under way.
       final transcript = verseAt(const VerseKey(55, 13)).arabic;
 
-      final withoutContext = matchRecitation(transcript, index: index, limit: 5);
+      final withoutContext =
+          matchRecitation(transcript, index: index, limit: 5);
       final withContext = matchRecitation(
         transcript,
         index: index,

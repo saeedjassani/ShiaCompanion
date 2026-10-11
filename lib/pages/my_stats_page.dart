@@ -192,7 +192,7 @@ class _RankedZikrList extends StatelessWidget {
 }
 
 /// Lifetime totals as tiles, two by two: zikrs, verses, qaza and active
-/// days, each with how many of them fell in the last 7 days.
+/// days. The windows - week, month - are History's job.
 class _TotalsTiles extends StatelessWidget {
   const _TotalsTiles({required this.summary});
 
@@ -201,55 +201,34 @@ class _TotalsTiles extends StatelessWidget {
   static final NumberFormat _count = NumberFormat.decimalPattern();
   static final NumberFormat _compact = NumberFormat.compact();
 
-  int _lastWeek(int Function(DateTime day) valueOn) {
-    final now = DateTime.now();
-    var total = 0;
-    for (var i = 0; i < 7; i++) {
-      total += valueOn(DateTime(now.year, now.month, now.day - i));
-    }
-    return total;
-  }
-
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
-    String number(int value) => localizeDigits(
-        value < 10000 ? _count.format(value) : _compact.format(value), l10n);
-
-    Widget tile(String label, int total, int week) => Expanded(
+    Widget tile(String label, int total) => Expanded(
           child: StatsTile(
             label: label,
-            value: number(total),
-            detail: week > 0 ? l10n.statsThisWeek(number(week)) : null,
+            value: localizeDigits(
+                total < 10000 ? _count.format(total) : _compact.format(total),
+                l10n),
           ),
         );
 
     return Column(
       children: [
-        IntrinsicHeight(
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              tile(l10n.statsMetricZikrs, summary.totalZikrs,
-                  _lastWeek((day) => summary.activityOn(day).zikrs)),
-              const SizedBox(width: 12),
-              tile(l10n.statsMetricVerses, summary.quranVersesTotal,
-                  _lastWeek(summary.quranVersesOn)),
-            ],
-          ),
+        Row(
+          children: [
+            tile(l10n.statsMetricZikrs, summary.totalZikrs),
+            const SizedBox(width: 12),
+            tile(l10n.statsMetricVerses, summary.quranVersesTotal),
+          ],
         ),
         const SizedBox(height: 12),
-        IntrinsicHeight(
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              tile(l10n.statsMetricQaza, summary.totalQaza,
-                  _lastWeek((day) => summary.activityOn(day).qaza)),
-              const SizedBox(width: 12),
-              tile(l10n.statsActiveDays, summary.activeDayCount,
-                  summary.activeDaysInLast(7)),
-            ],
-          ),
+        Row(
+          children: [
+            tile(l10n.statsMetricQaza, summary.totalQaza),
+            const SizedBox(width: 12),
+            tile(l10n.statsActiveDays, summary.activeDayCount),
+          ],
         ),
       ],
     );

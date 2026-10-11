@@ -63,8 +63,8 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.byType(ZikrListRow), findsWidgets);
-      for (final row in tester.widgetList<ZikrListRow>(
-          find.byType(ZikrListRow))) {
+      for (final row
+          in tester.widgetList<ZikrListRow>(find.byType(ZikrListRow))) {
         expect(row.subtitle, contains(author));
       }
     });
@@ -107,14 +107,12 @@ void main() {
       UidTitleData('part-3', 'Part 3: Onslaught'),
     ];
 
-    setUp(() => LibraryService.seedChaptersForTesting(
-        'man-and-his-destiny', chapters));
+    setUp(() =>
+        LibraryService.seedChaptersForTesting('man-and-his-destiny', chapters));
 
     testWidgets('a book not yet started offers to start it', (tester) async {
-      await pumpPushed(
-          tester,
-          const ChapterListPage(
-              'man-and-his-destiny', 'Man and His Destiny'));
+      await pumpPushed(tester,
+          const ChapterListPage('man-and-his-destiny', 'Man and His Destiny'));
 
       expect(find.text('Start reading'), findsOneWidget);
       expect(find.text('Save for offline'), findsOneWidget);
@@ -126,10 +124,8 @@ void main() {
     testWidgets('a started book continues where the reader left off',
         (tester) async {
       await LibraryProgressStore.instance.save(progress());
-      await pumpPushed(
-          tester,
-          const ChapterListPage(
-              'man-and-his-destiny', 'Man and His Destiny'));
+      await pumpPushed(tester,
+          const ChapterListPage('man-and-his-destiny', 'Man and His Destiny'));
 
       expect(find.text('Continue · chapter 4, page 4'), findsOneWidget);
       expect(find.text('Reading · page 4 of 9'), findsOneWidget);
@@ -138,10 +134,8 @@ void main() {
     testWidgets('finds the current chapter by slug if chapters moved',
         (tester) async {
       await LibraryProgressStore.instance.save(progress(chapterIndex: 0));
-      await pumpPushed(
-          tester,
-          const ChapterListPage(
-              'man-and-his-destiny', 'Man and His Destiny'));
+      await pumpPushed(tester,
+          const ChapterListPage('man-and-his-destiny', 'Man and His Destiny'));
 
       expect(find.text('Continue · chapter 4, page 4'), findsOneWidget);
     });

@@ -28,8 +28,7 @@ void main() {
     // is invisible in Qalam and is what lets other fonts draw the marks.
     for (final font in FontPreferences.validFonts) {
       arabicFont = font;
-      expect(ZikrContentParser.formatArabicText('لَه بِه'),
-          'لَهٗ بِهٖ');
+      expect(ZikrContentParser.formatArabicText('لَه بِه'), 'لَهٗ بِهٖ');
       expect(ZikrContentParser.formatArabicText('وَالْحِجَارَةُ ۖ'),
           'وَالْحِجَارَةُ ۖ');
     }
