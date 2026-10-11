@@ -2352,6 +2352,13 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
       focusNode: _selectionFocusNode,
       onSelectionChanged: (content) => _lastSelectedText = content?.plainText,
       contextMenuBuilder: (context, selectableRegionState) {
+        final suggestCorrection = ContextMenuButtonItem(
+          label: context.l10n.zikrSuggestCorrection,
+          onPressed: () {
+            selectableRegionState.hideToolbar();
+            unawaited(_reportZikrMistake());
+          },
+        );
         final buttonItems = <ContextMenuButtonItem>[
           for (final item in selectableRegionState.contextMenuButtonItems)
             if (item.type == ContextMenuButtonType.copy &&
@@ -2361,14 +2368,13 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
               )
             else
               item,
-          ContextMenuButtonItem(
-            label: context.l10n.zikrSuggestCorrection,
-            onPressed: () {
-              selectableRegionState.hideToolbar();
-              unawaited(_reportZikrMistake());
-            },
-          ),
         ];
+        // Right after Copy, not last: Android's toolbar fits only a few
+        // items and puts the rest behind its overflow button, where Suggest
+        // a correction was hidden under Select all, Share and the rest.
+        final copyIndex = buttonItems
+            .indexWhere((item) => item.type == ContextMenuButtonType.copy);
+        buttonItems.insert(copyIndex + 1, suggestCorrection);
         return AdaptiveTextSelectionToolbar.buttonItems(
           anchors: selectableRegionState.contextMenuAnchors,
           buttonItems: buttonItems,

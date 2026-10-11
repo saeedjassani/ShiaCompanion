@@ -2,7 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 
-/// One "Suggest a Correction" submission from the zikr reading page's
+/// One "Suggest a correction" submission from the zikr reading page's
 /// selection toolbar - the reader's highlighted text, whatever note they
 /// added, and whether an admin has since acted on it.
 @immutable

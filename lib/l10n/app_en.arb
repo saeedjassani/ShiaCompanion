@@ -782,7 +782,7 @@
   "zikrMerits": "Merits",
   "zikrReportThanks": "Thanks - we'll take a look.",
   "zikrReportFailed": "Could not send the report. Please try again.",
-  "zikrSuggestCorrection": "Suggest a Correction",
+  "zikrSuggestCorrection": "Suggest a correction",
   "zikrSelectedText": "Selected text",
   "zikrCorrectionHint": "What should it say instead? (optional)",
   "commonSubmit": "Submit",

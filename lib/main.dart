@@ -47,7 +47,7 @@ void main() async {
     usePathUrlStrategy();
     // Flutter Web defers to the browser's own right-click menu by default
     // and suppresses its own SelectableRegion/SelectionArea toolbar entirely
-    // - so ZikrPage's custom contextMenuBuilder (Suggest a Correction,
+    // - so ZikrPage's custom contextMenuBuilder (Suggest a correction,
     // alongside Copy and Select All) never has a chance to render until this
     // runs.
     // Selecting text itself still worked without it; only the menu that
