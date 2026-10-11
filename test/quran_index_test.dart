@@ -40,35 +40,6 @@ void main() {
     });
   });
 
-  group('quranCompanionZikrUids', () {
-    tearDown(() => items = {});
-
-    test('keeps the Quran category zikrs that are not surahs, in uid order',
-        () {
-      items = {
-        'A4': 'Ayat al Kursi',
-        'A10': "6: al-An'aam الأنعام",
-        'A3': 'Dua Khatme Quran',
-        'A2': 'Dua after reciting Holy Quran',
-        'AA2': 'Recitation Of The Holy Qur’an In Ramazan',
-        'E18': 'Dua e Ahad',
-      };
-
-      expect(quranCompanionZikrUids(), ['A2', 'A3', 'A4']);
-    });
-
-    test('the real corpus still has Ayat al Kursi among them', () {
-      final corpus = jsonDecode(File('assets/zikr.json').readAsStringSync())
-          as Map<String, dynamic>;
-      items = {
-        for (final entry in corpus.entries) entry.key: entry.value['title'],
-      };
-
-      expect(quranCompanionZikrUids(), contains('A4'));
-      expect(quranCompanionZikrUids().map(surahForUid), everyElement(isNull));
-    });
-  });
-
   group('surahAyahCounts', () {
     test('covers all 114 surahs', () {
       expect(surahAyahCounts, hasLength(surahCount));

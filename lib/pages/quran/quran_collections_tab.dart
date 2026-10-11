@@ -5,13 +5,10 @@ import '../../data/quran_ali_verses.dart';
 import '../../data/quran_duas.dart';
 import '../../data/quran_mahdi_verses.dart';
 import '../../data/quran_prophet_stories.dart';
-import '../../data/universal_data.dart';
-import '../../services/analytics_service.dart';
 import '../../services/saved_verses_store.dart';
 import '../../theme/shia_colors.dart';
 import '../../utils/quran_index.dart';
 import '../../utils/shared_preferences.dart';
-import '../../widgets/favorite_icon.dart';
 import '../../widgets/outline_icon.dart';
 import '../../widgets/page_chrome.dart';
 import '../../l10n/l10n.dart';
@@ -54,10 +51,8 @@ enum QuranCollection {
 /// the Quran rather than a way of walking through it, picked with a row of
 /// pills.
 ///
-/// This is also where the zikrs the old 'Surahs' list carried alongside the
-/// 114 - Ayat al Kursi and the Quran duas - live, since the surah list only
-/// shows surahs. New groups are one more [QuranCollection] value and one
-/// more case in [_bodySlivers].
+/// New groups are one more [QuranCollection] value and one more case in
+/// [_bodySlivers].
 ///
 /// Built as slivers, so the list scrolls with the rest of the Quran screen
 /// rather than in a box of its own under it.
@@ -134,47 +129,21 @@ String _verseTitle(VerseKey verse) {
   return L10n.current.quranSurahAyah(name, verse.ayah ?? 1);
 }
 
-/// Ayat al Kursi and the duas recited with the Quran - the non-surah zikrs of
-/// the Quran category, opened like any other zikr - followed by the duas the
-/// Quran itself contains ([quranDuas]), opened in the reader at their ayah.
+/// The duas the Quran itself contains ([quranDuas]), each opened in the
+/// reader at its ayah.
+///
+/// Ayat al-Kursi and the duas recited with the Quran (after reciting, on a
+/// khatm) used to head this list, but they are zikrs rather than verses and
+/// did not sit well beside them; they are in the Duas list now, by alias,
+/// and Dua Khatm al-Quran is offered at the end of an-Nas and of Juz 30.
 ///
 /// Outside English a dua goes by its Arabic opening words rather than their
 /// transliteration, which the app shows no one but English readers.
 List<Widget> _quranDuaSlivers(
     BuildContext context, void Function(VerseKey verse) onOpenVerse) {
-  final uids = quranCompanionZikrUids();
   final arabicOpenings = context.l10n.localeName != 'en';
   final colors = ShiaColors.of(context);
   return [
-    if (uids.isNotEmpty) ...[
-      SliverCardList(
-        itemCount: uids.length,
-        itemBuilder: (context, index) {
-          // The same UniversalData shape the category lists build, so the
-          // favourite here is the same favourite as in the old Surahs list.
-          final itemData =
-              UniversalData(uids[index], items[uids[index]].toString(), 0);
-          return CardListRow(
-            first: index == 0,
-            last: index == uids.length - 1,
-            title: Text(itemData.displayTitle),
-            trailing: FavoriteHeartButton(favorite: itemData),
-            onTap: () => handleUniversalDataClick(
-              context,
-              itemData,
-              source: ZikrOpenSource.quran,
-            ),
-          );
-        },
-      ),
-      const SliverToBoxAdapter(child: SizedBox(height: 20)),
-    ],
-    SliverToBoxAdapter(
-      child: Padding(
-        padding: const EdgeInsets.only(bottom: 8),
-        child: GroupLabel(context.l10n.quranFromTheQuran),
-      ),
-    ),
     SliverCardList(
       itemCount: quranDuas.length,
       itemBuilder: (context, index) {

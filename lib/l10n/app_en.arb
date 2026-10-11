@@ -1627,7 +1627,6 @@
   "quranCollectionImamMahdi": "Imam al-Mahdi (a.t.f.s.)",
   "quranCollectionProphets": "Prophets",
   "quranCollectionSaved": "Saved",
-  "quranFromTheQuran": "From the Quran",
   "quranNoSavedVerses": "No saved verses yet",
   "quranNoSavedVersesBody": "Tap a verse while reading to keep it here.",
   "libraryNextChapter": "Next chapter",
@@ -1852,6 +1851,10 @@
         "type": "String"
       }
     }
+  },
+  "quranFinishWith": "Finish with",
+  "@quranFinishWith": {
+    "description": "Caption over the link to Dua Khatm al-Quran at the end of an-Nas and of Juz 30, where the next surah or juz would otherwise be."
   },
   "quranUnitSurah": "surah",
   "favoritesReorder": "Reorder {title}",
