@@ -308,7 +308,7 @@ void main() {
     expect(tester.takeException(), isNull);
   }, timeout: const Timeout(Duration(minutes: 5)));
 
-  testWidgets('changing the font size re-cuts the pages and stays put',
+  testWidgets('changing the text size re-cuts the pages and stays put',
       (tester) async {
     tester.view.physicalSize = const Size(393, 852);
     tester.view.devicePixelRatio = 1.0;
@@ -342,11 +342,14 @@ void main() {
     final before = readCounter(tester);
     expect(before.page, 4);
 
-    // A bigger font means a fresh layout of the whole chapter. It has to
-    // settle — a reader that measured at one size and rendered at another
+    // A bigger text size means a fresh layout of the whole chapter. It has
+    // to settle — a reader that measured at one size and rendered at another
     // would measure again for ever — and it has to keep the reader's place,
     // which can only have moved further into a chapter that now runs longer.
-    await tester.tap(find.byTooltip('Increase font size'));
+    // The reader has no size buttons of its own: the app's Text size (or the
+    // system's) is what changes it.
+    tester.platformDispatcher.textScaleFactorTestValue = 1.15;
+    addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
     await tester.pumpAndSettle();
 
     final after = readCounter(tester);

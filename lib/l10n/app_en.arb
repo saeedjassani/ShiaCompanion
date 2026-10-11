@@ -1676,8 +1676,6 @@
   },
   "libraryShareChapter": "Share chapter",
   "libraryChapterUnavailable": "Chapter unavailable",
-  "libraryDecreaseFont": "Decrease font size",
-  "libraryIncreaseFont": "Increase font size",
   "azaanTakbirName": "Takbir Only",
   "azaanTakbirDescription": "Short takbir notification sound",
   "azaanFullName": "Full Azan",

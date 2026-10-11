@@ -12,7 +12,6 @@ import 'package:shia_companion/utils/markdown_block.dart';
 import 'package:shia_companion/utils/markdown_block_parser.dart';
 import 'package:shia_companion/utils/reader_layout.dart';
 import 'package:shia_companion/utils/reader_style.dart';
-import 'package:shia_companion/utils/shared_preferences.dart';
 import 'package:shia_companion/utils/web_route_sync.dart';
 
 import '../constants.dart';
@@ -22,7 +21,6 @@ import '../widgets/page_chrome.dart';
 import '../widgets/reader_content.dart';
 import '../widgets/reader_top_bar.dart';
 import '../widgets/responsive_content.dart';
-import '../widgets/zikr_reading_preferences.dart';
 import '../services/analytics_service.dart';
 import '../l10n/l10n.dart';
 import '../widgets/app_toast.dart';
@@ -336,22 +334,6 @@ class _ChapterPageState extends State<ChapterPage>
       _isChangingChapter = false;
       _chapterFuture = LibraryService.loadChapterMarkdown(_slug);
     });
-  }
-
-  void _changeFontSize(double delta) {
-    final newSize = (_readerFontSize + delta).clamp(_minFontSize, _maxFontSize);
-    if (newSize == _readerFontSize) return;
-
-    setState(() => _readerFontSize = newSize);
-    if (SP.isInitialized) {
-      setEnglishFontSizePref(_readerFontSize);
-      commitEnglishFontSize();
-    } else {
-      englishFontSize = _readerFontSize;
-    }
-
-    _remeasure();
-    _saveProgress();
   }
 
   /// The page that should be shown for the position we're restoring: the last
@@ -913,20 +895,6 @@ class _ChapterPageState extends State<ChapterPage>
         strokeWidth: 2);
   }
 
-  /// "A−" / "A+", in the app language's own letters.
-  Widget _textSizeGlyph(String label, {required bool enabled}) {
-    final accent = ShiaColors.of(context).accent;
-    return Text(
-      label,
-      textScaler: TextScaler.noScaling,
-      style: TextStyle(
-        fontSize: 16,
-        fontWeight: FontWeight.w700,
-        color: enabled ? accent : accent.withValues(alpha: 0.38),
-      ),
-    );
-  }
-
   Widget _buildMessage({
     required OutlineGlyph glyph,
     required String title,
@@ -1063,59 +1031,31 @@ class _ChapterPageState extends State<ChapterPage>
               children: [
                 Padding(
                   padding: const EdgeInsets.fromLTRB(8, 6, 8, 10),
+                  // No text-size buttons: the text follows the reading size
+                  // set in a zikr's Text & reading sheet and the app's Text
+                  // size, which a button here would change everywhere.
                   child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      // The navigation controls take whatever room is left over
-                      // once the font controls have theirs: on an edge page they
-                      // grow into a labelled button, and the label is the part
-                      // that needs the space.
-                      Expanded(
-                        child: Row(
-                          children: [
-                            _buildPageNavControl(
-                              forward: false,
-                              pageCount: pageCount,
-                            ),
-                            if (_paginationReady)
-                              Padding(
-                                padding:
-                                    const EdgeInsets.symmetric(horizontal: 4),
-                                child: Text(
-                                  localizeDigits(
-                                      '${_currentPageIndex + 1} / $pageCount',
-                                      context.l10n),
-                                  style: theme.textTheme.bodyMedium,
-                                ),
-                              )
-                            else
-                              const SizedBox(width: 48),
-                            _buildPageNavControl(
-                              forward: true,
-                              pageCount: pageCount,
-                            ),
-                          ],
-                        ),
+                      _buildPageNavControl(
+                        forward: false,
+                        pageCount: pageCount,
                       ),
-                      IconButton(
-                        tooltip: context.l10n.libraryDecreaseFont,
-                        icon: _textSizeGlyph('${context.l10n.textSizeLetter}−',
-                            enabled: _readerFontSize > _minFontSize),
-                        onPressed: _readerFontSize <= _minFontSize
-                            ? null
-                            : () => _changeFontSize(-1),
-                      ),
-                      Text(
-                        localizeDigits(
-                            '${_readerFontSize.round()}', context.l10n),
-                        style: theme.textTheme.bodyMedium,
-                      ),
-                      IconButton(
-                        tooltip: context.l10n.libraryIncreaseFont,
-                        icon: _textSizeGlyph('${context.l10n.textSizeLetter}+',
-                            enabled: _readerFontSize < _maxFontSize),
-                        onPressed: _readerFontSize >= _maxFontSize
-                            ? null
-                            : () => _changeFontSize(1),
+                      if (_paginationReady)
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 4),
+                          child: Text(
+                            localizeDigits(
+                                '${_currentPageIndex + 1} / $pageCount',
+                                context.l10n),
+                            style: theme.textTheme.bodyMedium,
+                          ),
+                        )
+                      else
+                        const SizedBox(width: 48),
+                      _buildPageNavControl(
+                        forward: true,
+                        pageCount: pageCount,
                       ),
                     ],
                   ),
