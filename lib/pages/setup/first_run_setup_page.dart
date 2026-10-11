@@ -952,7 +952,7 @@ class _PrayerSwitchRow extends StatelessWidget {
                 ),
                 const SizedBox(width: 12),
               ],
-              Switch.adaptive(value: value, onChanged: onChanged),
+              Switch(value: value, onChanged: onChanged),
             ],
           ),
         ),
