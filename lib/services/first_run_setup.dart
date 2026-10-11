@@ -48,6 +48,7 @@ class FirstRunSetup {
   /// request until the prayer card is tapped), has no azan, and is mostly
   /// reached through a shared link to one dua.
   static Future<bool> resolveOnLaunch({bool isWeb = kIsWeb}) async {
+    _freshInstallThisLaunch = false;
     if (isWeb || !SP.isInitialized) return false;
     switch (SP.prefs.getString(stateKey)) {
       case done:
@@ -56,10 +57,17 @@ class FirstRunSetup {
         return true;
     }
     final existingInstall = priorInstallMarkerKeys.any(SP.prefs.containsKey);
+    _freshInstallThisLaunch = !existingInstall;
     if (existingInstall) await _keepEarlierReadingDefaults();
     await SP.prefs.setString(stateKey, existingInstall ? done : pending);
     return !existingInstall;
   }
+
+  /// Whether this launch is the one that found the install fresh: true on
+  /// its first launch only, not on a later one that resumes a half-finished
+  /// setup. Valid after [resolveOnLaunch].
+  static bool get freshInstallThisLaunch => _freshInstallThisLaunch;
+  static bool _freshInstallThisLaunch = false;
 
   /// Transliteration used to be on by default and now is off. Someone who
   /// never touched the switch has been reading with it, so an install from

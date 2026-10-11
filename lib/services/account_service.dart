@@ -128,6 +128,25 @@ class AccountService {
     return _auth.signOut();
   }
 
+  /// iOS keeps the Firebase sign-in in the Keychain, which outlives deleting
+  /// the app, so a reinstall opened signed in to the old account: favorites
+  /// and recitation progress came back from the cloud and Settings showed
+  /// the account, though setup's sign-in step had just been skipped. A fresh
+  /// install starts signed out instead; signing in again brings it all back.
+  ///
+  /// Android needs none of this - Auto Backup restores the sign-in together
+  /// with the preferences, so a restored install isn't a fresh one - but
+  /// running it there is harmless. Call only on the launch
+  /// FirstRunSetup.freshInstallThisLaunch is true, before anything reads the
+  /// signed-in user.
+  static Future<void> signOutLeftoverFromEarlierInstall() async {
+    try {
+      await _auth.signOut();
+    } catch (e) {
+      debugPrint('Could not clear a sign-in left from an earlier install: $e');
+    }
+  }
+
   static Future<void> deleteCurrentAccountAndData() async {
     final currentUser = _auth.currentUser;
     if (currentUser == null) {

@@ -12,6 +12,7 @@ import 'package:shia_companion/pages/deep_link_launch_page.dart';
 import 'package:shia_companion/pages/delete_account_page.dart';
 import 'package:shia_companion/pages/setup/first_run_setup_page.dart';
 import 'package:shia_companion/services/audio_download_store.dart';
+import 'package:shia_companion/services/account_service.dart';
 import 'package:shia_companion/services/azan_playback_service.dart';
 import 'package:shia_companion/services/first_run_setup.dart';
 import 'package:shia_companion/services/session_refresh_service.dart';
@@ -130,6 +131,9 @@ void main() async {
   await SP.init();
   restoreDayPreferences();
   final showFirstRunSetup = await FirstRunSetup.resolveOnLaunch();
+  if (FirstRunSetup.freshInstallThisLaunch) {
+    await AccountService.signOutLeftoverFromEarlierInstall();
+  }
   await zikrIndex;
 
   runApp(MyApp(showFirstRunSetup: showFirstRunSetup));

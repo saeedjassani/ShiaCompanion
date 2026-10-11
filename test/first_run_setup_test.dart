@@ -30,6 +30,24 @@ void main() {
       expect(await FirstRunSetup.resolveOnLaunch(isWeb: false), isFalse);
     });
 
+    test('only the first launch of a fresh install counts as fresh', () async {
+      // main.dart signs out a sign-in iOS kept in the Keychain from an
+      // earlier install on this launch - never on a later one, which may be
+      // resuming a setup the person signed in during.
+      await _prefs({});
+      await FirstRunSetup.resolveOnLaunch(isWeb: false);
+      expect(FirstRunSetup.freshInstallThisLaunch, isTrue);
+
+      await FirstRunSetup.resolveOnLaunch(isWeb: false);
+      expect(FirstRunSetup.freshInstallThisLaunch, isFalse);
+    });
+
+    test('an existing install is never fresh', () async {
+      await _prefs({'lat': 24.8});
+      await FirstRunSetup.resolveOnLaunch(isWeb: false);
+      expect(FirstRunSetup.freshInstallThisLaunch, isFalse);
+    });
+
     test('a half-finished setup is not mistaken for an old install', () async {
       await _prefs({});
       expect(await FirstRunSetup.resolveOnLaunch(isWeb: false), isTrue);
