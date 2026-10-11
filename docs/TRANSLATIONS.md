@@ -271,6 +271,17 @@ python3 scripts/zikr_i18n/zikr_i18n.py rebase
 python3 scripts/zikr_i18n/zikr_i18n.py migrate ur fa
 ```
 
+Translations come from published sources, never machine translation; which
+source each zikr's came from is in `scripts/zikr_i18n/SOURCES.md`.
+`scripts/zikr_i18n/deck_source.py` drafts one from a source that pairs each
+Arabic phrase with its translation (duas.org's slide decks): it aligns the
+source to our segments through the Arabic and writes a worksheet, then
+checks and applies the draft once someone has divided each source line's
+translation by meaning. It can also split one of our long verses where the
+source breaks it, provided its transliteration and English break at the same
+point unchanged. Don't cut a translation at a segment boundary by position:
+that is what made the first duas.pro batch inaccurate.
+
 A worked example is in `docs/zikr_i18n_template/ur/`: the template for
 Ziyarat Ashura (`G4.json` - 124 verses and 4 instructions such as "Then say
 100 times:", each a numbered segment, plus the merits) and the index entries

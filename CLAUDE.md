@@ -30,6 +30,16 @@
   checked against online sources), the per-batch workflow, and the tools
   `scripts/zikr_arabic/duas_org.py` and `scripts/zikr_arabic/translit.py`.
 
+- **Zikr translations: Urdu has the first famous duas; Persian and
+  Gujarati have none yet.** See `scripts/zikr_i18n/SOURCES.md` for what is
+  done, which sources were turned down and why, and what's next. The rest:
+  - Urdu for Dua Ahad, Ziyarat Warith, Aal-e-Yasin, Munajat Shabaniyah,
+    Jamia Kabira and Alqama (no trustworthy deck), and for Abu Hamza, Arafah
+    and Jawshan Kabir (decks exist);
+  - Persian, which needs a published source that a cloud session can reach;
+  - Gujarati, from the owner's PDF;
+  - merits notes.
+
 - **Trim Firestore cost of the synced-data managers.** Zikr bookmarks
   (`lib/services/zikr_bookmarks_manager.dart`, PR #176) copied
   `SavedVersesManager`'s sync pattern, including two avoidable costs:

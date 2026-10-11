@@ -284,6 +284,18 @@ def _letters(text):
     return re.sub(r'[^a-z0-9]', '', (text or '').lower())
 
 
+def _foreign_letters(text, lang):
+    """Letters in [text] outside [lang]'s script (link hrefs aside) - a
+    stray Latin or Devanagari word copied from the deck."""
+    text = re.sub(r'\]\([^)]*\)', '', text)
+    if lang == 'gu':
+        ok = lambda c: '\u0A80' <= c <= '\u0AFF'
+    else:
+        ok = lambda c: ('\u0600' <= c <= '\u06FF' or '\u0750' <= c <= '\u077F'
+                        or '\uFB50' <= c <= '\uFDFF' or '\uFE70' <= c <= '\uFEFF')
+    return {c for c in text if c.isalpha() and not ok(c)}
+
+
 def check_draft(doc, draft, lang):
     """(errors, untranslated segment numbers)."""
     segments = z.document_segments(doc)
@@ -296,8 +308,10 @@ def check_draft(doc, draft, lang):
         elif not isinstance(value, str) or not value.strip():
             errors.append(f'segment {key}: empty')
         else:
-            if re.search(r'[A-Za-z]', re.sub(r'\]\([^)]*\)', '', value)):
-                errors.append(f'segment {key}: Latin letters in the translation')
+            stray = _foreign_letters(value, lang)
+            if stray:
+                errors.append(f'segment {key}: letters outside the language\'s '
+                              f'script: {"".join(sorted(stray))}')
             done.add(int(key))
     for split in draft.get('splits', []):
         n, parts = split.get('n'), split.get('parts', [])
@@ -317,6 +331,10 @@ def check_draft(doc, draft, lang):
         if _letters(''.join(p.get('en', '') for p in parts)) != _letters(segments[n]['english']):
             errors.append(f'split {n}: the English parts do not rejoin to the original')
         for i, p in enumerate(parts):
+            stray = _foreign_letters(p.get(lang) or '', lang)
+            if stray:
+                errors.append(f'split {n} part {i}: letters outside the language\'s '
+                              f'script: {"".join(sorted(stray))}')
             needed = ('ar', 'en', lang) + (('tr',) if translit is not None else ())
             if any(not _spaces(p.get(k)) for k in needed):
                 errors.append(f'split {n} part {i}: empty {"/".join(needed)}')
