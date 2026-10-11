@@ -57,13 +57,11 @@ void main() {
 
     expect(find.text('Missed prayers for a while?'), findsOneWidget);
     expect(find.text('Work out how many I owe'), findsOneWidget);
-    // The five daily prayers, Zuhr spelt as everywhere else; Namaz-e-Ayat
-    // and Other wait behind the header link.
+    // Nothing owed, so no top-bar button: just the one in the card.
+    expect(find.bySemanticsLabel('Work out how many I owe'), findsOneWidget);
+    // The five daily prayers, Zuhr spelt as everywhere else, then
+    // Namaz-e-Ayat and Other.
     expect(find.text('Zuhr'), findsOneWidget);
-    expect(find.text('Namaz-e-Ayat'), findsNothing);
-
-    await tester.tap(find.text('Add Namaz-e-Ayat or other'));
-    await settle(tester);
     expect(find.text('Namaz-e-Ayat'), findsOneWidget);
     expect(find.text('Other'), findsOneWidget);
   });
@@ -81,8 +79,11 @@ void main() {
     expect(find.text('250 left · 12 done', findRichText: true),
         findsNWidgets(5));
     expect(find.text('30 left · 0 done', findRichText: true), findsOneWidget);
-    expect(find.text('Prayed'), findsNWidgets(5));
+    expect(find.text('Prayed'), findsNWidgets(7));
     expect(find.text('Fasted'), findsOneWidget);
+    // Working it out again moves to the top bar, as an icon.
+    expect(find.text('Work out how many I owe'), findsNothing);
+    expect(find.bySemanticsLabel('Work out how many I owe'), findsOneWidget);
   });
 
   testWidgets('the ⋯ menu holds the rarer actions', (tester) async {

@@ -23,10 +23,6 @@ class QazaTrackerPage extends StatefulWidget {
 }
 
 class _QazaTrackerPageState extends State<QazaTrackerPage> {
-  /// Namaz-e-Ayat and Other show once they hold something, or once asked
-  /// for: most people only ever owe the five daily prayers.
-  bool _showExtras = false;
-
   @override
   void initState() {
     super.initState();
@@ -47,22 +43,27 @@ class _QazaTrackerPageState extends State<QazaTrackerPage> {
         final shouldShowLoading =
             manager.isLoading && !manager.hasLoadedQaza && state.isEmpty;
 
-        bool used(QazaEntryType type) {
-          final count = state.countFor(type);
-          return count.remaining > 0 || count.completed > 0;
-        }
-
-        final extras = const [QazaEntryType.ayat, QazaEntryType.other];
-        final showExtras = _showExtras || extras.any(used);
-        final prayers = [
+        const prayers = [
           ...qazaDailyPrayers,
-          if (showExtras) ...extras,
+          QazaEntryType.ayat,
+          QazaEntryType.other,
         ];
 
         return LargeTitlePage(
           title: l10n.qazaPageTitle,
           subtitle: l10n.qazaSubtitle,
           maxWidth: widePageWidth,
+          // Once something is owed, working it out again is a rare redo, so
+          // it moves out of the summary to a button up here.
+          actions: [
+            if (state.totalRemaining > 0)
+              RoundIconButton(
+                label: l10n.qazaWorkOut,
+                icon: OutlineIcon(OutlineGlyph.calendar,
+                    size: 22, color: ShiaColors.of(context).accent),
+                onPressed: () => unawaited(_showEstimateSheet()),
+              ),
+          ],
           slivers: shouldShowLoading
               ? const [
                   SliverToBoxAdapter(
@@ -89,24 +90,7 @@ class _QazaTrackerPageState extends State<QazaTrackerPage> {
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.stretch,
                             children: [
-                              Row(
-                                children: [
-                                  Expanded(child: GroupLabel(l10n.qazaPrayers)),
-                                  if (!showExtras)
-                                    Flexible(
-                                      flex: 2,
-                                      child: Align(
-                                        alignment:
-                                            AlignmentDirectional.centerEnd,
-                                        child: PageTextAction(
-                                          label: l10n.qazaShowExtras,
-                                          onPressed: () => setState(
-                                              () => _showExtras = true),
-                                        ),
-                                      ),
-                                    ),
-                                ],
-                              ),
+                              GroupLabel(l10n.qazaPrayers),
                               const SizedBox(height: 8),
                               _buildCard(context, prayers, state),
                             ],
@@ -131,7 +115,7 @@ class _QazaTrackerPageState extends State<QazaTrackerPage> {
   }
 
   /// Left to make up in large type, how many are done and a bar of the
-  /// two, and the two ways to change many at once.
+  /// two, and the ways to change many at once.
   Widget _buildSummary(BuildContext context, QazaTrackerState state) {
     final l10n = context.l10n;
     final colors = ShiaColors.of(context);
@@ -195,12 +179,15 @@ class _QazaTrackerPageState extends State<QazaTrackerPage> {
             label: l10n.qazaPrayedFullDay,
             onPressed: canLogFullDay ? _logFullDay : null,
           ),
-          const SizedBox(height: 8),
-          PageButton(
-            glyph: OutlineGlyph.calendar,
-            label: l10n.qazaWorkOut,
-            onPressed: () => unawaited(_showEstimateSheet()),
-          ),
+          // With something owed it is the top bar's button instead.
+          if (left == 0) ...[
+            const SizedBox(height: 8),
+            PageButton(
+              glyph: OutlineGlyph.calendar,
+              label: l10n.qazaWorkOut,
+              onPressed: () => unawaited(_showEstimateSheet()),
+            ),
+          ],
         ],
       ),
     );

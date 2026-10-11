@@ -1080,7 +1080,6 @@
   "qazaDoneCount": "تم إنجاز {count}",
   "qazaLeftAndDone": "{left} متبقية · {done} منجزة",
   "qazaWorkOut": "احسب ما عليّ قضاؤه",
-  "qazaShowExtras": "إضافة صلاة الآيات أو غيرها",
   "qazaAddMissedOne": "إضافة ما فاتني",
   "qazaMoreFor": "المزيد لـ{name}",
   "flightsSubtitle": "موعد دخول وقت كل صلاة على طول مسارك.",

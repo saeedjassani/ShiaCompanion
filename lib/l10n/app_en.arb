@@ -3518,7 +3518,6 @@
     }
   },
   "qazaWorkOut": "Work out how many I owe",
-  "qazaShowExtras": "Add Namaz-e-Ayat or other",
   "qazaAddMissedOne": "Add a missed one",
   "qazaMoreFor": "More for {name}",
   "@qazaMoreFor": {
