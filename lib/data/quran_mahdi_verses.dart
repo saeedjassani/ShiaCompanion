@@ -1,4 +1,5 @@
 import '../utils/quran_index.dart';
+import 'quran_collections_i18n.dart';
 
 /// Verses the hadith of the Imams (a.s.) read as being about Imam al-Mahdi
 /// (a.t.f.s.) - his occultation, his rising and the world after it.
@@ -65,5 +66,10 @@ final Map<VerseKey, String> quranMahdiVerses = {
       'The receding stars that hide: Imam al-Baqir (a.s.) read them as the Imam who goes into hiding, then shines out like a blazing star.',
 };
 
-/// The note on [verse] if it is one of [quranMahdiVerses], or null.
-String? mahdiRelatedNoteFor(VerseKey verse) => quranMahdiVerses[verse];
+/// The note on [verse], in the app language, if it is one of
+/// [quranMahdiVerses], or null.
+String? mahdiRelatedNoteFor(VerseKey verse) {
+  final note = quranMahdiVerses[verse];
+  if (note == null) return null;
+  return quranCollectionsText()?.imamMahdi['$verse'] ?? note;
+}

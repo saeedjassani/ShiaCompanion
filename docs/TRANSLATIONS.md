@@ -346,15 +346,32 @@ set `"muharram": true` to be shown from 1 Muharram to 8 Rabi' al-Awwal
 instead (none do yet; without them, those days show the general ones).
 Copy Arabic verbatim from a reliable text, never retype it.
 
+## Quran collections (`lib/data/quran_collections_i18n.dart`)
+
+The Quran screen's Collections - the duas of the Quran, the verses about
+Imam Ali (a.s.) and Imam al-Mahdi (a.t.f.s.), and the prophets' stories -
+keep their English in `lib/data/` (`quran_duas.dart`,
+`quran_ali_verses.dart`, `quran_mahdi_verses.dart`,
+`quran_prophet_stories.dart`). `lib/data/quran_collections_i18n.dart` lays
+each other language over it, keyed by the entry's first verse (`"2:127"`);
+the prophets' headings are keyed by the English heading. It follows the app
+language, and covers the verse menu's note on those verses too.
+
+Outside English a Quran dua is listed by its Arabic opening words
+(`QuranDua.arabic`, copied from the surah's own text) instead of their
+transliteration. `test/quran_collections_i18n_test.dart` checks every
+language covers exactly the entries there are, with no English left: add,
+change or remove an entry in one of the data files and do the same for each
+language.
+
 ## Not covered yet
 
 - **A juz** (the Quran read by juz rather than by surah) is assembled from
   the surahs and has no content file of its own, so it has no translation:
   outside English it shows the Arabic alone.
-- **Other content**: library books, the Quran
-  collections in `lib/data/` (`quran_duas.dart`, prophet stories, verses about Imam Ali and Imam
-  al-Mahdi, holy sites) and the What's New notes are English content, not
-  UI text, and would each need a translation overlay of their own.
+- **Other content**: library books, the holy sites in `lib/data/` and the
+  What's New notes are English content, not UI text, and would each need a
+  translation overlay of their own.
 - **Fonts**: Urdu, Persian, Arabic and Gujarati translation text uses the
   platform's system fonts. A bundled Nastaliq font for Urdu would be a
   separate, deliberate choice.
