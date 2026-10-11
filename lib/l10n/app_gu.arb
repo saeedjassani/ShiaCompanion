@@ -506,6 +506,8 @@
   "calendarYesterday": "ગઈકાલે",
   "calendarDaysAgo": "{days, plural, =1{૧ દિવસ પહેલાં} other{{days} દિવસ પહેલાં}}",
   "calendarHasEvent": "આ દિવસે પ્રસંગ છે",
+  "calendarLegendJoy": "ખુશી",
+  "calendarLegendMourning": "શોક",
   "calendarAzanOnFor": "{count, plural, =1{૧ સમય માટે ચાલુ} other{{count} સમય માટે ચાલુ}}",
   "calendarTimesOnHome": "હોમ પરના સમય",
   "calendarTimesShown": "{count} બતાવાય છે",

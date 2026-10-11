@@ -1044,17 +1044,19 @@ private extension Color {
             ? UIColor(red: 1.0, green: 0.85, blue: 0.47, alpha: 1.0)
             : UIColor(red: 1.0, green: 0.78, blue: 0.34, alpha: 1.0)
     })
-    /// Event markers on the Islamic calendar widget. events.json colours an
-    /// event 0 (green) or 1 (red), the same reading as the Calendar page.
-    static let eventGreen = Color(UIColor { traits in
+    /// Event markers on the Islamic calendar widget. events.json codes an
+    /// event 1 for joy (green, as on the Calendar page) or 0 for mourning.
+    /// The page's black would vanish on the widget's brown, so mourning is a
+    /// cool silver here, apart from the warm text around it.
+    static let eventJoy = Color(UIColor { traits in
         traits.userInterfaceStyle == .dark
             ? UIColor(red: 0.51, green: 0.78, blue: 0.52, alpha: 1.0)
             : UIColor(red: 0.61, green: 0.85, blue: 0.63, alpha: 1.0)
     })
-    static let eventRed = Color(UIColor { traits in
+    static let eventMourning = Color(UIColor { traits in
         traits.userInterfaceStyle == .dark
-            ? UIColor(red: 0.90, green: 0.45, blue: 0.45, alpha: 1.0)
-            : UIColor(red: 1.0, green: 0.66, blue: 0.63, alpha: 1.0)
+            ? UIColor(red: 0.66, green: 0.68, blue: 0.71, alpha: 1.0)
+            : UIColor(red: 0.83, green: 0.84, blue: 0.86, alpha: 1.0)
     })
 }
 
@@ -1386,8 +1388,8 @@ private func calendarAgendaLine(kind: String, start: Date, now: Date) -> String 
 
 private func calendarEventColor(_ code: Int) -> Color {
     switch code {
-    case 0: return .eventGreen
-    case 1: return .eventRed
+    case 0: return .eventMourning
+    case 1: return .eventJoy
     default: return .accentText
     }
 }

@@ -506,6 +506,8 @@
   "calendarYesterday": "گزشتہ کل",
   "calendarDaysAgo": "{days, plural, =1{۱ دن پہلے} other{{days} دن پہلے}}",
   "calendarHasEvent": "اس دن کوئی اہم واقعہ ہے",
+  "calendarLegendJoy": "خوشی",
+  "calendarLegendMourning": "غم",
   "calendarAzanOnFor": "{count, plural, =1{۱ وقت کے لیے آن} other{{count} اوقات کے لیے آن}}",
   "calendarTimesOnHome": "ہوم پر اوقات",
   "calendarTimesShown": "{count} دکھ رہے ہیں",
