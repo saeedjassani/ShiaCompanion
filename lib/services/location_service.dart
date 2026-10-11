@@ -69,6 +69,7 @@ class LocationService extends ChangeNotifier {
   DateTime? _updatedAt;
   DateTime? _lastUnproductiveAttemptAt;
   Future<bool>? _inFlight;
+  Future<void>? _relabel;
 
   LocationRefreshStatus get status => _status;
 
@@ -156,6 +157,9 @@ class LocationService extends ChangeNotifier {
       // one-off failure pinning a red message on the card for half an hour —
       // but not on top of a running fetch, whose spinner would vanish.
       if (_inFlight == null) _setStatus(LocationRefreshStatus.idle);
+      // An app language changed while offline is caught up here, on the
+      // next open or resume.
+      unawaited(relabelForAppLanguage());
       return Future.value(true);
     }
 
@@ -254,6 +258,29 @@ class LocationService extends ChangeNotifier {
       success ? LocationRefreshStatus.idle : LocationRefreshStatus.failed,
     );
     return success;
+  }
+
+  /// Renames the phone's own location in the app language, when its stored
+  /// name was looked up in another: "Karbala" becomes "کربلا" once the
+  /// reader switches to Urdu, without waiting for the next GPS fix. A chosen
+  /// city keeps the name it was chosen by. Offline, the old name stays and
+  /// the next open tries again (see [refreshIfStale]).
+  Future<void> relabelForAppLanguage() {
+    if (!SP.isInitialized || !hasLocation || _isManual) return Future.value();
+    if (cityLabelLanguage == L10n.current.localeName) return Future.value();
+    // A GPS refresh looks the name up in the app language itself.
+    if (_inFlight != null) return Future.value();
+    return _relabel ??= _runRelabel().whenComplete(() => _relabel = null);
+  }
+
+  Future<void> _runRelabel() async {
+    if (!await refreshLocationLabel()) return;
+    notifyListeners();
+    try {
+      await HomeScreenWidgetService.instance.publishAll();
+    } catch (e) {
+      debugPrint('Location renamed, but publishing it failed: $e');
+    }
   }
 
   /// Makes [chosen] the location, by the reader's choice, until they choose

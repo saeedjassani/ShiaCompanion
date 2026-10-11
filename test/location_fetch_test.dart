@@ -1,11 +1,15 @@
 import 'dart:async';
+import 'dart:convert';
 
+import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shia_companion/constants.dart';
+import 'package:shia_companion/l10n/l10n.dart';
+import 'package:shia_companion/services/location_service.dart';
 import 'package:shia_companion/utils/shared_preferences.dart';
 
 void main() {
@@ -18,6 +22,7 @@ void main() {
     long = null;
     city = null;
     needToSchedule = false;
+    L10n.current = lookupAppLocalizations(const Locale('en'));
   });
 
   Position _pos(double latitude, double longitude) => Position(
@@ -264,6 +269,119 @@ void main() {
           expect(city, isNull);
         },
       );
+    });
+  });
+
+  group('place name in the app language', () {
+    Future<List<Uri>> geocodeRequests(
+      Map<String, String> bodiesByLanguage,
+      Future<void> Function() body,
+    ) async {
+      final requests = <Uri>[];
+      await http.runWithClient(
+        body,
+        () => MockClient((request) async {
+          requests.add(request.url);
+          final language = request.url.queryParameters['localityLanguage'];
+          return http.Response.bytes(
+              utf8.encode(bodiesByLanguage[language] ?? ''), 200);
+        }),
+      );
+      return requests;
+    }
+
+    const karbala = {
+      'en': '{"locality":"Karbala","city":"Karbala","countryCode":"IQ"}',
+      'ur': '{"locality":"کربلا","city":"کربلا","countryCode":"IQ"}',
+    };
+
+    test('asks for the name in the app language and remembers which',
+        () async {
+      L10n.current = lookupAppLocalizations(const Locale('ur'));
+      GeolocatorPlatform.instance =
+          _FakeGeolocator(currentPosition: _pos(32.6, 44.0));
+
+      final requests = await geocodeRequests(karbala, () async {
+        expect(await initializeLocation(force: true), isTrue);
+      });
+
+      expect(requests.single.queryParameters['localityLanguage'], 'ur');
+      expect(city, 'کربلا');
+      expect(cityLabelLanguage, 'ur');
+    });
+
+    test('prefers the city in the reader\'s script over an English locality',
+        () async {
+      L10n.current = lookupAppLocalizations(const Locale('gu'));
+      GeolocatorPlatform.instance =
+          _FakeGeolocator(currentPosition: _pos(24.86, 67.01));
+
+      await geocodeRequests({
+        'gu': '{"locality":"Lyari Town","city":"કરાચી","countryCode":"PK"}',
+      }, () => initializeLocation(force: true));
+
+      expect(city, 'કરાચી');
+    });
+
+    test('drops a trailing disambiguator from the name', () async {
+      L10n.current = lookupAppLocalizations(const Locale('ur'));
+      GeolocatorPlatform.instance =
+          _FakeGeolocator(currentPosition: _pos(21.17, 72.83));
+
+      await geocodeRequests({
+        'ur': '{"locality":"سورت (شہر)","city":"سورت (شہر)","countryCode":"IN"}',
+      }, () => initializeLocation(force: true));
+
+      expect(city, 'سورت');
+    });
+
+    test('renames the stored GPS location when the language changes',
+        () async {
+      lat = 32.6;
+      long = 44.0;
+      city = 'Karbala';
+      LocationService.instance.restore();
+      L10n.current = lookupAppLocalizations(const Locale('ur'));
+
+      final requests = await geocodeRequests(karbala, () async {
+        await LocationService.instance.relabelForAppLanguage();
+        // Already in Urdu: nothing more to fetch.
+        await LocationService.instance.relabelForAppLanguage();
+      });
+
+      expect(requests, hasLength(1));
+      expect(city, 'کربلا');
+      expect(cityLabelLanguage, 'ur');
+    });
+
+    test('keeps the old name, and tries again later, when offline', () async {
+      lat = 32.6;
+      long = 44.0;
+      city = 'Karbala';
+      LocationService.instance.restore();
+      L10n.current = lookupAppLocalizations(const Locale('ur'));
+
+      await runWithGeocode(null, geocodeError: Exception('no network'),
+          body: () => LocationService.instance.relabelForAppLanguage());
+
+      expect(city, 'Karbala');
+      expect(cityLabelLanguage, 'en');
+    });
+
+    test('leaves a chosen city alone', () async {
+      lat = 32.6;
+      long = 44.0;
+      city = 'Karbala';
+      SharedPreferences.setMockInitialValues({LocationService.manualKey: true});
+      await SP.init();
+      LocationService.instance.restore();
+      L10n.current = lookupAppLocalizations(const Locale('ur'));
+
+      final requests = await geocodeRequests(karbala,
+          () => LocationService.instance.relabelForAppLanguage());
+
+      expect(requests, isEmpty);
+      expect(city, 'Karbala');
     });
   });
 }

@@ -9,6 +9,7 @@ import 'package:intl/number_symbols_data.dart';
 
 import '../l10n/app_language.dart';
 import '../l10n/l10n.dart';
+import '../services/location_service.dart';
 import '../services/zikr_translations.dart';
 import 'shared_preferences.dart';
 
@@ -126,6 +127,7 @@ class LanguageProvider extends ChangeNotifier with WidgetsBindingObserver {
     _appLanguageChoice = code;
     _applyAppLanguage();
     notifyListeners();
+    unawaited(LocationService.instance.relabelForAppLanguage());
     await _applyTranslationLanguage();
     await _persist(appLanguagePrefsKey, code);
   }
@@ -185,6 +187,7 @@ class LanguageProvider extends ChangeNotifier with WidgetsBindingObserver {
     if (_appLanguageChoice != null) return;
     _applyAppLanguage();
     notifyListeners();
+    unawaited(LocationService.instance.relabelForAppLanguage());
     unawaited(_applyTranslationLanguage());
   }
 
