@@ -139,11 +139,10 @@ final HomeMenuItem calendarMenuItem = HomeMenuItem(
   pageBuilder: () => const CalendarPage(),
 );
 
-/// Today's Recitations: a shortcut, and where Home's Today section's
-/// See all leads.
+/// Today's Recitations: where Home's Today section's See all leads. Not
+/// in All features or the shortcuts, since Home already shows it.
 final HomeMenuItem todaysRecitationsMenuItem = HomeMenuItem(
   label: "Today's Recitations",
-  shortLabel: 'Today',
   analyticsId: 'today_s_recitations',
   glyphType: HomeGlyphType.todaysRecitations,
   icon: Icons.auto_stories_rounded,
@@ -155,7 +154,7 @@ final List<HomeMenuItem> homeMenuItems = List.unmodifiable([
   todaysRecitationsMenuItem,
   HomeMenuItem(
     label: 'Taqeebat e Namaz',
-  shortLabel: 'Taqibaat',
+    shortLabel: 'Taqibaat',
     analyticsId: 'taqeebat_e_namaz',
     glyphType: HomeGlyphType.taqeebat,
     icon: Icons.bookmarks_rounded,
@@ -207,7 +206,7 @@ final List<HomeMenuItem> homeMenuItems = List.unmodifiable([
   ),
   HomeMenuItem(
     label: 'Baaqeyaat As Saalehaat',
-  shortLabel: 'Baqiyat',
+    shortLabel: 'Baqiyat',
     analyticsId: 'baaqeyaat_as_saalehaat',
     glyphType: HomeGlyphType.baqeyaat,
     icon: Icons.history_edu_rounded,
@@ -233,7 +232,7 @@ final List<HomeMenuItem> homeMenuItems = List.unmodifiable([
   ),
   HomeMenuItem(
     label: 'Qaza Tracker',
-  shortLabel: 'Qaza',
+    shortLabel: 'Qaza',
     analyticsId: 'qaza_tracker',
     outlineGlyph: OutlineGlyph.calendarCheck,
     icon: Icons.event_repeat_rounded,
@@ -242,7 +241,6 @@ final List<HomeMenuItem> homeMenuItems = List.unmodifiable([
   if (supportsPrayerCounterOnCurrentPlatform)
     HomeMenuItem(
       label: 'Rakaat Counter',
-  shortLabel: 'Rakaat',
       analyticsId: 'rakaat_counter',
       glyphType: HomeGlyphType.rakaat,
       icon: Icons.touch_app_rounded,
@@ -250,7 +248,7 @@ final List<HomeMenuItem> homeMenuItems = List.unmodifiable([
     ),
   HomeMenuItem(
     label: 'Prayer Times in Flight',
-  shortLabel: 'Flights',
+    shortLabel: 'Flight Prayers',
     analyticsId: 'prayer_times_in_flight',
     outlineGlyph: OutlineGlyph.plane,
     icon: Icons.flight_takeoff_rounded,
@@ -382,21 +380,22 @@ List<HomeMenuItem> get visibleHomeMenuItems {
 HomeMenuItem get quranTabMenuItem => quranMenuItem;
 
 /// The All features page: everything in [visibleHomeMenuItems], in the same
-/// order, except what has a tab of its own.
+/// order, except what has a tab of its own, and Today's Recitations, which
+/// Home shows as its Today section.
 List<HomeMenuItem> get allFeaturesMenuItems => List.unmodifiable([
       for (final item in visibleHomeMenuItems)
         if (item != favoritesMenuItem &&
             item != surahsMenuItem &&
-            item != quranMenuItem)
+            item != quranMenuItem &&
+            item != todaysRecitationsMenuItem)
           item,
     ]);
 
 /// What can be one of Home's shortcuts: All features less Settings, which
-/// already has the profile button on Home, and Today's Recitations, which
-/// Home shows as its Today section.
+/// already has the profile button on Home.
 List<HomeMenuItem> get shortcutCandidateMenuItems => List.unmodifiable([
       for (final item in allFeaturesMenuItems)
-        if (item != settingsMenuItem && item != todaysRecitationsMenuItem) item,
+        if (item != settingsMenuItem) item,
     ]);
 
 /// The shortcuts [ids] name, in order, skipping any this build or this user
@@ -461,12 +460,10 @@ String homeMenuDisplayLabel(String label) {
     'Qibla' => L10n.current.menuQiblaShort,
     'Tasbeeh Counter' => L10n.current.menuTasbeehCounter,
     'Tasbeeh' => L10n.current.menuTasbeehShort,
-    'Today' => L10n.current.menuTodaysRecitationsShort,
     'Taqibaat' => L10n.current.menuTaqeebatShort,
     'Baqiyat' => L10n.current.menuBaaqeyaatShort,
     'Qaza' => L10n.current.menuQazaShort,
-    'Rakaat' => L10n.current.menuRakaatShort,
-    'Flights' => L10n.current.menuFlightShort,
+    'Flight Prayers' => L10n.current.menuFlightShort,
     'Qaza Tracker' => L10n.current.menuQazaTracker,
     'Rakaat Counter' => L10n.current.menuRakaatCounter,
     'Prayer Times in Flight' => L10n.current.menuPrayerTimesInFlight,

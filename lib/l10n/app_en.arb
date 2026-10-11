@@ -1959,10 +1959,6 @@
   "@menuTasbeehShort": {
     "description": "Short name of Tasbeeh Counter, for a Home shortcut tile."
   },
-  "menuTodaysRecitationsShort": "Today",
-  "@menuTodaysRecitationsShort": {
-    "description": "Short name of Today's Recitations, for a Home or All features tile."
-  },
   "menuTaqeebatShort": "Taqibaat",
   "@menuTaqeebatShort": {
     "description": "Short name of Taqeebat e Namaz, for a Home or All features tile."
@@ -1975,11 +1971,7 @@
   "@menuQazaShort": {
     "description": "Short name of Qaza Tracker, for a Home or All features tile."
   },
-  "menuRakaatShort": "Rakaat",
-  "@menuRakaatShort": {
-    "description": "Short name of Rakaat Counter, for a Home or All features tile."
-  },
-  "menuFlightShort": "Flights",
+  "menuFlightShort": "Flight Prayers",
   "@menuFlightShort": {
     "description": "Short name of Prayer Times in Flight, for a Home or All features tile."
   },

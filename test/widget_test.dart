@@ -112,7 +112,7 @@ void main() {
     test('Today\'s Recitations is no shortcut: Home shows it as Today', () {
       expect(shortcutCandidateMenuItems,
           isNot(contains(todaysRecitationsMenuItem)));
-      expect(allFeaturesMenuItems, contains(todaysRecitationsMenuItem));
+      expect(allFeaturesMenuItems, isNot(contains(todaysRecitationsMenuItem)));
       expect(
           homeShortcutMenuItems(['today_s_recitations', 'duas'])
               .map((item) => item.analyticsId),
