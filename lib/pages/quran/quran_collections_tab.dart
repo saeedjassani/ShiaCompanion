@@ -1,19 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 
 import '../../constants.dart';
 import '../../data/quran_ali_verses.dart';
 import '../../data/quran_duas.dart';
 import '../../data/quran_mahdi_verses.dart';
 import '../../data/quran_prophet_stories.dart';
-import '../../data/universal_data.dart';
-import '../../services/analytics_service.dart';
 import '../../services/saved_verses_store.dart';
 import '../../theme/shia_colors.dart';
 import '../../utils/quran_index.dart';
 import '../../utils/shared_preferences.dart';
-import '../../widgets/favorite_icon.dart';
 import '../../widgets/outline_icon.dart';
 import '../../widgets/page_chrome.dart';
+import '../../widgets/responsive_content.dart';
 import '../../l10n/l10n.dart';
 
 /// The groups the Collections view can show, in pill order.
@@ -54,16 +53,15 @@ enum QuranCollection {
 /// the Quran rather than a way of walking through it, picked with a row of
 /// pills.
 ///
-/// This is also where the zikrs the old 'Surahs' list carried alongside the
-/// 114 - Ayat al Kursi and the Quran duas - live, since the surah list only
-/// shows surahs. New groups are one more [QuranCollection] value and one
-/// more case in [_bodySlivers].
+/// New groups are one more [QuranCollection] value and one more case in
+/// [_bodySlivers].
 ///
 /// Built as slivers, so the list scrolls with the rest of the Quran screen
 /// rather than in a box of its own under it.
 class QuranCollectionsSliver extends StatelessWidget {
   const QuranCollectionsSliver({
     super.key,
+    required this.gutter,
     required this.selected,
     required this.onSelect,
     required this.saved,
@@ -71,6 +69,9 @@ class QuranCollectionsSliver extends StatelessWidget {
     required this.onRemoveSaved,
   });
 
+  /// The page's side margins. Applied here rather than around the sliver so
+  /// the pills can scroll out from under the screen's edge.
+  final EdgeInsets gutter;
   final QuranCollection selected;
   final ValueChanged<QuranCollection> onSelect;
   final List<SavedVerse> saved;
@@ -82,23 +83,17 @@ class QuranCollectionsSliver extends StatelessWidget {
     return SliverMainAxisGroup(
       slivers: [
         SliverToBoxAdapter(
-          // Wrapped rather than scrolled sideways: with five collections a
-          // single row runs off a phone screen and hides the last ones.
-          child: Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: [
-              for (final collection in QuranCollection.values)
-                ChoicePill(
-                  label: collection.label,
-                  selected: collection == selected,
-                  onTap: () => onSelect(collection),
-                ),
-            ],
+          child: _CollectionPills(
+            gutter: gutter,
+            selected: selected,
+            onSelect: onSelect,
           ),
         ),
         const SliverToBoxAdapter(child: SizedBox(height: 14)),
-        ..._bodySlivers(context),
+        SliverPadding(
+          padding: gutter,
+          sliver: SliverMainAxisGroup(slivers: _bodySlivers(context)),
+        ),
       ],
     );
   }
@@ -128,53 +123,105 @@ class QuranCollectionsSliver extends StatelessWidget {
   }
 }
 
+/// The collections as one row of pills, scrolled sideways.
+///
+/// One row rather than wrapped: wrapped, the five took three lines of a phone
+/// screen before any of the list. The row runs to the screen's edge, so a
+/// pill cut off there shows there are more, and the remembered collection is
+/// scrolled into view on arrival, so someone who left on Saved sees it picked.
+class _CollectionPills extends StatefulWidget {
+  const _CollectionPills({
+    required this.gutter,
+    required this.selected,
+    required this.onSelect,
+  });
+
+  final EdgeInsets gutter;
+  final QuranCollection selected;
+  final ValueChanged<QuranCollection> onSelect;
+
+  @override
+  State<_CollectionPills> createState() => _CollectionPillsState();
+}
+
+class _CollectionPillsState extends State<_CollectionPills> {
+  final GlobalKey _selectedKey = GlobalKey();
+  final ScrollController _scroll = ScrollController();
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.selected != QuranCollection.values.first) {
+      WidgetsBinding.instance.addPostFrameCallback((_) => _revealSelected());
+    }
+  }
+
+  @override
+  void dispose() {
+    _scroll.dispose();
+    super.dispose();
+  }
+
+  /// Scrolls the row, and only the row, so the selected pill ends inside
+  /// the gutter. Left alone when it is already in view.
+  void _revealSelected() {
+    final pill = _selectedKey.currentContext?.findRenderObject();
+    if (pill == null || !_scroll.hasClients) return;
+    final position = _scroll.position;
+    final end =
+        RenderAbstractViewport.of(pill).getOffsetToReveal(pill, 1.0).offset +
+            widget.gutter.right;
+    if (end <= position.pixels) return;
+    _scroll.jumpTo(end.clamp(0.0, position.maxScrollExtent));
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MouseDragScroll(
+      child: SingleChildScrollView(
+        controller: _scroll,
+        scrollDirection: Axis.horizontal,
+        padding: widget.gutter,
+        child: Row(
+          children: [
+            for (final collection in QuranCollection.values) ...[
+              if (collection != QuranCollection.values.first)
+                const SizedBox(width: 8),
+              ChoicePill(
+                key: collection == widget.selected ? _selectedKey : null,
+                label: collection.label,
+                selected: collection == widget.selected,
+                onTap: () => widget.onSelect(collection),
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 String _verseTitle(VerseKey verse) {
   final name = surahInfoFor(verse.surah)?.displayName ??
       L10n.current.quranSurahNumber(verse.surah);
   return L10n.current.quranSurahAyah(name, verse.ayah ?? 1);
 }
 
-/// Ayat al Kursi and the duas recited with the Quran - the non-surah zikrs of
-/// the Quran category, opened like any other zikr - followed by the duas the
-/// Quran itself contains ([quranDuas]), opened in the reader at their ayah.
+/// The duas the Quran itself contains ([quranDuas]), each opened in the
+/// reader at its ayah.
+///
+/// Ayat al-Kursi and the duas recited with the Quran (after reciting, on a
+/// khatm) used to head this list, but they are zikrs rather than verses and
+/// did not sit well beside them; they are in the Duas list now, by alias,
+/// and Dua Khatm al-Quran is offered at the end of an-Nas and of Juz 30.
 ///
 /// Outside English a dua goes by its Arabic opening words rather than their
 /// transliteration, which the app shows no one but English readers.
 List<Widget> _quranDuaSlivers(
     BuildContext context, void Function(VerseKey verse) onOpenVerse) {
-  final uids = quranCompanionZikrUids();
   final arabicOpenings = context.l10n.localeName != 'en';
   final colors = ShiaColors.of(context);
   return [
-    if (uids.isNotEmpty) ...[
-      SliverCardList(
-        itemCount: uids.length,
-        itemBuilder: (context, index) {
-          // The same UniversalData shape the category lists build, so the
-          // favourite here is the same favourite as in the old Surahs list.
-          final itemData =
-              UniversalData(uids[index], items[uids[index]].toString(), 0);
-          return CardListRow(
-            first: index == 0,
-            last: index == uids.length - 1,
-            title: Text(itemData.displayTitle),
-            trailing: FavoriteHeartButton(favorite: itemData),
-            onTap: () => handleUniversalDataClick(
-              context,
-              itemData,
-              source: ZikrOpenSource.quran,
-            ),
-          );
-        },
-      ),
-      const SliverToBoxAdapter(child: SizedBox(height: 20)),
-    ],
-    SliverToBoxAdapter(
-      child: Padding(
-        padding: const EdgeInsets.only(bottom: 8),
-        child: GroupLabel(context.l10n.quranFromTheQuran),
-      ),
-    ),
     SliverCardList(
       itemCount: quranDuas.length,
       itemBuilder: (context, index) {

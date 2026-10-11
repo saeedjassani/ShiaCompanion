@@ -78,18 +78,24 @@ Future<void> openQuranJuz(
   );
 }
 
+/// Dua Khatm al-Quran, offered where the Quran ends - after an-Nas and after
+/// Juz 30.
+const String duaKhatmQuranUid = 'A3';
+
 /// The "Previous" / "Next" pair closing a surah or a juz.
 ///
 /// Two quiet links at either edge rather than a pair of full-width boxes: the
 /// end of a surah is a place to pause, and the way on only needs to be there
 /// when wanted. Either side is left out when there is nothing that way - no
-/// "Previous" on al-Fatihah, no "Next" on an-Nas - rather than shown disabled.
+/// "Previous" on al-Fatihah - rather than shown disabled. Where the Quran
+/// ends, the way on is Dua Khatm al-Quran, named alone, without a caption.
 class QuranSequenceFooter extends StatelessWidget {
   const QuranSequenceFooter({
     super.key,
     this.unit,
     required this.previousLabel,
     required this.nextLabel,
+    this.captionNext = true,
     required this.onPrevious,
     required this.onNext,
   });
@@ -99,6 +105,10 @@ class QuranSequenceFooter extends StatelessWidget {
   final String? unit;
   final String? previousLabel;
   final String? nextLabel;
+
+  /// Whether [nextLabel] has a "Next" caption over it - not when the way on
+  /// is not the next surah or juz but Dua Khatm al-Quran.
+  final bool captionNext;
   final VoidCallback onPrevious;
   final VoidCallback onNext;
 
@@ -132,9 +142,11 @@ class QuranSequenceFooter extends StatelessWidget {
               child: next == null
                   ? null
                   : _SequenceLink(
-                      caption: unit == null
-                          ? context.l10n.commonNext
-                          : context.l10n.quranNextUnit(unit!),
+                      caption: !captionNext
+                          ? null
+                          : unit == null
+                              ? context.l10n.commonNext
+                              : context.l10n.quranNextUnit(unit!),
                       label: next,
                       isNext: true,
                       onTap: onNext,
@@ -155,7 +167,7 @@ class _SequenceLink extends StatelessWidget {
     required this.onTap,
   });
 
-  final String caption;
+  final String? caption;
   final String label;
   final bool isNext;
   final VoidCallback onTap;
@@ -184,14 +196,16 @@ class _SequenceLink extends StatelessWidget {
                 crossAxisAlignment:
                     isNext ? CrossAxisAlignment.end : CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    caption.toUpperCase(),
-                    style: theme.textTheme.labelSmall?.copyWith(
-                      color: colorScheme.onSurfaceVariant,
-                      letterSpacing: 0.8,
+                  if (caption != null) ...[
+                    Text(
+                      caption!.toUpperCase(),
+                      style: theme.textTheme.labelSmall?.copyWith(
+                        color: colorScheme.onSurfaceVariant,
+                        letterSpacing: 0.8,
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 2),
+                    const SizedBox(height: 2),
+                  ],
                   Text(
                     label,
                     maxLines: 1,

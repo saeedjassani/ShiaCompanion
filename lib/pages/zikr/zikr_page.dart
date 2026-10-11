@@ -651,7 +651,7 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
     if (juz == null && surah == null) return null;
 
     final String? previousLabel;
-    final String? nextLabel;
+    String? nextLabel;
     if (juz != null) {
       previousLabel = juz > 1 ? context.l10n.quranJuzNumber(juz - 1) : null;
       nextLabel =
@@ -661,13 +661,41 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
       nextLabel = _surahSequenceLabel(surah + 1);
     }
 
+    // Nothing after an-Nas or Juz 30: the way on is the dua for completing
+    // the Quran instead.
+    final khatmTitle = items[duaKhatmQuranUid]?.toString();
+    final offerKhatmDua = nextLabel == null && khatmTitle != null;
+    if (offerKhatmDua) {
+      nextLabel = zikrDisplayTitle(duaKhatmQuranUid, khatmTitle);
+    }
+
     return QuranSequenceFooter(
       unit: juz != null ? null : context.l10n.quranUnitSurah,
       previousLabel: previousLabel,
       nextLabel: nextLabel,
+      captionNext: !offerKhatmDua,
       onPrevious: () => _openQuranSequenceStep(-1),
-      onNext: () => _openQuranSequenceStep(1),
+      onNext: offerKhatmDua
+          ? () => _openKhatmDua(khatmTitle)
+          : () => _openQuranSequenceStep(1),
     );
+  }
+
+  /// Opens Dua Khatm al-Quran over the reader, so back returns to the end of
+  /// the surah or juz just finished.
+  void _openKhatmDua(String title) {
+    unawaited(AnalyticsService.feature(
+      'quran_khatm_dua',
+      label: 'Quran end: Dua Khatm al-Quran',
+      parameters: {'from': widget.portion?.juz != null ? 'juz' : 'surah'},
+    ));
+    unawaited(pushPageRoute(
+      context,
+      ZikrPage(
+        UidTitleData(duaKhatmQuranUid, title),
+        source: ZikrOpenSource.quran,
+      ),
+    ));
   }
 
   String? _surahSequenceLabel(int surah) {

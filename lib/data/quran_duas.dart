@@ -35,9 +35,7 @@ class QuranDua {
 
 /// The duas of the Quran, in mushaf order.
 ///
-/// Verse-level picks, unlike the zikr entries above them in the Duas
-/// collection (Ayat al-Kursi, Dua Khatm al-Quran), which are whole zikrs of
-/// their own. Each opens the reader at its first ayah, so the Arabic,
+/// Verse-level picks: each opens the reader at its first ayah, so the Arabic,
 /// translation and surrounding verses come from the Quran itself rather than
 /// a second copy kept here.
 const List<QuranDua> quranDuas = [

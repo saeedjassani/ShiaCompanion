@@ -173,28 +173,33 @@ class _QuranPageState extends State<QuranPage> {
             }),
           ),
         ),
-        SliverPadding(
-          padding: gutter,
-          sliver: switch (_view) {
-            _QuranView.surahs => _SurahList(surahs: _surahs, onOpen: _open),
-            _QuranView.juz => _JuzList(juz: _juz, onOpenJuz: _openJuz),
-            // Saved verses sync, so the list follows them - including a
-            // verse saved on another device.
-            _QuranView.collections => ListenableBuilder(
-                listenable: SavedVersesManager.instance,
-                builder: (context, _) => QuranCollectionsSliver(
-                  selected: _collection,
-                  onSelect: (collection) {
-                    setState(() => _collection = collection);
-                    collection.remember();
-                  },
-                  saved: SavedVersesManager.instance.state.inMushafOrder,
-                  onOpenVerse: _open,
-                  onRemoveSaved: _removeSaved,
-                ),
+        switch (_view) {
+          _QuranView.surahs => SliverPadding(
+              padding: gutter,
+              sliver: _SurahList(surahs: _surahs, onOpen: _open),
+            ),
+          _QuranView.juz => SliverPadding(
+              padding: gutter,
+              sliver: _JuzList(juz: _juz, onOpenJuz: _openJuz),
+            ),
+          // Saved verses sync, so the list follows them - including a verse
+          // saved on another device. The gutter is applied inside, so the
+          // pills can scroll out from under the screen's edge.
+          _QuranView.collections => ListenableBuilder(
+              listenable: SavedVersesManager.instance,
+              builder: (context, _) => QuranCollectionsSliver(
+                gutter: gutter,
+                selected: _collection,
+                onSelect: (collection) {
+                  setState(() => _collection = collection);
+                  collection.remember();
+                },
+                saved: SavedVersesManager.instance.state.inMushafOrder,
+                onOpenVerse: _open,
+                onRemoveSaved: _removeSaved,
               ),
-          },
-        ),
+            ),
+        },
       ],
     );
   }
