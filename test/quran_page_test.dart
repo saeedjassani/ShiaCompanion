@@ -129,13 +129,13 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.text('Surah2').last);
     await tester.pumpAndSettle();
-    expect(find.text('Step 2 of 2 · Choose a verse (1 to 286)'),
-        findsOneWidget);
+    expect(
+        find.text('Step 2 of 2 · Choose a verse (1 to 286)'), findsOneWidget);
     // Nothing is chosen until a verse is tapped.
     expect(
       tester
-          .widget<FilledButton>(find.widgetWithText(FilledButton,
-              'Choose a verse'))
+          .widget<FilledButton>(
+              find.widgetWithText(FilledButton, 'Choose a verse'))
           .onPressed,
       isNull,
     );
@@ -149,8 +149,7 @@ void main() {
     expect(find.text('Open Surah2 2:255'), findsOneWidget);
   });
 
-  testWidgets('Go to a verse offers a reference typed in full',
-      (tester) async {
+  testWidgets('Go to a verse offers a reference typed in full', (tester) async {
     await pump(tester);
 
     await tester.tap(find.text('Go to a verse'));
@@ -260,31 +259,25 @@ void main() {
   });
 
   testWidgets(
-      'the Duas collection holds the non-surah Quran zikrs, Ayat al Kursi '
-      'included', (tester) async {
+      'the Duas collection leaves Ayat al Kursi and the Quran zikrs to the '
+      'Duas list', (tester) async {
     items = {
       ...items,
       'A2': 'Dua after reciting Holy Quran',
       'A4': 'Ayat al Kursi',
-      'E1': 'Some other dua',
     };
     await pump(tester);
     await openCollection(tester, 'Duas');
 
-    expect(find.text('Ayat al Kursi'), findsOneWidget);
-    expect(find.text('Dua after reciting Holy Quran'), findsOneWidget);
-    expect(find.text('Some other dua'), findsNothing);
-    // Only as where My reading starts, not as a row of the collection.
-    expect(find.text('Surah1'), findsOneWidget);
-    expect(find.text('7 verses'), findsNothing);
+    expect(find.text('Ayat al Kursi'), findsNothing);
+    expect(find.text('Dua after reciting Holy Quran'), findsNothing);
   });
 
-  testWidgets('the Duas collection lists the duas of the Quran after the zikrs',
+  testWidgets('the Duas collection lists the duas of the Quran',
       (tester) async {
     await pump(tester);
     await openCollection(tester, 'Duas');
 
-    expect(find.text('FROM THE QURAN'), findsOneWidget);
     expect(find.text('Rabbana Atina fid-Dunya Hasanah'), findsOneWidget);
     expect(find.text('Surah2 201 · For good in this world and the hereafter'),
         findsOneWidget);
