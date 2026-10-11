@@ -56,24 +56,6 @@
       }
     }
   },
-  "timeHoursAgo": "{hours}h ago",
-  "@timeHoursAgo": {
-    "placeholders": {
-      "hours": {
-        "type": "int",
-        "format": "decimalPattern"
-      }
-    }
-  },
-  "timeDaysAgo": "{days}d ago",
-  "@timeDaysAgo": {
-    "placeholders": {
-      "days": {
-        "type": "int",
-        "format": "decimalPattern"
-      }
-    }
-  },
   "settingsAdjustHijriDate": "Adjust Hijri date",
   "settingsPrayerTimesShown": "Prayer times shown",
   "settingsLocation": "Location",
@@ -1117,15 +1099,6 @@
   "hijriMonthShort10": "Shaw",
   "hijriMonthShort11": "Dhul Q",
   "hijriMonthShort12": "Dhul H",
-  "prayerUpdatedAgo": "updated {age}",
-  "@prayerUpdatedAgo": {
-    "description": "{age} is a relative time such as '3h ago'.",
-    "placeholders": {
-      "age": {
-        "type": "String"
-      }
-    }
-  },
   "prayerNextDay": "next day",
   "prayerLocating": "Locating…",
   "prayerFindingLocation": "Finding your location…",
@@ -1844,6 +1817,38 @@
   "locationPermissionShort": "Location permission needed",
   "locationNoFix": "Couldn't get a location fix",
   "locationUpdateFailed": "Couldn't update location",
+  "locationFromDaysAgo": "{days, plural, =1{Location from 1 day ago} other{Location from {days} days ago}}",
+  "@locationFromDaysAgo": {
+    "placeholders": {
+      "days": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    },
+    "description": "Under the city button on Home and the Calendar when the phone's location has not been updated for a day or more."
+  },
+  "locationAgeDays": "{days, plural, =1{1 day ago} other{{days} days ago}}",
+  "@locationAgeDays": {
+    "placeholders": {
+      "days": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    },
+    "description": "After why the location could not be updated, e.g. 'Location permission needed · 2 days ago'."
+  },
+  "locationActionAllow": "Allow",
+  "@locationActionAllow": {
+    "description": "Button after 'Location permission needed': asks for the permission again."
+  },
+  "locationActionTurnOn": "Turn on",
+  "@locationActionTurnOn": {
+    "description": "Button after 'Location services are off': opens the phone's location settings."
+  },
+  "locationActionUpdate": "Update",
+  "@locationActionUpdate": {
+    "description": "Button after 'Location from 2 days ago': fetches the location now."
+  },
   "quranPreviousUnit": "Previous {unit}",
   "@quranPreviousUnit": {
     "description": "{unit} is e.g. 'surah'.",

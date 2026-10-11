@@ -104,11 +104,15 @@ void main() {
     expect(find.byTooltip('Change city'), findsOneWidget);
   });
 
-  testWidgets('keeps the times and offers a retry when a refresh fails',
-      (tester) async {
+  testWidgets(
+      'keeps the times and says why under the city when a refresh '
+      'of a day-old reading fails', (tester) async {
     lat = 32.02;
     long = 44.34;
     city = 'Najaf';
+    service.setUpdatedAtForTest(
+      DateTime.now().subtract(const Duration(hours: 30)),
+    );
     GeolocatorPlatform.instance = _FakeGeolocator(serviceEnabled: false);
 
     await pumpCard(tester);
@@ -116,8 +120,35 @@ void main() {
     await tester.pump();
 
     expect(find.text('Fajr'), findsOneWidget);
-    expect(find.textContaining('Location services are off'), findsOneWidget);
+    expect(find.text('Location services are off · 1 day ago'), findsOneWidget);
+    expect(find.text('Turn on'), findsOneWidget);
     expect(find.byTooltip('Change city'), findsOneWidget);
+    // In the header, under the city - not on the prayer card.
+    expect(
+      find.descendant(
+        of: find.byType(HomeHeader),
+        matching: find.text('Location services are off · 1 day ago'),
+      ),
+      findsOneWidget,
+    );
+  });
+
+  testWidgets('a failed refresh of a recent reading says nothing',
+      (tester) async {
+    lat = 32.02;
+    long = 44.34;
+    city = 'Najaf';
+    service.setUpdatedAtForTest(
+      DateTime.now().subtract(const Duration(hours: 2)),
+    );
+    GeolocatorPlatform.instance = _FakeGeolocator(serviceEnabled: false);
+
+    await pumpCard(tester);
+    await withGeocode(() => service.refresh());
+    await tester.pump();
+
+    expect(find.text('Fajr'), findsOneWidget);
+    expect(find.textContaining('Location services are off'), findsNothing);
   });
 
   testWidgets('asks which city when the location has never resolved',
@@ -326,7 +357,14 @@ void main() {
 
     await pumpCard(tester);
 
-    expect(find.textContaining('updated 1d ago'), findsOneWidget);
+    expect(
+      find.descendant(
+        of: find.byType(HomeHeader),
+        matching: find.text('Location from 1 day ago'),
+      ),
+      findsOneWidget,
+    );
+    expect(find.text('Update'), findsOneWidget);
   });
 
   testWidgets('invokes onTap when card is tapped', (tester) async {

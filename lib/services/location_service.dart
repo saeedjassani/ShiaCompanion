@@ -35,8 +35,10 @@ class LocationService extends ChangeNotifier {
   static const Duration freshnessWindow = Duration(minutes: 30);
 
   /// Past this we tell the user how old the reading is, because at that point
-  /// "these times might be for the wrong city" is a real possibility.
-  static const Duration staleDisclosureAge = Duration(hours: 6);
+  /// "these times might be for the wrong city" is a real possibility. A day,
+  /// not less: prayer times only drift noticeably for someone who has
+  /// travelled, and a failed refresh of a younger reading is not worth a word.
+  static const Duration staleDisclosureAge = Duration(hours: 24);
 
   /// How long an automatic refresh backs off after a failure. A device that
   /// cannot produce a fix at all — permission denied, location services off —

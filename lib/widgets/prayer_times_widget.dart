@@ -166,8 +166,6 @@ class PrayerTimesState extends State<HomePrayerTimesCard> {
     final allTomorrow = readings.every((r) => !_isSameDate(r.dateTime, now));
     final next = readings.first;
     final later = readings.skip(1).toList(growable: false);
-    final failed = _location.status == LocationRefreshStatus.failed;
-    final showUpdated = !failed && city != null && _location.shouldDiscloseAge;
     // A chosen city whose clock no longer matches the phone's: most likely
     // one picked on a trip, still set after the flight home.
     final askStillInCity = _location.chosenCityClockDifference != null;
@@ -195,19 +193,6 @@ class PrayerTimesState extends State<HomePrayerTimesCard> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    if (failed || showUpdated)
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(6, 0, 6, 8),
-                        child: Text(
-                          failed
-                              ? _location.failureMessage
-                              : context.l10n.prayerUpdatedAgo(
-                                  _ageLabel(_location.updatedAt!)),
-                          style: ShiaText.caption.copyWith(
-                            color: colors.onPrayerCardMuted,
-                          ),
-                        ),
-                      ),
                     _NextPrayer(
                       reading: next,
                       label: allTomorrow
@@ -907,12 +892,4 @@ class _OutlineCardButton extends StatelessWidget {
       ),
     );
   }
-}
-
-String _ageLabel(DateTime updatedAt) {
-  final age = DateTime.now().difference(updatedAt);
-  if (age.inDays >= 1) {
-    return L10n.current.timeDaysAgo(age.inDays);
-  }
-  return L10n.current.timeHoursAgo(age.inHours);
 }
