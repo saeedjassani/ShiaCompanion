@@ -336,8 +336,11 @@
     "slug": "65-al-talaaq"
   },
   "A7": {
-    "title": "3: Ali 'Imran آل عمران",
-    "slug": "3-aal-e-imraan"
+    "title": "3: Aal-e-Imran آل عمران",
+    "slug": "3-aal-e-imraan",
+    "slugAliases": [
+      "3-ali-imran"
+    ]
   },
   "A70": {
     "title": "66: At-Tahrim التحريم",
