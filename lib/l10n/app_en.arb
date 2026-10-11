@@ -3346,14 +3346,15 @@
       }
     }
   },
-  "statsTimes": "{count, plural, =1{once} other{{formatted} times}}",
-  "@statsTimes": {
-    "description": "How often a zikr was recited: '41 times'.",
+  "statsActiveDays": "Active days",
+  "@statsActiveDays": {
+    "description": "Label of the My Stats tile counting the days on which anything was recited."
+  },
+  "statsThisWeek": "{count} this week",
+  "@statsThisWeek": {
+    "description": "Under a My Stats tile: how much of the total fell in the last 7 days, e.g. '12 this week'.",
     "placeholders": {
       "count": {
-        "type": "int"
-      },
-      "formatted": {
         "type": "String"
       }
     }

@@ -204,7 +204,7 @@ class _StatsHistoryCardState extends State<StatsHistoryCard> {
               ].join(l10n.listSeparator),
             ),
             excludeSemantics: true,
-            child: _HistoryBars(
+            child: StatsBarChart(
               values: values,
               labels: [
                 for (var i = 0; i < bars.length; i++)
@@ -216,8 +216,9 @@ class _StatsHistoryCardState extends State<StatsHistoryCard> {
               ],
               // Thirty values would overlap too.
               showValues: _period != StatsPeriod.month,
-              format: (value) =>
+              format: (value) => localizeDigits(
                   value < 1000 ? _count.format(value) : _compact.format(value),
+                  l10n),
             ),
           ),
           const SizedBox(height: 8),
@@ -240,81 +241,173 @@ class _StatsHistoryCardState extends State<StatsHistoryCard> {
   }
 }
 
-/// The bars of [StatsHistoryCard]: one per value, its value on top when
-/// [showValues], its label under it, and the last - today, or this month -
-/// in the accent.
-class _HistoryBars extends StatelessWidget {
-  const _HistoryBars({
+/// A bar chart on a y-axis: one bar per value, scaled to a clean top tick
+/// (0 / 5 / 10, 0 / 1K / 2K) with a hairline gridline at each tick and its
+/// number at the start edge, its value on top when [showValues], its label
+/// under it, and the last - today, or this month - in the accent when
+/// [highlightLast]. [tooltips], when given, name each bar on hover or long
+/// press.
+class StatsBarChart extends StatelessWidget {
+  const StatsBarChart({
+    super.key,
     required this.values,
     required this.labels,
-    required this.showValues,
     required this.format,
+    this.showValues = false,
+    this.highlightLast = true,
+    this.tooltips,
+    this.barArea = 96,
   });
 
   final List<int> values;
   final List<String> labels;
   final bool showValues;
+  final bool highlightLast;
+  final List<String>? tooltips;
   final String Function(int value) format;
 
-  static const double _barArea = 96;
+  /// The height the top tick sits at.
+  final double barArea;
+
+  /// The ticks from 0 up to just past [best], a clean step apart (1, 2 or 5
+  /// times a power of ten) - two to four intervals, never a fraction.
+  @visibleForTesting
+  static List<int> ticksFor(int best) {
+    if (best <= 0) return const [0, 1];
+    final rough = best / 3;
+    var magnitude = 1;
+    while (magnitude * 10 <= rough) {
+      magnitude *= 10;
+    }
+    final step = [1, 2, 5, 10]
+        .map((m) => m * magnitude)
+        .firstWhere((step) => step >= rough);
+    final top = (best / step).ceil() * step;
+    return [for (var tick = 0; tick <= top; tick += step) tick];
+  }
 
   @override
   Widget build(BuildContext context) {
     final colors = ShiaColors.of(context);
-    final best = values.fold<int>(0, math.max);
     final style = ShiaText.caption.copyWith(color: colors.textMuted);
-    final last = values.length - 1;
+    final last = highlightLast ? values.length - 1 : -1;
+    final ticks = ticksFor(values.fold<int>(0, math.max));
+    final top = ticks.last;
+    final textScaler = MediaQuery.textScalerOf(context);
+    final direction = Directionality.of(context);
+
+    // The axis is as wide as its widest number, and each number is centred
+    // on its gridline.
+    final tickPainters = [
+      for (final tick in ticks)
+        TextPainter(
+          text: TextSpan(text: format(tick), style: style),
+          textDirection: direction,
+          textScaler: textScaler,
+          maxLines: 1,
+        )..layout(),
+    ];
+    final axisWidth =
+        tickPainters.fold<double>(0, (w, p) => math.max(w, p.width)) + 6;
+    final tickHeight = tickPainters.first.height;
+    for (final painter in tickPainters) {
+      painter.dispose();
+    }
 
     return LayoutBuilder(
       builder: (context, constraints) {
-        final column = constraints.maxWidth / values.length;
+        final column = (constraints.maxWidth - axisWidth) / values.length;
         final barWidth = math.min(26.0, column * 0.7);
+        final barColor = Color.lerp(colors.line, colors.chevron, 0.25);
+
+        Widget bar(int i) {
+          Widget mark = Container(
+            width: barWidth,
+            height: math.max(2, barArea * values[i] / top),
+            decoration: BoxDecoration(
+              color: i == last ? colors.accent : barColor,
+              borderRadius: BorderRadius.vertical(
+                top: Radius.circular(math.min(6, barWidth / 3)),
+                bottom: const Radius.circular(2),
+              ),
+            ),
+          );
+          final tooltip = tooltips?[i];
+          if (tooltip != null) {
+            mark = Tooltip(message: tooltip, child: mark);
+          }
+          return mark;
+        }
+
         return Column(
           children: [
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                for (var i = 0; i < values.length; i++)
-                  Expanded(
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
+            Padding(
+              // Room for the top tick's number above its gridline.
+              padding: EdgeInsets.only(top: tickHeight / 2),
+              child: Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  for (final tick in ticks) ...[
+                    Positioned(
+                      left: 0,
+                      right: 0,
+                      bottom: barArea * tick / top,
+                      child: Padding(
+                        padding: EdgeInsetsDirectional.only(start: axisWidth),
+                        child: Container(height: 1, color: colors.line),
+                      ),
+                    ),
+                    PositionedDirectional(
+                      start: 0,
+                      width: axisWidth - 6,
+                      bottom: barArea * tick / top - tickHeight / 2,
+                      child: Text(
+                        format(tick),
+                        maxLines: 1,
+                        textAlign: TextAlign.end,
+                        style: style,
+                      ),
+                    ),
+                  ],
+                  ConstrainedBox(
+                    constraints: BoxConstraints(minHeight: barArea),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
-                        if (showValues)
-                          FittedBox(
-                            fit: BoxFit.scaleDown,
-                            child: Text(
-                              format(values[i]),
-                              maxLines: 1,
-                              style: style.copyWith(
-                                fontWeight: FontWeight.w600,
-                                color: i == last ? colors.text : null,
-                              ),
+                        SizedBox(width: axisWidth),
+                        for (var i = 0; i < values.length; i++)
+                          Expanded(
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                if (showValues) ...[
+                                  FittedBox(
+                                    fit: BoxFit.scaleDown,
+                                    child: Text(
+                                      format(values[i]),
+                                      maxLines: 1,
+                                      style: style.copyWith(
+                                        fontWeight: FontWeight.w600,
+                                        color: i == last ? colors.text : null,
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 4),
+                                ],
+                                bar(i),
+                              ],
                             ),
                           ),
-                        if (showValues) const SizedBox(height: 4),
-                        Container(
-                          width: barWidth,
-                          height: best == 0
-                              ? 2
-                              : math.max(2, _barArea * values[i] / best),
-                          decoration: BoxDecoration(
-                            color: i == last
-                                ? colors.accent
-                                : Color.lerp(colors.line, colors.chevron, 0.25),
-                            borderRadius: BorderRadius.vertical(
-                              top: Radius.circular(math.min(6, barWidth / 3)),
-                              bottom: const Radius.circular(2),
-                            ),
-                          ),
-                        ),
                       ],
                     ),
                   ),
-              ],
+                ],
+              ),
             ),
             const SizedBox(height: 4),
             Row(
               children: [
+                SizedBox(width: axisWidth),
                 for (var i = 0; i < labels.length; i++)
                   Expanded(
                     // A label can be wider than its bar's column (a month's

@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shia_companion/constants.dart';
 import 'package:shia_companion/pages/my_stats_page.dart';
+import 'package:shia_companion/pages/stats/stats_charts.dart';
 import 'package:shia_companion/services/activity_stats_store.dart';
 import 'package:shia_companion/services/recitation_tracker_manager.dart';
 import 'package:shia_companion/utils/quran_index.dart';
@@ -67,10 +68,15 @@ void main() {
     expect(find.text('YOUR MOST RECITED'), findsOneWidget);
     expect(find.text('Milestones'), findsNothing);
     expect(find.text('Recent sessions'), findsNothing);
-    // The totals live under History's All time tab, not in tiles.
-    expect(find.text('Verses recited'), findsNothing);
-    expect(find.text('Active days'), findsNothing);
+    // Lifetime totals as tiles: 7 + 141 + 19 verses over three days, and
+    // all of it within the week.
+    expect(find.text('Active days'), findsOneWidget);
+    expect(find.text('167'), findsOneWidget);
+    expect(find.text('167 this week'), findsOneWidget);
+    expect(find.text('3 this week'), findsOneWidget);
     expect(find.text('Sessions'), findsNothing);
+    // Your most recited counts plainly: "1", not "once".
+    expect(find.text('once'), findsNothing);
     expect(find.text('Quran progress'), findsOneWidget);
     expect(find.text('Family'), findsWidgets);
     expect(find.text('Recited till'), findsOneWidget);
@@ -80,18 +86,31 @@ void main() {
     expect(find.text('Continue'), findsNothing);
 
     // Switching the history metric re-plots without error.
-    await tester.tap(find.text('Zikrs'));
+    // The tiles name the same metrics, so tap the history card's pills.
+    Finder inHistory(String text) => find.descendant(
+        of: find.byType(StatsHistoryCard), matching: find.text(text));
+    await tester.tap(inHistory('Zikrs'));
     await tester.tap(find.text('Month'));
     await tester.pumpAndSettle();
     expect(tester.takeException(), isNull);
 
     // All time: the lifetime total - 7 + 141 + 19 verses - and months for
     // bars.
-    await tester.tap(find.text('Verses'));
+    await tester.tap(inHistory('Verses'));
     await tester.tap(find.text('All time'));
     await tester.pumpAndSettle();
     expect(tester.takeException(), isNull);
     expect(find.text('167 verses in total'), findsOneWidget);
     expect(find.textContaining('Best month:'), findsOneWidget);
+  });
+
+  test("The bar chart's y-axis steps cleanly to just past the best value", () {
+    expect(StatsBarChart.ticksFor(0), [0, 1]);
+    expect(StatsBarChart.ticksFor(1), [0, 1]);
+    expect(StatsBarChart.ticksFor(3), [0, 1, 2, 3]);
+    expect(StatsBarChart.ticksFor(7), [0, 5, 10]);
+    expect(StatsBarChart.ticksFor(12), [0, 5, 10, 15]);
+    expect(StatsBarChart.ticksFor(167), [0, 100, 200]);
+    expect(StatsBarChart.ticksFor(1400), [0, 500, 1000, 1500]);
   });
 }

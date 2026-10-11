@@ -55,6 +55,64 @@ class StatsSectionTitle extends StatelessWidget {
   }
 }
 
+/// One headline number in a card: what it counts, the number in large
+/// type, and an optional line under it ("12 this week").
+class StatsTile extends StatelessWidget {
+  const StatsTile({
+    super.key,
+    required this.label,
+    required this.value,
+    this.detail,
+  });
+
+  final String label;
+  final String value;
+  final String? detail;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = ShiaColors.of(context);
+    return Semantics(
+      container: true,
+      child: StatsCard(
+        padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              label,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: ShiaText.secondary.copyWith(color: colors.textMuted),
+            ),
+            const SizedBox(height: 2),
+            FittedBox(
+              fit: BoxFit.scaleDown,
+              alignment: AlignmentDirectional.centerStart,
+              child: Text(
+                value,
+                maxLines: 1,
+                style: ShiaText.largeTitle.copyWith(
+                  fontSize: 26,
+                  height: 32 / 26,
+                  color: colors.text,
+                ),
+              ),
+            ),
+            if (detail != null)
+              Text(
+                detail!,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: ShiaText.caption.copyWith(color: colors.textMuted),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 /// A ring filled to [value] (0-1) with [center] inside it.
 class ProgressRing extends StatelessWidget {
   const ProgressRing({
