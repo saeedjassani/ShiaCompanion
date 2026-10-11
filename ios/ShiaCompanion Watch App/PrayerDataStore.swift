@@ -263,7 +263,7 @@ nonisolated struct HijriDay: Hashable, Sendable {
     let eventShort: String
     /// "Birth", "Martyrdom", "Death", or empty for an event about no one person.
     let kind: String
-    /// events.json's colour: 0 green, 1 red, -1 none.
+    /// events.json's colour: 0 mourning, 1 joy, -1 none.
     let color: Int
 
     /// "13 Jumada al-Awwal", for the app's own screens.
@@ -363,11 +363,12 @@ nonisolated func calendarMetaLine(kind: String, start: Date, now: Date = Date())
     return days <= 0 ? "Today · \(kind)" : "\(kind) · \(time)"
 }
 
-/// events.json's colours, read the way the phone's Calendar page reads them.
+/// events.json's colours, read the way the phone's Calendar page reads them:
+/// green for joy, and for mourning grey, as black would vanish on the watch.
 nonisolated func islamicEventColor(_ code: Int) -> Color {
     switch code {
-    case 0: return .green
-    case 1: return .red
+    case 0: return .gray
+    case 1: return .green
     default: return .accentColor
     }
 }

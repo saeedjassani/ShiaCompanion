@@ -162,6 +162,10 @@ class _CalendarPageState extends State<CalendarPage> {
       onPick: _pick,
       onSwipe: _shiftMonth,
     );
+    final gridAndLegend = Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [grid, const SizedBox(height: 10), const _EventLegend()],
+    );
 
     final event = _eventFor(_selected);
     final dayHeading = _DayHeading(
@@ -186,7 +190,7 @@ class _CalendarPageState extends State<CalendarPage> {
       ScreenClass.phone => column([
           topBar,
           monthHeader,
-          grid,
+          gridAndLegend,
           Divider(height: 1, thickness: 1, color: colors.line),
           dayHeading,
           if (eventCard != null) eventCard,
@@ -196,7 +200,7 @@ class _CalendarPageState extends State<CalendarPage> {
       ScreenClass.tablet => column([
           topBar,
           monthHeader,
-          grid,
+          gridAndLegend,
           Divider(height: 1, thickness: 1, color: colors.line),
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -221,7 +225,7 @@ class _CalendarPageState extends State<CalendarPage> {
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Expanded(child: column([monthHeader, grid], gap: 16)),
+              Expanded(child: column([monthHeader, gridAndLegend], gap: 16)),
               const SizedBox(width: 40),
               SizedBox(
                 width: 360,
@@ -282,10 +286,13 @@ String _hijriSpanText(BuildContext context, DateTime month) {
       '${_hijriMonth(context, last.hMonth)} ${last.hYear}';
 }
 
-/// How an events.json day is coloured. Its `color` has always meant 0 green
-/// and 1 red, the way the calendar printed by H. Karmali in Mumbai marks the
-/// year: red for joy (a birth, an Eid), green for mourning (a martyrdom, a
-/// death). Anything else gets the plain beige.
+/// How an events.json day is coloured. Its `color` is 1 for joy (a birth, an
+/// Eid) and 0 for mourning (a martyrdom, a death), the codes of the calendar
+/// printed by H. Karmali in Mumbai, which marked them red and green. The app
+/// is read far beyond Mumbai, so joy is green, the colour of the Ahl al-Bayt
+/// and of Ghadir and Mid-Sha'ban lights, and mourning is black, worn and hung
+/// for Muharram everywhere; red, the blood of Karbala to many readers, is
+/// left out. Anything else gets the plain beige.
 @immutable
 class CalendarEventTone {
   const CalendarEventTone({
@@ -310,8 +317,8 @@ class CalendarEventTone {
     final colors = ShiaColors.of(context);
     final dark = Theme.of(context).brightness == Brightness.dark;
     return switch (event['color']) {
-      0 => dark ? _darkGreen : _lightGreen,
-      1 => dark ? _darkRed : _lightRed,
+      0 => dark ? _darkMourning : _lightMourning,
+      1 => dark ? _darkJoy : _lightJoy,
       _ => CalendarEventTone(
           tint: colors.well,
           line: colors.line,
@@ -321,30 +328,81 @@ class CalendarEventTone {
     };
   }
 
-  static const _lightGreen = CalendarEventTone(
+  /// The two coloured tones, for the legend under the month.
+  static CalendarEventTone joy(BuildContext context) =>
+      Theme.of(context).brightness == Brightness.dark ? _darkJoy : _lightJoy;
+  static CalendarEventTone mourning(BuildContext context) =>
+      Theme.of(context).brightness == Brightness.dark
+          ? _darkMourning
+          : _lightMourning;
+
+  static const _lightJoy = CalendarEventTone(
     tint: Color(0xFFE1EFE4),
     line: Color(0xFFBFDCC7),
     dot: Color(0xFF2F7A4A),
     selectedDot: Color(0xFF9FD8B0),
   );
-  static const _lightRed = CalendarEventTone(
-    tint: Color(0xFFF9E2DE),
-    line: Color(0xFFEDC3BC),
-    dot: Color(0xFFB3261E),
-    selectedDot: Color(0xFFF4B4AE),
+
+  /// A pale grey cell with a near-black edge: a solid black cell would bury
+  /// the day's number, and Muharram has a dozen of them.
+  static const _lightMourning = CalendarEventTone(
+    tint: Color(0xFFDCDDE0),
+    line: Color(0xFF5B5D63),
+    dot: Color(0xFF1F2023),
+    selectedDot: Color(0xFF1F2023),
   );
-  static const _darkGreen = CalendarEventTone(
+  static const _darkJoy = CalendarEventTone(
     tint: Color(0xFF1E3325),
     line: Color(0xFF2F5A3C),
     dot: Color(0xFF7FBF95),
     selectedDot: Color(0xFF1E5C35),
   );
-  static const _darkRed = CalendarEventTone(
-    tint: Color(0xFF3B201C),
-    line: Color(0xFF6A302A),
-    dot: Color(0xFFF2B8B5),
-    selectedDot: Color(0xFF9C2A22),
+
+  /// Black against the dark page's brown, edged in grey to stand off it.
+  static const _darkMourning = CalendarEventTone(
+    tint: Color(0xFF000000),
+    line: Color(0xFF5A5D63),
+    dot: Color(0xFFC5C8CE),
+    selectedDot: Color(0xFF000000),
   );
+}
+
+/// What the two colours mean, in a line under the month.
+class _EventLegend extends StatelessWidget {
+  const _EventLegend();
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = ShiaColors.of(context);
+    Widget key(CalendarEventTone tone, String label) => Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 12,
+              height: 12,
+              decoration: BoxDecoration(
+                color: tone.tint,
+                borderRadius: BorderRadius.circular(3),
+                border: Border.all(color: tone.line, width: 1.5),
+              ),
+            ),
+            const SizedBox(width: 6),
+            Text(
+              label,
+              style: ShiaText.caption.copyWith(color: colors.textMuted),
+            ),
+          ],
+        );
+    return Wrap(
+      spacing: 16,
+      runSpacing: 4,
+      children: [
+        key(CalendarEventTone.joy(context), context.l10n.calendarLegendJoy),
+        key(CalendarEventTone.mourning(context),
+            context.l10n.calendarLegendMourning),
+      ],
+    );
+  }
 }
 
 /// The month as the page's title, the Hijri months it spans under it, and
