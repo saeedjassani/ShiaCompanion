@@ -66,8 +66,7 @@ class LibraryService {
   static Future<void> _loadRetiredSlugs() async {
     if (_retiredSlugs != null) return;
     try {
-      final encoded =
-          await rootBundle.loadString('assets/retired_slugs.json');
+      final encoded = await rootBundle.loadString('assets/retired_slugs.json');
       final decoded = json.decode(encoded);
       _retiredSlugs = decoded is Map
           ? decoded.map((k, v) => MapEntry(k.toString(), v.toString()))
@@ -229,7 +228,8 @@ class LibraryService {
       'bookSlug': bookSlug,
       'title': title,
       'savedAt': DateTime.now().toUtc().toIso8601String(),
-      'chapters': chapters.map((c) => {'slug': c.uid, 'title': c.title}).toList(),
+      'chapters':
+          chapters.map((c) => {'slug': c.uid, 'title': c.title}).toList(),
     };
     await File('${bookDir.path}/manifest.json')
         .writeAsString(jsonEncode(manifest));
@@ -263,9 +263,12 @@ class LibraryService {
             final content = await manifestFile.readAsString();
             final decoded = jsonDecode(content) as Map<String, dynamic>;
             saved.add(SavedBook(
-              bookSlug: decoded['bookSlug']?.toString() ?? entry.path.split('/').last,
+              bookSlug:
+                  decoded['bookSlug']?.toString() ?? entry.path.split('/').last,
               title: decoded['title']?.toString() ?? 'Unknown',
-              savedAt: DateTime.tryParse(decoded['savedAt']?.toString() ?? '') ?? DateTime.now(),
+              savedAt:
+                  DateTime.tryParse(decoded['savedAt']?.toString() ?? '') ??
+                      DateTime.now(),
             ));
           } catch (_) {
             // skip corrupted manifest
@@ -284,7 +287,8 @@ class LibraryService {
     return await bookDir.exists();
   }
 
-  static Future<String> loadSavedChapterMarkdown(String bookSlug, String chapterSlug) async {
+  static Future<String> loadSavedChapterMarkdown(
+      String bookSlug, String chapterSlug) async {
     final dir = await _offlineLibraryDir();
     final file = File('${dir.path}/$bookSlug/$chapterSlug.md');
     if (!await file.exists()) {

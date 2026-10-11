@@ -69,7 +69,8 @@ class ZikrReminderService extends ChangeNotifier {
 
   Future<int> _allocateBaseId() async {
     final next = SP.prefs.getInt(_nextBaseIdKey) ?? _baseIdStart;
-    await SP.prefs.setInt(_nextBaseIdKey, next + zikrReminderIdSlotsPerReminder);
+    await SP.prefs
+        .setInt(_nextBaseIdKey, next + zikrReminderIdSlotsPerReminder);
     return next;
   }
 

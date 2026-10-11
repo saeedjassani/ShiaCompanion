@@ -210,6 +210,7 @@ final List<HomeMenuItem> homeMenuItems = List.unmodifiable([
     pageBuilder: () => ItemList("I", L10n.current.menuBaaqeyaat),
   ),
   playlistsMenuItem,
+  myStatsMenuItem,
   HomeMenuItem(
     label: 'Qibla Finder',
     analyticsId: 'qibla_finder',
@@ -314,10 +315,7 @@ final HomeMenuItem playlistsMenuItem = HomeMenuItem(
   pageBuilder: () => const PlaylistsPage(),
 );
 
-/// Personal stats and community totals. Still dark-launched to admins -
-/// move this into [homeMenuItems] when it ships. Recording already runs for everyone, locally, so
-/// readers have their history on launch day; see ActivityStatsStore for the
-/// sync, which is gated the same way until then.
+/// Personal stats and community totals.
 final HomeMenuItem myStatsMenuItem = HomeMenuItem(
   label: 'My Stats',
   analyticsId: 'my_stats',
@@ -338,7 +336,6 @@ final List<HomeMenuItem> adminHomeMenuItems = List.unmodifiable([
     pageBuilder: () => const UsageDashboardPage(),
     countsAsFeatureUse: false,
   ),
-  myStatsMenuItem,
   HomeMenuItem(
     label: 'Mistake Reports',
     analyticsId: 'mistake_reports',

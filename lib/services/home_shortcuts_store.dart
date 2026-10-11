@@ -27,7 +27,7 @@ class HomeShortcutsStore extends ChangeNotifier {
     'duas',
     'ziyarats',
     'taqeebat_e_namaz',
-    'namaz',
+    'my_stats',
     'calendar_prayer_times',
     'tasbeeh_counter',
     'qibla_finder',

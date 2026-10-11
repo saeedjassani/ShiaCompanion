@@ -92,7 +92,8 @@ CompassReading? _toReading(JSObject event) {
   // Without the absolute flag the angles are relative to wherever the device
   // happened to be when the page loaded, which is worthless as a compass.
   final absolute = event.getProperty<JSAny?>('absolute'.toJS);
-  if (!absolute.isA<JSBoolean>() || !(absolute as JSBoolean).toDart) return null;
+  if (!absolute.isA<JSBoolean>() || !(absolute as JSBoolean).toDart)
+    return null;
 
   final alpha = _numberProperty(event, 'alpha');
   final beta = _numberProperty(event, 'beta');
@@ -100,9 +101,8 @@ CompassReading? _toReading(JSObject event) {
   if (alpha == null || beta == null || gamma == null) return null;
 
   return CompassReading(
-    headingDegrees:
-        normalizeBearing(_headingFromEulerAngles(alpha, beta, gamma) +
-            _screenAngleDegrees),
+    headingDegrees: normalizeBearing(
+        _headingFromEulerAngles(alpha, beta, gamma) + _screenAngleDegrees),
     reference: NorthReference.magnetic,
   );
 }

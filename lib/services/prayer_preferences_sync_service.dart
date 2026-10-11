@@ -100,7 +100,8 @@ class PrayerPreferencesSyncService {
   /// Pushes all eight toggles plus the "asked" flag at once — for the
   /// all-or-nothing opt-in switch, which rewrites every prayer together.
   Future<void> pushAzaanOptInBulk() => _pushIfSignedIn({
-        for (final key in _notificationKeys) key: SP.prefs.getBool(key) ?? false,
+        for (final key in _notificationKeys)
+          key: SP.prefs.getBool(key) ?? false,
         _askedField: SP.prefs.getBool(_askedField) ?? false,
       });
 
@@ -121,8 +122,8 @@ class PrayerPreferencesSyncService {
 
   /// Pushes which times the home card and home screen widgets show.
   Future<void> pushWidgetPrayerTimes() {
-    final ids = SP.prefs.getStringList(_widgetTimesField) ??
-        defaultWidgetPrayerTimeIds;
+    final ids =
+        SP.prefs.getStringList(_widgetTimesField) ?? defaultWidgetPrayerTimeIds;
     return _pushIfSignedIn({_widgetTimesField: ids});
   }
 
@@ -147,9 +148,8 @@ class PrayerPreferencesSyncService {
       for (final name in _prayerBaseNames)
         soundPreferenceKeyForPrayer(name):
             SP.prefs.getString(soundPreferenceKeyForPrayer(name)) ?? '',
-      _widgetTimesField:
-          SP.prefs.getStringList(_widgetTimesField) ??
-              defaultWidgetPrayerTimeIds,
+      _widgetTimesField: SP.prefs.getStringList(_widgetTimesField) ??
+          defaultWidgetPrayerTimeIds,
     };
   }
 

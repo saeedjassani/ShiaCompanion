@@ -140,7 +140,7 @@ void main() {
           'Duas',
           'Ziyarats',
           'Taqeebat e Namaz',
-          'Namaz',
+          'My Stats',
           'Calendar',
           'Tasbeeh',
           'Qibla',

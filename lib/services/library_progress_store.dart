@@ -102,7 +102,8 @@ class LibraryProgressStore {
 
       final entries = decoded
           .whereType<Map>()
-          .map((json) => LibraryProgress.fromJson(Map<String, dynamic>.from(json)))
+          .map((json) =>
+              LibraryProgress.fromJson(Map<String, dynamic>.from(json)))
           .where((p) => p.bookSlug.isNotEmpty && p.chapterSlug.isNotEmpty)
           .toList();
       entries.sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
@@ -122,8 +123,10 @@ class LibraryProgressStore {
     try {
       final decoded = jsonDecode(legacyEncoded);
       if (decoded is! Map) return const [];
-      final progress = LibraryProgress.fromJson(Map<String, dynamic>.from(decoded));
-      if (progress.bookSlug.isEmpty || progress.chapterSlug.isEmpty) return const [];
+      final progress =
+          LibraryProgress.fromJson(Map<String, dynamic>.from(decoded));
+      if (progress.bookSlug.isEmpty || progress.chapterSlug.isEmpty)
+        return const [];
 
       SP.prefs.setString(_recentReadsKey, jsonEncode([progress.toJson()]));
       SP.prefs.remove(_legacyLastReadKey);
@@ -140,7 +143,9 @@ class LibraryProgressStore {
   Future<void> save(LibraryProgress progress) {
     if (!SP.isInitialized) return Future.value();
 
-    final entries = readAll().where((p) => p.bookSlug != progress.bookSlug).toList()
+    final entries = readAll()
+        .where((p) => p.bookSlug != progress.bookSlug)
+        .toList()
       ..add(progress);
     entries.sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
     final capped = entries.take(maxEntries).toList();
