@@ -228,20 +228,23 @@ class _ReaderTextSheetState extends State<ReaderTextSheet> {
               onBigger: arabicFontSize < maxArabicFontSize
                   ? () => _stepArabic(1)
                   : null,
+              last: ZikrTranslations.instance.isArabic,
             ),
-            _SizeRow(
-              label: l10n.readerEnglishSize,
-              value: englishFontSize,
-              smallerLabel: l10n.readerEnglishSmaller,
-              biggerLabel: l10n.readerEnglishBigger,
-              onSmaller: englishFontSize > minEnglishFontSize
-                  ? () => _stepEnglish(-1)
-                  : null,
-              onBigger: englishFontSize < maxEnglishFontSize
-                  ? () => _stepEnglish(1)
-                  : null,
-              last: true,
-            ),
+            // Read in Arabic there are no translation lines to size.
+            if (!ZikrTranslations.instance.isArabic)
+              _SizeRow(
+                label: l10n.readerEnglishSize,
+                value: englishFontSize,
+                smallerLabel: l10n.readerEnglishSmaller,
+                biggerLabel: l10n.readerEnglishBigger,
+                onSmaller: englishFontSize > minEnglishFontSize
+                    ? () => _stepEnglish(-1)
+                    : null,
+                onBigger: englishFontSize < maxEnglishFontSize
+                    ? () => _stepEnglish(1)
+                    : null,
+                last: true,
+              ),
           ]),
           Padding(
             padding: const EdgeInsets.fromLTRB(4, 6, 4, 0),

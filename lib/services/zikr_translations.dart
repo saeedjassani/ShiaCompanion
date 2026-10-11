@@ -135,6 +135,10 @@ class ZikrTranslations extends ChangeNotifier {
 
   bool get isEnglish => _language.code == englishLanguageCode;
 
+  /// In Arabic the zikr is already in the reader's language, so it is read
+  /// with no translation lines.
+  bool get isArabic => _language.code == arabicLanguageCode;
+
   /// Codes of the languages that ship zikr translations, English included.
   ///
   /// Discovered from the bundle rather than listed in code, so adding a

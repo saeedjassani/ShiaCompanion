@@ -60,6 +60,7 @@ class AppLanguage {
 }
 
 const String englishLanguageCode = 'en';
+const String arabicLanguageCode = 'ar';
 
 const AppLanguage englishLanguage = AppLanguage(
   code: englishLanguageCode,
