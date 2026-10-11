@@ -10,6 +10,7 @@ import '../services/city_repository.dart';
 import '../services/location_service.dart';
 import '../theme/shia_colors.dart';
 import '../utils/city_clock.dart';
+import '../widgets/location_status_line.dart';
 import '../widgets/outline_icon.dart';
 import '../widgets/page_chrome.dart';
 import 'city_prayer_times_page.dart';
@@ -302,6 +303,7 @@ class _CityPickerState extends State<CityPicker> {
                 if (!lookup) ...[
                   _UseLocationRow(
                     isManual: LocationService.instance.isManual,
+                    status: LocationStatus.of(LocationService.instance),
                     onTap: () => _choose(const UseDeviceLocation()),
                   ),
                   const SizedBox(height: 16),
@@ -422,9 +424,17 @@ class _SearchField extends StatelessWidget {
 }
 
 class _UseLocationRow extends StatelessWidget {
-  const _UseLocationRow({required this.isManual, required this.onTap});
+  const _UseLocationRow({
+    required this.isManual,
+    required this.status,
+    required this.onTap,
+  });
 
   final bool isManual;
+
+  /// Why the phone's location is a day old, if it is: said here too, since
+  /// this row is where people come to fix it.
+  final LocationStatus? status;
   final VoidCallback onTap;
 
   @override
@@ -476,7 +486,7 @@ class _UseLocationRow extends StatelessWidget {
                     ),
                     const SizedBox(height: 1),
                     Text(
-                      context.l10n.cityUpdatesWhenTravelling,
+                      status?.message ?? context.l10n.cityUpdatesWhenTravelling,
                       style: ShiaText.caption.copyWith(color: colors.textMuted),
                     ),
                   ],

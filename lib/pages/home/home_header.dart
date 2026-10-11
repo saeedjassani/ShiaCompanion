@@ -8,13 +8,15 @@ import '../../l10n/l10n.dart';
 import '../../services/location_service.dart';
 import '../../theme/shia_colors.dart';
 import '../../utils/islamic_day.dart';
+import '../../widgets/location_status_line.dart';
 import '../../widgets/outline_icon.dart';
 import '../../widgets/prayer_times_widget.dart';
 import '../city_picker.dart';
 import 'home_section.dart';
 
-/// Today's Hijri date as Home's title, the year and the city under it, and
-/// the profile button that opens Settings (docs/DESIGN_SPEC.md, Home
+/// Today's Hijri date as Home's title, the year and the city under it (and,
+/// once the phone's location is a day old, a line saying so), and the
+/// profile button that opens Settings (docs/DESIGN_SPEC.md, Home
 /// section 1). From Maghrib until Fajr the date is the next Islamic day's,
 /// under a small "Eve of" - but only where Maghrib is known (see
 /// [IslamicDay]).
@@ -68,7 +70,7 @@ class _HomeHeaderState extends State<HomeHeader> {
     final dayAndMonth = '${localizeDigits('${hijri.hDay}', context.l10n)} '
         '${hijriMonthName(hijri.hMonth, context.l10n).replaceAll(' Al-', ' al-')}';
 
-    return Row(
+    final header = Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Expanded(
@@ -128,6 +130,17 @@ class _HomeHeaderState extends State<HomeHeader> {
         const SizedBox(width: 12),
         _ProfileButton(onTap: widget.onOpenSettings),
       ],
+    );
+    // With no location the prayer card asks for one; there is nothing to
+    // age.
+    if (lat == null) return header;
+
+    // A day-old location, and why: here rather than on the prayer card,
+    // under the city it is about, with its fix one tap away. Full width, so
+    // the profile button does not squeeze it onto a second line.
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [header, const LocationStatusLine()],
     );
   }
 }
