@@ -127,6 +127,33 @@
   cities of 100,000+ people and capitals, so someone in a small town would
   see the nearest big city's name; their times stay their own.
 
+- **Gujarati for the other famous duas: source found, text not yet fetched.**
+  Kumayl (E31) and Jamia Kabira's first 99 segments (G13) are done from
+  duas.org's decks (`scripts/zikr_i18n/lmg_arun.py`, see
+  `scripts/zikr_i18n/SOURCES.md`).
+  - Don't use the Haji Naji Trust's "Mukhtasar Mafatih al-Jinan" PDF
+    (Tohafa-e-Saiyada, `book_96.pdf`, 2,077 pages).
+    - Its translations are Urdu written in Gujarati script, e.g.
+      "અય અલ્લાહ! મેરે દિલ પર હિજાબ હૈ". That doesn't match the app's Gujarati
+      Quran, which is in Gujarati.
+    - Its Arabic is only spelled out in Gujarati letters.
+    - It is set in two legacy 8-bit fonts that `gu_quran_decoder.py` doesn't
+      cover.
+  - Use **"જન્નતની ચાવીઓ"** instead (Keys of Paradise, compiled by Maulana
+    Rizwanali Palsaniya) on web.hajinaji.com.
+    - Book overview:
+      `web.hajinaji.com/books/overview/alFYUkZPQ01hbDV3ZWZHVnU4VWFuUT09/1/12`.
+    - It has Kumayl, Nudba, Tawassul, Ahad, Hadith al-Kisa, Ziyarat Ashura,
+      Warith, Aminullah, Aal-e-Yasin and Munajat Shabaniyah as Unicode
+      chapters.
+    - Its chapter titles are Gujarati ("નમાઝે ઝોહર પછી પઢવાની દુઆ"). Its dua
+      translations haven't been seen yet, so confirm they are Gujarati too.
+    - Its chapter pages need a sign-in (Google or a phone code), so a cloud
+      session can't read them. Get its text from the user (a PDF or an
+      export from the HajiNaji app), then follow PR #281's workflow.
+  - The same site's "દુઆએ નુદબા", "દુઆ-એ-ઈફ્તેતાહ" and "ઝિયારતે આશુરા અને
+    તેના ફાયદા" are single-dua books worth checking for Gujarati too.
+
 ## Translations
 
 The app is set up for Urdu, Persian, Arabic and Gujarati; see
