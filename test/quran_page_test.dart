@@ -43,7 +43,19 @@ void main() {
   Future<void> openCollection(WidgetTester tester, String chip) async {
     await tester.tap(find.text('Collections'));
     await tester.pumpAndSettle();
-    await tester.tap(find.widgetWithText(ChoicePill, chip));
+    // The pills are one sideways row, so the later ones start off screen.
+    // The row is dragged rather than the pill ensureVisible'd, which would
+    // also scroll the page.
+    final pill = find.widgetWithText(ChoicePill, chip);
+    final row =
+        find.ancestor(of: pill, matching: find.byType(Scrollable)).first;
+    final screenWidth =
+        tester.view.physicalSize.width / tester.view.devicePixelRatio;
+    while (tester.getRect(pill).right > screenWidth) {
+      await tester.drag(row, const Offset(-150, 0));
+      await tester.pumpAndSettle();
+    }
+    await tester.tap(pill);
     await tester.pumpAndSettle();
   }
 
@@ -447,6 +459,11 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('No saved verses yet'), findsOneWidget);
+    // Scrolled into view, though it is the last pill of the row.
+    final screenWidth =
+        tester.view.physicalSize.width / tester.view.devicePixelRatio;
+    expect(tester.getRect(find.widgetWithText(ChoicePill, 'Saved')).right,
+        lessThanOrEqualTo(screenWidth));
   });
 }
 

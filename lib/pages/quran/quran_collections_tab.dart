@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 
 import '../../constants.dart';
 import '../../data/quran_ali_verses.dart';
@@ -11,6 +12,7 @@ import '../../utils/quran_index.dart';
 import '../../utils/shared_preferences.dart';
 import '../../widgets/outline_icon.dart';
 import '../../widgets/page_chrome.dart';
+import '../../widgets/responsive_content.dart';
 import '../../l10n/l10n.dart';
 
 /// The groups the Collections view can show, in pill order.
@@ -59,6 +61,7 @@ enum QuranCollection {
 class QuranCollectionsSliver extends StatelessWidget {
   const QuranCollectionsSliver({
     super.key,
+    required this.gutter,
     required this.selected,
     required this.onSelect,
     required this.saved,
@@ -66,6 +69,9 @@ class QuranCollectionsSliver extends StatelessWidget {
     required this.onRemoveSaved,
   });
 
+  /// The page's side margins. Applied here rather than around the sliver so
+  /// the pills can scroll out from under the screen's edge.
+  final EdgeInsets gutter;
   final QuranCollection selected;
   final ValueChanged<QuranCollection> onSelect;
   final List<SavedVerse> saved;
@@ -77,23 +83,17 @@ class QuranCollectionsSliver extends StatelessWidget {
     return SliverMainAxisGroup(
       slivers: [
         SliverToBoxAdapter(
-          // Wrapped rather than scrolled sideways: with five collections a
-          // single row runs off a phone screen and hides the last ones.
-          child: Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: [
-              for (final collection in QuranCollection.values)
-                ChoicePill(
-                  label: collection.label,
-                  selected: collection == selected,
-                  onTap: () => onSelect(collection),
-                ),
-            ],
+          child: _CollectionPills(
+            gutter: gutter,
+            selected: selected,
+            onSelect: onSelect,
           ),
         ),
         const SliverToBoxAdapter(child: SizedBox(height: 14)),
-        ..._bodySlivers(context),
+        SliverPadding(
+          padding: gutter,
+          sliver: SliverMainAxisGroup(slivers: _bodySlivers(context)),
+        ),
       ],
     );
   }
@@ -120,6 +120,84 @@ class QuranCollectionsSliver extends StatelessWidget {
               : _savedVerseSliver(context, saved, onOpenVerse, onRemoveSaved),
         ];
     }
+  }
+}
+
+/// The collections as one row of pills, scrolled sideways.
+///
+/// One row rather than wrapped: wrapped, the five took three lines of a phone
+/// screen before any of the list. The row runs to the screen's edge, so a
+/// pill cut off there shows there are more, and the remembered collection is
+/// scrolled into view on arrival, so someone who left on Saved sees it picked.
+class _CollectionPills extends StatefulWidget {
+  const _CollectionPills({
+    required this.gutter,
+    required this.selected,
+    required this.onSelect,
+  });
+
+  final EdgeInsets gutter;
+  final QuranCollection selected;
+  final ValueChanged<QuranCollection> onSelect;
+
+  @override
+  State<_CollectionPills> createState() => _CollectionPillsState();
+}
+
+class _CollectionPillsState extends State<_CollectionPills> {
+  final GlobalKey _selectedKey = GlobalKey();
+  final ScrollController _scroll = ScrollController();
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.selected != QuranCollection.values.first) {
+      WidgetsBinding.instance.addPostFrameCallback((_) => _revealSelected());
+    }
+  }
+
+  @override
+  void dispose() {
+    _scroll.dispose();
+    super.dispose();
+  }
+
+  /// Scrolls the row, and only the row, so the selected pill ends inside
+  /// the gutter. Left alone when it is already in view.
+  void _revealSelected() {
+    final pill = _selectedKey.currentContext?.findRenderObject();
+    if (pill == null || !_scroll.hasClients) return;
+    final position = _scroll.position;
+    final end =
+        RenderAbstractViewport.of(pill).getOffsetToReveal(pill, 1.0).offset +
+            widget.gutter.right;
+    if (end <= position.pixels) return;
+    _scroll.jumpTo(end.clamp(0.0, position.maxScrollExtent));
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MouseDragScroll(
+      child: SingleChildScrollView(
+        controller: _scroll,
+        scrollDirection: Axis.horizontal,
+        padding: widget.gutter,
+        child: Row(
+          children: [
+            for (final collection in QuranCollection.values) ...[
+              if (collection != QuranCollection.values.first)
+                const SizedBox(width: 8),
+              ChoicePill(
+                key: collection == widget.selected ? _selectedKey : null,
+                label: collection.label,
+                selected: collection == widget.selected,
+                onTap: () => widget.onSelect(collection),
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
   }
 }
 
