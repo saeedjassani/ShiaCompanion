@@ -1852,10 +1852,6 @@
       }
     }
   },
-  "quranFinishWith": "Finish with",
-  "@quranFinishWith": {
-    "description": "Caption over the link to Dua Khatm al-Quran at the end of an-Nas and of Juz 30, where the next surah or juz would otherwise be."
-  },
   "quranUnitSurah": "surah",
   "favoritesReorder": "Reorder {title}",
   "@favoritesReorder": {

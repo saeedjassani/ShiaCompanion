@@ -673,7 +673,7 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
       unit: juz != null ? null : context.l10n.quranUnitSurah,
       previousLabel: previousLabel,
       nextLabel: nextLabel,
-      nextCaption: offerKhatmDua ? context.l10n.quranFinishWith : null,
+      captionNext: !offerKhatmDua,
       onPrevious: () => _openQuranSequenceStep(-1),
       onNext: offerKhatmDua
           ? () => _openKhatmDua(khatmTitle)

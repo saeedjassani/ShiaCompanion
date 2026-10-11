@@ -751,7 +751,6 @@
   "locationUpdateFailed": "به‌روزرسانی موقعیت مکانی ممکن نشد",
   "quranPreviousUnit": "{unit} قبلی",
   "quranNextUnit": "{unit} بعدی",
-  "quranFinishWith": "در پایان بخوانید",
   "quranUnitSurah": "سورهٔ",
   "favoritesReorder": "تغییر ترتیب {title}",
   "favoritesReorderFailed": "ترتیب جدید ذخیره نشد. دوباره تلاش کنید.",

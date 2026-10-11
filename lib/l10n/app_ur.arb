@@ -751,7 +751,6 @@
   "locationUpdateFailed": "مقام اپ ڈیٹ نہیں ہو سکا",
   "quranPreviousUnit": "پچھلی {unit}",
   "quranNextUnit": "اگلی {unit}",
-  "quranFinishWith": "آخر میں پڑھیں",
   "quranUnitSurah": "سورہ",
   "favoritesReorder": "{title} کی ترتیب بدلیں",
   "favoritesReorderFailed": "نئی ترتیب محفوظ نہیں ہو سکی۔ دوبارہ کوشش کریں۔",

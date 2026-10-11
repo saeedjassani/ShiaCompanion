@@ -751,7 +751,6 @@
   "locationUpdateFailed": "સ્થાન અપડેટ થઈ શક્યું નહીં",
   "quranPreviousUnit": "પાછલું {unit}",
   "quranNextUnit": "આગળનું {unit}",
-  "quranFinishWith": "અંતે પઢો",
   "quranUnitSurah": "સૂરહ",
   "favoritesReorder": "{title} ફરી ગોઠવો",
   "favoritesReorderFailed": "નવો ક્રમ સાચવી શકાયો નહીં. ફરી પ્રયાસ કરો.",

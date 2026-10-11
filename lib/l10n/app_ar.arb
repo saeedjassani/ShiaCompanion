@@ -751,7 +751,6 @@
   "locationUpdateFailed": "تعذّر تحديث الموقع",
   "quranPreviousUnit": "السابق {unit}",
   "quranNextUnit": "التالي {unit}",
-  "quranFinishWith": "اقرأ في الختام",
   "quranUnitSurah": "سورة",
   "favoritesReorder": "إعادة ترتيب {title}",
   "favoritesReorderFailed": "تعذّر حفظ الترتيب الجديد. حاول مرة أخرى.",
