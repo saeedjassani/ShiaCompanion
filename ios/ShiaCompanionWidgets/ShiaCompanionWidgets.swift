@@ -1032,10 +1032,12 @@ private extension Color {
                 alpha: traits.userInterfaceStyle == .dark ? 0.16 : 0.20)
     })
     static let accentText = Color(red: 0.89, green: 0.76, blue: 0.48)
-    /// Event markers on the Islamic calendar widget. events.json colours an
-    /// event 0 (green) or 1 (red), the same reading as the Calendar page.
-    static let eventGreen = Color(red: 0.50, green: 0.75, blue: 0.58)
-    static let eventRed = Color(red: 0.95, green: 0.72, blue: 0.71)
+    /// Event markers on the Islamic calendar widget. events.json codes an
+    /// event 1 for joy (green, as on the Calendar page) or 0 for mourning.
+    /// The page's black would vanish on the widget's brown, so mourning is a
+    /// cool silver here, apart from the warm text around it.
+    static let eventJoy = Color(red: 0.50, green: 0.75, blue: 0.58)
+    static let eventMourning = Color(red: 0.77, green: 0.78, blue: 0.81)
 }
 
 struct FavoritesWidget: Widget {
@@ -1366,8 +1368,8 @@ private func calendarAgendaLine(kind: String, start: Date, now: Date) -> String 
 
 private func calendarEventColor(_ code: Int) -> Color {
     switch code {
-    case 0: return .eventGreen
-    case 1: return .eventRed
+    case 0: return .eventMourning
+    case 1: return .eventJoy
     default: return .accentText
     }
 }

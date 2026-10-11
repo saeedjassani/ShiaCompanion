@@ -360,13 +360,20 @@ it, its prayer times included (mockups `R5-Calendar`, `T-Calendar-R5`,
   Persian digits. Today has a 1.5 px accent ring; the picked day fills
   with the accent.
 - **Event colours** — the whole cell is tinted, not a dot. `events.json`
-  marks each event 0 (green) or 1 (red), the way the H. Karmali calendar
-  of Mumbai does: **red for joy** (births, Eids), **green for mourning**
-  (martyrdoms, deaths). Keep that reading; it has been swapped by mistake
-  once. Light: green `#E1EFE4` / line `#BFDCC7`, red `#F9E2DE` /
-  `#EDC3BC`; dark: green `#1E3325` / `#2F5A3C`, red `#3B201C` / `#6A302A`.
-  An event with neither gets `well`. Hue is never the only signal: the
-  event is written out below and read out by screen readers.
+  codes each event 1 for joy (births, Eids) or 0 for mourning
+  (martyrdoms, deaths), the codes of the H. Karmali calendar of Mumbai,
+  which printed them red and green. The app is read worldwide, so it
+  shows **green for joy** (the colour of the Ahl al-Bayt, of Ghadir and
+  Mid-Sha'ban) and **black for mourning** (worn and hung for Muharram
+  everywhere); red is avoided, as many readers take it for the blood of
+  Karbala. Light: joy `#E1EFE4` / line `#BFDCC7`, mourning a pale grey
+  `#DCDDE0` / near-black line `#5B5D63` (a solid black cell would bury the
+  day's number); dark: joy `#1E3325` / `#2F5A3C`, mourning black
+  `#000000` / grey line `#5A5D63`. An event with neither gets `well`. A
+  legend under the month names the two. Hue is never the only signal: the
+  event is written out below and read out by screen readers. The home
+  screen and watch widgets show mourning in silver, since black would
+  vanish on their dark surfaces.
 - **The picked day:** "Saturday 24 October", then a pill — Today,
   Tomorrow, Yesterday, "In 17 days", "3 days ago" — and its Hijri date.
   Today after Maghrib adds "Eve of …" (see Home). Its event follows in

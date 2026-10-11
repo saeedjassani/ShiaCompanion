@@ -506,6 +506,8 @@
   "calendarYesterday": "أمس",
   "calendarDaysAgo": "{days, plural, zero{اليوم} one{قبل يوم واحد} two{قبل يومين} few{قبل {days} أيام} many{قبل {days} يوم} other{قبل {days} يوم}}",
   "calendarHasEvent": "فيه مناسبة",
+  "calendarLegendJoy": "أفراح",
+  "calendarLegendMourning": "أحزان",
   "calendarAzanOnFor": "{count, plural, zero{غير مُفعَّل} one{مُفعَّل لوقت واحد} two{مُفعَّل لوقتين} few{مُفعَّل لـ{count} أوقات} many{مُفعَّل لـ{count} وقت} other{مُفعَّل لـ{count} وقت}}",
   "calendarTimesOnHome": "الأوقات في الشاشة الرئيسية",
   "calendarTimesShown": "{count} معروضة",

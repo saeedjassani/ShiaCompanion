@@ -114,7 +114,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="5dp"
                     android:text="@string/widget_preview_dot"
-                    android:textColor="@color/widget_event_red"
+                    android:textColor="@color/widget_event_joy"
                     android:textSize="7sp" />
 
                 <TextView
@@ -185,7 +185,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="5dp"
                     android:text="@string/widget_preview_dot"
-                    android:textColor="@color/widget_event_green"
+                    android:textColor="@color/widget_event_mourning"
                     android:textSize="7sp" />
 
                 <TextView

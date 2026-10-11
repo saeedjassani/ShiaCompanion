@@ -107,9 +107,10 @@ private val primaryTextColor = ColorProvider(R.color.widget_primary_text)
 private val bodyTextColor = ColorProvider(R.color.widget_body_text)
 private val secondaryTextColor = ColorProvider(R.color.widget_secondary_text)
 private val accentColor = ColorProvider(R.color.widget_accent)
-// events.json colours: 0 green, 1 red — the same reading as the Calendar page.
-private val eventGreenColor = ColorProvider(R.color.widget_event_green)
-private val eventRedColor = ColorProvider(R.color.widget_event_red)
+// events.json codes: 1 joy (green), 0 mourning (silver; the Calendar page's black
+// would vanish on the widget's brown).
+private val eventJoyColor = ColorProvider(R.color.widget_event_joy)
+private val eventMourningColor = ColorProvider(R.color.widget_event_mourning)
 
 class FavoritesWidget : GlanceAppWidget() {
     override val sizeMode: SizeMode = SizeMode.Exact
@@ -1417,8 +1418,8 @@ private fun agendaMetaLine(kind: String, startEpochMillis: Long, days: Int): Str
 }
 
 private fun calendarEventColor(code: Int): ColorProvider = when (code) {
-    0 -> eventGreenColor
-    1 -> eventRedColor
+    0 -> eventMourningColor
+    1 -> eventJoyColor
     else -> accentColor
 }
 

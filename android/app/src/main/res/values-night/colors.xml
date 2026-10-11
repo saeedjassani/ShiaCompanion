@@ -9,6 +9,6 @@
     <color name="widget_accent">#FFE4C27A</color>
     <color name="widget_highlight">#1FE4C27A</color>
     <color name="widget_divider">#21FBF6EE</color>
-    <color name="widget_event_green">#FF7FBF95</color>
-    <color name="widget_event_red">#FFF2B8B5</color>
+    <color name="widget_event_joy">#FF7FBF95</color>
+    <color name="widget_event_mourning">#FFC5C8CE</color>
 </resources>

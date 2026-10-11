@@ -1147,6 +1147,14 @@
   "@calendarHasEvent": {
     "description": "Read out by screen readers after a calendar day whose cell is coloured for an event."
   },
+  "calendarLegendJoy": "Joy",
+  "@calendarLegendJoy": {
+    "description": "Legend under the calendar month: the green days, births, Eids and other happy occasions."
+  },
+  "calendarLegendMourning": "Mourning",
+  "@calendarLegendMourning": {
+    "description": "Legend under the calendar month: the black days, martyrdoms and deaths."
+  },
   "calendarAzanOnFor": "{count, plural, =1{On for 1 time} other{On for {count} times}}",
   "@calendarAzanOnFor": {
     "placeholders": {

@@ -31,9 +31,7 @@ void main() {
         lat = 51.5074;
         long = -0.1278;
         await _pumpCalendar(tester,
-            brightness: brightness,
-            size: size,
-            events: _markerTestEvents(0));
+            brightness: brightness, size: size, events: _markerTestEvents(0));
         expect(tester.takeException(), isNull);
       });
     }
@@ -111,8 +109,7 @@ void main() {
     expect(find.text('Azan'), findsNothing);
   });
 
-  testWidgets("offers another city's times for the day picked",
-      (tester) async {
+  testWidgets("offers another city's times for the day picked", (tester) async {
     CityRepository.instance.seedForTesting(const []);
     await _pumpCalendar(tester);
 
@@ -127,20 +124,26 @@ void main() {
     expect(find.text('Use my current location'), findsNothing);
   });
 
-  testWidgets('colours mourning days green and days of joy red',
+  testWidgets('colours days of joy green and mourning days black',
       (tester) async {
-    // events.json numbers its two colours 0 and 1; the day cell has to keep
-    // reading them the way the data has always meant them (H. Karmali's
-    // calendar: green for mourning, red for joy).
+    // events.json numbers its two kinds of day 0 (mourning) and 1 (joy), as
+    // H. Karmali's calendar did; the cell shows them in the app's colours.
     for (final (color, tint) in const [
-      (0, Color(0xFFE1EFE4)),
-      (1, Color(0xFFF9E2DE)),
+      (0, Color(0xFFDCDDE0)),
+      (1, Color(0xFFE1EFE4)),
     ]) {
       await _pumpCalendar(tester,
           initialDate: DateTime(2026, 6, 22), events: _markerTestEvents(color));
       expect(_cellColor(tester, DateTime(2026, 6, 24)), tint);
       expect(_cellColor(tester, DateTime(2026, 6, 23)), Colors.transparent);
     }
+  });
+
+  testWidgets('a legend under the month names the two colours', (tester) async {
+    await _pumpCalendar(tester);
+
+    expect(find.text('Joy'), findsOneWidget);
+    expect(find.text('Mourning'), findsOneWidget);
   });
 
   testWidgets('the picked day writes its event out in full', (tester) async {
@@ -162,7 +165,7 @@ void main() {
 
     // The colour marks the event; its words are only in the day's card.
     expect(find.text('Shab e Ashoor'), findsNothing);
-    expect(_cellColor(tester, DateTime(2026, 6, 24)), const Color(0xFFF9E2DE));
+    expect(_cellColor(tester, DateTime(2026, 6, 24)), const Color(0xFFE1EFE4));
     for (final name in ['Fajr', 'Sunrise', 'Midnight']) {
       expect(find.text(name), findsOneWidget);
     }
@@ -216,6 +219,6 @@ Map<String, dynamic> _markerTestEvents(int color) => <String, dynamic>{
     };
 
 Color? _cellColor(WidgetTester tester, DateTime day) => tester
-    .widget<Material>(
-        find.byKey(ValueKey('calendar-day-${day.year}-${day.month}-${day.day}')))
+    .widget<Material>(find
+        .byKey(ValueKey('calendar-day-${day.year}-${day.month}-${day.day}')))
     .color;

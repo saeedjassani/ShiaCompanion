@@ -506,6 +506,8 @@
   "calendarYesterday": "دیروز",
   "calendarDaysAgo": "{days, plural, =1{یک روز پیش} other{{days} روز پیش}}",
   "calendarHasEvent": "مناسبت دارد",
+  "calendarLegendJoy": "شادی",
+  "calendarLegendMourning": "سوگواری",
   "calendarAzanOnFor": "{count, plural, =1{روشن برای یک وقت} other{روشن برای {count} وقت}}",
   "calendarTimesOnHome": "اوقات صفحهٔ اصلی",
   "calendarTimesShown": "{count} وقت نمایش داده می‌شود",
