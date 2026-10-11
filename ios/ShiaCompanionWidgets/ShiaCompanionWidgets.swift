@@ -1014,48 +1014,28 @@ private extension View {
 }
 
 private extension Color {
+    // The prayer card's tokens from docs/DESIGN_SPEC.md, the same values as
+    // the Android widgets' res/values(-night)/colors.xml. Only the fill and
+    // the icon badge change with dark mode; the text and gold sit on a dark
+    // brown either way. Body text is halfway between onPrayerCard and its
+    // muted tone.
     static let widgetBackground = Color(UIColor { traits in
         traits.userInterfaceStyle == .dark
-            ? UIColor(red: 0.14, green: 0.11, blue: 0.09, alpha: 1.0)
-            : UIColor(red: 0.43, green: 0.30, blue: 0.25, alpha: 1.0)
+            ? UIColor(red: 0.23, green: 0.16, blue: 0.12, alpha: 1.0)
+            : UIColor(red: 0.29, green: 0.20, blue: 0.15, alpha: 1.0)
     })
-    static let primaryText = Color(UIColor { traits in
-        traits.userInterfaceStyle == .dark
-            ? UIColor(red: 1.0, green: 0.95, blue: 0.91, alpha: 1.0)
-            : UIColor(red: 1.0, green: 0.97, blue: 0.94, alpha: 1.0)
-    })
-    static let bodyText = Color(UIColor { traits in
-        traits.userInterfaceStyle == .dark
-            ? UIColor(red: 0.91, green: 0.84, blue: 0.77, alpha: 1.0)
-            : UIColor(red: 0.97, green: 0.89, blue: 0.83, alpha: 1.0)
-    })
-    static let secondaryText = Color(UIColor { traits in
-        traits.userInterfaceStyle == .dark
-            ? UIColor(red: 0.75, green: 0.66, blue: 0.60, alpha: 1.0)
-            : UIColor(red: 0.89, green: 0.78, blue: 0.70, alpha: 1.0)
-    })
+    static let primaryText = Color(red: 0.98, green: 0.96, blue: 0.93)
+    static let bodyText = Color(red: 0.92, green: 0.88, blue: 0.83)
+    static let secondaryText = Color(red: 0.85, green: 0.80, blue: 0.72)
     static let iconBackground = Color(UIColor { traits in
-        traits.userInterfaceStyle == .dark
-            ? UIColor(red: 1.0, green: 0.85, blue: 0.47, alpha: 0.16)
-            : UIColor(red: 1.0, green: 0.78, blue: 0.34, alpha: 0.20)
+        UIColor(red: 0.89, green: 0.76, blue: 0.48,
+                alpha: traits.userInterfaceStyle == .dark ? 0.16 : 0.20)
     })
-    static let accentText = Color(UIColor { traits in
-        traits.userInterfaceStyle == .dark
-            ? UIColor(red: 1.0, green: 0.85, blue: 0.47, alpha: 1.0)
-            : UIColor(red: 1.0, green: 0.78, blue: 0.34, alpha: 1.0)
-    })
+    static let accentText = Color(red: 0.89, green: 0.76, blue: 0.48)
     /// Event markers on the Islamic calendar widget. events.json colours an
     /// event 0 (green) or 1 (red), the same reading as the Calendar page.
-    static let eventGreen = Color(UIColor { traits in
-        traits.userInterfaceStyle == .dark
-            ? UIColor(red: 0.51, green: 0.78, blue: 0.52, alpha: 1.0)
-            : UIColor(red: 0.61, green: 0.85, blue: 0.63, alpha: 1.0)
-    })
-    static let eventRed = Color(UIColor { traits in
-        traits.userInterfaceStyle == .dark
-            ? UIColor(red: 0.90, green: 0.45, blue: 0.45, alpha: 1.0)
-            : UIColor(red: 1.0, green: 0.66, blue: 0.63, alpha: 1.0)
-    })
+    static let eventGreen = Color(red: 0.50, green: 0.75, blue: 0.58)
+    static let eventRed = Color(red: 0.95, green: 0.72, blue: 0.71)
 }
 
 struct FavoritesWidget: Widget {
