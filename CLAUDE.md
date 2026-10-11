@@ -127,7 +127,10 @@
   cities of 100,000+ people and capitals, so someone in a small town would
   see the nearest big city's name; their times stay their own.
 
-- **Gujarati for the famous duas: source found, text not yet fetched.**
+- **Gujarati for the other famous duas: source found, text not yet fetched.**
+  Kumayl (E31) and Jamia Kabira's first 99 segments (G13) are done from
+  duas.org's decks (`scripts/zikr_i18n/lmg_arun.py`, see
+  `scripts/zikr_i18n/SOURCES.md`).
   - Don't use the Haji Naji Trust's "Mukhtasar Mafatih al-Jinan" PDF
     (Tohafa-e-Saiyada, `book_96.pdf`, 2,077 pages).
     - Its translations are Urdu written in Gujarati script, e.g.

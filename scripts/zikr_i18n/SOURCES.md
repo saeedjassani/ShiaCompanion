@@ -58,11 +58,39 @@ where a deck has no Urdu, or repeats the next slide's Urdu:
 - **duas.pro** (the first batch, never merged): its Persian is a machine
   translation of the English.
 
-## Persian, Gujarati
+## Persian
 
-Not started.
-- **Persian:** the published translations (Ansarian's, Elahi Qomshei's
-  Mafatih) are on Iranian sites, which the cloud sessions cannot reach.
-- **Gujarati:** duas.org's Kumayl and Jamia Kabira decks have Gujarati in the
-  legacy LMG-Arun font, which would need a decoder like
-  `gu_quran_decoder.py`.
+Not started. The published translations (Ansarian's, Elahi Qomshei's
+Mafatih) are on Iranian sites, which the cloud sessions cannot reach.
+
+## Gujarati
+
+| uid | Zikr | Deck | Segments |
+| --- | --- | --- | --- |
+| E31 | Dua Kumayl | https://www.duas.org/ppt/Dua_Kumayl_5languages.pptx | all 271 |
+| G13 | Ziyarat Jamia Kabira | https://www.duas.org/ppt/Ziyarat-jamia-kabira-eng-urdu-hindi-guj.pptx | 0-98 of 414 |
+
+Both decks set their Gujarati in the legacy LMG-Arun font.
+`lmg_arun.py rows` decodes it into rows for `deck_source.py align`; the
+rest of the workflow is the Urdu one.
+
+The Gujarati was typed by hand, unlike these decks' Urdu, and reads as a
+human translation. It is looser and more explanatory than the Urdu.
+
+**Dua Kumayl.** Where a slide's Gujarati ran onto its neighbour's Arabic
+(segments 54/55, 60/61 and 73-81), it was moved back. Two mistranslations
+were corrected: 167 had "flames" for زَبَانِيَتُهَا, and 172 was
+rephrased to match the Arabic.
+
+Some segments are our own Gujarati. Most fill a line the deck skipped or
+a split's second half: 61, 74, 79, 80, 87, 88, 106, 107, 133, 148, 149,
+166, 167, 169, 170, 172.
+
+**Ziyarat Jamia Kabira.** The deck's Gujarati stops after segment 98, so
+the rest of the ziyarat shows in Arabic alone. Segments 29/30 had each
+half on the other's slide, and are our own. In 73, the deck's "વિદ્વાન"
+(learned) for الرَّاشِدُوْنَ is corrected.
+
+Not to use: the Haji Naji Trust's "Mukhtasar Mafatih al-Jinan" PDF
+(Tohafa-e-Saiyada). Its translations are Urdu written in Gujarati script,
+not Gujarati.
