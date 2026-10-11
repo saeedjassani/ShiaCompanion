@@ -3799,7 +3799,8 @@
   "@setupFontScheherazadeHint": {
     "description": "Under the Scheherazade font's name in setup."
   },
-  "setupTextSize": "Text size",
+  "setupTextSmaller": "Smaller text",
+  "setupTextBigger": "Bigger text",
   "setupThemeTitle": "Light or dark?",
   "setupThemeBody": "Dark is gentler on the eyes at night, for Namaz-e-Shab and late duas.",
   "setupThemeSameAsPhone": "Same as my phone",

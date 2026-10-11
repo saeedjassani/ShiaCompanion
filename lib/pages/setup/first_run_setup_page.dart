@@ -12,6 +12,7 @@ import '../../services/azan_playback_service.dart';
 import '../../services/first_run_setup.dart';
 import '../../services/location_service.dart';
 import '../../theme/shia_colors.dart';
+import '../../utils/app_text_scale.dart';
 import '../../utils/font_preferences.dart';
 import '../../utils/prayer_time_entries.dart';
 import '../../utils/shared_preferences.dart';
@@ -977,13 +978,13 @@ class _FontStep extends StatefulWidget {
 class _FontStepState extends State<_FontStep> {
   /// What the step opened on, for Skip to put back.
   late final String _initialFont;
-  late final double _initialSize;
+  late final double _initialScale;
 
   @override
   void initState() {
     super.initState();
     _initialFont = arabicFont;
-    _initialSize = arabicFontSize;
+    _initialScale = context.read<AppTextScaleProvider>().scale;
   }
 
   Future<void> _choose(String font) async {
@@ -992,23 +993,23 @@ class _FontStepState extends State<_FontStep> {
     if (mounted) setState(() {});
   }
 
+  /// Two of the Settings slider's 5% stops a tap, applied to the whole app
+  /// at once so the step itself shows the change.
   void _step(int direction) {
-    final next = (arabicFontSize + 2 * direction)
-        .clamp(minArabicFontSize, maxArabicFontSize)
-        .toDouble();
-    if (next == arabicFontSize) return;
-    setArabicFontSizePref(next);
-    setState(() {});
+    final provider = context.read<AppTextScaleProvider>();
+    provider.setScale(provider.scale + 0.1 * direction);
   }
 
   void _continue() {
-    if (arabicFontSize != _initialSize) commitArabicFontSize();
+    final provider = context.read<AppTextScaleProvider>();
+    if (provider.scale != _initialScale) unawaited(provider.save());
     widget.onNext();
   }
 
   Future<void> _skip() async {
     if (arabicFont != _initialFont) await saveArabicFontChoice(_initialFont);
-    if (arabicFontSize != _initialSize) setArabicFontSizePref(_initialSize);
+    if (!mounted) return;
+    context.read<AppTextScaleProvider>().setScale(_initialScale);
     widget.onNext();
   }
 
@@ -1016,6 +1017,7 @@ class _FontStepState extends State<_FontStep> {
   Widget build(BuildContext context) {
     final colors = ShiaColors.of(context);
     final l10n = context.l10n;
+    final scale = context.watch<AppTextScaleProvider>().scale;
     String hintFor(String font) => font == 'Scheherazade'
         ? l10n.setupFontScheherazadeHint
         : l10n.setupFontQalamHint;
@@ -1085,20 +1087,21 @@ class _FontStepState extends State<_FontStep> {
         Row(
           children: [
             Expanded(
-              child: Text(l10n.setupTextSize,
+              child: Text(l10n.settingsAppTextSize,
                   style: ShiaText.cardTitle.copyWith(color: colors.text)),
             ),
             _SizeButton(
               text: '${l10n.textSizeLetter}−',
               fontSize: 15,
-              label: l10n.readerArabicSmaller,
-              onPressed:
-                  arabicFontSize > minArabicFontSize ? () => _step(-1) : null,
+              label: l10n.setupTextSmaller,
+              onPressed: scale > AppTextScaleProvider.minScale
+                  ? () => _step(-1)
+                  : null,
             ),
             SizedBox(
-              width: 48,
+              width: 56,
               child: Text(
-                localizeDigits('${arabicFontSize.toInt()}', context.l10n),
+                AppTextScaleProvider.label(scale),
                 textAlign: TextAlign.center,
                 style: ShiaText.secondary.copyWith(color: colors.textMuted),
               ),
@@ -1106,9 +1109,9 @@ class _FontStepState extends State<_FontStep> {
             _SizeButton(
               text: '${l10n.textSizeLetter}+',
               fontSize: 19,
-              label: l10n.readerArabicBigger,
+              label: l10n.setupTextBigger,
               onPressed:
-                  arabicFontSize < maxArabicFontSize ? () => _step(1) : null,
+                  scale < AppTextScaleProvider.maxScale ? () => _step(1) : null,
             ),
           ],
         ),

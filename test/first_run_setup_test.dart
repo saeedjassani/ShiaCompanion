@@ -9,6 +9,7 @@ import 'package:shia_companion/services/first_run_setup.dart';
 import 'package:shia_companion/services/location_service.dart';
 import 'package:shia_companion/services/whats_new_service.dart';
 import 'package:shia_companion/theme/app_theme.dart';
+import 'package:shia_companion/utils/app_text_scale.dart';
 import 'package:shia_companion/utils/shared_preferences.dart';
 import 'package:shia_companion/utils/sign_in_flow.dart';
 import 'package:shia_companion/utils/theme_mode.dart';
@@ -101,6 +102,7 @@ void main() {
 
   group('the setup flow', () {
     late ThemeModeProvider themeMode;
+    late AppTextScaleProvider textScale;
     late int done;
 
     setUp(() async {
@@ -112,6 +114,7 @@ void main() {
       arabicFontSize = 32;
       LocationService.instance.resetForTest();
       themeMode = ThemeModeProvider();
+      textScale = AppTextScaleProvider();
       done = 0;
     });
 
@@ -122,8 +125,11 @@ void main() {
       tester.view.physicalSize = const Size(390, 844) * 3;
       tester.view.devicePixelRatio = 3;
       addTearDown(tester.view.reset);
-      await tester.pumpWidget(ChangeNotifierProvider.value(
-        value: themeMode,
+      await tester.pumpWidget(MultiProvider(
+        providers: [
+          ChangeNotifierProvider.value(value: themeMode),
+          ChangeNotifierProvider.value(value: textScale),
+        ],
         child: Consumer<ThemeModeProvider>(
           builder: (context, provider, _) => MaterialApp(
             theme: buildAppTheme(Brightness.light),
@@ -192,15 +198,17 @@ void main() {
       expect(find.text('How should Arabic look?'), findsOneWidget);
       await tester.tap(find.text('Scheherazade'));
       await tester.pumpAndSettle();
-      await tester.ensureVisible(find.bySemanticsLabel('Bigger Arabic'));
+      // The size here is the whole app's, not the Arabic's.
+      await tester.ensureVisible(find.bySemanticsLabel('Bigger text'));
       await tester.pumpAndSettle();
-      await tester.tap(find.bySemanticsLabel('Bigger Arabic'));
+      await tester.tap(find.bySemanticsLabel('Bigger text'));
       await tester.pumpAndSettle();
-      expect(find.text('34'), findsOneWidget);
+      expect(find.text('110%'), findsOneWidget);
       await tapText(tester, 'Continue');
 
       expect(SP.prefs.getString('arabic_font'), 'Scheherazade');
-      expect(SP.prefs.getDouble('ara_font_size'), 34);
+      expect(SP.prefs.getDouble(AppTextScaleProvider.prefsKey), 1.1);
+      expect(SP.prefs.containsKey('ara_font_size'), isFalse);
 
       expect(find.text('Light or dark?'), findsOneWidget);
       await tester.tap(find.text('Dark'));
@@ -230,8 +238,14 @@ void main() {
       await tester.tap(find.text('Scheherazade'));
       await tester.pumpAndSettle();
       expect(arabicFont, 'Scheherazade');
+      await tester.ensureVisible(find.bySemanticsLabel('Bigger text'));
+      await tester.tap(find.bySemanticsLabel('Bigger text'));
+      await tester.pumpAndSettle();
+      expect(textScale.scale, 1.1);
       await tapText(tester, 'Skip');
       expect(arabicFont, 'Qalam');
+      expect(textScale.scale, AppTextScaleProvider.defaultScale);
+      expect(SP.prefs.containsKey(AppTextScaleProvider.prefsKey), isFalse);
 
       await tester.tap(find.text('Dark'));
       await tester.pumpAndSettle();
