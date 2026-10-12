@@ -19,17 +19,22 @@ ThemeData buildAppTheme(Brightness brightness) {
     useMaterial3: true,
     brightness: brightness,
     // Arabic-script letters the default font lacks (Urdu, Persian and Arabic
-    // app text) are drawn in Scheherazade. Left alone, Flutter tries the
-    // bundled fonts before the system's for such a glyph and lands on Qalam,
-    // the Indo-Pak Quran font, for menus and buttons.
+    // app text) are drawn in Arabic UI, Scheherazade cut down to Arabic
+    // script. Left alone, Flutter tries the bundled fonts before the
+    // system's for such a glyph and lands on Qalam, the Indo-Pak Quran font,
+    // for menus and buttons.
     //
-    // On the web the default family can be one the browser engine doesn't
-    // have (Apple's system font on a Mac), so every glyph would then fall
-    // through to this list - and Scheherazade has Latin letters, turning all
-    // English text serif. Roboto, the web engine's own default, goes first
-    // there so it keeps the Latin and Scheherazade only gets Arabic script.
+    // It must not be the full Scheherazade, which has Latin letters too.
+    // Flutter only falls back to the system font when none of a style's
+    // families can be found, and the theme's own family isn't always one it
+    // can: Android's font list calls Roboto "sans-serif", and the web engine
+    // lacks Apple's system font. The fallback then draws every glyph it has, and with Scheherazade
+    // that turned all English text serif. Arabic UI has nothing but Arabic
+    // script, so everything else still comes from the system font. On the
+    // web, Roboto (the engine's own default) goes first so Latin needn't
+    // wait for a downloaded fallback.
     fontFamilyFallback:
-        kIsWeb ? const ['Roboto', 'Scheherazade'] : const ['Scheherazade'],
+        kIsWeb ? const ['Roboto', 'Arabic UI'] : const ['Arabic UI'],
     colorScheme: scheme,
     scaffoldBackgroundColor: c.ground,
     canvasColor: c.ground,
