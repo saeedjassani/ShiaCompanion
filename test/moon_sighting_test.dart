@@ -117,6 +117,50 @@ void main() {
         expect(polar[key]! - previous, inInclusiveRange(29, 30));
       }
     });
+
+    test('agrees with every IMAM-US announcement for North America', () {
+      // The first day of each month as the Moon-Sighting Committee of the
+      // Council of Shia Muslim Scholars of North America announced it on
+      // imam-us.org, 1445-1448. Umm al-Qura gets only 12 of these 22 right.
+      const announced = {
+        (1445, 1): (2023, 7, 19),
+        (1445, 10): (2024, 4, 10),
+        (1445, 11): (2024, 5, 9),
+        (1445, 12): (2024, 6, 8),
+        (1446, 1): (2024, 7, 7),
+        (1446, 8): (2025, 1, 31),
+        (1446, 10): (2025, 3, 31),
+        (1446, 11): (2025, 4, 29),
+        (1446, 12): (2025, 5, 28),
+        (1447, 1): (2025, 6, 27),
+        (1447, 2): (2025, 7, 26),
+        (1447, 3): (2025, 8, 25),
+        (1447, 5): (2025, 10, 24),
+        (1447, 7): (2025, 12, 22),
+        (1447, 8): (2026, 1, 20),
+        (1447, 10): (2026, 3, 20),
+        (1447, 11): (2026, 4, 19),
+        (1447, 12): (2026, 5, 18),
+        (1448, 1): (2026, 6, 16),
+        (1448, 2): (2026, 7, 16),
+        (1448, 4): (2026, 9, 13),
+        (1448, 5): (2026, 10, 13),
+      };
+      // Dearborn, Michigan.
+      final dearborn = predictedHijriMonthStarts(
+        latitude: 42.3,
+        longitude: -83.2,
+        around: DateTime(2025, 6, 1),
+        monthsBefore: 30,
+        monthsAfter: 20,
+      );
+      announced.forEach((month, day) {
+        final key = (month.$1 - 1) * 12 + month.$2 - 1;
+        final start =
+            dearborn[key] ?? ummAlquraDateArray[key - hijriAdjustmentKeyOffset];
+        expect(start, _mcjdn(day.$1, day.$2, day.$3), reason: '$month');
+      });
+    });
   });
 
   group('hijriForCivilDate', () {
