@@ -655,6 +655,7 @@
   "libraryNoChaptersBody": "આ પુસ્તકમાં હાલમાં કોઈ પ્રકરણો નથી.",
   "quranMoveEntry": "\"{entry}\" ખસેડો",
   "quranNoSessions": "હજી કોઈ સેશન નથી. સૂરહ ખોલો અને વાંચવાનું શરૂ કરો — તમે પઢો છો તે આયતો અહીં આપોઆપ નોંધાય છે.",
+  "quranOlderSessionsNote": "{days} દિવસથી જૂના સેશન આ યાદીમાંથી હટી જાય છે, પણ મારા આંકડામાં ગણાતા રહે છે.",
   "quranMoveToLabel": "બીજા ખત્મમાં ખસેડો",
   "quranNewLabel": "અથવા નવો ખત્મ",
   "quranMove": "ખસેડો",

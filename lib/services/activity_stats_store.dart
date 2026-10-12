@@ -147,9 +147,7 @@ class ActivityStatsStore extends ChangeNotifier {
       devices: [_own, ..._others.values],
       quranVersesByDay:
           recitation?.dailyVerseCounts(activityRetentionDays) ?? const {},
-      quranVersesTotal: recitation?.entries.values
-              .fold<int>(0, (sum, entry) => sum + entry.versesRecited) ??
-          0,
+      quranVersesTotal: recitation?.totalVersesRecited ?? 0,
       now: now,
     );
   }
