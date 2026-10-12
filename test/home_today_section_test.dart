@@ -1,9 +1,13 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shia_companion/constants.dart';
 import 'package:shia_companion/data/uid_title_data.dart';
 import 'package:shia_companion/pages/home/today_section.dart';
+import 'package:shia_companion/services/zikr_translations.dart';
 import 'package:shia_companion/theme/app_theme.dart';
 import 'package:shia_companion/utils/shared_preferences.dart';
 import 'package:shia_companion/utils/todays_recitation.dart';
@@ -12,6 +16,33 @@ import 'ui/firebase_test_doubles.dart';
 
 List<String> _uids(List<TodayPick> picks) =>
     [for (final pick in picks) pick.entry.uid];
+
+/// Serves [files] as assets, with an AssetManifest.bin listing them - all
+/// [ZikrTranslations] needs to discover a language and load its titles.
+class _FakeBundle extends CachingAssetBundle {
+  _FakeBundle(this.files);
+
+  final Map<String, String> files;
+
+  @override
+  Future<ByteData> load(String key) async {
+    if (key == 'AssetManifest.bin') {
+      return const StandardMessageCodec().encodeMessage(<Object?, Object?>{
+        for (final path in files.keys)
+          path: <Object?>[
+            <Object?, Object?>{'asset': path},
+          ],
+      })!;
+    }
+    final content = files[key];
+    if (content == null) throw FlutterError('Unable to load asset: $key');
+    return ByteData.sublistView(utf8.encode(content));
+  }
+}
+
+final _arabicTitles = _FakeBundle({
+  zikrTranslationIndexPath('ar'): '{"titles": {"G4": "زيارة عاشوراء"}}',
+});
 
 void main() {
   group('todayPicks', () {
@@ -247,6 +278,26 @@ void main() {
       await tester.pump();
       expect(find.text('Today'), findsNothing);
       expect(find.text('See all'), findsNothing);
+    });
+
+    testWidgets('retitles its cards when the zikr titles\' language loads',
+        (tester) async {
+      items = {'G4': 'Ziyarat Ashura'};
+      itemMetadata = {
+        'G4': {'day': '*-*'},
+      };
+      zikrIndexReady.value = true;
+      final translations = ZikrTranslations.instance..debugReset();
+      addTearDown(translations.debugReset);
+
+      await tester.pumpWidget(app());
+      expect(find.text('Ziyarat Ashura'), findsOneWidget);
+
+      await tester
+          .runAsync(() => translations.setLanguage('ar', _arabicTitles));
+      await tester.pump();
+      expect(find.text('زيارة عاشوراء'), findsOneWidget);
+      expect(find.text('Ziyarat Ashura'), findsNothing);
     });
   });
 

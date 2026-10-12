@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:intl/intl.dart';
@@ -9,8 +10,36 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shia_companion/l10n/app_language.dart';
 import 'package:shia_companion/l10n/hijri_l10n.dart';
 import 'package:shia_companion/l10n/l10n.dart';
+import 'package:shia_companion/services/zikr_translations.dart';
 import 'package:shia_companion/utils/language_provider.dart';
 import 'package:shia_companion/utils/prayer_times.dart';
+
+/// Serves [files] as assets, with an AssetManifest.bin listing them - all
+/// [ZikrTranslations] needs to discover a language and load its titles.
+class _FakeBundle extends CachingAssetBundle {
+  _FakeBundle(this.files);
+
+  final Map<String, String> files;
+
+  @override
+  Future<ByteData> load(String key) async {
+    if (key == 'AssetManifest.bin') {
+      return const StandardMessageCodec().encodeMessage(<Object?, Object?>{
+        for (final path in files.keys)
+          path: <Object?>[
+            <Object?, Object?>{'asset': path},
+          ],
+      })!;
+    }
+    final content = files[key];
+    if (content == null) throw FlutterError('Unable to load asset: $key');
+    return ByteData.sublistView(utf8.encode(content));
+  }
+}
+
+final _arabicTitles = _FakeBundle({
+  zikrTranslationIndexPath('ar'): '{"titles": {"G4": "زيارة عاشوراء"}}',
+});
 
 void main() {
   group('app text', () {
@@ -111,6 +140,35 @@ void main() {
       expect(L10n.current.calendarDaysAgo(5), contains('٥'));
       expect(DateFormat('d').format(DateTime(2026, 10, 18)), '١٨');
       expect(NumberFormat.decimalPattern().format(1448), '١٬٤٤٨');
+    });
+
+    testWidgets('a new app language has its zikr titles loaded by the rebuild',
+        (tester) async {
+      SharedPreferences.setMockInitialValues(const {});
+      // An earlier test's provider left the bundle listing pending in its
+      // own fake-async zone; start from a clean slate.
+      ZikrTranslations.instance.debugReset();
+      addTearDown(ZikrTranslations.instance.debugReset);
+      late LanguageProvider provider;
+      String? titleAtRebuild;
+      await tester.runAsync(() async {
+        provider = LanguageProvider(bundle: _arabicTitles);
+        while (provider.translationLanguages.length < 2) {
+          await Future<void>.delayed(const Duration(milliseconds: 10));
+        }
+        void firstRebuild() {
+          titleAtRebuild = ZikrTranslations.instance.titleFor('G4');
+          provider.removeListener(firstRebuild);
+        }
+
+        provider.addListener(firstRebuild);
+        await provider.setAppLanguage('ar');
+        await provider.setAppLanguage(englishLanguageCode);
+        provider.dispose();
+      });
+
+      // What the Today cards and every other title redraw with.
+      expect(titleAtRebuild, 'زيارة عاشوراء');
     });
 
     test('Urdu and Gujarati write their own digits, not intl\'s 0-9', () {

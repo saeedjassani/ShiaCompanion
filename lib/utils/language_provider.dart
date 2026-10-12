@@ -125,10 +125,12 @@ class LanguageProvider extends ChangeNotifier with WidgetsBindingObserver {
   Future<void> setAppLanguage(String? code) async {
     if (code == _appLanguageChoice) return;
     _appLanguageChoice = code;
+    // The zikr titles first: the rebuild the new locale sets off redraws
+    // every title on screen, and must find them in the new language.
+    await _applyTranslationLanguage();
     _applyAppLanguage();
     notifyListeners();
     unawaited(LocationService.instance.relabelForAppLanguage());
-    await _applyTranslationLanguage();
     await _persist(appLanguagePrefsKey, code);
   }
 
@@ -185,10 +187,14 @@ class LanguageProvider extends ChangeNotifier with WidgetsBindingObserver {
   @override
   void didChangeLocales(List<Locale>? locales) {
     if (_appLanguageChoice != null) return;
+    unawaited(_followDeviceLanguage());
+  }
+
+  Future<void> _followDeviceLanguage() async {
+    await _applyTranslationLanguage();
     _applyAppLanguage();
     notifyListeners();
     unawaited(LocationService.instance.relabelForAppLanguage());
-    unawaited(_applyTranslationLanguage());
   }
 
   @override

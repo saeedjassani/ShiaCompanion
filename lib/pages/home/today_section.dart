@@ -8,6 +8,7 @@ import '../../data/universal_data.dart';
 import '../../l10n/l10n.dart';
 import '../../services/analytics_service.dart';
 import '../../services/location_service.dart';
+import '../../services/zikr_translations.dart';
 import '../../theme/shia_colors.dart';
 import '../../utils/todays_recitation.dart';
 import '../../widgets/home_glyph.dart';
@@ -184,7 +185,12 @@ class _TodaySectionState extends State<TodaySection> {
   Widget build(BuildContext context) {
     // The location moves when the night begins.
     return ListenableBuilder(
-      listenable: Listenable.merge([zikrIndexReady, LocationService.instance]),
+      listenable: Listenable.merge([
+        zikrIndexReady,
+        LocationService.instance,
+        // The titles, when the translation language changes or loads.
+        ZikrTranslations.instance,
+      ]),
       builder: (context, _) {
         final l10n = context.l10n;
         final today = _today();
