@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -21,7 +22,14 @@ ThemeData buildAppTheme(Brightness brightness) {
     // app text) are drawn in Scheherazade. Left alone, Flutter tries the
     // bundled fonts before the system's for such a glyph and lands on Qalam,
     // the Indo-Pak Quran font, for menus and buttons.
-    fontFamilyFallback: const ['Scheherazade'],
+    //
+    // On the web the default family can be one the browser engine doesn't
+    // have (Apple's system font on a Mac), so every glyph would then fall
+    // through to this list - and Scheherazade has Latin letters, turning all
+    // English text serif. Roboto, the web engine's own default, goes first
+    // there so it keeps the Latin and Scheherazade only gets Arabic script.
+    fontFamilyFallback:
+        kIsWeb ? const ['Roboto', 'Scheherazade'] : const ['Scheherazade'],
     colorScheme: scheme,
     scaffoldBackgroundColor: c.ground,
     canvasColor: c.ground,
