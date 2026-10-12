@@ -8,6 +8,10 @@ repha glyphs (0xC7, 0xC8, 0xE6, 0xE7, 0xD4) put RA+virama in front of the
 syllable they sit over. decode()/dec2() turn one line of glyph codes into
 Unicode Gujarati. This is what produced assets/zikr_i18n/gu/A5-A118.
 
+Known gap: the half-KA glyph came out as half-PA, so ક્ય/ક્ત/ક્મ/ક્લ
+words read પ્ય/પ્ત/પ્મ/પ્લ (શપ્તિ for શક્તિ). The assets were corrected by
+hand afterwards; a re-extraction must fix the glyph map first.
+
 The text stream is the run of printable bytes in the file's single
 'PageMaker' OLE stream, with its zero padding removed; lines are split on
 CR, and verse lines start with their number ("12. ").
