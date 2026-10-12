@@ -368,14 +368,29 @@ void main() {
       expect(cityLabelLanguage, 'en');
     });
 
-    test('leaves a chosen city alone', () async {
-      lat = 32.6;
-      long = 44.0;
+    Future<void> chooseKarbala({required double latitude}) async {
+      lat = latitude;
+      long = 44.02;
       city = 'Karbala';
       SharedPreferences.setMockInitialValues({LocationService.manualKey: true});
       await SP.init();
       LocationService.instance.restore();
       L10n.current = lookupAppLocalizations(const Locale('ur'));
+    }
+
+    test('names a chosen city from the list, offline', () async {
+      await chooseKarbala(latitude: 32.62);
+
+      final requests = await geocodeRequests(karbala,
+          () => LocationService.instance.relabelForAppLanguage());
+
+      expect(requests, isEmpty);
+      expect(city, 'کربلا');
+      expect(cityLabelLanguage, 'ur');
+    });
+
+    test('keeps a chosen place the list does not have as it is', () async {
+      await chooseKarbala(latitude: 10.5);
 
       final requests = await geocodeRequests(karbala,
           () => LocationService.instance.relabelForAppLanguage());

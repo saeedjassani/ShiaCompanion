@@ -1,0 +1,6242 @@
+# City list names in ar; see scripts/build_city_names.py. Sources: tr = transliterated by hand, fix = corrected by hand, wd = Wikidata (CC0), gn = GeoNames (CC BY 4.0), cldr = Unicode CLDR (Unicode License v3, (c) Unicode, Inc.).
+C:AD	أندورا	cldr	Andorra	
+C:AE	الإمارات العربية المتحدة	cldr	United Arab Emirates	
+C:AF	أفغانستان	cldr	Afghanistan	
+C:AG	أنتيغوا وبربودا	cldr	Antigua and Barbuda	
+C:AI	أنغويلا	cldr	Anguilla	
+C:AL	ألبانيا	cldr	Albania	
+C:AM	أرمينيا	cldr	Armenia	
+C:AO	أنغولا	cldr	Angola	
+C:AR	الأرجنتين	cldr	Argentina	
+C:AS	ساموا الأمريكية	cldr	American Samoa	
+C:AT	النمسا	cldr	Austria	
+C:AU	أستراليا	cldr	Australia	
+C:AW	أروبا	cldr	Aruba	
+C:AX	جزر آلاند	cldr	Aland Islands	
+C:AZ	أذربيجان	cldr	Azerbaijan	
+C:BA	البوسنة والهرسك	cldr	Bosnia and Herzegovina	
+C:BB	بربادوس	cldr	Barbados	
+C:BD	بنغلاديش	cldr	Bangladesh	
+C:BE	بلجيكا	cldr	Belgium	
+C:BF	بوركينا فاسو	cldr	Burkina Faso	
+C:BG	بلغاريا	cldr	Bulgaria	
+C:BH	البحرين	cldr	Bahrain	
+C:BI	بوروندي	cldr	Burundi	
+C:BJ	بنين	cldr	Benin	
+C:BL	سان بارتليمي	cldr	Saint Barthelemy	
+C:BM	برمودا	cldr	Bermuda	
+C:BN	بروناي	cldr	Brunei	
+C:BO	بوليفيا	cldr	Bolivia	
+C:BQ	هولندا الكاريبية	cldr	Bonaire, Saint Eustatius and Saba 	
+C:BR	البرازيل	cldr	Brazil	
+C:BS	جزر البهاما	cldr	Bahamas	
+C:BT	بوتان	cldr	Bhutan	
+C:BW	بوتسوانا	cldr	Botswana	
+C:BY	بيلاروس	cldr	Belarus	
+C:BZ	بليز	cldr	Belize	
+C:CA	كندا	cldr	Canada	
+C:CC	جزر كوكوس	cldr	Cocos Islands	
+C:CD	الكونغو كينشاسا	cldr	Democratic Republic of the Congo	
+C:CF	جمهورية أفريقيا الوسطى	cldr	Central African Republic	
+C:CG	الكونغو برازافيل	cldr	Republic of the Congo	
+C:CH	سويسرا	cldr	Switzerland	
+C:CI	ساحل العاج	cldr	Ivory Coast	
+C:CK	جزر كوك	cldr	Cook Islands	
+C:CL	تشيلي	cldr	Chile	
+C:CM	الكاميرون	cldr	Cameroon	
+C:CN	الصين	cldr	China	
+C:CO	كولومبيا	cldr	Colombia	
+C:CR	كوستاريكا	cldr	Costa Rica	
+C:CU	كوبا	cldr	Cuba	
+C:CV	الرأس الأخضر	cldr	Cabo Verde	
+C:CW	كوراساو	cldr	Curacao	
+C:CX	جزيرة كريسماس	cldr	Christmas Island	
+C:CY	قبرص	cldr	Cyprus	
+C:CZ	التشيك	cldr	Czechia	
+C:DE	ألمانيا	cldr	Germany	
+C:DJ	جيبوتي	cldr	Djibouti	
+C:DK	الدانمرك	cldr	Denmark	
+C:DM	دومينيكا	cldr	Dominica	
+C:DO	جمهورية الدومينيكان	cldr	Dominican Republic	
+C:DZ	الجزائر	cldr	Algeria	
+C:EC	الإكوادور	cldr	Ecuador	
+C:EE	إستونيا	cldr	Estonia	
+C:EG	مصر	cldr	Egypt	
+C:EH	الصحراء الغربية	cldr	Western Sahara	
+C:ER	إريتريا	cldr	Eritrea	
+C:ES	إسبانيا	cldr	Spain	
+C:ET	إثيوبيا	cldr	Ethiopia	
+C:FI	فنلندا	cldr	Finland	
+C:FJ	فيجي	cldr	Fiji	
+C:FK	جزر فوكلاند	cldr	Falkland Islands	
+C:FM	ميكرونيزيا	cldr	Micronesia	
+C:FO	جزر فارو	cldr	Faroe Islands	
+C:FR	فرنسا	cldr	France	
+C:GA	الغابون	cldr	Gabon	
+C:GB	المملكة المتحدة	cldr	United Kingdom	
+C:GD	غرينادا	cldr	Grenada	
+C:GE	جورجيا	cldr	Georgia	
+C:GF	غويانا الفرنسية	cldr	French Guiana	
+C:GG	غيرنزي	cldr	Guernsey	
+C:GH	غانا	cldr	Ghana	
+C:GI	جبل طارق	cldr	Gibraltar	
+C:GL	غرينلاند	cldr	Greenland	
+C:GM	غامبيا	cldr	Gambia	
+C:GN	غينيا	cldr	Guinea	
+C:GP	غوادلوب	cldr	Guadeloupe	
+C:GQ	غينيا الاستوائية	cldr	Equatorial Guinea	
+C:GR	اليونان	cldr	Greece	
+C:GS	جورجيا الجنوبية وجزر ساندويتش الجنوبية	cldr	South Georgia and the South Sandwich Islands	
+C:GT	غواتيمالا	cldr	Guatemala	
+C:GU	غوام	cldr	Guam	
+C:GW	غينيا بيساو	cldr	Guinea-Bissau	
+C:GY	غيانا	cldr	Guyana	
+C:HK	هونغ كونغ الصينية	cldr	Hong Kong	
+C:HN	هندوراس	cldr	Honduras	
+C:HR	كرواتيا	cldr	Croatia	
+C:HT	هايتي	cldr	Haiti	
+C:HU	هنغاريا	cldr	Hungary	
+C:ID	إندونيسيا	cldr	Indonesia	
+C:IE	أيرلندا	cldr	Ireland	
+C:IL	إسرائيل	cldr	Israel	
+C:IM	جزيرة مان	cldr	Isle of Man	
+C:IN	الهند	cldr	India	
+C:IQ	العراق	cldr	Iraq	
+C:IR	إيران	cldr	Iran	
+C:IS	آيسلندا	cldr	Iceland	
+C:IT	إيطاليا	cldr	Italy	
+C:JE	جيرسي	cldr	Jersey	
+C:JM	جامايكا	cldr	Jamaica	
+C:JO	الأردن	cldr	Jordan	
+C:JP	اليابان	cldr	Japan	
+C:KE	كينيا	cldr	Kenya	
+C:KG	قيرغيزستان	cldr	Kyrgyzstan	
+C:KH	كمبوديا	cldr	Cambodia	
+C:KI	كيريباتي	cldr	Kiribati	
+C:KM	جزر القمر	cldr	Comoros	
+C:KN	سانت كيتس ونيفيس	cldr	Saint Kitts and Nevis	
+C:KP	كوريا الشمالية	cldr	North Korea	
+C:KR	كوريا الجنوبية	cldr	South Korea	
+C:KW	الكويت	cldr	Kuwait	
+C:KY	جزر كايمان	cldr	Cayman Islands	
+C:KZ	كازاخستان	cldr	Kazakhstan	
+C:LA	لاوس	cldr	Laos	
+C:LB	لبنان	cldr	Lebanon	
+C:LC	سانت لوسيا	cldr	Saint Lucia	
+C:LI	ليختنشتاين	cldr	Liechtenstein	
+C:LK	سريلانكا	cldr	Sri Lanka	
+C:LR	ليبيريا	cldr	Liberia	
+C:LS	ليسوتو	cldr	Lesotho	
+C:LT	ليتوانيا	cldr	Lithuania	
+C:LU	لوكسمبورغ	cldr	Luxembourg	
+C:LV	لاتفيا	cldr	Latvia	
+C:LY	ليبيا	cldr	Libya	
+C:MA	المغرب	cldr	Morocco	
+C:MC	موناكو	cldr	Monaco	
+C:MD	مولدوفا	cldr	Moldova	
+C:ME	الجبل الأسود	cldr	Montenegro	
+C:MF	سان مارتن	cldr	Saint Martin	
+C:MG	مدغشقر	cldr	Madagascar	
+C:MH	جزر مارشال	cldr	Marshall Islands	
+C:MK	مقدونيا الشمالية	cldr	North Macedonia	
+C:ML	مالي	cldr	Mali	
+C:MM	ميانمار	cldr	Myanmar	
+C:MN	منغوليا	cldr	Mongolia	
+C:MO	ماكاو	fix	Macao	
+C:MP	جزر ماريانا الشمالية	cldr	Northern Mariana Islands	
+C:MQ	جزر المارتينيك	cldr	Martinique	
+C:MR	موريتانيا	cldr	Mauritania	
+C:MS	مونتسرات	cldr	Montserrat	
+C:MT	مالطا	cldr	Malta	
+C:MU	موريشيوس	cldr	Mauritius	
+C:MV	جزر المالديف	cldr	Maldives	
+C:MW	ملاوي	cldr	Malawi	
+C:MX	المكسيك	cldr	Mexico	
+C:MY	ماليزيا	cldr	Malaysia	
+C:MZ	موزمبيق	cldr	Mozambique	
+C:NA	ناميبيا	cldr	Namibia	
+C:NC	كاليدونيا الجديدة	cldr	New Caledonia	
+C:NE	النيجر	cldr	Niger	
+C:NF	جزيرة نورفولك	cldr	Norfolk Island	
+C:NG	نيجيريا	cldr	Nigeria	
+C:NI	نيكاراغوا	cldr	Nicaragua	
+C:NL	هولندا	cldr	The Netherlands	
+C:NO	النرويج	cldr	Norway	
+C:NP	نيبال	cldr	Nepal	
+C:NR	ناورو	cldr	Nauru	
+C:NU	نيوي	cldr	Niue	
+C:NZ	نيوزيلندا	cldr	New Zealand	
+C:OM	عمان	cldr	Oman	
+C:PA	بنما	cldr	Panama	
+C:PE	بيرو	cldr	Peru	
+C:PF	بولينيزيا الفرنسية	cldr	French Polynesia	
+C:PG	بابوا غينيا الجديدة	cldr	Papua New Guinea	
+C:PH	الفلبين	cldr	Philippines	
+C:PK	باكستان	cldr	Pakistan	
+C:PL	بولندا	cldr	Poland	
+C:PM	سان بيير ومكويلون	cldr	Saint Pierre and Miquelon	
+C:PN	جزر بيتكيرن	cldr	Pitcairn	
+C:PR	بورتوريكو	cldr	Puerto Rico	
+C:PS	الأراضي الفلسطينية	cldr	Palestinian Territory	
+C:PT	البرتغال	cldr	Portugal	
+C:PW	بالاو	cldr	Palau	
+C:PY	باراغواي	cldr	Paraguay	
+C:QA	قطر	cldr	Qatar	
+C:RE	روينيون	cldr	Reunion	
+C:RO	رومانيا	cldr	Romania	
+C:RS	صربيا	cldr	Serbia	
+C:RU	روسيا	cldr	Russia	
+C:RW	رواندا	cldr	Rwanda	
+C:SA	المملكة العربية السعودية	cldr	Saudi Arabia	
+C:SB	جزر سليمان	cldr	Solomon Islands	
+C:SC	سيشل	cldr	Seychelles	
+C:SD	السودان	cldr	Sudan	
+C:SE	السويد	cldr	Sweden	
+C:SG	سنغافورة	cldr	Singapore	
+C:SH	سانت هيلينا	cldr	Saint Helena	
+C:SI	سلوفينيا	cldr	Slovenia	
+C:SJ	سفالبارد وجان ماين	cldr	Svalbard and Jan Mayen	
+C:SK	سلوفاكيا	cldr	Slovakia	
+C:SL	سيراليون	cldr	Sierra Leone	
+C:SM	سان مارينو	cldr	San Marino	
+C:SN	السنغال	cldr	Senegal	
+C:SO	الصومال	cldr	Somalia	
+C:SR	سورينام	cldr	Suriname	
+C:SS	جنوب السودان	cldr	South Sudan	
+C:ST	ساو تومي وبرينسيبي	cldr	Sao Tome and Principe	
+C:SV	السلفادور	cldr	El Salvador	
+C:SX	سانت مارتن	cldr	Sint Maarten	
+C:SY	سوريا	cldr	Syria	
+C:SZ	إسواتيني	cldr	Eswatini	
+C:TC	جزر توركس وكايكوس	cldr	Turks and Caicos Islands	
+C:TD	تشاد	cldr	Chad	
+C:TF	الأقاليم الجنوبية الفرنسية	cldr	French Southern Territories	
+C:TG	توغو	cldr	Togo	
+C:TH	تايلاند	cldr	Thailand	
+C:TJ	طاجيكستان	cldr	Tajikistan	
+C:TL	تيمور ليشتي	cldr	Timor Leste	
+C:TM	تركمانستان	cldr	Turkmenistan	
+C:TN	تونس	cldr	Tunisia	
+C:TO	تونغا	cldr	Tonga	
+C:TR	تركيا	cldr	Turkey	
+C:TT	ترينيداد وتوباغو	cldr	Trinidad and Tobago	
+C:TV	توفالو	cldr	Tuvalu	
+C:TW	تايوان	cldr	Taiwan	
+C:TZ	تنزانيا	cldr	Tanzania	
+C:UA	أوكرانيا	cldr	Ukraine	
+C:UG	أوغندا	cldr	Uganda	
+C:US	الولايات المتحدة	cldr	United States	
+C:UY	أورغواي	cldr	Uruguay	
+C:UZ	أوزبكستان	cldr	Uzbekistan	
+C:VA	الفاتيكان	cldr	Vatican	
+C:VC	سانت فنسنت وجزر غرينادين	cldr	Saint Vincent and the Grenadines	
+C:VE	فنزويلا	cldr	Venezuela	
+C:VG	جزر فيرجن البريطانية	cldr	British Virgin Islands	
+C:VI	جزر فيرجن الأمريكية	cldr	U.S. Virgin Islands	
+C:VN	فيتنام	cldr	Vietnam	
+C:VU	فانواتو	cldr	Vanuatu	
+C:WF	جزر والس وفوتونا	cldr	Wallis and Futuna	
+C:WS	ساموا	cldr	Samoa	
+C:XK	كوسوفو	cldr	Kosovo	
+C:YE	اليمن	cldr	Yemen	
+C:YT	مايوت	cldr	Mayotte	
+C:ZA	جنوب أفريقيا	cldr	South Africa	
+C:ZM	زامبيا	cldr	Zambia	
+C:ZW	زيمبابوي	cldr	Zimbabwe	
+A:BR.07	القطاع الفدرالي	wd	Federal District	
+A:BR.23	ريو غراندي دو سول	wd	Rio Grande do Sul	
+A:BR.26	سانتا كاتارينا	wd	Santa Catarina	
+A:BR.29	غوياس	wd	Goiás	
+A:CN.01	آنهوي	wd	Anhui	
+A:CN.02	جيجيانغ	wd	Zhejiang	
+A:CN.03	جيانغشي	wd	Jiangxi	
+A:CN.04	جيانغسو	wd	Jiangsu	
+A:CN.05	جيلين	wd	Jilin	
+A:CN.06	تشينغهاي	wd	Qinghai	
+A:CN.07	فوجيان	wd	Fujian	
+A:CN.08	هيلونغجيانغ	wd	Heilongjiang	
+A:CN.09	خنان	wd	Henan	
+A:CN.10	خبي	wd	Hebei	
+A:CN.11	خونان	wd	Hunan	
+A:CN.12	خوبي	wd	Hubei	
+A:CN.16	قوانغشي	wd	Guangxi	
+A:CN.19	لياونينغ	wd	Liaoning	
+A:CN.20	منغوليا الداخلية	wd	Inner Mongolia	
+A:CN.23	شانغهاي	wd	Shanghai	
+A:CN.24	شانشي	wd	Shanxi	
+A:CN.25	شاندونغ	wd	Shandong	
+A:CN.29	يونان	wd	Yunnan	
+A:CN.30	غوانغدونغ	wd	Guangdong	
+A:CN.31	هاينان	wd	Hainan	
+A:CN.33	تشونغتشينغ	wd	Chongqing	
+A:CO.29	مقاطعة فالي ديل كاوكا	fix	Valle del Cauca Department	
+A:HN.01	مقاطعة أتلانتيدا	fix	Atlántida Department	
+A:ID.10	يوجياكرتا	wd	Yogyakarta	
+A:ID.30	جاوة الغربية	wd	West Java	
+A:IR.33	محافظة أذربيجان الشرقية	wd	East Azerbaijan	reviewed
+A:IR.42	خراسان رضوي	wd	Razavi Khorasan	
+A:JP.10	غونما	wd	Gunma	
+A:JP.40	طوكيو	wd	Tokyo	
+A:KE.22	مقاطعة كيامبو	tr	Kiambu County	
+A:KE.38	مقاطعة مورانغا	tr	Murang'A	
+A:MX.06	ولاية شيواوا	wd	Chihuahua	reviewed
+A:MX.09	مدينة مكسيكو	wd	Mexico City	
+A:MX.19	ولاية نويفو ليون	wd	Nuevo León	reviewed
+A:MX.32	ولاية زاكاتيكاس	wd	Zacatecas	reviewed
+A:PH.05	منطقة بيكول	tr	Bicol Region	
+A:PH.06	بيسايا الغربية	wd	Western Visayas	
+A:PH.07	بيسايا الوسطى	wd	Central Visayas	
+A:PK.04	البنجاب	wd	Punjab	
+A:US.AZ	أريزونا	wd	Arizona	
+A:US.CA	كاليفورنيا	wd	California	
+A:US.CO	كولورادو	wd	Colorado	
+A:US.GA	جورجيا	wd	Georgia	
+A:US.IL	إلينوي	wd	Illinois	
+A:US.KS	كانساس	wd	Kansas	
+A:US.MA	ماساتشوستس	wd	Massachusetts	
+A:US.MN	منيسوتا	wd	Minnesota	
+A:US.MO	ميزوري	wd	Missouri	
+A:US.NY	نيويورك	wd	New York	
+A:US.OH	أوهايو	wd	Ohio	
+A:US.SC	كارولاينا الجنوبية	wd	South Carolina	
+A:US.TX	تكساس	wd	Texas	
+A:US.VA	فرجينيا	wd	Virginia	
+1796236	شانغهاي	wd	Shanghai	
+1814906	تشونغتشينغ	wd	Chongqing	
+1815286	تشنغدو	wd	Chengdu	
+1816670	بكين	wd	Beijing	
+1809858	غوانزو	wd	Guangzhou	
+1795565	شينزين	wd	Shenzhen	
+2314302	كينشاسا	wd	Kinshasa	
+745044	إسطنبول	wd	Istanbul	
+2332459	لاغوس	wd	Lagos	
+1566083	مدينة هو تشي منه	wd	Ho Chi Minh City	
+1792947	تيانجين	wd	Tianjin	
+1791247	ووهان	wd	Wuhan	
+1172451	لاهور	wd	Lahore	
+1790630	شيان	wd	Xi’an	
+1275339	مومباي	wd	Mumbai	
+3448439	ساو باولو	wd	São Paulo	
+3530597	مدينة مكسيكو	wd	Mexico City	
+1808926	هانغتشو	wd	Hangzhou	
+1174872	كراجي	wd	Karachi	
+1273294	دلهي	fix	Delhi	
+524901	موسكو	wd	Moscow	
+1185241	دكا	wd	Dhaka	
+1835848	سول	wd	Seoul	
+2037013	هاربن	wd	Harbin	
+1850147	طوكيو	wd	Tokyo	
+1812545	دونغ غوان	wd	Dongguan	
+360630	القاهرة	wd	Cairo	
+1808722	خفي	wd	Hefei	
+993800	جوهانسبرغ	wd	Johannesburg	
+1791681	ويفانغ	fix	Weifang	
+1799962	نانجينغ	wd	Nanjing	
+2034937	شنيانغ	wd	Shenyang	
+1811103	فوشان	wd	Foshan	
+2643743	لندن	wd	London	
+5128581	نيويورك	wd	New York City	
+1642911	جاكرتا	wd	Jakarta	
+1277333	بنغالور	wd	Bengaluru	
+1805753	جينان	wd	Jinan	
+1581130	هانوي	wd	Hanoi	
+1668341	تايبيه	wd	Taipei	
+3936456	ليما	wd	Lima	
+3688689	بوغوتا	wd	Bogotá	
+1814087	داليان	wd	Dalian	
+1819729	هونغ كونغ	wd	Hong Kong	
+98182	بغداد	wd	Baghdad	
+1790842	ووتشونغ	fix	Wuzhong	
+1797929	تشينغداو	wd	Qingdao	
+112931	طهران	wd	Tehran	
+1787093	يانتاي	fix	Yantai	
+1269843	حيدر آباد	wd	Hyderabad	
+3451190	ريو دي جانيرو	wd	Rio de Janeiro	
+1886760	سوجو	wd	Suzhou	
+1784658	تشنغتشو	wd	Zhengzhou	
+1279233	أحمد آباد	wd	Ahmedabad	
+2293538	أبيدجان	wd	Abidjan	
+1799869	ناننينغ	wd	Nanning	
+1804651	كونمينغ	wd	Kunming	
+1795270	شيجياتشوانغ	wd	Shijiazhuang	
+2038180	تشانغتشون	wd	Changchun	
+1798524	بودونغ	tr	Pudong	
+2147714	سيدني	wd	Sydney	
+1880252	سنغافورة	wd	Singapore	
+2158177	ملبورن	wd	Melbourne	
+160263	دار السلام	wd	Dar es Salaam	
+498817	سانت بطرسبرغ	wd	Saint Petersburg	
+1793511	تاي يوان	wd	Taiyuan	
+361058	الإسكندرية	wd	Alexandria	
+1609350	بانكوك	wd	Bangkok	
+2335204	كانو	wd	Kano	
+3871336	سانتياغو	wd	Santiago	
+3369157	كيب تاون	wd	Cape Town	
+1168197	بيشاور	wd	Peshawar	
+1785286	زيبو	wd	Zibo	
+105343	جدة	wd	Jeddah	
+1264527	تشيناي	wd	Chennai	
+1275004	كلكتا	gn	Kolkata	
+1790645	شيامن	wd	Xiamen	
+1255364	سورت	wd	Surat	
+1787227	يانغتشو	wd	Yangzhou	
+1797873	هوايان	wd	Huai'an	
+1809461	غوييانغ	wd	Guiyang	
+1298824	يانغون	wd	Yangon	
+13308620	باوآن	tr	Bao'an	
+1138958	كابل	wd	Kabul	
+184745	نيروبي	wd	Nairobi	
+1790923	ووشي	wd	Wuxi	
+360995	الجيزة	wd	Giza	
+1804430	لانتشو	wd	Lanzhou	
+2460596	باماكو	wd	Bamako	
+108410	الرياض	wd	Riyadh	
+1810821	فوتشو	fix	Fuzhou	
+1529102	أورومتشي	wd	Ürümqi	
+12908892	تايبيه الجديدة	wd	New Taipei City	
+1205733	شيتاغونغ	fix	Chattogram	
+344979	أديس أبابا	wd	Addis Ababa	
+1785453	تساوتشوانغ	wd	Zaozhuang	
+6986104	زونغشان	wd	Zhongshan	
+1795940	شانتو	wd	Shantou	
+5368361	لوس أنجلوس	wd	Los Angeles	
+1179400	فيصل آباد	wd	Faisalabad	
+292223	دبي	wd	Dubai	
+1848354	يوكوهاما	wd	Yokohama	
+1799397	نينغبو	wd	Ningbo	
+2553604	الدار البيضاء	wd	Casablanca	
+2339354	إبادان	wd	Ibadan	
+1798425	بويانغ	tr	Puyang	
+323786	أنقرة	wd	Ankara	
+1794903	شييان	fix	Shiyan	
+2036892	هوهوت	wd	Hohhot	
+2950159	برلين	wd	Berlin	
+1793346	تانغشان	wd	Tangshan	
+1166993	راولبندي	wd	Rawalpindi	
+13512505	ليوليانغ	tr	Lüliang	
+1007311	ديربان	wd	Durban	
+2038632	آنشان	wd	Anshan	
+1815456	تشانغتشو	wd	Changzhou	
+1838524	بوسان	wd	Busan	
+3117735	مدريد	wd	Madrid	
+1871859	بيونغيانغ	wd	Pyongyang	
+1259229	بونه	wd	Pune	
+2037799	داتونغ	wd	Datong	
+750269	بورصة	wd	Bursa	
+1815577	تشانغشا	wd	Changsha	
+1692192	كيزون	wd	Quezon City	
+1269515	جيبور	wd	Jaipur	
+1807681	هواينان	tr	Huainan	
+1625822	سورابايا	wd	Surabaya	
+1843564	إنتشون	wd	Incheon	
+1809078	هايكو	wd	Haikou	
+3646738	كراكاس	wd	Caracas	
+703448	كييف	wd	Kyiv	
+311046	إزمير	wd	İzmir	
+1806776	هويزو	wd	Huizhou	
+3435910	بوينس آيرس	wd	Buenos Aires	
+1786657	ينشوان	wd	Yinchuan	
+1668399	تايتشونغ	fix	Taichung	
+1267995	كانبور	wd	Kanpur	
+6167865	تورنتو	wd	Toronto	
+3652462	كيتو	wd	Quito	
+2174003	بريزبان	wd	Brisbane	
+2240449	لواندا	wd	Luanda	
+2038432	باوتو	wd	Baotou	
+1853909	أوساكا	wd	Osaka	
+1803318	ليني	wd	Linyi	
+1816971	باودينغ	wd	Baoding	
+1673820	كاوهسيونغ	wd	Kaohsiung	
+5110302	بروكلين	wd	Brooklyn	
+3657509	غواياكيل	wd	Guayaquil	
+3470127	بيلو هوريزونتي	wd	Belo Horizonte	
+1800480	مينهانغ	tr	Minhang	
+11995100	باتشونغ	wd	Bazhong	
+3450554	سالفادور	wd	Salvador	
+2352778	أبوجا	wd	Abuja	
+1200109	غازيبور	wd	Gazipur	
+4887398	شيكاغو	wd	Chicago	
+1791388	ونجو	wd	Wenzhou	
+1649378	بيكاسي	wd	Bekasi	
+2253354	دكار	wd	Dakar	
+1581298	هايفونغ	wd	Haiphong	
+1785725	يونفو	fix	Yunfu	
+53654	مقديشو	wd	Mogadishu	
+2298890	كوماسي	wd	Kumasi	
+1650357	باندونغ	wd	Bandung	
+1177662	كوجرانواله	wd	Gujranwala	
+1214520	ميدان	wd	Medan	
+1264733	لكنو	wd	Lucknow	
+1788852	شينينغ	wd	Xining	
+2357048	واغادوغو	wd	Ouagadougou	
+1262180	ناغبور	wd	Nagpur	
+3399415	فورتاليزا	wd	Fortaleza	
+3687925	كالي	wd	Cali	
+2063523	برث	wd	Perth	
+1835329	دايغو	wd	Daegu	
+2507480	الجزائر العاصمة	wd	Algiers	
+1800163	نانتشانغ	wd	Nanchang	
+587084	باكو	wd	Baku	
+1856057	ناغويا	wd	Nagoya	
+3169070	روما	wd	Rome	
+5133273	كوينز	wd	Queens	
+4699066	هيوستن	wd	Houston	
+124665	مشهد	wd	Mashhad	
+1795855	شاوشينغ	fix	Shaoxing	
+1799722	نانتونغ	wd	Nantong	
+1816917	باوشان	tr	Baoshan	
+314830	عين تاب	wd	Gaziantep	
+922704	لوبومباشي	gn	Lubumbashi	
+3663517	ماناوس	wd	Manaus	
+909137	لوساكا	wd	Lusaka	
+3469058	برازيليا	wd	Brasília	
+1790437	زوهاي	wd	Zhuhai	
+3492908	سانتو دومينغو	wd	Santo Domingo	
+2365267	لومي	wd	Lomé	
+1169825	ملتان	wd	Multan	
+3553478	هافانا	wd	Havana	
+1645524	ديبوك	wd	Depok	
+8347664	أوردوس	tr	Ordos	
+2988507	باريس	wd	Paris	
+1273865	كويمباتور	wd	Coimbatore	
+12359313	تشينغيانغ	tr	Qingyang	
+2324774	بورت هاركورت	wd	Port Harcourt	
+964137	بريتوريا	wd	Pretoria	
+3860259	قرطبة	wd	Córdoba	
+209228	مبوجي مايي	wd	Mbuji-Mayi	
+170063	حلب	wd	Aleppo	
+1785623	كونشان	wd	Kunshan	
+1783621	زونيي	wd	Zunyi	
+3911925	لاباز	wd	La Paz	
+10859300	ليانيونغانغ	fix	Lianyungang	
+3674962	ميديلين	wd	Medellín	
+1802940	بونينغ	fix	Puning	
+1269743	إندور	wd	Indore	
+2260535	برازافيل	wd	Brazzaville	
+1512569	طشقند	wd	Tashkent	
+1810638	غانتشو	wd	Ganzhou	
+1526384	ألماطة	wd	Almaty	
+379252	الخرطوم	wd	Khartoum	
+2911298	هامبورغ	wd	Hamburg	
+2128295	سابورو	wd	Sapporo	
+1794035	سونغجيانغ	tr	Songjiang	
+2306104	أكرا	wd	Accra	
+3464975	كوريتيبا	wd	Curitiba	
+71137	صنعاء	wd	Sanaa	
+2422465	كوناكري	wd	Conakry	
+1625084	تانقيرانغ	wd	Tangerang	
+3981609	تيخوانا	wd	Tijuana	
+1176734	حيدر آباد	wd	Hyderabad	
+276781	بيروت	wd	Beirut	
+1797121	جي يانغ	wd	Jieyang	
+2036502	جيلين	fix	Jilin	
+1806508	جيادينغ	tr	Jiading	
+683506	بوخارست	wd	Bucharest	
+2422488	كامايين	tr	Camayenne	
+195272	كاكاميغا	wd	Kakamega	
+1796134	شانغتشيو	fix	Shangqiu	
+1800146	نانتشونغ	wd	Nanchong	
+1668355	تاينان	wd	Tainan	
+2335727	كادونا	wd	Kaduna	
+365137	أم درمان	wd	Omdurman	
+1715348	دافاو	wd	Davao	
+1254661	تانة	wd	Thāne	
+3526683	إستابالابا	tr	Iztapalapa	
+316541	ديار بكر	wd	Diyarbakır	
+3904906	سانتا كروز دي لا سييرا	wd	Santa Cruz de la Sierra	
+1253573	فادودارا	wd	Vadodara	
+325363	أضنة	wd	Adana	
+1799629	نانيانغ	wd	Nanyang	
+292968	أبو ظبي	wd	Abu Dhabi	
+1633070	فلمبان	wd	Palembang	
+292672	الشارقة	wd	Sharjah	
+1275841	بوبال	wd	Bhopal	
+1806299	جيانغمن	wd	Jiangmen	
+2347283	بنين	wd	Benin City	
+1815251	جيانغن	wd	Jiangyin	
+1810845	فويانغ	wd	Fuyang	
+6077243	مونتريال	wd	Montréal	
+11838258	بايانور	wd	Bayan Nur	
+1793036	تينغتشو	wd	Chengtangcun	reviewed
+3633009	ماراكايبو	wd	Maracaibo	
+1815395	تشاوتشو	fix	Chaozhou	
+625144	مينسك	wd	Minsk	
+3054643	بودابست	wd	Budapest	
+1797945	تشينغيوان	fix	Qingyuan	
+1793724	تايآن	wd	Tai’an	
+1258393	راسابوديباليم	tr	Rasapūdipalem	
+7626690	بيمبري تشينشواد	wd	Pimpri-Chinchwad	
+1720151	كالوكان	wd	Caloocan	
+756135	وارسو	wd	Warsaw	
+953781	سويتو	wd	Soweto	
+1627896	سمارانغ	wd	Semarang	
+3521081	بويبلا	fix	Puebla	
+2761369	فيينا	wd	Vienna	
+3128760	برشلونة	wd	Barcelona	
+1260086	بتنة	wd	Patna	
+99072	الموصل	wd	Mosul	
+12165956	كالاكوريتشي	tr	Kallakurichi	
+232422	كامبالا	wd	Kampala	
+7283386	تشانغشو	tr	Changshu	
+2538475	الرباط	wd	Rabat	
+3390760	ريسيفي	wd	Recife	
+5308655	فينيكس	wd	Phoenix	
+1793743	سوزو	wd	Suzhou	
+3529612	إيكاتيبيك دي موريلوس	tr	Ecatepec de Morelos	
+1802206	لوان	wd	Lu’an	
+3625549	فالنسيا	fix	Valencia	
+1264728	لديانة	wd	Ludhiana	
+1787746	يانتشنغ	tr	Yancheng	
+1496747	نوفوسيبيرسك	wd	Novosibirsk	
+95446	أربيل	wd	Erbil	
+1863967	فوكوكا	wd	Fukuoka	
+1793505	تايتشو	wd	Taizhou	
+2037860	داتشينغ	wd	Daqing	
+212730	كيسانغاني	wd	Kisangani	
+1701668	مانيلا	wd	Manila	
+1791236	ووهو	wd	Wuhu	
+3991164	كيريتارو	fix	Santiago de Querétaro	
+1813325	داتشو	wd	Dazhou	
+3998655	ليون	wd	León de los Aldama	
+104515	مكة المكرمة	wd	Makkah	reviewed
+4560349	فيلادلفيا	wd	Philadelphia	
+1821306	بنوم بنه	wd	Phnom Penh	
+1809498	غويلين	wd	Guilin	
+170654	دمشق	wd	Damascus	
+1167528	كويتة	wd	Quetta	
+1784853	تشاوتشينغ	fix	Zhaoqing	
+2326016	اونيتشا	wd	Onitsha	
+1800627	ميانيانغ	wd	Mianyang	
+2193733	أوكلاند	wd	Auckland	
+418863	أصفهان	wd	Isfahan	
+12358576	وانتشو	tr	Wanzhou	
+1526273	أستانة	wd	Astana	
+890299	هراري	wd	Harare	
+2274895	مونروفيا	wd	Monrovia	
+1798449	بوتيان	wd	Putian	
+1859642	كاواساكي	wd	Kawasaki	
+3462377	غويانيا	gn	Goiânia	
+4726206	سان أنطونيو	wd	San Antonio	
+1859171	كوبه	wd	Kobe	
+2036427	جينتشو	wd	Jinzhou	
+2673730	ستوكهولم	wd	Stockholm	
+4013708	سيوداد خواريز	wd	Ciudad Juárez	
+1586203	كان ثو	gn	Cần Thơ	
+2867714	ميونخ	gn	Munich	
+1336135	خولنا	wd	Khulna	
+3405870	بيليم	gn	Belém	
+1486209	يكاترينبورغ	wd	Yekaterinburg	
+3452925	بورتو أليغري	gn	Porto Alegre	
+5125771	مانهاتن	wd	Manhattan	
+1261731	ناشيك	wd	Nashik	
+8400694	تايتشو	fix	Taizhou	
+3439389	أسونسيون	wd	Asunción	
+1814870	ييوو	wd	Yiwu	
+3979770	سابوبان	wd	Zapopan	
+1622786	ماكاسار	tr	Makassar	
+2078025	أديلايد	wd	Adelaide	
+1797353	تشوانتشو	wd	Quanzhou	
+1264521	مادوراي	wd	Madurai	
+1805528	جينهوا	wd	Jinhua	
+1857910	كيوتو	wd	Kyoto	
+1806602	تسيشي	fix	Cixi	
+1791121	تشانغده	wd	Changde	
+1735161	كوالالمبور	wd	Kuala Lumpur	
+308464	قيصرية	wd	Kayseri	
+1804879	كايفنغ	wd	Kaifeng	
+128747	كرج	wd	Karaj	
+1283240	كتمندو	wd	Kathmandu	
+1835235	دايجيون	gn	Daejeon	
+10942359	باوجي	fix	Baoji	
+1793771	سوتشيان	wd	Suqian	
+1803300	ليوشو	wd	Liuzhou	
+1254361	تيرونلفلي	wd	Tirunelveli	
+306571	قونية	wd	Konya	
+1787331	تشانغ جياغانغ	wd	Zhangjiagang	
+1279259	أغرة	wd	Agra	
+8581443	تانغيرانغ الجنوبية	wd	South Tangerang	
+113646	تبريز	wd	Tabriz	
+706483	خاركيف	wd	Kharkiv	
+1788534	شينيانج	wd	Xinyang	
+1797658	جينجيانغ	wd	Jinjiang	
+1271951	فريد آباد	wd	Faridabad	
+1816234	بوتشو	wd	Bozhou	
+1797318	تشوجينغ	wd	Qujing	
+5391811	سان دييغو	wd	San Diego	
+1841811	غوانغجو	wd	Gwangju	
+1784990	زانجيانغ	wd	Zhanjiang	
+2037355	فوشون	wd	Fushun	
+1258847	راجكوت	wd	Rājkot	
+1801792	لويانغ	wd	Luoyang	
+4005539	غوادالاخارا	wd	Guadalajara	
+5110266	البرونكس	wd	The Bronx	
+1802875	ليويانغ	tr	Guankou	
+1580240	هوي	wd	Huế	
+3173435	ميلانو	wd	Milan	
+1262111	نجفجاره	wd	Najafgarh	
+1804120	ليانجيانغ	tr	Lianjiang	
+2427123	انجمينا	wd	N'Djamena	
+1808963	هاندان	wd	Handan	
+1183460	بانو	wd	Bannu	
+1786764	ييتشانغ	wd	Yichang	
+1070940	أنتانانريفو	wd	Antananarivo	
+1808198	هيزي	wd	Heze	
+3461786	غواروليوس	tr	Guarulhos	
+2293521	أبوبو	wd	Abobo	
+1269300	جمشيدبور	wd	Jamshedpur	
+2232593	دوالة	wd	Douala	
+323777	أنطالية	wd	Antalya	
+99532	البصرة	wd	Basrah	
+4684888	دالاس	wd	Dallas	
+6940394	سايتاما	gn	Saitama	
+2440485	نيامي	wd	Niamey	
+8533133	ليوبانشوي	fix	Liupanshui	
+1684308	تاغويغ	wd	Taguig	
+1801180	ماومينغ	wd	Maoming	
+5913490	كالغاري	wd	Calgary	
+2210247	طرابلس	wd	Tripoli	
+109223	المدينة المنورة	wd	Madinah	
+2220957	ياوندي	wd	Yaoundé	
+6295587	باتام	wd	Batam	
+1797551	تشينتشو	fix	Qinzhou	
+1801934	لوهي	wd	Luohe	
+1790587	شيانغيانغ	wd	Xiangyang	
+1806408	يانغجيانغ	wd	Yangjiang	
+1786760	ييشينغ	tr	Yixing	
+1259652	بيمبري	tr	Pimpri	
+1583992	دا نانغ	wd	Da Nang	
+250441	عمان	wd	Amman	
+1723510	بودتا	tr	Budta	
+792680	بلغراد	wd	Belgrade	
+1587923	بين هوا	wd	Biên Hòa	
+214481	كانانغا	wd	Kananga	
+1797798	تشينغبو	tr	Qingpu	
+3441575	مونتفيدو	wd	Montevideo	
+1788046	شيوتشانغ	fix	Xuchang	
+1268295	كاليان	tr	Kalyān	
+1783745	زيجونج	wd	Zigong	
+520555	نيجني نوفغورود	wd	Nizhniy Novgorod	
+1642548	جيبارا	wd	Jepara	
+1040652	مابوتو	wd	Maputo	
+10630003	شيوتشو	fix	Xuzhou	
+110336	الدمام	wd	Dammam	
+1799491	نيجيانج	wd	Neijiang	
+115019	شيراز	wd	Shiraz	
+1808316	يييانغ	wd	Heshan	reviewed
+1272423	دومبيفالي	tr	Dombivali	
+551487	قازان	wd	Kazan	
+1805518	جينينغ	wd	Jining	
+3648522	باركيسيميتو	wd	Barquisimeto	
+349076	شبرا الخيمة	wd	Shubrā al Khaymah	
+1798439	بوتو	tr	Putuo	
+3718426	بورت أو برانس	wd	Port-au-Prince	
+1835553	سوون	wd	Suwon	
+1803834	لياوتشنغ	wd	Liaocheng	
+10942283	جينتشونغ	tr	Jinzhong	
+3946083	كاياو	wd	Callao	
+1263214	ميرت	wd	Meerut	
+1253133	فاساي فيرار	wd	Virār	
+1261162	نبارانغبور	tr	Nowrangapur	
+94824	كربلاء	wd	Karbala	
+1808956	تشانغتشي	fix	Changzhi	
+1792892	تيانشوي	tr	Tianshui	
+7802746	مدينة الصدر	wd	Sadr City	
+1787375	يانغبو	tr	Yangpu	
+186301	منباسة	wd	Mombasa	
+1311874	ماندالاي	wd	Mandalay	
+1255634	سري نكر	wd	Srinagar	
+3689147	بارانكويلا	gn	Barranquilla	
+1508291	تشيليابنسك	wd	Chelyabinsk	
+3523349	ميريدا	fix	Mérida	
+1862415	هيروشيما	wd	Hiroshima	
+3492914	سانتياغو دي لوس كاباليروس	wd	Santiago de los Caballeros	
+1518980	شيمكنت	wd	Shymkent	
+1791636	ويينان	fix	Weinan	
+1271308	غازي آباد	wd	Ghāziābād	
+1039854	ماتولا	wd	Matola	
+1272979	دنباد	gn	Dhanbad	
+3947322	أريكيبا	wd	Arequipa	
+2548885	فاس	wd	Fes	
+3514674	غوستافو أدولفو ماديرو	tr	Gustavo Adolfo Madero	
+2377450	نواكشوط	wd	Nouakchott	
+1805953	جياشينغ	wd	Jiaxing	
+1278149	أورنك آباد	wd	Aurangabad	
+1784285	تشونغوي	fix	Zhongwei	
+1496153	أومسك	wd	Omsk	
+2246678	بيكين	wd	Pikine	
+1631761	بيكانبارو	wd	Pekanbaru	
+10794003	بانجين	wd	Panjin	
+1624917	باندار لامبونج	wd	Bandar Lampung	
+3067696	براغ	wd	Prague	
+1253405	فاراناسي	wd	Varanasi	
+1805179	جيوجيانغ	tr	Jiujiang	
+499099	سامارا	wd	Samara	
+2353151	آبا	wd	Aba	
+1278710	أمرتسر	wd	Amritsar	
+2655603	برمنغهام	wd	Birmingham	
+2618425	كوبنهاغن	wd	Copenhagen	
+727011	صوفيا	wd	Sofia	
+1785294	انيانغ	gn	Anyang	
+616052	يريفان	wd	Yerevan	
+1253184	فيجاياوادا	wd	Vijayawada	
+13608002	فنغشيان	tr	Fengxiang	
+1816373	بيجيه	fix	Bijie	
+3995465	مونتيري	wd	Monterrey	
+202061	كيغالي	wd	Kigali	
+501175	رستوف على الدون	wd	Rostov-on-Don	
+1783763	تشوتشو	wd	Zhuzhou	
+1797063	رويان	wd	Rui’an	
+1978681	مالينغاو	tr	Malingao	
+2244322	طوبى	wd	Touba	
+479561	أوفا	wd	Ufa	
+1258526	رانشي	wd	Ranchi	
+1783633	تسوتشينغ	wd	Zoucheng	
+1787858	شانغراو	tr	Shangrao	
+927967	ليلونغوي	wd	Lilongwe	
+1807700	هوايبي	wd	Huaibei	
+2331447	ميدغري	wd	Maiduguri	
+1787957	شوهوي	tr	Xuhui	
+1800818	ميشان	wd	Meishan	
+152224	موانزا	wd	Mwanza	
+1833747	أولسان	fix	Ulsan	
+2111149	سنداي	wd	Sendai	
+1502026	كراسنويارسك	wd	Krasnoyarsk	
+1810820	فوتشو	wd	Fuzhou	
+1809532	غويغانغ	fix	Guigang	
+3143244	أوسلو	wd	Oslo	
+1269633	جبلبور	wd	Jabalpur	
+2337639	إلورين	wd	Ilorin	
+415189	عدن	wd	Aden	
+1648473	بوغور	fix	Bogor	
+3530589	سيوداد نيساوالكويوتل	fix	Ciudad Nezahualcoyotl	
+1808370	هنغيانغ	tr	Hengyang	
+1278994	الله آباد	fix	Prayagraj	
+3691175	تروخيلو	wd	Trujillo	
+1253102	فيساخاباتنام	wd	Visakhapatnam	
+1842485	غويانغ	wd	Goyang-si	
+1785781	يولين	wd	Yulin	
+1268865	جودبور	fix	Jodhpur	
+1270583	غواليور	fix	Gwalior	
+1805540	جينغتشو	wd	Jingzhou	
+964420	بورت إليزابيث	wd	Gqeberha	
+611717	تبليسي	wd	Tbilisi	
+472045	فارونيش	wd	Voronezh	
+1788572	شينشيانغ	tr	Xinxiang	
+1786746	ييتشون	wd	Yichun	
+2335953	جوس	wd	Jos	
+2322911	سوكوتو	fix	Sokoto	
+2530335	طنجة	gn	Tangier	
+1790353	شيانيانغ	wd	Xianyang	
+3996069	مكسيكالي	wd	Mexicali	
+2255414	بوانت نوار	wd	Pointe-Noire	
+3395981	ماسايو	gn	Maceió	
+3467865	كامبيناس	gn	Campinas	
+1796556	سانيا	wd	Sanya	
+1185188	رنكبور	wd	Rangpur	
+94787	كركوك	wd	Kirkuk	
+162183	عشق آباد	wd	Ashgabat	
+1795874	شاوغوان	wd	Shaoguan	
+1270396	هاورا	wd	Howrah	
+1258980	رايبور	wd	Raipur	
+1846326	تشانغوون	wd	Changwon	
+1802276	لونغيان	wd	Longyan	
+2886242	كولونيا	wd	Köln	reviewed
+2964574	دبلن	wd	Dublin	
+1254388	تيروتشيرابالي	fix	Tiruchirappalli	
+1786217	يونغتشو	wd	Yongzhou	
+2800866	بروكسل	fix	Brussels	
+1679432	زامبوانجا	fix	Zamboanga	
+6094817	أوتاوا	wd	Ottawa	
+1806535	هوتشو	wd	Huzhou	
+1812057	شيني	wd	Xinyi	
+472757	فولغوغراد	wd	Volgograd	
+379251	الخرطوم بحري	wd	Khartoum North	
+5946768	إدمونتون	wd	Edmonton	
+698740	أوديسا	wd	Odesa	
+1803936	وووي	fix	Wuwei	
+4160021	جاكسونفيل	wd	Jacksonville	
+4691930	فورت وورث	wd	Fort Worth	
+1786455	ييشوي	tr	Yishui	
+1808857	هانتشونغ	wd	Hanzhong	
+7576887	هيشو	wd	Hezhou	
+1266049	كوتة	wd	Kota	
+7602670	تشوتشنغ	tr	Zhu Cheng City	
+1812101	دونغيينغ	tr	Dongying	
+1801640	لوتشو	fix	Luzhou	
+5392171	سان خوسيه	wd	San Jose	
+1256436	سولابور	tr	Sholapur	
+2542997	مراكش	wd	Marrakesh	
+3598132	مدينة غواتيمالا	gn	Guatemala City	
+1800779	مييتشو	fix	Meizhou	
+1927639	يوييانغ	wd	Yueyang	
+1804591	لايوو	wd	Laiwu	
+747323	أسنيورت	tr	Esenyurt	
+511196	بيرم	wd	Perm	
+2317765	زاريا	gn	Zaria	
+2113015	تشيبا	wd	Chiba	
+1798827	بينغدينغشان	wd	Pingdingshan	
+3645528	سيوداد غوايانا	fix	Ciudad Guayana	
+1166000	سركودا	wd	Sargodha	
+4671654	أوستن	wd	Austin	
+3617763	ماناغوا	wd	Managua	
+1816440	بنغبو	wd	Bengbu	
+2537763	سلا	wd	Salé	
+281184	القدس	wd	Jerusalem	
+1274746	شنديغار	wd	Chandigarh	
+709930	دنيبرو	fix	Dnipro	
+1789176	فيتشنغ	wd	Feicheng	
+1717512	مدينة سيبو	wd	Cebu City	
+1796823	سانهي	wd	Sanhe	
+1809412	يونغ كانغ	wd	Guli	reviewed
+1254348	تيروبور	wd	Tiruppur	
+1271476	غواهاتي	wd	Guwahati	
+1790492	شيانغتان	tr	Xiangtan	
+1803567	لينفن	wd	Linfen	
+1931681	مدينة فكتوريا	wd	Victoria	
+1784642	تشنجيانغ	wd	Zhenjiang	
+2343279	إنوغو	wd	Enugu	
+3838583	روساريو	wd	Rosario	
+101760	سلطانة	wd	Sulţānah	
+2036662	هولوداو	wd	Huludao	
+1269920	هوبلي	wd	Hubballi	
+1633419	بادنغ	wd	Padang	
+1859307	كيتاكيوشو	wd	Kitakyushu	
+70225	تعز	wd	Taiz	
+3489854	كينغستون	wd	Kingston	
+1281673	باوشان	fix	Baoshan	
+4014338	تشيواوا	wd	Chihuahua	
+6611854	نايبيداو	wd	Nay Pyi Taw	
+315202	إسكي شهر	wd	Eskişehir	
+1262321	ميسور	wd	Mysuru	
+2038087	تشنغده	tr	Chengde	
+1257629	سالم	wd	Salem	
+3388368	ساو لويز	gn	São Luís	
+1897000	سونغنام	tr	Seongnam-si	
+3687238	قرطاجنة	gn	Cartagena	
+1730501	أنتيبولو	wd	Antipolo	
+4509177	كولومبوس	wd	Columbus	
+1164909	سيالكوت	wd	Sialkot	
+4460243	شارلوت	wd	Charlotte	
+1804609	لايبين	tr	Laibin	
+2319133	واري	wd	Warri	
+3172394	نابولي	gn	Naples	
+1790254	شياوقان	fix	Xiaogan	
+1800829	ووتشوان	fix	Wuchuan	
+3467747	كامبو غراندي	gn	Campo Grande	
+1783683	زيانج	wd	Ziyang	
+2362344	بوبوديولاسو	wd	Bobo-Dioulasso	
+1183880	بهاولبور	wd	Bahawalpur	
+1797264	تشيوتشو	fix	Quzhou	
+931755	بلانتاير	wd	Blantyre	
+709717	دونيتسك	wd	Donetsk	
+100077	أبو غريب	wd	Abū Ghurayb	
+1528675	بيشكك	wd	Bishkek	
+119208	قم	wd	Qom	
+542420	كراسنودار	wd	Krasnodar	
+3394023	ناتال	wd	Natal	
+1798654	بينغشيانغ	wd	Pingxiang	
+1636722	مالانغ	wd	Malang	
+3531673	كانكون	wd	Cancún	
+4259418	إنديانابولس	wd	Indianapolis	
+1270642	جورجاون	wd	Gurugram	
+1275817	بوبانسوار	wd	Bhubaneswar	
+1886762	تشوشان	fix	Zhoushan	
+2035265	تشيتشيهار	fix	Qiqihar	
+8307074	مولنفوس	tr	Mulenvos	
+98463	السليمانية	wd	Sulaymaniyah	
+2995469	مرسيليا	wd	Marseille	
+1275901	بيواندي	wd	Bhiwandi	
+954013	سوشانغوفي	tr	Soshanguve	
+1804586	لاييانغ	tr	Laiyang	
+1813206	داييه	tr	Daye	
+3386496	تيريسينا	gn	Teresina	
+1789065	آنكانغ	wd	Ankang	
+1268782	جالاندهار	wd	Jalandhar	
+2747891	روتردام	wd	Rotterdam	
+1804540	لانغفانغ	tr	Langfang	
+1280737	لاسا	wd	Lhasa	
+3464374	دوكي دي كاشياس	fix	Duque de Caxias	
+2236500	فيانا	tr	Viana	
+1805987	جياوتسو	wd	Jiaozuo	
+1629001	ساماريندا	wd	Samarinda	
+2038300	بنشي	wd	Benxi	
+1791748	وانشيان	tr	Wanxian	
+1799194	غوانغان	wd	Guang’an	
+1732752	جوهر بهرو	wd	Johor Bahru	
+1184370	عارف والا	fix	Arifwala	
+7290466	باسيج	wd	Pasig City	
+1845604	تشونغجو	wd	Cheongju-si	
+12501153	كانايانور	tr	Kanayannur	
+3600949	تيغوسيغالبا	wd	Tegucigalpa	
+1838716	بتشون	wd	Bucheon-si	
+1566166	تان هوا	wd	Thanh Hóa	
+3165524	تورينو	gn	Turin	
+292913	العين	wd	Al Ain City	
+2399697	ليبرفيل	wd	Libreville	
+498677	ساراتوف	wd	Saratov	
+2028462	أولان باتور	wd	Ulan Bator	
+1791673	ويهاي	wd	Weihai	
+1821940	تاكيو	wd	Takeo	
+3456160	نوفا إيغواسو	tr	Nova Iguaçu	
+3919968	كوتشابامبا	wd	Cochabamba	
+144448	الأهواز	wd	Ahvaz	
+1651944	فيينتيان	wd	Vientiane	
+3449344	ساو برناردو دو كامبو	tr	São Bernardo do Campo	
+1817720	شانغيو	tr	Shangyu	
+1788508	شينيو	wd	Xinyu	
+965301	بيترماريتزبرغ	wd	Pietermaritzburg	
+1786770	ييبين	tr	Yibin	
+3522790	ناوكالبان دي خواريز	gn	Naucalpan de Juárez	
+1771023	كامبونغ بارو سوبانغ	tr	Kampung Baru Subang	
+2290956	بواكي	wd	Bouaké	
+1793703	تايتسانغ	fix	Taicang	
+5391959	سان فرانسيسكو	wd	San Francisco	
+1853195	ساكاي	tr	Sakai	
+2509954	بلنسية	wd	Valencia	
+13608000	جينشان	tr	Jinshan	
+1815059	تشينزو	wd	Chenzhou	
+3397277	جواو بيسوا	gn	João Pessoa	
+217831	بوكافو	gn	Bukavu	
+3094802	كراكوف	wd	Kraków	
+2037886	داندونغ	wd	Dandong	
+3648559	برشلونة	wd	Barcelona	
+2389853	بنغي	wd	Bangui	
+4004898	إرموسييو	wd	Hermosillo	
+1276014	بياندار	wd	Bhayandar	
+4012176	كولياكان	wd	Culiacán	
+1735158	بيتالينغ جايا	fix	Petaling Jaya	
+1817993	آنتشينغ	fix	Anqing	
+2485926	وهران	wd	Oran	
+2409306	فريتاون	wd	Freetown	
+3601782	سان بيدرو سولا	gn	San Pedro Sula	
+1261809	نريلا	tr	Narela	
+1788927	شينغتاي	tr	Xingtai	
+1855431	نيغاتا	tr	Niigata	
+287286	مسقط	wd	Muscat	
+250090	الزرقاء	wd	Zarqa	
+6955677	جنقاية	wd	Çankaya	
+742394	كوتشوك تشكمجة	tr	Küçükçekmece	
+1863289	هاماماتسو	wd	Hamamatsu	
+922773	كولويزي	wd	Kolwezi	
+1562798	فينه	wd	Vinh	
+1254163	ثيروفانانثابورام	wd	Thiruvananthapuram	
+1784841	تشاوتونغ	wd	Zhaotong	
+6929460	بانتشيهوا	wd	Panzhihua	
+1814757	تشوتشو	tr	Chuzhou	
+5809844	سياتل	wd	Seattle	
+358619	بورسعيد	wd	Port Said	
+3685533	كوكوتا	gn	Cúcuta	
+169577	حمص	wd	Homs	
+1788081	شوانتشنغ	fix	Xuancheng	
+74477	إب	wd	Ibb	
+1624647	تاسيكمالايا	tr	Tasikmalaya	
+1033356	نامبولا	wd	Nampula	
+425378	بوجومبورا	wd	Bujumbura	
+1488754	تيومين	wd	Tyumen	
+315368	أرضروم	wd	Erzurum	
+1817968	أنشون	wd	Anshun	
+160196	دودوما	wd	Dodoma	
+1185128	راجشاهي	wd	Rajshahi	
+1180281	ديرا اسماعيل خان	wd	Dera Ismail Khan	
+3447399	سوروكابا	tr	Sorocaba	
+1790840	ووتشو	fix	Wuzhou	
+1734634	إيبوه	wd	Ipoh	
+1797595	تشنهوانغداو	wd	Qinhuangdao	
+88319	بنغازي	wd	Benghazi	
+3445831	أوبرلانديا	tr	Uberlândia	
+1279017	عليكرة	wd	Alīgarh	
+1816920	شاويانغ	wd	Shaoyang	
+304922	ملطية	wd	Malatya	
+6183235	وينيبيغ	wd	Winnipeg	
+8469289	أوتا	wd	Ōta	
+1514588	أنديجان	wd	Andijon	
+1277013	بريلي	wd	Bareilly	
+107304	بريدة	wd	Buraydah	
+2036986	هيغانغ	wd	Hegang	
+3995402	موريليا	wd	Morelia	
+456172	ريغا	wd	Riga	
+1784055	تشوانغخه	fix	Zhuanghe	
+2759794	أمستردام	wd	Amsterdam	
+1721080	كاغايان دي أورو	fix	Cagayan de Oro	
+1801620	مانشان	wd	Ma’anshan	
+1732903	شاه عالم	wd	Shah Alam	
+751324	بغجيلر	wd	Bağcılar	
+12324556	شيتسويشان	tr	Shizuishan	
+1858421	كوماموتو	wd	Kumamoto	
+2325200	أويو	wd	Oyo	
+1627549	سيرانغ	wd	Serang	
+3981254	توريون	wd	Torreón	
+1812961	ديانغ	wd	Deyang	
+2352947	أبيوكوتا	wd	Abeokuta	
+79415	الحديدة	wd	Al Ḩudaydah	
+1787351	يانغتشوان	wd	Yangquan	
+2350841	اكوري	wd	Akure	
+5419384	دنفر	wd	Denver	
+3455775	أوساسكو	wd	Osasco	
+7758790	كيكولو	tr	Kikolo	
+2239888	مايانغا	tr	Maianga	
+3448636	ساو جوزيه دوس كامبوس	tr	São José dos Campos	
+1865689	أيهارا	tr	Aihara	
+1004866	إيفاتون	tr	Evaton	
+1680102	فالنزويلا	wd	Valenzuela	
+1169607	مظفر آباد	fix	Muzaffarābād	
+1854383	أوكاياما	tr	Okayama	
+3985606	سان لويس بوتوسي	wd	San Luis Potosí	
+4019233	أغوسكلينتس	wd	Aguascalientes	
+1713022	جنرال سانتوس	wd	General Santos	
+1783873	تشوماديان	wd	Zhumadian	
+1262801	مراد آباد	wd	Morādābād	
+11611609	ساغاميهارا	gn	Sagamihara	
+6075357	ميسيساغا	wd	Mississauga	
+702550	لفيف	wd	Lviv	
+1513157	نمنكان	wd	Namangan	
+687700	زاباروجيا	wd	Zaporizhzhya	
+148730	زنجبار	fix	Zanzibar	
+3988086	سالتيو	wd	Saltillo	
+173576	اللاذقية	wd	Latakia	
+1252948	ورنجل	wd	Warangal	
+1694781	بارانياكي	fix	Paranaque City	
+482283	تولياتي	wd	Tolyatti	
+7874116	سانتو دومينغو أويستي	tr	Santo Domingo Oeste	
+1183105	بتغرام	wd	Battagram	
+8601412	سانتو دومينغو إستي	fix	Santo Domingo Este	
+359796	السويس	wd	Suez	
+1815463	تشانغتشي	tr	Changzhi	
+3451328	ريبيراو بريتو	tr	Ribeirão Preto	
+2561668	أكادير	wd	Agadir	
+3191281	سراييفو	wd	Sarajevo	
+1650527	باليكبابان	wd	Balikpapan	
+1815611	تشانغنينغ	tr	Changning	
+2347470	باوتشي	wd	Bauchi	
+1851717	شيزوكا	wd	Shizuoka	
+2464470	تونس	wd	Tunis	
+2033196	تشانغجياكو	wd	Zhangjiakou	
+4140963	واشنطن العاصمة	wd	Washington	
+4644585	ناشفيل	wd	Nashville	
+2037346	فوشين	wd	Fuxin	
+107968	الطائف	wd	Ta’if	
+1796989	كايبينغ	tr	Changsha	
+1807234	هوانغشي	wd	Huangshi	
+2036113	لياويانغ	wd	Liaoyang	
+8740157	هلاينغ ثايا	tr	Hlaingthaya	
+1052373	بيرا	wd	Beira	
+1808090	هونغكو	tr	Hongkou	
+3104324	سرقسطة	wd	Zaragoza	
+2510911	إشبيلية	gn	Sevilla	
+1816269	بايس	wd	Baise	
+1630789	بونتياناك	wd	Pontianak	
+1626801	سيتوبوندو	tr	Situbondo	
+2351943	أغيغي	tr	Agege	
+1816336	بينتشو	fix	Binzhou	
+4544349	أوكلاهوما سيتي	wd	Oklahoma City	
+1785738	يونتشنغ	wd	Yuncheng	
+1812955	دتشو	wd	Dezhou	
+1221874	دوشنبه	tr	Dushanbe	
+2394819	كوتونو	wd	Cotonou	
+5520993	إل باسو	wd	El Paso	
+1270927	غوراخبور	wd	Gorakhpur	
+4005492	غوادالوبي	wd	Guadalupe	
+3081368	فروتسواف	wd	Wrocław	
+1645528	دنباسار	wd	Denpasar	
+1270668	جونتور	wd	Guntur	
+2334802	كاتسينا	wd	Katsina	
+1796669	سانمنشيا	wd	Sanmenxia	
+6642286	إيتشو	tr	E’zhou	
+2591957	كاماما	tr	Camama	
+101628	تبوك	wd	Tabuk	
+911148	كيتوي	wd	Kitwe	
+894701	بولاوايو	wd	Bulawayo	
+2035715	مودانجيانغ	wd	Mudanjiang	
+3471872	أراكاجو	gn	Aracaju	
+3459712	جوينفيل	tr	Joinville	
+264371	أثينا	wd	Athens	
+3186886	زغرب	wd	Zagreb	
+1804153	ليشان	tr	Leshan	
+3449701	سانتو أندريه	tr	Santo André	
+6173331	فانكوفر	wd	Vancouver	
+9072919	ريتشاو	tr	Rizhao	
+658225	هلسنكي	wd	Helsinki	
+1845759	تشونان	wd	Cheonan	
+3533462	أكابولكو	wd	Acapulco de Juárez	
+1812621	هاييانغ	wd	Dongcun	reviewed
+1650213	بنجرماسين	tr	Banjarmasin	
+1259425	بودوتشيري	wd	Puducherry	
+1793900	سوينينغ	wd	Suining	
+5907364	برامبتون	wd	Brampton	
+8307452	هوانغبو	tr	Huangpu	
+2591953	غولفي	tr	Golfe	
+9181182	بويانغ	tr	Puyang	
+3667905	سواتشا	tr	Soacha	
+4930956	بوسطن	wd	Boston	
+3515431	تلالنبانتلا	tr	Tlalnepantla	
+5746545	بورتلاند	wd	Portland	
+2242906	كالومبو	tr	Calumbo	
+3981461	تلاكيباكي	tr	Tlaquepaque	
+2925533	فرانكفورت	wd	Frankfurt am Main	
+1821274	ماكاو	wd	Macau	
+2523920	باليرمو	wd	Palermo	
+554840	إيجيفسك	wd	Izhevsk	
+1248991	كولمبو	wd	Colombo	
+3778045	ماتورين	wd	Maturín	
+1278718	أمرافاتي	wd	Amravati	
+2036075	لينغيوان	tr	Lingyuan	
+4990729	ديترويت	wd	Detroit	
+1800519	مينغغوانغ	tr	Mingguang	
+2325590	أوسوغبو	wd	Osogbo	
+1275665	بيكانير	wd	Bikaner	
+6317344	جابواتاو دوس غوارارابيس	tr	Jaboatão dos Guararapes	
+13631351	هوجي يا هندا	tr	Hoji ya Henda	
+5506956	لاس فيغاس	wd	Las Vegas	
+1843847	هواسونغ	wd	Hwaseong-si	
+2165087	غولد كوست	wd	Gold Coast	
+3093133	وودج	wd	Łódź	
+1845457	جونجو	wd	Jeonju	
+13608003	تشونغمينغ	tr	Chongming	
+285839	الأحمدي	wd	Al Aḩmadī	
+3658666	كوينكا	wd	Cuenca	
+618426	كيشيناو	wd	Chisinau	
+922741	ليكاسي	wd	Likasi	
+1642858	جمبي	wd	Jambi City	
+1808770	هيبي	fix	Hebi	
+1185186	كملا	wd	Comilla	
+204953	تشيكابا	wd	Tshikapa	
+1180942	تشونيان	tr	Chunian	
+1273874	كوتشي	wd	Kochi	
+4641239	ممفيس	wd	Memphis	
+1805611	جينغمن	fix	Jingmen	
+1510853	بارناول	wd	Barnaul	
+3693528	بيورا	wd	Piura	
+2034714	سيبينغ	fix	Siping	
+1275971	بهيلاي	wd	Bhilai	
+901344	ندولا	wd	Ndola	
+3465624	كونتاجيم	tr	Contagem	
+479123	أوليانوفسك	wd	Ulyanovsk	
+223817	جيبوتي	wd	Djibouti	
+2648579	غلاسكو	wd	Glasgow	
+2035513	بانشان	tr	Panshan	
+4299276	لويفيل	wd	Louisville	
+2023469	إيركوتسك	wd	Irkutsk	
+1846918	أنسان	wd	Ansan-si	
+360761	المنصورة	wd	Al Mansurah	
+128226	كرمانشاه	wd	Kermanshah	
+1806096	جياوتشو	tr	Jiaozhou	
+2934246	دوسلدورف	wd	Düsseldorf	
+1793879	سويتشو	fix	Suizhou	
+3587902	فيا نويفا	tr	Villa Nueva	
+2022890	خاباروفسك	wd	Khabarovsk	
+3465038	كويابا	gn	Cuiabá	
+161325	أروشا	wd	Arusha	
+3463478	فيرا دي سانتانا	tr	Feira de Santana	
+1707174	لاس بيناس	wd	Las Piñas	
+1814934	تشيتشو	fix	Chizhou	
+3530139	كويواكان	tr	Coyoacán	
+2825297	شتوتغارت	wd	Stuttgart	
+1787816	ياان	wd	Ya'an	
+1273780	كتك	wd	Cuttack	
+1275248	بوريفلي	tr	Borivli	
+3698350	تشيكلايو	wd	Chiclayo	
+468902	ياروسلافل	wd	Yaroslavl	
+2711537	غوتنبرغ	wd	Gothenburg	
+1859730	كاواغوتشي	wd	Kawaguchi	
+13118225	بوكيت رحمن بوترا	tr	Bukit Rahman Putra	
+1175892	جانغ صدر	wd	Jhang Sadr	
+106281	حائل	wd	Ha'il	
+1276032	بهافا نجر	wd	Bhavnagar	
+1020098	بينوني	wd	Benoni	
+2013348	فلاديفوستوك	wd	Vladivostok	
+3515001	توكستلا غوتيريز	wd	Tuxtla	
+703845	كريفي ريه	wd	Kryvyy Rih	
+1796663	سانمينغ	fix	Sanming	
+1176615	إسلام آباد	wd	Islamabad	
+1257416	سانغلي	fix	Sāngli	
+1269317	جام نجر	wd	Jamnagar	
+3347762	لوبانغو	wd	Lubango	
+1282898	بوخارا	wd	Pokhara	
+2034786	شوانغياشان	wd	Shuangyashan	
+64021	بوراما	fix	Borama	
+1802204	لوانتشنغ	tr	Luancheng	
+532096	محج قلعة	wd	Makhachkala	
+1846898	آنيانغ	tr	Anyang-si	
+3348313	هوامبو	wd	Huambo	
+1216265	سمرقند	wd	Samarkand	
+13512502	منغتسي	tr	Mengzi	
+1860827	كاغوشيما	wd	Kagoshima	
+78754	المكلا	wd	Mukalla	
+118743	رشت	wd	Rasht	
+3430863	مار دل بلاتا	wd	Mar del Plata	
+2928810	إسن	wd	Essen	
+360829	المحلة الكبرى	wd	Al Maḩallah al Kubrá	
+2514256	مالقة	gn	Málaga	
+1165221	شيخوبورا	wd	Shekhupura	
+2033370	ينغكو	wd	Yingkou	
+1785018	تشانغتشو	fix	Zhangzhou	
+3520339	رينوسا	wd	Reynosa	
+12382296	توان آن	tr	Thuận An	
+2935517	دورتموند	gn	Dortmund	
+4347778	بلتيمور	wd	Baltimore	
+1732747	بلنتونغ	tr	Pelentong	
+1646448	تشيماهي	tr	Cimahi	
+3458449	لوندرينا	gn	Londrina	
+3688465	بوكارامانغا	wd	Bucaramanga	
+3176219	جنوة	gn	Genoa	
+1863440	هاتشيوجي	fix	Hachiōji	
+1734759	ملقا	fix	Malacca	
+1572151	نها ترانج	wd	Nha Trang	
+128234	كرمان	wd	Kerman	
+121801	أرومية	wd	Orūmīyeh	reviewed
+7627067	باغجةلي أولر	wd	Bahçelievler	
+347497	طنطا	wd	Tanta	
+1269321	جامو	tr	Jammu	
+10063567	إسكندر بوتري	wd	Iskandar Puteri	
+1720681	كالامبا	wd	Calamba	
+3515428	تلالبان	tr	Tlalpan	
+1140026	هراة	wd	Herāt	
+1812256	دونغشنغ	fix	Dongsheng	
+1177654	كجرات	wd	Gujrat	
+1489425	تومسك	wd	Tomsk	
+738377	العمرانية	wd	Ümraniye	
+1529195	شيهتسي	tr	Shihezi	
+184622	ناكورو	wd	Nakuru	
+5969782	هاميلتون	wd	Hamilton	
+248946	إربد	wd	Irbid	
+2643123	مانشستر	gn	Manchester	
+1736376	كوتا بهارو	wd	Kota Bharu	
+6159905	سوري	wd	Surrey	
+2542715	مكناس	wd	Meknes	
+3875024	بوينتي ألتو	tr	Puente Alto	
+369004	نيالا	wd	Nyala	
+2033675	شين مين	wd	Xinmin	
+2935022	درسدن	wd	Dresden	
+515003	أورينبورغ	wd	Orenburg	
+5454711	ألباكركي	wd	Albuquerque	
+1275362	بوكارو	wd	Bokāro	
+343300	أسمرة	wd	Asmara	
+1164408	سكهر	fix	Sukkur	
+5263045	ميلواكي	wd	Milwaukee	
+1791544	ونتشانغ	fix	Wenchang	
+2340451	غومبي	wd	Gombe	
+2338900	ايفي	wd	Ile-Ife	
+1877449	هامهنغ	wd	Hamhŭng	
+1503901	كيميروفو	wd	Kemerovo	
+98854	الناصرية	wd	Nasiriyah	
+1018725	بلومفونتين	wd	Bloemfontein	
+2638077	شفيلد	wd	Sheffield	
+3536729	سانتياغو دي كوبا	wd	Santiago de Cuba	
+3515807	كواوتيتلان إسكالي	tr	Cuautitlán Izcalli	
+3351663	بنغيلا	wd	Benguela	
+1814760	تشوشيونغ	fix	Chuxiong	
+7648070	بلبالا	wd	Balbala	
+1807689	هوايهوا	wd	Huaihua	
+1794140	سيشوي	tr	Sishui	
+1699076	مونتنلوبا	wd	Muntinlupa	
+1159301	زاهدان	wd	Zahedan	
+1670029	بانتشياو	tr	Banqiao	
+1261977	نانديد	wd	Nanded	
+1265873	قاليقوط	wd	Kozhikode	
+8335361	اولانتشاب	wd	Ulanqab	
+2566636	أجيغونليه	wd	Ajegunle	
+2243271	كابيندا	wd	Cabinda	
+786714	برشتينة	wd	Pristina	
+2036581	جياموسي	fix	Jiamusi	
+1529376	كورلا	wd	Korla	
+1266285	كولهابور	wd	Kolhāpur	
+3662762	بورتو فيليو	fix	Porto Velho	
+3836873	سان ميغيل دي توكومان	wd	San Miguel de Tucumán	
+1735227	كوانتان	wd	Kuantan	
+694423	سيفاستوبول	wd	Sevastopol	
+1261529	نيلور	wd	Nellore	
+2944388	بريمن	wd	Bremen	
+1791779	واننينغ	wd	Wanning	
+2325330	أويري	wd	Owerri	
+6847550	كوتا كوالا مودا	tr	Kota Kuala Muda	
+1735498	سونغاي بيتاني	wd	Sungai Petani	
+1788450	شينتشو	wd	Xinzhou	
+11209896	كوتو	wd	Kotō	
+1270752	كلبركة	wd	Kalaburagi	
+5318313	توسان	wd	Tucson	
+7795834	سلايانغ بارو أوتارا	tr	Selayang Baru Utara	
+593116	فيلنيوس	wd	Vilnius	
+1279159	أجمير	wd	Ajmer	
+1798821	بينغدو	wd	Pingdu	
+5350937	فريسنو	wd	Fresno	
+154380	مبيا	wd	Mbeya	
+3459505	جويز دي فورا	tr	Juiz de Fora	
+2346229	كالابار	wd	Calabar	
+2540483	وجدة	wd	Oujda	
+1496990	نوفوكوزنتسك	wd	Novokuznetsk	
+500096	ريازان	wd	Ryazan’	
+1806445	جيآن	wd	Ji’an	
+1166547	ساهيوال	tr	Sahiwal	
+1166548	ساهيوال	wd	Sahiwal	
+304531	مرسين	wd	Mersin	
+10346824	نيلوفر	wd	Nilüfer	
+2644688	ليدز	wd	Leeds	
+3088171	بوزنان	wd	Poznań	
+1529660	أقسو	wd	Aqsu	
+2344082	إيكورودو	tr	Ebute Ikorodu	
+3407669	أنانينديوا	wd	Ananindeua	
+1793424	تانغغو	tr	Tanggu	
+1732722	باسير جودانج	wd	Pasir Gudang	
+580497	أستراخان	wd	Astrakhan	
+1168718	أوكارا	wd	Okara	
+10943053	نانسانا	wd	Nansana	
+1842943	غيمهاي	tr	Kimhae	
+172955	الرقة	wd	Ar Raqqah	
+6325494	كيبك	fix	Québec	
+3827409	كواوتيموك	tr	Cuauhtémoc	
+1796068	شانغلو	wd	Shangluo	
+1862627	هيميجي	wd	Himeji	
+3680656	إيباغي	fix	Ibagué	
+2803138	أنتويرب	gn	Antwerp	
+359783	أسيوط	wd	Assiut	
+132144	همدان	wd	Hamadān	
+1806488	تشيونغهاي	fix	Qionghai	
+6316406	أباريسيدا دي غويانيا	tr	Aparecida de Goiânia	
+1816080	تسانغتشو	tr	Cangzhou	
+1194041	محمدبور	tr	Mohammadpur	
+1625812	سوراكارتا	wd	Surakarta	
+1786060	يوانبينغ	fix	Yuanping	
+3583361	سان سلفادور	wd	San Salvador	
+1816705	بيهاي	wd	Beihai	
+298117	وان	wd	Van	
+5389489	ساكرامنتو	wd	Sacramento	
+1565019	تو دوك	tr	Thủ Đức	
+738329	أسكدار	wd	Üsküdar	
+511565	بينزا	wd	Penza	
+1138336	قندهار	wd	Kandahār	
+1133616	مزار شريف	wd	Mazār-e Sharīf	
+1808392	هنغشوي	wd	Hengshui	
+1273313	دهردون	wd	Dehradun	
+1272013	ارود	wd	Erode	
+2996944	ليون	wd	Lyon	
+3838233	سالتا	wd	Salta	
+3447779	سيرا	tr	Serra	
+747340	إسنلر	wd	Esenler	
+12446699	داشينغآنلينغ	tr	Daxing’anling	
+1568574	كوي نهون	wd	Qui Nhon	
+361320	الفيوم	wd	Al Fayyum	
+1272175	درغابور	wd	Durgapur	
+1849053	أوتسونوميا	tr	Utsunomiya	
+4011743	دورانجو	wd	Victoria de Durango	
+3470142	بلفورد روشو	tr	Belford Roxo	
+2267057	لشبونة	wd	Lisbon	
+1167460	رحيم يار خان	wd	Rahim Yar Khan	
+1253894	أولهاسنغر	wd	Ulhasnagar	
+1806466	غوانغيوان	wd	Guangyuan	
+1264773	لوني	tr	Loni	
+1256525	سيليجري	wd	Siliguri	
+2861650	نورنبيرغ	gn	Nuremberg	
+3456283	نيتيروي	wd	Niterói	
+1253914	أوجاين	wd	Ujjain	
+2910831	هانوفر	fix	Hannover	
+2650225	إدنبرة	wd	Edinburgh	
+3396016	ماكابا	gn	Macapá	
+1790396	شياننينغ	tr	Xianning	
+2972315	تولوز	wd	Toulouse	
+949880	تمبيسا	wd	Thembisa	
+6201369	كارفور	wd	Carrefour	
+1926099	ماتسوياما	wd	Matsuyama	
+1275610	بيليمورا	tr	Bilimora	
+1174625	قصور	wd	Kasur	
+4180439	أتلانتا	wd	Atlanta	
+3523466	ماتاموروس	wd	Heroica Matamoros	
+1703417	ماكاتي	wd	Makati City	
+12492662	ميانتشو	tr	Mianzhu, Deyang, Sichuan	
+2034414	تونغهوا	tr	Tonghua	
+523750	نابريجنيي تشلني	wd	Naberezhnyye Chelny	
+535121	ليبيتسك	wd	Lipetsk	
+2314705	كيكويت	wd	Kikwit	
+3463237	فلوريانوبوليس	gn	Florianópolis	
+1909733	بانان	tr	Banan	
+2155472	نيوكاسل	wd	Newcastle	
+1818446	تون مون	tr	Tuen Mun	
+1785036	تشانغيه	fix	Zhangye	
+548408	كيروف	wd	Kirov	
+1280849	كاشغر	wd	Kashgar	
+12750654	بولاي	tr	Mukim Pulai	
+103630	نجران	wd	Najrān	
+1784130	تشوكو	fix	Zhoukou	
+2879139	لايبزيغ	wd	Leipzig	
+1798760	بينغليانغ	wd	Pingliang	
+2934691	دويسبورغ	gn	Duisburg	
+1278314	أسانسول	wd	Āsansol	
+143127	أراك	wd	Arāk	
+3880980	مايبو	wd	Maipú	
+627907	غوميل	wd	Homyel'	
+610611	أكتوبي	wd	Aktobe	
+1733432	كوتا كينابالو	wd	Kota Kinabalu	
+1176358	جلالبور بيروالا	tr	Jalalpur Pirwala	
+1732724	كامبونغ لاركين لاما	tr	Kampung Larkin Lama	
+12514556	كوتا دامانسارا	tr	Kota Damansara	
+2591976	تالاتونا	tr	Talatona	
+1263780	منغلور	wd	Mangaluru	
+1783988	تشوتشنغ	wd	Zhucheng	
+3668605	سانتا مارتا	wd	Santa Marta	
+1857553	ماتسودو	wd	Matsudo	
+1462674	هاتهزاري	wd	Hāthazāri	
+1707267	لابو لابو	tr	Lapu-Lapu City	
+609655	كارقندا	wd	Karagandy	
+1802238	لودي	fix	Loudi	
+2644210	ليفربول	wd	Liverpool	
+1818920	شا تين	tr	Sha Tin	
+1180289	ديرا غازي خان	wd	Dera Ghazi Khan	
+1808747	هتسون	tr	Hecun	
+1862752	هيغاشي أوساكا	wd	Higashiosaka	
+1168021	بندي بهتيان	tr	Pindi Bhattian	
+569696	تشيبوكساري	wd	Cheboksary	
+1839071	بوهانغ	wd	Pohang	
+1795928	شانوي	tr	Shanwei	
+3674453	مونتيريا	gn	Montería	
+181032	رويرو	tr	Ruiru	
+3666304	فاليدوبار	wd	Valledupar	
+1276533	بيلغام	wd	Belagavi	
+292932	عجمان	wd	Ajman	
+9931406	جيانشوي	tr	Jianshui	
+7628420	سنجق تبة	wd	Sancaktepe	
+377039	بورتسودان	wd	Port Sudan	
+3515302	تولوكا	wd	Toluca	
+3532624	سيوداد لوبيز ماتيوس	wd	Ciudad López Mateos	
+360890	الخصوص	tr	Al Khuşūş	
+1846266	جيجو	wd	Jeju City	
+3099434	غدانسك	wd	Gdańsk	
+4164138	ميامي	wd	Miami	
+5074472	أوماها	wd	Omaha	
+1855207	نيشينوميا	tr	Nishinomiya	
+2593460	ماسينا	wd	Masina	
+1257806	سهارنبور	wd	Sahāranpur	
+1253286	فيلور	wd	Vellore	
+1858311	كوراشيكي	wd	Kurashiki	
+3467693	كامبوس دوس غويتاكازيس	tr	Campos dos Goytacazes	
+1730737	انجلس	wd	Angeles City	
+1276058	بهاتبارا	wd	Bhātpāra	
+333795	جيجيجا	wd	Jijiga	
+480562	تولا	wd	Tula	
+98860	النجف	wd	Najaf	
+4487042	رالي	wd	Raleigh	
+1710914	إيموس	wd	Imus	
+1789647	شيتشانغ	wd	Xichang	
+1264115	ماليغاؤن	wd	Malegaon	
+1785462	تساويانغ	fix	Zaoyang	
+3448639	ساو جوزيه دو ريو بريتو	tr	São José do Rio Preto	
+3466537	كاشياس دو سول	tr	Caxias do Sul	
+7701384	قره باغلار	tr	Karabağlar	
+2327220	أوكيني	tr	Okene	
+1833788	أويجونغبو	tr	Uijeongbu-si	
+2654675	برستل	wd	Bristol	
+1006984	إيست لندن	wd	East London	
+13527052	لاسا	tr	Chéngguān Qū	
+111822	يزد	wd	Yazd	
+57289	هرجيسا	wd	Hargeysa	
+1854487	أويتا	wd	Ōita	
+1805741	جينتشنغ	wd	Jincheng	
+1808106	هونغ جيانغ	wd	Hongjiang	
+8440756	موديناغار	tr	Modīnagar	
+6696918	تاويوان	fix	Taoyuan	
+198629	إلدوريت	wd	Eldoret	
+4393217	كانساس سيتي	wd	Kansas City	
+1787765	يانان	wd	Yan’an	
+554234	كالينينغراد	wd	Kaliningrad	
+785842	إسكوبية	wd	Skopje	
+2057087	كوبانغ	tr	Kupang	
+944385	فيرينخن	wd	Vereeniging	
+2747373	لاهاي	gn	The Hague	
+5367929	لونغ بيتش	wd	Long Beach	
+1271439	غايا	wd	Gaya	
+1711005	إيلويلو	fix	Iloilo	
+1794794	شوقوانغ	wd	Shouguang	
+1805680	جينغدتشن	wd	Jingdezhen	
+2513416	مرسية	gn	Murcia	
+5304391	ميسا	wd	Mesa	
+6324729	هاليفاكس	gn	Halifax	
+153220	موروغورو	wd	Morogoro	
+1700925	ماريكينا	wd	Marikina City	
+2544571	القنيطرة	wd	Kenitra	
+288967	السيب	fix	Seeb	
+1646511	تشيليغون	fix	Cilegon	
+700569	ميكولايف	wd	Mykolayiv	
+1863917	فوكوياما	wd	Fukuyama	
+5139568	جزيرة ستاتن	wd	Staten Island	
+1799846	نانبينغ	wd	Nanping	
+3672486	بيريرا	wd	Pereira	
+4018390	أبوداكا	wd	Ciudad Apodaca	
+3448877	ساو جواو دي ميريتي	tr	São João de Meriti	
+1278840	أمباتور	tr	Ambattur	
+1860243	كانازاوا	wd	Kanazawa	
+336014	غوندر	wd	Gonder	
+1701966	ماندالويونغ	wd	Mandaluyong City	
+3592519	ميشكو	tr	Mixco	
+2036109	لياويوان	wd	Longshan	reviewed
+2338325	إيكاري	tr	Ikare	
+11592397	نوفا فيدا	tr	Nova Vida	
+1562414	فونغ تاو	tr	Vũng Tàu	
+3632998	ماراكاي	wd	Maracay	
+2294877	تامالي	wd	Tamale	
+1786112	هيوان	wd	Heyuan	
+1583518	دي آن	tr	Dĩ An	
+231165	كيرا	wd	Kira	
+355449	إسنا	gn	Esna	
+1792359	هوانغشان	wd	Huangshan	
+170017	حماة	wd	Ḩamāh	
+1269407	جالجاون	wd	Jalgaon	
+1265491	كرنول	wd	Kurnool	
+2318044	يولا	wd	Yola	
+2034439	تيلينغ	tr	Tieling	
+1568510	راتش جيا	gn	Rạch Giá	
+1865387	أماغاساكي	wd	Amagasaki	
+1636544	مانادو	wd	Manado	
+3651297	سانتو دومينغو	wd	Santo Domingo de los Colorados	
+163345	طرطوس	wd	Ţarţūs	
+331180	ميكيلي	wd	Mek'ele	
+330186	أداما	wd	Nazrēt	reviewed
+5417598	كولورادو سبرينغز	wd	Colorado Springs	
+3939459	وانكايو	fix	Huancayo	
+99347	الحلة	wd	Al Hillah	
+2312895	مبانداكا	wd	Mbandaka	
+2239862	مالانج	wd	Malanje	
+1873757	نامبو	wd	Namp’o	
+4005867	جنرال إسكوبيدو	wd	Ciudad General Escobedo	
+1729564	باكولود	wd	Bacolod City	
+4791259	فرجينيا بيتش	wd	Virginia Beach	
+1792260	وافانغديان	tr	Wafangdian	
+1701500	مانسيلينغان	tr	Mansilingan	
+158597	كاهاما	wd	Kahama	
+1675151	سين شو	wd	Hsinchu	
+8469284	كاتسوشيكا	tr	Katsushika	
+320857	برناوة	wd	Bornova	
+1258662	راماغوندام	tr	Rāmgundam	
+321836	بطمان	wd	Batman	
+1784818	يونغ جي	wd	Yongji	
+1803245	ليشوي	gn	Lishui	
+1253986	أديبور	wd	Udaipur	
+326282	واردير	tr	Warder	
+1591527	باك جيانج	wd	Bắc Giang	
+449504	إسلام شهر	wd	Eslamshahr	
+373303	جوبا	wd	Juba	
+8074174	مراد باشا	wd	Muratpaşa	
+8505006	ونشان	tr	Wenshan City	
+298333	أورفة	wd	Şanlıurfa	
+538560	كورسك	wd	Kursk	
+1348843	ماهيشتالا	tr	Maheshtala	
+1573517	نام دنه	wd	Nam Định	
+2501152	قسنطينة	wd	Constantine	
+1260107	بتيالة	wd	Patiāla	
+1017780	بوكسبورغ	wd	Boksburg	
+1816858	دونغفانغ	wd	Basuo	reviewed
+3403642	كامبينا غراندي	tr	Campina Grande	
+4006702	إنسينادا	wd	Ensenada	
+315808	معمورة العزيز	wd	Elazığ	
+3459462	جوندياي	gn	Jundiaí	
+3514450	سوتشيميلكو	wd	Xochimilco	
+1256409	شيامناغار	tr	Shyamnagar	
+1715430	داسماريناس	wd	Dasmariñas	
+1813171	زانغجياجي	wd	Zhangjiajie	
+1635882	ماتارام	gn	Mataram	
+2286304	كورهوغو	wd	Korhogo	
+3453643	بيراسيكابا	tr	Piracicaba	
+1864092	فوجيساوا	wd	Fujisawa	
+2374775	بيساو	wd	Bissau	
+1786546	تشونغشيانغ	fix	Zhongxiang	
+1734052	سانداكان	wd	Sandakan	
+1308465	ماولاميين	wd	Mawlamyine	
+6050610	لافال	wd	Laval	
+2512989	بالما	fix	Palma	
+3456814	مونتس كلاروس	tr	Montes Claros	
+1869012	سون تشون	wd	Sunch’ŏn	
+7628416	سلطان غازي	tr	Sultangazi	
+2319480	أويو	wd	Uyo	
+2038365	بيؤان	wd	Bei’an	
+1273368	دافانغيري	tr	Davangere	
+1801582	ماتشنغ	tr	Macheng	
+2352379	آدو إكيتي	wd	Ado-Ekiti	
+3675443	مانيزاليس	wd	Manizales	
+1841246	ماسان	tr	Masan	
+1586896	بون ما توت	wd	Buôn Ma Thuột	
+487846	ستافروبول	wd	Stavropol	
+1794328	شوزو	wd	Shuozhou	
+1859924	كاشيوا	wd	Kashiwa	
+2327735	أوغبوموشو	wd	Ogbomoso	
+293397	تل أبيب	wd	Tel Aviv	
+3688452	بوينافينتورا	tr	Buenaventura	
+940909	ويلكوم	wd	Welkom	
+1818953	شام شوي بو	tr	Sham Shui Po	
+1857871	ماتشيدا	wd	Machida	
+359493	الزقازيق	wd	Zagazig	
+689558	فينيتسا	wd	Vinnytsya	
+361055	الإسماعيلية	wd	Ismailia	
+1806097	نينغد	wd	Ningde	
+1279105	أكولا	wd	Akola	
+13608165	كيما كييزا	tr	Kima Kieza	
+3941584	كوسكو	wd	Cusco	
+1279945	جيوتشيوان	fix	Jiuquan	
+3514783	فيراكروز	wd	Veracruz	
+571476	بريانسك	wd	Bryansk	
+741763	مالتبه	tr	Maltepe	
+584923	سومقاييت	wd	Sumgayit	
+1163964	تندو باغو	tr	Tando Bago	
+1734705	كوالا ترينغانو	wd	Kuala Terengganu	
+1849814	تويوتا	wd	Toyota	
+2313002	ماتادي	gn	Matadi	
+109353	الخرج	fix	Al Kharj	
+1818304	وونغ تاي سين	tr	Wong Tai Sin	
+13118244	ماندالويونغ	tr	Mandaluyong	
+2330100	مينا	wd	Minna	
+3526617	خالابا	wd	Xalapa de Enríquez	
+1255783	راجبور سوناربور	tr	Rajpur Sonarpur	
+3060972	براتيسلافا	wd	Bratislava	
+12557764	تامان بتالينغ	tr	Taman Petaling	
+1852139	شيناغاوا	wd	Shinagawa	
+173811	الحسكة	wd	Al Ḩasakah	
+360502	الأقصر	wd	Luxor	
+6058560	لندن	wd	London	
+343137	أواسا	wd	Awasa	
+1049261	شيمويو	wd	Chimoio	
+1163965	تندو الله يار	tr	Tando Allahyar	
+2290486	دالوا	wd	Daloa	
+7290718	بارا دا تيجوكا	wd	Barra da Tijuca	
+1812749	دينغشي	tr	Dingxi	
+2234974	بامندة	wd	Bamenda	
+480060	تفير	wd	Tver	
+1566319	تاي نغوين	wd	Thái Nguyên	
+3664980	بوا فيستا	gn	Boa Vista	
+3662574	ريو برانكو	gn	Rio Branco	
+5378538	أوكلاند	wd	Oakland	
+2192362	كرايستشرش	wd	Christchurch	
+1266122	كوربا	wd	Korba	
+1851100	تاكاماتسو	gn	Takamatsu	
+1819607	مدينة كولون	tr	Kowloon City	
+3449433	سانتوس	gn	Santos	
+3183875	تيرانا	wd	Tirana	
+3392242	بترولينا	tr	Petrolina	
+3457381	ماوا	tr	Mauá	
+4568127	سان خوان	wd	San Juan	
+1736309	ألور ستار	wd	Alor Setar	
+7064006	تونغتشوان	tr	Tongchuan	
+1694611	باساي	tr	Pasay	
+3522551	نويفو لاريدو	wd	Nuevo Laredo	
+1849876	توياما	wd	Toyama	
+2528910	تطوان	wd	Tétouan	
+2657896	زيورخ	gn	Zürich	
+6947640	بكلك دوزي	wd	Beylikdüzü	
+1562820	فيت تري	wd	Việt Trì	
+3532497	أزكابوتسالكو	tr	Azcapotzalco	
+4174757	تامبا	wd	Tampa	
+234179	بوناموايا	tr	Bunamwaya	
+532288	مغنيتاغورسك	wd	Magnitogorsk	
+4553433	تلسا	wd	Tulsa	
+1269006	جانسي	fix	Jhānsi	
+1818506	تسيونغ كوان أو	tr	Tseung Kwan O	
+3645532	سيوداد بوليفار	wd	Ciudad Bolívar	
+1762110	كامبونغ كانغكار تبراو	tr	Kampung Kangkar Teberau	
+2285853	كوماسي	wd	Koumassi	
+3985241	سان نيكولاس دي لوس غارزا	wd	San Nicolás de los Garza	
+1809152	جويوان	wd	Guyuan	
+5037649	منيابولس	wd	Minneapolis	
+2082600	جايابورا	wd	Jayapura	
+8629640	توتوكودي	fix	Thoothukudi	
+143083	أردبيل	wd	Ardabīl	
+1276509	بالاري	wd	Ballari	
+2038120	تشاويانغ	tr	Chaoyang	
+281133	غزة	wd	Gaza	
+3457671	مارينغا	tr	Maringá	
+1848313	يوكوسوكا	wd	Yokosuka	
+353802	كوم أمبو	wd	Kom Ombo	
+1856177	ناغاساكي	gn	Nagasaki	
+1281019	خوتان	wd	Gujangbagh	reviewed
+3981369	تونالا	wd	Tonalá	
+1801455	تشيجيانغ	wd	Zhijiang	
+3703443	مدينة بنما	wd	Panama City	
+204405	أوفيرا	tr	Uvira	
+1862540	هيراكاتا	wd	Hirakata	
+555312	إيفانوفو	wd	Ivanovo	
+3644768	كومانا	wd	Cumaná	
+971421	نيوكاسل	wd	Newcastle	
+1842225	غومي	wd	Gumi	
+3078610	برنو	wd	Brno	
+2036389	جيشي	fix	Jixi	
+3464739	دياديما	tr	Diadema	
+1735634	كوتشينغ	wd	Kuching	
+1863641	غيفو	wd	Gifu	
+3402655	كاروارو	tr	Caruaru	
+1792621	تونغلينغ	tr	Tongling	
+1682812	مدينة تارلاك	wd	Tarlac City	
+1849837	تويوناكا	wd	Toyonaka	
+372753	كسلا	wd	Kassala	
+1856717	ميازاكي	wd	Miyazaki	
+7732748	ليكي	tr	Lekki	
+3899539	أنتوفاغاستا	wd	Antofagasta	
+1276300	بهاجالبور	wd	Bhāgalpur	
+1279290	أجارتالا	wd	Agartala	
+2347209	بيدا	tr	Bida	
+217695	بونيا	wd	Bunia	
+323779	أنطاكية	wd	Antakya	
+9645085	الحي العاشر	tr	Quận Mười	
+10630449	سن شاين كوست	wd	Sunshine Coast	
+191245	كيسومو	fix	Kisumu	
+702658	لوهانسك	wd	Luhansk	
+1649150	بنغكولو	wd	Bengkulu	
+3648546	باريناس	wd	Barinas	
+1808981	هانتشنغ	wd	Hancheng	
+3444914	فيتوريا دا كونكيستا	wd	Vitória da Conquista	
+4281730	ويتشيتا	wd	Wichita	
+2558545	الحسيمة	wd	Al Hoceïma	
+3083829	شتشيتشين	wd	Szczecin	
+3726786	دلماس	tr	Delmas	
+2036106	لياوتشونغ	tr	Liaozhong	
+3445026	فيلا فيليا	tr	Vila Velha	
+3181928	بولونيا	wd	Bologna	
+11523293	سيجونغ	wd	Sejong	
+2591949	كازينغا	tr	Cazenga	
+740264	سمسون	wd	Samsun	
+588409	تالين	wd	Tallinn	
+149606	تنجا	wd	Tanga	
+379003	الأبيض	wd	El Obeid	
+3347939	لوبيتو	fix	Lobito	
+145531	ساوريمو	wd	Saurimo	
+3470279	باورو	wd	Bauru	
+3688928	بيو	tr	Bello	
+3672778	باستو	gn	Pasto	
+1810458	غاومي	wd	Gaomi	
+3836277	سانتا في	wd	Santa Fe	
+2282006	سان بيدرو	wd	San-Pédro	
+1271458	غوريغانج	tr	Gauriganj	
+2331140	ماكوردي	wd	Makurdi	
+1633034	بالو	tr	Palu	
+2294915	تاكورادي	tr	Takoradi	
+1606590	ساموت براكان	wd	Samut Prakan	
+4671240	أرلينغتون	wd	Arlington	
+105072	خميس مشيط	wd	Khamis Mushait	
+3660689	أمباتو	wd	Ambato	
+3466998	كارابيكويبا	tr	Carapicuíba	
+3827598	أوخو دي أغوا	tr	Ojo de Agua	
+3352136	ويندهوك	wd	Windhoek	
+2395914	أبومي كالافي	wd	Abomey-Calavi	
+2947416	بوخوم	wd	Bochum	
+1851483	سويتا	wd	Suita	
+1175748	جك جهمره	wd	Chak Jhumra	
+310859	مرعش	wd	Kahramanmaraş	
+12159964	تشونغتسو	tr	Chongzuo	
+1854376	أوكازاكي	wd	Okazaki	
+3514519	شيكو	tr	Xico	
+3526700	إستاكالكو	tr	Iztacalco	
+1268561	كاكينادا	wd	Kākināda	
+3470044	بيتيم	tr	Betim	
+2515270	لاس بالماس دي غران كناريا	tr	Las Palmas de Gran Canaria	
+1716771	كوتاباتو	fix	Cotabato	
+288764	بوشر	wd	Bawshar	
+1265014	لاتور	wd	Latur	
+1913154	تانتشو	tr	Tanzhou	
+2179537	ويلينغتون	wd	Wellington	
+3996322	مازاتلان	wd	Mazatlán	
+520494	نيجني تاجيل	wd	Nizhny Tagil	
+4004330	إيرابواتو	wd	Irapuato	
+1861949	إيتشينوميا	wd	Ichinomiya	
+359792	أسوان	wd	Aswān	
+675810	ياش	wd	Iaşi	
+986822	كروغرزدورب	fix	Krugersdorp	
+1260482	بانيهاتي	tr	Pānihāti	
+1185107	شيبغنج	tr	Shibganj	
+3402429	كاوكايا	tr	Caucaia	
+3696183	إكيتوس	wd	Iquitos	
+1849846	تويوهاشي	wd	Toyohashi	
+1808212	هتشوان	tr	Hechuan	
+3719028	بيتيونفيل	tr	Pétionville	
+2745912	أوترخت	gn	Utrecht	
+1258932	راجا ماهندري	wd	Rajamahendravaram	reviewed
+3466954	كارياسيكا	wd	Cariacica	
+1621177	يوغياكارتا	wd	Yogyakarta	
+1272691	دهولي	fix	Dhule	
+1787031	يانتشو	tr	Yanzhou	
+1852383	ميناتو	tr	Minato	
+1749822	بوتشونغ	tr	Puchong	
+2326171	أوندو	tr	Ondo	
+1798632	بينغيين	tr	Pingyin	
+1258076	روهتاك	wd	Rohtak	
+1182682	بهاونا	wd	Bhawana	
+958724	روستنبرغ	wd	Rustenburg	
+5325738	بيكرسفيلد	wd	Bakersfield	
+2033574	شوانهوا	tr	Xuanhua	
+939270	إمالاهليني	fix	Emalahleni	
+2235189	بافوسام	wd	Bafoussam	
+1565022	ثو داو موت	gn	Thủ Dầu Một	
+1851002	تاكاساكي	wd	Takasaki	
+1734810	سرمبن	wd	Seremban	
+3827408	ميغيل هيدالغو	tr	Miguel Hidalgo	
+1856215	ناغانو	wd	Nagano	
+1734199	تاواو	wd	Tawau	
+2653822	كارديف	wd	Cardiff	
+1814544	داتشانغ	tr	Dachang	
+8616121	دونغ دا	tr	Đống Đa	
+1106542	تشيتونجويزا	wd	Chitungwiza	
+7304020	فنغهوانغ	tr	Fenghuang	
+3629672	بويرتو لا كروز	wd	Puerto La Cruz	
+2320576	أومواهيا	wd	Umuahia	
+298299	عشاق	wd	Uşak	
+1283613	بهاراتبور	tr	Bharatpur	
+3460644	إيتاكواكيسيتوبا	tr	Itaquaquecetuba	
+7483813	ناتور	tr	Natore	
+353219	مدينة السادس من أكتوبر	wd	6th of October City	
+2644668	ليستر	wd	Leicester	
+3466779	كاسكافيل	fix	Cascavel	
+2172517	كانبرا	wd	Canberra	
+7535637	أفياندة	wd	Avellaneda	
+3452465	برايا غراندي	tr	Praia Grande	
+1855612	نارا	gn	Nara-shi	
+3176959	فلورنسا	wd	Florence	
+1279228	أحمد نكر	wd	Ahilyanagar	
+1259091	كولام	wd	Kollam	
+8537264	هوانغقانغ	wd	Huanggang	
+2654993	برادفورد	wd	Bradford	
+1626381	سوكابومي	wd	Sukabumi	
+1275637	بيلاسبور	wd	Bilāspur	
+1703320	مالابون	tr	Malabon	
+3463011	فرانكا	tr	Franca	
+5150529	كليفلاند	wd	Cleveland	
+2337181	إسيين	wd	Iseyin	
+5950268	إيتوبيكو	tr	Etobicoke	
+2341374	غبوكو	wd	Gboko	
+2318123	يناغوا	wd	Yenagoa	
+13546342	سامبا	tr	Samba	
+3393536	أوليندا	tr	Olinda	
+1838343	بيونغتايك	tr	Pyeongtaek	
+3630297	بيتاري	wd	Petare	
+1588060	بن كات	tr	Bến Cát	
+1817990	آنتشيو	tr	Anqiu	
+324190	ألانيا	fix	Alanya	
+1172128	لاركانا	wd	Larkana	
+379062	القضارف	wd	Al Qadarif	
+627904	غرودنو	wd	Hrodna	
+1647003	تشيبينونغ	tr	Cibinong	
+1169116	نواب شاه	wd	Nawabshah	
+4335045	نيو أورلينز	wd	New Orleans	
+1678228	كيلونغ	wd	Keelung	
+2692969	مالمو	wd	Malmö	
+1805029	جيتشو	fix	Jizhou	
+2187404	مانوكاو	tr	Manukau City	
+2441291	مرادي	wd	Maradi	
+1182092	بوريوالا	tr	Burewala	
+6947637	أتاشهير	tr	Ataşehir	
+3469968	بلوميناو	gn	Blumenau	
+1799823	نانتشياو	tr	Nanqiao	
+1170395	مينجورا	wd	Mingora	
+3389353	سانتاريم	tr	Santarém	
+2805753	فوبرتال	wd	Wuppertal	
+2014407	أولان أودي	wd	Ulan-Ude	
+11694038	هووتشنغ	fix	Huocheng	
+2338400	إيجيبو أودي	wd	Ijebu Ode	
+932505	ماسيرو	wd	Maseru	
+1275960	بهيلوارة	wd	Bhilwara	
+5412347	أورورا	wd	Aurora	
+620127	فيتيبسك	wd	Vitebsk	
+7628419	سلطان بيلي	tr	Sultanbeyli	
+1516905	تاراز	wd	Taraz	
+1832828	يانجسان	wd	Yangsan	
+1689395	سان خوسيه ديل مونتي	wd	San Jose del Monte	
+13631407	أبو الخصيب	tr	Abū al-Kahṣīb	
+1948005	غوانغميونغ	tr	Gwangmyeong	
+111453	زنجان	wd	Zanjan	
+3673899	نيفا	gn	Neiva	
+2112539	إيواكي	fix	Iwaki	
+473247	فلاديمير	wd	Vladimir	
+1026014	تيتي	wd	Tete	
+1729524	باكوور	tr	Bacoor	
+3445839	أوبيرابا	tr	Uberaba	
+1926004	واكاياما	wd	Wakayama	
+1275198	برهامبور	wd	Brahmapur	
+1673816	فنغشان	tr	Fengshan	
+747158	الفاتح	tr	Fatih	
+2214846	مصراتة	wd	Misratah	
+3348078	كويتو	wd	Cuíto	
+3827406	بينيتو خواريز	tr	Benito Juarez	
+1519922	كيزيلوردا	wd	Kyzylorda	
+1164776	سنجهورو	tr	Sinjhoro	
+1859740	كاواغويه	wd	Kawagoe	
+1850910	تاكاتسوكي	wd	Takatsuki	
+1262330	مظفربور	wd	Muzaffarpur	
+3516266	تاباتشولا	wd	Tapachula	
+8067345	ني دونغ	wd	Lhoka	reviewed
+3514670	فيلاهيرموسا	wd	Villahermosa	
+1735162	ستاباك	tr	Setapak	
+625665	موجيلوف	wd	Mahilyow	
+141681	بندر عباس	wd	Bandar Abbas	
+291074	رأس الخيمة	wd	Ras Al Khaimah	
+3647651	كابيماس	wd	Cabimas	
+1640344	كنداري	wd	Kendari	
+5856195	هونولولو	wd	Honolulu	
+5323810	آناهايم	wd	Anaheim	
+299817	طرسوس	wd	Tarsus	
+99100	المحمودية	gn	Al Maḩmūdīyah	
+342884	بحر دار	wd	Bahir Dar	
+1798900	بنغتسه	tr	Pengze	
+1259239	بوناسا	tr	Punāsa	
+8054802	شيلينهوت	tr	Xilinhot	
+3448632	ساو جوزيه دوس بينيايس	tr	São José dos Pinhais	
+1028434	كيليماني	wd	Quelimane	
+581049	أرخانغلسك	wd	Arkhangel’sk	
+1262332	مظفر نگر	wd	Muzaffarnagar	
+12548253	هولونبوير	tr	Hulunbuir	
+1645133	دوماي	wd	Dumai	
+2451185	سيكاسو	wd	Sikasso	
+117574	سنندج	wd	Sanandaj	
+2025339	تشيتا	wd	Chita	
+1688749	سان بيدرو	wd	San Pedro	
+2521978	أليكانتي	wd	Alicante	reviewed
+2388873	بيمبو	wd	Bimbo	
+1321218	كالاي	wd	Kalemyo	
+2655984	بلفاست	wd	Belfast	
+1564064	لونغ بيان	tr	Long Bien	
+3566067	كاماغواي	wd	Camagüey	
+3128026	بلباو	gn	Bilbao	
+1651531	أمبون	wd	Ambon	
+629634	برست	wd	Brest	
+3451353	ريبيراو داس نيفيس	tr	Ribeirão das Neves	
+2038067	تشيفنغ	wd	Chifeng	
+8310663	سنترال كوست	tr	Central Coast	
+3435217	كورينتس	wd	Corrientes	
+1877030	هونغنام	tr	Hŭngnam	
+1278130	آفادي	tr	Avadi	
+12277239	يونلونغ	tr	Yunlong	
+1858729	كوشيغايا	wd	Koshigaya	
+2652221	كوفنتري	wd	Coventry	
+578072	بيلغورود	wd	Belgorod	
+1053384	تواماسينا	wd	Toamasina	
+7281838	لوغان سيتي	gn	Logan City	
+1853574	أوتسو	wd	Ōtsu	
+371760	كوستي	wd	Kosti	
+2035261	تشيتايخه	fix	Qitaihe	
+290030	الدوحة	wd	Doha	
+1273800	كادابا	tr	Kadapa	
+8715035	ناكانو	wd	Nakano	
+1646170	تشيريبون	fix	Cirebon	
+3625829	تورميرو	wd	Turmero	
+1850181	توكوروزاوا	wd	Tokorozawa	
+1721906	كاباناتوان	tr	Cabanatuan City	
+1785716	بيجو	wd	Pizhou	
+338832	ديرة داوا	gn	Dire Dawa	
+2506999	عنابة	wd	Annaba	
+2990440	نيس	wd	Nice	
+1711084	اليجان	wd	Iligan	
+3667849	سوليداد	tr	Soledad	
+2529013	تمارة	wd	Temara	
+3392740	باوليستا	tr	Paulista	
+2566633	أوبالندي	tr	Obalende	
+1265767	كوكاتبالي	tr	Kukatpally	
+1794479	لايشي	wd	Laixi	
+96994	دهوك	wd	Dihok	
+553915	كالوغا	wd	Kaluga	
+13405933	باك تو ليم	tr	Bắc Từ Liêm	
+4014875	سيلايا	wd	Celaya	
+2411989	سيريكوندا	wd	Serekunda	
+1199503	كفرول	tr	Kafrul	
+308988	قارشياقة	wd	Karşıyaka	
+702320	ماكيفكا	wd	Makiyivka	
+3529947	كويرنافاكا	wd	Cuernavaca	
+6066513	ماركام	wd	Markham	
+3448136	ساو فيسنتي	tr	São Vicente	
+1876373	كايسونغ	wd	Kaesŏng	
+1185098	تونغي	wd	Tungi	
+963241	راندبورغ	wd	Randburg	
+2537881	آسفي	wd	Safi	
+693805	سيمفروبول	wd	Simferopol	
+765876	لوبلين	wd	Lublin	
+3454244	بيلوتاس	tr	Pelotas	
+3621849	سان خوسيه	wd	San José	
+4167147	أورلاندو	wd	Orlando	
+3868121	فينيا ديل مار	wd	Viña del Mar	
+119505	قزوين	wd	Qazvin	
+2130629	أساهيكاوا	wd	Asahikawa	
+1268257	كامارهاتي	tr	Kāmārhāti	
+3981941	تبيك	wd	Tepic	
+1833105	وونجو	wd	Wŏnju	
+364103	ود مدني	wd	Wad Medani	
+9645084	الحي الحادي عشر	tr	Quận Mười Một	
+601294	نوكوس	fix	Nukus	
+306641	قوناق	wd	Konak	
+1857843	مايباشي	tr	Maebashi	
+8469285	كيتا	wd	Kita	
+3530580	سيوداد فكتوريا	wd	Ciudad Victoria	
+3982912	سوليداد دي غراسيانو سانشيز	tr	Soledad de Graciano Sánchez	
+1859146	كوتشي	tr	Kochi	
+2949186	بيليفيلد	gn	Bielefeld	
+2503769	البليدة	wd	Blida	
+1819595	كواي تشونغ	tr	Kwai Chung	
+1701947	مانداوي	wd	Mandaue City	
+586523	كنجه	wd	Ganja	
+127319	المحمرة	wd	Khorramshahr	
+2946447	بون	gn	Bonn	
+1263364	ماثورا	tr	Mathura	
+12358476	هتشي	tr	Hechi	
+3102014	بيدغوشتش	wd	Bydgoszcz	
+491687	سمولينسك	wd	Smolensk	
+608668	أورال	wd	Oral	
+127349	خرم آباد	wd	Khorramabad	
+3583096	سويابانغو	wd	Soyapango	
+1787824	تونغشان	fix	Tongshan	
+2595778	غيديوية	wd	Guédiawaye	
+728193	بلوفديف	wd	Plovdiv	
+4013704	سيوداد أوبريغون	tr	Ciudad Obregón	
+1866923	وونسان	wd	Wŏnsan	
+1520240	بافلودار	wd	Pavlodar	
+1274693	شاندرابور	wd	Chānda	
+3467467	كانواس	tr	Canoas	
+2112141	كورياما	wd	Kōriyama	
+491422	سوتشي	tr	Sochi	
+324496	أقسراي	wd	Aksaray	
+1275701	بيجابور	wd	Vijayapura	
+918702	تشيباتا	wd	Chipata	
+2044757	تشونغجين	wd	Chongjin	
+2033467	يانجي	wd	Yanji	
+936374	روديبورت	wd	Roodepoort	
+3693345	بوكالبا	wd	Pucallpa	
+3457001	موجي داس كروزيس	tr	Mogi das Cruzes	
+2519240	قرطبة	wd	Córdoba	
+2655613	بيركنهيد	wd	Birkenhead	
+2990969	نانت	wd	Nantes	
+2337704	إيليشا	tr	Ilesa	
+1631766	بيكالونغان	wd	Pekalongan	
+1209106	بهاتارا	tr	Bhatara	
+660158	إسبو	tr	Espoo	
+192126	كيكويو	tr	Kikuyu	
+1732811	كولانغ	wd	Kluang	
+1803590	لينتسانغ	fix	Lincang	
+2641170	نوتنغهام	wd	Nottingham	
+13631350	راميروس	tr	Ramiros	
+99608	العمارة	wd	Al ‘Amārah	
+472231	فولجسكي	wd	Volzhsky	
+6173577	فون	wd	Vaughan	
+1807566	شينغيي	wd	Xingyi	
+1256515	شيفاموغا	tr	Shivamogga	
+1278946	الوار	wd	Alwar	
+2236568	ويجي	fix	Uíge	
+3446682	تاوباتيه	tr	Taubaté	
+3526682	إستابالوكا	tr	Ixtapaluca	
+1527534	أوش	wd	Osh	
+3652941	بورتوفيخو	wd	Portoviejo	
+3665900	فيللافيسينسيو	gn	Villavicencio	
+1874533	مانغيونغدي	wd	Man’gyŏngdae-ri	
+3468031	كاماساري	tr	Camaçari	
+3701329	سان ميغيليتو	wd	San Miguelito	
+1256728	شهجهنبور	wd	Shāhjānpur	
+4297983	ليكسينغتون	wd	Lexington	
+6958518	تانتو	tr	Tantou	
+3447212	سوزانو	tr	Suzano	
+3472287	أنابوليس	tr	Anápolis	
+1876401	كيتشون	wd	Kaech’ŏn	
+1268773	جوناغاد	wd	Jūnāgadh	
+2646003	إيزلينغتون	wd	Islington	
+1571968	هوا لو	fix	Hoa Lư	
+3556969	هولغوين	gn	Holguín	
+1520316	أوسكمان	wd	Ust-Kamenogorsk	reviewed
+1818209	تسوين وان	tr	Tsuen Wan	
+2437798	زندر	wd	Zinder	
+498698	سارانسك	wd	Saransk	
+99762	الديوانية	wd	Al Diwaniyah	
+726050	فارنا	wd	Varna	
+1177384	حافظ آباد	wd	Hafizabad	
+12278193	مارن لا فاليه	tr	Marne La Vallée	
+1633118	بالانغكارايا	tr	Palangkaraya	
+358448	دمنهور	wd	Damanhur	
+1181096	جنيوت	wd	Chiniot	
+3671916	بوبايان	gn	Popayán	
+2639577	ريدنغ	wd	Reading	
+159908	جيتا	wd	Geita	
+680963	قسطنطة	wd	Constanţa	
+1261481	نيو دلهي	wd	New Delhi	
+734077	سالونيك	wd	Thessaloníki	
+2244802	تييس	wd	Thiès	
+1856035	ناها	wd	Naha	
+5387877	ريفرسايد	wd	Riverside	
+2038569	بايتشنغ	wd	Baicheng	
+3698304	شيمبوتي	wd	Chimbote	
+3182351	باري	wd	Bari	
+3470353	باروييري	tr	Barueri	
+4683416	كوربوس كريستي	wd	Corpus Christi	
+1254187	تريشور	wd	Thrissur	
+569223	تشيريبوفيتس	wd	Cherepovets	
+3658192	دوران	tr	Eloy Alfaro	
+99131	الكوت	wd	Al-Kut	
+1732869	موار	wd	Muar	
+739549	شيشلي	tr	Şişli	
+4297999	ليكسينغتون	tr	Lexington-Fayette	
+2228373	ماروا	wd	Maroua	
+2645425	كينغستون أبون هال	wd	Kingston upon Hull	
+2639912	بريستون	fix	Preston	
+2036434	ليانشان	tr	Lianshan	
+317109	دنيزلي	wd	Denizli	
+2338313	إيكيجا	gn	Ikeja	
+7799991	القاهرة الجديدة	wd	New Cairo	
+3444924	فيتوريا	gn	Vitória	
+3673164	بالميرا	tr	Palmira	
+472459	فولوغدا	wd	Vologda	
+1711082	اليجان	wd	Iligan City	
+2525068	قطانية	wd	Catania	
+1261258	نظام آباد	fix	Nizāmābād	
+4508722	سينسيناتي	wd	Cincinnati	
+1214189	بيرتشوت	tr	Percut	
+3530517	كواتزاكوالكوس	wd	Coatzacoalcos	
+5392900	سانتا آنا	wd	Santa Ana	
+1870883	ساريوون	wd	Sariwŏn-si	
+1016670	بوتشابلو	wd	Botshabelo	
+1722186	بوتوان	gn	Butuan	
+143860	شهريار	wd	Shahrīār	
+120292	قدس	wd	Qods	
+9871722	جيا لام	tr	Gia Lâm	
+1501321	كورغان	wd	Kurgan	
+3516355	تامبيكو	wd	Tampico	
+2566696	أكوونجو	tr	Akowonjo	
+1721281	كابوياو	wd	Cabuyao	
+149658	تابورا	wd	Tabora	
+1859891	كاسوغاي	wd	Kasugai	
+1594308	آن نيون	tr	An Nhơn	
+2566676	أليموشو	tr	Alimosho	
+4003757	سيوداد بينيتو خواريز	tr	Ciudad Benito Juárez	
+2867543	مونستر	gn	Münster	
+2873891	منهايم	wd	Mannheim	
+1641134	كراوانغ	wd	Karawang	
+2113126	أكيتا	gn	Akita	
+1254089	تومكور	wd	Tumkūr	
+1846052	جينجو	wd	Chinju	
+1260341	باربهاني	tr	Parbhani	
+1270022	حصار	wd	Hisar	
+1843491	إكسان	wd	Iksan	
+1271885	فيروز آباد	wd	Fīrozābād	
+3474574	بالماس	gn	Palmas	
+473249	فلاديقوقاز	wd	Vladikavkaz	
+3718420	بور دو بيه	tr	Port-de-Paix	
+358048	دمياط	wd	Damietta	
+3429886	بوساداس	wd	Posadas	
+6317872	باراوابيباس	wd	Parauapebas	
+1016181	براكبان	tr	Brakpan	
+5399020	ستوكتون	wd	Stockton	
+3397147	جوازيرو دو نورتي	tr	Juazeiro do Norte	
+1848373	يوكايتشي	wd	Yokkaichi	
+1265711	كولتي	tr	Kulti	
+3515463	تلاواك	tr	Tláhuac	
+2323675	سابيله	wd	Sapele	
+128476	كاشان	wd	Kashan	
+6861211	كاشان	tr	Kāshān	
+5206379	بيتسبرغ	wd	Pittsburgh	
+3689560	أرمينيا	gn	Armenia	
+3984583	سانتا كاترينا	wd	Santa Catarina	
+149703	سومباوانغا	wd	Sumbawanga	
+515012	أوريول	wd	Orël	
+1847966	أكاشي	wd	Akashi	
+8616127	هاي با ترونغ	tr	Hai Bà Trưng	
+1858088	كورومي	wd	Kurume	
+2778067	غراتس	wd	Graz	
+5045360	سانت بول	wd	Saint Paul	
+1572532	نغي سون	tr	Nghi Sơn	
+1267708	كرنال	wd	Karnāl	
+1815482	تشانغي	wd	Changyi	
+3439101	سيوداد ديل استي	wd	Ciudad del Este	
+350203	رشيد	wd	Rosetta	
+1277029	باردمان	wd	Barddhamān	
+1640660	كديري	wd	Kediri	
+897045	سولويزي	wd	Solwezi	
+2954172	آوغسبورغ	wd	Augsburg	
+3106672	بلد الوليد	gn	Valladolid	
+1738050	ميري	wd	Miri	
+1789262	شينيي	fix	Xinyi	
+1170880	مردان	wd	Mardan	
+1490624	سورغوت	wd	Surgut	
+2636432	سونزي	wd	Swansea	
+1688830	سان بابلو	wd	San Pablo	
+2641673	نيوكاسل أبون تاين	wd	Newcastle upon Tyne	
+11679708	أوزوكاراي	tr	Gundupālaiyam	
+3445451	فارزيا غراندي	tr	Várzea Grande	
+5959974	غاتينو	wd	Gatineau	
+1725115	بينان	wd	Biñan	
+3632308	ميريدا	fix	Mérida	
+363807	وينجوك	tr	Winejok	
+1787323	يانغشو	tr	Yangshuo	
+1803364	لينتشو	tr	Linqu	
+3980760	أوروابان	wd	Uruapan	
+1282931	باتان	wd	Pātan	reviewed
+1514019	فرغانة	wd	Fergana	
+3865086	باهيا بلانكا	wd	Bahía Blanca	
+1687687	سانتول	tr	Santol	
+2250805	كاولاك	wd	Kaolack	
+1642588	جمبر	tr	Jember	
+2130658	آوموري	wd	Aomori	
+1277065	باراسات	tr	Bārāsat	
+12165955	مولوغو	tr	Mulugu	
+3463030	فوز دو إيغواسو	gn	Foz do Iguaçu	
+1275716	بيهار شريف	wd	Bihār Sharīf	
+1624494	تيغال	wd	Tegal	
+558418	غروزني	wd	Grozny	
+2316702	بوما	wd	Boma	
+1277539	بالي	tr	Bāli	
+1794209	بوير	tr	Pu'er	
+1258599	رامبور	tr	Rāmpur	
+1273491	داربهانجا	wd	Darbhanga	
+1260476	باني بت	wd	Panipat	
+776069	بياويستوك	wd	Białystok	
+8461573	موين	tr	Mwene	
+3448744	ساو جوزيه	fix	São José	
+2246512	روفسك	wd	Rufisque	
+524305	مورمانسك	wd	Murmansk	
+1254360	تيروباتي	wd	Tirupati	
+2637433	ساوثند أون سي	wd	Southend-on-Sea	
+3454031	بتروبوليس	tr	Petrópolis	
+3461789	غواروجا	tr	Guarujá	
+3460845	إيتاجاي	tr	Itajaí	
+5072006	لنكن	wd	Lincoln	
+8531735	فو كوك	tr	Phu Quoc	
+1817240	بايين	wd	Baiyin	
+2112923	فوكوشيما	wd	Fukushima	
+3161732	برغن	wd	Bergen	
+6954929	نويدا الكبرى	wd	Greater Noida	
+7279746	نويدا	wd	Noida	
+484646	تامبوف	wd	Tambov	
+3105976	فيغو	gn	Vigo	
+1279186	آيزاول	wd	Aizawl	
+1650217	بنجاربارو	wd	Banjarbaru	
+8616118	تانه سوان	tr	Thanh Xuân	
+109571	الهفوف	wd	Al Hufūf	
+3530757	تشولولا	tr	Cholula	
+1271715	غانديناغار	wd	Gandhinagar	
+1519422	سيماي	wd	Semey	
+8616113	كاو جاي	tr	Cầu Giấy	
+1272543	دينديغول	tr	Dindigul	
+3453186	بونتا غروسا	tr	Ponta Grossa	
+1810295	غاوزو	wd	Gaozhou	
+1175088	كاموكي	tr	Kamoke	
+3458575	ليميرا	tr	Limeira	
+1254649	ثنجفور	wd	Thanjavur	
+946877	كارييغا	fix	Kariega	
+325330	أديامان	fix	Adıyaman	
+109101	المبرز	gn	Al Mubarraz	
+3429577	ريسيستينسيا	wd	Resistencia	
+610529	أتيراو	wd	Atyrau	
+2111834	موريوكا	wd	Morioka	
+1788245	شيويينغ	fix	Xiuying	
+3628473	سان كريستوبال	wd	San Cristóbal	
+1646494	تشيلونغسير	tr	Cileungsir	
+1267755	كريم نجر	wd	Karīmnagar	
+6174041	فكتوريا	wd	Victoria	
+5879400	أنكوريج	wd	Anchorage	
+1273066	ديواس	tr	Dewas	
+2505572	باتنة	wd	Batna	
+598316	كاوناس	wd	Kaunas	
+1255744	سونيبات	wd	Sonīpat	
+3654533	ماتشالا	wd	Machala	
+2809346	فيسبادن	wd	Wiesbaden	
+4300488	ميدز	tr	Meads	
+916095	كابوي	wd	Kabwe	
+2040893	سينويجو	wd	Sinŭiju	
+1862033	إباراكي	wd	Ibaraki	
+1591449	باك نينه	wd	Bắc Ninh	
+1269834	إيشل كرنجي	wd	Ichalkaranji	
+1570357	فو مي	tr	Phú Mỹ	
+3466489	سيلانديا	wd	Ceilândia	
+3096472	كاتوفيتسه	wd	Katowice	
+752850	آطة بازاري	wd	Adapazarı	
+681290	كلوج نابوكا	wd	Cluj-Napoca	
+1842030	غونبو	wd	Gunpo	
+877401	سونجيا	wd	Songea	
+217562	بوتمبو	wd	Butembo	
+3928128	تاكنا	wd	Tacna	
+1818558	تين شوي واي	tr	Tin Shui Wai	
+1575627	لونج سوين	gn	Long Xuyên	
+1349452	سافار	tr	Savar	
+1276070	بتيندا	tr	Bathinda	
+5505411	هندرسون	wd	Henderson	
+1269395	جالنا	wd	Jālna	
+11808941	سيكوندي	tr	Sekondi	
+3449072	ساو غونسالو	fix	São Gonçalo	
+10858926	كيينغيرا	tr	Kyengera	
+4469146	غرينزبورو	wd	Greensboro	
+294801	حيفا	wd	Haifa	
+2624652	آرهوس	wd	Århus	
+1812990	دنغتشو	tr	Dengzhou	
+1281743	أرتوش	fix	Artux	
+1845136	شونشيون	wd	Chuncheon	
+3487903	ألتو باريناس	tr	Alto Barinas	
+2248477	امبور	wd	Mbour	
+2654710	برايتون	wd	Brighton	
+2892794	كارلسروه	wd	Karlsruhe	
+2088122	بورت مورسبي	wd	Port Moresby	
+360686	المنيا	wd	Minya	
+4719457	بلينو	wd	Plano	
+3395503	مارابا	gn	Marabá	
+2112664	إيتشيهارا	gn	Ichihara	
+1798097	تشيباو	tr	Qibao	
+10263153	كيراري سليمان ناغار	tr	Kirāri Sulemānnagar	
+1720840	كاينتا	tr	Cainta	
+1257022	ساتنا	tr	Satna	
+2165798	غيلونغ	wd	Geelong	
+710735	تشرنيغوف	wd	Chernihiv	
+1529046	شينيوان	tr	Xinyuan	
+3466296	شابيكو	tr	Chapecó	
+1588129	با في	tr	Ba Vì	
+3868626	فالبارايسو	wd	Valparaíso	
+3938527	إيكا	wd	Ica	
+1259166	بورنيا	wd	Purnia	
+5101798	نيوآرك	wd	Newark	
+3680450	إيتاغوي	tr	Itagüí	
+3522732	نيكولاس روميرو	tr	Nicolás Romero	
+747014	كبزة	wd	Gebze	
+1043893	ليشنجا	wd	Lichinga	
+1185117	نرسنغدي	tr	Narsingdi	
+737071	زيتون بورنو	tr	Zeytinburnu	
+3068799	أوسترافا	wd	Ostrava	
+2467454	صفاقس	wd	Sfax	
+3513966	سومبانغو	tr	Zumpango	
+11238838	مركز أفندي	tr	Merkezefendi	
+5261457	ماديسون	wd	Madison	
+1217662	بخارى	wd	Bukhara	
+2171507	ولونغونغ	wd	Wollongong	
+3444876	فولتا ريدوندا	tr	Volta Redonda	
+4407066	سانت لويس	wd	St. Louis	
+696643	بولتافا	wd	Poltava	
+3447259	سوماريه	tr	Sumaré	
+2343983	إيفون ألايي	tr	Efon-Alaaye	
+1215355	بنجاي	wd	Binjai	
+1214204	بيماتانغ سيانتار	fix	Pematangsiantar	
+509820	بيتروزوفودسك	wd	Petrozavodsk	
+1811720	إنشي	fix	Enshi	
+484907	تاغانروغ	wd	Taganrog	
+3627047	سانتا تيريسا ديل توي	tr	Santa Teresa del Tuy	
+1568770	كوانج نجاي	wd	Quảng Ngãi	
+1216311	قرشي	wd	Qarshi	
+1793419	تانغهه	tr	Tanghe	
+3530569	كواكالكو	tr	Coacalco	
+3667983	سينسيليخو	gn	Sincelejo	
+418710	خميني شهر	wd	Khomeynī Shahr	
+543878	كوستروما	wd	Kostroma	
+1269771	إمفال	wd	Imphal	
+2288829	غاغنوا	wd	Gagnoa	
+1884382	بيدوك	wd	Bedok New Town	
+1880159	أولو بيدوك	tr	Ulu Bedok	
+2325314	أوو	fix	Owo	
+1835648	سون تشون	wd	Suncheon	
+12269572	فانغتشنغغانغ	tr	Fangchenggang	
+2021851	كومسومولسك نا أموري	wd	Komsomolsk-on-Amur	
+1185056	أبوت آباد	wd	Abbottabad	
+1804866	كايلي	wd	Kaili	
+2130188	هاكوداته	wd	Hakodate	
+2279755	ياموسوكرو	wd	Yamoussoukro	
+2505854	باب الزوار	wd	Bab Ezzouar	
+2973783	ستراسبورغ	wd	Strasbourg	
+1257845	ساغر	fix	Saugor	
+1671467	نيهو	tr	Neihu	
+1849796	تسو	wd	Tsu	
+8594670	شينغنينغ	wd	Xingning	
+1803331	لينشيا	wd	Linxia Chengguanzhen	reviewed
+706369	خملنيتسكي	wd	Khmelnytskyi	
+12032137	كوشيناغار	fix	Kushinagar	
+1166652	صادق آباد	fix	Saddiqabad	
+3654667	لوخا	wd	Loja	
+1818673	تاي بو	tr	Tai Po	
+1514896	اسفرة	wd	Isfara	
+3347719	لوينا	fix	Luena	
+3447186	تابواو دا سيرا	tr	Taboão da Serra	
+1220253	إستروشن	wd	Istaravshan	
+1529114	توربان	wd	Turpan	
+1258315	روركيلا	fix	Rourkela	
+1848522	ياو	tr	Yao	
+359173	بني سويف	wd	Banī Suwayf	
+3398269	إمبيراتريز	tr	Imperatriz	
+1193745	نغر نالواكوت	tr	Nagar Naluākot	
+3557689	غوانتانامو	gn	Guantánamo	
+1728930	باغويو	wd	Baguio	
+289888	الريان	fix	Ar Rayyān	
+965289	بولوكواني	fix	Polokwane	
+3196359	ليوبليانا	fix	Ljubljana	
+1139715	جلال آباد	wd	Jalālābād	
+170794	دير الزور	wd	Deir ez-Zor	
+3121424	خيخون	gn	Gijón	
+3450083	سانتا ماريا	tr	Santa Maria	
+3392998	بارناميريم	tr	Parnamirim	
+106297	حفر الباطن	wd	Hafar Al-Batin	
+1860704	كاكوغاوا	wd	Kakogawachō-honmachi	
+9645072	الحي السادس	tr	Quận Sáu	
+1574023	مي ثو	wd	Mỹ Tho	
+2111901	ميتو	tr	Mito	
+2651347	ديربي	wd	Derby	
+339219	ديسي	wd	Dessie	
+1580410	هالونج	wd	Hạ Long	
+2921466	غلزنكيرشن	wd	Gelsenkirchen	
+12492660	لونغلينغ	tr	Longling County	
+710791	تشيركاسي	wd	Cherkasy	
+1702540	مالولوس	wd	Malolos	
+2637487	ساوثهامبتون	wd	Southampton	
+1732901	كابار	tr	Kapar	
+748879	جوروم	wd	Çorum	
+1529435	غولجا	tr	Ghulja	
+3430697	ميرلو	wd	Merlo	
+1884138	يوسو	wd	Yeosu	
+1272181	دورج	wd	Durg	
+1810979	فولينغ	tr	Fuling	
+1841066	موكبو	wd	Mokpo	
+1283581	بيرغونج	wd	Birgañj	
+466806	يوشكار أولا	wd	Yoshkar-Ola	
+7838895	الرصيفة	wd	Russeifa	
+1215502	باندا آتشيه	fix	Banda Aceh	
+349158	شبين الكوم	wd	Shibīn al Kawm	
+1170295	ميربور خاص	wd	Mirpur Khas	
+7289760	سنغكانغ	tr	Sengkang New Town	
+3682385	فلوريدابلانكا	tr	Floridablanca	
+1850158	توكوشيما	tr	Tokushima	
+487495	سترليتاماك	wd	Sterlitamak	
+1278672	انانتابور	wd	Anantapur	
+1841598	جيونغسان	wd	Gyeongsan-si	
+347796	سوهاج	wd	Sohag	
+1856199	ناغاوكا	gn	Nagaoka	
+3717588	سان مارك	tr	Saint-Marc	
+3462315	غوفيرنادور فالاداريس	tr	Governador Valadares	
+3449319	ساو كارلوس	gn	São Carlos	
+1185281	باغرهات	gn	Bagerhat	
+13680149	الزهور	gn	Az-Zuhūr	
+1581047	ها تينه	wd	Hà Tĩnh	
+6141256	ساسكاتون	wd	Saskatoon	
+1786640	ينغتشنغ	tr	Chengzhong	
+2500017	الجلفة	wd	Djelfa	
+5336899	تشولا فيستا	wd	Chula Vista	
+1852225	شيمونوسكي	wd	Shimonoseki	
+5174035	توليدو	wd	Toledo	
+2034312	أولان هوت	wd	Ulanhot	
+158027	كيباها	wd	Kibaha	
+2036670	فولارجي	tr	Hulan Ergi	
+3031582	بوردو	wd	Bordeaux	
+3247449	آخن	wd	Aachen	
+2797656	غنت	gn	Gent	
+3462089	غرافاتاي	tr	Gravataí	
+3740007	سيتي سولاي	wd	Cité Soleil	
+1701472	مانتامباي	tr	Mantampay	
+1258342	راتلام	wd	Ratlām	
+4004886	هيرويكا نوغاليس	wd	Nogales	
+380148	الضعين	wd	El Daein	
+136256	دزفول	wd	Dezful	
+1812521	لوفنغ	tr	Donghai	
+1842025	جونسان	wd	Gunsan	
+3394682	موسورو	tr	Mossoró	
+3458266	ماكاييه	tr	Macaé	
+1258451	رانيبيت	tr	Rānipet	
+1336142	براهمانباريا	fix	Brāhmanbāria	
+2392087	بورتو نوفو	wd	Porto-Novo	
+710719	تشيرنوفتسي	wd	Chernivtsi	
+5099836	جيرسي سيتي	wd	Jersey City	
+3654410	مانتا	wd	Manta	
+5511077	رينو	wd	Reno	
+2389422	بيغوا	tr	Bégoua	
+3652350	ريوبامبا	wd	Riobamba	
+300619	سيواس	wd	Sivas	
+3464460	دورادوس	gn	Dourados	
+3450909	روندونوبوليس	tr	Rondonópolis	
+2633691	ولفرهامبتن	wd	Wolverhampton	
+1806988	هوايين	wd	Huayin	
+1632228	باساركيميس	tr	Pasarkemis	
+1819873	فانلينغ	tr	Fanling	
+1678836	شيا يي	wd	Chiayi City	
+1812228	دونغتاي	tr	Dongtai	
+11611632	فوتشو	wd	Fuchū	
+1881953	جورونغ	tr	Jurong Town	
+124877	مراغة	wd	Marāgheh	
+124878	مراغه	wd	Marāgheh	
+3429652	كيلمس	fix	Quilmes	
+1863985	فوكوي	wd	Fukui-shi	
+7302826	لال بهادور ناغار	tr	Lal Bahadur Nagar	
+2869894	مونشنغلادباخ	wd	Mönchengladbach	
+13060482	باغونغ سيلانغ	tr	Bagong Silang	
+686967	جيتومير	wd	Zhytomyr	
+1529401	كاراماي	wd	Karamay	
+1278483	آراه	wd	Arrah	
+2034400	تونغلياو	wd	Tongliao	
+161218	باريادي	tr	Bariadi	
+1069166	أنتسيرابي	wd	Antsirabe	
+5289282	تشاندلر	wd	Chandler	
+363619	ياي	wd	Yei	
+634963	تامبيري	gn	Tampere	
+1062663	ماهاجانجا	wd	Mahajanga	
+13353696	ميناتو	tr	Minato City	
+4920423	فورت واين	wd	Fort Wayne	
+2640194	بليموث	wd	Plymouth	
+1799471	هايدونغ	wd	Nianbo	reviewed
+1164709	سكردو	wd	Skardu	
+1701053	مدينة مراوي	wd	Marawi City	
+3464305	إمبو داس أرتيس	tr	Embu das Artes	
+1512979	قوقند	wd	Qo‘qon	
+1684712	تاكلوبان	wd	Tacloban	
+3388441	ساو جوزيه دي ريبامار	tr	São José de Ribamar	
+1815669	تشانغله	tr	Changle	
+7302833	غاجواكا	tr	Gajuwaka	
+2036458	جينينغ	tr	Jining	
+293703	ريشون لتسيون	wd	Rishon LeTsiyyon	
+1862462	هيراتسوكا	wd	Hiratsuka	
+2636841	ستوك أون ترينت	wd	Stoke-on-Trent	
+5110629	بوفالو	wd	Buffalo	
+3164527	فيرونا	wd	Verona	
+1584071	دا لات	wd	Ðà Lạt	
+3836564	سان سلفادور دي خوخوي	wd	San Salvador de Jujuy	
+4464368	درم	wd	Durham	
+1271987	إيتاوا	wd	Etāwah	
+3104499	فيتوريا غاستيز	tr	Gasteiz / Vitoria	
+10942183	روغاو	tr	Rugao	
+4005775	جوميز بالاسيو	wd	Gómez Palacio	
+4171563	سانت بيترسبرغ	wd	St. Petersburg	
+3120619	لوسبيتاليت دي يوبريغات	tr	L'Hospitalet de Llobregat	
+3099424	غدينيا	wd	Gdynia	
+1646559	تشيلاتشاب	tr	Cilacap	
+5359777	إرفاين	wd	Irvine	
+5992996	كيتشنر	wd	Kitchener	
+1793899	سويتشنغ	tr	Suicheng	
+1800234	دانزوو	wd	Nada	reviewed
+3997479	لوس موتشيس	wd	Los Mochis	
+2051523	براتسك	wd	Bratsk	
+3522210	باتشوكا	wd	Pachuca de Soto	
+919009	شينغولا	wd	Chingola	
+692194	سومي	wd	Sumy	
+2642465	ميلتون كينز	wd	Milton Keynes	
+3461311	إندايياتوبا	tr	Indaiatuba	
+4705349	لاريدو	wd	Laredo	
+3397154	جوازيرو	tr	Juazeiro	
+12170526	فيلا فلور	tr	Vila Flor	
+1002108	جرميستون	wd	Germiston	
+2392204	باراكو	wd	Parakou	
+215771	إسيرو	wd	Isiro	
+116996	ساري	wd	Sari	
+1624725	تاراكان	wd	Tarakan	
+2407790	كينيما	wd	Kenema	
+3522507	أوخاكا	wd	Oaxaca	
+99106	المدينة	gn	Al Madīnah	
+3347019	ناميبي	wd	Mossamedes	
+2163355	هوبرت	wd	Hobart	
+2338106	إيكوت إكبيني	tr	Ikot Ekpene	
+1882316	وودلاندز	tr	Woodlands	
+1897007	هانام	wd	Hanam	
+1608133	نونثابوري	wd	Mueang Nonthaburi	
+1169692	موريدكي	wd	Muridke	
+2246452	سانت لويس	wd	Saint-Louis	
+1735166	كهوف باتو	wd	Batu Caves	
+3456068	نوفو هامبورغو	tr	Novo Hamburgo	
+1881955	جورونغ الغربية	tr	Jurong West	
+1626916	سينغكوانغ	wd	Singkawang	
+1336134	كوكس بازار	wd	Cox’s Bāzār	
+3465284	كوتيا	tr	Cotia	
+293918	بتاح تكفا	wd	Petaẖ Tiqva	
+1513243	مرغلان	wd	Marg‘ilon	
+1278903	أمبرنات	tr	Ambarnath	
+2394092	غودومي	wd	Godomè	
+1262131	نايهاتي	fix	Naihāti	
+683844	براشوف	gn	Braşov	
+1560565	سوان لوك	tr	Xuân Lộc	
+962367	ريتشاردز باي	wd	Richards Bay	
+350550	قنا	wd	Qina	
+1276128	بهاراتبور	wd	Bharatpur	
+632453	فانتا	wd	Vantaa	
+2735943	بورتو	gn	Porto	
+2891122	كيل	wd	Kiel	
+379555	الفاشر	wd	El Fasher	
+2244799	تياس	tr	Thiès Nones	
+2034655	سويهوا	wd	Suihua	
+3633622	لوس تيكيس	wd	Los Teques	
+3835869	سانتياغو ديل استيرو	wd	Santiago del Estero	
+2481700	سطيف	wd	Sétif	
+1276609	بيغوساراي	fix	Begusarai	
+140044	بروجرد	wd	Borūjerd	
+32767	قرجك	wd	Qarchak	
+325303	أفيون قره حصار	wd	Afyonkarahisar	
+311111	الإسكندرونة	wd	İskenderun	
+3395473	ماراكاناو	tr	Maracanaú	
+2325457	أوتا	tr	Ota	
+179330	ثيكا	wd	Thika	
+1690039	سان فرناندو	wd	San Fernando	
+3347353	مينونغي	wd	Menongue	
+3460370	جاكاريي	tr	Jacareí	
+333772	جيما	wd	Jimma	
+665087	تيميشوارا	wd	Timişoara	
+3537906	سانتا كلارا	gn	Santa Clara	
+2336905	إيوو	fix	Iwo	
+3119841	لا كورونيا	gn	A Coruña	
+1706684	ليبرتاد	tr	Libertad	
+4000900	لا باز	wd	La Paz	
+95005	كلار	wd	Kelar	
+787657	نيش	wd	Niš	
+366847	سنجة	wd	Singa	
+3872348	سان برناردو	tr	San Bernardo	
+1851604	سوكا	tr	Sōka	
+925475	مزوزو	wd	Mzuzu	
+1697846	نافوتاس	wd	Navotas	
+1254320	تيروفوتيور	tr	Tiruvottiyūr	
+5911606	بورنبي	wd	Burnaby	
+5525577	لوبوك	wd	Lubbock	
+1582497	دونغ تريو	tr	Thị Trấn Đông Triều	
+2110556	ياماغاتا	tr	Yamagata	
+3516109	تيواكان	tr	Tehuacán	
+3640049	غواريناس	wd	Guarenas	
+3432555	غريغوريو دي لافيريري	wd	Laferrere	
+2992166	مونبلييه	wd	Montpellier	
+2336056	جيميتا	wd	Jimeta	
+3100946	تشيستوخوفا	wd	Częstochowa	
+1271717	غانديدام	wd	Gāndhīdhām	
+1816790	بيبي	tr	Beibei	
+1321937	إنسين	tr	Insein	
+2634341	وستمنستر	wd	City of Westminster	
+5295903	غيلبرت	wd	Gilbert	
+2940132	كيمنتس	wd	Chemnitz	
+3841956	بارانا	wd	Paraná	
+3583446	سان ميغيل	wd	San Miguel	
+1916862	شيجيه	tr	Shijie	
+145778	شيتاتو	tr	Chitato	
+514734	أورسك	wd	Orsk	
+944986	فاندربيلبارك	fix	Vanderbijlpark	
+3645213	سانتا آنا دي كورو	wd	Coro	
+3472343	أمريكانا	tr	Americana	
+1529484	هامي	tr	Hami	
+933773	غابورون	wd	Gaborone	
+353229	مدينة العاشر من رمضان	wd	Al ‘Āshir min Ramaḑān	reviewed
+1263311	مئو	wd	Mau	
+3874960	بويرتو مونت	wd	Puerto Montt	
+2641430	نورثامبتون	wd	Northampton	
+3937513	خولياكا	wd	Juliaca	
+1864134	فوجي	wd	Fuji	
+1841603	غيونغجو	wd	Gyeongju	
+6316328	أغواس لينداس دي غوياس	fix	Águas Lindas de Goiás	
+2281606	سينفرا	tr	Sinfra	
+485239	سيكتيفكار	wd	Syktyvkar	
+132892	جرجان	wd	Gorgān	
+1497543	نيجنفارتوفسك	wd	Nizhnevartovsk	
+1165569	شاهكوت	tr	Shahkot	
+2755251	خرننغن	wd	Groningen	
+1283582	بيراتناغار	wd	Biratnagar	
+2945024	براونشفايغ	gn	Braunschweig	
+3625542	فاليرا	wd	Valera	
+1256320	سيكار	wd	Sīkar	
+1300466	باغو	wd	Bago	
+2874545	مغدبورغ	wd	Magdeburg	
+3648439	باروتا	tr	Baruta	
+3458142	ماجيه	fix	Magé	
+738648	طربزون	wd	Trabzon	
+7289169	تراي سيتيز	tr	Tri-Cities	
+1336140	جيسور	wd	Jessore	
+304827	مانيسا	wd	Manisa	
+3407327	أرابيراكا	tr	Arapiraca	
+695594	ريفني	fix	Rivne	
+1214369	بادانغ سيديمبوان	fix	Padangsidempuan	
+1630634	بروبولينغو	wd	Probolinggo	
+118063	سبزوار	wd	Sabzevar	
+12042053	مصفح	wd	Musaffah	
+1852899	ساسيبو	wd	Sasebo	
+2027667	أنغارسك	wd	Angarsk	
+8347656	راماغوندام	tr	Ramagundam	
+1270393	هابور	tr	Hāpur	
+1864624	تشيغاساكي	wd	Chigasaki	
+1623502	تولي تولي	tr	Toli-Toli	
+1864518	تشوفو	tr	Chōfu	
+64435	بربرة	wd	Berbera	
+1805012	جيوان	wd	Jiyuan	
+11611478	ياماتو	wd	Yamato	
+2284647	مان	wd	Man	
+1183883	بهاولنجر	wd	Bahawalnagar	
+1332083	بهاولنغر	tr	Bahawalnagar	
+518255	نوفوروسيسك	fix	Novorossiysk	
+2110681	تسوكوبا	wd	Tsukuba	
+3899361	أريكا	wd	Arica	
+3876682	بينيالولين	tr	Peñalolén	
+3451055	ريو فيردي	wd	Rio Verde	
+1804386	لاوهكو	tr	Laohekou	
+1581326	هاي دونج	wd	Hải Dương	
+4499612	وينستون سالم	wd	Winston-Salem	
+1271942	فرروخاباد	wd	Farrukhābād	
+1857519	ماتسوموتو	wd	Matsumoto	
+1278985	الابوزها	wd	Alappuzha	
+3460718	إيتابيفي	tr	Itapevi	
+1267480	كاتيحار	wd	Katihar	
+3688451	بوينافينتورا	tr	Buenaventura	
+3645527	سيوداد أوخيدا	fix	Ciudad Ojeda	
+1809571	غوتسون	tr	Gucun	
+5295985	غلانديل	wd	Glendale	
+1788268	شيشو	tr	Xiulin	
+13607978	نافيغانتيس	tr	Navegantes	
+3460950	إيتابوراي	tr	Itaboraí	
+1732905	كلانغ	fix	Klang	
+32900	غلستان	wd	Golestān	
+550280	خيمكي	wd	Khimki	
+707753	هورليفكا	wd	Horlivka	
+1035025	نكالا	wd	Nacala	
+1790371	شيانتاو	fix	Xiantao	
+523523	نالتشيك	wd	Nalchik	
+2130203	هاتشينوهي	tr	Hachinohe	
+3447624	سيتي لاغواس	tr	Sete Lagoas	
+1839652	اوسان	wd	Osan	
+2998324	ليل	wd	Lille	
+6697563	نياغاوا	wd	Neyagawa	
+1697018	اورموك	wd	Ormoc	
+3468615	كابو فريو	wd	Cabo Frio	
+3523760	ماغدالينا كونتريراس	tr	Magdalena Contreras	
+1185159	ناغاربور	tr	Nāgarpur	
+158214	كاسولو	wd	Kasulu	
+707471	إيفانو فرانكيفسك	wd	Ivano-Frankivsk	
+2224827	نغاونديري	wd	Ngaoundéré	
+322165	باليكسير	fix	Balıkesir	
+3870011	تيموكو	wd	Temuco	
+4776222	نورفولك	wd	Norfolk	
+2884509	كريفلد	wd	Krefeld	
+2911522	هاله	wd	Halle (Saale)	
+1271685	سري جانجانجر	wd	Sri Ganganagar	
+3457692	ماريليا	tr	Marília	
+1329221	أمارابورا	tr	Amarapura	
+10402606	كيلامبا	tr	Kilamba	
+143534	آمل	wd	Āmol	
+2925177	فرايبورغ	wd	Freiburg	
+1726280	باتانغاس	tr	Batangas	
+109435	الجبيل	wd	Al Jubayl	
+1868144	توكتشون	fix	Tŏkch’ŏn	
+2641022	أولدهام	wd	Oldham	
+1328421	باثين	wd	Pathein	
+4158476	هياليه	wd	Hialeah	
+1172657	كنري	tr	Kunri	
+1185099	سلهت	wd	Sylhet	
+3363094	بارل	wd	Paarl	
+4693003	غارلاند	wd	Garland	
+3193044	بودغوريتسا	wd	Podgorica	
+5313457	سكوتسديل	wd	Scottsdale	
+3461655	هورتولانديا	tr	Hortolândia	
+4700168	إيرفينغ	wd	Irving	
+1105777	سنتوريون	tr	Centurion	
+1786731	تشينغتشو	tr	Qingzhou	
+9478811	باكدشت	wd	Pākdasht	
+10941913	كاجانغ	wd	Kajang	
+2756253	آيندهوفن	gn	Eindhoven	
+5586437	بويسي	wd	Boise	
+1258182	ريوا	wd	Rewa	
+2013159	ياكوتسك	wd	Yakutsk	
+8521718	بولي	wd	Bole	
+1169605	مظفرغرة	wd	Muzaffargarh	
+4752186	تشيسابيك	wd	Chesapeake	
+1253880	أولوبيريا	tr	Uluberiya	
+3461144	إيباتينغا	tr	Ipatinga	
+1814093	دالي	wd	Dali	
+418606	نجف آباد	wd	Najafābād	
+8594709	با ريا	fix	Thành Phố Bà Rịa	
+3378644	جورج تاون	wd	Georgetown	
+1790471	شيانغ شيانغ	wd	Xiangxiang	
+55671	كيسمايو	wd	Kismayo	
+5509403	شمال لاس فيغاس	wd	North Las Vegas	
+2518559	إلش	gn	Elche	
+3452324	بريزيدينتي برودينتي	tr	Presidente Prudente	
+1255947	سيفاكاسي	wd	Sivakasi	
+212902	كيندو	wd	Kindu	
+1179837	ديغري	tr	Digri	
+521118	نيجنكامسك	wd	Nizhnekamsk	
+1267648	كرور	wd	Karur	
+1637158	لوبوكلنغاو	wd	Lubuklinggau	
+680332	كرايوفا	wd	Craiova	
+1259012	رايتشور	fix	Rāichūr	
+1260692	بالافارام	tr	Pallāvaram	
+3612907	دانلي	tr	Danlí	
+1665221	يونغكانغ	tr	Yongkang	
+2410048	بو	wd	Bo	
+2517117	غرناطة	gn	Granada	
+1253993	أوتي	wd	Ooty	
+1853303	ساغا	gn	Saga	
+1684269	تاجوم	wd	Magugpo Poblacion	reviewed
+563708	دزيرجينسك	wd	Dzerzhinsk	
+1028918	بيمبا	wd	Pemba	
+11101805	جيوجي	wd	Geoje	
+1735459	تيلوك إنتان	wd	Teluk Intan	
+149879	سينغيدا	wd	Singida	
+157738	كيغوما	wd	Kigoma	
+3465927	كولومبو	tr	Colombo	
+5350734	فريمونت	wd	Fremont	
+3445156	فياماو	tr	Viamão	
+1280957	جيايوغوان	wd	Jiayuguan	
+145459	عبادان	wd	Abadan	
+1682598	تايتاي	tr	Taytay	
+13589354	فو ين	tr	Phổ Yên	
+3843123	نيوكين	fix	Neuquén	
+3464688	ديفينوبوليس	tr	Divinópolis	
+1219649	تركمان آباد	fix	Türkmenabat	
+1567621	سون تاي	tr	Sơn Tây	
+1571951	نينه هوا	tr	Ninh Hòa	
+1736372	باسير ماس	fix	Pasir Mas	
+1630328	بوروكيرتو	wd	Purwokerto	
+12076997	خوسيه سي باز	gn	José C. Paz	
+54225	مركا	wd	Marka	reviewed
+1260716	بالي	wd	Pāli	
+2349019	أتاني	tr	Atani	
+701822	ماريوبول	wd	Mariupol	
+355795	حلوان	wd	Ḩalwān	
+2036713	هوانرن	tr	Huanren	
+7843638	تشانغتشنغ	tr	Changzheng	
+1859884	كاسوكابي	wd	Kasukabe	
+2970479	الدائرة الخامسة عشرة في باريس	wd	Paris 15 Vaugirard	reviewed
+6182962	وندسور	wd	Windsor	
+1269934	هوسور	fix	Hosūr	
+5811696	سبوكين	wd	Spokane	
+266826	طرابلس	wd	Tripoli	
+6059891	لونغوي	wd	Longueuil	
+741100	أردو	wd	Ordu	
+3805673	سان فرناندو دي أبوري	wd	San Fernando de Apure	
+3727135	كروا دي بوكيه	fix	Croix-des-Bouquets	
+1705357	لوسينا	wd	Lucena	
+1882155	ييشون	tr	Yishun New Town	
+1253084	فيزينجارم	wd	Vizianagaram	
+1805733	جينشانغ	wd	Jinchang	
+1571058	فان تييت	gn	Phan Thiết	
+102651	صبيا	gn	Şabyā	
+294071	نتانيا	wd	Netanya	
+3124964	سيوداد لينيال	fix	Ciudad Lineal	
+1699802	ميكاوايان	fix	Meycauayan	
+2350434	أليايابياغبا	tr	Aliayabiagba	
+2655775	بيكسلي	wd	Bexley	
+3571824	ناساو	wd	Nassau	
+3437056	سان لورينزو	wd	San Lorenzo	
+2983990	رين	wd	Rennes	
+2542051	المحمدية	fix	Mohammedia	
+3639898	غواتيري	wd	Guatire	
+1624863	تانجونغ بينانغ	fix	Tanjung Pinang	
+4315588	باتون روج	wd	Baton Rouge	
+3465196	كريسيوما	tr	Criciúma	
+3085128	سوسنوفييتس	wd	Sosnowiec	
+1517945	تركستان	wd	Turkistan	
+989921	كليركسدورب	wd	Klerksdorp	
+487928	ستاري اوسكول	wd	Staryy Oskol	
+1865714	أغيو	tr	Ageo	
+2339937	جوساو	gn	Gusau	
+709932	كاميانسكه	fix	Kamyanske	
+295629	أشدود	wd	Ashdod	
+760778	رادوم	wd	Radom	
+13100478	بايا تروبونغ	tr	Paya Terubong	
+4781708	ريتشموند	wd	Richmond	
+1679136	تشانغهوا	tr	Chang-hua	
+1993459	تشانغهوا	tr	Changhua	
+1583478	ديان بان	tr	Điện Bàn	
+1851012	تاكارازوكا	wd	Takarazuka	
+2416969	نزيريكوري	wd	Nzérékoré	
+6119109	ريجاينا	wd	Regina	
+1586443	كا ماو	wd	Cà Mau	
+1256422	سيرامبور	wd	Shrīrāmpur	
+1632654	بانغكال بينانغ	wd	Pangkalpinang	
+1807508	هوانغغانغ	tr	Huanggang	
+7302845	قطب الله بور	tr	Quthbullapur	
+2329821	موبي	wd	Mubi	
+112214	ورامين	wd	Varāmīn	
+1649824	باتو	wd	Batu	
+6951112	سومرست ويست	wd	Somerset West	
+2643339	لوتن	wd	Luton	
+691650	ترنوبل	wd	Ternopil	
+1648637	بيتونغ	wd	Bitung	
+1185162	ميمينسينغ	wd	Mymensingh	
+2026609	بلاغوفيشتشينسك	fix	Blagoveshchensk	
+1262292	نادياد	wd	Nadiād	
+2229752	كومبا	wd	Kumba	
+724443	كوشيتسه	wd	Košice	
+704147	كريمنشوك	wd	Kremenchuk	
+1805618	تيانمن	tr	Jingling	
+1262204	ناغركويل	wd	Nāgercoil	
+3903987	سوكري	wd	Sucre	
+884979	موتاري	wd	Mutare	
+1853677	أوتا	wd	Ōta	
+3991328	بويرتو فالارتا	wd	Puerto Vallarta	
+1857144	ميناميرينكان	tr	Minamirinkan	
+2965140	كورك	wd	Cork	
+1847963	أتسوغي	wd	Atsugi	
+2036973	خيخه	wd	Heihe	
+13353441	مانغو	tr	Mango	
+6318696	سينوب	tr	Sinop	
+3383330	باراماريبو	wd	Paramaribo	
+1639850	كلونكونغ	wd	Klungkung	
+1185155	نرائن كنج	wd	Narayanganj	
+1680116	فالنسيا	tr	NIA Valencia	
+1795196	تونغتشوان	tr	Tongchuanshi	
+3893894	كونسبسيون	wd	Concepción	
+98717	الرمادي	wd	Ramadi	
+5509952	بارادايس	wd	Paradise	
+5812944	تاكوما	wd	Tacoma	
+2874225	ماينتس	wd	Mainz	
+519336	فيليكي نوفغورود	wd	Velikiy Novgorod	
+1735153	سونغاي بولوه	tr	Sungai Buloh	
+1692685	بويرتو برنسيسا	fix	Puerto Princesa	
+3455478	باليوسا	tr	Palhoça	
+1788618	شينتاي	wd	Xintai	
+3641351	إل تيغري	wd	El Tigre	
+1877615	هياجو	wd	Haeju	
+3433899	فورموزا	wd	Formosa	
+2338273	إيكيري	tr	Ikire	
+1805833	جيشيو	wd	Jiexiu	
+3608248	لا سيبا	tr	La Ceiba	
+2746301	تلبرغ	wd	Tilburg	
+7289846	با دينه	tr	Ba Dinh	
+1262395	كاتني	wd	Murwāra	reviewed
+153209	موشي	wd	Moshi	
+1268159	كانتشيبورام	wd	Kanchipuram	
+2464915	سوسة	fix	Sousse	
+3666645	تولوا	tr	Tuluá	
+2236967	سويو	wd	Soyo	
+1567788	سوك ترانج	wd	Sóc Trăng	
+2419992	كنكان	wd	Kankan	
+496015	شاختي	fix	Shakhty	
+229268	مبارارا	wd	Mbarara	
+3458329	لوزيانيا	tr	Luziânia	
+1697175	اولونجابو	wd	Olongapo	
+3655673	إيبارا	fix	Ibarra	
+3204541	بانيا لوكا	wd	Banja Luka	
+122285	نيسابور	wd	Neyshābūr	
+116667	ساوة	wd	Sāveh	
+1790894	وشيوي	wd	Wuxue	
+1585489	تشي لينه	tr	Chí Linh	
+3531732	كامبيتشي	wd	Campeche	
+9645086	الحي الثالث	tr	Quận Ba	
+7279754	سينجرولي	wd	Singrauli	
+1262995	ميرزابور	wd	Mirzāpur	
+3114711	أوفييدو	gn	Oviedo	
+13118272	بندر سري عالم	tr	Bandar Seri Alam	
+1626542	سورونغ	wd	Sorong	
+2524170	مسينة	wd	Messina	
+1234569	ديهيوالا ماونت لافينيا	tr	Dehiwala-Mount Lavinia	
+705812	كروبيفنيتسكي	wd	Kropyvnytskyi	
+1266976	خراغبور	tr	Kharagpur	
+215527	كابيندا	wd	Kabinda	
+1176515	جيكب آباد	wd	Jacobabad	
+149402	توندوما	tr	Tunduma	
+1725094	بينانغونان	tr	Binangonan	
+2860410	أوبرهاوزن	wd	Oberhausen	
+1611110	تشونبوري	wd	Chon Buri	
+3450144	سانتا لوزيا	tr	Santa Luzia	
+1494114	بروكوبيفسك	wd	Prokop’yevsk	
+12432979	سامامبايا	tr	Samambaia	
+2929670	إرفورت	wd	Erfurt	
+3657990	إسمرالداس	wd	Esmeraldas	
+3108286	تيراسا	tr	Terrassa	
+2656333	باركينغ	tr	Barking	
+1791249	وهاي	wd	Wuhai	
+6318856	فالبارايسو دي غوياس	fix	Valparaíso de Goiás	
+1173664	خوزدار	wd	Khuzdar	
+2454268	كوتيالا	wd	Koutiala	
+1272051	إيلورو	wd	Eluru	
+3493032	سان بيدرو دي ماكوريس	gn	San Pedro de Macorís	
+677697	غالاتس	wd	Galaţi	
+3129028	بادالونا	wd	Badalona	
+764484	موكوتوف	tr	Mokotów	
+1734586	تايبينغ	wd	Taiping	
+12358616	يينتاي	tr	Yintai	
+1252797	يامونا نجر	wd	Yamuna Nagar	
+3404545	كابو دي سانتو أغوستينيو	tr	Cabo de Santo Agostinho	
+3827606	بوينافيستا	tr	Buenavista	
+1178338	غلغت	wd	Gilgit	
+500004	ريبينسك	fix	Rybinsk	
+1687894	سانتا روزا	wd	Santa Rosa	
+3387296	سوبرال	tr	Sobral	
+3133880	تروندهايم	wd	Trondheim	
+13308246	راوركيلا	tr	Raurkela Industrial Township	
+3629965	بورلامار	wd	Porlamar	
+5391710	سان برناردينو	wd	San Bernardino	
+4013728	سيوداد اكونا	wd	Ciudad Acuña	
+643492	أولو	gn	Oulu	
+1275738	بيدر	wd	Bidar	
+702569	لوتسك	wd	Lutsk	
+8556321	لا سيبا	tr	La Ceiba	
+3519537	سان كريستوبال دي لاس كاساس	tr	San Cristóbal de las Casas	
+463829	زيلينوغراد	wd	Zelenograd	
+11777624	أرتشواي	wd	Archway	
+12750606	وانغسا ماجو	tr	Wangsa Maju	
+5780993	سولت ليك سيتي	wd	Salt Lake City	
+1510018	بييسك	wd	Biysk	
+3194360	نوفي ساد	wd	Novi Sad	
+1805298	جينتشو	tr	Jinzhou	
+3526485	خيوتيبيك	tr	Jiutepec	
+1802656	لونغغانغ	tr	Longgang	
+3995523	مونكلوفا	wd	Monclova	
+1567069	تان ان	gn	Tân An	
+1819400	ما أون شان	tr	Ma On Shan	
+7090983	كومنولث	tr	Commonwealth	
+4068590	هنتسفيل	wd	Huntsville	
+2243940	زيغنشور	wd	Ziguinchor	
+3454857	باسو فوندو	tr	Passo Fundo	
+1221194	كولاب	wd	Kŭlob	
+1646034	تشيتورب	tr	Citeureup	
+1568212	سا ديك	tr	Sa Dec	
+1858296	كوري	fix	Kure	
+2323411	شاغامو	tr	Shagamu	
+295514	بني براك	wd	Bnei Brak	
+2544248	خريبكة	wd	Khouribga	
+1786577	ينغتان	wd	Yingtan	
+4853828	دي موين	wd	Des Moines	
+320257	جيغلي	fix	Çiğli	
+2595323	ماركوري	wd	Marcory	
+1178231	غوجرا	wd	Gojra	
+2520058	كارتاخينا	gn	Cartagena	
+3652567	كيفيدو	fix	Quevedo	
+6092122	أوكفيل	gn	Oakville	
+1632033	باسوروان	wd	Pasuruan	
+122438	نظر آباد	fix	Naz̧arābād	
+1262482	مونجر	wd	Munger	
+2033824	شيلينهوت	wd	Xilin Hot	
+2516326	شريش	gn	Jerez de la Frontera	
+2550078	الجديدة	gn	El Jadida	
+1783700	تسيتونغ	tr	Zitong	
+1637510	لوا جانان	tr	Loa Janan	
+665004	تارغو موريش	fix	Târgu Mureş	
+5349755	فونتانا	wd	Fontana	
+3873775	رانكاغوا	wd	Rancagua	
+1677112	جوبي	tr	Zhubei	
+352951	ملوي	wd	Mallawī	
+2302357	كيب كوست	wd	Cape Coast	
+1735079	بوكيت ميرتاجام	wd	Bukit Mertajam	
+1706090	ليبا	wd	Lipa City	
+3432135	لانوس	wd	Lanús	
+2875601	لوبيك	wd	Lübeck	
+1801909	لوجيانغ	tr	Luojiang	
+1734821	سيبانغ	tr	Sepang	
+3598119	كوبان	tr	Cobán	
+3457708	ماريكا	tr	Maricá	
+1586151	كاو لان	wd	Cao Lãnh	
+1861436	إسيساكي	wd	Isesaki	
+3111199	سابادل	tr	Sabadell	
+1261927	نانديال	wd	Nandyāl	
+2511174	سانتا كروث دي تينيريفه	gn	Santa Cruz de Tenerife	
+6690108	بانتشكولا	wd	Panchkula	
+5373900	موديستو	wd	Modesto	
+1695804	بانابو	wd	Panabo	
+1813253	ليجيانج	wd	Lijiang	
+1514891	كاني بادام	tr	Konibodom	
+2037078	هايلار	tr	Hailar	
+1709968	كابانكالان	wd	Kabankalan	
+110690	أبها	wd	Abha	
+1275068	برهان بور	wd	Burhānpur	
+1624041	تيرناتي	tr	Ternate	
+732770	برغاس	wd	Burgas	
+504341	بسكوف	wd	Pskov	
+1262775	موربي	wd	Morvi	
+1814082	داليانغ	tr	Daliang	
+3874212	كويليكورا	wd	Quilicura	
+2555745	بني ملال	wd	Beni Mellal	
+1212405	آشوغنج	tr	Ashuganj City	
+2481007	سيدي بلعباس	wd	Sidi Bel Abbes	
+3568342	أرويو نارانخو	tr	Arroyo Naranjo	
+1337233	بوغرا	wd	Bogra	
+11524601	جبل علي	wd	Jebel Ali	
+1519928	قوستاناي	wd	Kostanay	
+6122085	ريتشموند	wd	Richmond	
+5134086	روتشستر	wd	Rochester	
+1650234	بنجر	tr	Banjar	
+787607	بلغراد الجديدة	tr	Novi Beograd	
+2043572	كانغيي	wd	Kanggye	
+1845033	تشنغجو	wd	Chungju	
+1278685	أنند	wd	Anand	
+3448622	ساو ليوبولدو	tr	São Leopoldo	
+1670909	باده	tr	Bade	
+3909234	أورورو	wd	Oruro	
+1817848	باتشوان	tr	Bachuan	
+3500957	لا رومانا	gn	La Romana	
+3471859	أراساتوبا	tr	Araçatuba	
+328689	شاشامانه	wd	Shashamane	
+1808931	هانغو	tr	Hangu	
+1261045	أونغول	tr	Ongole	
+3114472	بنبلونة	gn	Pamplona	
+1843137	غانغننغ	wd	Gangneung	
+2639996	بورتسموث	wd	Portsmouth	
+216449	جانداجيكا	wd	Gandajika	
+1809380	غونان	tr	Gunan	
+1571067	فان رانج ثاب تشام	gn	Phan Rang-Tháp Chàm	
+1646194	تشيبوتات	tr	Ciputat	
+232110	كاسانغاتي	tr	Kasangati	
+4744709	أرلينغتون	tr	Arlington	
+339666	بيشوفتو	wd	Bishoftu	
+1850692	نيشي طوكيو	wd	Nishi-Tokyo-shi	
+2045220	تشانغام	tr	Changam-ch’on	
+712165	بيلا تسيركفا	wd	Bila Tserkva	
+5380184	أوكسنارد	wd	Oxnard	
+1647383	تشيامبيا	tr	Ciampea	
+361291	الغردقة	wd	Hurghada	
+3116025	موستوليس	gn	Móstoles	
+4188985	كولومبوس	wd	Columbus	
+3685095	دوسكيبراداس	tr	Dosquebradas	
+1681602	توليدو	tr	Toledo	
+633679	توركو	gn	Turku	
+4956184	ووستر	fix	Worcester	
+1696710	باجاديان	wd	Pagadian	
+3628423	سان فيليبي	wd	San Felipe	
+1203891	ديناجبور	tr	Dinajpur	
+1269935	هوسبيت	tr	Hosapete	
+1562818	فيت ين	tr	Việt Yên	
+159492	إيفاكارا	wd	Ifakara	
+3346015	سومبي	wd	Sumbe	
+2451478	سيغو	wd	Ségou	
+1578500	كون توم	wd	Kon Tum	
+3654870	لاتاكونغا	wd	Latacunga	
+1261913	نانغلوي جات	tr	Nāngloi Jāt	
+1859383	كيشيوادا	tr	Kishiwada	
+1785710	جينغهونغ	wd	Yunjinghong	
+977432	مدانتساني	tr	Mdantsane	
+630468	بابرويسك	wd	Bobruysk	
+1643837	غورونتالو	wd	Gorontalo	
+120695	قائم شهر	wd	Qā’em Shahr	
+1165108	شيكاربور	wd	Shikarpur	
+6958503	غونغهيونغ	tr	Gongheyong	
+2772400	لينتس	wd	Linz	
+1283467	دهانغادي	wd	Dhangaḍhi̇̄	
+8544703	نانتشوان	tr	Nanchuan	
+3530240	قرطبة	wd	Córdoba	
+1816329	بيشان	tr	Bishan	
+2503826	بسكرة	wd	Biskra	
+1675393	شيجي	tr	Xizhi	
+1787592	يانغهانغ	tr	Yanghang	
+1810437	غاوبينغ	tr	Gaoping	
+153176	مباندا	wd	Mpanda	
+3165185	ترييستي	wd	Trieste	
+5374732	مورينو فالي	wd	Moreno Valley	
+1256922	سكندر آباد	tr	Secunderabad	
+1880348	بونغول	wd	Punggol	
+7910079	سودو	wd	Sodo	
+3456223	نوسا سينيورا دو سوكورو	tr	Nossa Senhora do Socorro	
+2208485	زليتن	wd	Zliten	
+3171728	بادوفا	wd	Padua	
+8299875	كرنافولي	tr	Karnaphuli	
+3550598	لاس توناس	gn	Las Tunas	
+1857550	ماتسوي	fix	Matsue	
+4562831	بايامون	gn	Bayamón	
+1842936	غيمبو	tr	Gimpo-si	
+6317464	لاورو دي فريتاس	tr	Lauro de Freitas	
+1273241	ديوغار	fix	Deoghar	
+1064890	فيانارانتسوا	wd	Fianarantsoa	
+1207337	تشاندبور	fix	Chāndpur	
+2306079	أتسيامان	tr	Atsiaman	
+2317397	باندوندو	wd	Bandundu Province	
+303195	عثمانية	wd	Osmaniye	
+142363	بابل	wd	Bābol	
+3985710	كابو سان لوكاس	wd	Cabo San Lucas	
+4119403	ليتل روك	wd	Little Rock	
+748893	جورلي	wd	Çorlu	
+1636930	ماديون	wd	Madiun	
+159071	إيرينغا	wd	Iringa	
+721472	دبرتسن	wd	Debrecen	
+1274353	تشابرا	wd	Chāpra	
+13589478	موتيجهيل	tr	Motijheel	
+1336137	بريسال	wd	Barishal	
+6122091	ريتشموند هيل	wd	Richmond Hill	
+4466033	فايتفيل	wd	Fayetteville	
+2219905	الخمس	wd	Al Khums	
+5358705	شاطئ هنتنغتون	wd	Huntington Beach	
+1708522	كورونادال	wd	Koronadal	
+2660646	جنيف	gn	Geneva	
+4174715	تالاهاسي	wd	Tallahassee	
+2636389	سويندون	wd	Swindon	
+1629710	رينغاسدينغكلوك	tr	Rengasdengklok	
+3451234	ريو كلارو	tr	Rio Claro	
+3699088	كاخاماركا	wd	Cajamarca	
+2146142	تاونسفيل	wd	Townsville	
+8656376	تانه خي	tr	Thanh Khê	
+7281017	لا بينتانا	tr	La Pintana	
+601734	داشوغوز	wd	Daşoguz	
+5145215	يونكيرس	wd	Yonkers	
+5352423	غلينديل	wd	Glendale	
+1180809	دادو	wd	Dadu	
+343663	آربا مينش	wd	Arba Minch	
+1520172	بتروبافل	wd	Petropavl	
+1214658	لوكسماوي	tr	Lhokseumawe	
+4684724	سايبرس	wd	Cypress	
+1267031	خاندوا	wd	Khandwa	
+4883817	أورورا	wd	Aurora	
+1259184	بوري	wd	Puri	
+1262771	مورينا	tr	Morena	
+146268	نيقوسيا	wd	Nicosia	
+3181554	بريشيا	gn	Brescia	
+13405749	نسيم شهر	tr	Nasimshahr	
+2320831	أوغيب	tr	Ugep	
+214614	كامينا	wd	Kamina	
+100425	ينبع	fix	Yanbu	
+1856184	ناغاره ياما	wd	Nagareyama	
+2800481	شارلروا	wd	Charleroi	
+1576633	لانج سون	wd	Lạng Sơn	
+1164045	تلهار	tr	Talhar	
+2218970	الزاوية	wd	Az Zāwīyah	
+13118277	بندر أوتاما	tr	Bandar Utama	
+13118362	بوكيت جليل	tr	Bukit Jalil	
+12129605	تشاكواما	tr	Chakwama	
+1180752	داجل	tr	Dajal	
+60149	الدبير	wd	El Dibir	
+1270576	غيانبور	tr	Gyānpur	
+13512708	نيينغتشي	tr	Nyingchi	
+1167648	قادربور ران	tr	Qadirpur Ran	
+10920963	سلا الجديدة	tr	Salé Al Jadida	
+1626103	سوميدانغ	wd	Sumedang	
+3448742	ساو جوزيه	tr	São José	
+1818225	يوين لونغ	tr	Yuen Long	
+1818222	يوين لونغ سان هوي	tr	Yuen Long San Hui	
+1803551	بايليو	wd	Beiliu	
+114259	سيرجان	wd	Sirjan	
+3887127	إيكيكي	fix	Iquique	
+1565047	توان تانه	tr	Thuận Thanh	
+579492	بالاكوفو	wd	Balakovo	
+580922	أرمافير	wd	Armavir	
+3460102	جاراغوا دو سول	tr	Jaraguá do Sul	
+6822182	ياتشيو	wd	Yachiyo	
+6545349	سيدبور	fix	Saidpur	
+9645071	الحي الرابع	tr	Quận Bốn	
+361546	العريش	wd	Arīsh	
+1735150	راوانغ	fix	Rawang	
+2650839	دادلي	tr	Dudley	
+2329660	موشين	tr	Mushin	
+2119441	يوجنو ساخالينسك	wd	Yuzhno-Sakhalinsk	
+2912621	هاغن	wd	Hagen	
+1629131	سالاتيغا	wd	Salatiga	
+3451138	ريو غراندي	wd	Rio Grande	
+3640465	غواكارا	wd	Guacara	
+126972	خوي	wd	Khūy	
+3099230	غليفيتسه	wd	Gliwice	
+1529569	تشانغجي	tr	Changji	
+11611930	كودايرا	tr	Kodaira	
+13512576	بلانو بيلوتو	tr	Plano Piloto	
+5516233	أماريلو	wd	Amarillo	
+1275120	بلندشهر	wd	Bulandshahr	
+13512674	لوسيل	tr	Lusail	
+2657832	أبردين	wd	Aberdeen	
+3165926	تارانتو	gn	Taranto	
+3439214	كابياتا	wd	Capiatá	
+11592398	زانغو	tr	Zango	
+1811764	دويون	fix	Duyun	
+184707	نايفاشا	wd	Naivasha	
+1804850	كاييوان	fix	Kaiyuan	
+3468376	كاشويرو دي إيتابيميريم	fix	Cachoeiro de Itapemirim	
+759734	جيشوف	wd	Rzeszów	
+1804169	لنغشويجيانغ	tr	Lengshuijiang	
+2844588	روستوك	wd	Rostock	
+3171457	بارما	gn	Parma	
+1735902	سيبو	wd	Sibu	
+751868	أرناؤوط كوي	tr	Arnavutköy	
+1861310	إتامي	wd	Itami	
+1800657	منتوغو	tr	Mentougou	
+1275926	بهيند	tr	Bhind	
+5145476	آكرون	wd	Akron	
+3870294	تالكا	wd	Talca	
+2892518	كاسل	wd	Kassel	
+3530594	سيوداد ماديرو	wd	Ciudad Madero	
+1628453	ساوانغان	tr	Sawangan	
+2315728	جيمينا	wd	Gemena	
+10263167	بهالسوا جهانغيربور	tr	Bhālswa Jahangirpur	
+13512503	لوشوي	tr	Lushui	
+140463	بيرجند	wd	Bīrjand	
+3083271	تورون	wd	Toruń	
+2521886	ألمرية	gn	Almería	
+1805798	جيانغجين	tr	Jijiang	
+1184845	أحمد بور الشرقية	fix	Ahmadpur East	
+3696417	هوانوكو	fix	Huánuco	
+11611627	هيغاشيهيروشيما	wd	Higashihiroshima	
+745028	إزميت	fix	İzmit	
+2984114	رانس	wd	Reims	
+1808950	هانفنغ	tr	Hanfeng	
+5814616	فانكوفر	wd	Vancouver	
+4049979	برمنغهام	wd	Birmingham	
+3460949	إيتابونا	tr	Itabuna	
+2462881	العيون	wd	Laayoune	
+1267076	خامام	wd	Khammam	
+294751	حولون	wd	H̱olon	
+976361	ميدلبيرغ	wd	Middelburg	
+1843702	إيتشون	tr	Icheon-si	
+585915	خردلان	wd	Khirdalan	
+1607508	برا براداينغ	tr	Phra Pradaeng	
+2427455	موندو	wd	Moundou	
+1257540	سنبل	wd	Sambhal	
+1275899	بهيواني	wd	Bhiwāni	
+563464	إينجيلز	wd	Engels	
+4026082	لازارو كارديناس	wd	Ciudad Lázaro Cárdenas	
+1024694	موكوبا	tr	Mocuba	
+1283339	هيتاودا	wd	Hetauda	
+3185728	دراس	wd	Durrës	
+2037411	فنغتشنغ	wd	Fengcheng	
+1851348	سوزوكا	wd	Suzuka	
+12524485	حب	tr	Hub	
+3432043	لابلاتا	wd	La Plata	
+1283318	جانكبور	gn	Janakpur	
+1260434	بانفل	wd	Panvel	
+1798972	بيتشنغ	tr	Peicheng	
+1236854	مهاراغاما	tr	Maharagama	
+4076784	مونتغومري	wd	Montgomery	
+2792413	لييج	wd	Liège	
+1858428	كوماغايا	wd	Kumagaya	
+1841988	غوري	wd	Guri-si	
+1278860	أمبالا	wd	Ambāla	
+4994358	غراند رابيدز	wd	Grand Rapids	
+3169921	براتو	gn	Prato	
+8223943	كومارابالايام	tr	Kumarapalayam	
+1283562	بوتوال	wd	Butwāl	
+8986037	دهيركوت	tr	Dhirkot	
+2455518	كايس	wd	Kayes	
+1648186	بونتانغ	wd	Bontang	
+354502	كفر الشيخ	wd	Kafr ash Shaykh	
+2477461	تبسة	wd	Tébessa	
+1732676	كوالا كوبو بهارو	tr	Kuala Kubu Baharu	
+193624	كاروري	tr	Karuri	
+193627	كاروري	tr	Karuri	
+2417786	مانيا	tr	Manéah	
+496285	سفرودفنسك	wd	Severodvinsk	
+187269	ماتوغا	tr	Matuga	
+747764	دزجة	wd	Düzce	
+2328765	ننيوي	wd	Nnewi	
+1848689	ياماغوتشي	wd	Yamaguchi	
+3130616	ألكالا دي إيناريس	gn	Alcalá de Henares	
+6947639	باشاك شهير	tr	Başakşehir	
+1811619	إيتشو	tr	Ezhou	
+1784712	تشنغدينغ	tr	Zhengding	
+139889	بوكان	wd	Būkān	
+2742032	براغا	gn	Braga	
+1174376	غرهي خيرو	tr	Garhi Khairo	
+909863	لوانشيا	wd	Luanshya	
+1963770	بادالارانغ	tr	Padalarang	
+7026720	بانغ كاي	tr	Bang Khae	
+1729085	باجو	wd	Bago City	
+1786378	يونغتشوان	tr	Yongchuan	
+1849372	أوجي	fix	Uji	
+1264637	ماتشيليباتنام	wd	Machilīpatnam	
+1803842	هيبو	tr	Hepu	
+2038670	آيهوي	tr	Aihui	
+2043837	هييسان	wd	Hyesan	
+3567597	بايامو	gn	Bayamo	
+769250	كيلتسه	fix	Kielce	
+1192366	بار ناوغاون	tr	Pār Naogaon	
+1792585	فودينغ	tr	Fuding	
+3402591	كاستانيال	tr	Castanhal	
+3080985	زابجه	wd	Zabrze	
+2190324	هاميلتون	wd	Hamilton	
+140380	بجنورد	wd	Bojnūrd	
+2322733	سوروليري	wd	Surulere	
+1806696	هومن	tr	Humen	
+2240937	بنفيكا	tr	Benfica	
+1610780	هات ياي	wd	Hat Yai	
+2037086	هايتشنغ	wd	Haicheng	
+1645895	تشوروغ	tr	Curug	
+3689169	بارانكابرميخا	tr	Barrancabermeja	
+462444	زلاتؤوست	wd	Zlatoust	
+1514581	أنجرين	wd	Angren	
+228853	موكونو	wd	Mukono	
+3530599	سيوداد ديل كارمن	wd	Ciudad del Carmen	
+1162004	خيربور	tr	Khairpur Mir’s	
+1514879	خجندة	wd	Khujand	
+5308480	بيوريا	wd	Peoria	
+2304121	آشيامان	wd	Ashaiman	
+1213547	تانجونغ بالاي	tr	Tanjungbalai	
+5224151	بروفيدنس	wd	Providence	
+1264389	مهسانا	wd	Mahesāna	
+4634946	نوكسفيل	wd	Knoxville	
+13546341	رانجيل	tr	Rangel	
+3121960	فوينلابرادا	wd	Fuenlabrada	
+1862599	هينو	wd	Hino	
+1175864	جهلم	wd	Jhelum	
+1264407	محبوب نجر	wd	Mahbūbnagar	
+2038342	بايبياو	wd	Beipiao	
+1608048	باك كريت	wd	Pak Kret	
+1586360	كام فا	wd	Cẩm Phả	
+99454	الفلوجة	wd	Al Fallūjah	
+1529651	ألتاي	fix	Jinshanlu	
+2337207	إيشي إكيتي	tr	Ise-Ekiti	
+3456166	نوفا فريبورغو	tr	Nova Friburgo	
+3461879	غواراباوفا	tr	Guarapuava	
+1859100	كوفو	wd	Kofu	
+1854902	نومازو	fix	Numazu	
+3450404	سانتا باربارا دويستي	tr	Santa Bárbara d'Oeste	
+6825489	جويتسو	wd	Jōetsu	
+11184422	بلانالتينا	wd	Planaltina	
+5513343	سنرايز مانور	wd	Sunrise Manor	
+1257542	سامبالبور	tr	Sambalpur	
+484972	سيزران	wd	Syzran	
+1667982	تامسوي	fix	Danshui	
+3101950	بيطوم	wd	Bytom	
+207570	مويني ديتو	wd	Mwene-Ditu	
+3461408	إيليوس	tr	Ilhéus	
+1695743	بانالانوي	tr	Panalanoy	
+1809467	غويشي	tr	Guixi	
+1854747	أوداوارا	wd	Odawara	
+1638868	لابوان باجو	wd	Labuan Bajo	
+1865294	أنجو	wd	Anjō	
+1002145	جورج	wd	George	
+1849892	توتوري	wd	Tottori-shi	
+3118594	ليجانيس	gn	Leganés	
+3649833	أكاريغوا	wd	Acarigua	
+334609	هوساينا	tr	Hosa’ina	
+7026886	ساي ماي	tr	Sai Mai	
+1285693	نياونغ شوي	tr	Yawnghwe	
+1704703	مابالاكات	wd	Mabalacat City	
+3670745	ريوهاتشا	gn	Riohacha	
+1804578	لايتشو	wd	Laizhou	
+3068160	بلزن	wd	Pilsen	
+4694482	غراند براري	wd	Grand Prairie	
+1685755	سورسوجون	fix	Sorsogon	
+10374934	أيت ملول	wd	Ait Melloul	
+2636503	ساتون	wd	Sutton	
+4341513	شريفبورت	wd	Shreveport	
+1884737	تشوا تشو كانغ	tr	Choa Chu Kang New Town	
+3121437	خيتافي	gn	Getafe	
+9645073	الحي الخامس	tr	Quận Năm	
+1275778	بهوساوال	tr	Bhusawal	
+3454865	ألفورادا	tr	Alvorada	
+3530870	تشيلبانسينغو	wd	Chilpancingo	
+3544091	بينار ديل ريو	gn	Pinar del Río	
+8416933	هويشينغ	tr	Huixing	
+307654	كيركالي	wd	Kırıkkale	
+615532	باتومي	fix	Batumi	
+5911592	بورلينغتون	wd	Burlington	
+1336143	بابنا	wd	Pābna	
+4676740	براونزفيل	wd	Brownsville	
+1815477	تشانغيوان	tr	Changyuan	
+3564124	سينفويغوس	gn	Cienfuegos	
+295530	بئر السبع	wd	Beersheba	
+2421820	ديكسين	tr	Dixinn	
+2497411	الوادي	wd	El Oued	
+4276873	أوفرلاند بارك	wd	Overland Park	
+1259064	راي بريلي	wd	Raebareli	
+7910932	شانغريلا	tr	Shangri-La	
+4776024	نيوبورت نيوز	wd	Newport News	
+8417605	يانغتشنغ	tr	Yangcheng	
+2453348	موبتي	wd	Mopti	
+248460	خريبة السوق	wd	Khuraybat as Sūq	
+2216885	الزاوية	wd	Zawiya	
+3979802	زامورا	tr	Zamora de Hidalgo	
+1270351	هاريدوار	wd	Haridwar	
+380174	الدمازين	wd	Ad-Damazin	
+1529531	دونهوانغ	wd	Dunhuang	
+1805704	جينغآن	tr	Jing’an	
+3003796	لو هافر	wd	Le Havre	
+11127930	فوسرو	tr	Phusro	
+3110044	سان سباستيان	gn	Donostia / San Sebastián	
+3521168	بوسا ريكا	tr	Poza Rica de Hidalgo	
+358840	بلبيس	wd	Bilbeis	reviewed
+1691444	روخاس	tr	Roxas City	
+2994540	الدائرة العشرون في باريس	tr	Paris 20 Ménilmontant	
+305268	كوتاهية	wd	Kütahya	
+1633037	بالوبو	tr	Palopo	
+2852458	بوتسدام	wd	Potsdam	
+3173331	مودينا	gn	Modena	
+750516	بولو	wd	Bolu	
+1849845	تويوكاوا	wd	Toyokawa	
+1279335	أدوني	wd	Adoni	
+1861107	إزومي	wd	Izumi	
+12157007	سانتا أنيتا	tr	Santa Anita - Los Ficus	
+9827976	بالتان	tr	Paltan	
+173377	القامشلي	wd	Al Qāmishlī	
+1512236	أباكان	wd	Abakan	
+1631648	بيمالانغ	fix	Pemalang	
+2758401	بريدا	wd	Breda	
+1214724	لانغسا	wd	Langsa	
+1562773	فينه تشاو	tr	Vĩnh Châu	
+2038584	بايشان	wd	Baishan	
+1255560	سوجانغار	tr	Sūjāngarh	
+3458498	لينياريس	tr	Linhares	
+2519752	كاستيون دي لا بلانا	tr	Castelló de la Plana	
+11611487	تاتشيكاوا	tr	Tachikawa	
+8555643	سيرجي بونتواز	tr	Cergy-Pontoise	
+101732	عنيزة	tr	Unaizah	
+4076598	موبيل	wd	Mobile	
+2638785	سانت هلنز	wd	St Helens	
+4155966	فورت لودرديل	wd	Fort Lauderdale	
+1638063	ليمبانغ	tr	Lembang	
+3029374	حي مونمارتر	wd	Paris 18 Buttes-Montmartre	
+671768	أوراديا	wd	Oradea	
+3407357	أراغواينا	tr	Araguaína	
+2842647	ساربروكن	wd	Saarbrücken	
+160892	بوندا	tr	Bunda	
+2479536	سكيكدة	wd	Skikda	
+1215957	ترمذ	wd	Tirmiz	
+1626899	سينغوساري	tr	Singosari	
+3452640	بورتو سيجورو	gn	Porto Seguro	
+3644918	كوا	wd	Cúa	
+1256052	سرسا	wd	Sirsa	
+1504826	كامينسك أورالسكي	wd	Kamensk-Ural’skiy	
+2523630	ريدجو كالابريا	gn	Reggio Calabria	
+13156932	دانابور نظامت	tr	Dinapur Nizamat	
+5393049	سانتا كلاريتا	wd	Santa Clarita	
+1014073	كارلتونفيل	tr	Carletonville	
+2421535	دوبريكا	wd	Dubréka	
+1635283	مترو	tr	Metro	
+359280	بنها	wd	Banhā	
+1277799	باهرايتش	wd	Bahraigh	
+98622	الشطرة	wd	Ash Shaţrah	
+1818483	تسينغ يي	tr	Tsing Yi Town	
+1308522	مونيوا	wd	Monywa	
+3726540	دسالين	tr	Dessalines	
+185131	موالا	tr	Mwala	
+1267885	كارايكودي	tr	Kāraikkudi	
+3649017	آروري	wd	Araure	
+3470636	بارا مانسا	tr	Barra Mansa	
+13157013	سلطان بور ماجرا	tr	Sultan Pur Majra	
+1784617	تشنبينغ	tr	Zhenping	
+2038650	آندا	tr	Anda	
+3015772	الدائرة الثالثة عشرة في باريس	wd	Paris 13 Gobelins	reviewed
+2122104	بيتروبافلوفسك كامتشاتسكي	wd	Petropavlovsk-Kamchatsky	
+246013	وادي السير	wd	Wādī as Sīr	
+6657205	فرديس	tr	Fardīs	
+4612862	تشاتانوغا	wd	Chattanooga	
+1270711	غونا	tr	Guna	
+2615876	أودنسه	wd	Odense	
+3906194	ساكابا	wd	Sacaba	
+3590979	كيتسالتينانغو	tr	Quetzaltenango	
+2037222	غونغزولينغ	wd	Gongzhuling	
+1274784	تشاندان ناغار	tr	Chandannagar	
+1277820	بهرامبور	tr	Baharampur	
+670474	بلويشتي	gn	Ploieşti	
+3436043	بيرازاتيغي	wd	Berazategui	
+12501195	شاهوادي	tr	Shahuwadi	
+1264621	مادانابالي	tr	Madanapalle	
+1336144	تانغيل	tr	Tangail	
+1668875	شولين	tr	Shulin	
+747712	أدرنة	wd	Edirne	
+1316752	كياوكبيو	wd	Kyaukpyu	
+6087029	نيبيان	tr	Nepean	
+1570656	فوك ين	tr	Phúc Yên	
+12492669	بينغوو	tr	Pingwu County	
+1256451	شيفبوري	wd	Shivpuri	
+1832847	يانغجو	wd	Yangju	
+6545348	براغا بوودنيه	tr	Praga Południe	
+912764	كاساما	wd	Kasama	
+1255349	سورندرانغار	fix	Surendranagar	
+2296606	أوبواسي	wd	Obuase	
+3461563	إيبيريتيه	tr	Ibirité	
+1706889	ليجازبي	wd	Legaspi	
+12253704	فو كوك	tr	Phú Quốc	
+508101	بودولسك	wd	Podolsk	
+1630341	بورواكارتا	wd	Purwakarta	
+1513886	جيزك	wd	Jizzax	
+3463422	فيراز دي فاسكونسيلوس	tr	Ferraz de Vasconcelos	
+2337765	إيلا أورانغون	tr	Ila Orangun	
+1584242	داي تو	tr	Thị Trấn Đại Từ	
+1261473	نيفيلي	tr	Neyveli	
+3472177	أنغرا دوس ريس	tr	Angra dos Reis	
+1786067	تشيانجيانغ	fix	Qianjiang	
+2911240	هام	gn	Hamm	
+1606250	سي راتشا	tr	Si Racha	
+2476897	تيارت	wd	Tiaret	
+3848950	لا ريوخا	wd	La Rioja	
+1256287	سيلشار	wd	Silchar	
+2271772	أمادورا	tr	Amadora	
+3529986	كواوتيتلان	tr	Cuautitlán	
+2646057	إبسوتش	wd	Ipswich	
+227812	نجيرو	wd	Njeru	
+1055429	توليارا	wd	Toliara	
+3029372	الدائرة التاسعة عشرة في باريس	wd	Paris 19 Buttes-Chaumont	reviewed
+2323390	شاكي	tr	Saki	
+2498611	الشلف	wd	Chlef	
+3558729	فونتانار	tr	Fontanar	
+6621166	سوغويبو	fix	Seogwipo	
+1716995	كونسبسيون	tr	Concepcion	
+5512909	سبرينغ فالي	wd	Spring Valley	
+910111	ليفينغستون	wd	Livingstone	
+964349	بوتشيفستروم	wd	Potchefstroom	
+5393287	سانتا روسا	wd	Santa Rosa	
+13546343	سامبيزانغا	tr	Sambizanga	
+1259312	بروداتور	wd	Proddatūr	
+1295765	سيتوي	wd	Sittwe	
+145757	دوندو	wd	Dundo	
+2661604	بازل	gn	Basel	
+1309793	ميكتيلا	wd	Meiktila	
+233346	غولو	wd	Gulu	
+2750053	نايميخن	gn	Nijmegen	
+355628	إدكو	wd	Idkū	
+2666199	أبسالة	wd	Uppsala	
+1269910	هوغلي	tr	Hugli	
+10263066	هستسال	tr	Hashtsāl	
+3469092	براغانسا باوليستا	tr	Bragança Paulista	
+3446606	تيريزوبوليس	tr	Teresópolis	
+3985604	سان لويس ريو كولورادو	tr	San Luis Río Colorado	
+3583334	سانتا آنا	fix	Santa Ana	
+5725846	يوجين	wd	Eugene	
+2541479	الناظور	wd	Nador	
+290332	المحرق	wd	Al Muharraq	
+3103402	بييلسكو بياوا	wd	Bielsko-Biala	
+352733	مرسى مطروح	wd	Marsá Maţrūḩ	
+2759879	ألميره	tr	Almere Stad	
+3127461	برغش	gn	Burgos	
+1842966	غيجانغ	tr	Gijang	
+3637012	لاندير	tr	Lander	
+2980291	سانت إتيان	wd	Saint-Étienne	
+1278708	أمروها	wd	Amroha	
+11612347	ناراشينو	tr	Narashino	
+2505329	بجاية	wd	Béjaïa	
+1784580	تشنتشو	tr	Zhenzhou	
+5317058	تمبي	wd	Tempe	
+1789137	شيندي	tr	Xindi	
+5378771	أوشينسايد	wd	Oceanside	
+8416626	فنغتشنغ	tr	Fengcheng	
+5750162	سايلم	wd	Salem	
+2633948	ويغان	wd	Wigan	
+5351515	غاردن غروف	fix	Garden Grove	
+309527	قرمان	wd	Karaman	
+6094578	أوشاوا	wd	Oshawa	
+300614	سويرك	wd	Siverek	
+5385955	رانتشو كوكامونغا	wd	Rancho Cucamonga	
+4149962	كيب كورال	wd	Cape Coral	
+1567032	تان تشاو	tr	Tân Châu	
+1990589	تيلوكناغا	tr	Teluknaga	
+2036401	جيوتاي	tr	Jiutai	
+1274304	تشيندوارا	tr	Chhindwāra	
+3460535	إيتو	tr	Itu	
+3447854	سينادور كانيدو	tr	Senador Canedo	
+94591	خانقين	wd	Khānaqīn	
+1698829	ناغا	wd	Naga	
+2127733	توماكوماي	wd	Tomakomai	
+1255062	تامبارام	tr	Tambaram	
+3985344	سان ميغيل دي الليندي	wd	San Miguel de Allende	
+1647142	تشيانجور	fix	Cianjur	
+1632937	بامولانغ	tr	Pamulang	
+2112708	هيتاتشي	wd	Hitachi	
+3386361	تيمون	tr	Timon	
+1275984	بهيتيا	tr	Bhetia	
+1260137	بتنكوت	wd	Pathānkot	
+1163967	تندو آدم	tr	Tando Adam	
+1277976	بادلابور	tr	Badlapur	
+1985663	تشيكوبا	tr	Cikupa	
+3629706	بويرتو كابيلو	wd	Puerto Cabello	
+2111220	ساكورا	wd	Sakura	
+1849498	أوبي	fix	Ube	
+3658501	داولي	tr	Daule	
+97783	بيجي	wd	Bayjī	
+1273802	كودالور	tr	Cuddalore	
+3109718	سانتاندير	wd	Santander	
+2475687	تلمسان	wd	Tlemcen	
+1256237	شيملا	wd	Shimla	
+417472	شاهين شهر	wd	Shāhīn Shahr	
+2651817	كرويدون	wd	Croydon	
+1309611	ماييك	wd	Myeik	
+281124	خان يونس	wd	Khān Yūnis	
+1283460	دهاران	tr	Dharān	
+2522258	البسيط	gn	Albacete	
+2867838	مولهايم	tr	Mülheim	
+2310046	باتا	wd	Bata	
+1860672	كاماكورا	wd	Kamakura	
+3530937	تشيكولوابان	tr	Chicoloapan	
+8740017	غداغ بيتاغيري	tr	Gadag-Betageri	
+1861084	إزومو	wd	Izumo	
+1803791	زنغتشنغ	fix	Licheng	
+3449324	ساو كايتانو دو سول	wd	São Caetano do Sul	
+3453837	بيندامونيانغابا	tr	Pindamonhangaba	
+1271850	غداغ	tr	Gadag	
+189723	أونغاتا رونغاي	tr	Ongata Rongai	
+3666608	تونخا	gn	Tunja	
+3458930	لاجيس	tr	Lages	
+3906791	كياكويو	wd	Quillacollo	
+3130564	ألكوركون	gn	Alcorcón	
+202905	جيسايني	wd	Gisenyi	
+3453303	بوسوس دي كالداس	tr	Poços de Caldas	
+311073	إسبرطة	wd	Isparta	
+2634739	وارينغتون	wd	Warrington	
+598098	كلايبيدا	gn	Klaipėda	
+2634853	والسال	wd	Walsall	
+2905891	هيرنه	gn	Herne	
+2643097	منسفيلد	wd	Mansfield	
+3169522	ريدجو إميليا	tr	Reggio nell'Emilia	
+3470583	باريراس	tr	Barreiras	
+1319364	كينغتنغ	wd	Kēng Tung	
+5231851	سو فولز	wd	Sioux Falls	
+786712	برزرين	wd	Prizren	
+2037620	دونغلينغ	tr	Dongling	
+1622636	أونغاران	wd	Ungaran	
+1849186	أوراياسو	fix	Urayasu	
+9075789	لونغ خانه	tr	Long Khánh	
+1716198	داغوبان	wd	Dagupan	
+5379439	أونتاريو	wd	Ontario	
+7027003	واتانا	tr	Watthana	
+1253237	فيرافال	tr	Verāval	
+1261653	نفساري	wd	Navsari	
+1926134	إيماباري	fix	Imabari	
+907770	مانسا	wd	Mansa	
+5577147	فورت كولنز	wd	Fort Collins	
+1588275	باو لاك	wd	Bảo Lộc	
+1734393	كوليم	tr	Kulim	
+2325592	أوشودي	tr	Oshodi	
+293788	رمات غان	wd	Ramat Gan	
+1277835	بهادرغار	tr	Bahadurgarh	
+1344377	هالديا	tr	Haldia	
+1518262	تميرتاو	wd	Temirtau	
+3393001	بارنايبا	tr	Parnaíba	
+4563243	كارولينا	gn	Carolina	
+1259009	رايغانج	tr	Rāiganj	
+125185	ملاير	wd	Malāyer	
+4409896	سبرينغفيلد	wd	Springfield	
+2636531	سندرلاند	wd	Sunderland	
+1851032	تاكاوكا	gn	Takaoka	
+630429	بارانافيتشي	wd	Baranovichi	
+1269723	مالدا	wd	Malda	
+4005509	غوادالوبي	wd	Guadalupe	
+1855189	نيشيو	wd	Nishio	
+3837056	سان لويس	wd	San Luis	
+2485801	ورقلة	wd	Ouargla	
+763166	أولشتين	wd	Olsztyn	
+922806	كيبوشي	wd	Kipushi	
+1818223	يوين لونغ كاو هوي	tr	Yuen Long Kau Hui	
+1269135	جونبور	wd	Jaunpur	
+13494069	كلونغ سام وا	tr	Khlong Sam Wa	
+13353695	تشوو	tr	Chūō	
+905395	موفوليرا	tr	Mufulira	
+10263232	ديولي	tr	Deoli	
+1242833	جافنا	wd	Jaffna	
+686254	أراد	tr	Arad	
+3531023	شيتومال	wd	Chetumal	
+1276100	بهروش	wd	Bharūch	
+1045512	غوروي	tr	Gurúè	
+7645166	سان ميغيل	wd	San Miguel	
+2130057	هيروساكي	wd	Hirosaki	
+3531200	تشالكو	tr	Chalco	
+2972328	تولون	wd	Toulon	
+1269937	هشيار بور	wd	Hoshiārpur	
+3647444	كلابوزو	wd	Calabozo	
+281129	جباليا	wd	Jabālyā	
+4012406	كواوتيموك	tr	Cuauhtémoc	
+3471766	أراراكوارا	tr	Araraquara	
+3665688	يوبال	gn	Yopal	
+3433360	إيتوزاينغو	gn	Ituzaingó	
+125446	مهاباد	wd	Mahābād	
+121110	بيرانشهر	wd	Piranshahr	
+3682426	فلورنسيا	gn	Florencia	
+1566566	تاي هو	tr	Tây Hồ	
+1234633	موراتوا	wd	Moratuwa	
+3037656	أنجيه	wd	Angers	
+2646277	إيلفورد	wd	Ilford	
+1177042	هاسيلبور	wd	Hasilpur	
+3451205	ريو داس أوستراس	tr	Rio das Ostras	
+255683	بتراس	wd	Pátra	
+1582436	دونغ سواي	fix	Đồng Xoài	
+1185106	جمالبور	gn	Jamālpur	
+2129376	كوشيرو	wd	Kushiro	
+577206	بيريزنيكي	wd	Berezniki	
+2348773	اوكا	wd	Awka	
+472761	فولغودونسك	wd	Volgodonsk	
+1853483	أوياما	wd	Oyama	
+2338385	إيجيرو إكيتي	tr	Ijero-Ekiti	
+1268907	جيند	fix	Jīnd	
+1498894	مياس	wd	Miass	
+1680932	توغيغاراو	fix	Tuguegarao	
+3646382	كاروبانو	wd	Carúpano	
+1265683	كومباكونام	wd	Kumbakonam	reviewed
+1630997	بلومبون	tr	Plumbon	
+2938913	دارمشتات	gn	Darmstadt	
+1218667	ماري	wd	Mary	
+518970	نوفوتشركاسك	wd	Novocherkassk	
+5346111	إلك غروف	fix	Elk Grove	
+6992326	مهالي	wd	Mohali	
+1628884	سامبت	wd	Sampit	
+4613868	كلاركسفيل	wd	Clarksville	
+1818379	وان تشاي	wd	Wan Chai	
+2694762	لينشوبينغ	wd	Linköping	
+1861171	إواتا	wd	Iwata	
+1175156	كماليا	wd	Kamalia	
+4168139	بيمبروك باينز	wd	Pembroke Pines	
+3675657	مايكاو	tr	Maicao	
+2128815	أوبيهيرو	wd	Obihiro	
+1271912	فتحبور	fix	Fatehpur	
+2856883	أوسنابروك	wd	Osnabrück	
+3897347	كالاما	wd	Calama	
+6941099	نيبالغونج	wd	Nepalgunj	
+3530367	كوميتان	tr	Comitán	
+3631412	أكوماري ديل توي	wd	Ocumare del Tuy	
+6822138	نيزا	wd	Niiza	
+5964700	سدبري	fix	Greater Sudbury	
+109323	الخبر	wd	Khobar	
+1794060	سونغتشنغ	tr	Songcheng	
+1619485	بانغ كون تيان	tr	Bang Khun Thian	
+4644312	مورفريسبورو	wd	Murfreesboro	
+139817	بوشهر	wd	Bushehr	
+2552615	دار بوعزة	tr	Dar Bouazza	
+1254241	تونك	wd	Tonk	
+117392	سقز	wd	Saqqez	
+2505530	بشار	wd	Béchar	
+1567148	تام كي	gn	Tam Kỳ	
+314133	كلباش	wd	Gölbaşı	
+3462980	فرانسيسكو موراتو	tr	Francisco Morato	
+1648759	بيما	wd	Bima	
+1308318	موسي	tr	Mu-se	
+135423	شاهرود	wd	Shahrud	
+1253952	أودوبي	wd	Udupi	
+1650227	بنجران	tr	Banjaran	
+1254757	تينالي	tr	Thenali	
+946058	مثاتا	wd	Mthatha	
+2036920	هنغشان	tr	Hengshan	
+2637627	سلاو	wd	Slough	
+3351599	بوكويو	tr	Bocoio	
+4169171	بورت سانت لوسي	wd	Port Saint Lucie	
+1255969	سيتابور	wd	Sītāpur	
+3186573	زينيتسا	wd	Zenica	
+2831580	زولينغن	wd	Solingen	
+3460728	إيتابيتينينغا	tr	Itapetininga	
+1582926	دونج ها	wd	Ðông Hà	
+5339631	كورونا	wd	Corona	
+285629	حولي	wd	Ḩawallī	
+152451	موسوما	wd	Musoma	
+2337490	إينيسا	tr	Inisa	
+523064	نازران	wd	Nazran	
+1711146	إيلاغان	wd	Ilagan	
+2396518	بورت جنتيل	wd	Port-Gentil	
+1276321	بهادرافاتي	tr	Bhadrāvati	
+1863431	هادانو	wd	Hadano	
+3449948	سانتانا دي بارنايبا	tr	Santana de Parnaíba	
+255274	بيرايوس	wd	Piraeus	
+7279741	فابي	tr	Vapi	
+2655095	بورنموث	wd	Bournemouth	
+268064	صيدا	wd	Sidon	
+3402383	كاشياس	fix	Caxias	
+287830	عبري	wd	‘Ibrī	
+195915	جومفو	tr	Jomvu	
+197745	غاريسا	wd	Garissa	
+1262951	موغا	tr	Moga	
+2640354	بيتربرة	wd	Peterborough	
+3672328	بييديكويستا	tr	Piedecuesta	
+1792520	تونغتشو	tr	Tongzhou	
+2875376	لودفيغسهافن	gn	Ludwigshafen am Rhein	
+6957690	لات كرابانغ	tr	Lat Krabang	
+6947641	بيوك تشكمجة	tr	Büyükçekmece	
+286621	صلالة	wd	Şalālah	
+1258831	راجناندجوان	wd	Rāj-Nāndgaon	
+322830	أيدين	gn	Aydın	
+3682631	إنفيغادو	tr	Envigado	
+3460748	إيتابيسيريكا دا سيرا	tr	Itapecerica da Serra	
+379303	الجنينة	wd	Al-Junaynah	reviewed
+1818116	آنبو	tr	Anbu	
+4710178	ماككيني	wd	McKinney	
+2487134	مستغانم	wd	Mostaganem	
+1514210	تشيرتشيق	wd	Chirchiq	
+141663	معشور	wd	Bandar-e Māhshahr	
+2878234	ليفركوزن	wd	Leverkusen	
+1695462	باندي	tr	Pandi	
+1718722	كاباس	tr	Capas	
+1799389	نينغار	tr	Ning’er	
+2755003	هارلم	wd	Haarlem	
+2759661	آرنم	gn	Arnhem	
+2223763	نكونغسامبا	wd	Nkongsamba	
+3641099	إل فيخيا	fix	El Vigía	
+3471697	أراوكاريا	tr	Araucária	
+1258109	روبرتسونبيت	tr	Robertsonpet	
+191220	كيتالي	wd	Kitale	
+2322794	سوليجا	tr	Suleja	
+3452525	بوزو أليغري	tr	Pouso Alegre	
+2529317	تازة	wd	Taza	
+2640729	أكسفورد	wd	Oxford	
+360716	المطرية	gn	Al Maţarīyah	
+1135689	قندوز	wd	Kunduz	
+1811200	فنغتشنغ	tr	Fengcheng	
+1564046	ترانغ بانغ	wd	Trảng Bàng	
+1253747	أوناو	wd	Unnāo	
+2239076	ندالاتاندو	wd	N'dalatando	
+1275163	بدايون	wd	Budaun	
+1854703	أوغاكي	wd	Ōgaki	
+2641598	نيوبورت	wd	Newport	
+3893629	كوكيمبو	wd	Coquimbo	
+1649541	باو باو	wd	Baubau	
+1582173	دوك ترونغ	tr	Đưc Trọng	
+1648580	بليتار	wd	Blitar	
+3472766	ألاغوينياس	tr	Alagoinhas	
+952734	كوادوكوزا	tr	KwaDukuza	
+1856775	مياكونوجو	wd	Miyakonojō	
+1264543	مادهيامغرام	tr	Madhyamgram	
+5364940	لانكستر	wd	Lancaster	
+1493467	روبتسوفسك	wd	Rubtsovsk	
+1529167	تاتشنغ	wd	Tacheng	
+2419533	كنديا	wd	Kindia	
+2208032	تاورانجا	wd	Tauranga	
+214974	كاليمي	tr	Kalemie	
+7026785	تشاتوتشاك	tr	Chatuchak	
+3628053	سان خوان دي لوس موروس	gn	San Juan de los Morros	
+1907146	ساياما	wd	Sayama	
+3691674	سولانا	wd	Sullana	
+2747351	سيرتوخيمبوس	wd	's-Hertogenbosch	
+715429	سيجد	wd	Szeged	
+370737	ملكال	wd	Malakal	
+1274033	شيتور	wd	Chittoor	
+3446370	توليدو	tr	Toledo	
+3988214	سلمنكا	wd	Salamanca	
+1618177	بان كلونغ براويت	tr	Ban Khlong Prawet	
+1577995	لا غي	wd	La Gi	
+2803201	أندرلخت	wd	Anderlecht	
+523812	ميتيشي	fix	Mytishchi	
+3530049	كواخيمالبا	tr	Delegación Cuajimalpa de Morelos	
+285066	الخليل	wd	Hebron	
+3403741	كاماراجيبي	tr	Camaragibe	
+3457000	موجي غواسو	tr	Mogi Guaçu	
+3584399	ميخيكانوس	tr	Mejicanos	
+1563926	ترا فينه	wd	Trà Vinh	
+1632353	باري باري	wd	Parepare	
+1269280	جاموريا	tr	Jāmuria	
+2358946	كودوغو	wd	Koudougou	
+1293960	تاونغيي	wd	Taunggyi	
+76184	ذمار	fix	Dhamār	
+91057	الشرقاط	gn	Ash Sharqāt	
+3021372	ديجون	wd	Dijon	
+499292	سالافات	wd	Salavat	
+2344053	إيدي	fix	Ede	
+2464960	سكرة	wd	Sukrah	
+3996663	مانزانيلو	wd	Manzanillo	
+3595237	خالابا	tr	Jalapa	
+1873014	بايتشون	tr	Paech’ŏn-ŭp	
+4459467	كاري	wd	Cary	
+2439376	تاهوا	wd	Tahoua	
+4744091	الإسكندرية	wd	Alexandria	
+3518723	توستيبيك	tr	Tuxtepec	
+7483743	بوتيا	tr	Puthia	
+2988394	الدائرة السادسة عشرة في باريس	wd	Paris 16 Passy	reviewed
+1784554	تشيتشنغ	fix	Zhicheng	
+1884365	أنغ مو كيو	tr	Ang Mo Kio New Town	
+189386	ليمورو	tr	Limuru	
+3538803	سان ميغيل ديل بادرون	tr	San Miguel del Padrón	
+3903320	تاريخا	wd	Tarija	
+3454783	باتوس دي ميناس	tr	Patos de Minas	
+2857458	أولدنبورغ	wd	Oldenburg	
+3034610	الدائرة السابعة عشرة في باريس	tr	Paris 17 Batignolles-Monceau	
+11468431	ماتسوساكا	wd	Matsusaka	
+3837702	سان فرناندو ديل فالي دي كاتاماركا	wd	Catamarca	
+1850311	توتشيغي	wd	Tochigi	
+2503701	برج بوعريريج	fix	Bordj Bou Arreridj	
+338998	ديلا	wd	Dīla	
+7284820	جايغاون	tr	Jaigaon	
+3471335	أتيبايا	tr	Atibaia	
+1276720	بتالا	wd	Batāla	
+3014728	غرونوبل	wd	Grenoble	
+91597	سامراء	wd	Sāmarrā’	
+5317071	تيمبي	tr	Tempe Junction	
+5380698	بالمديل	wd	Palmdale	
+1735106	جورج تاون	wd	George Town	
+2498766	العشير	fix	El Achir	
+5355933	هايوارد	wd	Hayward	
+1261039	أوراي	tr	Orai	
+1565136	توت نوت	tr	Thốt Nốt	
+890422	غويرو	wd	Gweru	
+3408424	أبايتيتوبا	tr	Abaetetuba	
+13631347	بانغيلا	tr	Panguíla	
+7026787	تشوم تونغ	tr	Chom Thong	
+1213614	سونغال	tr	Sunggal	
+2252309	ديوربل	wd	Diourbel	
+1849429	أويدا	fix	Ueda	
+1819757	أبردين	wd	Aberdeen	
+5391295	ساليناس	wd	Salinas	
+3529982	كواوتلا	wd	Cuautla	
+2766824	سالزبورغ	gn	Salzburg	
+1214191	بيرباونغان	tr	Perbaungan	
+1608258	نونغ تشوك	tr	Nong Chok	
+2014006	أوسورييسك	wd	Ussuriysk	
+11250625	عارف والا	tr	Arif Wala	
+2035644	نانبياو	tr	Nanpiao	
+3174659	ليفورنو	gn	Livorno	
+3838874	ريو كوارتو	wd	Río Cuarto	
+335035	هرر	wd	Harar	
+617239	تيراسبول	wd	Tiraspol	
+2649997	إنفيلد تاون	tr	Enfield Town	
+940316	وستوناريا	tr	Westonaria	
+8416218	ليتشي	tr	Lizhi	
+6822096	هيتاتشيناكا	tr	Hitachi-Naka	
+1257804	ساهارسا	wd	Saharsa	
+350789	قليوب	wd	Qalyub	
+3595803	إسكوينتلا	tr	Escuintla	
+2514169	ماربيا	gn	Marbella	
+315498	هرقلية	wd	Ereğli	
+1732687	باتو باهت	tr	Batu Pahat	
+1735453	سيتياوان	wd	Sitiawan	
+1700868	ماريفيليس	tr	Mariveles	
+3518135	سان بابلو دي لاس ساليناس	tr	San Pablo de las Salinas	
+1152473	لامبانغ	fix	Lampang	
+2633352	يورك	wd	York	
+1591474	باك ليو	wd	Bạc Liêu	
+8299780	جوجا	tr	Juja	
+330118	نقمتي	wd	Nek’emtē	
+2686657	أوربرو	wd	Örebro	
+99062	المقدادية	wd	Al Miqdādīyah	
+2112312	كاتسوتا	tr	Katsuta	
+2309527	مالابو	wd	Malabo	
+1253200	فيديشا	wd	Vidisha	
+1563281	توي هوا	wd	Tuy Hòa	
+1797632	ييتشو	tr	Yizhou	
+1788669	شينتشياو	tr	Xinqiao	
+5400075	سانيفيل	fix	Sunnyvale	
+2294700	تيما	wd	Tema	
+2033413	ييتشون	wd	Yichun	
+1582190	دوك فو	tr	Đức Phổ	
+3518407	سان مارتين تيسميلوكان	tr	San Martin Texmelucan de Labastida	
+250336	الرمثا	wd	Ar Ramthā	
+1270407	هانومانغار	tr	Hanumāngarh	
+783920	زمون	wd	Zemun	
+3345439	تيلفورد	wd	Telford	
+2334327	كيسي	tr	Kisi	
+3456290	نيلوبوليس	tr	Nilópolis	
+3587923	فيا كاناليس	tr	Villa Canales	
+1712051	غويونغ	tr	Guyong	
+2537406	سطات	gn	Settat	
+3468879	بروسكي	tr	Brusque	
+6317837	باسو دو لوميار	fix	Paço do Lumiar	
+1176241	جامبور	tr	Jampur	
+934154	بورت لويس	wd	Port Louis	
+1859675	كاوانيشي	wd	Kawanishi	
+1254657	تانيسر	wd	Thānesar	
+361179	الحوامدية	tr	Al Ḩawāmidīyah	
+1270239	هاسان	tr	Hassan	
+1919014	ليانغهو	tr	Lianghu	
+6254843	بيريندراناغار	fix	Birendranagar	
+1266486	كيشانغار	tr	Kishangarh	
+10265162	دالوبورا	tr	Dalūpura	
+1809879	غوانغشوي	tr	Guangshui	
+935264	سان ديني	wd	Saint-Denis	
+683902	برايلا	wd	Brăila	
+532615	ليوبارتسي	wd	Lyubertsy	
+217745	بومبا	wd	Bumba	
+8740322	رودرابور	tr	Rudrapur	
+3884373	لا سيرينا	wd	La Serena	
+717582	ميشكولتس	wd	Miskolc	
+362485	أبو كبير	wd	Abū Kabīr	
+1808872	فوان	wd	Fu’an	
+7931934	كيتينغيلا	tr	Kitengela	
+4692559	فريسكو	wd	Frisco	
+2033168	جاودونغ	wd	Zhaodong	
+1529085	ووجياتشو	fix	Wujiaqu	
+2323090	شومولو	tr	Shomolu	
+2216349	جنزور	wd	Janzūr	
+1024552	شاي شاي	fix	Xai-Xai	
+4951788	سبرينغفيلد	wd	Springfield	
+1262067	نالجوندا	wd	Nalgonda	
+231954	كاتابي	tr	Katabi	
+1884178	غوانغيانغ	tr	Gwangyang	
+543460	كوفروف	wd	Kovrov	
+298033	ويران شهير	tr	Viranşehir	
+1855078	نودا	wd	Noda	
+3511540	سان كريستوبال	gn	San Cristóbal	
+4619947	إيست تشاتانوغا	tr	East Chattanooga	
+146384	ليماسول	wd	Limassol	
+1860034	كارييا	wd	Kariya	
+4717782	باسادينا	wd	Pasadena	
+352181	ميت غمر	wd	Mīt Ghamr	
+1789273	سانشوي	tr	Sanshui	
+4431410	جاكسون	wd	Jackson	
+2756071	أنسخديه	wd	Enschede	
+1816265	بوشان	tr	Boshan	
+1270164	هزاري باغ	wd	Hazāribāgh	
+1814786	يانغشون	wd	Yangchun	
+2479215	سوق أهراس	wd	Souk Ahras	
+201521	موزانزي	wd	Musanze	reviewed
+1263220	مدينبور	wd	Medinīpur	
+1846986	آندونغ	wd	Andong	
+1277508	بالورغات	tr	Bālurghāt	
+5384170	بومونا	wd	Pomona	
+3625515	فالي دي لا باسكوا	wd	Valle de La Pascua	
+3943789	تشينتشا ألتا	wd	Chincha Alta	
+2172797	كيرنز	wd	Cairns	
+1271976	فيض آباد	wd	Fyzābād	
+1590900	توان تشاو	tr	Thị Trấn Thuận Châu	
+1273581	دانابور	tr	Dinapore	
+1812728	دينغزوو	wd	Dingzhou	
+4273837	كانساس سيتي	wd	Kansas City	
+98530	السماوة	wd	As Samawah	
+1259395	بوربندر	wd	Porbandar	
+2040959	شينبو	wd	Sinp’o	
+1798919	بنغبو	tr	Pengpu	
+1162456	وزير آباد	fix	Wazirabad	
+5427946	ليكوود	wd	Lakewood	
+97990	بعقوبة	fix	Baqubah	
+10303650	سميل	wd	Simele	
+90532	سميل	gn	Sumayl	
+2864118	نويس	wd	Neuss	
+1815302	تشنغهوا	tr	Chenghua	
+1869446	سونغنيم	tr	Songnim-ni	
+1277397	بندة	wd	Bānda	
+1586296	كان جوك	tr	Cần Giuộc	
+2035980	لونغفنغ	tr	Longfeng	
+2037201	بيتشن	fix	Beining	
+132938	كنبد كاووس	wd	Gonbad-e Kāvūs	
+11204106	إتواتوا	tr	Etwatwa	
+7279570	هيغاشيموراياما	wd	Higashimurayama	
+3399058	غارانيونس	tr	Garanhuns	
+1270079	هندوبور	tr	Hindupur	
+3137115	ستافانجر	gn	Stavanger	
+1737486	بينتولو	wd	Bintulu	
+2640101	بول	wd	Poole	
+361661	أخميم	gn	Akhmīm	
+1173491	كوهات	wd	Kohat	
+2849483	ريغنسبورغ	gn	Regensburg	
+1172035	لية	wd	Layyah	
+355026	جرجا	gn	Girga	
+2299522	كوفوريدوا	wd	Koforidua	
+3118150	لوغرونيو	wd	Logroño	
+1276634	بيوار	wd	Beāwar	
+1164970	شجاع آباد	tr	Shujaabad	
+5346827	إسكونديدو	wd	Escondido	
+13286467	صويلح	gn	Ṣuwayliḥ	
+315373	أرزنجان	wd	Erzincan	
+307515	قرشهر	wd	Kırşehir	
+2511401	لا لاغونا	tr	La Laguna	
+1522203	كوكشيتو	wd	Kokshetau	
+1179406	إيمن آباد	tr	Eminabad	
+1278667	أنانتناج	wd	Anantnag	
+1858445	كوكي	tr	Kukichūō	
+2521420	بطليوس	gn	Badajoz	
+7302856	سيريلينغامبالي	tr	Serilingampalle	
+3870282	تالكاهوانو	wd	Talcahuano	
+3895088	تشيلان	wd	Chillán	
+1176106	جرانوالا	wd	Jaranwala	
+1578163	كي آنه	tr	Kỳ Anh	
+1608236	نونغ كايم	tr	Nong Khaem	
+3992619	بيدراس نيغراس	wd	Piedras Negras	
+307084	قزل تبه	fix	Kızıltepe	
+1856367	موساشينو	wd	Musashino	
+3455070	باراناغوا	tr	Paranaguá	
+579464	بالاشيخا	fix	Balashikha	
+1259005	رايجاره	wd	Raigarh	
+5962204	غلوستر	tr	Gloucester	
+942470	فرايهيد	wd	Vryheid	
+13118229	بندر تاسيك بوتري	tr	Bandar Tasik Puteri	
+7473418	بيرتشام	tr	Bercham	
+1645457	ديلي	wd	Dili	
+1842944	غيمتشون	wd	Gimcheon	
+7302828	مالكاجغيري	tr	Malkajgiri	
+13118091	سيتيا عالم	tr	Setia Alam	
+1163198	توردهر	tr	Tordher	
+1256639	شانتيبور	tr	Shāntipur	
+1181073	جشتيان	fix	Chishtian	
+3521342	بلايا ديل كارمن	wd	Playa del Carmen	
+3389321	سانتا ريتا	tr	Santa Rita	
+3190261	سبليت	fix	Split	
+6545326	أورسينوف	tr	Ursynów	
+4158928	هوليوود	wd	Hollywood	
+1177073	هارون آباد	tr	Harunabad	
+11612583	شونان	wd	Shūnan	
+2448085	أغاديس	wd	Agadez	
+2654264	بيرنلي	wd	Burnley	
+293725	رحوفوت	wd	Reẖovot	
+1621884	واتامبوني	tr	Watampone	
+2212775	سبها	wd	Sabha	
+358108	دسوق	gn	Disūq	
+2525473	كلياري	wd	Cagliari	
+2647425	هارو	wd	Harrow	
+2556272	برشيد	tr	Berrechid	
+3452073	كيمادوس	tr	Queimados	
+2244991	تامباكوندا	wd	Tambacounda	
+2646458	هدرسفيلد	wd	Huddersfield	
+343749	عرابي	tr	Ārabī	
+706524	كيرتش	wd	Kerch	
+6137270	ساغينيه	wd	Saguenay	
+6317123	فازيندا ريو غراندي	tr	Fazenda Rio Grande	
+1858926	كوماكي	wd	Komaki	
+124721	مرودشت	wd	Marvdasht	
+701404	ميليتوبول	wd	Melitopol	
+2037534	دونهوا	wd	Dunhua	
+1275812	بهوج	fix	Bhuj	
+655194	يوفاسكولا	gn	Jyväskylä	
+1848277	يوناغو	wd	Yonago	
+52407	روقي	tr	Ruqi	
+3169361	ريميني	wd	Rimini	
+5927690	كوكويتلام	wd	Coquitlam	
+13680148	الضواحي	gn	Aḍ-Ḍawāḥy	
+108512	عرعر	wd	Arar	
+5405288	فالنسيا	wd	Valencia	
+7778796	مورينو	wd	Moreno	
+6822129	تاما	wd	Tama	
+4907959	روكفورد	wd	Rockford	
+3642833	إل ليمون	fix	El Limón	
+2455914	كالابان كورو	tr	Kalaban Koro	
+2990363	نيم	gn	Nîmes	
+2650752	دندي	wd	Dundee	
+1277100	باراكبور	tr	Bārākpur	
+2034638	سوجياتون	tr	Sujiatun	
+1651112	أستاناجابورا	tr	Astanajapura	
+96833	كلك	gn	Xebat	
+4013720	ديليسياس	wd	Ciudad Delicias	
+2415703	سيغيري	wd	Siguiri	
+2416402	كامسار	fix	Kamsar	
+2239520	مبانزا كونغو	wd	Mbanza Kongo	
+4756955	إيست هامبتون	tr	East Hampton	
+2036876	هونغغانغ	tr	Honggang	
+192710	كيامبو	tr	Kiambu	
+3024635	كليرمون فيران	gn	Clermont-Ferrand	
+4898015	جوليت	wd	Joliet	
+5894171	باري	wd	Barrie	
+1619532	بانغ كابي	tr	Bang Kapi	
+1786676	ييما	tr	Yima	
+4221552	سافانا	wd	Savannah	
+5102466	باترسون	wd	Paterson	
+546230	كولومنا	wd	Kolomna	
+1270525	حاجي بور	wd	Hājīpur	
+118994	رفسنجان	wd	Rafsanjān	
+9081327	هوا تانه	tr	Hòa Thành	
+3173529	ميستري	wd	Mestre	
+5282804	بريدجبورت	wd	Bridgeport	
+789128	كراغوييفاتس	wd	Kragujevac	
+610612	أكتاو	wd	Aktau	
+13680164	نسنطرة	wd	Nusantara	
+1257086	سيسارام	wd	Sasarām	
+6822163	إروما	wd	Iruma	
+3873454	رينكا	wd	Renca	
+704508	كراماتورسك	wd	Kramatorsk	
+4903279	نابرفيل	wd	Naperville	
+290340	المنامة	wd	Manama	
+4013516	كوليما	fix	Colima	
+1275947	بهيمافارام	tr	Bhimavaram	
+258576	لاريسا	wd	Lárisa	
+2019528	ناخودكا	wd	Nakhodka	
+339734	ديبري بيرهان	wd	Debre Birhan	
+2243173	كاكواكو	tr	Cacuaco	
+3038354	آكس أون بروفانس	wd	Aix-en-Provence	
+1586350	كام رانه	tr	Cam Ranh	
+1176368	جلالبور جتان	tr	Jalalpur Jattan	
+3547398	ماتانزاس	gn	Matanzas	
+1275539	بيد	wd	Beed	
+446208	كسنزان	wd	Khasnahzān	reviewed
+1793092	تاوتشو	tr	Taozhou	
+8533870	سان كوينتين أن إيفلين	wd	Saint-Quentin-en-Yvelines	
+13118145	بندر بوكيت راجا	tr	Bandar Bukit Raja	
+2655524	بلاكبرن	wd	Blackburn	
+13546323	روزمون لا بوتيت باتري	tr	Rosemont–La Petite-Patrie	
+3894242	كولينا	wd	Colina	
+10261509	بوراري	tr	Burāri	
+3086800	رودا شلاسكا	wd	Ruda Śląska	
+2377457	نواذيبو	wd	Nouadhibou	
+3493175	بويرتو بلاتا	gn	Puerto Plata	
+1680197	اوردانيتا	wd	Urdaneta	
+1265859	كريشناناغار	tr	Krishnanagar	
+1788816	شينجي	tr	Xinji	
+3595069	خوتيابا	tr	Jutiapa	
+1274056	تشيترادورغا	tr	Chitradurga	
+7026776	بونغ كوم	tr	Bueng Kum	
+2653941	كامبريدج	wd	Cambridge	
+1732721	كامبونغ باسير غودانغ بارو	tr	Kampung Pasir Gudang Baru	
+1764027	كامبونغ سونغاي غلوغور	tr	Kampung Sungai Glugur	
+1272648	ديبروجاره	wd	Dibrugarh	
+2488835	المدية	wd	Médéa	
+1793700	تايشان	wd	Taishan	
+2498392	العلمة	wd	El Eulma	
+3046526	بيتش	wd	Pécs	
+1581755	جيا راي	tr	Giá Rai	
+1279403	أبوهر	tr	Abohar	
+1254327	تيروفانامالاي	tr	Tiruvannamalai	
+6318755	تيشيرا دي فريتاس	fix	Teixeira de Freitas	
+4156404	غينزفيل	wd	Gainesville	
+3435261	كونكورديا	wd	Concordia	
+3469136	بوتوكاتو	tr	Botucatu	
+1864132	فوجيدا	wd	Fujieda	
+3488465	سبانيش تاون	wd	Spanish Town	
+2655459	بلاكبول	wd	Blackpool	
+1512473	أورغنج	fix	Urganch	
+160961	بوكوبا	wd	Bukoba	
+1268593	كيتهال	wd	Kaithal	
+10627325	إنغومبوتا	tr	Ingombota	
+3030300	بريست	wd	Brest	
+2656194	باسيلدون	tr	Basildon	
+3462964	فرانكو دا روشا	tr	Franco da Rocha	
+3111108	سلمنقة	gn	Salamanca	
+13546324	فيلريه سان ميشيل بارك إكستانسيون	tr	Villeray–Saint-Michel–Parc-Extension	
+4710826	مسكيت	wd	Mesquite	
+1865005	أشيكاغا	wd	Ashikaga	
+12217184	لام ها	tr	Huyện Lâm Hà	
+2038679	أتشنغ	wd	Acheng	
+5990579	كيلونا	wd	Kelowna	
+1162959	عمركوت	tr	Umarkot	
+3618030	ليون	wd	León	
+1860735	كاكاميغهارا	wd	Kakamigahara	
+3003603	لو مان	wd	Le Mans	
+1171965	لودهران	tr	Lodhran	
+3467736	كامبو لارغو	tr	Campo Largo	
+6169141	تروا ريفيير	wd	Trois-Rivières	
+2037075	هايلين	wd	Hailin	
+6822099	تسوتشيورا	tr	Tsuchiura	
+563523	إيليكتروستال	wd	Elektrostal’	
+1277599	بالاسور	tr	Balasore	
+1786395	فنغجيه	tr	Yong’an	
+1880574	باسير ريس	tr	Kampong Pasir Ris	
+2516548	ولبة	tr	Huelva	
+1513131	نوائي	fix	Navoiy	
+5140405	سيراكيوز	wd	Syracuse	
+295620	عسقلان	wd	Ashkelon	
+965154	باينتاون	tr	Pinetown	
+1858067	كوساتسو	wd	Kusatsu	
+8417607	نانجين	tr	Nanjin	
+5967629	غويلف	wd	Guelph	
+8408334	تشيانجيانغ	tr	Qianjiang	
+1271107	غودرا	tr	Godhra	
+2558470	الخميسات	wd	Khemisset	
+749780	جناق قلعة	wd	Çanakkale	
+5403022	تورانس	fix	Torrance	
+3446098	تريس لاغواس	wd	Três Lagoas	
+1689510	سان خوسيه	tr	San Jose	
+984998	ليديسميث	wd	Ladysmith	
+6325521	ليفيس	wd	Lévis	
+2907911	هيدلبرغ	wd	Heidelberg	
+4006163	فريسنيلو	wd	Fresnillo	
+2475475	تقرت	wd	Touggourt	
+1256523	شيلونغ	wd	Shillong	
+5316428	سوربرايز	wd	Surprise	
+2641181	نورتش	wd	Norwich	
+1564555	تينه بيان	tr	Tịnh Biên	
+1856584	موريغوتشي	wd	Moriguchi	
+3037854	أميان	gn	Amiens	
+1586551	كاي لاي	tr	Cai Lậy	
+1258178	رواري	wd	Rewāri	
+1276759	باسيرهات	tr	Basirhat City	
+2624886	آلبورغ	wd	Aalborg	
+1707123	لا ترينيداد	tr	La Trinidad	
+2496049	غرداية	wd	Ghardaïa	
+1623834	تيميكا	wd	Timika	
+503550	بياتيغورسك	wd	Pyatigorsk	
+3446621	تيوفيلو أوتوني	gn	Teófilo Otoni	
+2312888	مبانزا نغونغو	wd	Mbanza-Ngungu	
+13546319	ميرسييه أوشيلاغا ميزونوف	tr	Mercier–Hochelaga-Maisonneuve	
+1894616	أوكيناوا	fix	Okinawa	
+2642607	ميدلزبرة	wd	Middlesbrough	
+1216187	شهرسبز	wd	Shahrisabz	
+1170013	مورو	tr	Moro	
+1878458	تشونغدان	tr	Ch’ŏngdan-ŭp	
+3086586	ريبنيك	wd	Rybnik	
+2482572	سعيدة	wd	Saïda	
+3188582	طوزلة	wd	Tuzla	
+1005646	إمبالنهلي	tr	eMbalenhle	
+3446038	تريندادي	tr	Trindade	
+1174167	خانبور	wd	Khanpur	
+4575352	كولومبيا	wd	Columbia	
+1337240	نوابغنج	tr	Nawābganj	
+2545957	إنزكان	wd	Inezgane	
+3600026	بويرتو كورتيس	tr	Puerto Cortez	
+5381396	باسادينا	wd	Pasadena	
+2146268	توومبا	wd	Toowoomba	
+2855745	بادربورن	wd	Paderborn	
+6822137	ميساتو	gn	Misato, Saitama	
+1274337	تشاتاربور	tr	Chhatarpur	
+990930	كيمبرلي	wd	Kimberley	
+3899887	ألتو أوسبيسيو	fix	Alto Hospicio	
+3564178	سييغو دي أفيلا	gn	Ciego de Ávila	
+349717	سمالوط	gn	Samālūţ	
+1805844	جيشو	wd	Jieshou	
+528293	مايكوب	wd	Maykop	
+1184249	أتك	tr	Attock City	
+1214882	كيساران	tr	Kisaran	
+1635111	موجوكرتو	tr	Mojokerto	
+3682516	فاكاتاتيفا	tr	Facatativá	
+1732750	ماساي	wd	Masai	
+3629576	بونتو فيخو	wd	Punto Fijo	
+1307835	ماينغيان	wd	Myingyan	
+41548	كمال شهر	wd	Kamālshahr	
+1263834	مندسور	wd	Mandsaur	
+463355	جيليزنودوروجني	wd	Zheleznodorozhnyy	
+1274553	تشاس	tr	Chas	
+130531	جهرم	wd	Jahrom	
+2972191	تور	wd	Tours	
+1260777	بالانبور	wd	Pālanpur	
+2291136	بوندوكو	fix	Bondoukou	
+3598655	تشيتشيكاستينانغو	tr	Chichicastenango	
+3108288	طركونة	tr	Tarragona	
+3468403	كاشويرينيا	tr	Cachoeirinha	
+81302	طبرق	wd	Tobruk	
+1870648	سينتشون	tr	Sinch’ŏn-ŭp	
+5881791	أبوتسفورد	wd	Abbotsford	
+2655237	بولتن	wd	Bolton	
+1281105	يوشو	tr	Yushu	
+670609	بيتيشت	wd	Piteşti	
+3907584	بوتوسي	wd	Potosí	
+2998286	ليموج	wd	Limoges	
+3450594	سالتو	tr	Salto	
+1907299	أساكا	fix	Asaka	
+1141269	غزنة	wd	Ghazni	
+5379513	أورانج	wd	Orange	
+755330	فولا	tr	Wola	
+8406214	سانهي	tr	Sanhe	
+130802	عيلام	wd	Īlām	
+1907301	تودا	wd	Shimotoda	
+3860443	كومودورو ريفادافيا	wd	Comodoro Rivadavia	
+1764160	كامبونغ سونغاي آرا	tr	Kampung Sungai Ara	
+5351247	فوليرتون	wd	Fullerton	
+4703223	كيلين	wd	Killeen	
+1497337	نوريلسك	wd	Norilsk	
+3118514	لاردة	wd	Lleida	
+2740637	كويمبرا	gn	Coimbra	
+877747	متوارا	wd	Mtwara	
+1170989	مانجهند	tr	Manjhand	
+219057	بني	wd	Beni	
+339708	ديبري ماركوس	wd	Debre Mark’os	
+1697497	نورزاغاراي	tr	Norzagaray	
+92615	قلعة دزة	wd	Qeładizê	
+970566	نايجل	tr	Nigel	
+3613974	كاتاكاماس	wd	Catacamas	
+2233410	بويا	wd	Buea	
+1794371	شويجاي	wd	Shuizhai	
+582432	ألميتيفسك	wd	Al’met’yevsk	
+11205248	ماذرويل	tr	Motherwell	
+4709796	ماكالين	wd	McAllen	
+1265242	لكهيمبور	tr	Lakhīmpur	
+2112576	إيشينوماكي	wd	Ishinomaki	
+973111	مبومالانغا	tr	Mpumalanga	
+1170486	ميان تشنو	wd	Mian Channun	
+3925033	جي بارانا	tr	Ji Paraná	
+2744114	زانستاد	tr	Zaanstad	
+1610538	كابين بوري	tr	Kabin Buri	
+11468429	كوانا	tr	Kuwana	
+3947019	أياكوتشو	wd	Ayacucho	
+112646	تربت حيدريه	wd	Torbat-e Ḩeydarīyeh	
+3125239	تشامارتين	wd	Chamartín	
+2034996	شانهايغوان	tr	Shanhaiguan	
+286647	صحم	fix	Şaḩam	
+245785	أبشي	wd	Abéché	
+255524	بيريستيري	wd	Peristéri	
+2759821	أمرسفورت	tr	Amersfoort	
+2073124	داروين	wd	Darwin	
+11695689	جيونغيوب	wd	Jeongeup	
+5786882	بالفيو	wd	Bellevue	
+554233	كوروليوف	wd	Korolev	
+1253468	فالساد	wd	Valsād	
+150006	شينيانغا	wd	Shinyanga	
+2675408	سولنتونا	wd	Sollentuna	
+99344	الهندية	wd	Al Hindīyah	
+1848774	يايزو	wd	Yaizu	
+1631905	باياكومبو	wd	Payakumbuh	
+1273587	داموه	wd	Damoh	
+343370	أسيلا	wd	Āsela	
+1270498	هالدواني	wd	Haldwani	
+2337313	إيريوي	tr	Irewe	
+1649881	باتانغ	tr	Batang	
+2341355	غبونغان	tr	Gbongan	
+3462672	غاما	wd	Gama	
+1822214	سيام ريب	wd	Siem Reap	
+3486270	أناكو	wd	Anaco	
+1630333	بوروودادي	tr	Purwodadi	
+1859093	كوغا	wd	Koga	
+1785916	يويبو	tr	Yuepu	
+1270568	هابرا	tr	Hābra	
+1627253	سيدوارجو	fix	Sidoarjo	
+412800	صباح السالم	fix	Şabāḩ as Sālim	
+3471039	بالنياريو كامبوريو	tr	Balneário Camboriú	
+2659994	لوزان	gn	Lausanne	
+3613533	تشولوما	tr	Choloma	
+3406429	باركارينا	wd	Barcarena	
+2473449	القيروان	wd	Kairouan	
+2636882	ستوكبورت	wd	Stockport	
+2036776	هواديان	wd	Huadian	
+3401545	كراتو	tr	Crato	
+2229798	كوسيري	fix	Kousséri	
+1621613	ويرو	tr	Weru	
+12451089	العبور	gn	Al-'Ubūr	
+546105	كولبينو	wd	Kolpino	
+3397909	إيتابيبوكا	tr	Itapipoca	
+3465644	كونسيليرو لافاييتي	tr	Conselheiro Lafaiete	
+2425791	سار	wd	Sarh	
+1712875	غينغوغ	wd	Gingoog	
+3518692	سان خوان ديل ريو	tr	San Juan del Río	
+2295458	سيكوندي تاكورادي	wd	Sekondi-Takoradi	
+10020191	ليوتشي	tr	Liuzhi	
+3407882	ألتاميرا	tr	Altamira	
+1698839	ناجا	wd	Naga	
+2037335	فويو	tr	Fuyu	
+2034135	وودان	tr	Wūdān	
+3445162	فيسباسيانو	tr	Vespasiano	
+6180170	ويتبي	wd	Whitby	
+4333177	ميتايري	wd	Metairie	
+1815427	تشاوهو	tr	Chaohu	
+1266305	كولار	tr	Kolār	
+2472706	بنزرت	wd	Bizerte	
+3626402	تاريبا	wd	Táriba	
+2343784	إيجيغبو	wd	Ejigbo	
+3450269	سانتا كروز دو سول	tr	Santa Cruz do Sul	
+2544001	القصر الكبير	wd	Ksar El Kebir	
+2986082	الدائرة الحادية عشرة في باريس	wd	Paris 11 Popincourt	reviewed
+2290582	دابو	wd	Dabou	
+1884367	بوكيت بانجانغ	tr	Bukit Panjang New Town	
+2983854	الدائرة الثانية عشرة في باريس	wd	Paris 12 Reuilly	reviewed
+2234359	بيرتوا	wd	Bertoua	
+3723779	جاكميل	wd	Jacmel	
+1255647	سريكاكولام	fix	Srikakulam	
+1719274	كانديلاريا	tr	Candelaria	
+3471715	أرارواما	wd	Araruama	
+1562693	فين لونج	gn	Vĩnh Long	
+3374333	برايا	wd	Praia	
+3451668	ريزيندي	tr	Resende	
+12489673	ليانغبينغ	tr	Liangping	
+353492	كرداسة	wd	Kirdāsah	
+4566880	بونسي	fix	Ponce	
+6559683	دويلونغديتشين	tr	Doilungdêqên	
+1805857	جيشي	tr	Jieshi	
+1808612	هيجيانغ	tr	Hejiang	
+1735545	باسير بوتيه	tr	Pasir Puteh	
+1263814	مانديا	tr	Mandya	
+7845495	شيايانغ	tr	Xiayang	
+1019330	بيشو	wd	Bhisho	
+1626444	سوبانغ	tr	Subang	
+10834495	مادهورامبور ديهري	tr	Madhurampur Dehri	
+1233369	نغومبو	wd	Negombo	
+261745	هيراكليون	fix	Irákleion	
+4762894	هامبتون	wd	Hampton	
+1922014	ووييشان	fix	Wuyishan	
+4164601	ميرامار	wd	Miramar	
+2036597	جياغيداتشي	tr	Jiagedaqi	
+358821	بلقاس	wd	Bilqās	
+516215	أودينتسوفو	wd	Odintsovo	
+1630058	رانغكاسبيتونغ	tr	Rangkasbitung	
+3176885	فوجا	fix	Foggia	
+1069129	أنتسيرانانا	wd	Antsiranana	
+1268715	كانتشرابارا	tr	Kānchrāpāra	
+3589885	سان خوان ساكاتيبيكيس	tr	San Juan Sacatepéquez	
+1857046	مينو	tr	Minoh	
+2342490	فونتوا	tr	Funtua	
+6155721	سانت كاثرينز	wd	St. Catharines	
+1293625	داوي	wd	Dawei	
+2338711	إغبوهو	tr	Igboho	
+1215102	غونونغسيتولي	wd	Gunungsitoli	
+2759706	أبلدورن	wd	Apeldoorn	
+124778	مريوان	wd	Marīvān	
+1570449	فو لي	wd	Phủ Lý	
+2289887	ديفو	wd	Divo	
+1794806	هوينونغ	fix	Huinong	
+6822128	إبينا	wd	Ebina	
+2543549	العرائش	wd	Larache	
+3445487	فارجينيا	tr	Varginha	
+2989781	الدائرة الرابعة عشرة في باريس	wd	Paris 14 Observatoire	reviewed
+358600	ناصر	wd	Būsh	reviewed
+9166066	ملولونغو	tr	Mlolongo	
+3461888	غواراباري	tr	Guarapari	
+13680023	تونغ ماي	tr	Tương Mai	
+3986172	سان خوسيه ديل كابو	tr	San José del Cabo	
+5784607	ويست فالي سيتي	wd	West Valley City	
+1859393	كيسارازو	wd	Kisarazu	
+1810240	غيجيو	wd	Gejiu	
+685948	باكاو	wd	Bacău	
+2356157	سابا	tr	Saaba	
+1309233	مينغالادون	tr	Mingaladon	
+1272552	ديمابور	tr	Dimāpur	
+957487	ساسولبورغ	tr	Sasolburg	
+1777077	تشيراس	tr	Cheras	
+1735093	تاسك غلوغور	tr	Tasek Glugor	
+3877949	أوسورنو	wd	Osorno	
+3471758	أراراس	tr	Araras	
+12022102	تومشوق	fix	Tumxuk	
+1185191	كوشتيا	wd	Kushtia	
+3672110	بيتاليتو	tr	Pitalito	
+1727995	باليواغ	tr	Baliuag	
+8616124	هوان كيم	tr	Hoàn Kiếm	
+232713	كاجانسي	tr	Kajansi	
+1861464	إساهايا	wd	Isahaya	
+4509884	دايتون	wd	Dayton	
+1586357	كام فا	tr	Cẩm Phả Mines	
+3591415	بيتابا	tr	Petapa	
+1264111	ماليركوتلا	tr	Māler Kotla	
+2346615	بوغوما	tr	Buguma	
+3397967	إيتايتوبا	tr	Itaituba	
+1299154	بياي	tr	Pyay	
+1795055	بانيو	wd	Shiqiao	reviewed
+368277	ربك	wd	Rabak	
+1566559	تاي ننه	wd	Tây Ninh	
+267008	صور	wd	Tyre	
+613607	كوتايسي	wd	Kutaisi	
+143420	انديمشك	wd	Andīmeshk	
+1255927	سيوان	tr	Siwān	
+3675707	مدريد	tr	Madrid	
+1730713	أنغونو	tr	Angono	
+3687230	كارتاغو	tr	Cartago	
+418533	شهرضا	wd	Shahreẕā	
+1325211	هنثادا	wd	Hinthada	
+3471910	أبوكارانا	wd	Apucarana	
+3728474	كاب هايتيان	tr	Cap-Haïtien	
+1649593	باتوراجا	tr	Baturaja	
+1861602	إنازاوا	wd	Inazawa	
+1699296	رودريغيز	wd	Rodriguez	
+1268338	كالول	tr	Kalol	
+124085	مياندوآب	wd	Mīāndoāb	
+3448519	ساو ماتيوس	tr	São Mateus	
+2491191	الأغواط	wd	Laghouat	
+522377	نافينوميسك	wd	Nevinnomyssk	
+1689056	سان ماتيو	tr	San Mateo	
+347634	طهطا	wd	Ţahţā	
+1689286	سان خوان	fix	San Juan	
+667268	سيبيو	wd	Sibiu	
+4276614	أوليثا	fix	Olathe	
+379302	قلعة الجنينة	tr	El Geneina Fort	
+2338269	إيكيرون	tr	Ikirun	
+8419424	شنغليلو	tr	Shenglilu	
+3836846	سان نيكولاس دي لوس آرويوس	wd	San Nicolás de los Arroyos	
+3722286	ليوغان	fix	Léogâne	
+1651887	أديويرنا	tr	Adiwerna	
+3403697	كاميتا	tr	Cametá	
+98993	القرنة	wd	Al Qurnah	
+2353099	أباكاليكي	fix	Abakaliki	
+3384987	فيتوريا دي سانتو أنتاو	tr	Vitória de Santo Antão	
+5014051	وارين	wd	Warren	
+318253	جزيرة ابن عمر	wd	Cizre	
+1277264	بانكورا	tr	Bānkura	
+745169	إنغول	wd	İnegol	
+2130404	إبيتسو	wd	Ebetsu	
+2292852	أنياما	wd	Anyama	
+1805962	جياوانغ	tr	Jiawang	
+1626932	سنغاراجا	wd	Singaraja	
+1260173	باتان	tr	Pātan	
+2805615	فورتسبورغ	wd	Würzburg	
+630376	باريساو	wd	Barysaw	
+1582886	دونج هوي	wd	Đồng Hới	
+963230	راندفونتين	tr	Randfontein	
+510808	بيرفورالسك	wd	Pervouralsk	
+1270996	غوندا	fix	Gondā City	
+290247	مدينة حمد	wd	Madīnat Ḩamad	reviewed
+1854162	أومه	wd	Ōme	
+347907	سنورس	tr	Sinnūris	
+3444866	فوتورانتيم	tr	Votorantim	
+3654215	ميلاغرو	wd	Milagro	
+3460005	جاو	tr	Jaú	
+1298073	ثاندوي	tr	Thandwe	
+5441492	ثورنتون	wd	Thornton	
+3868707	فالديفيا	wd	Valdivia	
+1513064	ألماليق	tr	Olmaliq	
+2326899	أوكريكا	tr	Okrika	
+2646914	هاي ويكومب	wd	High Wycombe	
+4679195	كارولتون	wd	Carrollton	
+1683881	تاليساي	wd	Talisay	
+2457163	كاغو	wd	Gao	
+1272805	دهولبور	tr	Dhaulpur	
+149581	تاريمي	tr	Tarime	
+6074377	ميلتون	wd	Milton	
+2486690	المسيلة	wd	M'Sila	
+2111684	ناريتا	wd	Narita	
+2400555	فرانسفيل	wd	Franceville	
+1798473	بوتشي	tr	Puqi	
+1850034	تونداباياشي	tr	Tondabayashichō	
+1853008	ساندا	wd	Sandachō	
+1270990	جونديا	wd	Gondiā	
+2191562	دنيدن	wd	Dunedin	
+548114	كيسلوفودسك	wd	Kislovodsk	
+1316574	تشاوكتان	tr	Kyauktan	
+2787149	سكربيك	wd	Schaerbeek	
+2753801	هوفدوروب	wd	Hoofddorp	
+3633444	ماتشيكيس	fix	Machiques	
+1260728	بلكاد	wd	Palakkad	
+300808	سليقية	wd	Silifke	
+4574324	تشارلستون	wd	Charleston	
+6049429	لانغلي	wd	Langley	
+5526337	مدلاند	wd	Midland	
+1864105	فوجينوميا	wd	Fujinomiya	
+13589383	مينغالا تاونغنيونت	tr	Mingala Tangnyunt	
+2775220	إنسبروك	gn	Innsbruck	
+3405006	براغانسا	tr	Bragança	
+5992500	كينغستون	wd	Kingston	
+1791272	ووغانغ	wd	Wugang	
+2648404	غلوستر	wd	Gloucester	
+4739526	واكو	wd	Waco	
+1848004	زاما	wd	Zama	
+1636308	مانوكواري	wd	Manokwari	
+3445578	فالينيوس	tr	Valinhos	
+566199	ديميتروفغراد	wd	Dimitrovgrad	
+2033225	زالانتون	wd	Zhalantun	
+1276393	بيتيا	tr	Bettiah	
+1195434	مايجدي	tr	Maijdi	
+3388847	ساو فيليكس دو شينغو	tr	São Félix do Xingu	
+4005937	سان بيدرو جارزا غارسيا	wd	San Pedro Garza García	
+3448031	سابوكايا دو سول	tr	Sapucaia do Sul	
+333373	كومبولشا	wd	Kombolcha	
+1699054	موريكاي	tr	Muricay	
+5011148	ستيرلينغ هايتس	wd	Sterling Heights	
+1150515	سورات ثاني	wd	Surat Thani	
+2923544	فورت	gn	Fürth	
+3177090	فيرارا	tr	Ferrara	
+12166273	دوك تينه	tr	Quận Đức Thịnh	
+3433424	إيسيدرو كاسانوفا	wd	Isidro Casanova	
+1854083	أوموتا	wd	Ōmuta	
+11947989	فيا مرسيدس	tr	Villa Mercedes	
+1811028	فوجي	tr	Fuji	
+1260637	بالوال	wd	Palwal	
+776029	بييلاني	tr	Bielany	
+1813344	داووكو	tr	Dawukou	
+1722930	بولاون	tr	Bulaon	
+1644409	غاروت	tr	Garut	
+89113	أجدابيا	wd	Ajdabiya	
+2113164	أبيكو	tr	Abiko	
+1860871	كادوما	wd	Kadoma	
+1801401	ماجيه	tr	Majie	
+1182815	بهكر	wd	Bhakkar	
+128447	كاشمر	wd	Kāshmar	
+2492913	جيجل	wd	Jijel	
+1636022	مارتابورا	tr	Martapura	
+2968254	فيلوربان	wd	Villeurbanne	
+1581331	هاي تشاو	tr	Hải Châu	
+2229411	ليمبي	wd	Limbe	
+1258470	رانيغانج	tr	Rānīganj	
+1808336	هيبو	tr	Hepo	
+1160939	إيران شهر	wd	Iranshahr	
+2596935	سوبري	wd	Soubré	
+1853992	أونوميتشي	fix	Onomichi	
+4685907	دينتون	wd	Denton	
+1271992	إيتا	tr	Etah	
+1259686	بيليبت	wd	Pīlibhīt	
+2035002	شانغزي	wd	Shangzhi	
+1314759	لاشيو	wd	Lashio	
+518557	نوفوموسكوفسك	wd	Novomoskovsk	
+1857568	ماتسوبارا	wd	Matsubara	
+2293549	أبنغورو	wd	Abengourou	
+174018	الباب	wd	Al Bāb	
+2034834	شوانغتشنغ	tr	Shuangcheng	
+2649808	إكستر	wd	Exeter	
+2300379	هو	wd	Ho	
+1169278	نارووال	wd	Narowal	
+1576303	لاو كاي	gn	Lào Cai	
+2219701	العجيلات	wd	Al Ajaylat	
+1605239	أودون تاني	fix	Udon Thani	
+98156	بحركة	fix	Baḥarkah	
+1735102	بيان ليباس	wd	Bayan Lepas	
+1258916	راجابالايام	tr	Rajapalayam	
+3665542	سيباكيرا	tr	Zipaquirá	
+6925362	جيروفت	wd	Jīroft	
+4850751	سيدار رابيدز	wd	Cedar Rapids	
+1791056	دونغ يانغ	wd	Dongyang	
+1913126	نانتو	tr	Nantou	
+1275218	بوتاد	tr	Botad	
+282615	نابلس	wd	Nablus	
+4839366	نيو هيفن	wd	New Haven	
+3731088	أركاهاي	wd	Arcahaie	
+1805935	جيازي	tr	Jiazi	
+2231506	فومبان	fix	Foumban	
+5388881	روزفيل	wd	Roseville	
+3874096	كيلبويه	wd	Quilpué	
+13452524	راوسون	tr	Rawson	
+2473164	سيدي حسين	tr	Sīdī Ḥusayn	
+2455558	كاتي	wd	Kati	
+1744246	سري كمبانغن	tr	Seri Kembangan	
+2652618	كولشيستر	wd	Colchester	
+602150	أوميو	wd	Umeå	
+6694101	دين داينغ	tr	Din Daeng	
+1181611	تشمن	tr	Chaman	
+367644	سنار	wd	Sennar	reviewed
+3617723	ماسايا	wd	Masaya	
+5406567	فيساليا	wd	Visalia	
+1169372	ننكانة صاحب	wd	Nankana Sahib	
+280425	عاليه	wd	Aley	
+3351500	كاالا	tr	Caála	
+1812138	دونغشينغ	wd	Dongxing	
+12157008	سان مارتين	tr	San Martin	
+1187530	سونارغون	wd	Sonārgaon	
+2635608	توتنهام	wd	Tottenham	
+3082914	تيخي	fix	Tychy	
+5913695	كامبريدج	wd	Cambridge	
+304797	ماردين	wd	Mardin	
+1798655	بينغشيانغ	wd	Pingxiang	
+2743477	زفوله	gn	Zwolle	
+64536	بيدوا	wd	Baidoa	
+1568142	سام سون	tr	Sầm Sơn	
+13527315	سانتو أنطونيو	tr	Santo António	
+2638671	سالفورد	wd	Salford	
+1171123	ماندي بهاودين	wd	Mandi Bahauddin	
+738743	توقاد	wd	Tokat	
+1571644	أو مون	tr	Ô Môn	
+1713226	قابان	wd	Gapan	
+1273193	ديوريا	tr	Deoria	
+1725863	بايامبانغ	tr	Bayambang	
+1170425	ميانوالي	wd	Mianwali	
+4151909	كورال سبرنغز	wd	Coral Springs	
+6146143	شيربروك	wd	Sherbrooke	
+89055	البيضاء	wd	Al Bayḑā’	
+3450817	سابارا	tr	Sabará	
+3183539	أتشيليا	tr	Acilia-Castel Fusano-Ostia Antica	
+5402405	ثاوزند أوكس	wd	Thousand Oaks	
+4381982	كولومبيا	wd	Columbia	
+3465944	كولاتينا	tr	Colatina	
+3052009	جيور	wd	Győr	
+3893656	كوبيابو	wd	Copiapó	
+1858964	كوكوبونجي	wd	Kokubunji	
+3671116	كيبدو	gn	Quibdó	
+2548526	كلميم	wd	Guelmim	
+3645854	تشارالافي	wd	Charallave	
+115770	شهركرد	wd	Shahr-e Kord	
+3675595	مالامبو	tr	Malambo	
+3446692	تاتوي	tr	Tatuí	
+1861212	إواكوني	wd	Iwakuni	
+1804208	لييانغ	wd	Leiyang	
+776103	بياوونكة	wd	Białołeka	
+1721168	كاديز	tr	Cadiz	
+2387495	كرنوت	wd	Carnot	
+295548	بات يام	wd	Bat Yam	
+3979844	زاكاتيكاس	wd	Zacatecas	
+5097598	إليزابيث	wd	Elizabeth	
+1180374	دور	tr	Daur	
+321082	بنكل	wd	Bingöl	
+1185111	ساتخيرا	tr	Sātkhira	
+1632276	بارونغ	tr	Parung	
+3630932	بالو نيغرو	tr	Palo Negro	
+4843564	ستامفورد	wd	Stamford	
+169389	إدلب	wd	Idlib	
+2312393	مواندا	wd	Moanda	
+90708	سينة	wd	Sīnah	
+6822188	أوساكي	wd	Ōsaki	
+1636884	ماغيلانغ	fix	Magelang	
+5339111	كونكورد	wd	Concord	
+2267095	ليريا	wd	Leiria	
+3931276	بونو	wd	Puno	
+553287	كاميشين	wd	Kamyshin	
+12450887	شوانغلونغهو	tr	Shuanglonghu	
+8441115	نيمتش	tr	Nimach	
+354775	كفر الدوار	gn	Kafr ad Dawwār	
+12432982	أغواس كلاراس	tr	Águas Claras	
+518976	نوفوتشبوكسارسك	wd	Novocheboksarsk	
+3033123	بيزنسون	wd	Besançon	
+229911	لوغازي	tr	Lugazi	
+13513037	سونغ كونغ	tr	Thành phố Sông Công	
+1691490	روساريو	tr	Rosario	
+1266945	خارداه	tr	Khardah	
+102527	سكاكا	wd	Sakakah	
+2544333	خنيفرة	wd	Khenifra	
+379149	المناقل	tr	Al Manāqil	
+612287	روستاوي	wd	Rustavi	
+3547867	مانزانيو	tr	Manzanillo	
+1252770	يافاتمال	tr	Yavatmāl	
+1270484	هالي شهر	tr	Hālīsahar	
+496527	سربوخوف	wd	Serpukhov	
+3670730	ريونيغرو	tr	Rionegro	
+1280037	ياركند	wd	Shache	reviewed
+1267016	خانا	tr	Khanna	
+2407656	كويدو	wd	Koidu	
+4543762	نورمان	wd	Norman	
+3674292	موسكيرا	tr	Mosquera	
+3470073	بينتو غونسالفيس	wd	Bento Gonçalves	
+1586989	بوون هو	tr	Buôn Hồ	
+1585281	تشو	tr	Chũ	
+2664454	فيستيروس	wd	Västerås	
+1852663	سيتو	wd	Seto	
+1254309	تيتاغار	tr	Titāgarh	
+2641674	نيوكاسل أندر لايم	tr	Newcastle under Lyme	
+3090048	أوبولي	wd	Opole	
+3359041	ووستر	fix	Worcester	
+3099759	إلبلنغ	wd	Elbląg	
+7843633	غاوجينغ	tr	Gaojing	
+1185115	سراجغنج	tr	Sirajganj	
+3459943	جيكيه	tr	Jequié	
+3088825	بوتسك	wd	Płock	
+3601311	سيغواتبيكي	wd	Siguatepeque	
+3082707	فاوبجيخ	fix	Wałbrzych	
+584649	يفلاخ	fix	Yevlakh	
+360754	المنزلة	wd	Al Manzalah	
+363885	واو	wd	Wau	
+1793999	سونغنان	tr	Songnan	
+4180386	أثينا	wd	Athens	
+2350249	أمايغبو	tr	Amaigbo	
+1153671	تشيانغ ماي	fix	Chiang Mai	
+2332515	لافيا	wd	Lafia	
+1885823	جيانغيو	tr	Jiangyou	
+1646698	تشيكامبيك	tr	Cikampek	
+1279891	تنغتشونغ	wd	Tengyue	reviewed
+1796376	شاجينغ	tr	Shajing	
+1790251	جينفنغ	tr	Jinfeng	
+3540667	سانكتي سبيريتوس	gn	Sancti Spíritus	
+3117164	ماتارو	gn	Mataró	
+3470451	بارريتوس	gn	Barretos	
+5799625	كينت	wd	Kent	
+1302439	باكوكو	wd	Pakokku	
+524294	موروم	wd	Murom	
+3447651	سيرتاوزينيو	tr	Sertãozinho	
+1270216	هاتراس	tr	Hāthras	
+1692520	بولونغ سانتا كروز	tr	Pulong Santa Cruz	
+1639900	كلاتن	tr	Klaten	
+550478	خاسافيورت	wd	Khasavyurt	
+522942	نفتكامسك	wd	Neftekamsk	
+5396003	سيمي فالي	wd	Simi Valley	
+1725804	باياوان	wd	Bayawan	
+1165388	شكرغره	tr	Shakargarh	
+1268820	جورهات	tr	Jorhat	
+3634922	لا فيكتوريا	wd	La Victoria	
+1168555	باكبتان	wd	Pakpattan	
+1805543	جينغتشي	tr	Jingzhi	
+1813812	دانشوي	tr	Danshui	
+2637546	سوليهل	wd	Solihull	
+5344994	إيست لوس أنجيلس	wd	East Los Angeles	
+1265157	لاليتبور	tr	Lalitpur	
+1642414	جومبانغ	tr	Jombang	
+1039536	ماشيشي	fix	Maxixe	
+1608529	ناخون راتشاسيما	wd	Nakhon Ratchasima	
+3620381	تشينانديغا	wd	Chinandega	
+2219960	الجديد	gn	Al Jadīd	
+3437863	لامباريه	wd	Lambaré	
+1861835	إيزوكا	fix	Iizuka	
+1153269	هوا هين	tr	Hua Hin	
+3628489	سان كارلوس ديل زوليا	tr	San Carlos del Zulia	
+281102	رفح	wd	Rafaḩ	
+1735168	أمبانغ	tr	Ampang	
+1270670	غونتاكال	tr	Guntakal	
+1529641	آرال	wd	Ālā'ĕr	reviewed
+5393015	سانتا كلارا	wd	Santa Clara	
+7279595	بيتهامبور	tr	Pithampur	
+1632197	باسيه	tr	Paseh	
+1262710	موتيهاري	wd	Mothīhāri	
+11612579	كوغانه	wd	Koganei	
+13527308	نوسا سينيورا دي فاطمة	tr	Nossa Senhora de Fátima	
+4280539	توبيكا	wd	Topeka	
+8556295	أورليانز	tr	Orléans	
+1950953	بيكاك	tr	Paek'ak	
+1806881	هويتشنغ	tr	Huicheng	
+3629710	بويرتو أياكوتشو	gn	Puerto Ayacucho	
+2341656	غاشوا	wd	Gashua	
+3728097	لي كاي	fix	Les Cayes	
+3168673	سلرنو	wd	Salerno	
+1653316	سافانخت	wd	Savannakhet	
+352354	منوف	wd	Munūf	
+2634677	واتفورد	wd	Watford	
+3461936	غوارا	wd	Guará	
+746881	غيرسون	wd	Giresun	
+1789703	شياتشن	tr	Xiazhen	
+1879490	تشايريونغ	tr	Chaeryŏng-ni	
+743882	قسطمونة	wd	Kastamonu	
+1268015	كانهانغاد	tr	Kanhangad	
+250799	عجلون	wd	‘Ajlūn	
+748208	درنجة	wd	Derince	
+7334948	سوكاواتي	tr	Sukawati	
+1269578	جاغدالبور	wd	Jagdalpur	
+650224	كووبيو	wd	Kuopio	
+6845329	بانغ سو	tr	Bang Sue	
+1171502	ميلسي	tr	Mailsi	
+3882428	لوس أنخليس	wd	Los Ángeles	
+1809062	هايمن	tr	Haimen	
+744562	قربوك	wd	Karabük	
+11205667	نتوزوما	tr	Ntuzuma	
+1849563	تسوروكا	wd	Tsuruoka	
+2638703	سانت بيترز	tr	Saint Peters	
+3470858	بارباسينا	tr	Barbacena	
+6822153	أوروما	fix	Uruma	
+339686	ديبري تابور	wd	Debre Tabor	
+2467243	ساقية الدائر	wd	Sakiet ed Daier	
+150930	نزيغا	wd	Nzega	
+4669635	أبيلين	wd	Abilene	
+1613549	بان سامي دام	tr	Ban Samae Dam	
+1796421	شاهيتشنغ	tr	Shahecheng	
+2229748	كومبو	wd	Kumbo	
+6094835	أوتاوا الجنوبية	tr	Ottawa South	
+107781	الزلفي	gn	Az Zulfī	
+618605	بالتسي	wd	Bălţi	
+1179660	دوكري	tr	Dokri	
+3513090	ويلمستاد	wd	Willemstad	
+1685378	سلطان قدرات	tr	Sultan Kudarat	
+295432	بيت شيمش	wd	Bet Shemesh	
+1269605	جغادهري	wd	Jagādhri	
+3827414	ويسكيلوكان	tr	Huixquilucan	
+3471798	أرابونغاس	tr	Arapongas	
+116402	سمنان	fix	Semnan	
+3118532	ليون	wd	León	
+3493146	سان فرانسيسكو دي ماكوريس	wd	San Francisco de Macorís	
+2033242	يوشو	wd	Yushu	
+1665443	يوانلين	tr	Yuanlin	
+3584257	سانتا تكلا	wd	Santa Tecla	
+6318714	سوريزو	tr	Sorriso	
+3483849	سيوداد فاليس	wd	Ciudad Valles	
+2357043	واهيغويا	wd	Ouahigouya	
+7391141	بوبلاسيون	tr	Poblacion	
+1859951	كاشيهارا	wd	Kashihara-shi	
+360048	أشمون	wd	Ashmūn	
+309647	أغرة	wd	Ağrı	
+2751792	ليوواردن	wd	Leeuwarden	
+1587976	بن تري	wd	Bến Tre	
+3172629	منزا	gn	Monza	
+1169027	ميربور	wd	New Mirpur City	
+3686675	تشيا	tr	Chía	
+3604251	أولانتشيتو	tr	Olanchito	
+757065	تارغوفيك	tr	Targówek	
+1804252	ليتشنغ	tr	Lecheng	
+1800130	نانتسون	tr	Nancun	
+124862	مرند	wd	Marand	
+359815	السنبلاوين	wd	As Sinbillāwayn	reviewed
+2652053	كرولي	wd	Crawley	
+1519843	رودني	fix	Rudnyy	
+3675692	ماغانغي	tr	Magangué	
+3460899	إيتاغواي	tr	Itaguaí	
+776251	بيموفو	tr	Bemowo	
+2994160	متز	wd	Metz	
+2036403	جيوبو	tr	Jiupu	
+1273467	دارجيلنغ	wd	Dārjiling	
+2038438	باوشان	tr	Baoshan	
+3493240	إيغوي	fix	Salvaleón de Higüey	
+1292288	ثاتون	wd	Thaton	
+11500546	كوريتشي	tr	Kurichchi	
+1637090	لوماجانغ	tr	Lumajang	
+1861450	إيسه	wd	Ise	
+1711982	هاغونوي	tr	Hagonoy	
+301975	السويدية	wd	Samandağ	
+3467081	كاراغواتاتوبا	tr	Caraguatatuba	
+3469989	بيريغوي	tr	Birigui	
+623549	بينسك	wd	Pinsk	
+2510542	تيلدي	gn	Telde	
+1643078	إندرامايو	tr	Indramayu	
+2483668	غليزان	wd	Relizane	
+2503661	برج الكيفان	wd	Bordj el Kiffan	
+1528249	جلال آباد	wd	Manas	
+7303138	كيريشيما	wd	Kirishima	
+3522307	اوريزابا	wd	Orizaba	
+1801799	لويانغ	tr	Luoyang	
+1163272	توبه تيك سينغ	tr	Toba Tek Singh	
+1848445	ياتسوشيرو	fix	Honmachi	
+2806654	فولفسبورغ	wd	Wolfsburg	
+1855425	نيهاما	wd	Niihama	
+3445782	أومواراما	tr	Umuarama	
+2036536	جياوهي	wd	Jiaohe	
+3398352	إيغاراسو	tr	Igarassu	
+2518794	دوس إرماناس	tr	Dos Hermanas	
+8031389	تابوك	wd	Tabuk	
+1272243	دم دم	tr	Dam Dam	
+233312	هويما	wd	Hoima	
+1791325	وودا	tr	Wuda	
+98245	الزبير	wd	Az Zubayr	
+1864750	بيبو	wd	Beppu	
+1270370	هردوي	wd	Hardoī	
+140951	بهبهان	wd	Behbahān	
+3460598	إيتاتيبا	tr	Itatiba	
+1807112	هوانغتشو	tr	Huangzhou	
+1259163	بوروليا	tr	Puruliya	
+1605245	أوبون راتشاثاني	wd	Ubon Ratchathani	
+943882	فيرجينيا	tr	Virginia	
+1015621	بريتس	wd	Brits	
+2849647	ركلنهاوزن	wd	Recklinghausen	
+1784178	تشوتسون	tr	Zhoucun	
+569154	تشيركيسك	wd	Cherkessk	
+1176997	حويلي لكها	tr	Haveli Lakha	
+2751283	ماستريخت	wd	Maastricht	
+5107129	أمهيرست	wd	Amherst	
+738927	تكرطاغ	wd	Tekirdağ	
+6653052	صدرا	wd	Shahr-e Ṣadrā	
+5406222	فكتورفيل	wd	Victorville	
+2654200	بيرتون أبون ترنت	tr	Burton upon Trent	
+1720034	كالومبيت	tr	Calumpit	
+7026837	لات براو	tr	Lat Phrao	
+2918632	غوتينغن	fix	Göttingen	
+13118233	تيتيوانغسا	tr	Titiwangsa	
+1607782	باسي تشاروين	fix	Phasi Charoen	
+1113217	زابل	wd	Zābol	
+2359608	كايا	wd	Kaya	
+1790442	شيانغتشنغ	tr	Xiangcheng	
+1272842	دارمافارام	tr	Dharmavaram	
+345149	آديغرات	wd	Ādīgrat	
+1639500	كوتاموباغو	wd	Kotamobagu	
+3646487	كارورا	wd	Carora	
+5405380	فاليهو	fix	Vallejo	
+1276320	بهادريشوار	tr	Bhadreswar	
+135878	دورود	wd	Dorūd	
+2661552	برن	wd	Bern	
+6693576	سان بيدرو دي لا باز	tr	San Pedro de la Paz	
+1261163	ناغاون	tr	Nagaon	
+649360	لاهتي	gn	Lahti	
+1253315	فيجالبور	tr	Vejalpur	
+1802420	لونغشوي	tr	Longshui	
+2523083	سرقوسة	gn	Siracusa	
+228971	موبيندي	wd	Mubende	
+726848	ستارا زاغورا	fix	Stara Zagora	
+3346821	اوندجيفا	wd	Ondjiva	
+1023441	ألبرتون	tr	Alberton	
+1274220	شيكماجالور	wd	Chikmagalūr	
+1524325	إيكيباستوز	wd	Ekibastuz	
+2522013	الجزيرة الخضراء	wd	Algeciras	
+4330145	لافاييت	wd	Lafayette	
+2035669	ليانهي	tr	Lianhe	
+5336269	تشيكو	wd	Chico	
+1276325	بهادراك	tr	Bhadrak	
+3471196	باجيه	tr	Bagé	
+4839745	نورث ستامفورد	tr	North Stamford	
+3182164	برغامو	wd	Bergamo	
+727523	روسه	wd	Ruse	
+1256949	ساواي مادهوبور	tr	Sawai Madhopur	
+1585317	تشون تانه	tr	Chơn Thành	
+1278827	أمبيكابور	wd	Ambikāpur	
+3463690	إيونابوليس	wd	Eunápolis	
+1730413	أباليت	tr	Apalit	
+4835797	هارتفورد	wd	Hartford	
+1647866	بوكيتنغي	wd	Bukittinggi	
+2258261	دوليسي	wd	Dolisie	
+3644417	إخيدو	wd	Ejido	
+5327684	بيركيلي	wd	Berkeley	
+3456147	نوفا ليما	tr	Nova Lima	
+1693239	بلاريديل	tr	Plaridel	
+4177887	ويست بالم بيتش	wd	West Palm Beach	
+1859913	كاشيهارا	tr	Kashiwara	
+3445679	أوروغوايانا	tr	Uruguaiana	
+1861749	إكوما	wd	Ikoma	
+2907669	هايلبرون	gn	Heilbronn	
+11204413	المروج	wd	El Mourouj	
+90026	طوز خورماتو	wd	Ţūz Khūrmātū	
+3165243	ترينتو	gn	Trento	
+1165638	شهدادكوت	wd	Shahdad Kot	
+3348094	كاتشيونغو	tr	Catchiungo	
+2895992	إنغولشتات	tr	Ingolstadt	
+1803782	ليتشوان	tr	Lichuan	
+11054399	بوكيت بينتانغ	tr	Bukit Bintang	
+3638371	لا كونسيبسيون	tr	La Concepción	
+2820256	أولم	wd	Ulm	
+10265071	مندولي	tr	Mandoli	
+3628503	سان كارلوس	wd	San Carlos	
+3081741	فوتسوافك	wd	Włocławek	
+5178127	ألينتاون	wd	Allentown	
+1257055	ساتارا	wd	Satara	
+13308659	باوآن	tr	Bao'an Centre	
+1181439	تشارسادا	wd	Charsadda	
+3438115	فيرناندو دي لا مورا	wd	Fernando de la Mora	
+1273892	تشورو	tr	Chūru	
+3171180	بيرودجا	gn	Perugia	
+1271675	غانغابور	tr	Gangāpur	
+1783903	تشوجينغ	tr	Zhujing	
+2495662	قالمة	wd	Guelma	
+63400	عابدواق	wd	Cabudwaaq	
+9983718	تشيريموشكي	tr	Cheremushky	
+8504621	قريضة	wd	Gereida	
+278913	النبطية	wd	Nabatîyé et Tahta	
+515024	أوريخوفو زويفو	wd	Orekhovo-Zuyevo	
+289011	الرستاق	fix	Rustaq	
+1784953	تشاويوان	tr	Zhaoyuan	
+8411054	مادهيابور تيمي	tr	Madhyapur Thimi	
+6138671	سان لوي دو تيربون	tr	Saint-Louis-de-Terrebonne	
+4257227	إيفانسفيل	wd	Evansville	
+7849539	بونون	tr	Bonon	
+2945756	بوتروب	wd	Bottrop	
+1178456	كوتكي	wd	Ghotki	
+888710	كويكوي	tr	Kwekwe	
+187968	ماليندي	wd	Malindi	
+1157290	بان إي تشانغ	tr	Ban I Chang	
+740483	ريزة	wd	Rize	
+3472518	ألميرانتي تامانداريه	tr	Almirante Tamandaré	
+4167499	بالم باي	wd	Palm Bay	
+1328872	آن	wd	Ann	
+2751773	لايدن	gn	Leiden	
+1605403	تون بوري	tr	Thon Buri	
+5882873	أجاكس	wd	Ajax	
+1166265	سمبريال	tr	Sambrial	
+3171168	بسكارا	wd	Pescara	
+2330028	موداكيكي	tr	Modakeke	
+1855095	نوبيوكا	wd	Nobeoka	
+1686547	سيلانغ	tr	Silang	
+2304848	أمانفروم	tr	Amanfrom	
+6317548	ماريتوبا	wd	Marituba	
+400771	محمد شهر	wd	Moḩammad Shahr	
+3392734	باولو أفونسو	tr	Paulo Afonso	
+130697	إيذج	wd	Īz̄eh	
+303873	نازيللي	fix	Nazilli	
+1864416	دايتو	wd	Daitō	
+8657105	هوا كوونغ	tr	Hòa Cường	
+230166	ليرا	wd	Lira	
+2853969	بفورتسهايم	gn	Pforzheim	
+302043	الصالحية	wd	Salihli	
+1734815	بورت ديكسون	wd	Port Dickson	
+2555467	بركان	wd	Berkane	
+3466692	كاتاندوفا	tr	Catanduva	
+2756669	دوردرخت	tr	Dordrecht	
+1831797	باتامبانج	wd	Battambang	
+2857807	أوفنباخ	tr	Offenbach	
+2129537	كيتامي	wd	Kitami	
+1562548	فينه ين	wd	Vĩnh Yên	
+1465594	مادهافارام	tr	Madhavaram	
+3647549	كاغوا	wd	Cagua	
+292878	الفجيرة	wd	Fujairah	
+1041190	مانديمبا	tr	Mandimba	
+3413829	ريكيافيك	wd	Reykjavík	
+1273687	داهود	wd	Dohad	
+2653261	شلتنهام	wd	Cheltenham	
+3696378	هواراس	wd	Huaraz	
+3109981	سانتا كولوما دي غرامانت	tr	Santa Coloma de Gramenet	
+3391360	سانتانا	tr	Santana	
+3471691	أراشا	tr	Araxá	
+3453535	بيراكوارا	tr	Piraquara	
+1276856	بارشي	fix	Barshi	
+1591440	باك كوانغ	tr	Bắc Quang	
+1787901	شونتشانغ	tr	Xunchang	
+1580142	هونج ين	wd	Hưng Yên	
+3523149	ميرامار	tr	Miramar	
+2944368	بريمرهافن	wd	Bremerhaven	
+963516	كوينزتاون	tr	Queenstown	
+1800175	نانبين	tr	Nanbin	
+141679	بندر أنزلي	wd	Bandar-e Anzalī	
+1609899	كلونغ لوانغ	tr	Khlong Luang	
+1279344	عادل آباد	fix	Ādilābād	
+5059163	فارغو	wd	Fargo	
+2800931	بروج	wd	Brugge	
+1268936	جونجونو	tr	Jhunjhunūn	
+3526798	إغوالا	wd	Iguala de la Independencia	
+3447998	ساراندي	tr	Sarandi	
+923295	زومبا	wd	Zomba	
+1627610	سيباتان	tr	Sepatan	
+1702649	ماليتا	tr	Malita	
+3080165	جلونا غورا	wd	Zielona Góra	
+1801969	لوديان	tr	Luodian	
+1269065	جيتبور	tr	Jetpur	
+1253744	أوبال كلان	tr	Uppal Kalan	
+3388376	ساو لورينسو دا ماتا	fix	São Lourenço da Mata	
+353183	مغاغة	wd	Maghāghah	
+1230089	بيتا كوتي	tr	Pita Kotte	
+1712531	غيغينتو	tr	Guiguinto	
+1270801	غوديفادا	tr	Gudivāda	
+2262963	سيتوبال	gn	Setúbal	
+3107784	توريخون دي أردوز	wd	Torrejón de Ardoz	
+6822148	أيزواكاماتسو	wd	Aizu-Wakamatsu	
+2347954	باما	fix	Bama	
+2337659	إيلوبو	tr	Ilobu	
+1701537	مانولو فورتيتش	tr	Manolo Fortich	
+3460960	إيتابيرا	tr	Itabira	
+1579018	كين آن	tr	Kiến An	
+3460170	جانديرا	tr	Jandira	
+3461859	غواراتينغيتا	tr	Guaratinguetá	
+3836669	سان رافائيل	wd	San Rafael	
+1795860	شاوشان	tr	Shaoshan	
+1277084	باران	tr	Bārān	
+1269939	نارمادابورام	tr	Narmadapuram	
+1278715	أمريلي	tr	Amreli	
+1608534	ناخون باتوم	wd	Nakhon Pathom	
+1860728	كاكيغاوا	wd	Kakegawa	
+352913	منفلوط	wd	Manfalūţ	
+1863209	هاندا	wd	Handa	
+1790920	ووشان	wd	Wushan	
+2395915	أبوميه	wd	Abomey	
+2364104	سوكودي	wd	Sokodé	
+3471830	أراغواري	tr	Araguari	
+757026	تارنوف	wd	Tarnów	
+1619460	بانكوك نوي	tr	Bangkok Noi	
+2336589	جالينجو	gn	Jalingo	
+6136944	سانيتش	wd	Saanich	
+233299	إباندا	tr	Ibanda	
+716935	نيرغهازا	wd	Nyíregyháza	
+1852964	سانو	wd	Sano	
+1860063	كاراتسو	wd	Karatsu	
+1512165	أتشينسك	wd	Achinsk	
+1259297	بودوكوتاي	tr	Pudukkottai	
+2034754	شونيي	tr	Shunyi	
+2639093	روثرهام	wd	Rotherham	
+3980194	فيا دي ألفاريز	tr	Ciudad de Villa de Álvarez	
+1650077	بانيوانغي	tr	Banyuwangi	
+2482908	الرويبة	wd	Rouiba	
+1213500	تيبينغ تينغي	tr	Tebingtinggi	
+3718962	بيتيت غواف	wd	Tigwav	
+1261848	ناراساراوبيت	tr	Narasaraopet	
+211734	ليسالا	wd	Lisala	
+1184055	بدين	tr	Badin	
+2362909	بانفورا	wd	Banfora	
+3874787	بونتا أريناس	wd	Punta Arenas	
+889453	كادوما	wd	Kadoma	
+1699755	ميدساياب	tr	Midsayap	
+3467968	كامبوريو	tr	Camboriú	
+1309937	بيين أو لوين	fix	Pyin Oo Lwin	
+4151316	كليرواتر	wd	Clearwater	
+1711718	هيمامايلان	wd	Himamaylan	
+4391812	إنديبندنس	wd	Independence	
+4005143	غوايماس	tr	Heroica Guaymas	
+1640581	كيدونغووني	tr	Kedungwuni	
+215976	إيليبو	tr	Ilebo	
+3149318	كريستيانساند	wd	Kristiansand	
+2035966	لونغ جينغ	wd	Longjing	
+986846	كرونستاد	wd	Kroonstad	
+2848273	رمشايد	wd	Remscheid	
+5640350	بيلينغز	wd	Billings	
+1308567	مونغ يانغ	tr	Möng Yang	
+792078	تشاتشاك	wd	Čačak	
+4984247	آن آربر	wd	Ann Arbor	
+1705536	لوس بانيوس	tr	Los Baños	
+2289549	دويكوي	tr	Duekoué	
+11611628	هيغاشيكورومي	tr	Higashikurume	
+1258126	ريشرا	tr	Rishra	
+6317953	بينيايس	tr	Pinhais	
+1500973	كيزيل	wd	Kyzyl	
+2520600	قادس	gn	Cadiz	
+3100796	دابروفا غورنيتشا	fix	Dąbrowa Górnicza	
+3454847	باسوس	tr	Passos	
+356989	فاقوس	wd	Fāqūs	
+1684681	تاكورونج	wd	Tacurong	
+1862302	هوفو	fix	Hōfu	
+3348613	غابيلا	tr	Gabela	
+3682281	فونسا	tr	Funza	
+2082539	ميراوكي	fix	Merauke	
+1276942	باريبادا	tr	Baripāda	
+1858794	كونوسو	tr	Kōnosu	
+1626560	سوريانغ	tr	Soreang	
+1714781	داتو أودين سينسوات	tr	Dinaig	
+2042893	مانبو	wd	Manp’o	
+1262578	موكتسار	tr	Muktsar	
+5345743	إل مونتي	wd	El Monte	
+3445993	توباراو	tr	Tubarão	
+3176746	فورلي	tr	Forlì	
+1278083	أعظم كره	wd	Azamgarh	
+12432973	سانتا ماريا	tr	Santa Maria	
+229380	ماساكا	wd	Masaka	
+1584784	كو دو	tr	Cờ Đỏ	
+1518542	تالديكورغان	wd	Taldykorgan	
+1809408	غولين	tr	Gulin	
+7026999	تونغ كرو	tr	Thung Khru	
+1276895	برنالة	wd	Barnāla	
+1252758	يلاهانكا	tr	Yelahanka	
+1614295	باتايا	wd	Pattaya	
+1274040	شيتورغاره	wd	Chittorgarh	
+1815276	تشنغغو	tr	Chenggu	
+2989317	أورليان	wd	Orléans	
+2982652	روان	wd	Rouen	
+1254432	تينسوكيا	tr	Tinsukia	
+5443910	وستمنستر	wd	Westminster	
+1807301	داشا	tr	Dasha	
+2033536	ياكيشي	wd	Yakeshi	
+155101	ماكامباكو	tr	Makumbako	
+1266928	خرغون	tr	Khargone	
+3632929	ماريارا	wd	Mariara	
+1714956	ديغوس	wd	Digos	
+922083	تشيلينغي	tr	Tshilenge	
+2508287	عين البيضاء	wd	Aïn Beïda	
+32909	انديشه	wd	Shahre Jadide Andisheh	
+3404817	بريفيس	tr	Breves	
+3130583	ألكوبينداس	gn	Alcobendas	
+2419472	كيسيدوغو	wd	Kissidougou	
+1819283	سان تونغ تشونغ هانغ	tr	San Tung Chung Hang	
+4724129	راوند روك	wd	Round Rock	
+520068	نوجينسك	wd	Noginsk	
+3626219	تيناكيلو	wd	Tinaquillo	
+4499379	ويلمينغتون	wd	Wilmington	
+1717641	كافيت سيتي	wd	Cavite City	
+3463140	فورموزا	tr	Formosa	
+3427833	تانديل	wd	Tandil	
+2743856	زوترمير	tr	Zoetermeer	
+3388713	ساو غونسالو دو أمارانتي	tr	São Gonçalo do Amarante	
+1238992	سري جاياواردنابورا كوتي	wd	Sri Jayewardenepura Kotte	
+6822174	ناسوشيوبارا	wd	Nasushiobara	
+3445446	فارزيا باوليستا	tr	Várzea Paulista	
+1817441	بايشا	tr	Baisha	
+359212	بني مزار	gn	Banī Mazār	
+1163724	تونسه	tr	Taunsa	
+6822152	أوراسوي	fix	Urasoe	
+467978	ييليتس	wd	Yelets	
+7026898	سوان لوانغ	tr	Suan Luang	
+3114256	بارلا	gn	Parla	
+1574155	مي هاو	tr	Mỹ Hào	
+1818020	آنليو	tr	Anliu	
+3451329	ريبيراو بيريس	tr	Ribeirão Pires	
+13450916	ريكانتو داس إيماس	tr	Recanto das Emas	
+13132725	تشونغا	tr	Chunga	
+103369	بيشة	wd	Bīshah	
+511510	نوفو بيريديلكينو	tr	Novo-Peredelkino	
+1277780	بايدياباتي	tr	Baidyabāti	
+2327143	أوكيغوي	tr	Okigwe	
+385038	الرفاع	wd	Ar Rifā‘	
+690548	أوجهورود	wd	Uzhhorod	
+232066	كاسيس	wd	Kasese	
+1791536	تيانفو	tr	Tianfu	
+5412199	أرفادا	wd	Arvada	
+2128574	أوتارو	wd	Otaru	
+1682659	تاياباس	wd	Tayabas	
+2315419	إنكيسي	tr	Inkisi	
+1710544	إيريجا	wd	Iriga City	
+6165683	ثورنهيل	tr	Thornhill	
+933945	فاكواس	tr	Vacoas	
+4672989	بومونت	wd	Beaumont	
+3183719	فلوره	wd	Vlorë	
+1670106	سانشيا	tr	Sanxia	
+5780026	بروفو	wd	Provo	
+3385935	توكوروي	tr	Tucuruí	
+1276736	بستي	tr	Bastī	
+4905687	بيوريا	wd	Peoria	
+3433975	إيسيسا	wd	Ezeiza	
+1513604	خيوة	wd	Xiva	
+752015	أماسية	wd	Amasya	
+3844421	ميندوزا	wd	Mendoza	
+1147290	بلخ	wd	Balkh	
+3465059	كوباتاو	tr	Cubatão	
+1800498	مينغشوي	tr	Mingshui	
+1570863	فونغ ديان	tr	Phong Điền	
+3456117	نوفا سيرانا	tr	Nova Serrana	
+7027001	وانغ تونغلانغ	tr	Wang Thonglang	
+5334223	كارلسباد	wd	Carlsbad	
+187896	مانديرا	fix	Mandera	
+1798131	تشياوتو	fix	Qiaotou	
+616635	غيومري	wd	Gyumri	
+300797	سلوبي	wd	Silopi	
+1271662	غانغافاتي	tr	Gangavati	
+1278815	آمبور	wd	Ambur	
+6318738	تانغارا دا سيرا	tr	Tangará da Serra	
+3098722	غورجوف ويلكوبولسكي	wd	Gorzów Wielkopolski	
+6318694	سيمويس فيليو	tr	Simões Filho	
+1271175	جيريديه	fix	Giridih	
+1182829	بهول نغر	tr	Phool Nagar	
+1692214	كيزون	tr	Quezon	
+2473247	أريانة	wd	Aryanah	
+1185920	تونغيبارا	tr	Tungipara	
+2112656	إتشينوسيكي	wd	Ichinoseki	
+2491889	خنشلة	wd	Khenchela	
+1609776	خون كاين	wd	Khon Kaen	
+5527554	أوديسا	wd	Odessa	
+3466696	كاتالاو	tr	Catalão	
+1163952	تندو محمد خان	tr	Tando Muhammad Khan	
+4250542	سبرينغفيلد	wd	Springfield	
+1105728	سوماروبورو	tr	Somaroboro	
+3688256	بوغا	tr	Guadalajara de Buga	
+1632998	بامانوكان	tr	Pamanukan	
+3402000	كودو	tr	Codó	
+6681051	برديس	wd	Pardīs	
+1569684	بليكو	wd	Pleiku	
+5343858	داوني	wd	Downey	
+2188164	لور هوت	wd	Lower Hutt	
+1785545	يوياو	fix	Yuyao	
+1863018	هاتسوكايتشي	fix	Hatsukaichi	
+92052	رانية	wd	Rānyah	
+11101593	تونغ تشونغ	tr	Tung Chung	
+3440714	سالتو	wd	Salto	
+300822	سعرد	wd	Siirt	
+2033147	تشاوتشو	tr	Zhaozhou	
+3629614	بونتا كاردون	tr	Punta Cardón	
+6822132	أكيشيما	gn	Akishima	
+3397893	إيتاكواتيارا	tr	Itacoatiara	
+919544	تشيليلابومبوي	wd	Chililabombwe	
+13546322	ريفيير دي بريري بوانت أو ترامبل	tr	Rivière-des-Prairies–Pointe-aux-Trembles	
+2633521	وورثينغ	wd	Worthing	
+3995019	نافوخوا	fix	Navojoa	
+2327879	أوفا	fix	Offa	
+1489530	توبولسك	wd	Tobolsk	
+11612537	توكاي	wd	Tōkai	
+1252942	واردها	tr	Wardha	
+1791765	وانشنغ	tr	Wansheng	
+1168226	بتوكي	tr	Pattoki	
+1791706	واياوبو	tr	Wayaobu	
+1862636	هيكوني	fix	Hikone	
+1856243	ناغاهاما	wd	Nagahama	
+1798713	بينغشان	tr	Pingshan	
+2035399	سونغيوان	tr	Songyuan	
+1801615	مابا	wd	Maba	
+6822159	فوجيمينو	wd	Fujimino	
+2651123	دونكاستر	wd	Doncaster	
+1587759	بينه توي	tr	Bình Thủy	
+1714201	دوماغويتي	wd	Dumaguete	
+2516395	جيان	gn	Jaén	
+1814915	تشنغتشياو	tr	Chengqiao	
+3101619	خوجوف	wd	Chorzów	
+2249222	لوغا	wd	Louga	reviewed
+13562438	هوانغ ماي	tr	Hoàng Mai	
+3625207	ياريتاغوا	wd	Yaritagua	
+1165635	شهدادبور	wd	Shahdadpur	
+3460522	إيتومبيارا	tr	Itumbiara	
+192785	خويسيرو	tr	Khwisero	
+5339840	كوستا ميسا	wd	Costa Mesa	
+1176022	جوهر آباد	tr	Jauharabad	
+4164167	ميامي غاردنز	wd	Miami Gardens	
+1147513	باغرام	fix	Bagrām	
+2653225	تشيسترفيلد	wd	Chesterfield	
+4903976	نورث بيوريا	tr	North Peoria	
+495344	شتشايولكوفو	wd	Shchyolkovo	
+361329	الفشن	wd	Al Fashn	
+5347335	فيرفيلد	wd	Fairfield	
+3557846	غواناباكوا	tr	Guanabacoa	
+998082	هامانسكرال	tr	Hammanskraal	
+6822184	أوشو	wd	Ōshū	
+2530048	تاوريرت	wd	Taourirt	
+347591	طلخا	wd	Ţalkhā	
+1671444	نيلي	tr	Neili	
+1162813	وهاري	wd	Vihari	
+2034497	تاونان	tr	Taonan	
+1848382	يوكايتشي	tr	Youkaichi	
+1859586	كازو	wd	Kazo	
+3589289	سانتا لوسيا كوتسومالغوابا	tr	Santa Lucía Cotzumalguapa	
+2702979	يونشوبينغ	wd	Jönköping	
+1255264	تاديباليغوديم	tr	Tadepalligudem	
+1809077	هايكو	tr	Haikou	
+4998830	لانسنغ	wd	Lansing	
+1274767	تشاندوسي	tr	Chanduasi	
+1277939	باغاها	tr	Bagaha	
+1497917	نفتيوغانسك	wd	Nefteyugansk	
+2847736	رويتلينغن	gn	Reutlingen	
+3625710	أوباتا	tr	Upata	
+1795857	شاووو	tr	Shaowu	
+1280570	رويلي	wd	Mengmao	reviewed
+1638284	لاوانغ	tr	Lawang	
+2554006	بوسكورة	tr	Bouskoura	
+667873	ساتو ماري	wd	Satu Mare	
+3460791	إيتانياييم	tr	Itanhaém	
+2036337	كاييوان	tr	Kaiyuan	
+191299	كيسي	wd	Kisii	
+3058213	بيترجالكا	tr	Petržalka	
+128321	كازرون	wd	Kāzerūn	
+1279390	أجلبور	wd	Achalpur	
+3453420	بلانالتينا	tr	Planaltina	
+3640226	غواناري	fix	Guanare	
+1916012	ووزيشان	wd	Wuzhishan	
+5043473	روشستر	wd	Rochester	
+1270994	غوندال	tr	Gondal	
+1181163	تشيتشه وطني	tr	Chichawatni	
+1203344	فريدبور	tr	Farīdpur	
+3587345	أبوبا	wd	Apopa	
+1718306	كارمونا	tr	Carmona	
+1707404	لاواغ	wd	Laoag	
+4890864	إلجين	wd	Elgin	
+1261012	عثمان آباد	wd	Dharashiv	
+1789496	شيغانغ	tr	Xigang	
+1814928	تشونغفو	tr	Chóngfú	
+1821263	تايبا	wd	Taipa	
+1259385	بورت بلير	wd	Port Blair	reviewed
+3523183	ميناتيتلان	wd	Minatitlán	
+2343093	إيسوك أورون	tr	Esuk Oron	
+378231	عطبرة	wd	Atbara	
+3164419	فيتشنزا	tr	Vicenza	
+4013714	سيوداد غوزمان	fix	Ciudad Guzmán	
+2177091	بالارات	wd	Ballarat	
+3600704	توكوا	tr	Tocoa	
+5784549	ويست جوردان	wd	West Jordan	
+1277936	باغالاكوت	wd	Bagalkot	
+3431271	لوماس دي ثامورا	wd	Lomas de Zamora	
+1832743	يوجو	wd	Yeoju	
+170592	دوما	wd	Dūmā	
+2657970	فينترتور	wd	Winterthur	
+518659	نوفوكويبيشفسك	wd	Novokuybyshevsk	
+2502385	بوسعادة	wd	Bou Saâda	
+362973	أبنوب	wd	Abnūb	
+119115	قوتشان	wd	Qūchān	
+3663529	ماناكابورو	tr	Manacapuru	
+1639094	كونينغان	tr	Kuningan	
+1255344	سوريابيت	tr	Suriāpet	
+1241622	كاندي	wd	Kandy	
+346030	زفتى	wd	Zefta	
+1277324	بانغاون	tr	Bangaon	
+5359488	إنغلوود	fix	Inglewood	
+307864	كلس	wd	Kilis	
+6163012	تيربون	wd	Terrebonne	
+1481927	سيت كا لاي	tr	Set Ka Lay	
+2653266	تشيلمسفورد	wd	Chelmsford	
+3598465	تشيكيمولا	tr	Chiquimula	
+1646492	تشيلونيي	tr	Cileunyi	
+7302861	أشوكناغار كاليانغار	tr	Ashoknagar Kalyangarh	
+906054	مونغو	wd	Mongu	
+2991214	ميلوز	wd	Mulhouse	
+2548830	الفقيه بن صالح	wd	Al Fqih Ben Çalah	
+1692565	بوليلان	tr	Pulilan	
+934765	بو باسين روز هيل	gn	Beau Bassin-Rose Hill	
+4094455	توسكالوسا	wd	Tuscaloosa	
+3667873	سوغاموسو	tr	Sogamoso	
+229278	مبالي	wd	Mbale	
+2992090	مونتروي	wd	Montreuil	
+3165771	تيرني	fix	Terni	
+1272513	ديسا	tr	Deesa	
+1261669	نافادويب	tr	Navadwīp	
+1732637	ماران	tr	Maran	
+1261931	ناندوربار	tr	Nandurbar	
+6822147	كاسوغا	wd	Kasuga	
+2328684	نسوكا	tr	Nsukka	
+2328952	نغورو	wd	Nguru	
+980921	مابوباني	fix	Mabopane	
+2790471	نامور	gn	Namur	
+3467978	كامبيه	tr	Cambé	
+1811729	إنتشنغ	tr	Encheng	
+738618	تورخال	wd	Turhal	
+1581461	غو فاب	tr	Gò Vấp	
+4722625	ريتشاردسون	wd	Richardson	
+1220747	بختر	fix	Bokhtar	
+2339631	هاديجيا	wd	Hadejia	
+1783940	تشوجي	wd	Zhuji	
+2987914	بربينيان	fix	Perpignan	
+4942618	لوويل	wd	Lowell	
+3458696	لافراس	fix	Lavras	
+3448351	ساو بيدرو دا ألديا	tr	São Pedro da Aldeia	
+3029241	كان	wd	Caen	
+6316298	أسالانديا	wd	Açailândia	
+140097	برازجان	wd	Borāzjān	
+5729485	غريشام	wd	Gresham	
+1285173	ينانغياونغ	wd	Yenangyaung	
+5324200	أنتيوك	wd	Antioch	
+934995	منزيني	wd	Manzini	
+3454690	باولينيا	fix	Paulínia	
+6324733	سانت جونز	wd	St. John's	
+229362	ماسيندي	fix	Masindi	
+294514	كفار سابا	wd	Kfar Saba	
+1857470	ماتسوتو	tr	Matsutō	
+4931972	كامبريدج	wd	Cambridge	
+1255491	سلطان بور	wd	Sultānpur	
+1273292	معسكر دلهي	tr	Delhi Cantonment	
+1725684	بايوغان	tr	Bayugan	
+1271883	فيروز بور	wd	Firozpur	
+4471025	هاي بوينت	wd	High Point	
+1813425	داتون	tr	Datun	
+5089178	مانشستر	wd	Manchester	
+141584	بانه	wd	Bāneh	
+11876505	غولشان	tr	Gulshan	
+1639362	كريسيك	tr	Kresek	
+618577	بيندر	wd	Bender	
+971534	نيلسبرويت	wd	Mbombela	
+1880283	سيمباوانغ	tr	Sembawang Estate	
+2468369	قابس	wd	Gabès	
+967476	أوركني	fix	Orkney	
+1803367	لينتشينغ	fix	Qingnian	
+5401395	تيميكولا	wd	Temecula	
+98846	النعمانية	wd	An Nu‘mānīyah	
+99135	الكوفة	wd	Kufa	
+145724	لوكابا	tr	Lucapa	
+1496503	نويابرسك	wd	Noyabrsk	
+92511	قلعة سكر	wd	Qal‘at Sukkar	
+1028079	ريسانو غارسيا	tr	Ressano Garcia	
+150103	سينغيريما	tr	Sengerema	
+578740	باتايسك	wd	Bataysk	
+3170647	بيزا	gn	Pisa	
+1803352	لينشوي	tr	Linshui	
+11611942	كاماغايا	wd	Kamagaya	
+2636486	ساتون كولدفيلد	tr	Sutton Coldfield	
+2037069	هايلون	wd	Hailun	
+1701124	ماراماغ	tr	Maramag	
+3050434	كيشكاميت	wd	Kecskemét	
+1538637	سيفرسك	wd	Seversk	
+1647149	تشياميس	tr	Ciamis	
+5375911	مورريتا	wd	Murrieta	
+711390	بروفاري	wd	Brovary	
+3449521	سانتو أنطونيو دي جيزوس	tr	Santo Antônio de Jesus	
+7026833	لاك سي	tr	Lak Si	
+2634910	ويكفيلد	wd	Wakefield	
+5416541	سينتينيال	wd	Centennial	
+1795184	شيلونغ	tr	Shilong	
+5387428	ريتشموند	wd	Richmond	
+1565157	توي لاي	tr	Thới Lai	
+3924679	فيلينا	tr	Vilhena	
+1262634	مغل سراي	tr	Pandit Deen Dayal Upadhyaya Nagar	
+2037685	ديداو	tr	Didao	
+298435	أرسوز	wd	Arsuz	
+1631733	بيلابوهان راتو	tr	Pelabuhanratu	
+1857665	ماروغامه	wd	Marugame	
+580724	أرزاماس	wd	Arzamas	
+6825496	هابيكينو	wd	Habikino	
+965528	فالابوروا	tr	Phalaborwa	
+2634838	والثامستو	tr	Walthamstow	
+5435464	بويبلو	wd	Pueblo	
+2338403	إيجيبو إغبو	tr	Ijebu-Igbo	
+496638	سيرغييف بوساد	fix	Sergiyev Posad	
+1683877	تاليساي	wd	Talisay	
+3837213	سان خوان	wd	San Juan	
+1256913	سيهور	tr	Sehore	
+1806439	نانتشنغ	tr	Jianchang	
+2036671	هولان	tr	Hulan	
+3617708	ماتاغلبا	wd	Matagalpa	
+6908641	كلونغ توي	tr	Khlong Toei	
+1500665	لنينسك كوزنتسكي	wd	Leninsk-Kuznetsky	
+1859405	كيريو	fix	Kiryū	
+159675	هانديني	tr	Handeni	
+3351764	بالومبو	tr	Balombo	
+6166142	ثاندر باي	wd	Thunder Bay	
+1861164	إيواتسوكي	tr	Iwatsuki	
+4718097	بيرلاند	wd	Pearland	
+2037712	ديهوي	tr	Dehui	
+1632694	بانغكالان بون	tr	Pangkalanbuun	
+4845193	واتربوري	wd	Waterbury	
+5577592	غريلي	wd	Greeley	
+3031137	بولون بيانكور	gn	Boulogne-Billancourt	
+685826	بايا ماري	tr	Baia Mare	
+3096880	كاليش	wd	Kalisz	
+290503	ورسان	wd	Warīsān	
+3465476	كورونيل فابريسيانو	tr	Coronel Fabriciano	
+2490098	معسكر	wd	Mascara	
+3395449	مارانغوابي	wd	Maranguape	
+2319668	أورومي	tr	Uromi	
+158151	كاتومبا	tr	Katumba	
+1574507	مونغ كاي	tr	Móng Cái	
+13645699	معسكر كانبور	tr	Kanpur Cantonment	
+1858910	كوماتسو	wd	Komatsu	
+5407933	ويست كوفينا	wd	West Covina	
+5503766	إنتربرايز	wd	Enterprise	
+1277240	بانسبيريا	tr	Bānsbāria	
+3682018	خيرون	tr	Girón	
+1147540	بغلان	wd	Baghlān	
+3456500	موريايه	tr	Muriaé	
+1808916	هانجيا	tr	Hanjia	
+1226260	ترينكومالي	wd	Trincomalee	
+1687801	سانتياغو	wd	Santiago	
+8403612	تايباي	tr	Taibai	
+2651621	داغنهام	wd	Dagenham	
+1787828	شويونغ	tr	Xuyong	
+4589387	نورث تشارلستون	wd	North Charleston	
+286282	صحار	fix	Sohar	
+2035610	نيهي	tr	Nehe	
+387345	أبو غرق	tr	Abu Gharaq	
+515879	أوكتيابرسكي	fix	Oktyabrsky	
+1255254	تادباتري	tr	Tadpatri	
+2347059	برنين كيبي	wd	Birnin Kebbi	
+1688253	سانتا كروز	tr	Santa Cruz	
+5793933	إيفرت	wd	Everett	
+378699	النهود	wd	An Nuhūd	
+1867429	أوليول	tr	Ŭllyul	
+3191648	رييكا	wd	Rijeka	
+1665196	دوليو	tr	Douliu	
+11427402	لويس إدواردو ماغاليانس	tr	Luis Eduardo Magalhães	
+1717911	كاتبالوجان	wd	Catbalogan	
+4682464	كوليج ستيشن	wd	College Station	
+250258	السلط	wd	As Salţ	
+1856977	ميشيما	wd	Mishima	
+3351786	باييا فارتا	tr	Baía Farta	
+1269388	جالبايغوري	tr	Jalpāiguri	
+2036595	جالاي نور	tr	Jalai Nur	
+1851193	تاجيمي	fix	Tajimi	
+3435607	كاستيلار	wd	Castelar	
+4169014	بومبانو بيتش	fix	Pompano Beach	
+3893532	كورونل	wd	Coronel	
+3406910	باكابال	tr	Bacabal	
+6317781	نوفو غاما	wd	Novo Gama	
+1610858	دوسيت	tr	Dusit	
+2067119	ماندوراه	wd	Mandurah	
+2656192	باسينجستوك	wd	Basingstoke	
+751077	بندرمة	wd	Bandırma	
+2643179	ميدستون	wd	Maidstone	
+2034440	تيلي	wd	Tieli	
+89824	أم قصر	wd	Umm Qaşr	
+1735076	بتروورث	wd	Butterworth	
+1795842	شابينغ	tr	Shaping	
+2418362	لابي	fix	Labé	
+139223	شالوس	wd	Chālūs	
+3095049	كشالين	wd	Koszalin	
+3181913	بولزانو	wd	Bolzano	
+12541728	ساوث فولتون	tr	South Fulton	
+3445859	أوبا	tr	Ubá	
+1337248	شيربور	tr	Sherpur	
+516436	أوبنينسك	wd	Obninsk	
+3682028	خيراردوت	tr	Girardot City	
+2886946	كوبلنز	wd	Koblenz	
+3460733	إيتابيرونا	tr	Itaperuna	
+2832495	زيغن	wd	Siegen	
+1263797	مانغالاغيري	tr	Mangalagiri	
+949224	توهوياندو	tr	Thohoyandou	
+288955	السويق	fix	As Suwayq	
+5377995	نوروالك	wd	Norwalk	
+1560037	ين فينه	tr	Yên Vinh	
+789225	ميتروفيتسا	wd	Mitrovicë	
+688105	إيفباتوريا	wd	Yevpatoriya	
+1631992	باتي	tr	Pati	
+563514	إيليستا	wd	Elista	
+1397479	ديره مراد جمالي	wd	Dera Murad Jamali	
+1290596	تاونغو	wd	Taungoo	
+2656046	بيدفورد	wd	Bedford	
+7090987	باغونغ سيلانغان	tr	Bagong Silangan	
+1876124	كانغنيونغ	tr	Kangnyŏng	
+3646190	كاتيا لا مار	tr	Catia La Mar	
+5574991	بولدر	wd	Boulder	
+1803886	آننينغ	tr	Anning	
+3460523	إيتويوتابا	tr	Ituiutaba	
+1607017	رايونج	wd	Rayong	
+2210554	سرت	wd	Sirte	
+1172904	كوتري	tr	Kotri	
+569273	تشيريوموشكي	tr	Cherëmushki	
+4531405	بروكن أرو	wd	Broken Arrow	
+5341430	دالي سيتي	wd	Daly City	
+1646678	تشيكارانغ	tr	Cikarang	
+2447513	أرليت	wd	Arlit	
+418943	بهارستان	wd	Bahārestān	
+1568737	با دون	tr	Ba Đồn	
+1258474	رانيبنور	tr	Ranebennur	
+2035970	لونغجيانغ	tr	Longjiang	
+1897118	هوادو	tr	Hwado	
+1816221	بوهي	tr	Buhe	
+2473744	الحمامات	wd	Hammamet	
+2324857	بينديغا	tr	Pindiga	
+712451	بيرديانسك	wd	Berdyansk	
+1667027	توفن	tr	Toufen	
+124082	ميانه	wd	Mīāneh	
+2463447	الداخلة	wd	Dakhla	
+1695097	بانيكي	tr	Paniqui	
+517836	نوفوترويتسك	wd	Novotroitsk	
+2950349	برغيش غلادباخ	tr	Bergisch Gladbach	
+1336139	رانغاماتي	wd	Rangamati	
+713716	ألتشيفسك	wd	Alchevsk	
+1567681	سون لا	wd	Sơn La	
+585514	مينغاتشيفير	fix	Mingachevir	
+3093692	لغنيتسا	wd	Legnica	
+3159016	درامن	gn	Drammen	
+1632358	باري	tr	Pare	
+948542	توكوزا	tr	Tokoza	
+3406545	بالساس	tr	Balsas	
+6354908	سيدني	wd	Sydney	
+566532	دربند	wd	Derbent	
+1784820	شينغهوا	tr	Xinghua	
+1266607	خورجا	tr	Khurja	
+1700360	ماتي	wd	Mati	
+1651226	أرجاوينانغون	tr	Arjawinangun	
+13546316	لو بلاتو مون رويال	tr	Le Plateau-Mont-Royal	
+2267827	فونشال	gn	Funchal	
+1266489	كيشانغانج	tr	Kishanganj	
+3514321	ياوتيبيك	tr	Yautepec	
+3460064	جاتاي	tr	Jataí	
+2348595	أزاري	tr	Azare	
+1671566	نانتو	fix	Nantou	
+3398115	إيبوجوكا	tr	Ipojuca	
+1733953	لاحد داتو	wd	Lahad Datu	
+6713355	سوبولوسالام	wd	Subulussalam	
+3393106	باراغوميناس	tr	Paragominas	
+217834	بوكاما	wd	Bukama	
+1259411	بوناني	wd	Ponnāni	
+1683013	تانزا	tr	Tanza	
+6822179	إنزاي	wd	Inzai	
+1185263	بهيراب بازار	tr	Bhairab Bāzār	
+1270090	هينداون	tr	Hindaun	
+1269374	جمال بور	tr	Jamālpur	
+362004	أبو تيج	gn	Abū Tīj	
+3598122	كواتيبيكي	tr	Coatepeque	
+2505653	براقي	wd	Baraki	
+118367	رباط كريم	wd	Robāţ Karīm	
+445694	عقرة	fix	'Ākra	
+4221333	ساندي سبرينغز	wd	Sandy Springs	
+5331835	بربانك	wd	Burbank	
+1605843	تالينغ تشان	tr	Taling Chan	
+3428775	سان خوستو	wd	San Justo	
+1580830	هوا بنه	wd	Hòa Bình	
+935221	سان بول	fix	Saint-Paul	
+3114965	أورينسي	tr	Ourense	
+1262216	ناغور	wd	Nāgaur	
+12432977	رياشو فوندو الثاني	tr	Riacho Fundo II	
+5254962	غرين باي	wd	Green Bay	
+229139	ميتيانا	wd	Mityana	
+105299	جيزان	wd	Jizan	
+3515715	تيسكوكو دي مورا	fix	Texcoco de Mora	
+8355932	بانغ بون	tr	Bang Bon	
+700051	نيكوبول	wd	Nikopol	
+693468	سلوفيانسك	wd	Slovyansk	
+5393180	سانتا ماريا	wd	Santa Maria	
+12157013	سان فرانسيسكو دي بورخا	tr	San Francisco De Borja	
+12324302	ييدو	tr	Yidu	
+2990999	نانسي	wd	Nancy	
+1735572	كوالا كراي	tr	Kuala Krai	
+1784393	تشونغهي	tr	Zhonghe	
+1798422	بويانغ	tr	Puyang Chengguanzhen	
+1861795	إكيدا	wd	Ikeda	
+6176823	واترلو	wd	Waterloo	
+13157160	أمبالا صدر	tr	Ambala Sadar	
+3598529	تشيناوتلا	tr	Chinautla	
+2842150	زالتسغيتر	wd	Salzgitter	
+13546317	فيل ماري	tr	Ville-Marie	
+7279747	بهيوادي	wd	Bhiwadi	
+1275103	بوندي	wd	Būndi	
+1263012	ميريالاغودا	tr	Miryalaguda	
+1807544	داشينغ	tr	Daxing	
+3471374	أسيس	tr	Assis	
+3389652	سانتا كروز دو كابيباريبي	tr	Santa Cruz do Capibaribe	
+1786778	ييتشو	tr	Yezhou	
+4004867	بارال	tr	Hidalgo del Parral	
+1926054	سايجو	fix	Saijō	
+2895044	يينا	gn	Jena	
+4741752	ويتشيتا فولز	wd	Wichita Falls	
+5907990	برانتفورد	wd	Brantford	
+2921232	غيرا	tr	Gera	
+1563287	توين كوانج	wd	Tuyên Quang	
+99446	الفاو	wd	Al Fāw	
+1052944	أنغوشي	fix	Angoche	
+1645518	ديبوك	tr	Depok	
+2110729	توريده	gn	Toride	
+3194828	موستار	wd	Mostar	
+625324	مازير	wd	Mazyr	
+5989045	كاملوبس	wd	Kamloops	
+907111	مازابوكا	tr	Mazabuka	
+4161438	ليكلاند	wd	Lakeland	
+1516589	جيزكازغان	wd	Zhezqazghan	
+8403616	بايلو	tr	Pailou	
+7281020	لو برادو	tr	Lo Prado	
+2475744	تيزي وزو	wd	Tizi Ouzou	
+1798490	بولانديان	tr	Pulandian	
+2706767	هلسينغبورغ	wd	Helsingborg	
+3408404	أبريو إي ليما	tr	Abreu e Lima	
+1173378	كوت أدو	tr	Kot Addu	
+2290964	بوافلي	fix	Bouaflé	
+2366152	كارا	wd	Kara	
+5338122	كلوفيس	wd	Clovis	
+915883	كافو	wd	Kafue	
+3467717	كامبو موراو	tr	Campo Mourão	
+2035196	سالاتشي	tr	Salaqi	
+914959	كالولوشي	tr	Kalulushi	
+4706057	لويسفيل	wd	Lewisville	
+2540689	وادي زم	wd	Oued Zem	
+1503277	كيسيليفسك	wd	Kiselëvsk	
+1430991	سويبوغ	tr	Soyībug	
+326406	ولديا	wd	Weldiya	
+2036418	جيشو	tr	Jishu	
+2549979	قلعة السراغنة	tr	El Kelaa des Srarhna	
+2596934	سيجويلا	gn	Séguéla	
+3455729	أورينيوس	tr	Ourinhos	
+3588258	توتونيكابان	tr	Totonicapán	
+380173	الدامر	wd	Ad-Damir	
+1269562	جكتيال	wd	Jagtiāl	
+2633709	ووكينغ	wd	Woking	
+1258044	روركي	wd	Roorkee	
+2232239	إديا	wd	Edéa	
+1784185	يوشي	fix	Yuxi	
+2644487	لينكن	wd	Lincoln	
+3453406	بوا	tr	Poá	
+1816865	باشان	tr	Bashan	
+2328811	نكبور	tr	Nkpor	
+2389086	بربراتي	wd	Berbérati	
+1166146	سانغلا هيل	tr	Sangla Hill	
+1797091	تونغرن	tr	Tongren	
+4738214	تايلر	wd	Tyler	
+1282027	ماليه	wd	Male	
+5345529	الكاهون	wd	El Cajon	
+3171058	بياتشينزا	tr	Piacenza	
+1141857	غرديز	wd	Gardez	
+607610	جاناوزن	wd	Zhanaozen	
+1810724	غانغو	tr	Gangu Chengguanzhen	
+3515696	تيسيوتلان	tr	Teziutlan	
+2249782	كولدا	wd	Kolda	
+1253958	أودغير	tr	Udgīr	
+5392423	سان ماتيو	wd	San Mateo	
+2732265	فيسيو	gn	Viseu	
+1262209	ناغدا	tr	Nagda	
+2870221	مويرس	wd	Moers	
+4148757	براندون	wd	Brandon	
+683123	بوزاو	gn	Buzău	
+3111933	ريوس	tr	Reus	
+1631393	برابوموليه	fix	Prabumulih	
+3460974	إيتابايانا	tr	Itabaiana	
+933778	فرانسيستاون	fix	Francistown	
+1861449	إسيهارا	wd	Isehara	
+2264268	كويلوز	wd	Queluz	
+1276389	بيتول	tr	Betūl	
+1864572	تشيكوشينو	wd	Chikushino-shi	
+298806	الطرغودية	wd	Turgutlu	
+626081	ليدا	wd	Lida	
+1668295	تايتونغ	tr	Taitung	
+2451778	سان	wd	San	
+1269557	جهان آباد	fix	Jahānābād	
+6053154	ليثبريدج	wd	Lethbridge	
+476077	فيليكي لوكي	wd	Velikiye Luki	
+1267579	كاشيبور	tr	Kashipur	
+5387288	ريالتو	wd	Rialto	
+2634491	ويست بروميتش	wd	West Bromwich	
+1271306	غازي بور	tr	Ghazīpur	
+1624877	تانجونغ باندان	tr	Tanjung Pandan	
+2338287	إيكيري إكيتي	tr	Ikere-Ekiti	
+2904789	هيلدسهايم	wd	Hildesheim	
+1174042	كهاريان	wd	Kharian	
+2176187	بنديجو	wd	Bendigo	
+1214073	رانتاوبرابات	tr	Rantauprapat	
+12261477	أمارافاتي	wd	Amaravati	
+8521334	نكايي	tr	Nkayi	
+121380	بارس آباد	fix	Pārsābād	
+1283161	لاهان	tr	Lahān	
+3071961	ليبيريتس	wd	Liberec	
+1262260	ناغاباتينام	tr	Nagapattinam	
+108648	القريات	wd	Qurayyat	
+1275019	بوكسار	wd	Buxar	
+3488981	بورتمور	wd	Portmore	
+3835994	سانتا روزا	wd	Santa Rosa	
+3545064	بالما سوريانو	tr	Palma Soriano	
+503977	بوشكينو	wd	Pushkino	
+1173687	خوشاب	tr	Khushāb	
+2332504	لافياغي	tr	Lafiagi	
+3468215	كاييراس	tr	Caieiras	
+1529363	كوتشا	fix	Xincheng	
+1168307	بسرور	tr	Pasrur	
+1215412	بيلاوان	tr	Belawan	
+1168412	بنو عاقل	tr	Pano Aqil	
+670889	بياترا نيامتس	gn	Piatra Neamţ	
+3647637	كابوداري	wd	Cabudare	
+2929567	ارلنجن	gn	Erlangen	
+3817746	تيبيسبان	tr	Tepexpan	
+2244386	تيفوان	wd	Tivaouane	
+233508	إنتيبي	wd	Entebbe	
+4853423	دافنبورت	wd	Davenport	
+87205	درنة	wd	Darnah	
+358269	ديروط	wd	Dayrūţ	
+5097529	إديسون	tr	Edison	
+3892870	كوريكو	wd	Curicó	
+1876105	كانغسون	tr	Kangsŏn	
+3509382	لا فيغا	fix	La Vega	
+1185121	شاهزادبور	tr	Shāhzādpur	
+3515062	تولانسينغو	tr	Tulancingo	
+1848254	يونو	tr	Yono	
+4018400	أباتسينغان	tr	Apatzingán	
+5731371	هيلسبورو	wd	Hillsboro	
+1263494	مورموغاو	tr	Mormugao	
+1256826	سيوني	tr	Seoni	
+1165744	شبقدر	tr	Shabqadar	
+3670502	سابانالارغا	tr	Sabanalarga	
+1805270	جيشو	tr	Jishou	
+183595	نغونغ	tr	Ngong	
+3462996	فرانسيسكو بلتراو	tr	Francisco Beltrão	
+2027456	أرتيوم	wd	Artëm	
+329114	سيبيتا	tr	Sebeta	
+1849519	تسوياما	wd	Tsuyama	
+2962943	ليمريك	wd	Limerick	
+1278148	اورانجاباد	wd	Aurangābād	
+3885273	لامبا	tr	Lampa	
+1625929	سونغاي بنوه	tr	Sungai Penuh	
+479411	أوختا	wd	Ukhta	
+3460132	جابيري	tr	Japeri	
+1151933	ناخون سي ثامارات	wd	Nakhon Si Thammarat	
+6822216	كاني	fix	Kani	
+6648023	شويفو	fix	Shuifu	
+6822146	أونوجو	fix	Ōnojō	
+1172915	كوت رادها كشن	wd	Kot Radha Kishan	
+2219936	الجميل	wd	Al Jumayl	
+3441894	مالدونادو	wd	Maldonado	
+2745641	فينلو	tr	Venlo	
+3458131	ماريبورا	tr	Mairiporã	
+3172189	نوفارا	tr	Novara	
+114584	تستر	wd	Shūshtar	
+99039	المسيب	wd	Al-Musayab	
+3393008	بارينتينس	tr	Parintins	
+1997228	هيدونغ	tr	Hedong	
+1270077	هينغانغات	tr	Hinganghāt	
+737022	زنغلداق	wd	Zonguldak	
+311665	إغدير	wd	Iğdır	
+6825498	كاواتشيناغانو	tr	Kawachi-Nagano	
+2650497	إيستبورن	wd	Eastbourne	
+1272997	دامتري	wd	Dhamtari	
+5937615	ديلتا	wd	Delta	
+624079	أورشا	wd	Orsha	
+2633563	ورسستر	wd	Worcester	
+5475352	لاس كروسيس	wd	Las Cruces	
+3044774	سيكشفهيرفار	wd	Székesfehérvár	
+3459342	لاغارتو	tr	Lagarto	
+2656173	باث	wd	Bath	
+2532945	سيدي سليمان	wd	Sidi Slimane	
+3458662	ليمي	tr	Leme	
+1861864	إيدا	fix	Iida	
+3649417	لوس بويرتوس دي ألتاغراسيا	tr	Los Puertos de Altagracia	
+4926563	ساوث بند	wd	South Bend	
+1504682	كانسك	wd	Kansk	
+5921356	تشيليواك	wd	Chilliwack	
+1884386	كوينزتاون	wd	Queenstown Estate	
+3037044	أرجنتوي	wd	Argenteuil	
+1503772	خانتي مانسييسك	wd	Khanty-Mansiysk	
+1710470	إيسولان	tr	Isulan	
+2248698	امباكي	tr	Mbaké	
+697889	بافلوجراد	wd	Pavlohrad	
+741385	مصطفى كمال باشا	fix	Mustafakemalpaşa	
+12640444	بورايو	tr	Burayu	
+1274213	تشيلاكالوريبيت	tr	Chilakalūrupet	
+1264154	مالابورام	wd	Malappuram	
+2232283	ايبولوا	wd	Ébolowa	
+5935277	دارتموث	wd	Dartmouth	
+2513076	أوريويلا	gn	Orihuela	
+1837706	سانغجو	wd	Sangju	
+12750652	بيرلينغ	tr	Perling	
+5106834	ألباني	wd	Albany	
+3449310	ساو كريستوفاو	tr	São Cristóvão	
+2298330	ميدينا إستيتس	tr	Medina Estates	
+1181636	جكوال	wd	Chakwal	
+9534547	نغا باي	tr	Ngã Bảy	
+2648657	جيلينغهام	wd	Gillingham	
+300075	سروج	wd	Suruç	
+1807738	هواتشنغ	tr	Huacheng	
+3673662	أوكانيا	tr	Ocaña	
+1580400	هونغ نغو	tr	Hồng Ngự	
+2290412	داوكرو	wd	Daoukro	
+1850152	توكوياما	tr	Tokuyama	
+347296	طما	wd	Ţimā	
+1892823	دونغهاي	tr	Donghae City	
+952747	ستانديرتون	wd	Standerton	
+1860112	كانويا	wd	Kanoya	
+964315	موكوباني	fix	Mokopane	
+358172	دكرنس	wd	Dikirnis	
+4945121	نيو بدفورد	wd	New Bedford	
+126015	لاهيجان	wd	Lāhījān	
+2792482	لوفن	tr	Leuven	
+1498920	ميجدوريتشينسك	wd	Mezhdurechensk	
+1277214	بانسوارا	tr	Bānswāra	
+1710141	جولو	tr	Jolo	
+783263	إيلبصان	wd	Elbasan	
+1769014	إيجوك	tr	Ijok	
+5406602	فيستا	wd	Vista	
+4152820	ديفي	wd	Davie	
+7280528	الرشيدية	wd	Errachidia	
+2294308	تويفو براسو	tr	Twifu Praso	
+6118158	رد دير	wd	Red Deer	
+491023	سوليكامسك	fix	Solikamsk	
+3610613	إل بروغريسو	tr	El Progreso	
+12495083	تشيرميري	tr	Chirmiri	
+3470691	بارا دو بيراي	tr	Barra do Piraí	
+6822097	تشيكوسه	wd	Chikusei	
+1625958	سونغايليات	wd	Sungailiat	
+3182884	أريتسو	tr	Arezzo	
+1720508	كالاسياو	tr	Calasiao	
+561347	جلازوف	wd	Glazov	
+3988392	روزاريتو	fix	Rosarito	
+144616	أهر	wd	Ahar	
+261414	كاليثيا	wd	Kallithéa	
+3708306	خوان دياز	tr	Juan Díaz	
+1560349	ين باي	wd	Yên Bái	
+1643761	غروغول	tr	Grogol	
+99226	الإسكندرية	wd	Nāḩiyat al Iskandarīyah	
+3591062	بويرتو باريوس	tr	Puerto Barrios	
+220075	باكوا	tr	Bakwa	
+1269653	إيتارسي	tr	Itārsi	
+3444864	فوتوبورانغا	tr	Votuporanga	
+1606291	سي ماها بوت	tr	Si Maha Phot	
+1581052	ها تيان	tr	Hà Tiên	
+3633677	لوس راستروخوس	tr	Los Rastrojos	
+124620	مسجد سليمان	wd	Masjed Soleymān	
+1253367	فاسكو دا غاما	tr	Vasco da Gama	
+3109453	باراكالدو	tr	Barakaldo	
+1005125	إرميلو	tr	Ermelo	
+2774326	كلاغنفورت	wd	Klagenfurt am Wörthersee	
+1803334	لينشي	tr	Linxi	
+2244616	تيبو	tr	Tiébo	
+1271631	غانغتوك	fix	Gangtok	
+1273403	داتيا	tr	Datia	
+1853209	ساكادو	fix	Sakado	
+1853140	ساكاتا	wd	Sakata	
+2013952	أوست إيليمسك	wd	Ust’-Ilimsk	
+3121456	جرندة	tr	Girona	
+5808189	رينتون	wd	Renton	
+1514192	شوست	wd	Chust	
+1242110	كالموناي	tr	Kalmunai	
+3165072	أوديني	tr	Udine	
+1788492	شينتشاي	tr	Xinzhai	
+1259827	فاغوارا	fix	Phagwāra	
+1861091	إيزوميسانو	tr	Izumisano	
+2821164	ترير	wd	Trier	
+1863627	غينوان	wd	Ginowan	
+334227	شاير	wd	Inda Silasē	reviewed
+1634266	نيغارا	tr	Negara	
+3468562	كاسابافا	tr	Caçapava	
+2213618	قصر بن غشير	wd	Qaşr Bin Ghashīr	
+1166933	رينالا خورد	wd	Renala Khurd	
+3494242	بونتا كانا	wd	Punta Cana	
+4782167	روانوك	wd	Roanoke	
+7279599	أيرولي	tr	Airoli	
+2350523	ألاسيا	tr	Alasia	
+13061022	بندر مهكوتا تشيراس	tr	Bandar Mahkota Cheras	
+1802171	كانغدينغ	tr	Kangding	
+1170157	موديل تاون	tr	Model Town	
+201650	نياغاتاري	tr	Nyagatare	
+1871871	بيونغسونغ	wd	P’yŏngsŏng	
+1167386	راجه جنغ	tr	Raja Jang	
+11670045	سبت العلايا	gn	Sabt Alalayah	
+2467242	ساقية الزيت	wd	Sakiet ez Zit	
+1744763	سنتول	tr	Sentul	
+7792200	سري مانجونغ	tr	Seri Manjung	
+6663569	برديسان	tr	Shahrak-e Pardīsān	
+3189595	سوبتيتسا	wd	Subotica	
+2034657	سويفنهي	wd	Suifenhe	
+2210394	تاجوراء	wd	Tājūrā’	
+1787188	يانجيا	tr	Yanjia	
+1252416	تيمفو	wd	Thimphu	
+3374036	بريدج تاون	wd	Bridgetown	
+2139521	نوميا	wd	Nouméa	
+3570675	فور دو فرانس	wd	Fort-de-France	
+2198148	سوفا	wd	Suva	
+2960316	لوكسمبورغ	fix	Luxembourg	
+934985	مبابان	wd	Mbabane	
+921772	موروني	wd	Moroni	
+426272	غيتيغا	wd	Gitega	
+1820906	بندر سري بكاوان	wd	Bandar Seri Begawan	
+3382160	كايين	wd	Cayenne	
+285787	مدينة الكويت	wd	Kuwait City	
+2108502	هونيارا	wd	Honiara	
+921815	مامودزو	wd	Mamoudzou	
+2410763	ساو تومي	wd	São Tomé	
+3576022	سانت جونز	wd	Saint John’s	
+3573890	بورت أوف سبين	wd	Port of Spain	
+7828758	سايبان	tr	Saipan	
+4035413	أبيا	wd	Apia	
+2110257	جنوب تاراوا	wd	Tarawa	
+2413876	بانجول	wd	Banjul	
+2135171	بورت فيلا	wd	Port-Vila	
+2993458	موناكو	tr	Monaco	
+3577154	أورنجستاد	wd	Oranjestad	
+3580661	جورج تاون	wd	George Town	
+3042091	ساينت هيلير	wd	Saint Helier	
+2411585	جبل طارق	wd	Gibraltar	
+4033936	بابيتي	wd	Papeete	
+3042237	دوغلاس	wd	Douglas	
+2113779	ماجورو	wd	Majuro	
+3577887	كينغستاون	wd	Kingstown	
+241131	فكتوريا	wd	Victoria	
+4032402	نوكو ألوفا	wd	Nuku‘alofa	
+3041563	أندورا لا فيلا	wd	Andorra la Vella	
+3576812	كاستريس	wd	Castries	
+4795467	شارلوت أمالي	wd	Charlotte Amalie	
+3575635	روسو	wd	Roseau	
+3042287	سان بيتر بورت	wd	Saint Peter Port	
+3421319	نوك	wd	Nuuk	
+3582672	بلموبان	wd	Belmopan	
+4035715	آواروآ	wd	Avarua	
+2611396	توشهافن	wd	Tórshavn	
+3575551	باستير	wd	Basseterre	
+5881576	باغو باغو	wd	Pago Pago	
+3579732	باس تير	wd	Basse-Terre	
+3041732	ماريهامن	wd	Mariehamn	
+3513563	كراليندايك	wd	Kralendijk	
+3577430	رود تاون	wd	Road Town	
+3579925	سانت جورجز	wd	Saint George's	
+2081986	باليكير	wd	Palikir	
+2562305	فاليتا	fix	Valletta	
+2110394	فونافوتي	wd	Funafuti	
+3424934	سان بيير	wd	Saint-Pierre	
+3579132	غوستافيا	wd	Gustavia	
+3578851	ماريغو	wd	Marigot	
+3042030	فادوتس	tr	Vaduz	
+3168070	سان مارينو	fix	San Marino	
+3576994	كوكبرن تاون	wd	Cockburn Town	
+2729907	لونغييربين	wd	Longyearbyen	
+3426691	ستانلي	wd	Stanley	
+3573374	ذا فالي	wd	The Valley	
+12226438	سيوداد دي لا باز	wd	Ciudad de la Paz	
+3513392	فيليبسبورغ	wd	Philipsburg	
+2078127	فلاينغ فيش كوف	wd	Flying Fish Cove	
+4034821	ماتا أوتو	wd	Mata-Utu	
+7626461	يارين	fix	Yaren	
+4044012	هاغاتنيا	wd	Hagåtña	
+3573197	هاميلتون	wd	Hamilton	
+2161314	كينغستون	wd	Kingston	
+6691831	مدينة الفاتيكان	tr	Vatican City	
+3370903	جيمس تاون	wd	Jamestown	
+4036284	ألوفي	fix	Alofi	
+7304591	ويست آيلاند	tr	West Island	
+4030723	آدمزتاون	wd	Adamstown	
+1546102	بورت أو فرانسيه	wd	Port-aux-Français	
+3426466	غريتفيكن	wd	Grytviken	
+8063361	نغيرولمود	wd	Ngerulmud	
+3578069	بليموث	wd	Plymouth	

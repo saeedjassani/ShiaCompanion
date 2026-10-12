@@ -375,6 +375,34 @@ language covers exactly the entries there are, with no English left: add,
 change or remove an entry in one of the data files and do the same for each
 language.
 
+## Place names (`assets/cities_<code>.tsv`)
+
+The city picker's list (`assets/cities.tsv`, ~6,000 cities, offline) has a
+names file per language, line for line with it: each city, country and
+province in that language. `CityRepository` loads the one for the app
+language, so the picker, the city's prayer-times page and a chosen city's
+label on the prayer card show no English; the search finds a city by its
+name in either script ("کربلا", "Karbala"). A place the file has no name
+for falls back to English.
+
+The reviewed source is `scripts/city_names/<code>.tsv`, keyed by GeoNames id,
+with where each name came from: Wikidata labels and GeoNames for most,
+Unicode CLDR for countries, and `tr`/`fix` for names transliterated or
+corrected by hand, which later runs never overwrite.
+
+```
+python3 scripts/build_city_names.py --dir DIR   # gather; empty names = worklist
+python3 scripts/build_city_list.py --dir DIR    # write cities.tsv + cities_<code>.tsv
+```
+
+Run both from the same GeoNames dumps (`--dir`), since the names files follow
+the list's order. A new language needs an entry in `LANGUAGES`/
+`NAME_LANGUAGES` there, its gaps filled, and its asset in `pubspec.yaml`.
+
+The place name from GPS is looked up online (bigdatacloud) in the app
+language, and both it and a chosen city are named again when the language
+changes (`LocationService.relabelForAppLanguage`).
+
 ## Not covered yet
 
 - **A juz** (the Quran read by juz rather than by surah) is assembled from

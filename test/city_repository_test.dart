@@ -1,4 +1,6 @@
+import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shia_companion/l10n/l10n.dart';
 import 'package:shia_companion/models/city.dart';
 import 'package:shia_companion/services/city_repository.dart';
 
@@ -111,6 +113,100 @@ void main() {
     expect(city.latitude, 17.38);
     expect(city.timeZone, 'Asia/Kolkata');
     expect(city.aliases, ['Bhagnagar']);
+  });
+
+  test('names the list in another language, line for line', () {
+    const list = 'C\tIQ\tIraq\n'
+        'A\tIQ.05\tKarbala\n'
+        'Z\tAsia/Baghdad\n'
+        'P\tKarbala\t\tIQ\t05\t32.62\t44.02\t434450\t0\tKerbala\n'
+        'P\tBroken\t\tIQ\t\tx\t44\t1\t0\t\n'
+        'P\tSāmarrā’\tSamarra\tIQ\t\t34.20\t43.87\t158508\t0\t\n'
+        'P\tNowhere\t\tIQ\t\t1\t1\t1\t0\t\n';
+    const urdu = '# comment\n'
+        'N\t4\n'
+        'C\tIQ\tعراق\n'
+        'A\tIQ.05\tمحافظہ کربلا\n'
+        'کربلا\n'
+        'بروکن\n'
+        'سامرا\n'
+        '\n';
+    final cities = City.parseDatabase(list, names: urdu);
+    expect([for (final city in cities) city.name],
+        ['کربلا', 'سامرا', 'Nowhere']);
+    expect(cities.first.englishName, 'Karbala');
+    expect(cities.first.countryName, 'عراق');
+    expect(cities.first.admin1Name, 'محافظہ کربلا');
+    // No name in the file: the English one, and nothing to search twice.
+    expect(cities.last.englishName, isEmpty);
+
+    // A file that does not match the list is not trusted at all.
+    final shifted = City.parseDatabase(list,
+        names: urdu.replaceFirst('N\t4', 'N\t5'));
+    expect(shifted.first.name, 'Karbala');
+    expect(shifted.first.countryName, 'Iraq');
+  });
+
+  test('folds Arabic-script spellings of one name together', () {
+    expect(foldForSearch('كربلاء'), foldForSearch('کربلا'));
+    expect(foldForSearch('مَشْهَد'), foldForSearch('مشهد'));
+    expect(foldForSearch('مکہ'), foldForSearch('مكة'));
+    expect(foldForSearch('آمل'), foldForSearch('امل'));
+    expect(foldForSearch('کرمانشاه'), foldForSearch('کرمان‌شاه'));
+    expect(foldForSearch('૧૨ અમદાવાદ'), '12 અમદાવાદ');
+  });
+
+  group('in another language', () {
+    setUp(() async {
+      L10n.current = lookupAppLocalizations(const Locale('ur'));
+      await repository.load();
+    });
+    tearDown(() async {
+      L10n.current = lookupAppLocalizations(const Locale('en'));
+      await repository.load();
+    });
+
+    test('names every city, country and province in it', () {
+      final karbala = repository.search('Karbala').first.city;
+      expect(karbala.name, 'کربلا');
+      expect(karbala.englishName, 'Karbala');
+      expect(karbala.countryName, 'عراق');
+      // Every place has a name of its own: nothing English is left.
+      final latin = RegExp('[A-Za-z]');
+      final all = repository.search('a', limit: 100000);
+      expect(all, isNotEmpty);
+      for (final match in all) {
+        expect(match.city.name, isNot(matches(latin)),
+            reason: match.city.englishName);
+        expect(match.city.countryName, isNot(matches(latin)));
+        expect(match.city.admin1Name, isNot(matches(latin)));
+      }
+    });
+
+    test('finds a city by its name in either script', () {
+      List<String> codes(String query) => [
+            for (final match in repository.search(query).take(1))
+              '${match.city.name}, ${match.city.countryCode}',
+          ];
+      expect(codes('کربلا'), ['کربلا, IQ']);
+      // Typed on an Arabic keyboard: ي ك ة and a hamza the Urdu lacks.
+      expect(codes('كربلاء'), ['کربلا, IQ']);
+      expect(codes('Karbala'), ['کربلا, IQ']);
+      expect(codes('مشہد'), ['مشہد, IR']);
+      expect(codes('Qom'), ['قم, IR']);
+    });
+
+    test('never shows a Latin other spelling', () {
+      final mecca = repository.search('Mecca').first;
+      expect(mecca.city.countryCode, 'SA');
+      expect(mecca.alias, isNull);
+    });
+
+    test('a chosen city can be found again by where it is', () {
+      final karbala = repository.search('Karbala').first.city;
+      expect(repository.cityAt(karbala.latitude, karbala.longitude)?.name,
+          'کربلا');
+    });
   });
 
   test('keeps the list small: big cities and capitals only', () {

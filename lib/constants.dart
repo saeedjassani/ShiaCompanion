@@ -617,13 +617,24 @@ Future<bool> initializeLocation(
   }
 }
 
-/// The language the stored GPS place name is written in. Absent for names
-/// fetched before the lookup followed the app language, which were English.
+/// The language the stored place name is written in. Absent for names
+/// stored before names followed the app language, which were English.
 const String cityLanguagePrefsKey = 'city_language';
 
-/// The language the stored GPS place name is in (see [cityLanguagePrefsKey]).
+/// The language the stored place name is in (see [cityLanguagePrefsKey]).
 String get cityLabelLanguage =>
     SP.prefs.getString(cityLanguagePrefsKey) ?? 'en';
+
+/// Renames the location [label], in the app language, without moving it:
+/// a chosen city named again after the language changes.
+Future<void> renameLocation(String label) async {
+  if (city != label) needToSchedule = true;
+  city = label;
+  if (SP.isInitialized) {
+    await SP.prefs.setString("city", label);
+    await SP.prefs.setString(cityLanguagePrefsKey, L10n.current.localeName);
+  }
+}
 
 /// Names the current [lat], [long] by reverse-geocoding them, in the app
 /// language: "کربلا" for an Urdu reader, "Karbala" for an English one.
@@ -729,6 +740,7 @@ Future<void> applyChosenPrayerLocation({
     await SP.prefs.setDouble("lat", latitude);
     await SP.prefs.setDouble("long", longitude);
     await SP.prefs.setString("city", label);
+    await SP.prefs.setString(cityLanguagePrefsKey, L10n.current.localeName);
   }
   if (locationChanged && flutterLocalNotificationsPlugin != null && !kIsWeb) {
     await setUpNotifications();

@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/widgets.dart';
 import 'package:shia_companion/constants.dart';
 import 'package:shia_companion/models/city.dart';
+import 'package:shia_companion/services/city_repository.dart';
 import 'package:shia_companion/services/home_screen_widget_service.dart';
 import 'package:shia_companion/utils/city_clock.dart';
 import 'package:shia_companion/utils/timezone_database.dart';
@@ -260,13 +261,14 @@ class LocationService extends ChangeNotifier {
     return success;
   }
 
-  /// Renames the phone's own location in the app language, when its stored
-  /// name was looked up in another: "Karbala" becomes "کربلا" once the
-  /// reader switches to Urdu, without waiting for the next GPS fix. A chosen
-  /// city keeps the name it was chosen by. Offline, the old name stays and
-  /// the next open tries again (see [refreshIfStale]).
+  /// Renames the location in the app language, when its stored name is in
+  /// another: "Karbala" becomes "کربلا" once the reader switches to Urdu.
+  /// The phone's own location is looked up again from its stored
+  /// coordinates, without waiting for the next GPS fix - offline, the old
+  /// name stays and the next open tries again (see [refreshIfStale]). A
+  /// chosen city takes its name from the bundled list.
   Future<void> relabelForAppLanguage() {
-    if (!SP.isInitialized || !hasLocation || _isManual) return Future.value();
+    if (!SP.isInitialized || !hasLocation) return Future.value();
     if (cityLabelLanguage == L10n.current.localeName) return Future.value();
     // A GPS refresh looks the name up in the app language itself.
     if (_inFlight != null) return Future.value();
@@ -274,13 +276,36 @@ class LocationService extends ChangeNotifier {
   }
 
   Future<void> _runRelabel() async {
-    if (!await refreshLocationLabel()) return;
+    if (!await (_isManual ? _renameChosenCity() : refreshLocationLabel())) {
+      return;
+    }
     notifyListeners();
     try {
       await HomeScreenWidgetService.instance.publishAll();
     } catch (e) {
       debugPrint('Location renamed, but publishing it failed: $e');
     }
+  }
+
+  Future<bool> _renameChosenCity() async {
+    final latitude = lat;
+    final longitude = long;
+    if (latitude == null || longitude == null) return false;
+    final language = L10n.current.localeName;
+    final cities = CityRepository.instance;
+    await cities.load();
+    // The reader moved on while the list was loading.
+    if (!_isManual ||
+        lat != latitude ||
+        long != longitude ||
+        L10n.current.localeName != language) {
+      return false;
+    }
+    final chosen = cities.cityAt(latitude, longitude);
+    if (chosen == null) return false;
+    final changed = city != chosen.name;
+    await renameLocation(chosen.name);
+    return changed;
   }
 
   /// Makes [chosen] the location, by the reader's choice, until they choose

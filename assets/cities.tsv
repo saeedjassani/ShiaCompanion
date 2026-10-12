@@ -944,7 +944,7 @@ P	Zhaoqing		CN		23.05	112.46	1553109	211	Cao-cching|Chao-ch'ing|Chao-ch'ing-chen
 P	Onitsha		NG		6.15	6.79	1553000	29	Onicha|Onicjo
 P	Mianyang		CN		31.47	104.68	1550000	211	Bian-iong-chhi|Mianyang Shi|Mien Duong|Mien-chou|Mien-jang|Mien-yang|Mien-yang-hsien|Mienchow|Mieng-iong|Mienjan|Mjan'jan|Mjenjang|Myan'yan
 P	Auckland		NZ		-36.85	174.76	1547200	312	Aucland|Aucopolis|Auklando|Awklanda|Oklan|Okland|Oklandas|Oklant|Oklend|Oklenda|Tamaki-makau-rau
-P	Isfahan		IR		32.65	51.67	1547164	216	Aspadana|Dakbayan sa Esfahan|Esfahan|Esfahano|Esfehan|Isfachan|Isfahana|Isfahanas|Isfahanum|Isfahon|Isfakhan|Isfehan|Ispahan|Iszfahan|Kota Isfahan|Spahan|Yspyhan
+P	Isfahan		IR		32.65	51.67	1547164	216	Aspadana|Dakbayan sa Esfahan|Esfahan|Esfahano|Esfehan|Espahan|Gabai|Gay|Isbahan|Isfachan|Isfahana|Isfahanas|Isfahanum|Isfahon|Isfakhan|Isfehan|Ispahan|Iszfahan|Kota Isfahan|Spahan|Yahudiya|Yspyhan|al-Yahudiya
 P	Wanzhou		CN		30.76	108.40	1545900	211	Vanzhou
 P	Astana		KZ		51.18	71.45	1544142	154	Ak-Mola|Akmolins'k|Aqmola|Astano|Asztana|Bozok|Cilinograd|Noer-Soeltan|Nour-Soultan|Nur-Soltan|Nur-Sultan|Nur-Sultano|Ostona|Qaraotkel|Tselinograd
 P	Harare		ZW		-17.83	31.05	1542813	22	Arare|Charare|Hararensis Urbs|Harareo|Kharare|Kharareh|Salisbury
@@ -991,7 +991,7 @@ P	Konya		TR		37.87	32.48	1433861	261	Conia|Gonea|Gonia|Iconio|Iconium|Ikonio|Iko
 P	Zhangjiagang		CN		31.86	120.54	1432044	211	Chzhanczjagan|Sha-chou|Shazhou|Yang-she-chen|Yang-she-ying|Yangshe|Zhangjiagang Shi
 P	Agra		IN		27.18	78.02	1430055	187	Agra - agara|Agro|Aqra|Lungsod ng Agra
 P	South Tangerang		ID		-6.29	106.72	1429529	180	South Tangerang City|Tangerang Selatan
-P	Tabriz		IR		38.08	46.29	1424641	216	Davrez|Dawrez|Tabrez|Tabris|Tabrizo|Taebris|Taebriz|Tampriz|Tauris|Tebriz|Tebriza|Tebrizas|Tehbryz|Tewrez|Toewriz
+P	Tabriz		IR		38.08	46.29	1424641	216	Davrez|Dawrez|Tabrez|Tabreze|Tabrezion|Tabris|Tabrizo|Taebris|Taebriz|Tampriz|Tauris|Tawrez|Tebriz|Tebriza|Tebrizas|Tehbryz|Tewrez|Toewriz
 P	Kharkiv		UA		49.98	36.25	1421125	265	Carcovia|Charcovia|Charkiv|Charkiw|Charkov|Charkovas|Charkow|Harkiv|Harkiva|Harkivo|Harkov|Harkova|Jarkov|Khar'kov|Xarkov
 P	Xinyang		CN		32.12	114.07	1416800	211	Czinan'|Hsin-yang|Hsin-yang-hsien|Hsin-yang-shih|Sinyang|Sinyang-hsien
 P	Jinjiang		CN		24.82	118.57	1416151	211	Ceng-gong|Ch'ing-yang|Ch'ing-yang-chen|Chin-chiang|Chin-kang-chhi|Czin'czjan|Jinjiang Shi|Qingyang|Qingyang Zhen|Tan Giang|Tsin-kong-su
@@ -1267,7 +1267,7 @@ P	Blantyre		MW		-15.78	35.01	902588	9	Blantair|Blantairas|Blantajer|Blantajr|Bla
 P	Donetsk		UA		48.02	37.80	901645	265	Aleksandrovka|Daneck|Dinec'k|Dinec'ke|Dinetsk|Dinetske|Donbas City|Donbas-siti|Donec'k|Donec'ke|Doneck osh|Donecka|Doneckas|Donecko|Donesk|Donetk|Donetsk i Ukraina|Donetske|Donezk|Donieck|Donietsk|Donjeck|Fornaces|Gorod milliona roz|Hughesovka|Iuziv|Iuzivka|Iuzov|Iuzove|Iuzovka|Jusow|Jusowka|Juziv|Juzivka|Juzove|Juzovka|Kalgorod|Kalhorod|Kalok|Misto mil'jona trojand|Misto miliona troiand|Misto milyona troyand|Ntonetsk|Oleksandrivka|Shakhtars'ka stolicja|Shakhtarska stolytsia|Shakhtarska stolytsya|Solov'ianenkove|Solov'janenkove|Solov'yanenkove|Stalin|Staline|Stalino|Yuziv|Yuzov|Yuzove|Yuzovka|Yuzovo
 P	Abū Ghurayb	Abu Ghurayb	IQ		33.31	44.18	900000	160	Abou Ghraib|Abu Ghraib|Abu Ghraib - abw ghryb|Abu Ghraib Farms|Abu Ghuraib|Abu-Grejb
 P	Bishkek		KG		42.87	74.59	900000	166	Bichkek|Biscecum|Bischkek|Bishkek osh|Bisjkek|Biskek|Biskeka|Biskekas|Biskeko|Bisqeq|Bisqueque|Biszkek|Bixkek|Frunze|Mpiskek|Pishkek|Pishpek
-P	Qom		IR		34.64	50.88	900000	216	Dakbayan sa Qom|Ghom|Homo|Kom|Kum|Kum shaary|Kumas|Qum
+P	Qom		IR		34.64	50.88	900000	216	Dakbayan sa Qom|Ghom|Goyman|Homo|Kom|Kum|Kum shaary|Kumas|Qum
 P	Krasnodar		RU		45.05	38.98	899541	275	Ekaterinodar|Krasnodara|Krasnotar|Novorosyisk|Yekaterinodar
 P	Natal		BR		-5.79	-35.21	896708	90	Natalo
 P	Pingxiang		CN	03	27.62	113.85	893550	211	Bing-hiong|Binh Huong|Dingsiang|P'ing-hsiang|P'ing-hsiang-chen|P'ing-hsiang-hsien|P'ing-hsiang-hsien-ch'eng|P'ing-hsiang-shih|Pching-siang|Pheng-hiong-chhi|Phin-hiong-su|Pingsiang|Pingsiang-hsien|Pingsjang|Pingxiang Shi|Pinsjan
@@ -1554,7 +1554,7 @@ P	Louisville		US		38.25	-85.76	624444	103	Louisvil|Louisville-Jefferson County|L
 P	Irkutsk		RU		52.30	104.29	623869	179	Ircutia|Irkoetsk|Irkotsk|Irkoutsk|Irkuck|Irkutk|Irkutsc|Irkutska|Irkutskaj|Irkutskas|Irkutszk
 P	Ansan-si		KR		37.32	126.82	623256	210	Ansan
 P	Al Mansurah		EG		31.04	31.38	621953	12	Al-Mansura|Ehl'-Mansura|El Mansura|El-Masura|Manoura|Mansoura|Mansourah|Mansura|Mansurah
-P	Kermanshah		IR		34.31	47.06	621100	216	Bahtaran|Bakhtaran|Kermansah|Kermansaho|Kermanschah|Kermanshahan|Kermanshakh|Kirmansah|Kirmasan|Province de Kermanshah|Provincia de Kermanshah|Provinco Kermansah|Qahremanshahr
+P	Kermanshah		IR		34.31	47.06	621100	216	Bahtaran|Bakhtaran|Bit Hamban|Kampanda|Karmisin|Kermansah|Kermansaho|Kermanschah|Kermanshahan|Kermanshakh|Kirmansah|Kirmasan|Province de Kermanshah|Provincia de Kermanshah|Provinco Kermansah|Qahremanshahr|Qirmisin
 P	Jiaozhou		CN		36.28	120.00	619266	211	Chiao|Chiao-hsien|Czjaochzhou|Jiaocheng|Jiaoxian|Kiaochow|Kiaohsien
 P	Düsseldorf	Duesseldorf	DE		51.22	6.78	618685	249	Diseldorf|Diseldorfa|Disseldorf|Diuseldorfas|Djuseldorf|Djussel'dorf|Duesseldoerp|Duessldorf|Duseldorfo|Dusseldoerp|Dusseldorf|Dusseldorpium|Dyuseldorf|Dyzeldorfi|Dzjusel'dorf|Ntiselntorph|Ntysselntorf
 P	Suizhou		CN		31.71	113.36	618582	211	Suej-cou|Suejdzou|Sui|Sui-chiu-chhi|Sui-ciu|Sui-hsien|Suichow|Suixian|Sujchzhou|Tuy Chau
@@ -1630,7 +1630,7 @@ P	Herāt	Herat	AF		34.35	62.20	574300	183	Gerat|Gerot|Kherat|Shahr-e Herat
 P	Dongsheng		CN		39.82	109.98	574242	211	Dongsheng Qu|Dunshehn|Dunshen|Tung-sheng|Tung-sheng-hsien
 P	Gujrat		PK		32.57	74.08	574240	185	Gudzharat|Gudzhrat|Gudzrat
 P	Tomsk		RU		56.50	84.98	574002	219	Tom'sku|Tomck|Tomium|Tomska|Tomskaj|Tomskas|Tomszk
-P	Umraniye		TR		41.02	29.12	573265	261	Umranie
+P	Ümraniye	UEmraniye	TR		41.02	29.12	573265	261	Umranie
 P	Shihezi		CN		44.30	86.04	572772	221	Shih-ho-tzu|Shih-yen-tzu|Shihezi Xiang|Shikhedze|Shikhedzy|Shikhehczy|Shixenze
 P	Nakuru		KE		-0.31	36.07	570674	41	
 P	Hamilton		CA		43.25	-79.85	569353	148	Gamil'tan|Gamil'ton|Hamilton i Ontario|Hamiltona|Hamiltonas|Hamiltono|Khamilton|Khamiltun
@@ -2069,7 +2069,7 @@ P	Guyuan		CN		36.01	106.28	411854	211	Gujuan'|Ku-yuan|Ku-yuan-hsien
 P	Minneapolis		US		44.98	-93.26	410939	79	City of Minneapolis|Gakaabikaang|Min-ni-a-po-li-su|Mineapalis|Mineapoli|Mineapolis|Mineapolisa|Minyapolis
 P	Jayapura		ID		-2.53	140.72	410852	181	Djajapoera|Djajapura|Dzajapura|Dzhajapura|Hollandia|Kota Jayapura|Kotabaru|Noordwijk|Port Numbay|Port-Numbaj|Sukarnapura|Sukarnopura
 P	Thoothukudi		IN		8.77	78.13	410760	187	Thoothukkudi|Tuticorin|Tutikorin|Tutukudi
-P	Ardabīl	Ardabil	IR		38.25	48.29	410753	216	Ardabel|Ardebil|Artawil|Erdebil|Ertepil
+P	Ardabīl	Ardabil	IR		38.25	48.29	410753	216	Adurbadagan|Ardabel|Ardebil|Artawil|Badhan Firuz|Erdebil|Ertepil|Keravil|Qaravol
 P	Ballari		IN		15.14	76.92	410445	187	Belari|Belaris|Bellari|Bellary
 P	Chaoyang		CN		41.57	120.46	410005	211	Ch'ao-yang-chen|Ch'ao-yang-hsien|Ch'ao-yang-shih|Chaiyang|Chaojan|San-tso-t'a
 P	Gaza		PS		31.50	34.47	410000	175	Azzah|Dakbayan sa Gaza|Gaaza|Gaesa|Gasa|Gaz|Gaza City|Gaza by|Gaza-urbo|Gazae|Gazza|Gazze|Ghazah|Ghazza|Ghazzah|Ghazze|Ghazzi|Ghuzze|Xeze
@@ -2134,6 +2134,7 @@ P	Pasto		CO		1.21	-77.28	392930	72	Pastas|San Juan de Pasto
 P	Gaomi		CN		36.38	119.75	391986	211	Kao-mi|Kao-mi-hsien
 P	Santa Fe		AR		-31.65	-60.71	391164	57	Ciudad de Santa Fe|Santa Fe de la Vera Cruz
 P	San-Pédro	San-Pedro	CI		4.75	-6.64	390654	0	San Pedras
+P	Gauriganj		IN		26.21	81.69	390395	187	Gaurigandzh
 P	Makurdi		NG		7.73	8.52	390000	29	Makurdu
 P	Palu		ID		-0.91	119.87	389959	193	Kabupaten Poso|Kota Palu|Pal|Paloe
 P	Takoradi		GH		4.90	-1.76	389114	1	Takoradze
@@ -2175,7 +2176,7 @@ P	Iquitos		PE		-3.75	-73.25	377609	106	Ikitas|Ikitos|Ikitosas|Ikitus|Iquitum
 P	Toyohashi		JP		34.77	137.38	377453	218	Toekhasi|Tojohashi|Tojokhashi|Tojokhasi|Toyohashi-shi|Toyohasi|Toyohasi-chhi|Toyohasyi
 P	Hechuan		CN		29.99	106.26	377213	211	Heyang|Ho-ch'uan|Ho-ch'uan-hsien|Ho-ch'uan-shih|Ho-chou|Hochow|Hochwan|Hochwan-hsien|Khehchuan'
 P	Pétionville	Petionville	HT		18.51	-72.29	376834	128	Petyon-Vil|Ville de Petion-Ville
-P	Utrecht		NL		52.09	5.12	376435	244	Gemeente Utrecht|Magaalada Utrecht|Outrechte|Owtrext|Traiectum ad Rhenum|Utert|Utrech|Utrechtas|Utrehkht|Utreht|Utrehta|Utrehto|Utrei|Utrekht|Utrekht khot|Utreque|Utrext
+P	Utrecht		NL		52.09	5.12	376435	244	Magaalada Utrecht|Outrechte|Owtrext|Traiectum ad Rhenum|Utert|Utrech|Utrechtas|Utrehkht|Utreht|Utrehta|Utrehto|Utrei|Utrekht|Utrekht khot|Utreque|Utrext
 P	Rajamahendravaram		IN		17.01	81.78	376333	187	Radzhamandri|Rajahmondry|Rajahmundri|Rajahmundry|Rajamahendri|Rajamandri
 P	Cariacica		BR		-20.26	-40.42	376200	139	Kariakika
 P	Yogyakarta		ID		-7.80	110.36	375699	180	DI Yogyakarta|Daerah Istimewa Yogyakarta|Djogjakarta|Djokja|Djokjakarta|Dzhodzhakarta|Dzhok'jakarta|Dzogdzakarta|Dzogjakarta|Gionkiakarta|Jogjakarta|Jogjakarto|Jogyakarta|Jokjakarta|Jokyakarta|Kota Yogyakarta|Kuta Yogyakarta|Kutha Ngayogyakarta|Special Region of Yogyakarta
@@ -2841,7 +2842,7 @@ P	Mantampay		PH		8.17	124.22	265032	194	Mantampaj
 P	Ratlām	Ratlam	IN		23.33	75.04	264914	187	Hatlam
 P	Nogales		MX		31.31	-110.94	264782	100	Heroica Nogales|Los Nogales
 P	El Daein		SD		11.46	26.13	264734	26	Ad Du'ayn|Ad Duajn|Ad-Du'ain|Ed Daein|Ehl'-Dejn
-P	Dezful		IR		32.38	48.41	264709	216	Dezfoul|Dizful
+P	Dezful		IR		32.38	48.41	264709	216	Dezfoul|Dizful|Qantara al-Rum|Qantarat Andamis
 P	Donghai		CN		22.95	115.64	264709	211	Donghai Jiedao|Dunkhai|Lu-feng-hsien|Lu-feng-hsien-ch'eng|Lufeng|Lufung|Lukfung
 P	Gunsan		KR		35.98	126.71	264656	210	Gunzan|Kunsan|Kunsanpo|Kunzan
 P	Mossoró	Mossoro	BR		-5.19	-37.34	264577	90	Mocoro|Mosoro
@@ -4773,6 +4774,7 @@ P	Catacamas		HN		14.85	-85.89	140548	146
 P	Buea		CM		4.15	9.24	140533	18	
 P	Shuizhai		CN		23.93	115.76	140493	211	
 P	Al’met’yevsk	Al'met'yevsk	RU		54.90	52.32	140437	275	
+P	Motherwell		ZA		-33.79	25.59	140351	23	
 P	McAllen		US		26.20	-98.23	140269	79	
 P	Lakhīmpur	Lakhimpur	IN		27.95	80.78	140223	187	
 P	Ishinomaki		JP		38.42	141.30	140151	218	
