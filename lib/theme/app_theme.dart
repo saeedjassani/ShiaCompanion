@@ -18,18 +18,21 @@ ThemeData buildAppTheme(Brightness brightness) {
   return ThemeData(
     useMaterial3: true,
     brightness: brightness,
-    // Arabic-script letters the default font lacks (Urdu, Persian and Arabic
-    // app text) are drawn in Scheherazade. Left alone, Flutter tries the
-    // bundled fonts before the system's for such a glyph and lands on Qalam,
-    // the Indo-Pak Quran font, for menus and buttons.
+    // No fallback on Android and iOS: Arabic-script letters the system font
+    // lacks (Urdu, Persian and Arabic app text) come from the system's own
+    // Arabic font. The engine never offers a bundled font for a missing
+    // letter (AssetFontManager::onMatchFamilyStyleCharacter returns nothing),
+    // so menus can't land on Qalam. A bundled fallback would do harm: Flutter
+    // only falls back to the system font when none of a style's families can
+    // be found, and the theme's own family isn't always one it can (Android's
+    // font list calls Roboto "sans-serif"). The fallback is then the only font
+    // a style has, and Scheherazade, which has Latin letters, drew all English
+    // text serif.
     //
-    // On the web the default family can be one the browser engine doesn't
-    // have (Apple's system font on a Mac), so every glyph would then fall
-    // through to this list - and Scheherazade has Latin letters, turning all
-    // English text serif. Roboto, the web engine's own default, goes first
-    // there so it keeps the Latin and Scheherazade only gets Arabic script.
-    fontFamilyFallback:
-        kIsWeb ? const ['Roboto', 'Scheherazade'] : const ['Scheherazade'],
+    // The web engine finds fallback fonts its own way, so there Scheherazade
+    // draws Arabic script, behind Roboto (the engine's own default) so that
+    // it never gets the Latin.
+    fontFamilyFallback: kIsWeb ? const ['Roboto', 'Scheherazade'] : null,
     colorScheme: scheme,
     scaffoldBackgroundColor: c.ground,
     canvasColor: c.ground,
