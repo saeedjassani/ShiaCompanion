@@ -140,7 +140,14 @@ Top to bottom, each section hidden when it has nothing to show:
    al-Thani"), then the year ("1448 AH") and the city button (opens the
    city picker) under it, and the profile button. No greeting and no
    Gregorian date. The city button is left out until there is a location;
-   the prayer card asks for one instead. The Islamic day begins at
+   the prayer card asks for one instead. Once the phone's location is a day
+   old, one line under the year and city says so and why, with the fix
+   (`LocationStatusLine`): "Location from 2 days ago · Update", or the
+   failure and its action - permission needed · Allow (Open Settings once
+   denied for good), location services off · Turn on, no fix · Try again.
+   Nothing under a day, while a refresh runs, or for a chosen city. The
+   Calendar's city button and the city picker's "Use my current location"
+   row say the same; the prayer card carries no location status. The Islamic day begins at
    Maghrib: from Maghrib until Fajr the title is the next Hijri day under
    a small **EVE OF** label (`islamicDayAt`, the same Maghrib/Fajr window
    as the "N" zikr patterns). Only with a location: without one, Maghrib

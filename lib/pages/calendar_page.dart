@@ -9,6 +9,7 @@ import 'package:shia_companion/utils/islamic_calendar_widget_data.dart';
 import 'package:shia_companion/utils/prayer_time_entries.dart';
 import 'package:shia_companion/utils/widget_prayer_time_selection.dart';
 import 'package:shia_companion/widgets/outline_icon.dart';
+import 'package:shia_companion/widgets/location_status_line.dart';
 import 'package:shia_companion/widgets/page_chrome.dart';
 import 'package:shia_companion/widgets/prayer_glyph.dart';
 import 'package:shia_companion/widgets/prayer_times_widget.dart';
@@ -121,18 +122,25 @@ class _CalendarPageState extends State<CalendarPage> {
     final today = _localDate(CalendarPage.debugNow());
     final pushed = ModalRoute.of(context)?.impliesAppBarDismissal ?? false;
 
-    final topBar = Row(
+    final topBar = Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        if (pushed) const PageBackButton(),
-        const SizedBox(width: 8),
-        Expanded(
-          child: Align(
-            alignment: AlignmentDirectional.centerEnd,
-            child: lat == null
-                ? null
-                : CityButton(location: _location, onTap: _chooseCity),
-          ),
+        Row(
+          children: [
+            if (pushed) const PageBackButton(),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Align(
+                alignment: AlignmentDirectional.centerEnd,
+                child: lat == null
+                    ? null
+                    : CityButton(location: _location, onTap: _chooseCity),
+              ),
+            ),
+          ],
         ),
+        if (lat != null)
+          const LocationStatusLine(alignment: MainAxisAlignment.end),
       ],
     );
 

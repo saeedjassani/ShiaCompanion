@@ -166,7 +166,7 @@ void main() {
 
   group('stale fixes and retry cooldown', () {
     test('ages a last-known fallback from when it was measured', () async {
-      final old = DateTime.now().subtract(const Duration(hours: 20));
+      final old = DateTime.now().subtract(const Duration(hours: 30));
       GeolocatorPlatform.instance = _CountingGeolocator(
         currentPositionError: TimeoutException('no fix'),
         lastKnownPosition: _posAt(32.6, 44.0, old),
@@ -174,7 +174,7 @@ void main() {
 
       await withGeocode(() => service.refresh());
 
-      // Stamping this "now" would hide a 20-hour-old fix behind a fresh label
+      // Stamping this "now" would hide a 30-hour-old fix behind a fresh label
       // and block a retry for the whole freshness window.
       expect(service.updatedAt, old);
       expect(service.isStale, isTrue);
