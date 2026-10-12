@@ -63,17 +63,35 @@ void main() {
       (WidgetTester tester) async {
     // 1. Launch the real application entry point
     debugPrint('==> Smoke Crawler: Booting app...');
+    // main() hands FlutterError.onError to Crashlytics. Left that way, a
+    // failed expect() or finder below is reported to Crashlytics instead of
+    // the test, which then never finishes: the run hangs until the CI job
+    // times out, with the real failure nowhere in the log.
+    final testOnError = FlutterError.onError;
     app.main();
     // Wait for the first real frame of the app, however long boot takes,
     // then give the home page's post-frame work (first-run prompts) time to
     // surface before looking for them.
     await pumpUntilFound(tester, find.byType(Scaffold));
+    FlutterError.onError = testOnError;
     await settleBounded(tester, duration: const Duration(seconds: 3));
 
     // Required on Android before the first screenshot, to switch from
     // SurfaceView-based rendering to a normal View so the platform can
     // actually capture a frame; a documented no-op on iOS.
     await binding.convertFlutterSurfaceToImage();
+
+    // A fresh install opens on first-run setup rather than Home. Skipping it
+    // leaves every setting as it was.
+    final skipSetup = find.text('Skip setup');
+    if (skipSetup.evaluate().isNotEmpty) {
+      debugPrint('==> Smoke Crawler: Skipping first-run setup...');
+      await binding.takeScreenshot('00a_first_run_setup');
+      await tester.tap(skipSetup.first);
+      expect(await pumpUntilFound(tester, find.byType(AppTabBar)), isTrue,
+          reason: 'Skipping first-run setup did not reach Home');
+      await settleBounded(tester, duration: const Duration(seconds: 3));
+    }
 
     // 2. Dismiss initial Azan opt-in dialog if presented on first run
     final notNowFinder = find.text('Not now');
