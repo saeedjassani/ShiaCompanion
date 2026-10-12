@@ -33,7 +33,7 @@ IslamicDay islamicDayAt(
   bool useAppLocation = true,
   int? hijriOffsetDays,
 }) {
-  final offset = hijriOffsetDays ?? hijriDate;
+  final offset = hijriOffsetDays ?? hijriOffsetInEffect;
   final night = resolveKnownNightLunarDay(
     now: now,
     prayerTime: prayerTime ?? getPrayerTimeObject(),

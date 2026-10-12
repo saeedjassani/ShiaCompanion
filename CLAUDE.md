@@ -117,6 +117,16 @@
   in `lib/utils/slug_registry.dart`), or make it a habit: same title ->
   copy the canonical's slug verbatim; different title -> give it its own.
 
+- **Hijri months: publish announced month starts (step 3).** Settings'
+  "Automatic" (the default unless someone had moved the date by hand)
+  predicts each month's start from naked-eye crescent visibility at the
+  reader's location (`lib/utils/moon_sighting.dart`, Yallop's criterion).
+  Every Hijri date goes through `hijriForCivilDate` in
+  `lib/utils/hijri_date.dart`, so announced dates can override it in one
+  place. The idea is a small Firestore doc of month starts per region
+  (e.g. from Sistani's office), applied on top of the prediction. Someone
+  has to fill that doc in each month.
+
 - **Name a GPS fix offline from the bundled city list.** The place name on
   the prayer card comes from an online reverse-geocode (bigdatacloud, in
   `initializeLocation` in `lib/constants.dart`). Offline, prayer times are

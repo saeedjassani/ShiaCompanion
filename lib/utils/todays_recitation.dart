@@ -11,13 +11,13 @@ import 'package:shia_companion/utils/night_window.dart';
 ({LunarDay day, LunarDay? night}) todaysLunarDays({DateTime? now}) {
   final today = now ?? DateTime.now();
   return (
-    day: LunarDay(today, hijriOffsetDays: hijriDate),
+    day: LunarDay(today, hijriOffsetDays: hijriOffsetInEffect),
     night: resolveNightLunarDay(
       now: today,
       prayerTime: getPrayerTimeObject(),
       latitude: lat,
       longitude: long,
-      hijriDateOffsetDays: hijriDate,
+      hijriDateOffsetDays: hijriOffsetInEffect,
     ),
   );
 }

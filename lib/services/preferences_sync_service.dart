@@ -8,11 +8,11 @@ import '../utils/shared_preferences.dart';
 import 'home_shortcuts_store.dart';
 
 /// Syncs the reading preferences that used to live only in SharedPreferences
-/// — Hijri date adjustment, Arabic/English font size, Arabic font, the
-/// recording chosen on each zikr page that has several, and Home's
-/// shortcuts — to the
-/// signed-in account, the same way [FavoritesManager] and
-/// [QazaTrackerManager] already sync favorites and qaza.
+/// — Hijri date (Automatic or the manual adjustment), Arabic/English font
+/// size, Arabic font, the recording chosen on each zikr page that has
+/// several, and Home's shortcuts — to the signed-in account, the same way
+/// [FavoritesManager] and [QazaTrackerManager] already sync favorites and
+/// qaza.
 ///
 /// Deliberately simpler than those two: a single small document, last write
 /// wins, no offline queue. Nothing here is the kind of loss an offline write
@@ -28,6 +28,11 @@ class PreferencesSyncService {
   static PreferencesSyncService get instance => _instance;
 
   static const String _hijriDateOffsetField = 'hijriDateOffset';
+
+  /// [hijriAutomatic]. Absent from documents written before Automatic
+  /// existed; see [_applyRemote].
+  static const String _hijriAutomaticField = 'hijriAutomatic';
+
   static const String _arabicFontSizeField = 'arabicFontSize';
   static const String _englishFontSizeField = 'englishFontSize';
   static const String _arabicFontField = 'arabicFont';
@@ -84,8 +89,10 @@ class PreferencesSyncService {
     }
   }
 
-  Future<void> pushHijriDate() =>
-      _pushIfSignedIn({_hijriDateOffsetField: hijriDate});
+  Future<void> pushHijriDate() => _pushIfSignedIn({
+        _hijriDateOffsetField: hijriDate,
+        _hijriAutomaticField: hijriAutomatic,
+      });
 
   Future<void> pushArabicFontSize() =>
       _pushIfSignedIn({_arabicFontSizeField: arabicFontSize});
@@ -126,6 +133,7 @@ class PreferencesSyncService {
 
   Map<String, Object?> _currentValues() => {
         _hijriDateOffsetField: hijriDate,
+        _hijriAutomaticField: hijriAutomatic,
         _arabicFontSizeField: arabicFontSize,
         _englishFontSizeField: englishFontSize,
         _arabicFontField: arabicFont,
@@ -145,6 +153,20 @@ class PreferencesSyncService {
       hijriDate = hijri.toInt();
       await SP.prefs.setInt('adjust_hijri_date', hijriDate);
     }
+    final automatic = data[_hijriAutomaticField];
+    // A document from before Automatic existed holds only the offset: a
+    // non-zero one was set by hand, which stays in force, as it does on
+    // this device (see [defaultHijriAutomatic]).
+    final remoteAutomatic = automatic is bool
+        ? automatic
+        : hijri is num && hijri != 0
+            ? false
+            : null;
+    if (remoteAutomatic != null) {
+      hijriAutomatic = remoteAutomatic;
+      await SP.prefs.setBool('hijri_automatic', hijriAutomatic);
+    }
+    applyHijriSighting();
 
     final arabicSize = data[_arabicFontSizeField];
     if (arabicSize is num) {

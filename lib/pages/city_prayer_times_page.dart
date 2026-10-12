@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:hijri/hijri_calendar.dart';
 import 'package:intl/intl.dart' show DateFormat;
 import 'package:timezone/timezone.dart' as tz;
 
@@ -12,6 +11,7 @@ import '../models/city.dart';
 import '../services/analytics_service.dart';
 import '../theme/shia_colors.dart';
 import '../utils/city_clock.dart';
+import '../utils/hijri_date.dart';
 import '../utils/islamic_day.dart';
 import '../utils/prayer_time_entries.dart';
 import '../utils/timezone_database.dart';
@@ -103,9 +103,7 @@ class _CityPrayerTimesPageState extends State<CityPrayerTimesPage> {
           )
         : null;
     final hijri = islamicDay?.day.hijri ??
-        HijriCalendar.fromDate(
-          DateTime(_day.year, _day.month, _day.day + hijriDate),
-        );
+        hijriForCivilDate(_day, offsetDays: hijriOffsetInEffect);
     final hijriLabel = localizeDigits(
         '${hijri.hDay} '
         '${hijriMonthName(hijri.hMonth, context.l10n).replaceAll(' Al-', ' al-')} '

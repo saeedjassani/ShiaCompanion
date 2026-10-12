@@ -239,7 +239,7 @@ class _SettingsPageState extends State<SettingsPage> {
                     _SettingsRow(
                       icon: const _RowGlyph(OutlineGlyph.calendar),
                       title: l10n.settingsAdjustHijriDate,
-                      value: _hijriAdjustmentLabel(_savedHijriAdjustment()),
+                      value: _hijriChoiceLabel(_savedHijriChoice()),
                       onTap: _pickHijriAdjustment,
                     ),
                     _SettingsRow(
@@ -478,10 +478,16 @@ class _SettingsPageState extends State<SettingsPage> {
     return null;
   }
 
-  int _savedHijriAdjustment() {
+  /// Automatic, or the manual offset (null in Automatic).
+  int? _savedHijriChoice() {
+    if (hijriAutomatic) return null;
     final adjustment = SP.prefs.getInt('adjust_hijri_date') ?? hijriDate;
     return adjustment.clamp(-3, 3);
   }
+
+  String _hijriChoiceLabel(int? choice) => choice == null
+      ? context.l10n.settingsHijriAutomatic
+      : _hijriAdjustmentLabel(choice);
 
   String _hijriAdjustmentLabel(int adjustment) {
     final l10n = context.l10n;
@@ -493,19 +499,39 @@ class _SettingsPageState extends State<SettingsPage> {
   }
 
   Future<void> _pickHijriAdjustment() async {
-    final picked = await showChoiceSheet<int>(
+    final l10n = context.l10n;
+    final current = _savedHijriChoice();
+    // Records, not int?: the sheet resolves to null when it is dismissed.
+    final picked = await showChoiceSheet<({int? offset})>(
       context,
-      title: context.l10n.settingsAdjustHijriDate,
-      body: context.l10n.settingsHijriBody,
-      current: _savedHijriAdjustment(),
+      title: l10n.settingsAdjustHijriDate,
+      body: l10n.settingsHijriBody,
+      current: (offset: current),
       choices: [
+        Choice(
+          (offset: null),
+          l10n.settingsHijriAutomatic,
+          hint: lat == null || long == null
+              ? l10n.settingsHijriAutomaticNoLocation
+              : l10n.settingsHijriAutomaticHint,
+        ),
         for (var days = -3; days <= 3; days++)
-          Choice(days, _hijriAdjustmentLabel(days)),
+          Choice(
+            (offset: days),
+            _hijriAdjustmentLabel(days),
+            hint: days == 0 ? l10n.settingsHijriNoneHint : null,
+          ),
       ],
     );
-    if (picked == null || picked == _savedHijriAdjustment()) return;
-    hijriDate = picked;
-    await SP.prefs.setInt('adjust_hijri_date', hijriDate);
+    if (picked == null || picked.offset == current) return;
+    final offset = picked.offset;
+    hijriAutomatic = offset == null;
+    await SP.prefs.setBool('hijri_automatic', hijriAutomatic);
+    if (offset != null) {
+      hijriDate = offset;
+      await SP.prefs.setInt('adjust_hijri_date', hijriDate);
+    }
+    applyHijriSighting();
     await SP.prefs.remove('prayerTimes');
     unawaited(PreferencesSyncService.instance.pushHijriDate());
     await HomeScreenWidgetService.instance.publishTodaysRecitations();

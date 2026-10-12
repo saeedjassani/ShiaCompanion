@@ -163,7 +163,7 @@ class HomeScreenWidgetService {
   }) {
     final moment = now ?? DateTime.now();
     final eventMap = events ?? _calendarEvents ?? const <String, dynamic>{};
-    final offset = hijriOffsetDays ?? hijriDate;
+    final offset = hijriOffsetDays ?? hijriOffsetInEffect;
     return {
       calendarTitleKey: L10n.current.widgetIslamicCalendar,
       calendarUrlKey: buildCalendarDeepLinkUrl(),
