@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 
 import '../l10n/l10n.dart';
 import '../utils/quran_index.dart';
+import 'activity_stats.dart';
 
 /// The reserved label for reading that was not opened through a recitation
 /// track's resume card — browsing the Surahs/Juz list, search, a deep link.
@@ -31,6 +32,22 @@ bool isDefaultRecitationTrackName(String name, [AppLocalizations? l10n]) {
   return typed == unlabeledRecitationLabel.toLowerCase() ||
       typed == (l10n ?? L10n.current).quranMyReading.toLowerCase();
 }
+
+/// Days of recitation kept session by session. Older sessions are folded
+/// into one [RecitationDaySummary] per day and track (see
+/// [RecitationTrackerState.compaction]), which keeps every stat, streak and
+/// khatm's progress while the synced document - one Firestore doc, capped at
+/// 1 MiB - stops growing with every surah read.
+const int recitationSessionRetentionDays = 30;
+
+/// How long past [recitationSessionRetentionDays] a session may wait to be
+/// folded, so the folding is done in weekly batches - one write a week -
+/// rather than one write on every launch as each day crosses the line.
+const int recitationCompactionGraceDays = 7;
+
+/// The most sessions folded in one pass, so a long history's first pass
+/// stays a modest write; the rest follow on later launches.
+const int recitationMaxSessionsPerCompaction = 500;
 
 /// Total ayahs in the Quran, the denominator for "% of the Quran completed".
 final int quranTotalAyahCount =
@@ -126,6 +143,149 @@ class RecitationEntry {
         'toAyah': toAyah,
         if (readInJuz) 'readInJuz': true,
       };
+}
+
+/// One track's recitation on one day, kept once the day's sessions are
+/// older than [recitationSessionRetentionDays]: how many sessions and verses
+/// there were, and which verses they covered. That is everything the stats,
+/// streaks and khatm progress need from a session that is no longer listed.
+@immutable
+class RecitationDaySummary {
+  const RecitationDaySummary({
+    this.sessions = 0,
+    this.verses = 0,
+    this.ranges = const {},
+  });
+
+  static const empty = RecitationDaySummary();
+
+  /// Reads [encode]'s form; null for anything else, so a corrupt summary is
+  /// dropped rather than counted.
+  static RecitationDaySummary? decode(dynamic value) {
+    if (value is! String) return null;
+    final parts = value.split('|');
+    if (parts.length != 3) return null;
+    final sessions = int.tryParse(parts[0]);
+    final verses = int.tryParse(parts[1]);
+    if (sessions == null || sessions < 1 || verses == null || verses < 1) {
+      return null;
+    }
+
+    final ranges = <int, List<(int, int)>>{};
+    if (parts[2].isNotEmpty) {
+      for (final surahPart in parts[2].split(';')) {
+        final colon = surahPart.indexOf(':');
+        if (colon < 0) return null;
+        final surah = int.tryParse(surahPart.substring(0, colon));
+        if (surah == null || surah < 1) return null;
+        final list = <(int, int)>[];
+        for (final rangePart in surahPart.substring(colon + 1).split(',')) {
+          final bounds = rangePart.split('-');
+          final from = int.tryParse(bounds.first);
+          final to = bounds.length == 2 ? int.tryParse(bounds.last) : from;
+          if (bounds.length > 2 || from == null || from < 1) return null;
+          if (to == null || to < from) return null;
+          list.add((from, to));
+        }
+        ranges[surah] = mergeAyahRanges(list);
+      }
+    }
+    return RecitationDaySummary(
+      sessions: sessions,
+      verses: verses,
+      ranges: ranges,
+    );
+  }
+
+  final int sessions;
+
+  /// Every verse read that day, re-reads included - the sum, as
+  /// [RecitationEntry.versesRecited] adds up for the sessions themselves.
+  final int verses;
+
+  /// Merged ayah ranges covered that day, by surah.
+  final Map<int, List<(int, int)>> ranges;
+
+  /// This summary with [entry] folded in.
+  RecitationDaySummary adding(RecitationEntry entry) {
+    return RecitationDaySummary(
+      sessions: sessions + 1,
+      verses: verses + entry.versesRecited,
+      ranges: {
+        ...ranges,
+        entry.surah: mergeAyahRanges([
+          ...?ranges[entry.surah],
+          (entry.fromAyah, entry.toAyah),
+        ]),
+      },
+    );
+  }
+
+  /// Reconciles two copies of the same day: the larger counts and the union
+  /// of the ranges. Never a sum, so meeting the same summary twice - a
+  /// retried guest import - cannot double it.
+  RecitationDaySummary union(RecitationDaySummary other) {
+    final merged = <int, List<(int, int)>>{...ranges};
+    other.ranges.forEach((surah, list) {
+      merged[surah] = mergeAyahRanges([...?merged[surah], ...list]);
+    });
+    return RecitationDaySummary(
+      sessions: sessions > other.sessions ? sessions : other.sessions,
+      verses: verses > other.verses ? verses : other.verses,
+      ranges: merged,
+    );
+  }
+
+  /// `sessions|verses|surah:from-to,from-to;surah:from-to` - one short
+  /// string per day and track, rather than a map, so the synced doc holds
+  /// one field for it instead of a dozen.
+  String encode() {
+    final surahs = ranges.keys.toList()..sort();
+    final body = [
+      for (final surah in surahs)
+        '$surah:${ranges[surah]!.map((r) => r.$1 == r.$2 ? '${r.$1}' : '${r.$1}-${r.$2}').join(',')}',
+    ].join(';');
+    return '$sessions|$verses|$body';
+  }
+
+  @override
+  bool operator ==(Object other) =>
+      other is RecitationDaySummary && other.encode() == encode();
+
+  @override
+  int get hashCode => encode().hashCode;
+}
+
+/// The sessions [RecitationTrackerState.compaction] folds away, and the day
+/// summaries that replace them.
+@immutable
+class RecitationCompaction {
+  const RecitationCompaction({
+    required this.removedEntryIds,
+    required this.summaries,
+  });
+
+  final Set<String> removedEntryIds;
+
+  /// The new value of every summary it touches: day key, then label.
+  final Map<String, Map<String, RecitationDaySummary>> summaries;
+
+  bool get isEmpty => removedEntryIds.isEmpty && summaries.isEmpty;
+}
+
+/// [ranges] sorted and merged, with touching ranges joined.
+List<(int, int)> mergeAyahRanges(Iterable<(int, int)> ranges) {
+  final sorted = ranges.toList()..sort((a, b) => a.$1.compareTo(b.$1));
+  final merged = <(int, int)>[];
+  for (final range in sorted) {
+    if (merged.isNotEmpty && range.$1 <= merged.last.$2 + 1) {
+      final last = merged.removeLast();
+      merged.add((last.$1, range.$2 > last.$2 ? range.$2 : last.$2));
+    } else {
+      merged.add(range);
+    }
+  }
+  return merged;
 }
 
 /// How a recitation track reads, chosen when it is created and changeable
@@ -254,6 +414,9 @@ class RecitationResumeTarget {
 /// Every recitation logged, keyed by [RecitationEntry.id], plus the set of
 /// recitation tracks (labels) that exist even before their first entry.
 ///
+/// Sessions older than [recitationSessionRetentionDays] live on as
+/// [archive]'s day summaries instead; every stat below counts both.
+///
 /// Entries are keyed by id rather than held in a list: adding or removing the
 /// same entry twice — the shape an offline retry or a replayed pending
 /// operation takes — collapses to one change instead of a duplicate, with no
@@ -264,9 +427,16 @@ class RecitationTrackerState {
     Map<String, RecitationEntry>? entries,
     Set<String>? customLabels,
     Map<String, RecitationTrackSettings>? trackSettings,
+    Map<String, Map<String, RecitationDaySummary>>? archive,
   ])  : entries = Map.unmodifiable(entries ?? const {}),
         customLabels = Set.unmodifiable(customLabels ?? const {}),
-        trackSettings = Map.unmodifiable(trackSettings ?? const {});
+        trackSettings = Map.unmodifiable(trackSettings ?? const {}),
+        archive = Map.unmodifiable(<String, Map<String, RecitationDaySummary>>{
+          for (final day in (archive ?? const {}).entries)
+            if (day.value.isNotEmpty)
+              day.key:
+                  Map<String, RecitationDaySummary>.unmodifiable(day.value),
+        });
 
   factory RecitationTrackerState.fromJson(dynamic value) {
     if (value is! Map) return empty;
@@ -302,7 +472,27 @@ class RecitationTrackerState {
       }
     }
 
-    return RecitationTrackerState(entries, customLabels, trackSettings);
+    final archive = <String, Map<String, RecitationDaySummary>>{};
+    final rawArchive = value['archive'];
+    if (rawArchive is Map) {
+      for (final day in rawArchive.entries) {
+        final dayKey = day.key.toString();
+        if (parseActivityDay(dayKey) == null || day.value is! Map) continue;
+        for (final summary in (day.value as Map).entries) {
+          final label = summary.key.toString().trim();
+          final parsed = RecitationDaySummary.decode(summary.value);
+          if (label.isEmpty || parsed == null) continue;
+          (archive[dayKey] ??= {})[label] = parsed;
+        }
+      }
+    }
+
+    return RecitationTrackerState(
+      entries,
+      customLabels,
+      trackSettings,
+      archive,
+    );
   }
 
   static final empty = RecitationTrackerState();
@@ -318,8 +508,23 @@ class RecitationTrackerState {
   /// from the beginning; [unlabeledRecitationLabel] never has any.
   final Map<String, RecitationTrackSettings> trackSettings;
 
+  /// Sessions older than [recitationSessionRetentionDays], one summary per
+  /// local day ([activityDayKey]) and label.
+  final Map<String, Map<String, RecitationDaySummary>> archive;
+
   bool get isEmpty =>
-      entries.isEmpty && customLabels.isEmpty && trackSettings.isEmpty;
+      entries.isEmpty &&
+      customLabels.isEmpty &&
+      trackSettings.isEmpty &&
+      archive.isEmpty;
+
+  Iterable<(String, RecitationDaySummary)> get _archivedSummaries sync* {
+    for (final day in archive.values) {
+      for (final summary in day.entries) {
+        yield (summary.key, summary.value);
+      }
+    }
+  }
 
   RecitationTrackSettings settingsFor(String label) =>
       trackSettings[label] ?? const RecitationTrackSettings();
@@ -338,13 +543,14 @@ class RecitationTrackerState {
       {...entries, entry.id: entry},
       labels,
       trackSettings,
+      archive,
     );
   }
 
   RecitationTrackerState removeEntry(String id) {
     if (!entries.containsKey(id)) return this;
     final next = {...entries}..remove(id);
-    return RecitationTrackerState(next, customLabels, trackSettings);
+    return RecitationTrackerState(next, customLabels, trackSettings, archive);
   }
 
   RecitationTrackerState addCustomLabel(String label) {
@@ -355,6 +561,7 @@ class RecitationTrackerState {
       entries,
       {...customLabels, trimmed},
       trackSettings,
+      archive,
     );
   }
 
@@ -372,6 +579,7 @@ class RecitationTrackerState {
       entries,
       {...customLabels, trimmed},
       {...trackSettings, trimmed: settings},
+      archive,
     );
   }
 
@@ -383,6 +591,103 @@ class RecitationTrackerState {
       {...entries, ...other.entries},
       {...customLabels, ...other.customLabels},
       {...trackSettings, ...other.trackSettings},
+      archiveUnion(other.archive),
+    );
+  }
+
+  /// [archive] with [other] folded in by [RecitationDaySummary.union].
+  Map<String, Map<String, RecitationDaySummary>> archiveUnion(
+    Map<String, Map<String, RecitationDaySummary>> other,
+  ) {
+    final merged = {
+      for (final day in archive.entries) day.key: {...day.value},
+    };
+    for (final day in other.entries) {
+      final into = merged[day.key] ??= {};
+      day.value.forEach((label, summary) {
+        final mine = into[label];
+        into[label] = mine == null ? summary : mine.union(summary);
+      });
+    }
+    return merged;
+  }
+
+  /// The sessions due to be folded into day summaries as of [now], or null
+  /// when none are due.
+  ///
+  /// A session is due once its day is more than
+  /// [recitationSessionRetentionDays] behind [now]'s, and the fold waits
+  /// until one is [recitationCompactionGraceDays] past that so it happens in
+  /// weekly batches. Each track's latest session is never folded: it is
+  /// where the track resumes, and when it was read.
+  ///
+  /// Two devices folding the same sessions in the same time zone write the
+  /// same summaries, so a fold replayed or repeated elsewhere changes
+  /// nothing. Two devices in different time zones folding at the same moment
+  /// could each file a session under its own local day and count it twice;
+  /// folding only straight after a fresh read of the account keeps that
+  /// window to a near-simultaneous launch. Likewise a session folded here
+  /// and then re-sent raw by a device that was offline for over a month
+  /// would be folded again on top - rare enough to leave be.
+  RecitationCompaction? compaction(
+    DateTime now, {
+    int maxSessions = recitationMaxSessionsPerCompaction,
+  }) {
+    final cutoff = DateTime(
+      now.year,
+      now.month,
+      now.day - recitationSessionRetentionDays,
+    );
+    final graceCutoff = DateTime(
+        cutoff.year, cutoff.month, cutoff.day - recitationCompactionGraceDays);
+
+    final latestIds = <String>{
+      for (final label in entries.values.map((entry) => entry.label).toSet())
+        _latestEntryFor(label)!.id,
+    };
+    final due = entries.values
+        .where((entry) =>
+            !latestIds.contains(entry.id) &&
+            entry.recitedAt.toLocal().isBefore(cutoff))
+        .toList()
+      ..sort((a, b) => a.recitedAt.compareTo(b.recitedAt));
+    if (due.isEmpty || !due.first.recitedAt.toLocal().isBefore(graceCutoff)) {
+      return null;
+    }
+
+    final summaries = <String, Map<String, RecitationDaySummary>>{};
+    final removed = <String>{};
+    for (final entry in due.take(maxSessions)) {
+      final day = activityDayKey(entry.recitedAt);
+      final byLabel = summaries[day] ??= {};
+      final current = byLabel[entry.label] ??
+          archive[day]?[entry.label] ??
+          RecitationDaySummary.empty;
+      byLabel[entry.label] = current.adding(entry);
+      removed.add(entry.id);
+    }
+    return RecitationCompaction(removedEntryIds: removed, summaries: summaries);
+  }
+
+  /// Removes [compaction]'s sessions and sets its summaries.
+  RecitationTrackerState applyCompaction(RecitationCompaction compaction) {
+    if (compaction.isEmpty) return this;
+    final nextArchive = {
+      for (final day in archive.entries) day.key: {...day.value},
+    };
+    compaction.summaries.forEach((day, byLabel) {
+      (nextArchive[day] ??= {}).addAll(byLabel);
+    });
+    final nextLabels = {
+      ...customLabels,
+      for (final byLabel in compaction.summaries.values) ...byLabel.keys,
+    }..remove(unlabeledRecitationLabel);
+    return RecitationTrackerState(
+      {...entries}
+        ..removeWhere((id, _) => compaction.removedEntryIds.contains(id)),
+      nextLabels,
+      trackSettings,
+      nextArchive,
     );
   }
 
@@ -396,6 +701,14 @@ class RecitationTrackerState {
             for (final setting in trackSettings.entries)
               setting.key: setting.value.toJson(),
           },
+        if (archive.isNotEmpty)
+          'archive': {
+            for (final day in archive.entries)
+              day.key: {
+                for (final summary in day.value.entries)
+                  summary.key: summary.value.encode(),
+              },
+          },
       };
 
   // ---------------------------------------------------------------------
@@ -405,15 +718,20 @@ class RecitationTrackerState {
   // tapped.
   // ---------------------------------------------------------------------
 
-  int get totalSessions => entries.length;
+  int get totalSessions => _archivedSummaries.fold(
+      entries.length, (sum, archived) => sum + archived.$2.sessions);
 
-  int get totalVersesRecited =>
-      entries.values.fold(0, (sum, entry) => sum + entry.versesRecited);
+  int get totalVersesRecited => _archivedSummaries.fold(
+      entries.values.fold(0, (sum, entry) => sum + entry.versesRecited),
+      (sum, archived) => sum + archived.$2.verses);
 
   Map<String, int> get sessionsByLabel {
     final counts = <String, int>{};
     for (final entry in entries.values) {
       counts[entry.label] = (counts[entry.label] ?? 0) + 1;
+    }
+    for (final (label, summary) in _archivedSummaries) {
+      counts[label] = (counts[label] ?? 0) + summary.sessions;
     }
     return counts;
   }
@@ -422,6 +740,9 @@ class RecitationTrackerState {
     final counts = <String, int>{};
     for (final entry in entries.values) {
       counts[entry.label] = (counts[entry.label] ?? 0) + entry.versesRecited;
+    }
+    for (final (label, summary) in _archivedSummaries) {
+      counts[label] = (counts[label] ?? 0) + summary.verses;
     }
     return counts;
   }
@@ -540,8 +861,9 @@ class RecitationTrackerState {
   }
 
   /// Merged, non-overlapping ayah ranges ever recited under [label], by
-  /// surah — the union of every session's range, so re-reading the same
-  /// verses repeatedly does not inflate how much of the Quran is "done".
+  /// surah — the union of every session's range (and every archived day's),
+  /// so re-reading the same verses repeatedly does not inflate how much of
+  /// the Quran is "done".
   ///
   /// Includes what the track was set up as already having read
   /// ([RecitationTrackSettings.readBefore]): this is its progress, not a log.
@@ -551,6 +873,11 @@ class RecitationTrackerState {
       if (entry.label != label) continue;
       (bySurah[entry.surah] ??= []).add((entry.fromAyah, entry.toAyah));
     }
+    for (final day in archive.values) {
+      day[label]?.ranges.forEach((surah, ranges) {
+        (bySurah[surah] ??= []).addAll(ranges);
+      });
+    }
     if (label != unlabeledRecitationLabel) {
       final readBefore = trackSettings[label]?.readBeforeRanges ?? const {};
       for (final range in readBefore.entries) {
@@ -558,22 +885,10 @@ class RecitationTrackerState {
       }
     }
 
-    final merged = <int, List<(int, int)>>{};
-    for (final surahEntry in bySurah.entries) {
-      final ranges = surahEntry.value..sort((a, b) => a.$1.compareTo(b.$1));
-      final mergedRanges = <(int, int)>[];
-      for (final range in ranges) {
-        if (mergedRanges.isNotEmpty && range.$1 <= mergedRanges.last.$2 + 1) {
-          final last = mergedRanges.removeLast();
-          final upperBound = range.$2 > last.$2 ? range.$2 : last.$2;
-          mergedRanges.add((last.$1, upperBound));
-        } else {
-          mergedRanges.add(range);
-        }
-      }
-      merged[surahEntry.key] = mergedRanges;
-    }
-    return merged;
+    return {
+      for (final surahEntry in bySurah.entries)
+        surahEntry.key: mergeAyahRanges(surahEntry.value),
+    };
   }
 
   /// Distinct ayahs ever recited under [label] — the deduplicated count that
@@ -648,9 +963,12 @@ class RecitationTrackerState {
     return distinctVersesRecitedFor(label) / quranTotalAyahCount * 100;
   }
 
-  Set<DateTime> get _recitedLocalDays => entries.values
-      .map((entry) => _dateOnly(entry.recitedAt.toLocal()))
-      .toSet();
+  Set<DateTime> get _recitedLocalDays => {
+        for (final entry in entries.values)
+          _dateOnly(entry.recitedAt.toLocal()),
+        for (final day in archive.keys)
+          if (parseActivityDay(day) case final date?) date,
+      };
 
   /// Consecutive days up to and including today (or yesterday, so logging
   /// tonight's recitation tomorrow morning does not reset it to zero) on
@@ -686,16 +1004,31 @@ class RecitationTrackerState {
     return longest;
   }
 
+  /// Archived days count whole when they fall on or after [sinceLocal]'s
+  /// day - a summary no longer knows the time of day.
   int sessionsSince(DateTime sinceLocal) {
     return entries.values
-        .where((entry) => !entry.recitedAt.toLocal().isBefore(sinceLocal))
-        .length;
+            .where((entry) => !entry.recitedAt.toLocal().isBefore(sinceLocal))
+            .length +
+        _archivedSince(sinceLocal)
+            .fold(0, (sum, summary) => sum + summary.sessions);
   }
 
   int versesSince(DateTime sinceLocal) {
     return entries.values
-        .where((entry) => !entry.recitedAt.toLocal().isBefore(sinceLocal))
-        .fold(0, (sum, entry) => sum + entry.versesRecited);
+            .where((entry) => !entry.recitedAt.toLocal().isBefore(sinceLocal))
+            .fold(0, (sum, entry) => sum + entry.versesRecited) +
+        _archivedSince(sinceLocal)
+            .fold(0, (sum, summary) => sum + summary.verses);
+  }
+
+  Iterable<RecitationDaySummary> _archivedSince(DateTime sinceLocal) sync* {
+    final since = _dateOnly(sinceLocal);
+    for (final day in archive.entries) {
+      final date = parseActivityDay(day.key);
+      if (date == null || date.isBefore(since)) continue;
+      yield* day.value.values;
+    }
   }
 
   /// Verses recited per local calendar day for the trailing [days] days
@@ -712,6 +1045,12 @@ class RecitationTrackerState {
       final day = _dateOnly(entry.recitedAt.toLocal());
       if (day.isBefore(start) || day.isAfter(today)) continue;
       counts[day] = (counts[day] ?? 0) + entry.versesRecited;
+    }
+    for (final archived in archive.entries) {
+      final day = parseActivityDay(archived.key);
+      if (day == null || day.isBefore(start) || day.isAfter(today)) continue;
+      counts[day] = (counts[day] ?? 0) +
+          archived.value.values.fold(0, (sum, summary) => sum + summary.verses);
     }
     return counts;
   }

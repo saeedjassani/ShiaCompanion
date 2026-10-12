@@ -2,7 +2,13 @@ import 'package:flutter/foundation.dart';
 
 import '../models/recitation_tracker_state.dart';
 
-enum RecitationOperationKind { add, remove, addLabel, setTrackSettings }
+enum RecitationOperationKind {
+  add,
+  remove,
+  addLabel,
+  setTrackSettings,
+  compact,
+}
 
 extension RecitationOperationKindInfo on RecitationOperationKind {
   String get key => switch (this) {
@@ -10,6 +16,7 @@ extension RecitationOperationKindInfo on RecitationOperationKind {
         RecitationOperationKind.remove => 'remove',
         RecitationOperationKind.addLabel => 'add_label',
         RecitationOperationKind.setTrackSettings => 'set_track_settings',
+        RecitationOperationKind.compact => 'compact',
       };
 }
 
@@ -26,8 +33,10 @@ RecitationOperationKind? recitationOperationKindFromKey(String key) {
 /// Every kind is naturally idempotent: an [add] replayed twice just sets the
 /// same entry id twice, a [remove] replayed against an id that is already
 /// gone is a no-op, [addLabel] replayed twice unions into the same set
-/// entry, and [setTrackSettings] replayed twice writes the same settings. So unlike the qaza tracker's delta queue, this one needs
-/// no separate merge arithmetic.
+/// entry, [setTrackSettings] replayed twice writes the same settings, and
+/// [compact] carries the finished day summaries rather than what to add to
+/// them, so replaying it sets the same values again. So unlike the qaza
+/// tracker's delta queue, this one needs no separate merge arithmetic.
 class PendingRecitationOperation {
   const PendingRecitationOperation({
     required this.id,
@@ -36,6 +45,7 @@ class PendingRecitationOperation {
     this.entry,
     this.labelName,
     this.settings,
+    this.compaction,
   });
 
   factory PendingRecitationOperation.add(RecitationEntry entry) {
@@ -77,12 +87,26 @@ class PendingRecitationOperation {
     );
   }
 
+  /// Folds old sessions into day summaries. [id] only has to be unique: two
+  /// folds queued offline replay one after the other.
+  factory PendingRecitationOperation.compact(
+    String id,
+    RecitationCompaction compaction,
+  ) {
+    return PendingRecitationOperation(
+      id: id,
+      kind: RecitationOperationKind.compact,
+      compaction: compaction,
+    );
+  }
+
   final String id;
   final RecitationOperationKind kind;
   final String? entryId;
   final RecitationEntry? entry;
   final String? labelName;
   final RecitationTrackSettings? settings;
+  final RecitationCompaction? compaction;
 
   Map<String, Object> toJson() => {
         'id': id,
@@ -91,6 +115,16 @@ class PendingRecitationOperation {
         if (entry != null) 'entry': entry!.toJson(),
         if (labelName != null) 'labelName': labelName!,
         if (settings != null) 'settings': settings!.toJson(),
+        if (compaction != null) ...{
+          'removedEntryIds': compaction!.removedEntryIds.toList(),
+          'summaries': {
+            for (final day in compaction!.summaries.entries)
+              day.key: {
+                for (final summary in day.value.entries)
+                  summary.key: summary.value.encode(),
+              },
+          },
+        },
       };
 
   static PendingRecitationOperation? fromJson(dynamic value) {
@@ -119,6 +153,31 @@ class PendingRecitationOperation {
         final settings = RecitationTrackSettings.fromJson(value['settings']);
         if (labelName.isEmpty || settings == null) return null;
         return PendingRecitationOperation.setTrackSettings(labelName, settings);
+      case RecitationOperationKind.compact:
+        final rawIds = value['removedEntryIds'];
+        final rawSummaries = value['summaries'];
+        if (rawIds is! List || rawSummaries is! Map) return null;
+        // Read whole or not at all: replaying half a fold would delete
+        // sessions without their summaries, or count them twice.
+        final summaries = <String, Map<String, RecitationDaySummary>>{};
+        for (final day in rawSummaries.entries) {
+          if (day.value is! Map) return null;
+          for (final summary in (day.value as Map).entries) {
+            final parsed = RecitationDaySummary.decode(summary.value);
+            final label = summary.key.toString().trim();
+            if (parsed == null || label.isEmpty) return null;
+            (summaries[day.key.toString()] ??= {})[label] = parsed;
+          }
+        }
+        return PendingRecitationOperation.compact(
+          id,
+          RecitationCompaction(
+            removedEntryIds: {
+              for (final entryId in rawIds) entryId.toString(),
+            },
+            summaries: summaries,
+          ),
+        );
     }
   }
 }
@@ -139,6 +198,7 @@ class RecitationRemoteChanges {
     required this.removedEntryIds,
     required this.labels,
     this.trackSettings = const {},
+    this.archive = const {},
   });
 
   /// Entries to write, by id.
@@ -154,11 +214,15 @@ class RecitationRemoteChanges {
   /// Each track's latest settings, by label.
   final Map<String, RecitationTrackSettings> trackSettings;
 
+  /// Day summaries to set: day key, then label.
+  final Map<String, Map<String, RecitationDaySummary>> archive;
+
   bool get isEmpty =>
       entries.isEmpty &&
       removedEntryIds.isEmpty &&
       labels.isEmpty &&
-      trackSettings.isEmpty;
+      trackSettings.isEmpty &&
+      archive.isEmpty;
 }
 
 RecitationRemoteChanges recitationRemoteChangesFor(
@@ -168,6 +232,7 @@ RecitationRemoteChanges recitationRemoteChangesFor(
   final removedEntryIds = <String>{};
   final labels = <String>{};
   final trackSettings = <String, RecitationTrackSettings>{};
+  final archive = <String, Map<String, RecitationDaySummary>>{};
 
   void addLabel(String label) {
     final trimmed = label.trim();
@@ -201,6 +266,17 @@ RecitationRemoteChanges recitationRemoteChangesFor(
         }
         trackSettings[labelName] = settings;
         addLabel(labelName);
+      case RecitationOperationKind.compact:
+        final compaction = operation.compaction;
+        if (compaction == null) continue;
+        for (final entryId in compaction.removedEntryIds) {
+          entries.remove(entryId);
+          removedEntryIds.add(entryId);
+        }
+        compaction.summaries.forEach((day, byLabel) {
+          (archive[day] ??= {}).addAll(byLabel);
+          byLabel.keys.forEach(addLabel);
+        });
     }
   }
 
@@ -209,6 +285,7 @@ RecitationRemoteChanges recitationRemoteChangesFor(
     removedEntryIds: removedEntryIds,
     labels: labels,
     trackSettings: trackSettings,
+    archive: archive,
   );
 }
 
@@ -239,5 +316,8 @@ RecitationTrackerState applyPendingRecitationOperation(
       operation.labelName == null || operation.settings == null
           ? state
           : state.setTrackSettings(operation.labelName!, operation.settings!),
+    RecitationOperationKind.compact => operation.compaction == null
+        ? state
+        : state.applyCompaction(operation.compaction!),
   };
 }

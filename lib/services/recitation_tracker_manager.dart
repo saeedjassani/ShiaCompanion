@@ -26,6 +26,11 @@ import '../utils/shared_preferences.dart';
 /// firestore.indexes.json): nothing queries it, and Firestore's default of
 /// indexing every field of every entry costs about twenty times the entries'
 /// own size and caps a reader's history at a few thousand sessions.
+///
+/// And the doc must not outgrow Firestore's 1 MiB: every surah opened is a
+/// session, so a reader of juz 30 each day logs over a dozen thousand a year.
+/// Sessions older than [recitationSessionRetentionDays] are therefore folded
+/// into one short summary per day and track - see [_compactOldSessions].
 class RecitationTrackerManager extends ChangeNotifier {
   static final RecitationTrackerManager _instance =
       RecitationTrackerManager._internal();
@@ -124,6 +129,7 @@ class RecitationTrackerManager extends ChangeNotifier {
     if (user == null) {
       _updateState(guestState);
       _loadedUserId = null;
+      await _compactOldSessions();
       debugPrint('RecitationTrackerManager: Loaded guest state');
       return;
     }
@@ -164,7 +170,11 @@ class RecitationTrackerManager extends ChangeNotifier {
 
     if (shouldImportGuestState) {
       try {
-        await _mergeRemoteStateForUser(user.uid, guestState);
+        await _mergeRemoteStateForUser(
+          user.uid,
+          guestState,
+          remote: remoteRead.state,
+        );
         await _clearGuestState();
         _pendingGuestImportUserId = null;
         _pendingGuestImportState = RecitationTrackerState.empty;
@@ -178,8 +188,30 @@ class RecitationTrackerManager extends ChangeNotifier {
 
     if (pendingOperations.isNotEmpty) unawaited(_pushPending(user.uid));
 
+    // Only here, straight after a fresh read of the account, so the fold
+    // works from what every device has synced. Not while a guest import is
+    // still to go up: its sessions would be summarised here and then arrive
+    // raw as well, and be counted twice.
+    if (_pendingGuestImportUserId != user.uid) await _compactOldSessions();
+
     _loadedUserId = user.uid;
     setupRealtimeListener();
+  }
+
+  /// Folds sessions older than [recitationSessionRetentionDays] into day
+  /// summaries (see [RecitationTrackerState.compaction]), on the device and
+  /// - queued like any other change - in the account.
+  Future<void> _compactOldSessions() async {
+    final compaction = _state.compaction(DateTime.now());
+    if (compaction == null) return;
+    debugPrint(
+      'RecitationTrackerManager: Folding '
+      '${compaction.removedEntryIds.length} old sessions into day summaries',
+    );
+    await _applyOperation(PendingRecitationOperation.compact(
+      'compact_${DateTime.now().microsecondsSinceEpoch}',
+      compaction,
+    ));
   }
 
   void _setLoading(bool value) {
@@ -358,6 +390,9 @@ class RecitationTrackerManager extends ChangeNotifier {
   /// labels again changes nothing, so an import replayed after a dropped
   /// connection can never double-count.
   ///
+  /// A day summary is written already united with [remote]'s for the same
+  /// day and track, since the write replaces it rather than adding to it.
+  ///
   /// Bounded, unlike [_pushPending]: this is awaited while the tracker loads,
   /// and a write's future does not complete until the server has it - offline,
   /// not until the connection is back. The write stays queued in Firestore's
@@ -365,9 +400,11 @@ class RecitationTrackerManager extends ChangeNotifier {
   /// listener.
   Future<void> _mergeRemoteStateForUser(
     String userId,
-    RecitationTrackerState addition,
-  ) async {
+    RecitationTrackerState addition, {
+    required RecitationTrackerState remote,
+  }) async {
     if (addition.isEmpty) return;
+    final united = remote.archiveUnion(addition.archive);
     await _writeRemote(userId, [
       for (final label in addition.customLabels)
         PendingRecitationOperation.addLabel(label),
@@ -375,6 +412,20 @@ class RecitationTrackerManager extends ChangeNotifier {
         PendingRecitationOperation.setTrackSettings(setting.key, setting.value),
       for (final entry in addition.entries.values)
         PendingRecitationOperation.add(entry),
+      if (addition.archive.isNotEmpty)
+        PendingRecitationOperation.compact(
+          'guest_archive',
+          RecitationCompaction(
+            removedEntryIds: const {},
+            summaries: {
+              for (final day in addition.archive.entries)
+                day.key: {
+                  for (final label in day.value.keys)
+                    label: united[day.key]![label]!,
+                },
+            },
+          ),
+        ),
     ]).timeout(const Duration(seconds: 8));
   }
 
@@ -416,6 +467,16 @@ class RecitationTrackerManager extends ChangeNotifier {
                 ...setting.value.toJson(),
               },
           },
+        // Nested by day and label, so a merge write sets only the summaries
+        // it carries and leaves every other day as it was.
+        if (changes.archive.isNotEmpty)
+          'archive': {
+            for (final day in changes.archive.entries)
+              day.key: {
+                for (final summary in day.value.entries)
+                  summary.key: summary.value.encode(),
+              },
+          },
       },
       'updatedAt': FieldValue.serverTimestamp(),
     }, SetOptions(merge: true));
@@ -447,7 +508,11 @@ class RecitationTrackerManager extends ChangeNotifier {
             !_isImportingGuestState) {
           _isImportingGuestState = true;
           try {
-            await _mergeRemoteStateForUser(user.uid, _pendingGuestImportState);
+            await _mergeRemoteStateForUser(
+              user.uid,
+              _pendingGuestImportState,
+              remote: remoteState,
+            );
             remoteState = remoteState.plus(_pendingGuestImportState);
             await _clearGuestState();
             _pendingGuestImportUserId = null;

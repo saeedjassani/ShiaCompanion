@@ -658,6 +658,7 @@
   "libraryNoChaptersBody": "لا فصول لهذا الكتاب الآن.",
   "quranMoveEntry": "نقل \"{entry}\"",
   "quranNoSessions": "لا جلسات بعد. افتح سورة وابدأ القراءة - تُسجَّل الآيات التي تتلوها هنا تلقائيًا.",
+  "quranOlderSessionsNote": "تُزال من هذه القائمة الجلسات الأقدم من {days} يومًا، لكنها تبقى محسوبة في إحصائياتي.",
   "quranMoveToLabel": "نقل إلى ختمة أخرى",
   "quranNewLabel": "أو ختمة جديدة",
   "quranMove": "نقل",

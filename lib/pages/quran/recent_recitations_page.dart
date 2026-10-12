@@ -13,7 +13,8 @@ import '../../widgets/page_chrome.dart';
 String _surahName(int surah) =>
     surahInfoFor(surah)?.displayName ?? L10n.current.quranSurahNumber(surah);
 
-/// Every logged recitation session, newest first, each one movable to
+/// The last [recitationSessionRetentionDays] days' recitation sessions (and
+/// each track's latest, however old), newest first, each one movable to
 /// another track or removable - opened from the Quran screen's app bar,
 /// beside the reading it records. The totals built from these live on
 /// My Stats.
@@ -97,6 +98,21 @@ class RecentRecitationsPage extends StatelessWidget {
                       ),
                     );
                   },
+                ),
+              ),
+            // Older sessions live on as day summaries (see
+            // RecitationTrackerState.compaction) - say so, so a shorter list
+            // does not read as lost history.
+            if (state.archive.isNotEmpty)
+              SliverPadding(
+                padding: gutter.copyWith(top: 12),
+                sliver: SliverToBoxAdapter(
+                  child: Text(
+                    l10n.quranOlderSessionsNote(
+                      recitationSessionRetentionDays,
+                    ),
+                    style: ShiaText.caption.copyWith(color: colors.textMuted),
+                  ),
                 ),
               ),
           ],

@@ -1627,6 +1627,14 @@
     }
   },
   "quranNoSessions": "No sessions yet. Open a surah and start reading - the verses you recite are logged here automatically.",
+  "quranOlderSessionsNote": "Sessions older than {days} days move off this list. They still count in My Stats.",
+  "@quranOlderSessionsNote": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
   "quranMoveToLabel": "Move to another Khatm",
   "quranNewLabel": "Or a new Khatm",
   "quranMove": "Move",

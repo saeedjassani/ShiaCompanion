@@ -70,7 +70,8 @@ void main() {
         reason: 'an add with no entry payload cannot be replayed',
       );
       expect(
-        PendingRecitationOperation.fromJson({'id': 'x', 'kind': 'not-a-kind', 'entryId': 'r_1'}),
+        PendingRecitationOperation.fromJson(
+            {'id': 'x', 'kind': 'not-a-kind', 'entryId': 'r_1'}),
         isNull,
       );
     });
@@ -98,7 +99,8 @@ void main() {
       expect(twice.totalSessions, 1);
     });
 
-    test('remove is idempotent — replaying it after the id is gone is a no-op', () {
+    test('remove is idempotent — replaying it after the id is gone is a no-op',
+        () {
       final state = RecitationTrackerState.empty.setEntry(
         RecitationEntry(
           id: 'r_1',
@@ -118,7 +120,8 @@ void main() {
       expect(twice.entries, isEmpty);
     });
 
-    test('addLabel is idempotent — replaying it twice registers the track once', () {
+    test('addLabel is idempotent — replaying it twice registers the track once',
+        () {
       final operation = PendingRecitationOperation.addLabel('Family');
 
       final once = applyPendingRecitationOperation(
@@ -131,7 +134,9 @@ void main() {
       expect(twice.labels, ['Family']);
     });
 
-    test('applyPendingRecitationOperations applies a queue of add/remove in order', () {
+    test(
+        'applyPendingRecitationOperations applies a queue of add/remove in order',
+        () {
       final entryA = RecitationEntry(
         id: 'a',
         label: 'Family',
@@ -149,7 +154,8 @@ void main() {
         toAyah: 1,
       );
 
-      final state = applyPendingRecitationOperations(RecitationTrackerState.empty, [
+      final state =
+          applyPendingRecitationOperations(RecitationTrackerState.empty, [
         PendingRecitationOperation.add(entryA),
         PendingRecitationOperation.add(entryB),
         PendingRecitationOperation.remove('a'),
@@ -162,7 +168,8 @@ void main() {
   });
 
   group('recitationRemoteChangesFor', () {
-    RecitationEntry entry(String id, {String label = 'Family', int toAyah = 7}) {
+    RecitationEntry entry(String id,
+        {String label = 'Family', int toAyah = 7}) {
       return RecitationEntry(
         id: id,
         label: label,
@@ -250,6 +257,61 @@ void main() {
         isFalse,
         reason: 'a removal is still a write',
       );
+    });
+  });
+
+  group('compact', () {
+    final compaction = RecitationCompaction(
+      removedEntryIds: const {'a', 'b'},
+      summaries: {
+        '2026-08-01': {'Family': RecitationDaySummary.decode('2|30|36:1-30')!},
+      },
+    );
+
+    test('serializes and restores what it folds', () {
+      final operation = PendingRecitationOperation.compact('c_1', compaction);
+      final restored = PendingRecitationOperation.fromJson(operation.toJson())!;
+
+      expect(restored.kind, RecitationOperationKind.compact);
+      expect(restored.id, 'c_1');
+      expect(restored.compaction!.removedEntryIds, {'a', 'b'});
+      expect(restored.compaction!.summaries, compaction.summaries);
+    });
+
+    test('is dropped whole when any summary is unreadable', () {
+      final json =
+          PendingRecitationOperation.compact('c_1', compaction).toJson();
+      (json['summaries'] as Map)['2026-08-02'] = {'Family': 'junk'};
+      expect(PendingRecitationOperation.fromJson(json), isNull);
+    });
+
+    test('deletes the folded sessions and sets the summaries in one write', () {
+      final entry = RecitationEntry(
+        id: 'a',
+        label: 'Family',
+        recitedAt: DateTime.utc(2026, 8, 1),
+        surah: 36,
+        fromAyah: 1,
+        toAyah: 30,
+      );
+      final changes = recitationRemoteChangesFor([
+        PendingRecitationOperation.add(entry),
+        PendingRecitationOperation.compact('c_1', compaction),
+      ]);
+
+      expect(changes.entries, isEmpty);
+      expect(changes.removedEntryIds, {'a', 'b'});
+      expect(changes.archive, compaction.summaries);
+    });
+
+    test('replaying it twice leaves the same state', () {
+      final operation = PendingRecitationOperation.compact('c_1', compaction);
+      final once = applyPendingRecitationOperation(
+          RecitationTrackerState.empty, operation);
+      final twice = applyPendingRecitationOperation(once, operation);
+
+      expect(twice.archive, once.archive);
+      expect(twice.totalSessions, 2);
     });
   });
 }
