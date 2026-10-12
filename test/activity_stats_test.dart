@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -38,6 +39,28 @@ class _FakeRemote implements ActivityStatsRemote {
 
   @override
   Future<void> delete(String userId) async => stored = null;
+}
+
+/// Stands in for a file a backup leaves behind: survives a "restart", and
+/// [lose] is a restore onto a new phone.
+class _FakeMarker implements InstallMarker {
+  String? value;
+  bool unavailable = false;
+  bool failWrites = false;
+
+  void lose() => value = null;
+
+  @override
+  Future<String?> read() async {
+    if (unavailable) throw UnsupportedError('none here');
+    return value;
+  }
+
+  @override
+  Future<void> write(String deviceId) async {
+    if (failWrites) throw const FileSystemException('disk full');
+    value = deviceId;
+  }
 }
 
 void main() {
@@ -174,15 +197,20 @@ void main() {
 
   group('ActivityStatsStore', () {
     late _FakeRemote remote;
+    late _FakeMarker marker;
     late DateTime now;
     late ActivityStatsStore store;
+
+    ActivityStatsStore launch() => ActivityStatsStore(
+        remote: remote, clock: () => now, installMarker: marker);
 
     setUp(() async {
       SharedPreferences.setMockInitialValues({});
       await SP.init();
       remote = _FakeRemote();
+      marker = _FakeMarker();
       now = day1;
-      store = ActivityStatsStore(remote: remote, clock: () => now);
+      store = launch();
     });
 
     test('with sync switched off, a signed-in reader stays local', () async {
@@ -213,7 +241,7 @@ void main() {
     test('persists locally across restarts', () async {
       await store.recordZikrCompleted('E1');
       await store.recordQazaCompleted();
-      final restarted = ActivityStatsStore(remote: remote, clock: () => now);
+      final restarted = launch();
       expect(restarted.summary().totalZikrs, 1);
       expect(restarted.summary().totalQaza, 1);
     });
@@ -306,6 +334,117 @@ void main() {
       expect(summary.zikrCounts, {'E1': 1, 'G3': 1});
       expect(store.own.zikrCounts, {'E1': 1});
       expect(remote.pushes, 0, reason: 'the account already had it all');
+    });
+
+    group('a phone set up from another\'s backup', () {
+      test('an install from before the marker keeps its id', () async {
+        remote.userId = 'u1';
+        await store.recordZikrCompleted('E1');
+        final id = store.deviceId;
+        await store.pullAndMerge();
+
+        expect(marker.value, id);
+        expect(store.deviceId, id);
+        expect(remote.stored!.keys, [id]);
+      });
+
+      test('a restart on the same phone keeps its id', () async {
+        remote.userId = 'u1';
+        await store.recordZikrCompleted('E1');
+        await store.pullAndMerge();
+        final id = store.deviceId;
+
+        final restarted = launch();
+        await restarted.pullAndMerge();
+        expect(restarted.deviceId, id);
+        expect(restarted.own.zikrCounts, {'E1': 1});
+      });
+
+      test('takes a new id and leaves the old phone\'s history under its own',
+          () async {
+        remote.userId = 'u1';
+        await store.recordZikrCompleted('E1');
+        await store.pullAndMerge();
+        final oldId = store.deviceId;
+        final oldHistory = store.own;
+
+        // The new phone: the same SharedPreferences, no marker.
+        marker.lose();
+        final restored = launch();
+        await restored.pullAndMerge();
+
+        expect(restored.deviceId, isNot(oldId));
+        expect(restored.own.isEmpty, isTrue);
+        expect(restored.summary().totalZikrs, 1, reason: 'not lost');
+        expect(remote.stored![oldId], oldHistory);
+        expect(remote.pushes, 1, reason: 'the account already had it');
+
+        // Both phones now read on the same day.
+        await restored.recordZikrCompleted('G3');
+        now = now.add(ActivityStatsStore.minPushInterval);
+        await restored.pushIfDue();
+        expect(
+            remote.stored!.keys, unorderedEquals([oldId, restored.deviceId]));
+        expect(remote.stored![oldId], oldHistory,
+            reason: 'the new phone never writes over the old one');
+        expect(restored.summary().totalZikrs, 2);
+      });
+
+      test('a reader who never signed in keeps their stats', () async {
+        await store.recordZikrCompleted('E1');
+        await store.pullAndMerge();
+
+        marker.lose();
+        final restored = launch();
+        await restored.pullAndMerge();
+        expect(restored.own.isEmpty, isTrue);
+        expect(restored.summary().totalZikrs, 1);
+
+        await restored.recordZikrCompleted('E1');
+        expect(restored.summary().totalZikrs, 2);
+        expect(launch().summary().totalZikrs, 2, reason: 'kept on disk');
+      });
+
+      test('history the account lacks goes up under the old id', () async {
+        await store.recordZikrCompleted('E1');
+        await store.pullAndMerge();
+        final oldId = store.deviceId;
+
+        marker.lose();
+        final restored = launch();
+        await restored.pullAndMerge();
+        remote.userId = 'u1';
+        await restored.pullAndMerge();
+
+        expect(remote.stored![oldId]!.zikrCounts, {'E1': 1});
+        expect(remote.stored!.containsKey(restored.deviceId), isFalse,
+            reason: 'nothing of its own yet');
+        expect(restored.summary().totalZikrs, 1, reason: 'counted once');
+      });
+
+      test('a marker that cannot be written costs one new id, not one a launch',
+          () async {
+        await store.recordZikrCompleted('E1');
+        await store.pullAndMerge();
+
+        marker.lose();
+        marker.failWrites = true;
+        final restored = launch();
+        await restored.pullAndMerge();
+        final newId = restored.deviceId;
+
+        expect(launch().deviceId, newId);
+        await launch().pullAndMerge();
+        expect(launch().deviceId, newId);
+      });
+
+      test('with nowhere to keep a marker, nothing changes', () async {
+        marker.unavailable = true;
+        await store.recordZikrCompleted('E1');
+        final id = store.deviceId;
+        await store.pullAndMerge();
+        expect(launch().deviceId, id);
+      });
     });
 
     test('signing out drops the account’s other devices', () async {

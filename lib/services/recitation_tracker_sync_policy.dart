@@ -34,8 +34,8 @@ RecitationOperationKind? recitationOperationKindFromKey(String key) {
 /// same entry id twice, a [remove] replayed against an id that is already
 /// gone is a no-op, [addLabel] replayed twice unions into the same set
 /// entry, [setTrackSettings] replayed twice writes the same settings, and
-/// [compact] carries the finished day summaries rather than what to add to
-/// them, so replaying it sets the same values again. So unlike the qaza
+/// [compact] carries the finished day summaries and track coverage rather
+/// than what to add to them, so replaying it sets the same values again. So unlike the qaza
 /// tracker's delta queue, this one needs no separate merge arithmetic.
 class PendingRecitationOperation {
   const PendingRecitationOperation({
@@ -124,6 +124,11 @@ class PendingRecitationOperation {
                   summary.key: summary.value.encode(),
               },
           },
+          if (compaction!.coverage.isNotEmpty)
+            'coverage': {
+              for (final track in compaction!.coverage.entries)
+                track.key: encodeAyahRanges(track.value),
+            },
         },
       };
 
@@ -169,6 +174,17 @@ class PendingRecitationOperation {
             (summaries[day.key.toString()] ??= {})[label] = parsed;
           }
         }
+        // Absent from a fold queued before coverage existed.
+        final rawCoverage = value['coverage'];
+        if (rawCoverage != null && rawCoverage is! Map) return null;
+        final coverage = <String, Map<int, List<(int, int)>>>{};
+        for (final track in (rawCoverage as Map? ?? const {}).entries) {
+          final encoded = track.value;
+          final parsed = encoded is String ? decodeAyahRanges(encoded) : null;
+          final label = track.key.toString().trim();
+          if (parsed == null || label.isEmpty) return null;
+          coverage[label] = parsed;
+        }
         return PendingRecitationOperation.compact(
           id,
           RecitationCompaction(
@@ -176,6 +192,7 @@ class PendingRecitationOperation {
               for (final entryId in rawIds) entryId.toString(),
             },
             summaries: summaries,
+            coverage: coverage,
           ),
         );
     }
@@ -199,6 +216,7 @@ class RecitationRemoteChanges {
     required this.labels,
     this.trackSettings = const {},
     this.archive = const {},
+    this.coverage = const {},
   });
 
   /// Entries to write, by id.
@@ -217,12 +235,16 @@ class RecitationRemoteChanges {
   /// Day summaries to set: day key, then label.
   final Map<String, Map<String, RecitationDaySummary>> archive;
 
+  /// Track coverage to set, by label.
+  final Map<String, Map<int, List<(int, int)>>> coverage;
+
   bool get isEmpty =>
       entries.isEmpty &&
       removedEntryIds.isEmpty &&
       labels.isEmpty &&
       trackSettings.isEmpty &&
-      archive.isEmpty;
+      archive.isEmpty &&
+      coverage.isEmpty;
 }
 
 RecitationRemoteChanges recitationRemoteChangesFor(
@@ -233,6 +255,7 @@ RecitationRemoteChanges recitationRemoteChangesFor(
   final labels = <String>{};
   final trackSettings = <String, RecitationTrackSettings>{};
   final archive = <String, Map<String, RecitationDaySummary>>{};
+  final coverage = <String, Map<int, List<(int, int)>>>{};
 
   void addLabel(String label) {
     final trimmed = label.trim();
@@ -277,6 +300,10 @@ RecitationRemoteChanges recitationRemoteChangesFor(
           (archive[day] ??= {}).addAll(byLabel);
           byLabel.keys.forEach(addLabel);
         });
+        compaction.coverage.forEach((label, ranges) {
+          coverage[label] = ranges;
+          addLabel(label);
+        });
     }
   }
 
@@ -286,6 +313,7 @@ RecitationRemoteChanges recitationRemoteChangesFor(
     labels: labels,
     trackSettings: trackSettings,
     archive: archive,
+    coverage: coverage,
   );
 }
 

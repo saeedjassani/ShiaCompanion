@@ -314,4 +314,63 @@ void main() {
       expect(twice.totalSessions, 2);
     });
   });
+
+  group('compact with coverage', () {
+    final compaction = RecitationCompaction(
+      removedEntryIds: const {},
+      summaries: {
+        '2025-06-01': {'Family': RecitationDaySummary.decode('2|30|')!},
+      },
+      coverage: {
+        'Family': {
+          36: [(1, 30)],
+        },
+      },
+    );
+
+    test('serializes and restores the coverage it sets', () {
+      final operation = PendingRecitationOperation.compact('c_1', compaction);
+      final restored = PendingRecitationOperation.fromJson(operation.toJson())!;
+
+      expect(restored.compaction!.summaries, compaction.summaries);
+      expect(restored.compaction!.coverage, compaction.coverage);
+    });
+
+    test('still reads a fold queued before coverage existed', () {
+      final json = PendingRecitationOperation.compact('c_1', compaction)
+          .toJson()
+        ..remove('coverage');
+      final restored = PendingRecitationOperation.fromJson(json)!;
+
+      expect(restored.compaction!.coverage, isEmpty);
+      expect(restored.compaction!.summaries, compaction.summaries);
+    });
+
+    test('is dropped whole when any coverage is unreadable', () {
+      final json =
+          PendingRecitationOperation.compact('c_1', compaction).toJson();
+      (json['coverage'] as Map)['Personal'] = '36:9-1';
+      expect(PendingRecitationOperation.fromJson(json), isNull);
+    });
+
+    test('sets the coverage in the same write as the summaries', () {
+      final changes = recitationRemoteChangesFor([
+        PendingRecitationOperation.compact('c_1', compaction),
+      ]);
+
+      expect(changes.archive, compaction.summaries);
+      expect(changes.coverage, compaction.coverage);
+      expect(changes.labels, {'Family'});
+    });
+
+    test('replaying it twice leaves the same state', () {
+      final operation = PendingRecitationOperation.compact('c_1', compaction);
+      final once = applyPendingRecitationOperation(
+          RecitationTrackerState.empty, operation);
+      final twice = applyPendingRecitationOperation(once, operation);
+
+      expect(twice.coverage, once.coverage);
+      expect(twice.distinctVersesRecitedFor('Family'), 30);
+    });
+  });
 }

@@ -206,7 +206,8 @@ class RecitationTrackerManager extends ChangeNotifier {
     if (compaction == null) return;
     debugPrint(
       'RecitationTrackerManager: Folding '
-      '${compaction.removedEntryIds.length} old sessions into day summaries',
+      '${compaction.removedEntryIds.length} old sessions into day summaries, '
+      '${compaction.coverage.length} tracks\' old ranges into coverage',
     );
     await _applyOperation(PendingRecitationOperation.compact(
       'compact_${DateTime.now().microsecondsSinceEpoch}',
@@ -390,8 +391,8 @@ class RecitationTrackerManager extends ChangeNotifier {
   /// labels again changes nothing, so an import replayed after a dropped
   /// connection can never double-count.
   ///
-  /// A day summary is written already united with [remote]'s for the same
-  /// day and track, since the write replaces it rather than adding to it.
+  /// A day summary, and a track's coverage, is written already united with
+  /// [remote]'s, since the write replaces it rather than adding to it.
   ///
   /// Bounded, unlike [_pushPending]: this is awaited while the tracker loads,
   /// and a write's future does not complete until the server has it - offline,
@@ -405,6 +406,7 @@ class RecitationTrackerManager extends ChangeNotifier {
   }) async {
     if (addition.isEmpty) return;
     final united = remote.archiveUnion(addition.archive);
+    final unitedCoverage = remote.coverageUnion(addition.coverage);
     await _writeRemote(userId, [
       for (final label in addition.customLabels)
         PendingRecitationOperation.addLabel(label),
@@ -412,7 +414,7 @@ class RecitationTrackerManager extends ChangeNotifier {
         PendingRecitationOperation.setTrackSettings(setting.key, setting.value),
       for (final entry in addition.entries.values)
         PendingRecitationOperation.add(entry),
-      if (addition.archive.isNotEmpty)
+      if (addition.archive.isNotEmpty || addition.coverage.isNotEmpty)
         PendingRecitationOperation.compact(
           'guest_archive',
           RecitationCompaction(
@@ -423,6 +425,10 @@ class RecitationTrackerManager extends ChangeNotifier {
                   for (final label in day.value.keys)
                     label: united[day.key]![label]!,
                 },
+            },
+            coverage: {
+              for (final label in addition.coverage.keys)
+                label: unitedCoverage[label]!,
             },
           ),
         ),
@@ -476,6 +482,11 @@ class RecitationTrackerManager extends ChangeNotifier {
                 for (final summary in day.value.entries)
                   summary.key: summary.value.encode(),
               },
+          },
+        if (changes.coverage.isNotEmpty)
+          'coverage': {
+            for (final track in changes.coverage.entries)
+              track.key: encodeAyahRanges(track.value),
           },
       },
       'updatedAt': FieldValue.serverTimestamp(),

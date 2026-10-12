@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shia_companion/models/activity_stats.dart';
 import 'package:shia_companion/models/recitation_tracker_state.dart';
 import 'package:shia_companion/utils/quran_index.dart';
 
@@ -953,6 +954,156 @@ void main() {
         '2026-08-01': {'Family': a},
       });
       expect(state.plus(state).totalSessions, 2);
+    });
+  });
+
+  group('moving old days\' ranges into the track\'s coverage', () {
+    final now = DateTime(2026, 10, 12, 9);
+    // Well past recitationDayRangesRetentionDays and its week of grace.
+    final ancient = DateTime(2025, 6, 1);
+    final ancientKey = activityDayKey(ancient);
+    final recentKey = activityDayKey(DateTime(2026, 8, 1));
+
+    RecitationTrackerState archived() => RecitationTrackerState(
+          {
+            // Keeps Family's resume point; nothing to fold.
+            'latest': _entry(
+                id: 'latest',
+                recitedAt: now.subtract(const Duration(days: 1)),
+                surah: 1,
+                toAyah: 7),
+          },
+          {'Family'},
+          null,
+          {
+            ancientKey: {
+              'Family': RecitationDaySummary.decode('2|120|36:1-83;67:1-30')!,
+              unlabeledRecitationLabel:
+                  RecitationDaySummary.decode('1|5|2:1-5')!,
+            },
+            activityDayKey(ancient.add(const Duration(days: 1))): {
+              'Family': RecitationDaySummary.decode('1|40|36:40-83;56:1-1')!,
+            },
+            recentKey: {
+              'Family': RecitationDaySummary.decode('1|10|18:1-10')!,
+            },
+          },
+        );
+
+    test('strips old summaries to their counts and unites their ranges', () {
+      final compaction = archived().compaction(now)!;
+
+      expect(compaction.removedEntryIds, isEmpty);
+      expect(compaction.summaries[ancientKey]!['Family']!.encode(), '2|120|');
+      expect(compaction.summaries.containsKey(recentKey), isFalse);
+      expect(encodeAyahRanges(compaction.coverage['Family']!),
+          '36:1-83;56:1;67:1-30');
+      expect(encodeAyahRanges(compaction.coverage[unlabeledRecitationLabel]!),
+          '2:1-5');
+    });
+
+    test('keeps every stat, streak day and khatm progress the same', () {
+      final before = archived();
+      final after = before.applyCompaction(before.compaction(now)!);
+
+      expect(after.archive[recentKey]!['Family']!.ranges, isNotEmpty);
+      expect(after.totalSessions, before.totalSessions);
+      expect(after.totalVersesRecited, before.totalVersesRecited);
+      expect(after.sessionsByLabel, before.sessionsByLabel);
+      expect(after.versesByLabel, before.versesByLabel);
+      expect(after.labels, before.labels);
+      expect(after.distinctVersesRecitedFor('Family'),
+          before.distinctVersesRecitedFor('Family'));
+      expect(after.juzCoverageFor('Family'), before.juzCoverageFor('Family'));
+      expect(after.percentCompleteFor(unlabeledRecitationLabel),
+          before.percentCompleteFor(unlabeledRecitationLabel));
+      expect(after.longestStreak, before.longestStreak);
+      expect(after.dailyVerseCounts(400), before.dailyVerseCounts(400));
+      expect(after.compaction(now), isNull);
+    });
+
+    test('waits a week past the line, then moves them in one batch', () {
+      RecitationTrackerState withDay(int daysAgo) =>
+          RecitationTrackerState(null, null, null, {
+            activityDayKey(now.subtract(Duration(days: daysAgo))): {
+              'Family': RecitationDaySummary.decode('1|10|18:1-10')!,
+            },
+          });
+
+      expect(withDay(recitationDayRangesRetentionDays + 2).compaction(now),
+          isNull);
+      expect(
+          withDay(recitationDayRangesRetentionDays + 9)
+              .compaction(now)
+              ?.coverage
+              .keys,
+          ['Family']);
+    });
+
+    test('a late session folded into an old day goes to coverage too', () {
+      final folded = archived().applyCompaction(archived().compaction(now)!);
+      final late = folded.setEntry(_entry(
+          id: 'late', recitedAt: ancient, surah: 2, fromAyah: 1, toAyah: 9));
+      final after = late.applyCompaction(late.compaction(now)!);
+
+      expect(after.entries.containsKey('late'), isFalse);
+      expect(after.archive[ancientKey]!['Family']!.encode(), '3|129|');
+      expect(encodeAyahRanges(after.coverage['Family']!),
+          '2:1-9;36:1-83;56:1;67:1-30');
+    });
+
+    test('adds to coverage that is already there', () {
+      final state = RecitationTrackerState(null, null, null, {
+        ancientKey: {'Family': RecitationDaySummary.decode('1|5|2:6-10')!},
+      }, {
+        'Family': {
+          2: [(1, 5)],
+        },
+      });
+      final after = state.applyCompaction(state.compaction(now)!);
+
+      expect(encodeAyahRanges(after.coverage['Family']!), '2:1-10');
+    });
+
+    test('moves at most the given number of summaries, oldest first', () {
+      final compaction = archived().compaction(now, maxSummaries: 2)!;
+      expect(compaction.summaries.keys, [ancientKey]);
+    });
+
+    test('coverage round trips through the stored JSON', () {
+      final before = archived();
+      final after = before.applyCompaction(before.compaction(now)!);
+      final restored = RecitationTrackerState.fromJson(after.toJson());
+
+      expect(restored.coverage, after.coverage);
+      expect(restored.archive, after.archive);
+      expect(restored.distinctVersesRecitedFor('Family'),
+          before.distinctVersesRecitedFor('Family'));
+    });
+
+    test('a union of coverage never counts a verse twice', () {
+      final state = RecitationTrackerState(null, null, null, null, {
+        'Family': {
+          36: [(1, 83)],
+        },
+      });
+      final doubled = state.plus(state);
+
+      expect(doubled.coverage, state.coverage);
+      expect(doubled.distinctVersesRecitedFor('Family'), 83);
+    });
+
+    test('ranges encode compactly and reject anything malformed', () {
+      final ranges = {
+        2: [(5, 5), (7, 9)],
+        36: [(1, 12)],
+      };
+      expect(encodeAyahRanges(ranges), '2:5,7-9;36:1-12');
+      expect(decodeAyahRanges(encodeAyahRanges(ranges)), ranges);
+      expect(decodeAyahRanges(''), isEmpty);
+      for (final bad in ['2', '2:', 'x:1', '2:9-3', '0:1', '2:1-2-3']) {
+        expect(decodeAyahRanges(bad), isNull, reason: bad);
+      }
     });
   });
 }

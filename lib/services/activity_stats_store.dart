@@ -1,11 +1,13 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 import 'dart:math';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
+import 'package:path_provider/path_provider.dart';
 
 import '../models/activity_stats.dart';
 import '../utils/shared_preferences.dart';
@@ -76,6 +78,55 @@ class FirestoreActivityStatsRemote implements ActivityStatsRemote {
   Future<void> delete(String userId) => _doc(userId).delete();
 }
 
+/// A copy of this install's device id kept where a phone backup does not
+/// reach, so a device set up from another's backup - which carries the
+/// SharedPreferences, device id and all - can tell it is not that device.
+abstract class InstallMarker {
+  /// The id written last, or null when there is none. Throws when this
+  /// platform has nowhere to keep one.
+  Future<String?> read();
+
+  Future<void> write(String deviceId);
+}
+
+/// A small file outside every backup: on Android in the app's files
+/// directory, which `backup_rules.xml` and `data_extraction_rules.xml`
+/// exclude it from; on iOS in Caches, which is never backed up or moved to a
+/// new phone. iOS may clear Caches when storage runs low, which reads as a
+/// new install - harmless, since [ActivityStatsStore] then files this
+/// device's history under its old id rather than losing or doubling it.
+class FileInstallMarker implements InstallMarker {
+  const FileInstallMarker();
+
+  /// Also named in android/app/src/main/res/xml/backup_rules.xml and
+  /// data_extraction_rules.xml.
+  static const String fileName = 'activity_stats_install';
+
+  Future<File> _file() async {
+    if (kIsWeb) throw UnsupportedError('no install marker on the web');
+    final Directory directory = switch (defaultTargetPlatform) {
+      TargetPlatform.android => await getApplicationSupportDirectory(),
+      TargetPlatform.iOS => await getApplicationCacheDirectory(),
+      _ => throw UnsupportedError('no install marker on this platform'),
+    };
+    return File('${directory.path}/$fileName');
+  }
+
+  @override
+  Future<String?> read() async {
+    final file = await _file();
+    if (!await file.exists()) return null;
+    return (await file.readAsString()).trim();
+  }
+
+  @override
+  Future<void> write(String deviceId) async {
+    final file = await _file();
+    await file.parent.create(recursive: true);
+    await file.writeAsString(deviceId, flush: true);
+  }
+}
+
 /// Personal stats and streaks: zikrs completed, qaza made up and (read from
 /// [RecitationTrackerManager], which already keeps and syncs it) Quran
 /// recitation.
@@ -90,10 +141,12 @@ class ActivityStatsStore extends ChangeNotifier {
     ActivityStatsRemote remote = const FirestoreActivityStatsRemote(),
     DateTime Function()? clock,
     bool Function()? syncEnabled,
+    InstallMarker installMarker = const FileInstallMarker(),
     this.recitationSource,
   })  : _remote = remote,
         _clock = clock ?? DateTime.now,
-        _syncEnabled = syncEnabled ?? _alwaysOn;
+        _syncEnabled = syncEnabled ?? _alwaysOn,
+        _installMarker = installMarker;
 
   static final ActivityStatsStore instance = ActivityStatsStore(
     recitationSource: () => RecitationTrackerManager.instance,
@@ -107,6 +160,17 @@ class ActivityStatsStore extends ChangeNotifier {
   static const String _lastPushKey = 'activity_stats_last_push_ms';
   static const String _dirtyKey = 'activity_stats_dirty';
 
+  /// Set once [InstallMarker] holds this install's id. A backup copies it
+  /// along with the id, so with it set and the marker missing or different,
+  /// this is a device set up from another's backup. Without it - an install
+  /// from before the marker existed - the id is simply adopted.
+  static const String _installMarkedKey = 'activity_stats_install_marked';
+
+  /// History restored from another install's backup, by that install's id:
+  /// shown with this device's own, and written to the account under the id
+  /// it came with, never this device's.
+  static const String _inheritedKey = 'activity_stats_inherited_v1';
+
   /// Enough that a normal day's use - a morning and an evening session - is
   /// one or two writes, however many zikrs are read in between.
   static const Duration minPushInterval = Duration(hours: 6);
@@ -114,6 +178,7 @@ class ActivityStatsStore extends ChangeNotifier {
   final ActivityStatsRemote _remote;
   final DateTime Function() _clock;
   final bool Function() _syncEnabled;
+  final InstallMarker _installMarker;
 
   /// The account to sync with, or null when signed out or sync is off.
   String? get _syncUserId => _syncEnabled() ? _remote.currentUserId : null;
@@ -124,7 +189,9 @@ class ActivityStatsStore extends ChangeNotifier {
   DeviceActivity _own = const DeviceActivity();
   Map<String, DeviceActivity> _others = const {};
   String? _othersOwner;
+  Map<String, DeviceActivity> _inherited = const {};
   bool _loaded = false;
+  Future<void>? _installCheck;
   Future<void>? _syncInFlight;
   Future<void>? _pushInFlight;
 
@@ -133,9 +200,17 @@ class ActivityStatsStore extends ChangeNotifier {
     return _own;
   }
 
+  /// Every device but this one: the account's, and any history restored
+  /// from another install's backup.
   Map<String, DeviceActivity> get otherDevices {
     _ensureLoaded();
-    return _others;
+    if (_inherited.isEmpty) return _others;
+    final all = Map<String, DeviceActivity>.of(_others);
+    _inherited.forEach((id, activity) {
+      final synced = all[id];
+      all[id] = synced == null ? activity : synced.merge(activity);
+    });
+    return all;
   }
 
   /// The combined view the stats screen renders.
@@ -144,7 +219,7 @@ class ActivityStatsStore extends ChangeNotifier {
     final recitation = recitationSource?.call().state;
     final now = _clock();
     return ActivitySummary(
-      devices: [_own, ..._others.values],
+      devices: [_own, ...otherDevices.values],
       quranVersesByDay:
           recitation?.dailyVerseCounts(activityRetentionDays) ?? const {},
       quranVersesTotal: recitation?.totalVersesRecited ?? 0,
@@ -195,7 +270,7 @@ class ActivityStatsStore extends ChangeNotifier {
     // Remembered on the device so a long streak is still "longest" after its
     // first days have been folded into the archive.
     final longest = ActivitySummary(
-      devices: [next, ..._others.values],
+      devices: [next, ...otherDevices.values],
       now: _clock(),
     ).longestStreak;
     if (longest > next.bestStreak) next = next.copyWith(bestStreak: longest);
@@ -222,6 +297,7 @@ class ActivityStatsStore extends ChangeNotifier {
   Future<void> _pullAndMerge() async {
     if (!SP.isInitialized) return;
     _ensureLoaded();
+    await _checkInstall();
     final userId = _syncUserId;
     if (userId == null) {
       // Another account's devices are not this reader's stats.
@@ -243,6 +319,7 @@ class ActivityStatsStore extends ChangeNotifier {
     final remoteOwn = remote?[id];
     final others = Map<String, DeviceActivity>.of(remote ?? const {})
       ..remove(id);
+    await _uploadInherited(userId, others);
     await _setOthers(others, userId);
 
     if (remoteOwn != null) {
@@ -273,6 +350,8 @@ class ActivityStatsStore extends ChangeNotifier {
   /// held back goes up on a later pause or the next cold start.
   Future<void> pushIfDue() async {
     if (!SP.isInitialized) return;
+    _ensureLoaded();
+    await _checkInstall();
     if (SP.prefs.getBool(_dirtyKey) != true) return;
     final userId = _syncUserId;
     if (userId == null) return;
@@ -314,6 +393,94 @@ class ActivityStatsStore extends ChangeNotifier {
     if (SP.isInitialized) await _setOthers(const {}, null);
   }
 
+  /// Writes history restored from another install's backup to the account
+  /// under the id it came with, merged with whatever the account already has
+  /// there, and adds it to [others]. The account's copy is usually ahead -
+  /// the old device kept syncing after the backup was taken - and then
+  /// nothing is written at all.
+  Future<void> _uploadInherited(
+    String userId,
+    Map<String, DeviceActivity> others,
+  ) async {
+    if (_inherited.isEmpty) return;
+    final remaining = Map<String, DeviceActivity>.of(_inherited);
+    for (final entry in _inherited.entries) {
+      final synced = others[entry.key];
+      final merged = synced == null
+          ? entry.value
+          : synced.merge(entry.value).pruned(_clock());
+      try {
+        if (merged != synced && !merged.isEmpty) {
+          await _remote.push(userId, entry.key, merged);
+        }
+        if (!merged.isEmpty) others[entry.key] = merged;
+        remaining.remove(entry.key);
+      } catch (error) {
+        // Kept, and shown, until a later pull gets it up.
+        debugPrint('ActivityStatsStore: inherited push failed: $error');
+      }
+    }
+    await _setInherited(remaining);
+  }
+
+  // ---------------------------------------------------------------------------
+  // Install identity
+  // ---------------------------------------------------------------------------
+
+  /// Once per launch, before anything is synced: makes sure [deviceId] is
+  /// this install's own and not one restored from another device's backup,
+  /// where two devices sharing an id would each keep replacing the other's
+  /// history in the account.
+  Future<void> _checkInstall() {
+    return _installCheck ??= _checkInstallNow();
+  }
+
+  Future<void> _checkInstallNow() async {
+    final String? marker;
+    try {
+      marker = await _installMarker.read();
+    } catch (error) {
+      // Nowhere to keep a marker (the web, tests): nothing to compare with.
+      return;
+    }
+    final stored = SP.prefs.getString(_deviceIdKey);
+    final marked = SP.prefs.getBool(_installMarkedKey) == true;
+    if (stored != null && stored.isNotEmpty && marker == stored) return;
+
+    if (stored != null && stored.isNotEmpty && marked) {
+      await _startNewIdentity(stored);
+    }
+    try {
+      await _installMarker.write(deviceId);
+      await SP.prefs.setBool(_installMarkedKey, true);
+    } catch (error) {
+      debugPrint('ActivityStatsStore: install marker not written: $error');
+    }
+  }
+
+  /// This device was set up from [previousId]'s backup: takes a new id, and
+  /// keeps the history that came with the backup as [previousId]'s, so it is
+  /// neither lost nor counted twice should that device still be in use.
+  Future<void> _startNewIdentity(String previousId) async {
+    debugPrint('ActivityStatsStore: restored from another install; new id');
+    if (!_own.isEmpty) {
+      final earlier = _inherited[previousId];
+      await _setInherited({
+        ..._inherited,
+        previousId: earlier == null ? _own : earlier.merge(_own),
+      });
+    }
+    _own = const DeviceActivity();
+    notifyListeners();
+    // Unmarked until the new id's marker is written: should that fail, the
+    // next launch adopts the new id rather than taking yet another.
+    await SP.prefs.remove(_installMarkedKey);
+    await SP.prefs.remove(_ownKey);
+    await SP.prefs.remove(_deviceIdKey);
+    await SP.prefs.remove(_lastPushKey);
+    await SP.prefs.setBool(_dirtyKey, false);
+  }
+
   // ---------------------------------------------------------------------------
   // Local storage
   // ---------------------------------------------------------------------------
@@ -337,6 +504,36 @@ class ActivityStatsStore extends ChangeNotifier {
         _others = const {};
       }
     }
+    final rawInherited = SP.prefs.getString(_inheritedKey);
+    if (rawInherited != null) {
+      try {
+        final decoded = jsonDecode(rawInherited);
+        if (decoded is Map) {
+          _inherited = {
+            for (final entry in decoded.entries)
+              entry.key.toString(): DeviceActivity.fromJson(entry.value),
+          };
+        }
+      } catch (_) {
+        _inherited = const {};
+      }
+    }
+  }
+
+  Future<void> _setInherited(Map<String, DeviceActivity> inherited) async {
+    if (mapEquals(inherited, _inherited)) return;
+    _inherited = Map.unmodifiable(inherited);
+    notifyListeners();
+    if (inherited.isEmpty) {
+      await SP.prefs.remove(_inheritedKey);
+      return;
+    }
+    await SP.prefs.setString(
+      _inheritedKey,
+      jsonEncode({
+        for (final entry in inherited.entries) entry.key: entry.value.toJson(),
+      }),
+    );
   }
 
   Future<void> _setOthers(
@@ -375,6 +572,8 @@ class ActivityStatsStore extends ChangeNotifier {
     _own = const DeviceActivity();
     _others = const {};
     _othersOwner = null;
+    _inherited = const {};
     _loaded = false;
+    _installCheck = null;
   }
 }
