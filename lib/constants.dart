@@ -1362,10 +1362,11 @@ bool markNotificationTapHandled(NotificationResponse response) {
 /// started, and a zikr reminder never opened its zikr.
 ///
 /// iOS: the plugin keeps a tap that arrives before initialize() for the
-/// launch details only, and Home reads those before it initializes it.
+/// launch details only - including one that reaches it just after Home's
+/// first read.
 ///
-/// Home calls this once the plugin is up and on every resume; a tap already
-/// acted on is skipped.
+/// Home calls this as start-up begins, again once the plugin is up, and on
+/// every resume; a tap already acted on is skipped.
 Future<void> handleNotificationThatOpenedApp() async {
   if (kIsWeb || !(Platform.isAndroid || Platform.isIOS)) return;
   final NotificationAppLaunchDetails? details;

@@ -525,32 +525,36 @@ class _MyHomePageState extends State<MyHomePage>
   }
 
   void initializeData() async {
-    // A tap on a prayer notification that cold-launched the app is someone
-    // asking to hear the Azan *now*, so it's acted on before anything below
-    // that can wait on the network or GPS. It used to be handled only after
-    // the Firestore pulls and the location refresh (a GPS fix plus an
-    // untimed reverse-geocode request - and the stored fix is always stale
-    // by Fajr), so tapping did nothing for up to a minute or more. Worse,
-    // those awaits freeze while iOS has the app suspended: a reader who gave
-    // up and locked the phone had the Azan start by itself whenever the app
-    // next came to the foreground, however much later that was.
+    // A tap on a notification that launched the app is someone asking for
+    // the Azan (or their reminder's zikr) *now*, so it's acted on before
+    // anything below that can wait on the network or GPS. It used to be
+    // handled only after the Firestore pulls and the location refresh (a GPS
+    // fix plus an untimed reverse-geocode request - and the stored fix is
+    // always stale by Fajr), so tapping did nothing for up to a minute or
+    // more. Worse, those awaits freeze while iOS has the app suspended: a
+    // reader who gave up and locked the phone had the Azan start by itself
+    // whenever the app next came to the foreground, however much later that
+    // was.
     //
-    // Reading launch details needs no initialize() call. Zikr reminder taps
-    // still wait for the zikr index (loaded by _refreshHomeSessionState)
-    // further down.
-    NotificationResponse? launchResponse;
+    // The plugin is started here too, not after the network work: on iOS a
+    // launching tap can reach the plugin after the first read below, and
+    // until initialize() it is passed to neither callback - it waits only in
+    // the launch details, so it too used to wait for the network. Once the
+    // plugin is up a later tap reaches its callback at once, and the second
+    // read catches one that slipped in between. A tap is acted on once.
+    // Zikr reminders need only the zikr index, which main() loaded before
+    // the first frame. Unawaited: playback's future only completes when the
+    // Azan ends.
     if (!kIsWeb) {
-      final launchDetails = await FlutterLocalNotificationsPlugin()
-          .getNotificationAppLaunchDetails();
-      if (launchDetails?.didNotificationLaunchApp == true) {
-        launchResponse = launchDetails?.notificationResponse;
+      unawaited(handleNotificationThatOpenedApp());
+      try {
+        await ensureNotificationsPlugin();
+      } catch (e) {
+        // Tried again below, before anything is scheduled.
+        debugPrint('Could not start notifications: $e');
       }
-      if (launchResponse != null &&
-          !isZikrReminderNotificationResponse(launchResponse)) {
-        // Unawaited: playback's future only completes when the Azan ends.
-        unawaited(handlePrayerNotificationResponse(launchResponse));
-        launchResponse = null;
-      }
+      _launchNotificationHandled = true;
+      unawaited(handleNotificationThatOpenedApp());
     }
 
     await _refreshHomeSessionState();
@@ -579,17 +583,6 @@ class _MyHomePageState extends State<MyHomePage>
     if (!kIsWeb) {
       await initializeNotificationTimeZone();
       await ensureNotificationsPlugin();
-      // A zikr reminder tap that launched the app from fully terminated
-      // (prayer taps were already handled at the top of this method).
-      if (launchResponse != null) {
-        await handlePrayerNotificationResponse(launchResponse);
-      }
-      _launchNotificationHandled = true;
-      // On iOS a launching tap can reach the plugin after the read at the
-      // top of this method, yet before initialize() - then it is passed to
-      // neither callback and waits only in the launch details. A tap
-      // already handled is skipped.
-      unawaited(handleNotificationThatOpenedApp());
       // Only for someone with something to be notified about: the prompt
       // follows "Turn on azan" or adding a reminder, never a bare launch
       // (setup's Azan step is where a new install is asked). Costs nothing
