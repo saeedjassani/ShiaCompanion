@@ -3878,6 +3878,22 @@
     "description": "Beside Adjust Hijri date when the date is not moved."
   },
   "settingsHijriBody": "Moon sightings differ from place to place. If the Hijri date is a day off where you live, move it here.",
+  "settingsHijriAutomatic": "Automatic",
+  "@settingsHijriAutomatic": {
+    "description": "Settings, Adjust Hijri date: the months start by the moon at the reader's location."
+  },
+  "settingsHijriAutomaticHint": "Each month starts when the new moon can be seen by eye where you are",
+  "@settingsHijriAutomaticHint": {
+    "description": "Under Automatic in the Adjust Hijri date sheet."
+  },
+  "settingsHijriAutomaticNoLocation": "Set your location first. Until then, the Umm al-Qura calendar",
+  "@settingsHijriAutomaticNoLocation": {
+    "description": "Under Automatic in the Adjust Hijri date sheet when the app has no location yet."
+  },
+  "settingsHijriNoneHint": "The Umm al-Qura calendar of Saudi Arabia",
+  "@settingsHijriNoneHint": {
+    "description": "Under None in the Adjust Hijri date sheet: what the date follows when it is not moved."
+  },
   "settingsPrayerTimesShownValue": "{count, plural, =1{1 time} other{{count} times}}",
   "@settingsPrayerTimesShownValue": {
     "description": "Beside Prayer times shown in Settings: how many times the home page and widgets show.",

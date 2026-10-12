@@ -1,9 +1,13 @@
 import 'package:hijri/hijri_calendar.dart';
 
+import 'hijri_date.dart';
+
 /// A real-world (civil) day together with the Hijri date in effect on it.
 ///
-/// The Hijri date includes the user's moon-sighting correction (the
-/// `adjust_hijri_date` setting), which shifts *which lunar date* a day is -
+/// The Hijri date is counted in the month starts in effect (see
+/// [hijriForCivilDate]) and includes any manual moon-sighting correction
+/// (the `adjust_hijri_date` setting), which shifts *which lunar date* a day
+/// is -
 /// but never *which weekday* it is. So a recurring weekday pattern ("*-*-5",
 /// Friday) is always read off [civilDate], never off [hijri]: a
 /// `HijriCalendar` built from an offset date carries that offset's weekday,
@@ -14,9 +18,7 @@ class LunarDay {
       : civilDate = date.isUtc
             ? DateTime.utc(date.year, date.month, date.day)
             : DateTime(date.year, date.month, date.day) {
-    hijri = HijriCalendar.fromDate(
-      civilDate.add(Duration(days: hijriOffsetDays)),
-    );
+    hijri = hijriForCivilDate(civilDate, offsetDays: hijriOffsetDays);
   }
 
   /// The day on the wall calendar, at midnight.

@@ -1,5 +1,6 @@
 import 'package:hijri/hijri_calendar.dart';
 
+import 'hijri_date.dart';
 import 'widget_prayer_time_selection.dart';
 import '../l10n/hijri_l10n.dart';
 import '../l10n/l10n.dart';
@@ -27,13 +28,11 @@ String _monthName(HijriCalendar date) =>
 String _monthShort(HijriCalendar date) => hijriMonthShortName(date.hMonth);
 
 /// The hijri date the Calendar page shows for [day], moon-sighting
-/// adjustment included. Built the same way as `_hijriDateFor` there so the
-/// widget and the page can never disagree about what day it is.
-HijriCalendar hijriDateForCalendarDay(DateTime day, {required int offsetDays}) {
-  return HijriCalendar.fromDate(
-    DateTime(day.year, day.month, day.day).add(Duration(days: offsetDays)),
-  );
-}
+/// adjustment included. Both go through [hijriForCivilDate], so the widget
+/// and the page can never disagree about what day it is.
+HijriCalendar hijriDateForCalendarDay(DateTime day,
+        {required int offsetDays}) =>
+    hijriForCivilDate(day, offsetDays: offsetDays);
 
 /// The key events.json files an event under: "MM-DD", the same fixed-date
 /// format as a zikr's `day` pattern (see lunar_date_matcher.dart).

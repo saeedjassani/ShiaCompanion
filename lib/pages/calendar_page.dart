@@ -21,6 +21,7 @@ import '../l10n/hijri_l10n.dart';
 import '../l10n/l10n.dart';
 import '../theme/shia_colors.dart';
 import '../utils/calendar_events.dart';
+import '../utils/hijri_date.dart';
 import '../utils/islamic_day.dart';
 
 /// Calendar & Prayer Times (docs/DESIGN_SPEC.md, "Calendar & Prayer Times"):
@@ -268,7 +269,7 @@ bool _isSameDay(DateTime a, DateTime b) =>
     a.year == b.year && a.month == b.month && a.day == b.day;
 
 HijriCalendar _hijriFor(DateTime date) =>
-    HijriCalendar.fromDate(_localDate(date).add(Duration(days: hijriDate)));
+    hijriForCivilDate(date, offsetDays: hijriOffsetInEffect);
 
 String _hijriMonth(BuildContext context, int month) =>
     hijriMonthName(month, context.l10n).replaceAll(' Al-', ' al-');

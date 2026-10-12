@@ -22,6 +22,7 @@ import 'data/uid_title_data.dart';
 import 'pages/chapter_list_page.dart';
 
 import 'pages/video_player.dart';
+import 'utils/hijri_date.dart';
 import 'utils/shared_preferences.dart';
 import 'package:shia_companion/utils/timezone_database.dart';
 import 'package:timezone/timezone.dart' as tz;
@@ -49,7 +50,45 @@ set isUserAdmin(bool value) => adminState.value = value;
 final String appName = "Shia Companion";
 final Color appColor = Colors.brown;
 const IconData tasbeehCounterIcon = Icons.adjust_rounded;
+
+/// The manual moon-sighting correction, in days, chosen in Settings (the
+/// `adjust_hijri_date` preference). Only in effect while [hijriAutomatic] is
+/// off - read [hijriOffsetInEffect] to place a date.
 int hijriDate = 0;
+
+/// Whether the Hijri months start when the new crescent can be seen at the
+/// reader's location (the `hijri_automatic` preference) rather than on the
+/// Umm al-Qura calendar moved by [hijriDate]. See [applyHijriSighting].
+bool hijriAutomatic = false;
+
+/// What `hijri_automatic` defaults to: on, unless the reader already moved
+/// the date by hand before Automatic existed - that was a deliberate choice,
+/// so it stays until they pick Automatic themselves.
+bool defaultHijriAutomatic(int? savedOffset) => (savedOffset ?? 0) == 0;
+
+/// The days to move the Hijri date by: [hijriDate] in manual mode, none in
+/// Automatic, where the month starts already follow the moon.
+int get hijriOffsetInEffect => hijriAutomatic ? 0 : hijriDate;
+
+final HijriMonthStartsCache _hijriMonthStarts = HijriMonthStartsCache();
+
+/// Counts every Hijri date in the months that [hijriAutomatic] and the
+/// location call for: predicted from the crescent at [lat], [long] in
+/// Automatic, or Umm al-Qura's with no location to predict from or in
+/// manual mode. Call after either changes.
+void applyHijriSighting() {
+  final latitude = lat, longitude = long;
+  useHijriMonthStarts(
+    hijriAutomatic && latitude != null && longitude != null
+        ? _hijriMonthStarts.forPlace(
+            latitude: latitude,
+            longitude: longitude,
+            now: DateTime.now(),
+          )
+        : const {},
+  );
+}
+
 double arabicFontSize = 32.0;
 double englishFontSize = 16.0;
 
@@ -430,10 +469,14 @@ final GlobalKey<NavigatorState> appNavigatorKey = GlobalKey<NavigatorState>();
 /// Hijri adjustment and the stored location - so what the first frame draws
 /// (Home's header and Today) already has them.
 void restoreDayPreferences() {
-  hijriDate = SP.prefs.getInt('adjust_hijri_date') ?? hijriDate;
+  final savedOffset = SP.prefs.getInt('adjust_hijri_date');
+  hijriDate = savedOffset ?? hijriDate;
+  hijriAutomatic =
+      SP.prefs.getBool('hijri_automatic') ?? defaultHijriAutomatic(savedOffset);
   city = SP.prefs.getString('city');
   lat = SP.prefs.getDouble('lat');
   long = SP.prefs.getDouble('long');
+  applyHijriSighting();
 }
 
 double getItemOrderValue(String uid) {
@@ -592,6 +635,7 @@ Future<bool> initializeLocation(
     lastLocationFixAt = fixedAt.isAfter(nowForFix) ? nowForFix : fixedAt;
     lat = currentLocation.latitude;
     long = currentLocation.longitude;
+    applyHijriSighting();
     final locationChanged = hasPrayerScheduleLocationMoved();
     if (locationChanged) {
       needToSchedule = true;
@@ -731,6 +775,7 @@ Future<void> applyChosenPrayerLocation({
 }) async {
   lat = latitude;
   long = longitude;
+  applyHijriSighting();
   lastLocationFailure = null;
   lastLocationFixAt = DateTime.now();
   final locationChanged = hasPrayerScheduleLocationMoved();

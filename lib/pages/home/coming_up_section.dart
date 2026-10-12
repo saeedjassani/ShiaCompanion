@@ -123,7 +123,7 @@ class _ComingUpRowState extends State<ComingUpRow> {
         final rows = upcomingEvents(
           now: islamicDay.day.civilDate,
           events: snapshot.data ?? const {},
-          offsetDays: hijriDate,
+          offsetDays: hijriOffsetInEffect,
         );
         if (rows.isEmpty) return const SizedBox.shrink();
         return _EventRow(
