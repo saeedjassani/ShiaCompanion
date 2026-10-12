@@ -314,7 +314,7 @@ void main() {
     expect(find.text('EVE OF'), findsNothing);
     expect(find.text('1445 AH'), findsOneWidget);
     expect(find.text('Najaf'), findsOneWidget);
-    expect(find.text('Assalamu alaykum'), findsNothing);
+    expect(find.text('Salamun Alaikum'), findsNothing);
     expect(find.byTooltip('Settings and account'), findsOneWidget);
   });
 

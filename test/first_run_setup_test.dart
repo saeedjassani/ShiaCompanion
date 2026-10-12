@@ -153,14 +153,15 @@ void main() {
 
     testWidgets('Skip setup ends it with every default', (tester) async {
       await pumpSetup(tester);
-      expect(find.text('Assalamu alaykum'), findsOneWidget);
+      expect(find.text('Salamun Alaikum'), findsOneWidget);
 
       await tapText(tester, 'Skip setup');
 
       expect(done, 1);
       expect(SP.prefs.getString(FirstRunSetup.stateKey), FirstRunSetup.done);
-      // Answered as "Not now", so nothing asks again.
-      expect(AzaanOptInService.hasBeenAsked, isTrue);
+      // No location, so azan is left unanswered: it is asked once one is
+      // set (offerAzanOnceLocated).
+      expect(AzaanOptInService.hasBeenAsked, isFalse);
       expect(AzaanOptInService.isEnabled, isFalse);
       expect(SP.prefs.containsKey('arabic_font'), isFalse);
       expect(themeMode.themeMode, ThemeMode.system);
@@ -168,6 +169,9 @@ void main() {
 
     testWidgets('walks through every step, applying each choice',
         (tester) async {
+      // As if an earlier launch had got as far as setting a location.
+      lat = 51.5;
+      long = -0.12;
       await pumpSetup(tester);
       await tapText(tester, 'Get started');
 
@@ -176,8 +180,7 @@ void main() {
       await tapText(tester, 'Skip');
 
       expect(find.text('Step 2 of 5'), findsOneWidget);
-      // No location was set, so no times: just the five switches, with
-      // Fajr, Zuhr and Maghrib on.
+      // The five switches, with Fajr, Zuhr and Maghrib on.
       expect(find.byType(Switch), findsNWidgets(5));
       await tester.tap(find.bySemanticsLabel('Azan for Asr'));
       await tester.pumpAndSettle();
@@ -229,11 +232,7 @@ void main() {
     testWidgets('Skip puts back what a step had changed', (tester) async {
       await pumpSetup(tester);
       await tapText(tester, 'Get started');
-      await tapText(tester, 'Skip'); // Location
-      await tapText(tester, 'Skip'); // Azan, as Not now
-
-      expect(AzaanOptInService.hasBeenAsked, isTrue);
-      expect(AzaanOptInService.isEnabled, isFalse);
+      await tapText(tester, 'Skip'); // Location; with none, no Azan step
 
       await tester.tap(find.text('Scheherazade'));
       await tester.pumpAndSettle();
@@ -257,13 +256,32 @@ void main() {
       await pumpSetup(tester);
       await tapText(tester, 'Get started');
       await tapText(tester, 'Skip');
-      expect(find.text('Step 2 of 5'), findsOneWidget);
+      expect(find.text('Step 2 of 4'), findsOneWidget);
 
       await tester.binding.handlePopRoute();
       await tester.pumpAndSettle();
 
-      expect(find.text('Step 1 of 5'), findsOneWidget);
+      expect(find.text('Step 1 of 4'), findsOneWidget);
       expect(done, 0);
+    });
+
+    testWidgets('without a location there is no Azan step', (tester) async {
+      await pumpSetup(tester);
+      await tapText(tester, 'Get started');
+      expect(find.text('Step 1 of 4'), findsOneWidget);
+      await tapText(tester, 'Skip');
+
+      expect(find.text('Step 2 of 4'), findsOneWidget);
+      expect(find.text('Hear the azan at prayer time?'), findsNothing);
+      expect(find.text('How should Arabic look?'), findsOneWidget);
+      for (var i = 0; i < 2; i++) {
+        await tapText(tester, 'Skip');
+      }
+      await tapText(tester, 'Maybe later');
+
+      expect(done, 1);
+      // Left for when a location is set.
+      expect(AzaanOptInService.hasBeenAsked, isFalse);
     });
 
     testWidgets('signing in finishes setup', (tester) async {
@@ -273,7 +291,7 @@ void main() {
         return 'a user';
       });
       await tapText(tester, 'Get started');
-      for (var i = 0; i < 4; i++) {
+      for (var i = 0; i < 3; i++) {
         await tapText(tester, 'Skip');
       }
 
@@ -286,7 +304,7 @@ void main() {
     testWidgets('a cancelled sign-in stays on the step', (tester) async {
       await pumpSetup(tester);
       await tapText(tester, 'Get started');
-      for (var i = 0; i < 4; i++) {
+      for (var i = 0; i < 3; i++) {
         await tapText(tester, 'Skip');
       }
 
@@ -316,6 +334,6 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('The app'), findsOneWidget);
-    expect(find.text('Assalamu alaykum'), findsNothing);
+    expect(find.text('Salamun Alaikum'), findsNothing);
   });
 }

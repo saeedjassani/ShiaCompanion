@@ -14,6 +14,7 @@ import '../widgets/location_status_line.dart';
 import '../widgets/outline_icon.dart';
 import '../widgets/page_chrome.dart';
 import 'city_prayer_times_page.dart';
+import '../widgets/azan_offer_dialog.dart';
 
 /// What the reader chose in the city picker.
 sealed class CityChoice {
@@ -164,6 +165,7 @@ Future<void> applyCityChoice(
       ));
       await LocationService.instance.useDeviceLocation(context: context);
   }
+  if (context.mounted) await offerAzanOnceLocated(context);
 }
 
 /// The picker's content: offline search over the bundled city list, with the

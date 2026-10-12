@@ -81,6 +81,11 @@ class FirstRunSetup {
   @visibleForTesting
   static const String transliterationKey = 'showTransliteration';
 
+  /// Whether setup is under way (or still owed), so anything that would ask
+  /// the person something it asks itself should wait.
+  static bool get isPending =>
+      SP.isInitialized && SP.prefs.getString(stateKey) == pending;
+
   /// Records setup as over, whether finished or skipped: it is offered once.
   static Future<void> markDone() async {
     if (!SP.isInitialized) return;

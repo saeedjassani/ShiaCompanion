@@ -328,11 +328,17 @@ Welcome → 1 Prayer times (location or city) → 2 Azan (per-prayer toggles,
 sample) → 3 Arabic style (font cards + size) → 4 Light / Dark / Same as
 phone → 5 Back up (Google, Apple on iOS, Maybe later). "Skip" on every
 step; defaults apply when skipped (Skip puts back whatever that step
-changed; the Azan step's Skip is "Not now"). Replaces the location explainer and azan
-dialogs; the OS prompts only follow an explicit tap. No setup checklist on
-Home. Fresh installs on Android and iOS only: an install that has run an
-earlier build skips it, and the web keeps its quiet first load. Existing users get a short "What's new" built from steps 3–5 plus the
-Quran and My Stats introduction.
+changed; the Azan step's Skip is "Not now"). The Azan step only follows a
+location: with step 1 skipped, setup has four steps ("Step 2 of 4" is
+Arabic style) and azan stays unanswered. The first time a location is set
+afterwards (the city picker, "Use my location", or found at launch or on
+resume), a dialog asks "Hear the azan at prayer time?" for Fajr, Zuhr and
+Maghrib, with Turn on azan / Not now; either answer, or dismissing it, is
+final. Replaces the location explainer and azan dialogs; the OS prompts
+only follow an explicit tap. No setup checklist on Home. Fresh installs on
+Android and iOS only: an install that has run an earlier build skips it,
+and the web keeps its quiet first load. The "What's new" dialog for
+existing users is retired.
 
 ### Settings
 Sign-in card first (signed out: what's at stake + Google/Apple buttons;
