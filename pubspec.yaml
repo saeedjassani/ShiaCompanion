@@ -127,13 +127,6 @@ flutter:
     - family: Scheherazade
       fonts:
         - asset: assets/fonts/scheherazade.ttf
-    # Scheherazade cut down to Arabic script, renamed as its licence asks
-    # (scripts/build_arabic_ui_font.py). The theme's fallback for Urdu,
-    # Persian and Arabic menus: with no Latin letters of its own, it can't
-    # turn English text serif.
-    - family: Arabic UI
-      fonts:
-        - asset: assets/fonts/arabic-ui.ttf
     # QuranWBW's IndoPak Quran font, used with permission (see
     # assets/fonts/QuranWBW-IndoPak-NOTICE.txt). Draws the surahs when Qalam
     # is selected, and nothing else: it goes with QuranWBW's own text, whose
