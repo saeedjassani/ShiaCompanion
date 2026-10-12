@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart' show rootBundle;
 
+import '../l10n/l10n.dart';
 import '../models/city.dart';
 
 /// One search result: the city, and the other spelling it was found by, if
@@ -19,9 +20,11 @@ class CityMatch {
 
 /// Loads and searches the bundled city list, offline.
 ///
-/// ~32,000 rows, parsed once on first use (on a background isolate where
-/// there is one) and held in memory. Search is a ranked scan over
-/// precomputed folded names, fast enough to run on every keystroke.
+/// ~6,000 places, parsed on first use (on a background isolate where there
+/// is one) and held in memory, named in the app language: English from
+/// assets/cities.tsv, any other language from assets/cities_<code>.tsv.
+/// Search is a ranked scan over precomputed folded names, fast enough to
+/// run on every keystroke, and finds a city by its name in either.
 class CityRepository {
   CityRepository._();
 
@@ -29,22 +32,54 @@ class CityRepository {
 
   static const String assetPath = 'assets/cities.tsv';
 
+  /// The list's names in [language], for any language but English.
+  static String namesAssetPath(String language) =>
+      'assets/cities_$language.tsv';
+
   List<City>? _cities;
   List<_SearchKeys>? _keys;
+  String? _language;
   Future<void>? _loadFuture;
+  String? _loadingLanguage;
 
-  bool get isLoaded => _cities != null;
+  /// Whether the list is loaded in the app language.
+  bool get isLoaded => _cities != null && _language == _appLanguage;
 
+  static String get _appLanguage => L10n.current.localeName;
+
+  /// Loads the list named in the app language, if it is not already.
   Future<void> load() {
     if (isLoaded) return Future.value();
-    return _loadFuture ??= _loadInternal();
+    final language = _appLanguage;
+    if (_loadFuture != null && _loadingLanguage == language) {
+      return _loadFuture!;
+    }
+    _loadingLanguage = language;
+    return _loadFuture = _loadInternal(language).whenComplete(() {
+      if (_loadingLanguage == language) {
+        _loadFuture = null;
+        _loadingLanguage = null;
+      }
+    });
   }
 
-  Future<void> _loadInternal() async {
+  Future<void> _loadInternal(String language) async {
     final contents = await rootBundle.loadString(assetPath);
-    final (cities, keys) = await compute(_parseAndIndex, contents);
+    String? names;
+    if (language != 'en') {
+      try {
+        names = await rootBundle.loadString(namesAssetPath(language));
+      } catch (e) {
+        debugPrint('No city names for $language: $e');
+      }
+    }
+    final (cities, keys) =
+        await compute(_parseAndIndex, (contents: contents, names: names));
+    // The language changed again while this was parsing.
+    if (language != _appLanguage) return;
     _cities = cities;
     _keys = keys;
+    _language = language;
   }
 
   /// Seeds the repository directly, bypassing the asset bundle. For tests.
@@ -53,10 +88,12 @@ class CityRepository {
     final (indexed, keys) = _index(cities);
     _cities = indexed;
     _keys = keys;
+    _language = _appLanguage;
   }
 
-  static (List<City>, List<_SearchKeys>) _parseAndIndex(String contents) =>
-      _index(City.parseDatabase(contents));
+  static (List<City>, List<_SearchKeys>) _parseAndIndex(
+          ({String contents, String? names}) files) =>
+      _index(City.parseDatabase(files.contents, names: files.names));
 
   static (List<City>, List<_SearchKeys>) _index(List<City> cities) {
     // Biggest first: ties in search, and the time-zone guess, both rely on
@@ -92,7 +129,12 @@ class CityRepository {
     for (var i = 0; i < cities.length; i++) {
       final key = keys[i];
       final city = cities[i];
-      final nameRank = _nameRank(key.name, folded);
+      var nameRank = _nameRank(key.name, folded);
+      final englishRank =
+          key.englishName.isEmpty ? null : _nameRank(key.englishName, folded);
+      if (englishRank != null && (nameRank == null || englishRank < nameRank)) {
+        nameRank = englishRank;
+      }
       if (nameRank == 0) {
         scored.add((
           0,
@@ -112,7 +154,13 @@ class CityRepository {
         }
       }
       if (aliasRank != null && (nameRank == null || aliasRank < nameRank)) {
-        scored.add((aliasRank, i, CityMatch(city, alias: alias)));
+        // The other spellings are all in Latin letters, which a reader in
+        // another language is never shown.
+        scored.add((
+          aliasRank,
+          i,
+          CityMatch(city, alias: city.englishName.isEmpty ? alias : null),
+        ));
       } else if (nameRank != null) {
         scored.add((
           nameRank,
@@ -172,11 +220,25 @@ class CityRepository {
       // Biggest first, so the first in the zone is its biggest.
       biggest ??= city;
       final key = keys[i];
-      if (key.name == named || key.aliases.contains(named)) return city;
+      final english = key.englishName.isEmpty ? key.name : key.englishName;
+      if (english == named || key.aliases.contains(named)) return city;
       // Asia/Kuwait -> Kuwait City, America/Panama -> Panama City.
-      if (namedCity == null && key.name == '$named city') namedCity = city;
+      if (namedCity == null && english == '$named city') namedCity = city;
     }
     return namedCity ?? biggest;
+  }
+
+  /// The city of the list at exactly [latitude], [longitude], as a chosen
+  /// city's location is stored: for naming it again in another language.
+  City? cityAt(double latitude, double longitude) {
+    final cities = _cities;
+    if (cities == null) return null;
+    for (final city in cities) {
+      if (city.latitude == latitude && city.longitude == longitude) {
+        return city;
+      }
+    }
+    return null;
   }
 
   /// The biggest cities in [timeZone], for suggesting before anything is
@@ -193,11 +255,22 @@ class CityRepository {
 
 class _SearchKeys {
   _SearchKeys(City city)
-      : name = foldForSearch(
-            city.asciiName.isNotEmpty ? city.asciiName : city.name),
+      : name = city.englishName.isEmpty
+            ? _englishKey(city.asciiName, city.name)
+            : foldForSearch(city.name),
+        englishName = city.englishName.isEmpty
+            ? ''
+            : _englishKey(city.asciiName, city.englishName),
         aliases = [for (final alias in city.aliases) foldForSearch(alias)];
 
+  static String _englishKey(String asciiName, String name) =>
+      foldForSearch(asciiName.isNotEmpty ? asciiName : name);
+
+  /// [City.name], folded.
   final String name;
+
+  /// [City.englishName], folded; empty when the name is the English one.
+  final String englishName;
   final List<String> aliases;
 }
 
@@ -265,16 +338,37 @@ const Map<String, String> _accents = {
   'ß': 'ss',
 };
 
+/// Arabic-script letters written more than one way, as one: Arabic and
+/// Persian/Urdu yeh and kaf, the forms of heh, alef with hamza.
+const Map<String, String> _arabicLetters = {
+  'ي': 'ی',
+  'ى': 'ی',
+  'ئ': 'ی',
+  'ك': 'ک',
+  'ہ': 'ه',
+  'ە': 'ه',
+  'ۀ': 'ه',
+  'ة': 'ه',
+  'أ': 'ا',
+  'إ': 'ا',
+  'آ': 'ا',
+  'ٱ': 'ا',
+  'ؤ': 'و',
+};
+
 /// Lower case, accents dropped, apostrophes gone and other punctuation as
-/// spaces - so "Sāmarrā’", "samarra" and "Samarra'" all compare equal.
+/// spaces - so "Sāmarrā’", "samarra" and "Samarra'" all compare equal. In
+/// Arabic script, vowel marks are dropped and letters written more than one
+/// way are made one, so "كربلاء" typed on an Arabic keyboard finds the Urdu
+/// "کربلا"'s city too; Gujarati is kept as typed.
 @visibleForTesting
 String foldForSearch(String value) {
   final buffer = StringBuffer();
   var pendingSpace = false;
-  for (final rune in value.toLowerCase().runes) {
+  for (final rune in asciiDigits(value).toLowerCase().runes) {
     final char = String.fromCharCode(rune);
-    if (_dropped.contains(char)) continue;
-    final mapped = _accents[char] ?? char;
+    if (_dropped.contains(char) || _arabicMarks.hasMatch(char)) continue;
+    final mapped = _accents[char] ?? _arabicLetters[char] ?? char;
     if (_kept.hasMatch(mapped)) {
       if (pendingSpace && buffer.isNotEmpty) buffer.write(' ');
       pendingSpace = false;
@@ -286,5 +380,11 @@ String foldForSearch(String value) {
   return buffer.toString();
 }
 
-const String _dropped = "'’‘ʻʼ`";
-final RegExp _kept = RegExp(r'^[a-z0-9]+$');
+/// Apostrophes, and the zero-width non-joiner Persian writes inside words.
+const String _dropped = "'’‘ʻʼ`\u200C";
+
+/// Arabic vowel marks, hamza (as the press often leaves it off: كربلاء,
+/// كربلا) and tatweel.
+final RegExp _arabicMarks = RegExp('[\u064B-\u0652\u0670\u0640\u0621]');
+final RegExp _kept =
+    RegExp('^[a-z0-9\u0620-\u064A\u066E-\u06D3\u06D5\u0A80-\u0AFF]+\$');

@@ -27,6 +27,15 @@ Coordinates are rounded to 2 decimals (about 1 km), which moves a prayer time
 by a few seconds. Aliases are other Latin-script spellings ("Kerbala", "Qum",
 "Mecca") so the search finds a city by the name people use; they are kept for
 cities of 250,000+ only.
+
+It also writes assets/cities_<code>.tsv for each of the app's other
+languages, from the reviewed names in scripts/city_names/<code>.tsv (built by
+scripts/build_city_names.py), line for line with cities.tsv:
+
+    N  <number of places>
+    C  <country code>  <country name>
+    A  <country code>.<admin1 code>  <admin1 name>
+    <city name>                              (one line per P line, in order)
 """
 
 import argparse
@@ -40,6 +49,10 @@ from collections import Counter
 
 BASE = 'https://download.geonames.org/export/dump/'
 OUT = os.path.join(os.path.dirname(__file__), '..', 'assets', 'cities.tsv')
+
+NAMES_DIR = os.path.join(os.path.dirname(__file__), 'city_names')
+# The app's other languages; see scripts/build_city_names.py.
+NAME_LANGUAGES = ['ar', 'fa', 'ur', 'gu']
 
 MIN_POPULATION = 100000
 ALIAS_MIN_POPULATION = 250000
@@ -93,25 +106,25 @@ def aliases_for(row):
     return found
 
 
-def main():
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--dir', help='directory holding the GeoNames dumps')
-    args = parser.parse_args()
-
+def load_places(directory=None):
+    """The places the list keeps, biggest first, with the country and
+    province names they need: (rows, countries, admin1, province), where
+    each row is a GeoNames cities15000 record and province(row) is its
+    admin1 code where two cities share a name in one country, else ''."""
     countries = {}
-    for line in text_lines(fetch('countryInfo.txt', args.dir)):
+    for line in text_lines(fetch('countryInfo.txt', directory)):
         if line.startswith('#') or not line.strip():
             continue
         fields = line.split('\t')
         countries[fields[0]] = fields[4]
 
     admin1 = {}
-    for line in text_lines(fetch('admin1CodesASCII.txt', args.dir)):
+    for line in text_lines(fetch('admin1CodesASCII.txt', directory)):
         fields = line.split('\t')
         if len(fields) >= 2:
             admin1[fields[0]] = fields[1]
 
-    archive = zipfile.ZipFile(io.BytesIO(fetch('cities15000.zip', args.dir)))
+    archive = zipfile.ZipFile(io.BytesIO(fetch('cities15000.zip', directory)))
     rows = [
         row for row in (line.split('\t')
                         for line in text_lines(archive.read('cities15000.txt')))
@@ -126,6 +139,16 @@ def main():
     shared_names = Counter((row[1], row[8]) for row in rows)
     def province(row):
         return row[10] if shared_names[(row[1], row[8])] > 1 else ''
+
+    return rows, countries, admin1, province
+
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--dir', help='directory holding the GeoNames dumps')
+    args = parser.parse_args()
+
+    rows, countries, admin1, province = load_places(args.dir)
 
     zones = sorted({row[17] for row in rows})
     zone_numbers = {zone: index for index, zone in enumerate(zones)}
@@ -162,6 +185,50 @@ def main():
     size = os.path.getsize(OUT)
     print(f'Wrote {len(rows)} places in {len(used_countries)} countries to '
           f'{os.path.relpath(OUT)} ({size // 1024} KB)', file=sys.stderr)
+
+    for language in NAME_LANGUAGES:
+        write_names(language, rows, used_countries, used_admin1)
+
+
+def write_names(language, rows, used_countries, used_admin1):
+    """Writes assets/cities_<language>.tsv from scripts/city_names: the
+    list's names in that language, line for line with cities.tsv."""
+    source = os.path.join(NAMES_DIR, f'{language}.tsv')
+    names = {}
+    with open(source, encoding='utf-8') as f:
+        for line in f:
+            if line.startswith('#') or not line.strip():
+                continue
+            fields = line.rstrip('\n').split('\t')
+            names[fields[0]] = fields[1]
+    missing = []
+
+    def name(key, english):
+        found = names.get(key, '')
+        if not found:
+            missing.append(english)
+        return found
+
+    lines = [
+        f'# The city list in {language}, line for line with cities.tsv: '
+        'country, province and city names, an empty line where there is '
+        'none (the English is shown).',
+        '# Built by scripts/build_city_list.py from '
+        f'scripts/city_names/{language}.tsv; do not edit by hand. Sources: '
+        'Wikidata (CC0), GeoNames (CC BY 4.0), Unicode CLDR (Unicode '
+        'License v3, (c) Unicode, Inc.), and transliteration.',
+        f'N\t{len(rows)}',
+    ]
+    lines += [f'C\t{code}\t{name(f"C:{code}", code)}'
+              for code in used_countries]
+    lines += [f'A\t{code}\t{name(f"A:{code}", code)}' for code in used_admin1]
+    lines += [name(row[0], row[1]) for row in rows]
+    out = os.path.join(os.path.dirname(OUT), f'cities_{language}.tsv')
+    with open(out, 'w', encoding='utf-8', newline='\n') as f:
+        f.write('\n'.join(lines) + '\n')
+    print(f'Wrote {os.path.relpath(out)} '
+          f'({os.path.getsize(out) // 1024} KB); '
+          f'{len(missing)} without a name: {missing[:10]}', file=sys.stderr)
 
 
 if __name__ == '__main__':

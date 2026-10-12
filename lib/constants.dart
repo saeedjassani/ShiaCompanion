@@ -599,38 +599,7 @@ Future<bool> initializeLocation(
     await SP.prefs.setDouble("lat", lat!);
     await SP.prefs.setDouble("long", long!);
 
-    // The city label is cosmetic: prayer times are already correct at this
-    // point regardless of what the geocoder says. So every failure below leaves
-    // the previous label in place rather than degrading it — never coordinates,
-    // never a dialog.
-    try {
-      final response = await http
-          .get(Uri.parse(
-              "https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=$lat&longitude=$long&localityLanguage=en"))
-          // Bounded like every other network read on the startup path:
-          // without it a stalled connection held up everything awaiting
-          // this location refresh indefinitely.
-          .timeout(const Duration(seconds: 8));
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        final resolvedCity =
-            data['locality'] ?? data['city'] ?? data['principalSubdivision'];
-        final resolvedLabel = _validateGeocodeResult(data, resolvedCity) ??
-            _validateGeocodeResult(data, _geocodeFallbackLabel(data));
-        if (resolvedLabel != null) {
-          if (city != resolvedLabel) needToSchedule = true;
-          city = resolvedLabel;
-          await SP.prefs.setString("city", resolvedLabel);
-        } else {
-          debugPrint(
-              "Geocode did not resolve a usable label ('$resolvedCity'); keeping ${city ?? 'no label'}.");
-        }
-      } else {
-        debugPrint("Geocode returned status ${response.statusCode}");
-      }
-    } catch (e) {
-      debugPrint("Error getting city: $e");
-    }
+    await refreshLocationLabel();
     if (locationChanged && flutterLocalNotificationsPlugin != null && !kIsWeb) {
       await setUpNotifications();
       // Prayer-relative zikr reminders (e.g. "30 min after Maghrib") shift
@@ -647,6 +616,109 @@ Future<bool> initializeLocation(
     return false;
   }
 }
+
+/// The language the stored place name is written in. Absent for names
+/// stored before names followed the app language, which were English.
+const String cityLanguagePrefsKey = 'city_language';
+
+/// The language the stored place name is in (see [cityLanguagePrefsKey]).
+String get cityLabelLanguage =>
+    SP.prefs.getString(cityLanguagePrefsKey) ?? 'en';
+
+/// Renames the location [label], in the app language, without moving it:
+/// a chosen city named again after the language changes.
+Future<void> renameLocation(String label) async {
+  if (city != label) needToSchedule = true;
+  city = label;
+  if (SP.isInitialized) {
+    await SP.prefs.setString("city", label);
+    await SP.prefs.setString(cityLanguagePrefsKey, L10n.current.localeName);
+  }
+}
+
+/// Names the current [lat], [long] by reverse-geocoding them, in the app
+/// language: "کربلا" for an Urdu reader, "Karbala" for an English one.
+/// Returns whether [city] changed.
+///
+/// The city label is cosmetic: prayer times are already correct regardless
+/// of what the geocoder says. So every failure leaves the previous label in
+/// place rather than degrading it — never coordinates, never a dialog.
+Future<bool> refreshLocationLabel() async {
+  final latitude = lat;
+  final longitude = long;
+  if (latitude == null || longitude == null) return false;
+  final language = L10n.current.localeName;
+  try {
+    final response = await http
+        .get(Uri.parse(
+            "https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=$latitude&longitude=$longitude&localityLanguage=$language"))
+        // Bounded like every other network read on the startup path:
+        // without it a stalled connection held up everything awaiting
+        // this location refresh indefinitely.
+        .timeout(const Duration(seconds: 8));
+    if (response.statusCode != 200) {
+      debugPrint("Geocode returned status ${response.statusCode}");
+      return false;
+    }
+    // The reader moved on while this was in flight; its answer is for a
+    // place, or a language, no longer wanted.
+    if (lat != latitude ||
+        long != longitude ||
+        L10n.current.localeName != language) {
+      return false;
+    }
+    // Decoded as UTF-8 whatever the headers say: http falls back to Latin-1
+    // without a charset, which would garble every name outside English.
+    final data = jsonDecode(utf8.decode(response.bodyBytes));
+    final resolvedCity = _geocodeLocality(data, language);
+    final resolvedLabel = _validateGeocodeResult(data, resolvedCity) ??
+        _validateGeocodeResult(data, _geocodeFallbackLabel(data));
+    if (resolvedLabel == null) {
+      debugPrint(
+          "Geocode did not resolve a usable label ('$resolvedCity'); keeping ${city ?? 'no label'}.");
+      return false;
+    }
+    await SP.prefs.setString(cityLanguagePrefsKey, language);
+    if (city == resolvedLabel) return false;
+    needToSchedule = true;
+    city = resolvedLabel;
+    await SP.prefs.setString("city", resolvedLabel);
+    return true;
+  } catch (e) {
+    debugPrint("Error getting city: $e");
+    return false;
+  }
+}
+
+/// The town a geocode response names, in [language] where it has it.
+///
+/// The geocoder falls back to English, field by field, where it has no name
+/// in the language asked for, so a Gujarati reader in Karachi gets "Lyari
+/// Town" as the locality but "કરાચી" as the city: outside English, the city
+/// in the reader's own script beats a locality in Latin letters. Its names
+/// come from Wikipedia titles, so a trailing "(city)" disambiguator ("سورت
+/// (شہر)") is dropped too.
+String? _geocodeLocality(Map<String, dynamic> data, String language) {
+  String? field(String key) {
+    final value = (data[key] ?? '').toString().trim();
+    if (value.isEmpty) return null;
+    final bare = value.replaceFirst(RegExp(r'\s*\([^()]*\)$'), '');
+    return bare.isEmpty ? value : bare;
+  }
+
+  final locality = field('locality');
+  final town = field('city');
+  if (language != 'en' &&
+      locality != null &&
+      town != null &&
+      _latinLetter.hasMatch(locality) &&
+      !_latinLetter.hasMatch(town)) {
+    return town;
+  }
+  return locality ?? town ?? field('principalSubdivision');
+}
+
+final RegExp _latinLetter = RegExp('[A-Za-z]');
 
 /// Makes [latitude], [longitude] the prayer-times location, named [label],
 /// with the same consequences a GPS fix has in [initializeLocation]: stored,
@@ -668,6 +740,7 @@ Future<void> applyChosenPrayerLocation({
     await SP.prefs.setDouble("lat", latitude);
     await SP.prefs.setDouble("long", longitude);
     await SP.prefs.setString("city", label);
+    await SP.prefs.setString(cityLanguagePrefsKey, L10n.current.localeName);
   }
   if (locationChanged && flutterLocalNotificationsPlugin != null && !kIsWeb) {
     await setUpNotifications();
