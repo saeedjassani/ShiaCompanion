@@ -1,9 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- Auto Backup rules for Android 11 and below. Everything is backed up as
-     before except recitations saved for offline listening
-     (AudioDownloadStore): they can be downloaded again, and a few hundred MB
-     of audio would push the app past Auto Backup's 25 MB quota, which stops
-     it backing up anything at all. -->
+     before except:
+     - recitations saved for offline listening (AudioDownloadStore): they can
+       be downloaded again, and a few hundred MB of audio would push the app
+       past Auto Backup's 25 MB quota, which stops it backing up anything at
+       all;
+     - activity_stats_install (FileInstallMarker): it must stay behind, so a
+       phone set up from this backup can tell it is a different device from
+       this one and does not share its stats id. -->
 <full-backup-content>
     <exclude domain="file" path="zikr_audio/" />
+    <exclude domain="file" path="activity_stats_install" />
 </full-backup-content>
