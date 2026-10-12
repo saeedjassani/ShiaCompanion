@@ -56,7 +56,7 @@ import 'package:shia_companion/widgets/balanced_columns.dart';
 import 'package:shia_companion/widgets/glass_surface.dart';
 import 'package:shia_companion/widgets/responsive_content.dart';
 import 'package:shia_companion/widgets/prayer_times_widget.dart';
-import 'package:shia_companion/widgets/whats_new_dialog.dart';
+import 'package:shia_companion/widgets/azan_offer_dialog.dart';
 import 'package:shia_companion/widgets/zikr_reading_preferences.dart';
 import 'package:shia_companion/services/analytics_service.dart';
 import '../l10n/l10n.dart';
@@ -594,13 +594,13 @@ class _MyHomePageState extends State<MyHomePage>
       }
       await refreshExactPrayerAlarmPermissionStatus();
 
-      // A fresh install has nothing to catch up on (see WhatsNewService);
-      // it has just been through setup instead.
-      final whatsNew = await WhatsNewService.pending();
+      // The "What's new" dialog is retired; the baseline still advances so
+      // bringing it back would not replay every note at once.
       await WhatsNewService.markSeen();
-      if (whatsNew.isNotEmpty && mounted) {
-        await showWhatsNewDialog(context, whatsNew);
-      }
+
+      // Setup asks about azan only once there is a location; this asks
+      // whoever has one now but never answered.
+      if (mounted) await offerAzanOnceLocated(context);
 
       // Only tracks install age here - the rating prompt itself is asked
       // from a real moment of engagement (see zikr_page.dart's
@@ -635,6 +635,8 @@ class _MyHomePageState extends State<MyHomePage>
     // Cheap by design: this returns immediately unless the stored fix has aged
     // past the freshness window, so flicking away and back costs nothing.
     await LocationService.instance.refreshIfStale();
+    // A location turned on from the phone's settings arrives here.
+    if (mounted) await offerAzanOnceLocated(context);
   }
 
   Future<void> getHadith() async {

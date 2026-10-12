@@ -22,6 +22,7 @@ import '../widgets/qibla_compass_dial.dart';
 import '../widgets/responsive_content.dart' show ScreenClass;
 import '../l10n/l10n.dart';
 import 'city_picker.dart';
+import '../widgets/azan_offer_dialog.dart';
 
 /// A real compass, pointed at the Kaaba or at any of the shrines in
 /// [allHolySites].
@@ -272,6 +273,7 @@ class _QiblaFinderState extends State<QiblaFinder> {
       await chooseCityFlow(context);
     } else {
       await _location.refresh(context: context);
+      if (mounted) await offerAzanOnceLocated(context);
     }
     if (mounted) setState(() {});
   }

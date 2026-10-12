@@ -12,6 +12,7 @@ import 'package:shia_companion/widgets/prayer_glyph.dart';
 import 'package:shia_companion/widgets/widget_prayer_times_dialog.dart';
 import '../constants.dart';
 import '../l10n/l10n.dart';
+import 'azan_offer_dialog.dart';
 
 /// Home's prayer card: the next of the times the reader picked, large and
 /// counting down to the second, then the ones after it in order (the Hijri
@@ -95,6 +96,7 @@ class PrayerTimesState extends State<HomePrayerTimesCard> {
     // interrupting dialog about permissions or location services is welcome.
     await _location.refresh(context: context);
     if (mounted) setState(() {});
+    if (mounted) await offerAzanOnceLocated(context);
   }
 
   /// The city picker: a city by name, or back to the phone's location.

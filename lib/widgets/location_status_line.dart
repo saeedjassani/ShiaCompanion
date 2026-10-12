@@ -11,6 +11,7 @@ import '../services/analytics_service.dart';
 import '../services/location_service.dart';
 import '../theme/shia_colors.dart';
 import 'outline_icon.dart';
+import 'azan_offer_dialog.dart';
 
 /// The one tap that brings an old location up to date, chosen by why the
 /// last refresh failed.
@@ -129,6 +130,7 @@ class _LocationStatusLineState extends State<LocationStatusLine> {
         // An explicit tap, so the permission prompt and the dialogs that
         // explain a failure are welcome here.
         await _location.refresh(context: context);
+        if (mounted) await offerAzanOnceLocated(context);
     }
   }
 

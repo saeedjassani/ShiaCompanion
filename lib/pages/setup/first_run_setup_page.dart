@@ -62,6 +62,11 @@ class _FirstRunGateState extends State<FirstRunGate> {
 /// Setup-0-welcome … Setup-5-signin): a welcome, then five steps - prayer
 /// times, azan, Arabic style, theme, back up.
 ///
+/// The Azan step only follows a location: without one there are no times to
+/// show beside the switches, and turning azan on would seem to do nothing.
+/// Without it setup has four steps, and the question is put once a location
+/// is set later instead (offerAzanOnceLocated).
+///
 /// Every step can be skipped, and skipping leaves that setting as it was:
 /// no location, azan off, the default font and theme. Choices apply as they
 /// are made, so the font sample and the whole page follow along. The OS
@@ -80,16 +85,23 @@ class FirstRunSetupPage extends StatefulWidget {
   /// Replaced in tests, which have no sign-in to offer.
   final Future<Object?> Function(BuildContext, SignInProvider) signIn;
 
-  /// The steps after the welcome.
-  static const int stepCount = 5;
-
   @override
   State<FirstRunSetupPage> createState() => _FirstRunSetupPageState();
 }
 
 class _FirstRunSetupPageState extends State<FirstRunSetupPage> {
-  /// 0 is the welcome; 1 to [FirstRunSetupPage.stepCount] the steps.
+  /// 0 is the welcome; 1 to [_steps]' length the steps.
   int _step = 0;
+
+  /// The steps after the welcome, read afresh each time: the Azan step
+  /// joins once the location step has set a location.
+  List<_Setup> get _steps => [
+        _Setup.location,
+        if (LocationService.instance.hasLocation) _Setup.azan,
+        _Setup.font,
+        _Setup.theme,
+        _Setup.backup,
+      ];
   bool _finishing = false;
 
   @override
@@ -119,7 +131,7 @@ class _FirstRunSetupPageState extends State<FirstRunSetupPage> {
   }
 
   void _next() {
-    if (_step >= FirstRunSetupPage.stepCount) {
+    if (_step >= _steps.length) {
       unawaited(_finish(skipped: false));
     } else {
       _goTo(_step + 1);
@@ -130,8 +142,11 @@ class _FirstRunSetupPageState extends State<FirstRunSetupPage> {
     if (_finishing) return;
     _finishing = true;
     // Azan stays off unless the Azan step turned it on; recording that as
-    // the answer is what keeps the question from coming back.
-    if (!AzaanOptInService.hasBeenAsked) {
+    // the answer is what keeps the question from coming back. Without a
+    // location the step was never shown, so the question is left for when
+    // one is set (offerAzanOnceLocated).
+    if (!AzaanOptInService.hasBeenAsked &&
+        LocationService.instance.hasLocation) {
       await AzaanOptInService.answer(const []);
     }
     await FirstRunSetup.markDone();
@@ -151,17 +166,24 @@ class _FirstRunSetupPageState extends State<FirstRunSetupPage> {
     final colors = ShiaColors.of(context);
     final reduceMotion = MediaQuery.disableAnimationsOf(context);
 
-    final Widget page = switch (_step) {
-      0 => _WelcomeStep(
-          onStart: () => _goTo(1),
-          onSkipAll: () => _finish(skipped: true),
-        ),
-      1 => _LocationStep(onNext: _next),
-      2 => _AzanStep(onNext: _next),
-      3 => _FontStep(onNext: _next),
-      4 => _ThemeStep(onNext: _next),
-      _ => _BackupStep(signIn: widget.signIn, onNext: _next),
-    };
+    final steps = _steps;
+    final Widget page = _step == 0
+        ? _WelcomeStep(
+            onStart: () => _goTo(1),
+            onSkipAll: () => _finish(skipped: true),
+          )
+        : _StepPosition(
+            step: _step,
+            total: steps.length,
+            child: switch (steps[_step - 1]) {
+              _Setup.location => _LocationStep(onNext: _next),
+              _Setup.azan => _AzanStep(onNext: _next),
+              _Setup.font => _FontStep(onNext: _next),
+              _Setup.theme => _ThemeStep(onNext: _next),
+              _Setup.backup =>
+                _BackupStep(signIn: widget.signIn, onNext: _next),
+            },
+          );
 
     return PopScope(
       // Back goes to the step before; on the welcome it leaves the app, as
@@ -180,7 +202,9 @@ class _FirstRunSetupPageState extends State<FirstRunSetupPage> {
                 duration: reduceMotion
                     ? Duration.zero
                     : const Duration(milliseconds: 220),
-                child: KeyedSubtree(key: ValueKey(_step), child: page),
+                child: KeyedSubtree(
+                    key: ValueKey(_step == 0 ? null : steps[_step - 1]),
+                    child: page),
               ),
             ),
           ),
@@ -202,12 +226,30 @@ Color _outline(ShiaColors colors) =>
 final TextStyle _titleStyle = ShiaText.largeTitle
     .copyWith(fontSize: 30, height: 36 / 30, letterSpacing: -0.3);
 
+enum _Setup { location, azan, font, theme, backup }
+
+/// Where the step below sits among this run's steps, for its header.
+class _StepPosition extends InheritedWidget {
+  const _StepPosition({
+    required this.step,
+    required this.total,
+    required super.child,
+  });
+
+  final int step;
+  final int total;
+
+  @override
+  bool updateShouldNotify(_StepPosition oldWidget) =>
+      step != oldWidget.step || total != oldWidget.total;
+}
+
 /// One step: "Step 2 of 5" with its dots and Skip at the top, the step's
 /// content (scrolling when the text is large), and its buttons at the
 /// bottom.
 class _StepFrame extends StatelessWidget {
   const _StepFrame({
-    this.step,
+    this.numbered = true,
     this.onSkip,
     required this.children,
     required this.actions,
@@ -215,8 +257,8 @@ class _StepFrame extends StatelessWidget {
     this.horizontalPadding = 20,
   });
 
-  /// Null for the welcome, which has no step line.
-  final int? step;
+  /// False for the welcome, which has no step line.
+  final bool numbered;
   final VoidCallback? onSkip;
   final List<Widget> children;
   final List<Widget> actions;
@@ -228,13 +270,17 @@ class _StepFrame extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final step = this.step;
+    final position = numbered
+        ? context.dependOnInheritedWidgetOfExactType<_StepPosition>()
+        : null;
     return Padding(
       padding: EdgeInsets.fromLTRB(horizontalPadding, 8, horizontalPadding, 16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          if (step != null) _StepHeader(step: step, onSkip: onSkip),
+          if (position != null)
+            _StepHeader(
+                step: position.step, total: position.total, onSkip: onSkip),
           Expanded(
             child: LayoutBuilder(
               builder: (context, constraints) => SingleChildScrollView(
@@ -265,9 +311,10 @@ class _StepFrame extends StatelessWidget {
 }
 
 class _StepHeader extends StatelessWidget {
-  const _StepHeader({required this.step, this.onSkip});
+  const _StepHeader({required this.step, required this.total, this.onSkip});
 
   final int step;
+  final int total;
   final VoidCallback? onSkip;
 
   @override
@@ -280,7 +327,7 @@ class _StepHeader extends StatelessWidget {
         children: [
           Flexible(
             child: Text(
-              context.l10n.setupStepOf(step, FirstRunSetupPage.stepCount),
+              context.l10n.setupStepOf(step, total),
               style: ShiaText.secondary.copyWith(
                   fontWeight: FontWeight.w600, color: colors.textMuted),
             ),
@@ -289,7 +336,7 @@ class _StepHeader extends StatelessWidget {
           ExcludeSemantics(
             child: Row(
               children: [
-                for (var i = 1; i <= FirstRunSetupPage.stepCount; i++) ...[
+                for (var i = 1; i <= total; i++) ...[
                   if (i > 1) const SizedBox(width: 5),
                   Container(
                     width: i == step ? 18 : 6,
@@ -558,6 +605,7 @@ class _WelcomeStep extends StatelessWidget {
     final colors = ShiaColors.of(context);
     final l10n = context.l10n;
     return _StepFrame(
+      numbered: false,
       centred: true,
       horizontalPadding: 24,
       actions: [
@@ -667,7 +715,6 @@ class _LocationStepState extends State<_LocationStep> {
     final colors = ShiaColors.of(context);
     final l10n = context.l10n;
     return _StepFrame(
-      step: 1,
       onSkip: _locating ? null : widget.onNext,
       centred: true,
       horizontalPadding: 24,
@@ -825,7 +872,6 @@ class _AzanStepState extends State<_AzanStep> {
     final isIOS = !kIsWeb && defaultTargetPlatform == TargetPlatform.iOS;
 
     return _StepFrame(
-      step: 2,
       onSkip: _saving ? null : () => _answer(false),
       actions: [
         _SetupButton(
@@ -1023,7 +1069,6 @@ class _FontStepState extends State<_FontStep> {
         : l10n.setupFontQalamHint;
 
     return _StepFrame(
-      step: 3,
       onSkip: _skip,
       actions: [
         _SetupButton(label: l10n.commonContinue, onPressed: _continue),
@@ -1221,7 +1266,6 @@ class _ThemeStepState extends State<_ThemeStep> {
     final mode = context.watch<ThemeModeProvider>().themeMode;
 
     return _StepFrame(
-      step: 4,
       onSkip: _skip,
       actions: [
         _SetupButton(label: l10n.commonContinue, onPressed: _continue),
@@ -1433,7 +1477,6 @@ class _BackupStepState extends State<_BackupStep> {
     final appleForeground = dark ? Colors.black : Colors.white;
 
     return _StepFrame(
-      step: 5,
       centred: true,
       actions: [
         _SetupButton(
