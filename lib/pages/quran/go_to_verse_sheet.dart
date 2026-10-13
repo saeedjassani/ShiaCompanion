@@ -15,7 +15,8 @@ import '../../widgets/responsive_content.dart' show MouseDragScroll;
 /// "Go to a verse" (docs/DESIGN_SPEC.md, "Quran"; mockups `Verse-B-surah`
 /// and `Verse-B-verse`): step 1 picks a surah - by name or number, from four
 /// quick picks or the list - and step 2 a verse, from a grid of numbers in
-/// groups of 50. Nothing opens until the button that names the verse, so a
+/// groups of 50. A quick pick opens its surah at once; the list goes on to
+/// step 2, where nothing opens until the button that names the verse, so a
 /// stray tap costs nothing; "Start of surah" skips the grid.
 ///
 /// Typing a whole reference in step 1 (`2:255`, `baqarah 255`) offers that
@@ -241,7 +242,7 @@ class _GoToVersePickerState extends State<GoToVersePicker> {
                   return ChoicePill(
                     label: '${localizeDigits('${surah.number}')} '
                         '${surah.displayName}',
-                    onTap: () => _openSurah(surah),
+                    onTap: () => _finish(VerseKey(surah.number)),
                   );
                 },
               ),
