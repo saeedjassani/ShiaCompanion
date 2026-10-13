@@ -7,6 +7,7 @@ import '../../data/quran_duas.dart';
 import '../../data/quran_mahdi_verses.dart';
 import '../../data/quran_prophet_stories.dart';
 import '../../services/saved_verses_store.dart';
+import '../../services/verse_notes_manager.dart';
 import '../../theme/shia_colors.dart';
 import '../../utils/quran_index.dart';
 import '../../utils/shared_preferences.dart';
@@ -14,6 +15,7 @@ import '../../widgets/outline_icon.dart';
 import '../../widgets/page_chrome.dart';
 import '../../widgets/responsive_content.dart';
 import '../../l10n/l10n.dart';
+import 'verse_note_sheet.dart';
 
 /// The groups the Collections view can show, in pill order.
 enum QuranCollection {
@@ -21,7 +23,8 @@ enum QuranCollection {
   imamAli,
   imamMahdi,
   prophets,
-  saved;
+  saved,
+  notes;
 
   String get label => switch (this) {
         QuranCollection.duas => L10n.current.quranCollectionDuas,
@@ -29,6 +32,7 @@ enum QuranCollection {
         QuranCollection.imamMahdi => L10n.current.quranCollectionImamMahdi,
         QuranCollection.prophets => L10n.current.quranCollectionProphets,
         QuranCollection.saved => L10n.current.quranCollectionSaved,
+        QuranCollection.notes => L10n.current.quranCollectionNotes,
       };
 
   /// Remembers the collection last picked, so someone who comes for their
@@ -67,6 +71,7 @@ class QuranCollectionsSliver extends StatelessWidget {
     required this.saved,
     required this.onOpenVerse,
     required this.onRemoveSaved,
+    required this.notes,
   });
 
   /// The page's side margins. Applied here rather than around the sliver so
@@ -77,6 +82,7 @@ class QuranCollectionsSliver extends StatelessWidget {
   final List<SavedVerse> saved;
   final void Function(VerseKey verse) onOpenVerse;
   final void Function(SavedVerse saved) onRemoveSaved;
+  final List<VerseNote> notes;
 
   @override
   Widget build(BuildContext context) {
@@ -118,6 +124,20 @@ class QuranCollectionsSliver extends StatelessWidget {
           saved.isEmpty
               ? const SliverToBoxAdapter(child: _NoSavedVerses())
               : _savedVerseSliver(context, saved, onOpenVerse, onRemoveSaved),
+        ];
+      case QuranCollection.notes:
+        return [
+          notes.isEmpty
+              ? const SliverToBoxAdapter(child: _NoVerseNotes())
+              : SliverCardList(
+                  itemCount: notes.length,
+                  itemBuilder: (context, index) => VerseNoteRow(
+                    note: notes[index],
+                    first: index == 0,
+                    last: index == notes.length - 1,
+                    onOpen: () => onOpenVerse(notes[index].verse),
+                  ),
+                ),
         ];
     }
   }
@@ -404,6 +424,72 @@ class SavedVerseRow extends StatelessWidget {
         ),
       ),
       onTap: onOpen,
+    );
+  }
+}
+
+/// One note: the verse it is on and what the reader wrote, opening the verse
+/// on a tap. The pencil edits or deletes it without leaving the list.
+class VerseNoteRow extends StatelessWidget {
+  const VerseNoteRow({
+    super.key,
+    required this.note,
+    required this.onOpen,
+    this.first = false,
+    this.last = false,
+  });
+
+  final VerseNote note;
+  final VoidCallback onOpen;
+  final bool first;
+  final bool last;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = ShiaColors.of(context);
+
+    return CardListRow(
+      first: first,
+      last: last,
+      title: Text(verseNoteReference(note.verse, surahName: note.surahName)),
+      subtitle: Text(
+        note.text,
+        maxLines: 3,
+        overflow: TextOverflow.ellipsis,
+      ),
+      trailing: Tooltip(
+        message: context.l10n.quranEditNote,
+        child: InkResponse(
+          onTap: () => showVerseNoteSheet(
+            context,
+            verse: note.verse,
+            excerpt: note.excerpt,
+          ),
+          radius: 22,
+          child: SizedBox.square(
+            dimension: 44,
+            child: Center(
+              child: OutlineIcon(OutlineGlyph.pencil,
+                  size: 20, color: colors.chevron, strokeWidth: 2),
+            ),
+          ),
+        ),
+      ),
+      onTap: onOpen,
+    );
+  }
+}
+
+/// What the notes list says before any is written, and how to write one.
+class _NoVerseNotes extends StatelessWidget {
+  const _NoVerseNotes();
+
+  @override
+  Widget build(BuildContext context) {
+    return EmptyStateCard(
+      glyph: OutlineGlyph.pencil,
+      title: context.l10n.quranNoNotes,
+      body: context.l10n.quranNoNotesBody,
     );
   }
 }

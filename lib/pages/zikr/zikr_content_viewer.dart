@@ -486,6 +486,9 @@ class ZikrContentViewerWidget extends StatefulWidget {
   /// stopped, these are a collection meant to be kept, so they are drawn
   /// unobtrusively rather than washing the block.
   final Set<VerseKey> savedVerses;
+
+  /// Verses the reader has written a note on, marked the same quiet way.
+  final Set<VerseKey> notedVerses;
   final ValueChanged<ZikrContentScrollPosition>? onScrollPositionChanged;
 
   /// Reports the line a bookmark saved without one turns out to sit on, once
@@ -580,6 +583,7 @@ class ZikrContentViewerWidget extends StatefulWidget {
     this.initialBookmarkScrollOffset,
     this.initialBookmarkLineIndex,
     this.savedVerses = const {},
+    this.notedVerses = const {},
     this.onScrollPositionChanged,
     this.onBookmarkLineResolved,
     this.onBookmarkMoved,
@@ -2638,6 +2642,7 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget>
       ayah: span.ayah,
       startsSurah: span.startsSurah,
       isSaved: verse != null && widget.savedVerses.contains(verse),
+      hasNote: verse != null && widget.notedVerses.contains(verse),
       isBookmarked:
           bookmarkedRange != null && span.contains(bookmarkedRange.start),
       aliNote: verse == null ? null : aliRelatedNoteFor(verse),
@@ -3156,13 +3161,14 @@ class _SurahHeading extends StatelessWidget {
 /// The verse number is not drawn here: it is already inside the Arabic, as
 /// the end-of-verse medallion the corpus is authored with, and a second one
 /// above each verse only duplicated it. The row above a verse appears only
-/// when there is something to mark - the bookmark or a saved verse. A verse
-/// about Imam Ali (as) is marked by a watermark behind it instead.
+/// when there is something to mark - the bookmark, a saved verse or a note.
+/// A verse about Imam Ali (as) is marked by a watermark behind it instead.
 class _AyahBlock extends StatelessWidget {
   const _AyahBlock({
     required this.ayah,
     required this.startsSurah,
     required this.isSaved,
+    required this.hasNote,
     required this.isBookmarked,
     required this.aliNote,
     required this.mahdiNote,
@@ -3181,6 +3187,10 @@ class _AyahBlock extends StatelessWidget {
   /// Whether the reader has kept this verse. Drawn as a small mark beside the
   /// number rather than a tint, so a page of saved verses still reads calmly.
   final bool isSaved;
+
+  /// Whether the reader has written a note on this verse; marked beside the
+  /// saved mark, and read or edited from the verse menu.
+  final bool hasNote;
 
   final bool isBookmarked;
 
@@ -3208,7 +3218,7 @@ class _AyahBlock extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           if (startsSurah != null) _SurahHeading(surah: startsSurah!),
-          if (ayah != null && (isBookmarked || isSaved))
+          if (ayah != null && (isBookmarked || isSaved || hasNote))
             Padding(
               padding: const EdgeInsets.only(top: 8),
               child: Row(
@@ -3221,6 +3231,14 @@ class _AyahBlock extends StatelessWidget {
                     Icon(
                       Icons.bookmark,
                       size: 13,
+                      color: colorScheme.primary.withValues(alpha: 0.85),
+                    ),
+                    const SizedBox(width: 6),
+                  ],
+                  if (hasNote) ...[
+                    Icon(
+                      Icons.edit_note,
+                      size: 15,
                       color: colorScheme.primary.withValues(alpha: 0.85),
                     ),
                     const SizedBox(width: 6),

@@ -16,6 +16,7 @@ import 'package:shia_companion/services/activity_stats_store.dart';
 import 'package:shia_companion/services/analytics_service.dart';
 import 'package:shia_companion/services/mistake_report_service.dart';
 import 'package:shia_companion/services/rating_prompt_service.dart';
+import 'package:shia_companion/services/verse_notes_manager.dart';
 import 'package:shia_companion/services/zikr_audio_index.dart';
 import 'package:shia_companion/services/zikr_bookmark_store.dart';
 import 'package:shia_companion/services/zikr_bookmarks_manager.dart';
@@ -49,6 +50,7 @@ import '../../widgets/reader_text_sheet.dart';
 import '../../widgets/reader_top_bar.dart';
 import '../../widgets/zikr_counter.dart';
 import '../quran/quran_navigation.dart';
+import '../quran/verse_note_sheet.dart';
 import '../zikr_reminder_form_page.dart';
 import 'zikr_form_helpers.dart';
 import 'zikr_content_parser.dart';
@@ -329,6 +331,9 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
   /// Verses the reader has kept, so the reader can mark them as they pass.
   Set<VerseKey> _savedVerses = const {};
 
+  /// Verses the reader has written a note on, marked the same way.
+  Set<VerseKey> _notedVerses = const {};
+
   /// The last verse reported as being read, so a debounced save has something
   /// to write and repeat reports of the same verse cost nothing.
   VerseKey? _pendingProgressVerse;
@@ -373,11 +378,14 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
       ZikrBookmarksManager.instance.addListener(_handleBookmarksChanged);
     }
     _loadSavedVerses();
+    _loadNotedVerses();
     if (_isQuran) {
       // Saved verses sync, so they can arrive after the page opens - loaded
       // late, or saved on another device - and the marks follow them.
       SavedVersesManager.instance.addListener(_handleSavedVersesChanged);
       unawaited(SavedVersesManager.instance.loadSavedVerses());
+      VerseNotesManager.instance.addListener(_handleVerseNotesChanged);
+      unawaited(VerseNotesManager.instance.loadNotes());
     }
     // The one place a zikr open is counted, so every entry point lands in the
     // same bucket exactly once.
@@ -789,6 +797,7 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
     final surahTitle = surahInfoFor(surah)?.fullTitle ?? widget.item.getTitle();
     final link = buildQuranDeepLinkUrl(surah: surah, ayah: ayah);
     final isSaved = _savedVerses.contains(verse);
+    final userNote = VerseNotesManager.instance.noteFor(verse)?.text;
 
     final colors = ShiaColors.of(context);
     Widget action(
@@ -844,6 +853,24 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
                         .copyWith(fontSize: 14, color: colors.textMuted),
                   ),
                 ),
+              // The reader's own note, read here and changed from the row
+              // below.
+              if (userNote != null)
+                Container(
+                  margin: const EdgeInsets.only(top: 10),
+                  padding: const EdgeInsetsDirectional.only(start: 12),
+                  decoration: BoxDecoration(
+                    border: BorderDirectional(
+                      start: BorderSide(color: colors.accent, width: 3),
+                    ),
+                  ),
+                  child: Text(
+                    userNote,
+                    maxLines: 8,
+                    overflow: TextOverflow.ellipsis,
+                    style: ShiaText.body.copyWith(color: colors.text),
+                  ),
+                ),
               const SizedBox(height: 10),
               CardList(children: [
                 action(
@@ -855,6 +882,18 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
                       ? context.l10n.quranRemoveFromSaved
                       : context.l10n.quranSaveVerse,
                   onTap: () => unawaited(_toggleSavedVerse(verse, text)),
+                ),
+                action(
+                  sheetContext,
+                  glyph: OutlineGlyph.pencil,
+                  label: userNote == null
+                      ? context.l10n.quranAddNote
+                      : context.l10n.quranEditNote,
+                  onTap: () => unawaited(showVerseNoteSheet(
+                    context,
+                    verse: verse,
+                    excerpt: _excerptOf(text),
+                  )),
                 ),
                 action(
                   sheetContext,
@@ -953,6 +992,7 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
   void dispose() {
     ZikrTranslations.instance.removeListener(_loadTranslation);
     SavedVersesManager.instance.removeListener(_handleSavedVersesChanged);
+    VerseNotesManager.instance.removeListener(_handleVerseNotesChanged);
     ZikrBookmarksManager.instance.removeListener(_handleBookmarksChanged);
     _progressSaveTimer?.cancel();
     _quranEndTimer?.cancel();
@@ -1016,6 +1056,23 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
     final previous = _savedVerses;
     _loadSavedVerses();
     if (!setEquals(previous, _savedVerses)) setState(() {});
+  }
+
+  /// Rebuilds only when the set of noted verses changed, not for an edit to
+  /// a note's text - the verse menu reads that fresh each time it opens.
+  void _handleVerseNotesChanged() {
+    if (!mounted) return;
+    final previous = _notedVerses;
+    _loadNotedVerses();
+    if (!setEquals(previous, _notedVerses)) setState(() {});
+  }
+
+  void _loadNotedVerses() {
+    if (!_isQuran) return;
+    _notedVerses = {
+      for (final note in VerseNotesManager.instance.state.notes.values)
+        note.verse,
+    };
   }
 
   void _loadSavedVerses() {
@@ -2489,6 +2546,7 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
                                   initialBookmarkLineIndex:
                                       _savedBookmark?.lineIndex,
                                   savedVerses: _savedVerses,
+                                  notedVerses: _notedVerses,
                                   onScrollPositionChanged:
                                       _handleContentScrollPositionChanged,
                                   surahNumber: _surahNumber,

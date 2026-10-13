@@ -32,6 +32,7 @@ import 'package:shia_companion/services/saved_verses_manager.dart';
 import 'package:shia_companion/services/rating_prompt_service.dart';
 import 'package:shia_companion/services/session_refresh_service.dart';
 import 'package:shia_companion/services/whats_new_service.dart';
+import 'package:shia_companion/services/verse_notes_manager.dart';
 import 'package:shia_companion/services/zikr_bookmarks_manager.dart';
 import 'package:shia_companion/services/zikr_reminder_service.dart';
 import 'package:shia_companion/utils/deep_links.dart';
@@ -566,6 +567,7 @@ class _MyHomePageState extends State<MyHomePage>
     await RecitationTrackerManager.instance.loadRecitations();
     await SavedVersesManager.instance.loadSavedVerses();
     await ZikrBookmarksManager.instance.loadBookmarks();
+    await VerseNotesManager.instance.loadNotes();
     await PreferencesSyncService.instance.pullOrSeed();
     await PrayerPreferencesSyncService.instance.pullOrSeed();
     unawaited(ActivityStatsStore.instance.pullAndMerge());

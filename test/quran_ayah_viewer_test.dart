@@ -26,6 +26,7 @@ Future<void> _pump(
   AyahIndex? ayahIndex,
   int? bookmarkLineIndex,
   Set<VerseKey> savedVerses = const {},
+  Set<VerseKey> notedVerses = const {},
   bool settle = true,
 }) async {
   await tester.pumpWidget(
@@ -44,6 +45,7 @@ Future<void> _pump(
           initialBookmarkTabIndex: bookmarkLineIndex == null ? null : 0,
           initialBookmarkLineIndex: bookmarkLineIndex,
           savedVerses: savedVerses,
+          notedVerses: notedVerses,
           onAyahPositionChanged: onAyahPosition,
           onAyahAction: onAyahAction,
         ),
@@ -269,6 +271,20 @@ void main() {
       await _pump(tester, content: _surahContent(), surahNumber: 1);
 
       expect(find.byIcon(Icons.bookmark), findsNothing);
+      expect(find.byIcon(Icons.edit_note), findsNothing);
+    });
+
+    testWidgets('a verse with a note is marked, saved or not', (tester) async {
+      await _pump(
+        tester,
+        content: _surahContent(),
+        surahNumber: 1,
+        savedVerses: {const VerseKey(1, 2)},
+        notedVerses: {const VerseKey(1, 2), const VerseKey(1, 3)},
+      );
+
+      expect(find.byIcon(Icons.edit_note), findsNWidgets(2));
+      expect(find.byIcon(Icons.bookmark), findsOneWidget);
     });
 
     testWidgets('several verses of one surah are all marked', (tester) async {

@@ -60,6 +60,7 @@ enum OutlineGlyph {
   reset,
   alarm,
   eye,
+  pencil,
 }
 
 class OutlineIcon extends StatelessWidget {
@@ -456,30 +457,30 @@ class _OutlinePainter extends CustomPainter {
           ..addRRect(RRect.fromLTRBR(8, 8, 20, 20, const Radius.circular(2)))
           ..moveTo(16, 8)
           ..lineTo(16, 5)
-          ..arcToPoint(const Offset(15, 4), radius: const Radius.circular(1),
-              clockwise: false)
+          ..arcToPoint(const Offset(15, 4),
+              radius: const Radius.circular(1), clockwise: false)
           ..lineTo(5, 4)
-          ..arcToPoint(const Offset(4, 5), radius: const Radius.circular(1),
-              clockwise: false)
+          ..arcToPoint(const Offset(4, 5),
+              radius: const Radius.circular(1), clockwise: false)
           ..lineTo(4, 15)
-          ..arcToPoint(const Offset(5, 16), radius: const Radius.circular(1),
-              clockwise: false)
+          ..arcToPoint(const Offset(5, 16),
+              radius: const Radius.circular(1), clockwise: false)
           ..lineTo(8, 16);
       case OutlineGlyph.link:
         return Path()
           ..moveTo(10, 14)
-          ..arcToPoint(const Offset(15.7, 14), radius: const Radius.circular(4),
-              clockwise: false)
+          ..arcToPoint(const Offset(15.7, 14),
+              radius: const Radius.circular(4), clockwise: false)
           ..lineTo(18.7, 11)
-          ..arcToPoint(const Offset(13, 5.3), radius: const Radius.circular(4),
-              clockwise: false)
+          ..arcToPoint(const Offset(13, 5.3),
+              radius: const Radius.circular(4), clockwise: false)
           ..lineTo(12, 6.3)
           ..moveTo(14, 10)
-          ..arcToPoint(const Offset(8.3, 10), radius: const Radius.circular(4),
-              clockwise: false)
+          ..arcToPoint(const Offset(8.3, 10),
+              radius: const Radius.circular(4), clockwise: false)
           ..lineTo(5.3, 13)
-          ..arcToPoint(const Offset(11, 18.7), radius: const Radius.circular(4),
-              clockwise: false)
+          ..arcToPoint(const Offset(11, 18.7),
+              radius: const Radius.circular(4), clockwise: false)
           ..lineTo(12, 17.7);
       case OutlineGlyph.bell:
         return Path()
@@ -569,6 +570,16 @@ class _OutlinePainter extends CustomPainter {
           ..quadraticBezierTo(12, 20.5, 3, 12)
           ..close()
           ..addPath(_circle(12, 12, 2.8), Offset.zero);
+      case OutlineGlyph.pencil:
+        return Path()
+          ..moveTo(4, 20)
+          ..lineTo(4.8, 16)
+          ..lineTo(15.5, 5.3)
+          ..arcToPoint(const Offset(18.7, 8.5),
+              radius: const Radius.circular(2.3))
+          ..lineTo(8, 19.2)
+          ..close()
+          ..addPath(_line(13.5, 7.3, 16.7, 10.5), Offset.zero);
       case OutlineGlyph.history:
         return Path()
           ..moveTo(4, 12)
