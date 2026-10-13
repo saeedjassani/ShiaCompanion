@@ -2148,7 +2148,10 @@
     "title": "Ziyarat Ashura",
     "order": 0,
     "slug": "ziyarat-e-ashura",
-    "day": "*-*"
+    "day": [
+      "01-10",
+      "*-*"
+    ]
   },
   "G5": {
     "title": "Ziyarat al-Haqq al-Jadid",
