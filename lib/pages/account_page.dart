@@ -12,6 +12,7 @@ import '../services/favorites_manager.dart';
 import '../services/qaza_tracker_manager.dart';
 import '../services/recitation_tracker_manager.dart';
 import '../services/saved_verses_manager.dart';
+import '../services/verse_notes_manager.dart';
 import '../services/zikr_bookmarks_manager.dart';
 import '../theme/shia_colors.dart';
 import '../utils/network_utils.dart';
@@ -114,6 +115,7 @@ class _AccountPageState extends State<AccountPage> {
     ZikrBookmarksManager.instance,
     RecitationTrackerManager.instance,
     SavedVersesManager.instance,
+    VerseNotesManager.instance,
     QazaTrackerManager.instance,
   ]);
 
@@ -125,6 +127,7 @@ class _AccountPageState extends State<AccountPage> {
     unawaited(ZikrBookmarksManager.instance.loadBookmarks());
     unawaited(RecitationTrackerManager.instance.loadRecitations());
     unawaited(SavedVersesManager.instance.loadSavedVerses());
+    unawaited(VerseNotesManager.instance.loadNotes());
     unawaited(QazaTrackerManager.instance.loadQaza());
     unawaited(_check());
   }
@@ -396,6 +399,10 @@ class _BackupContents extends StatelessWidget {
         l10n.accountItemSavedVerses,
         localizeDigits(
             '${SavedVersesManager.instance.state.verses.length}', l10n)
+      ),
+      (
+        l10n.accountItemVerseNotes,
+        localizeDigits('${VerseNotesManager.instance.state.notes.length}', l10n)
       ),
       (
         l10n.accountItemQaza,

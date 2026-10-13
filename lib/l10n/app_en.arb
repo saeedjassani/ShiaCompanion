@@ -1618,6 +1618,24 @@
   "quranCollectionSaved": "Saved",
   "quranNoSavedVerses": "No saved verses yet",
   "quranNoSavedVersesBody": "Tap a verse while reading to keep it here.",
+  "quranAddNote": "Add note",
+  "quranEditNote": "Edit note",
+  "quranNoteTitle": "Note on {verse}",
+  "@quranNoteTitle": {
+    "description": "Title of the note editor. {verse} is a verse reference such as Al-Baqarah 255.",
+    "placeholders": {
+      "verse": {
+        "type": "String"
+      }
+    }
+  },
+  "quranNoteHint": "Write your thoughts on this verse",
+  "quranDeleteNote": "Delete note",
+  "quranNoteSaved": "Note saved",
+  "quranNoteDeleted": "Note deleted",
+  "quranCollectionNotes": "Notes",
+  "quranNoNotes": "No notes yet",
+  "quranNoNotesBody": "Tap a verse while reading and choose Add note.",
   "libraryNextChapter": "Next chapter",
   "libraryPreviousChapter": "Previous chapter",
   "libraryNextPage": "Next page",
@@ -3750,6 +3768,7 @@
   "accountItemBookmarks": "Bookmarks",
   "accountItemQuranProgress": "Quran progress",
   "accountItemSavedVerses": "Saved verses",
+  "accountItemVerseNotes": "Verse notes",
   "accountItemQaza": "Qaza tracker",
   "accountItemStats": "My Stats and shortcuts",
   "accountTracks": "{count, plural, =1{1 Khatm} other{{count} Khatms}}",

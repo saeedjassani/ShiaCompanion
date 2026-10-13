@@ -25,6 +25,11 @@ service cloud.firestore {
     match /users/{userId}/zikr_bookmarks/{docId} {
       allow read, write: if request.auth.uid == userId;
     }
+    // Notes on Quran verses (VerseNotesManager): one doc, its own so an
+    // older build re-saving the saved-verses doc can never drop a note.
+    match /users/{userId}/verse_notes/{docId} {
+      allow read, write: if request.auth.uid == userId;
+    }
     match /users/{userId}/settings/{docId} {
       allow read, write: if request.auth.uid == userId;
     }

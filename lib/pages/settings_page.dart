@@ -21,6 +21,7 @@ import '../services/rating_prompt_service.dart';
 import '../services/recitation_tracker_manager.dart';
 import '../services/saved_verses_manager.dart';
 import '../services/session_refresh_service.dart';
+import '../services/verse_notes_manager.dart';
 import '../services/zikr_bookmarks_manager.dart';
 import '../theme/shia_colors.dart';
 import '../utils/app_text_scale.dart';
@@ -83,6 +84,7 @@ class _SettingsPageState extends State<SettingsPage> {
     await RecitationTrackerManager.instance.loadRecitations(force: true);
     await SavedVersesManager.instance.loadSavedVerses(force: true);
     await ZikrBookmarksManager.instance.loadBookmarks(force: true);
+    await VerseNotesManager.instance.loadNotes(force: true);
     await PreferencesSyncService.instance.pullOrSeed();
     await PrayerPreferencesSyncService.instance.pullOrSeed();
     // Not awaited: stats are already correct on this device, and a Firestore

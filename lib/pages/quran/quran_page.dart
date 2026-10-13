@@ -8,6 +8,7 @@ import '../../models/recitation_tracker_state.dart';
 import '../../services/analytics_service.dart';
 import '../../services/recitation_tracker_manager.dart';
 import '../../services/saved_verses_manager.dart';
+import '../../services/verse_notes_manager.dart';
 import '../../models/saved_verse.dart';
 import '../../utils/quran_index.dart';
 import '../../utils/shared_preferences.dart';
@@ -56,6 +57,7 @@ class _QuranPageState extends State<QuranPage> {
         .values[widget.initialTabIndex.clamp(0, _QuranView.values.length - 1)];
     unawaited(RecitationTrackerManager.instance.loadRecitations());
     unawaited(SavedVersesManager.instance.loadSavedVerses());
+    unawaited(VerseNotesManager.instance.loadNotes());
   }
 
   /// Starts building the verse text index while the surah list is being read.
@@ -182,11 +184,12 @@ class _QuranPageState extends State<QuranPage> {
               padding: gutter,
               sliver: _JuzList(juz: _juz, onOpenJuz: _openJuz),
             ),
-          // Saved verses sync, so the list follows them - including a verse
-          // saved on another device. The gutter is applied inside, so the
-          // pills can scroll out from under the screen's edge.
+          // Saved verses and notes sync, so the lists follow them -
+          // including a verse saved on another device. The gutter is applied
+          // inside, so the pills can scroll out from under the screen's edge.
           _QuranView.collections => ListenableBuilder(
-              listenable: SavedVersesManager.instance,
+              listenable: Listenable.merge(
+                  [SavedVersesManager.instance, VerseNotesManager.instance]),
               builder: (context, _) => QuranCollectionsSliver(
                 gutter: gutter,
                 selected: _collection,
@@ -197,6 +200,7 @@ class _QuranPageState extends State<QuranPage> {
                 saved: SavedVersesManager.instance.state.inMushafOrder,
                 onOpenVerse: _open,
                 onRemoveSaved: _removeSaved,
+                notes: VerseNotesManager.instance.state.inMushafOrder,
               ),
             ),
         },
