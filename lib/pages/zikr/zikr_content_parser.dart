@@ -277,6 +277,34 @@ class ZikrContentParser {
     return isArabic(header) ? header : null;
   }
 
+  /// Whether [line] is the Bismillah and nothing else. Only its letters are
+  /// compared - harakat, spaces, punctuation and a verse number are dropped
+  /// and alef/yaa variants folded - so every spelling the corpus uses
+  /// (`اللهِ`/`اللّٰهِ`, `الرَّحِيْمِ`/`الرَّحِیْمِ`, a trailing `.`) matches,
+  /// while a line that goes on past it does not.
+  static bool isBismillah(String line) {
+    final letters = StringBuffer();
+    for (final rune in line.runes) {
+      final folded = _bismillahFolds[rune] ?? rune;
+      if ((folded >= 0x0621 && folded <= 0x063A) ||
+          (folded >= 0x0641 && folded <= 0x064A)) {
+        letters.writeCharCode(folded);
+      }
+    }
+    return letters.toString() == _bismillahLetters;
+  }
+
+  static const String _bismillahLetters = 'بسماللهالرحمنالرحيم';
+
+  static const Map<int, int> _bismillahFolds = {
+    0x0622: 0x0627, // آ
+    0x0623: 0x0627, // أ
+    0x0625: 0x0627, // إ
+    0x0671: 0x0627, // ٱ
+    0x0649: 0x064A, // ى
+    0x06CC: 0x064A, // ی
+  };
+
   static bool isArabic(String s) {
     var scannedCharacters = 0;
     for (final rune in s.runes) {

@@ -266,6 +266,21 @@ List<_ReadingListItem> _buildReadingListItems(ParsedZikrContent content) {
     }
 
     if (isArabicOnlyReadingView && content.arabicCodes.contains(i)) {
+      // A Bismillah opening a paragraph stands on a line of its own, the way
+      // a surah's does ([_buildArabicParagraphItem] centres it). Only at the
+      // start: inside a run it can be part of the sentence - Dua Mashlool
+      // asks "by Your Name: بسم الله الرحمن الرحيم" - so it flows on there.
+      if (ZikrContentParser.isBismillah(content.lines[i])) {
+        items.add(_ReadingListItem([i]));
+        i++;
+        while (i < total &&
+            (content.transliCodes.contains(i) ||
+                content.translaCodes.contains(i) ||
+                content.isHiddenEnglish(i))) {
+          i++;
+        }
+        continue;
+      }
       final verses = <int>[i];
       var j = i + 1;
       while (j < total) {
@@ -784,11 +799,18 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget>
     // the row above it.
     final paragraphStyle = arabicStyle.copyWith(height: 2.0);
 
+    // A Bismillah opening a paragraph is an item of its own
+    // ([_buildReadingListItems]) and sits centred above the text, as a
+    // surah's does.
+    final isBismillah = item.lineIndexes.length == 1 &&
+        ZikrContentParser.isBismillah(parsedContent.lines[item.firstLineIndex]);
+
     return Padding(
       padding: const EdgeInsets.only(top: 12.0, bottom: 4.0),
       child: _RuledArabicParagraph(
         textKey: flow.textKey,
         span: TextSpan(style: paragraphStyle, children: spans),
+        textAlign: isBismillah ? TextAlign.center : TextAlign.justify,
       ),
     );
   }
@@ -3419,9 +3441,16 @@ class _BookmarkedLine extends StatelessWidget {
 /// [TextPainter.computeLineMetrics] - then paints a rule at each line's
 /// bottom edge, under the text rather than instead of it.
 class _RuledArabicParagraph extends StatelessWidget {
-  const _RuledArabicParagraph({required this.span, this.textKey});
+  const _RuledArabicParagraph({
+    required this.span,
+    this.textKey,
+    this.textAlign = TextAlign.justify,
+  });
 
   final TextSpan span;
+
+  /// Justified for running text; centred for a line standing on its own.
+  final TextAlign textAlign;
 
   /// Put on the [Text.rich] itself, for a caller that needs to measure the
   /// laid-out text - where each verse fell - rather than the whole block.
@@ -3440,7 +3469,7 @@ class _RuledArabicParagraph extends StatelessWidget {
         final painter = TextPainter(
           text: span,
           textDirection: TextDirection.rtl,
-          textAlign: TextAlign.justify,
+          textAlign: textAlign,
           textScaler: textScaler,
         )..layout(maxWidth: constraints.maxWidth);
         final lines = painter.computeLineMetrics();
@@ -3467,7 +3496,7 @@ class _RuledArabicParagraph extends StatelessWidget {
             Text.rich(
               span,
               key: textKey,
-              textAlign: TextAlign.justify,
+              textAlign: textAlign,
               textDirection: TextDirection.rtl,
             ),
           ],
