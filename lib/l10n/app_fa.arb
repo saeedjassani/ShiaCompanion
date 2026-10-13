@@ -1287,7 +1287,13 @@
   "countryPalestine": "فلسطین",
   "holySitePlace": "{city}، {country}",
   "playlistDefaultMorning": "صبح",
-  "playlistDefaultThursday": "پنجشنبه",
   "playlistDefaultFriday": "جمعه",
+  "playlistDefaultThursdayNight": "شب جمعه",
+  "playlistDefaultFridayMorning": "صبح جمعه",
+  "playlistDefaultFridayAfternoon": "عصر جمعه",
+  "playlistDefaultDailyQuran": "قرآن روزانه",
+  "playlistDefaultRamazanNights": "شب‌های ماه رمضان",
+  "playlistDefaultRamazanSuhoor": "سحرهای ماه رمضان",
+  "playlistDefaultShaban": "شعبان",
   "accountNotSignedIn": "وارد حساب نشده‌اید."
 }

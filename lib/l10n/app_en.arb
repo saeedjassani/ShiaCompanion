@@ -4225,8 +4225,14 @@
   "@playlistDefaultMorning": {
     "description": "Name of a starter playlist every reader gets; shown until they rename it."
   },
-  "playlistDefaultThursday": "Thursday",
   "playlistDefaultFriday": "Friday",
+  "playlistDefaultThursdayNight": "Thursday Night",
+  "playlistDefaultFridayMorning": "Friday Morning",
+  "playlistDefaultFridayAfternoon": "Friday Afternoon",
+  "playlistDefaultDailyQuran": "Daily Quran",
+  "playlistDefaultRamazanNights": "Mahe Ramazan Nights",
+  "playlistDefaultRamazanSuhoor": "Mahe Ramazan Suhoor",
+  "playlistDefaultShaban": "Shaban",
   "accountNotSignedIn": "You are not signed in.",
   "@accountNotSignedIn": {
     "description": "Shown when deleting an account while no one is signed in."

@@ -18,9 +18,66 @@ class ZikrPlaylistStore extends ChangeNotifier {
 
   static const String storageKey = 'zikr_playlists_v1';
 
-  /// Set once the starter playlists below have been added, so a reader who
-  /// deletes one does not see it come back.
+  /// Set once the first starter playlists (Morning, Thursday, Friday) have
+  /// been added, so a reader who deletes one does not see it come back.
   static const String seededKey = 'zikr_playlists_seeded_v1';
+
+  /// Set once the second set has been handed out too: Friday split into
+  /// morning and afternoon, Thursday renamed Thursday Night, and Daily Quran,
+  /// Mahe Ramazan Nights, Mahe Ramazan Suhoor and Shaban added.
+  static const String seededV2Key = 'zikr_playlists_seeded_v2';
+
+  static final DateTime _v1Date = DateTime.utc(2026, 9, 25);
+  static final DateTime _v2Date = DateTime.utc(2026, 10, 13);
+
+  static final ZikrPlaylist _fridayMorning = ZikrPlaylist(
+    id: 'default-friday-morning',
+    name: 'Friday Morning',
+    // Dua Nudba, Ziyarat of Imam al-Mahdi on Friday, Surah Al-Jumu'ah
+    zikrUids: const ['E34', 'J3', 'A66'],
+    updatedAt: _v2Date,
+  );
+
+  static final ZikrPlaylist _fridayAfternoon = ZikrPlaylist(
+    id: 'default-friday-afternoon',
+    name: 'Friday Afternoon',
+    // Dua Simat, Salawat of Abul Hasan al-Zarrab al-Isfahani: both for the
+    // last hours before Maghrib
+    zikrUids: const ['E26', 'E144'],
+    updatedAt: _v2Date,
+  );
+
+  /// Added for every reader in the second set, wherever they stood.
+  static final List<ZikrPlaylist> _v2Additions = List.unmodifiable([
+    ZikrPlaylist(
+      id: 'default-daily-quran',
+      name: 'Daily Quran',
+      // Surahs Ya-Sin, Ar-Rahman, Al-Waqi'ah, Al-Mulk
+      zikrUids: const ['A40', 'A59', 'A60', 'A71'],
+      updatedAt: _v2Date,
+    ),
+    ZikrPlaylist(
+      id: 'default-ramazan-nights',
+      name: 'Mahe Ramazan Nights',
+      // Dua Iftitah, Ya Uddati
+      zikrUids: const ['AA10', 'AA13'],
+      updatedAt: _v2Date,
+    ),
+    ZikrPlaylist(
+      id: 'default-ramazan-suhoor',
+      name: 'Mahe Ramazan Suhoor',
+      // Dua Sahar (Ya Mafza'i), Dua Baha, Dua Abu Hamza Thumali
+      zikrUids: const ['AA14', 'AA11', 'AA12'],
+      updatedAt: _v2Date,
+    ),
+    ZikrPlaylist(
+      id: 'default-shaban',
+      name: 'Shaban',
+      // Daily Salawat of Shaban, Munajat Shabaniyah
+      zikrUids: const ['Y3', 'Y4'],
+      updatedAt: _v2Date,
+    ),
+  ]);
 
   /// Starter playlists every reader gets once, to edit or delete like their
   /// own. Only zikrs with a recording belong here - see
@@ -31,23 +88,19 @@ class ZikrPlaylistStore extends ChangeNotifier {
       name: 'Morning',
       // Dua Ahad, Ziyarat Ashura, Ziyarat Aal-e-Yasin, Ziyarat Jamia Kabira
       zikrUids: const ['E18', 'G4', 'G1', 'G13'],
-      updatedAt: DateTime.utc(2026, 9, 25),
+      updatedAt: _v1Date,
     ),
+    _v2Additions.first,
     ZikrPlaylist(
       id: 'default-thursday',
-      name: 'Thursday',
+      name: 'Thursday Night',
       // Dua Kumayl, Ziyarat Warith, a short Ziyarat of Imam Husayn (a.s.)
       zikrUids: const ['E31', 'G6', 'G54'],
-      updatedAt: DateTime.utc(2026, 9, 25),
+      updatedAt: _v1Date,
     ),
-    ZikrPlaylist(
-      id: 'default-friday',
-      name: 'Friday',
-      // Dua Nudbah, Ziyarat of Imam al-Mahdi on Friday, Dua Simat,
-      // Salawat of Abul Hasan al-Zarrab al-Isfahani
-      zikrUids: const ['E34', 'J3', 'E26', 'E144'],
-      updatedAt: DateTime.utc(2026, 9, 25),
-    ),
+    _fridayMorning,
+    _fridayAfternoon,
+    ..._v2Additions.skip(1),
   ]);
 
   List<ZikrPlaylist>? _playlists;
@@ -69,20 +122,50 @@ class ZikrPlaylistStore extends ChangeNotifier {
   List<ZikrPlaylist> _read() {
     if (!SP.isInitialized) return const [];
     final stored = _readStored();
-    if (SP.prefs.getBool(seededKey) ?? false) return stored;
+    if (SP.prefs.getBool(seededV2Key) ?? false) return stored;
 
-    final ids = {for (final playlist in stored) playlist.id};
-    final seeded = List<ZikrPlaylist>.unmodifiable([
-      ...stored,
-      for (final playlist in defaultPlaylists)
-        if (!ids.contains(playlist.id)) playlist,
-    ]);
+    final seeded =
+        List<ZikrPlaylist>.unmodifiable((SP.prefs.getBool(seededKey) ?? false)
+            ? upgradeFromFirstSet(stored)
+            : [
+                ...stored,
+                for (final playlist in defaultPlaylists)
+                  if (!stored.any((mine) => mine.id == playlist.id)) playlist,
+              ]);
     unawaited(SP.prefs.setString(
       storageKey,
       jsonEncode(seeded.map((playlist) => playlist.toJson()).toList()),
     ));
     unawaited(SP.prefs.setBool(seededKey, true));
+    unawaited(SP.prefs.setBool(seededV2Key, true));
     return seeded;
+  }
+
+  /// Brings a reader who got the first set up to the second. An untouched
+  /// Friday becomes Friday Morning and Friday Afternoon in its place; one they
+  /// edited or deleted stays as they left it, and gets no split. Thursday is
+  /// renamed Thursday Night unless they renamed it themselves. The new
+  /// playlists go after everything else.
+  @visibleForTesting
+  static List<ZikrPlaylist> upgradeFromFirstSet(List<ZikrPlaylist> stored) {
+    final upgraded = [
+      for (final playlist in stored)
+        if (playlist.id == 'default-friday' &&
+            playlist.name == 'Friday' &&
+            playlist.updatedAt.isAtSameMomentAs(_v1Date)) ...[
+          _fridayMorning,
+          _fridayAfternoon,
+        ] else if (playlist.id == 'default-thursday' &&
+            playlist.name == 'Thursday')
+          playlist.copyWith(name: 'Thursday Night')
+        else
+          playlist,
+    ];
+    return [
+      ...upgraded,
+      for (final playlist in _v2Additions)
+        if (!upgraded.any((mine) => mine.id == playlist.id)) playlist,
+    ];
   }
 
   List<ZikrPlaylist> _readStored() {
