@@ -10,7 +10,7 @@ import 'package:flutter/services.dart';
 ///
 /// The font is Google's Noto Nastaliq Urdu, as scripts/build_urdu_font.py
 /// makes it: holding Arabic-script letters only, so English words and 0-9
-/// in the same text still come from the system font, and drawn at 70% so its
+/// in the same text still come from the system font, and drawn at 80% so its
 /// tall letters fit the app's line heights.
 ///
 /// It is loaded only once Urdu is in use rather than listed under `fonts:`
