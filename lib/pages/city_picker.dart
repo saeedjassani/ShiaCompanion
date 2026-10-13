@@ -271,7 +271,7 @@ class _CityPickerState extends State<CityPicker> {
                   style: TextButton.styleFrom(
                     foregroundColor: colors.accent,
                     minimumSize: const Size(44, 44),
-                    textStyle: ShiaText.body,
+                    textStyle: buttonTextStyle(context, ShiaText.body),
                   ),
                   child: Text(context.l10n.commonCancel),
                 ),

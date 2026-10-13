@@ -151,7 +151,9 @@ class _AppShellState extends State<AppShell> {
         ShiaColors.forBrightness(theme.brightness);
     return theme.copyWith(
       appBarTheme: theme.appBarTheme.copyWith(
-        titleTextStyle: ShiaText.largeTitle.copyWith(color: colors.text),
+        // Over the theme's own title style, which carries the app's font.
+        titleTextStyle: (theme.appBarTheme.titleTextStyle ?? const TextStyle())
+            .merge(ShiaText.largeTitle.copyWith(color: colors.text)),
         toolbarHeight: 64,
         centerTitle: false,
       ),

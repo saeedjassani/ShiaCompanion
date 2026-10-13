@@ -88,9 +88,12 @@ class ZikrListRow extends StatelessWidget {
               parts.arabic!,
               textDirection: TextDirection.rtl,
               textAlign: TextAlign.right,
+              // In Urdu, Persian and Arabic the app's own font, as the
+              // title's is (see arabicFontForTitles).
               style: TextStyle(
-                fontFamily: arabicFont,
-                fontFamilyFallback: const ['Qalam'],
+                fontFamily: arabicFontForTitles ? arabicFont : null,
+                fontFamilyFallback:
+                    arabicFontForTitles ? const ['Qalam'] : null,
                 fontSize: 19,
                 height: 32 / 19,
                 color: colors.translation,

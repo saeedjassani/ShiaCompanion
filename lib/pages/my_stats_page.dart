@@ -15,6 +15,7 @@ import '../services/analytics_service.dart';
 import '../services/community_stats_service.dart';
 import '../services/recitation_tracker_manager.dart';
 import '../theme/shia_colors.dart';
+import '../widgets/arabic_runs.dart';
 import '../widgets/outline_icon.dart';
 import '../widgets/page_chrome.dart';
 import 'stats/quran_progress_section.dart';
@@ -170,7 +171,7 @@ class _RankedZikrList extends StatelessWidget {
               child: Text(localizeDigits('${i + 1}', context.l10n),
                   style: muted.copyWith(fontWeight: FontWeight.w700)),
             ),
-            title: Text(entries[i].$2,
+            title: textWithArabicRuns(entries[i].$2,
                 maxLines: 2, overflow: TextOverflow.ellipsis),
             trailing: Padding(
               padding: const EdgeInsetsDirectional.only(start: 8, end: 8),

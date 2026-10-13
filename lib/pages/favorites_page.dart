@@ -13,6 +13,7 @@ import 'package:shia_companion/theme/shia_colors.dart';
 import 'package:shia_companion/widgets/outline_icon.dart';
 import 'package:shia_companion/widgets/page_chrome.dart';
 import '../l10n/l10n.dart';
+import '../widgets/arabic_runs.dart';
 import '../widgets/app_toast.dart';
 
 /// The Favorites tab (docs/DESIGN_SPEC.md, "Favorites"; mockup
@@ -213,7 +214,7 @@ class _FavoriteRow extends StatelessWidget {
     return CardListRow(
       first: first,
       last: last,
-      title: Text(title),
+      title: textWithArabicRuns(title),
       leading: editing
           ? _RemoveButton(
               label: context.l10n.favoritesRemove(item.displayTitle),

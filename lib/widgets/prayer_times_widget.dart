@@ -13,6 +13,7 @@ import 'package:shia_companion/widgets/widget_prayer_times_dialog.dart';
 import '../constants.dart';
 import '../l10n/l10n.dart';
 import 'azan_offer_dialog.dart';
+import 'page_chrome.dart';
 
 /// Home's prayer card: the next of the times the reader picked, large and
 /// counting down to the second, then the ones after it in order (the Hijri
@@ -258,7 +259,8 @@ class _StillInCityNudge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = ShiaColors.of(context);
-    final buttonText = ShiaText.secondary.copyWith(fontWeight: FontWeight.w600);
+    final buttonText = buttonTextStyle(
+        context, ShiaText.secondary.copyWith(fontWeight: FontWeight.w600));
     return Padding(
       padding: const EdgeInsets.fromLTRB(0, 10, 4, 4),
       child: Column(
@@ -740,8 +742,10 @@ class _ChooseLocationCard extends StatelessWidget {
                     onPressed: onNotNow,
                     style: TextButton.styleFrom(
                       foregroundColor: colors.onPrayerCardMuted,
-                      textStyle: ShiaText.secondary
-                          .copyWith(fontWeight: FontWeight.w600),
+                      textStyle: buttonTextStyle(
+                          context,
+                          ShiaText.secondary
+                              .copyWith(fontWeight: FontWeight.w600)),
                     ),
                     child: Text(context.l10n.setupNotNow),
                   ),
@@ -845,7 +849,8 @@ class _GoldButton extends StatelessWidget {
         foregroundColor: colors.onGold,
         minimumSize: const Size.fromHeight(50),
         shape: const StadiumBorder(),
-        textStyle: ShiaText.body.copyWith(fontWeight: FontWeight.w700),
+        textStyle: buttonTextStyle(
+            context, ShiaText.body.copyWith(fontWeight: FontWeight.w700)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -882,7 +887,8 @@ class _OutlineCardButton extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 12),
         side: BorderSide(color: colors.onPrayerCard.withValues(alpha: 0.4)),
         shape: const StadiumBorder(),
-        textStyle: ShiaText.secondary.copyWith(fontWeight: FontWeight.w600),
+        textStyle: buttonTextStyle(
+            context, ShiaText.secondary.copyWith(fontWeight: FontWeight.w600)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,

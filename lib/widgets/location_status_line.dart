@@ -11,6 +11,7 @@ import '../services/analytics_service.dart';
 import '../services/location_service.dart';
 import '../theme/shia_colors.dart';
 import 'outline_icon.dart';
+import 'page_chrome.dart';
 import 'azan_offer_dialog.dart';
 
 /// The one tap that brings an old location up to date, chosen by why the
@@ -179,12 +180,8 @@ class _LocationStatusLineState extends State<LocationStatusLine> {
                   foregroundColor: colors.accent,
                   visualDensity: VisualDensity.compact,
                   padding: const EdgeInsets.symmetric(horizontal: 8),
-                  // On the theme's label style, not instead of it: a button's
-                  // text style replaces what it inherits, and with it the
-                  // Scheherazade fallback Urdu, Persian and Arabic need.
-                  textStyle: Theme.of(context).textTheme.labelLarge?.merge(
-                        ShiaText.caption.copyWith(fontWeight: FontWeight.w700),
-                      ),
+                  textStyle: buttonTextStyle(context,
+                      ShiaText.caption.copyWith(fontWeight: FontWeight.w700)),
                 ),
                 child: Text(_actionLabel(status.action)),
               ),

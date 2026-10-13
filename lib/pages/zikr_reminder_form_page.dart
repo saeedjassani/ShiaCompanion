@@ -9,6 +9,7 @@ import '../theme/shia_colors.dart';
 import '../utils/zikr_lists.dart';
 import '../utils/zikr_occasions.dart';
 import '../utils/zikr_reminder_labels.dart';
+import '../widgets/arabic_runs.dart';
 import '../widgets/home_glyph.dart';
 import '../widgets/outline_icon.dart';
 import '../widgets/choice_sheet.dart';
@@ -321,9 +322,9 @@ class _ZikrReminderFormPageState extends State<ZikrReminderFormPage> {
                   child: HomeGlyph(
                       type: HomeGlyphType.duas, size: 26, color: colors.accent),
                 ),
-                title: Text(zikrUid == null
-                    ? l10n.reminderChooseZikr
-                    : _zikrTitle(zikrUid)),
+                title: zikrUid == null
+                    ? Text(l10n.reminderChooseZikr)
+                    : textWithArabicRuns(_zikrTitle(zikrUid)),
                 titleStyle: ShiaText.cardTitle,
                 subtitle:
                     location == null ? null : Text(l10n.reminderFrom(location)),
