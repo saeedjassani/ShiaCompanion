@@ -75,6 +75,19 @@ class PlaylistAudioService extends ChangeNotifier {
   /// whole queue counts it once per run rather than once per event.
   final Set<String> _countedZikrUids = {};
 
+  /// Whether a playlist is loaded - playing, paused or finished - and so
+  /// whether the floating now-playing capsule is up. Changes only when one
+  /// starts or stops, unlike this service's own notifications, which come
+  /// with every change of play state, so whole pages can afford to follow
+  /// it to leave room for the capsule.
+  final ValueNotifier<bool> visible = ValueNotifier(false);
+
+  @override
+  void notifyListeners() {
+    visible.value = _player != null && _queue.isNotEmpty;
+    super.notifyListeners();
+  }
+
   AudioPlayer? get player => _player;
   ZikrPlaylist? get playlist => _playlist;
   List<PlaylistQueueEntry> get queue => _queue;

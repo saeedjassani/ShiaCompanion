@@ -3284,6 +3284,9 @@
   "playlistNotDownloaded": "Not downloaded · plays online",
   "playlistMoveUp": "Move up",
   "playlistMoveDown": "Move down",
+  "playlistOpenPlaylist": "Open playlist",
+  "playlistShowControls": "Show more controls",
+  "playlistHideControls": "Show fewer controls",
   "playlistEmptyTitle": "Nothing in this playlist yet",
   "downloadsSubtitle": "Recitations saved on this phone · {size}",
   "@downloadsSubtitle": {

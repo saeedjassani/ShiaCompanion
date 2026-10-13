@@ -1,10 +1,12 @@
 import 'dart:async';
+import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 
 import '../constants.dart' show appNavigatorKey;
 import '../theme/shia_colors.dart';
 import 'glass_surface.dart';
+import 'now_playing_capsule.dart';
 import 'page_chrome.dart';
 
 /// How long a toast stays up unless told otherwise; a Material snack bar's
@@ -308,10 +310,15 @@ class _ToastViewState extends State<_ToastView>
             ),
     );
 
-    return Positioned(
-      left: 16,
-      right: 16,
-      bottom: bottom,
+    // Above a playing playlist's capsule, which floats there too.
+    return ListenableBuilder(
+      listenable: NowPlayingCapsule.layout,
+      builder: (context, child) => Positioned(
+        left: 16,
+        right: 16,
+        bottom: math.max(bottom, NowPlayingCapsule.top(context) + 12),
+        child: child!,
+      ),
       child: SafeArea(
         top: false,
         bottom: false,

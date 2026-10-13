@@ -1,6 +1,5 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:just_audio/just_audio.dart';
 
 import '../constants.dart';
 import '../data/uid_title_data.dart';
@@ -17,6 +16,7 @@ import '../theme/shia_colors.dart';
 import '../widgets/audio_download_button.dart';
 import '../widgets/choice_sheet.dart';
 import '../widgets/find_field.dart';
+import '../widgets/now_playing_capsule.dart';
 import '../widgets/outline_icon.dart';
 import '../widgets/page_chrome.dart';
 import 'downloaded_audio_page.dart';
@@ -441,7 +441,6 @@ class _PlaylistsPageState extends State<PlaylistsPage> {
         return LargeTitlePage(
           title: l10n.playlistsTitle,
           subtitle: l10n.playlistsSubtitle,
-          bottomBar: const NowPlayingBar(),
           slivers: [
             SliverPadding(
               padding: gutter.copyWith(bottom: 14),
@@ -741,7 +740,6 @@ class _PlaylistDetailPageState extends State<PlaylistDetailPage> {
               ),
             ),
           ],
-          bottomBar: const NowPlayingBar(),
           slivers: [
             SliverPadding(
               padding: gutter.copyWith(bottom: 14),
@@ -969,8 +967,8 @@ class _PlayingPosition extends StatelessWidget {
         }
         return Text(
           context.l10n.playlistPlayingAt(
-            NowPlayingBar.format(snapshot.data ?? Duration.zero),
-            NowPlayingBar.format(duration),
+            formatPlaybackTime(snapshot.data ?? Duration.zero),
+            formatPlaybackTime(duration),
           ),
           style: style,
         );
@@ -1245,169 +1243,6 @@ class _Tick extends StatelessWidget {
                 strokeWidth: 2.6,
               ),
       ),
-    );
-  }
-}
-
-/// What the playlist is playing, with the controls to steer it, docked
-/// under the page. Shows nothing while no playlist is playing.
-class NowPlayingBar extends StatelessWidget {
-  const NowPlayingBar({super.key});
-
-  /// "3:12", "1:02:45".
-  static String format(Duration d) {
-    final hours = d.inHours;
-    final minutes = d.inMinutes.remainder(60);
-    final seconds = d.inSeconds.remainder(60).toString().padLeft(2, '0');
-    return localizeDigits(hours > 0
-        ? '$hours:${minutes.toString().padLeft(2, '0')}:$seconds'
-        : '$minutes:$seconds');
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final audio = PlaylistAudioService.instance;
-    return ListenableBuilder(
-      listenable: audio,
-      builder: (context, _) {
-        final player = audio.player;
-        final current = audio.current;
-        if (player == null || current == null) return const SizedBox.shrink();
-        final colors = ShiaColors.of(context);
-        final caption = ShiaText.caption.copyWith(color: colors.textMuted);
-
-        return DecoratedBox(
-          decoration: BoxDecoration(
-            color: colors.surface,
-            border: Border(top: BorderSide(color: colors.line)),
-          ),
-          child: SafeArea(
-            top: false,
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(16, 8, 8, 4),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              current.title,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: ShiaText.cardTitle
-                                  .copyWith(color: colors.text),
-                            ),
-                            Text(
-                              context.l10n.playlistNowPlayingPosition(
-                                  audio.playlist?.displayName ?? '',
-                                  audio.zikrPosition ?? 1,
-                                  audio.zikrCount),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: caption,
-                            ),
-                          ],
-                        ),
-                      ),
-                      IconButton(
-                        icon: OutlineIcon(OutlineGlyph.repeat,
-                            size: 22,
-                            color: audio.isRepeating
-                                ? colors.accent
-                                : colors.chevron),
-                        tooltip: audio.isRepeating
-                            ? context.l10n.playlistRepeatOn
-                            : context.l10n.playlistRepeat,
-                        onPressed: audio.toggleRepeat,
-                      ),
-                      IconButton(
-                        icon: Icon(Icons.skip_previous_rounded,
-                            color: colors.accent),
-                        tooltip: context.l10n.commonPrevious,
-                        onPressed: audio.previous,
-                      ),
-                      StreamBuilder<PlayerState>(
-                        stream: player.playerStateStream,
-                        builder: (context, snapshot) {
-                          final state = snapshot.data;
-                          final loading = state?.processingState ==
-                                  ProcessingState.loading ||
-                              state?.processingState ==
-                                  ProcessingState.buffering;
-                          if (loading) {
-                            return const Padding(
-                              padding: EdgeInsets.all(12),
-                              child: SizedBox(
-                                width: 24,
-                                height: 24,
-                                child:
-                                    CircularProgressIndicator(strokeWidth: 2.5),
-                              ),
-                            );
-                          }
-                          final playing = state?.playing ?? false;
-                          return _PlayButton(
-                            playing: playing,
-                            label: playing
-                                ? context.l10n.commonPause
-                                : context.l10n.commonPlay,
-                            onPressed: audio.togglePlay,
-                          );
-                        },
-                      ),
-                      IconButton(
-                        icon:
-                            Icon(Icons.skip_next_rounded, color: colors.accent),
-                        tooltip: context.l10n.commonNext,
-                        onPressed: player.hasNext ? audio.next : null,
-                      ),
-                      IconButton(
-                        icon: OutlineIcon(OutlineGlyph.close,
-                            size: 20, color: colors.textMuted, strokeWidth: 2),
-                        tooltip: context.l10n.commonStop,
-                        onPressed: audio.stop,
-                      ),
-                    ],
-                  ),
-                  StreamBuilder<Duration>(
-                    stream: player.positionStream,
-                    builder: (context, snapshot) {
-                      final duration = player.duration ?? Duration.zero;
-                      final position = snapshot.data ?? Duration.zero;
-                      final total = duration.inMilliseconds.toDouble();
-                      return Row(
-                        children: [
-                          Text(format(position), style: caption),
-                          Expanded(
-                            child: Slider(
-                              max: total <= 0 ? 1 : total,
-                              value: total <= 0
-                                  ? 0
-                                  : position.inMilliseconds
-                                      .clamp(0, duration.inMilliseconds)
-                                      .toDouble(),
-                              onChanged: total <= 0
-                                  ? null
-                                  : (value) => audio.seek(
-                                      Duration(milliseconds: value.round())),
-                            ),
-                          ),
-                          Text(format(duration), style: caption),
-                          const SizedBox(width: 8),
-                        ],
-                      );
-                    },
-                  ),
-                ],
-              ),
-            ),
-          ),
-        );
-      },
     );
   }
 }

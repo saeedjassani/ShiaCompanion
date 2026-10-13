@@ -44,6 +44,8 @@ import '../../widgets/zikr_audio_player.dart';
 import '../../widgets/zikr_auto_scroll.dart';
 import '../../widgets/zikr_reading_preferences.dart';
 import '../../widgets/favorite_icon.dart';
+import '../../services/playlist_audio_service.dart';
+import '../../widgets/now_playing_capsule.dart';
 import '../../widgets/outline_icon.dart';
 import '../../widgets/page_chrome.dart';
 import '../../widgets/reader_text_sheet.dart';
@@ -361,6 +363,7 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
   void initState() {
     super.initState();
     _autoScroll.addListener(_handleAutoScrollChanged);
+    PlaylistAudioService.instance.visible.addListener(_handlePlaylistShown);
     // A portion spans surahs, so it has no single surah of its own; its index
     // carries one per verse instead.
     _surahNumber =
@@ -988,8 +991,15 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
     return first.length <= 90 ? first : '${first.substring(0, 90)}…';
   }
 
+  /// A playing playlist's capsule floats over the end of the text, so the
+  /// text makes room for it.
+  void _handlePlaylistShown() {
+    if (mounted) setState(() {});
+  }
+
   @override
   void dispose() {
+    PlaylistAudioService.instance.visible.removeListener(_handlePlaylistShown);
     ZikrTranslations.instance.removeListener(_loadTranslation);
     SavedVersesManager.instance.removeListener(_handleSavedVersesChanged);
     VerseNotesManager.instance.removeListener(_handleVerseNotesChanged);
@@ -2571,7 +2581,11 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
                                     bottom: bottomChromeExtent +
                                         (showActionBar
                                             ? _actionBarFadeExtent
-                                            : 16),
+                                            : 16) +
+                                        (PlaylistAudioService
+                                                .instance.visible.value
+                                            ? NowPlayingCapsule.contentClearance
+                                            : 0),
                                   ),
                                   tabStripTop: topChromeExtent,
                                   collapsedTopInset: statusBarHeight,
@@ -2642,14 +2656,18 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
                     bottom: 0,
                     child: ValueListenableBuilder<bool>(
                       valueListenable: _chromeVisible,
-                      builder: (context, visible, child) => AnimatedSlide(
-                        // Slides out of frame rather than collapsing: the
-                        // capsule floats over the reading area, so its size
-                        // never affects the text's layout either way.
-                        offset: visible ? Offset.zero : const Offset(0, 1),
-                        duration: const Duration(milliseconds: 220),
-                        curve: Curves.easeOutCubic,
-                        child: child,
+                      builder: (context, visible, child) => FloatingBottomSlot(
+                        enabled: visible,
+                        extent: bottomOffset + ZikrActionBar.barHeight,
+                        child: AnimatedSlide(
+                          // Slides out of frame rather than collapsing: the
+                          // capsule floats over the reading area, so its
+                          // size never affects the text's layout either way.
+                          offset: visible ? Offset.zero : const Offset(0, 1),
+                          duration: const Duration(milliseconds: 220),
+                          curve: Curves.easeOutCubic,
+                          child: child,
+                        ),
                       ),
                       child: SizedBox(
                         height: bottomOffset +

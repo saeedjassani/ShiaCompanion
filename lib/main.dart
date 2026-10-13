@@ -3,6 +3,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/material.dart';
 import 'widgets/azan_playing_banner.dart';
+import 'widgets/now_playing_capsule.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_web_plugins/url_strategy.dart';
 import 'package:just_audio_background/just_audio_background.dart';
@@ -206,15 +207,17 @@ class MyApp extends StatelessWidget {
           // The in-app Text size setting, layered over the system's own
           // text scale for every route, dialog and sheet under the navigator.
           builder: (context, child) => BackOnEscape(
-            // The Azan's controls float over every page until it is stopped.
-            child: Stack(
-              children: [
-                Positioned.fill(
-                  child: textScaleProvider.apply(
-                      context, child ?? const SizedBox()),
-                ),
-                const AzanPlayingBanner(),
-              ],
+            // The Azan's controls and a playing playlist float over every
+            // page until they are stopped.
+            child: textScaleProvider.apply(
+              context,
+              Stack(
+                children: [
+                  Positioned.fill(child: child ?? const SizedBox()),
+                  const NowPlayingCapsule(),
+                  const AzanPlayingBanner(),
+                ],
+              ),
             ),
           ),
           theme: _lightTheme,
@@ -271,6 +274,7 @@ class MyApp extends StatelessWidget {
             // is the single source of screen views, on every platform.
             routeObserver,
             toastRouteObserver,
+            nowPlayingRouteObserver,
           ],
         );
       }),

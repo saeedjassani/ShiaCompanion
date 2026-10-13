@@ -21,6 +21,8 @@ import '../widgets/content_request_dialog.dart';
 import '../widgets/find_field.dart';
 import '../widgets/glass_surface.dart';
 import '../widgets/home_glyph.dart';
+import '../services/playlist_audio_service.dart';
+import '../widgets/now_playing_capsule.dart';
 import '../widgets/outline_icon.dart';
 import '../widgets/page_chrome.dart';
 import '../widgets/zikr_list_row.dart';
@@ -346,9 +348,15 @@ class _SearchPageState extends State<SearchPage> {
               ...query.isEmpty
                   ? _buildStart(context, gutter)
                   : _buildResults(context, gutter, query),
-              SliverPadding(
-                padding: EdgeInsets.only(
-                    bottom: bottomOffset + FindField.height + 24),
+              ValueListenableBuilder<bool>(
+                valueListenable: PlaylistAudioService.instance.visible,
+                builder: (context, playing, _) => SliverPadding(
+                  padding: EdgeInsets.only(
+                      bottom: bottomOffset +
+                          FindField.height +
+                          24 +
+                          (playing ? NowPlayingCapsule.contentClearance : 0)),
+                ),
               ),
             ],
           ),
@@ -370,21 +378,24 @@ class _SearchPageState extends State<SearchPage> {
                   // A field's width, with the Close button beside it.
                   constraints: const BoxConstraints(
                       maxWidth: floatingControlWidth + 10 + FindField.height),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: FindField(
-                          controller: _query,
-                          autofocus: true,
-                          hint: isUserAdmin
-                              ? context.l10n.searchTitleOrUid
-                              : context.l10n.searchHint,
-                          onSubmitted: (_) => _recordSearch(),
+                  child: FloatingBottomSlot(
+                    extent: bottomOffset + FindField.height,
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: FindField(
+                            controller: _query,
+                            autofocus: true,
+                            hint: isUserAdmin
+                                ? context.l10n.searchTitleOrUid
+                                : context.l10n.searchHint,
+                            onSubmitted: (_) => _recordSearch(),
+                          ),
                         ),
-                      ),
-                      const SizedBox(width: 10),
-                      const _CloseButton(),
-                    ],
+                        const SizedBox(width: 10),
+                        const _CloseButton(),
+                      ],
+                    ),
                   ),
                 ),
               ),
