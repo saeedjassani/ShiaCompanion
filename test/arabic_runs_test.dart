@@ -45,6 +45,26 @@ void main() {
     expect(style.fontFamilyFallback ?? const [], isNot(contains('Qalam')));
   });
 
+  // The language picker lists "اردو", "فارسی" and "العربية" in plain rows;
+  // only zikr titles opt in to the Arabic font, with textWithArabicRuns.
+  testWidgets("a card row's Arabic-script label leaves Qalam out",
+      (tester) async {
+    await tester.pumpWidget(const MaterialApp(
+      home: Material(child: CardListRow(title: Text('اردو'))),
+    ));
+    final text = tester
+        .widget<RichText>(find.descendant(
+            of: find.byType(CardListRow), matching: find.byType(RichText)))
+        .text;
+    expect(text.style?.fontFamily, isNot('Qalam'));
+    expect(
+        text.style?.fontFamilyFallback ?? const [], isNot(contains('Qalam')));
+    text.visitChildren((span) {
+      expect(span.style?.fontFamily, isNot(arabicFont));
+      return true;
+    });
+  });
+
   // In Urdu, Persian and Arabic, Arabic-script text in a title or a menu is
   // the app language itself: Qalam drew Urdu menus, and left out the ٢ of
   // an Arabic surah title "٢: البقرة".
@@ -60,10 +80,11 @@ void main() {
       });
     }
 
-    testWidgets("an Urdu card row's title leaves Qalam out", (tester) async {
+    testWidgets("an Urdu zikr title leaves Qalam out", (tester) async {
       L10n.current = lookupAppLocalizations(const Locale('ur'));
-      await tester.pumpWidget(const MaterialApp(
-        home: Material(child: CardListRow(title: Text('آیت محفوظ کریں'))),
+      await tester.pumpWidget(MaterialApp(
+        home: Material(
+            child: CardListRow(title: textWithArabicRuns('دعائے کمیل'))),
       ));
       final text = tester
           .widget<RichText>(find.descendant(

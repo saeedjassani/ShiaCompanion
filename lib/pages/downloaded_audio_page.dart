@@ -10,6 +10,7 @@ import '../services/zikr_translations.dart';
 import '../services/audio_download_store.dart';
 import '../services/zikr_audio_index.dart';
 import '../theme/shia_colors.dart';
+import '../widgets/arabic_runs.dart';
 import '../widgets/audio_download_button.dart';
 import '../widgets/outline_icon.dart';
 import '../widgets/page_chrome.dart';
@@ -229,7 +230,7 @@ class _DownloadedZikrRow extends StatelessWidget {
         first: first,
         last: last,
         minHeight: 58,
-        title: Text(title),
+        title: textWithArabicRuns(title),
         subtitle: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -287,7 +288,7 @@ class _DownloadedZikrRow extends StatelessWidget {
       first: first,
       last: last,
       minHeight: 58,
-      title: Text(title),
+      title: textWithArabicRuns(title),
       subtitle: Text(subtitle),
       trailing: Tooltip(
         message: l10n.audioRemoveDownload,

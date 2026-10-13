@@ -8,6 +8,7 @@ import '../../theme/shia_colors.dart';
 import '../../utils/deep_links.dart' show appWebOrigin;
 import '../../utils/localized_hadith.dart';
 import '../../widgets/outline_icon.dart';
+import '../../widgets/page_chrome.dart' show buttonTextStyle;
 import 'home_section.dart';
 
 /// A hadith split into what was said and where it is from.
@@ -138,8 +139,9 @@ class HadithOfTheDayCard extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 side: BorderSide(color: colors.line),
                 shape: const StadiumBorder(),
-                textStyle: ShiaText.secondary.copyWith(
-                  fontWeight: FontWeight.w600,
+                textStyle: buttonTextStyle(
+                  context,
+                  ShiaText.secondary.copyWith(fontWeight: FontWeight.w600),
                 ),
               ),
             ),

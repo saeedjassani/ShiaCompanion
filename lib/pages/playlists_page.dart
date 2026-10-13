@@ -13,6 +13,7 @@ import '../services/playlist_audio_service.dart';
 import '../services/zikr_audio_index.dart';
 import '../services/zikr_playlist_store.dart';
 import '../theme/shia_colors.dart';
+import '../widgets/arabic_runs.dart';
 import '../widgets/audio_download_button.dart';
 import '../widgets/choice_sheet.dart';
 import '../widgets/find_field.dart';
@@ -1151,7 +1152,7 @@ Widget _buildPickRow(
       first: first,
       last: last,
       leading: _Tick(at >= 0),
-      title: Text(_zikrTitle(uid)),
+      title: textWithArabicRuns(_zikrTitle(uid)),
       onTap: () => at >= 0
           ? store.removeAt(playlist.id, at)
           : store.addZikr(playlist.id, uid),
@@ -1186,7 +1187,7 @@ Widget _buildPickRow(
             : chosen.length == available.length
                 ? true
                 : null),
-        title: Text(_zikrTitle(uid)),
+        title: textWithArabicRuns(_zikrTitle(uid)),
         subtitle: Text(L10n.current.audioRecordingsCount(available.length)),
         // Ticking a partly-chosen zikr fills in the rest; ticking a full
         // one takes it out.

@@ -64,9 +64,15 @@ List<TextSpan>? arabicRunSpans(String text, {TextStyle? style}) {
 
 /// [text] with its Arabic in the reader's Arabic font (see
 /// [arabicRunSpans]); a plain [Text] when it has none.
-Text textWithArabicRuns(String text, {TextStyle? style}) {
+Text textWithArabicRuns(String text,
+    {TextStyle? style, int? maxLines, TextOverflow? overflow}) {
   final spans = arabicRunSpans(text);
-  if (spans == null) return Text(text, style: style);
+  if (spans == null) {
+    return Text(text, style: style, maxLines: maxLines, overflow: overflow);
+  }
   return Text.rich(TextSpan(children: spans),
-      style: style, semanticsLabel: text);
+      style: style,
+      maxLines: maxLines,
+      overflow: overflow,
+      semanticsLabel: text);
 }
