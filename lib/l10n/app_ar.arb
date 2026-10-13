@@ -1292,8 +1292,8 @@
   "playlistDefaultFridayMorning": "صباح الجمعة",
   "playlistDefaultFridayAfternoon": "عصر الجمعة",
   "playlistDefaultDailyQuran": "القرآن اليومي",
-  "playlistDefaultRamazanNights": "ليالي رمضان",
-  "playlistDefaultRamazanSuhoor": "أسحار رمضان",
+  "playlistDefaultRamazanNights": "ليالي شهر رمضان",
+  "playlistDefaultRamazanSuhoor": "أسحار شهر رمضان",
   "playlistDefaultShaban": "شعبان",
   "accountNotSignedIn": "لم تسجّل الدخول."
 }

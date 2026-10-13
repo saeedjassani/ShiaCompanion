@@ -24,7 +24,7 @@ class ZikrPlaylistStore extends ChangeNotifier {
 
   /// Set once the second set has been handed out too: Friday split into
   /// morning and afternoon, Thursday renamed Thursday Night, and Daily Quran,
-  /// Ramazan Nights, Ramazan Suhoor and Shaban added.
+  /// Mahe Ramazan Nights, Mahe Ramazan Suhoor and Shaban added.
   static const String seededV2Key = 'zikr_playlists_seeded_v2';
 
   static final DateTime _v1Date = DateTime.utc(2026, 9, 25);
@@ -58,14 +58,14 @@ class ZikrPlaylistStore extends ChangeNotifier {
     ),
     ZikrPlaylist(
       id: 'default-ramazan-nights',
-      name: 'Ramazan Nights',
+      name: 'Mahe Ramazan Nights',
       // Dua Iftitah, Ya Uddati
       zikrUids: const ['AA10', 'AA13'],
       updatedAt: _v2Date,
     ),
     ZikrPlaylist(
       id: 'default-ramazan-suhoor',
-      name: 'Ramazan Suhoor',
+      name: 'Mahe Ramazan Suhoor',
       // Dua Sahar (Ya Mafza'i), Dua Baha, Dua Abu Hamza Thumali
       zikrUids: const ['AA14', 'AA11', 'AA12'],
       updatedAt: _v2Date,

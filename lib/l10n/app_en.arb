@@ -4230,8 +4230,8 @@
   "playlistDefaultFridayMorning": "Friday Morning",
   "playlistDefaultFridayAfternoon": "Friday Afternoon",
   "playlistDefaultDailyQuran": "Daily Quran",
-  "playlistDefaultRamazanNights": "Ramazan Nights",
-  "playlistDefaultRamazanSuhoor": "Ramazan Suhoor",
+  "playlistDefaultRamazanNights": "Mahe Ramazan Nights",
+  "playlistDefaultRamazanSuhoor": "Mahe Ramazan Suhoor",
   "playlistDefaultShaban": "Shaban",
   "accountNotSignedIn": "You are not signed in.",
   "@accountNotSignedIn": {

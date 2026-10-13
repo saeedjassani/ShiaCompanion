@@ -112,8 +112,8 @@ void main() {
         'Thursday Night',
         'Friday Morning',
         'Friday Afternoon',
-        'Ramazan Nights',
-        'Ramazan Suhoor',
+        'Mahe Ramazan Nights',
+        'Mahe Ramazan Suhoor',
         'Shaban',
       ]);
       expect(
@@ -136,8 +136,8 @@ void main() {
         'Thursday Night',
         'Friday Morning',
         'Friday Afternoon',
-        'Ramazan Nights',
-        'Ramazan Suhoor',
+        'Mahe Ramazan Nights',
+        'Mahe Ramazan Suhoor',
         'Shaban',
       ]);
     });
@@ -154,8 +154,8 @@ void main() {
         'Daily Quran',
         'Friday Morning',
         'Friday Afternoon',
-        'Ramazan Nights',
-        'Ramazan Suhoor',
+        'Mahe Ramazan Nights',
+        'Mahe Ramazan Suhoor',
         'Shaban',
       ]);
     });
@@ -195,8 +195,8 @@ void main() {
           'Friday Morning',
           'Friday Afternoon',
           'Daily Quran',
-          'Ramazan Nights',
-          'Ramazan Suhoor',
+          'Mahe Ramazan Nights',
+          'Mahe Ramazan Suhoor',
           'Shaban',
         ]);
         expect(store.byId('default-friday-morning')!.zikrUids,
@@ -218,8 +218,8 @@ void main() {
           'Kumayl night',
           'Friday',
           'Daily Quran',
-          'Ramazan Nights',
-          'Ramazan Suhoor',
+          'Mahe Ramazan Nights',
+          'Mahe Ramazan Suhoor',
           'Shaban',
         ]);
       });

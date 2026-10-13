@@ -1292,8 +1292,8 @@
   "playlistDefaultFridayMorning": "શુક્રવારની સવાર",
   "playlistDefaultFridayAfternoon": "શુક્રવારની બપોર",
   "playlistDefaultDailyQuran": "રોજનું કુરઆન",
-  "playlistDefaultRamazanNights": "રમઝાનની રાતો",
-  "playlistDefaultRamazanSuhoor": "રમઝાનની સેહરી",
+  "playlistDefaultRamazanNights": "માહે રમઝાનની રાતો",
+  "playlistDefaultRamazanSuhoor": "માહે રમઝાનની સેહરી",
   "playlistDefaultShaban": "શાબાન",
   "accountNotSignedIn": "તમે સાઇન ઇન નથી."
 }
