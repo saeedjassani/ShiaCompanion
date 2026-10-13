@@ -12,7 +12,7 @@ const GENERATED_ZIKR_DIR = path.join(BUILD_WEB_DIR, 'zikr');
 // Matches zikrDeepLinkType (0) in lib/utils/deep_links.dart: the numeric
 // fallback path the app shares when it doesn't yet know an item's slug.
 const GENERATED_UID_REDIRECT_DIR = path.join(BUILD_WEB_DIR, '0');
-const SITE_ORIGIN = (process.env.SITE_ORIGIN || 'https://shia-companion.web.app')
+const SITE_ORIGIN = (process.env.SITE_ORIGIN || 'https://shiacompanion.app')
   .replace(/\/+$/, '');
 // Title tags longer than this get truncated in results. Search engines show
 // the site name separately, so long titles drop the " | Shia Companion" suffix

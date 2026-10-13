@@ -12,7 +12,7 @@ const {
 // The origin baked into the generated sitemap. Matches the default in
 // scripts/generate_zikr_seo_pages.js and the site-origin input on the
 // build-web action.
-const SITE_ORIGIN = (process.env.SITE_ORIGIN || 'https://shia-companion.web.app')
+const SITE_ORIGIN = (process.env.SITE_ORIGIN || 'https://shiacompanion.app')
   .replace(/\/+$/, '');
 
 // These checks run against the built bundle, not the rendered app, so one

@@ -323,7 +323,15 @@ const Set<String> _reservedNonZikrPaths = {
   'widget-preview',
 };
 
+/// Origin of every link the app builds and shares.
+const String appWebOrigin = 'https://shiacompanion.app';
+
+/// Hosts whose links open in the app. The `web.app` ones are the Firebase
+/// Hosting default domain, which links shared before the custom domain still
+/// point at, so they have to keep resolving.
 const Set<String> _appDeepLinkHosts = {
+  'shiacompanion.app',
+  'www.shiacompanion.app',
   'shia-companion.web.app',
   'www.shia-companion.web.app',
 };
@@ -371,7 +379,7 @@ String buildDeepLinkUrl({
   required int type,
   required List<String> segments,
 }) {
-  return 'https://shia-companion.web.app${buildDeepLinkPath(
+  return '$appWebOrigin${buildDeepLinkPath(
     type: type,
     segments: segments,
   )}';
@@ -381,7 +389,7 @@ String buildZikrDeepLinkUrl({
   required String uid,
   String? slug,
 }) {
-  return 'https://shia-companion.web.app${buildZikrDeepLinkPath(
+  return '$appWebOrigin${buildZikrDeepLinkPath(
     uid: uid,
     slug: slug,
   )}';
@@ -391,18 +399,18 @@ String buildLibraryDeepLinkUrl({
   required String bookSlug,
   String? chapterSlug,
 }) {
-  return 'https://shia-companion.web.app${buildLibraryDeepLinkPath(
+  return '$appWebOrigin${buildLibraryDeepLinkPath(
     bookSlug: bookSlug,
     chapterSlug: chapterSlug,
   )}';
 }
 
 String buildCalendarDeepLinkUrl() {
-  return 'https://shia-companion.web.app$calendarDeepLinkPath';
+  return '$appWebOrigin$calendarDeepLinkPath';
 }
 
 String buildQuranDeepLinkUrl({required int surah, int? ayah}) {
-  return 'https://shia-companion.web.app${buildQuranDeepLinkPath(
+  return '$appWebOrigin${buildQuranDeepLinkPath(
     surah: surah,
     ayah: ayah,
   )}';

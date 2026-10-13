@@ -92,6 +92,11 @@
                 <category android:name="android.intent.category.BROWSABLE"/>
                 <data
                     android:scheme="https"
+                    android:host="shiacompanion.app" />
+                <!-- Firebase's default domain: links shared before
+                     shiacompanion.app still point here. -->
+                <data
+                    android:scheme="https"
                     android:host="shia-companion.web.app" />
             </intent-filter>
         </activity>
