@@ -55,8 +55,20 @@ class ZikrPlaylist {
     final strings = L10n.current;
     return switch ((id, name)) {
       ('default-morning', 'Morning') => strings.playlistDefaultMorning,
-      ('default-thursday', 'Thursday') => strings.playlistDefaultThursday,
+      ('default-thursday', 'Thursday Night') =>
+        strings.playlistDefaultThursdayNight,
       ('default-friday', 'Friday') => strings.playlistDefaultFriday,
+      ('default-friday-morning', 'Friday Morning') =>
+        strings.playlistDefaultFridayMorning,
+      ('default-friday-afternoon', 'Friday Afternoon') =>
+        strings.playlistDefaultFridayAfternoon,
+      ('default-daily-quran', 'Daily Quran') =>
+        strings.playlistDefaultDailyQuran,
+      ('default-ramazan-nights', 'Ramazan Nights') =>
+        strings.playlistDefaultRamazanNights,
+      ('default-ramazan-suhoor', 'Ramazan Suhoor') =>
+        strings.playlistDefaultRamazanSuhoor,
+      ('default-shaban', 'Shaban') => strings.playlistDefaultShaban,
       _ => name,
     };
   }

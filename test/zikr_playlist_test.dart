@@ -15,8 +15,11 @@ import 'package:shia_companion/utils/shared_preferences.dart';
 /// A store with [values] in storage and, unless a test says otherwise, the
 /// starter playlists already handed out - so it starts empty.
 Future<void> _freshStore([Map<String, Object> values = const {}]) async {
-  SharedPreferences.setMockInitialValues(
-      {ZikrPlaylistStore.seededKey: true, ...values});
+  SharedPreferences.setMockInitialValues({
+    ZikrPlaylistStore.seededKey: true,
+    ZikrPlaylistStore.seededV2Key: true,
+    ...values,
+  });
   await SP.init();
   ZikrPlaylistStore.instance.resetForTest();
 }
@@ -98,13 +101,21 @@ void main() {
   });
 
   group('starter playlists', () {
-    test('a first run gets Morning, Thursday and Friday', () async {
+    test('a first run gets the full set', () async {
       SharedPreferences.setMockInitialValues({});
       await SP.init();
       final store = ZikrPlaylistStore.instance..resetForTest();
 
-      expect(store.playlists.map((playlist) => playlist.name),
-          ['Morning', 'Thursday', 'Friday']);
+      expect(store.playlists.map((playlist) => playlist.name), [
+        'Morning',
+        'Daily Quran',
+        'Thursday Night',
+        'Friday Morning',
+        'Friday Afternoon',
+        'Ramazan Nights',
+        'Ramazan Suhoor',
+        'Shaban',
+      ]);
       expect(
           store.byId('default-morning')!.zikrUids, ['E18', 'G4', 'G1', 'G13']);
     });
@@ -118,8 +129,17 @@ void main() {
           {ZikrPlaylistStore.storageKey: stored});
       await SP.init();
       final store = ZikrPlaylistStore.instance..resetForTest();
-      expect(store.playlists.map((playlist) => playlist.name),
-          ['Mine', 'Morning', 'Thursday', 'Friday']);
+      expect(store.playlists.map((playlist) => playlist.name), [
+        'Mine',
+        'Morning',
+        'Daily Quran',
+        'Thursday Night',
+        'Friday Morning',
+        'Friday Afternoon',
+        'Ramazan Nights',
+        'Ramazan Suhoor',
+        'Shaban',
+      ]);
     });
 
     test('a deleted starter playlist stays deleted', () async {
@@ -129,8 +149,89 @@ void main() {
       await store.delete('default-thursday');
 
       store.resetForTest();
-      expect(store.playlists.map((playlist) => playlist.name),
-          ['Morning', 'Friday']);
+      expect(store.playlists.map((playlist) => playlist.name), [
+        'Morning',
+        'Daily Quran',
+        'Friday Morning',
+        'Friday Afternoon',
+        'Ramazan Nights',
+        'Ramazan Suhoor',
+        'Shaban',
+      ]);
+    });
+
+    group('a reader who got the first set', () {
+      Future<ZikrPlaylistStore> upgrade(
+          List<Map<String, Object>> stored) async {
+        SharedPreferences.setMockInitialValues({
+          ZikrPlaylistStore.seededKey: true,
+          ZikrPlaylistStore.storageKey: jsonEncode(stored),
+        });
+        await SP.init();
+        return ZikrPlaylistStore.instance..resetForTest();
+      }
+
+      Map<String, Object> firstSet(String id, String name, List<String> uids,
+              {String updatedAt = '2026-09-25T00:00:00.000Z'}) =>
+          {'id': id, 'name': name, 'zikrUids': uids, 'updatedAt': updatedAt};
+
+      test('has an untouched Friday split and Thursday renamed, in place',
+          () async {
+        final store = await upgrade([
+          firstSet('default-morning', 'Morning', ['E18', 'G4', 'G1', 'G13']),
+          firstSet('default-thursday', 'Thursday', ['E31', 'G6', 'G54']),
+          {
+            'id': 'mine',
+            'name': 'Mine',
+            'zikrUids': ['E1'],
+            'updatedAt': '2026-10-01T00:00:00.000Z',
+          },
+          firstSet('default-friday', 'Friday', ['E34', 'J3', 'E26', 'E144']),
+        ]);
+        expect(store.playlists.map((playlist) => playlist.name), [
+          'Morning',
+          'Thursday Night',
+          'Mine',
+          'Friday Morning',
+          'Friday Afternoon',
+          'Daily Quran',
+          'Ramazan Nights',
+          'Ramazan Suhoor',
+          'Shaban',
+        ]);
+        expect(store.byId('default-friday-morning')!.zikrUids,
+            ['E34', 'J3', 'A66']);
+        expect(SP.prefs.getBool(ZikrPlaylistStore.seededV2Key), isTrue);
+
+        store.resetForTest();
+        expect(store.playlists, hasLength(9), reason: 'upgrades only once');
+      });
+
+      test('keeps an edited Friday and a renamed Thursday as they are',
+          () async {
+        final store = await upgrade([
+          firstSet('default-thursday', 'Kumayl night', ['E31']),
+          firstSet('default-friday', 'Friday', ['E34'],
+              updatedAt: '2026-10-02T00:00:00.000Z'),
+        ]);
+        expect(store.playlists.map((playlist) => playlist.name), [
+          'Kumayl night',
+          'Friday',
+          'Daily Quran',
+          'Ramazan Nights',
+          'Ramazan Suhoor',
+          'Shaban',
+        ]);
+      });
+
+      test('does not bring back a Friday they deleted', () async {
+        final store = await upgrade([
+          firstSet('default-morning', 'Morning', ['E18']),
+        ]);
+        expect(store.byId('default-friday-morning'), isNull);
+        expect(store.byId('default-friday-afternoon'), isNull);
+        expect(store.byId('default-shaban'), isNotNull);
+      });
     });
 
     test('every recording of a zikr with several has a label', () {

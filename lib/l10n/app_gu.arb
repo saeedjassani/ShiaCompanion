@@ -1287,7 +1287,13 @@
   "countryPalestine": "પેલેસ્ટાઇન",
   "holySitePlace": "{city}, {country}",
   "playlistDefaultMorning": "સવાર",
-  "playlistDefaultThursday": "ગુરુવાર",
   "playlistDefaultFriday": "શુક્રવાર",
+  "playlistDefaultThursdayNight": "ગુરુવારની રાત",
+  "playlistDefaultFridayMorning": "શુક્રવારની સવાર",
+  "playlistDefaultFridayAfternoon": "શુક્રવારની બપોર",
+  "playlistDefaultDailyQuran": "રોજનું કુરઆન",
+  "playlistDefaultRamazanNights": "રમઝાનની રાતો",
+  "playlistDefaultRamazanSuhoor": "રમઝાનની સેહરી",
+  "playlistDefaultShaban": "શાબાન",
   "accountNotSignedIn": "તમે સાઇન ઇન નથી."
 }
