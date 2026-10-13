@@ -6,14 +6,27 @@ import 'shia_colors.dart';
 
 /// The app's light or dark [ThemeData], built from [ShiaColors].
 ///
+/// [fontFamily], when given, is the font for all text that doesn't name its
+/// own (Arabic does): the Urdu font while the app shows Urdu.
+///
 /// The [ColorScheme] is spelled out role by role rather than generated with
 /// `ColorScheme.fromSeed`: a brown seed gives every surface a pink cast,
 /// which is exactly what the revamp moves away from. Every widget that
 /// already reads `colorScheme.primary`, `onSurfaceVariant` and so on picks up
 /// the new palette without changes.
-ThemeData buildAppTheme(Brightness brightness) {
+ThemeData buildAppTheme(Brightness brightness, {String? fontFamily}) {
   final c = ShiaColors.forBrightness(brightness);
   final scheme = _colorScheme(brightness, c);
+  final fontFamilyFallback = kIsWeb
+      ? const ['Roboto', 'Scheherazade']
+      : fontFamily == null
+          ? null
+          : [_systemFontFamily];
+  // For the component styles below, which don't come from the text theme.
+  TextStyle withFont(TextStyle style) => fontFamily == null
+      ? style
+      : style.copyWith(
+          fontFamily: fontFamily, fontFamilyFallback: fontFamilyFallback);
 
   return ThemeData(
     useMaterial3: true,
@@ -32,7 +45,14 @@ ThemeData buildAppTheme(Brightness brightness) {
     // The web engine finds fallback fonts its own way, so there Scheherazade
     // draws Arabic script, behind Roboto (the engine's own default) so that
     // it never gets the Latin.
-    fontFamilyFallback: kIsWeb ? const ['Roboto', 'Scheherazade'] : null,
+    //
+    // A [fontFamily] (the Urdu font) holds Arabic-script letters alone, and
+    // being found it stops the engine falling back to the system font for
+    // the rest: on Android a Latin letter would go to whichever of the
+    // system's fallback fonts has it first. So the system font is named
+    // after it, under the name each platform knows it by.
+    fontFamily: fontFamily,
+    fontFamilyFallback: fontFamilyFallback,
     colorScheme: scheme,
     scaffoldBackgroundColor: c.ground,
     canvasColor: c.ground,
@@ -46,7 +66,7 @@ ThemeData buildAppTheme(Brightness brightness) {
       scrolledUnderElevation: 0,
       iconTheme: IconThemeData(color: c.accent),
       actionsIconTheme: IconThemeData(color: c.accent),
-      titleTextStyle: ShiaText.cardTitle.copyWith(color: c.text),
+      titleTextStyle: withFont(ShiaText.cardTitle.copyWith(color: c.text)),
       systemOverlayStyle: systemOverlayStyleFor(brightness),
     ),
     tabBarTheme: TabBarThemeData(
@@ -73,8 +93,8 @@ ThemeData buildAppTheme(Brightness brightness) {
       backgroundColor: c.ground,
       surfaceTintColor: Colors.transparent,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-      titleTextStyle: ShiaText.sectionTitle.copyWith(color: c.text),
-      contentTextStyle: ShiaText.body.copyWith(color: c.textMuted),
+      titleTextStyle: withFont(ShiaText.sectionTitle.copyWith(color: c.text)),
+      contentTextStyle: withFont(ShiaText.body.copyWith(color: c.textMuted)),
     ),
     bottomSheetTheme: BottomSheetThemeData(
       backgroundColor: c.surface,
@@ -99,6 +119,15 @@ ThemeData buildAppTheme(Brightness brightness) {
     ),
   );
 }
+
+/// The system UI font's family name, as Flutter resolves it: iOS and macOS
+/// register the San Francisco text face as `CupertinoSystemText` (what
+/// Flutter's own Cupertino typography asks for), and Android's font list
+/// names Roboto `sans-serif`.
+String get _systemFontFamily => switch (defaultTargetPlatform) {
+      TargetPlatform.iOS || TargetPlatform.macOS => 'CupertinoSystemText',
+      _ => 'sans-serif',
+    };
 
 /// Status and navigation bar styling over the ground: transparent status bar
 /// with icons that read on it, and a navigation bar in the ground colour.
