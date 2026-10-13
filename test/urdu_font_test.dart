@@ -5,7 +5,7 @@ import 'package:shia_companion/utils/language_provider.dart';
 import 'package:shia_companion/utils/urdu_font.dart';
 
 void main() {
-  group('Urdu is set in Jameel Noori Nastaleeq', () {
+  group('Urdu is set in Nastaliq', () {
     test('when the app is in Urdu, whatever the translation language', () {
       for (final translation in ['ur', 'en', 'fa', 'ar', 'gu']) {
         expect(LanguageProvider.usesUrduFontFor('ur', translation), isTrue);

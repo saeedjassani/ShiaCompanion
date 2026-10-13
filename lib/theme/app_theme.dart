@@ -7,7 +7,7 @@ import 'shia_colors.dart';
 /// The app's light or dark [ThemeData], built from [ShiaColors].
 ///
 /// [fontFamily], when given, is the font for all text that doesn't name its
-/// own (Arabic does): Jameel Noori Nastaleeq while the app shows Urdu.
+/// own (Arabic does): the Urdu font while the app shows Urdu.
 ///
 /// The [ColorScheme] is spelled out role by role rather than generated with
 /// `ColorScheme.fromSeed`: a brown seed gives every surface a pink cast,

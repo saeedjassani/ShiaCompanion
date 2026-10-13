@@ -405,18 +405,20 @@ changes (`LocationService.relabelForAppLanguage`).
 
 ## Urdu font
 
-Urdu is set in Jameel Noori Nastaleeq, always - there is no font choice for
-it. The theme switches to it (`LanguageProvider.usesUrduFont`) when the app
-language is Urdu, or the translation language is and the app is in English
-or Gujarati; a Persian or Arabic app keeps its Naskh menus, so Urdu zikr
-translations there stay in the system font. Arabic text names its own font
-(Qalam or Scheherazade) and is unaffected.
+Urdu is set in Nastaliq (Google's Noto Nastaliq Urdu), always - there is no
+font choice for it. The theme switches to it (`LanguageProvider.usesUrduFont`)
+when the app language is Urdu, or the translation language is and the app is
+in English or Gujarati; a Persian or Arabic app keeps its Naskh menus, so
+Urdu zikr translations there stay in the system font. Arabic text names its
+own font (Qalam or Scheherazade) and is unaffected.
 
-The font (`assets/fonts/jameel-noori-nastaleeq.ttf`, notice beside it) is
-~10 MB, so it is loaded on demand by `lib/utils/urdu_font.dart` rather than
-listed under `fonts:`: the web build would otherwise download it for every
-reader. It holds Arabic-script letters only, and the theme names the system
-font after it, so English words and 0-9 in Urdu text keep the system font.
+`scripts/build_urdu_font.py` makes `assets/fonts/noto-nastaliq-urdu.ttf`
+(licence beside it) from Google's file: Arabic-script letters only, so
+English words and 0-9 in Urdu text keep the system font (the theme names it
+after the Urdu font), and drawn at 70%, as Noto's tall Nastaliq collides
+between lines at full size at the app's ~1.3x line heights. It is loaded on
+demand by `lib/utils/urdu_font.dart` rather than listed under `fonts:`, so the
+web build doesn't download it for readers who never see Urdu.
 
 ## Not covered yet
 
