@@ -175,7 +175,7 @@ void main() {
       expect(snapshot[HomeScreenWidgetService.calendarTitleKey],
           'Islamic Calendar');
       expect(snapshot[HomeScreenWidgetService.calendarUrlKey],
-          'https://shia-companion.web.app/calendar');
+          'https://shiacompanion.app/calendar');
       final days =
           jsonDecode(snapshot[HomeScreenWidgetService.calendarDaysKey]!)
               as List;

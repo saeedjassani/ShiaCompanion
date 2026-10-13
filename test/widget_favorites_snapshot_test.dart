@@ -34,8 +34,8 @@ void main() {
 
     expect(titlesFrom(snapshot), ['Dua Kumayl', 'Nahjul Balagha']);
     expect(urlsFrom(snapshot), [
-      'https://shia-companion.web.app/0/101?src=home_widget_favorites',
-      'https://shia-companion.web.app/library/nahjul-balagha'
+      'https://shiacompanion.app/0/101?src=home_widget_favorites',
+      'https://shiacompanion.app/library/nahjul-balagha'
           '?src=home_widget_favorites',
     ]);
   });
@@ -48,7 +48,7 @@ void main() {
     expect(
       urlsFrom(snapshot),
       [
-        'https://shia-companion.web.app/library/mafatih-al-jinan'
+        'https://shiacompanion.app/library/mafatih-al-jinan'
             '?src=home_widget_favorites',
       ],
     );
@@ -62,7 +62,7 @@ void main() {
     expect(
       urlsFrom(snapshot),
       [
-        'https://shia-companion.web.app/zikr/dua-kumayl'
+        'https://shiacompanion.app/zikr/dua-kumayl'
             '?src=home_widget_favorites',
       ],
     );

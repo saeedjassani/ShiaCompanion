@@ -4,7 +4,7 @@ import 'package:shia_companion/utils/deep_links.dart';
 void main() {
   test('parseDeepLinkUri supports hash-based zikr links', () {
     final target = parseDeepLinkUri(
-      Uri.parse('https://shia-companion.web.app/#/0/ziyarat-e-ashura'),
+      Uri.parse('https://shiacompanion.app/#/0/ziyarat-e-ashura'),
     );
 
     expect(target, isNotNull);
@@ -15,7 +15,7 @@ void main() {
   test('parseDeepLinkUri ignores query strings inside hash routes', () {
     final target = parseDeepLinkUri(
       Uri.parse(
-        'https://shia-companion.web.app/#/zikr/ziyarat-e-ashura?from=share',
+        'https://shiacompanion.app/#/zikr/ziyarat-e-ashura?from=share',
       ),
     );
 
@@ -26,7 +26,7 @@ void main() {
 
   test('parseDeepLinkUri supports clean zikr paths', () {
     final target = parseDeepLinkUri(
-      Uri.parse('https://shia-companion.web.app/zikr/ziyarat-e-ashura'),
+      Uri.parse('https://shiacompanion.app/zikr/ziyarat-e-ashura'),
     );
 
     expect(target, isNotNull);
@@ -38,7 +38,7 @@ void main() {
       () {
     final target = parseDeepLinkUri(
       Uri.parse(
-        'https://shia-companion.web.app/zikr/ziyarat-e-ashura'
+        'https://shiacompanion.app/zikr/ziyarat-e-ashura'
         '?src=home_widget_favorites',
       ),
     );
@@ -50,7 +50,7 @@ void main() {
   test('parseDeepLinkUri captures a src marker from inside a hash route', () {
     final target = parseDeepLinkUri(
       Uri.parse(
-        'https://shia-companion.web.app/#/zikr/ziyarat-e-ashura'
+        'https://shiacompanion.app/#/zikr/ziyarat-e-ashura'
         '?src=home_widget_recitation',
       ),
     );
@@ -61,7 +61,7 @@ void main() {
 
   test('parseDeepLinkUri leaves source null for an ordinary shared link', () {
     final target = parseDeepLinkUri(
-      Uri.parse('https://shia-companion.web.app/zikr/ziyarat-e-ashura'),
+      Uri.parse('https://shiacompanion.app/zikr/ziyarat-e-ashura'),
     );
 
     expect(target?.source, isNull);
@@ -69,7 +69,7 @@ void main() {
 
   test('parseDeepLinkUri treats a blank src as no source at all', () {
     final target = parseDeepLinkUri(
-      Uri.parse('https://shia-companion.web.app/zikr/ziyarat-e-ashura?src='),
+      Uri.parse('https://shiacompanion.app/zikr/ziyarat-e-ashura?src='),
     );
 
     expect(target?.source, isNull);
@@ -77,7 +77,7 @@ void main() {
 
   test('parseDeepLinkUri decodes path segments exactly once', () {
     final target = parseDeepLinkUri(
-      Uri.parse('https://shia-companion.web.app/#/zikr/dua%25percent'),
+      Uri.parse('https://shiacompanion.app/#/zikr/dua%25percent'),
     );
 
     expect(target, isNotNull);
@@ -92,7 +92,7 @@ void main() {
 
     expect(
       url,
-      'https://shia-companion.web.app/zikr/ziyarat-e-ashura',
+      'https://shiacompanion.app/zikr/ziyarat-e-ashura',
     );
   });
 
@@ -102,19 +102,19 @@ void main() {
         extractZikrLinkSegment('/zikr/ziyarat-e-ashura'), 'ziyarat-e-ashura');
     expect(
       extractZikrLinkSegment(
-        'https://shia-companion.web.app/#/0/ziyarat-e-ashura',
+        'https://shiacompanion.app/#/0/ziyarat-e-ashura',
       ),
       'ziyarat-e-ashura',
     );
     expect(
       extractZikrLinkSegment(
-        'https://shia-companion.web.app/0/ziyarat-e-ashura',
+        'https://shiacompanion.app/0/ziyarat-e-ashura',
       ),
       'ziyarat-e-ashura',
     );
     expect(
       extractZikrLinkSegment(
-        'https://shia-companion.web.app/#/zikr/ziyarat-e-ashura?from=share',
+        'https://shiacompanion.app/#/zikr/ziyarat-e-ashura?from=share',
       ),
       'ziyarat-e-ashura',
     );
@@ -140,7 +140,7 @@ void main() {
 
   test('parseDeepLinkUri supports book-level library links', () {
     final target = parseDeepLinkUri(
-      Uri.parse('https://shia-companion.web.app/library/some-book'),
+      Uri.parse('https://shiacompanion.app/library/some-book'),
     );
 
     expect(target, isNotNull);
@@ -151,7 +151,7 @@ void main() {
   test('parseDeepLinkUri supports chapter-level library links', () {
     final target = parseDeepLinkUri(
       Uri.parse(
-        'https://shia-companion.web.app/library/some-book/chapter-1',
+        'https://shiacompanion.app/library/some-book/chapter-1',
       ),
     );
 
@@ -162,7 +162,7 @@ void main() {
 
   test('parseDeepLinkUri supports hash-based library links', () {
     final target = parseDeepLinkUri(
-      Uri.parse('https://shia-companion.web.app/#/library/some-book'),
+      Uri.parse('https://shiacompanion.app/#/library/some-book'),
     );
 
     expect(target, isNotNull);
@@ -172,12 +172,12 @@ void main() {
 
   test('parseDeepLinkUri rejects malformed library links', () {
     expect(
-      parseDeepLinkUri(Uri.parse('https://shia-companion.web.app/library')),
+      parseDeepLinkUri(Uri.parse('https://shiacompanion.app/library')),
       isNull,
     );
     expect(
       parseDeepLinkUri(
-        Uri.parse('https://shia-companion.web.app/library/a/b/c'),
+        Uri.parse('https://shiacompanion.app/library/a/b/c'),
       ),
       isNull,
     );
@@ -203,7 +203,7 @@ void main() {
         bookSlug: 'some-book',
         chapterSlug: 'chapter-1',
       ),
-      'https://shia-companion.web.app/library/some-book/chapter-1',
+      'https://shiacompanion.app/library/some-book/chapter-1',
     );
   });
 
@@ -281,7 +281,7 @@ void main() {
 
   group('quran links', () {
     DeepLinkTarget? parse(String path) =>
-        parseDeepLinkUri(Uri.parse('https://shia-companion.web.app$path'));
+        parseDeepLinkUri(Uri.parse('https://shiacompanion.app$path'));
 
     test('a bare /quran names the Quran screen', () {
       final target = parse('/quran');
@@ -326,7 +326,7 @@ void main() {
 
     test('works through a hash route the same as a path', () {
       final target = parseDeepLinkUri(
-        Uri.parse('https://shia-companion.web.app/#/quran/23/56'),
+        Uri.parse('https://shiacompanion.app/#/quran/23/56'),
       );
 
       expect(target!.type, quranDeepLinkType);
@@ -360,19 +360,19 @@ void main() {
       expect(buildZikrDeepLinkPath(uid: 'JUZ3'), '/quran/juz/3');
       expect(
         buildZikrDeepLinkUrl(uid: 'JUZ30'),
-        'https://shia-companion.web.app/quran/juz/30',
+        'https://shiacompanion.app/quran/juz/30',
       );
       expect(buildZikrDeepLinkPath(uid: 'JUZ31'), '/0/JUZ31');
       expect(
         buildQuranDeepLinkUrl(surah: 23, ayah: 56),
-        'https://shia-companion.web.app/quran/23/56',
+        'https://shiacompanion.app/quran/23/56',
       );
     });
   });
 
   group('a zikr link with an ayah on it', () {
     DeepLinkTarget? parse(String path) =>
-        parseDeepLinkUri(Uri.parse('https://shia-companion.web.app$path'));
+        parseDeepLinkUri(Uri.parse('https://shiacompanion.app$path'));
 
     test('takes the slash form someone would type', () {
       final target = parse('/zikr/3-aal-e-imraan/91');
@@ -460,6 +460,38 @@ void main() {
     test('reserved paths are still not zikrs', () {
       expect(parse('https://shia-companion.web.app/delete-account'), isNull);
       expect(parse('https://shia-companion.web.app/callback'), isNull);
+    });
+  });
+
+  group('link hosts', () {
+    test('the custom domain, with or without www, opens in the app', () {
+      expect(
+        extractZikrLinkSegment('https://shiacompanion.app/zikr/dua-kumayl'),
+        'dua-kumayl',
+      );
+      expect(
+        extractZikrLinkSegment('https://www.shiacompanion.app/0/A6'),
+        'A6',
+      );
+    });
+
+    test('the old web.app domain still opens in the app', () {
+      expect(
+        extractZikrLinkSegment('https://shia-companion.web.app/0/A6'),
+        'A6',
+      );
+    });
+
+    test('other hosts only match the bare /zikr/<slug> shape', () {
+      expect(extractZikrLinkSegment('https://example.com/0/A6'), isNull);
+    });
+
+    test('built links use the custom domain', () {
+      expect(appWebOrigin, 'https://shiacompanion.app');
+      expect(
+        buildCalendarDeepLinkUrl(),
+        startsWith('https://shiacompanion.app/'),
+      );
     });
   });
 }

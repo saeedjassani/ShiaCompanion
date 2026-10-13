@@ -41,7 +41,7 @@ The gate checks that tag's own `pubspec.yaml` agrees with its name, and the
 tagging step is skipped since the tag already exists.
 
 **Production still lags `master` between version bumps.** `staging` moves on
-every merge while `https://shia-companion.web.app` sits at the last released
+every merge while `https://shiacompanion.app` sits at the last released
 version, without anything looking wrong. This matters most for SEO: the
 pre-rendered `/zikr/<slug>` pages and the generated `sitemap.xml` only exist in
 a deployed bundle, so until a release ships them, Search Console keeps crawling
@@ -82,11 +82,22 @@ If you ever change `trailingSlash`, change the canonical form in
 `generate_zikr_seo_pages.js` with it — they have to agree, and `serve.js`
 mirrors the setting so the suite will tell you when they don't.
 
+## Domains
+
+Production is `https://shiacompanion.app`, a custom domain on the
+`shia-companion` Hosting site. The site's default `https://shia-companion.web.app`
+keeps serving the same bundle, because links shared before the custom domain
+point at it. The app still opens those links (`_appDeepLinkHosts` in
+`lib/utils/deep_links.dart`, the Android intent filter, the iOS associated
+domains), but everything it builds or shares, and every canonical URL and
+sitemap entry, uses `shiacompanion.app` (`appWebOrigin`, and `site-origin` in
+`.github/actions/build-web/action.yml`), so search engines index one origin.
+
 ## Where to test changes before releasing
 
 | Channel | URL | Updated by | Lifetime |
 | --- | --- | --- | --- |
-| `live` | https://shia-companion.web.app | a version bump in `pubspec.yaml` | permanent |
+| `live` | https://shiacompanion.app | a version bump in `pubspec.yaml` | permanent |
 | `staging` | https://shia-companion--staging-3dxo2xwu.web.app | every merge to `master` | 30 days, reset on each deploy |
 | per-PR | posted as a comment on the pull request | every push to the PR | 7 days |
 

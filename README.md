@@ -10,7 +10,7 @@ more, free and without ads.
 <p>
   <a href="https://play.google.com/store/apps/details?id=com.developer110.shiacompanion">Google Play</a> ·
   <a href="https://apps.apple.com/us/app/shia-ithna-ashari-companion/id1492517189">App Store</a> ·
-  <a href="https://shia-companion.web.app/">Web</a>
+  <a href="https://shiacompanion.app/">Web</a>
 </p>
 
 ## Features

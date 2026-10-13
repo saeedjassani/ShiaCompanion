@@ -5,6 +5,7 @@ import '../../l10n/l10n.dart';
 import '../../services/rating_prompt_service.dart';
 import '../../constants.dart' show arabicFont;
 import '../../theme/shia_colors.dart';
+import '../../utils/deep_links.dart' show appWebOrigin;
 import '../../utils/localized_hadith.dart';
 import '../../widgets/outline_icon.dart';
 import 'home_section.dart';
@@ -55,8 +56,7 @@ class HadithOfTheDayCard extends StatelessWidget {
     final size = MediaQuery.sizeOf(context);
     final text = localized?.shareText ?? hadith;
     final result = await SharePlus.instance.share(ShareParams(
-      text:
-          '$text\n\n${context.l10n.hadithSharedVia('https://shia-companion.web.app/')}',
+      text: '$text\n\n${context.l10n.hadithSharedVia('$appWebOrigin/')}',
       sharePositionOrigin: Rect.fromLTWH(size.width / 2, 0, 2, 2),
     ));
     if (result.status == ShareResultStatus.success) {

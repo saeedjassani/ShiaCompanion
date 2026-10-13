@@ -7,7 +7,7 @@ inputs:
   site-origin:
     description: Origin baked into the generated SEO pages and sitemap.
     required: false
-    default: 'https://shia-companion.web.app'
+    default: 'https://shiacompanion.app'
 
 runs:
   using: composite
