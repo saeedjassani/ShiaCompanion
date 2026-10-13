@@ -5,9 +5,11 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import '../l10n/l10n.dart';
+import '../services/playlist_audio_service.dart';
 import '../theme/shia_colors.dart';
 import 'arabic_runs.dart';
 import 'glass_surface.dart';
+import 'now_playing_capsule.dart';
 import 'outline_icon.dart';
 
 /// The revamp's page chrome (docs/DESIGN_SPEC.md, "Navigation"): a large
@@ -49,8 +51,8 @@ class LargeTitlePage extends StatefulWidget {
   /// off the bottom, or just above the keyboard while that is up.
   final Widget? bottom;
 
-  /// A bar docked below the content rather than floating over it: what a
-  /// playlist is playing.
+  /// A bar docked below the content rather than floating over it: a form's
+  /// Save button.
   final Widget? bottomBar;
 
   @override
@@ -216,7 +218,9 @@ class _LargeTitlePageState extends State<LargeTitlePage> {
 
     return Scaffold(
       backgroundColor: colors.ground,
-      bottomNavigationBar: widget.bottomBar,
+      bottomNavigationBar: widget.bottomBar == null
+          ? null
+          : FloatingBottomSlot(child: widget.bottomBar!),
       body: Stack(
         children: [
           NotificationListener<ScrollNotification>(
@@ -231,7 +235,17 @@ class _LargeTitlePageState extends State<LargeTitlePage> {
                   sliver: SliverToBoxAdapter(child: header),
                 ),
                 ...widget.slivers,
-                SliverPadding(padding: EdgeInsets.only(bottom: endPadding)),
+                // Room to scroll the last row clear of a playing
+                // playlist's capsule too, while it is up.
+                ValueListenableBuilder<bool>(
+                  valueListenable: PlaylistAudioService.instance.visible,
+                  builder: (context, playing, _) => SliverPadding(
+                    padding: EdgeInsets.only(
+                      bottom: endPadding +
+                          (playing ? NowPlayingCapsule.contentClearance : 0),
+                    ),
+                  ),
+                ),
               ],
             ),
           ),
@@ -255,7 +269,10 @@ class _LargeTitlePageState extends State<LargeTitlePage> {
                   child: ConstrainedBox(
                     constraints:
                         const BoxConstraints(maxWidth: floatingControlWidth),
-                    child: bottom,
+                    child: FloatingBottomSlot(
+                      extent: bottomOffset + _bottomControlHeight,
+                      child: bottom,
+                    ),
                   ),
                 ),
               ),

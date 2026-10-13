@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 
@@ -6,6 +7,7 @@ import '../l10n/l10n.dart';
 import '../services/azan_playback_service.dart';
 import '../theme/shia_colors.dart';
 import 'glass_surface.dart';
+import 'now_playing_capsule.dart';
 import 'outline_icon.dart';
 import 'page_chrome.dart';
 
@@ -96,10 +98,15 @@ class _AzanPlayingBannerState extends State<AzanPlayingBanner> {
         12 +
         64;
 
-    return Positioned(
-      left: 16,
-      right: 16,
-      bottom: bottom,
+    // Above a playing playlist's capsule too.
+    return ListenableBuilder(
+      listenable: NowPlayingCapsule.layout,
+      builder: (context, child) => Positioned(
+        left: 16,
+        right: 16,
+        bottom: math.max(bottom, NowPlayingCapsule.top(context) + 12),
+        child: child!,
+      ),
       child: SafeArea(
         top: false,
         bottom: false,

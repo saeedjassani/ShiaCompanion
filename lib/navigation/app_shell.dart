@@ -13,6 +13,7 @@ import '../pages/search_page.dart';
 import '../widgets/app_toast.dart';
 import '../widgets/glass_surface.dart';
 import '../widgets/home_glyph.dart';
+import '../widgets/now_playing_capsule.dart';
 import '../widgets/outline_icon.dart';
 import '../widgets/page_chrome.dart';
 import 'home_menu.dart';
@@ -262,18 +263,21 @@ class AppTabBar extends StatelessWidget {
           // would no longer fit under their icons.
           child: MediaQuery.withClampedTextScaling(
             maxScaleFactor: 1.5,
-            child: SizedBox(
-              height: height,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  if (wide)
-                    SizedBox(width: wideBarWidth, child: bar)
-                  else
-                    Expanded(child: bar),
-                  const SizedBox(width: searchGap),
-                  _SearchButton(onPressed: onSearch),
-                ],
+            child: FloatingBottomSlot(
+              extent: AppTabBar.bottomOffset(context) + height,
+              child: SizedBox(
+                height: height,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    if (wide)
+                      SizedBox(width: wideBarWidth, child: bar)
+                    else
+                      Expanded(child: bar),
+                    const SizedBox(width: searchGap),
+                    _SearchButton(onPressed: onSearch),
+                  ],
+                ),
               ),
             ),
           ),
