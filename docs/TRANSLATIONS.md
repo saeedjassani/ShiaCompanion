@@ -415,7 +415,7 @@ own font (Qalam or Scheherazade) and is unaffected.
 `scripts/build_urdu_font.py` makes `assets/fonts/noto-nastaliq-urdu.ttf`
 (licence beside it) from Google's file: Arabic-script letters only, so
 English words and 0-9 in Urdu text keep the system font (the theme names it
-after the Urdu font), and drawn at 70%, as Noto's tall Nastaliq collides
+after the Urdu font), and drawn at 80%, as Noto's tall Nastaliq collides
 between lines at full size at the app's ~1.3x line heights. It is loaded on
 demand by `lib/utils/urdu_font.dart` rather than listed under `fonts:`, so the
 web build doesn't download it for readers who never see Urdu.
