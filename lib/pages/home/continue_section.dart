@@ -11,6 +11,7 @@ import '../../services/library_progress_store.dart';
 import '../../services/recitation_tracker_manager.dart';
 import '../../services/zikr_bookmark_store.dart';
 import '../../services/zikr_bookmarks_manager.dart';
+import '../../services/zikr_translations.dart';
 import '../../theme/shia_colors.dart';
 import '../../utils/quran_index.dart';
 import '../../widgets/home_glyph.dart';
@@ -123,12 +124,14 @@ List<ContinueEntry> continueEntries({
     final prefix = RegExp(r'^[A-Za-z]+').stringMatch(latestBookmark.uid) ?? '';
     final (word, glyph) = _bookmarkCategory(prefix, s);
     final tab = latestBookmark.tabTitle?.trim() ?? '';
-    final title = titles[latestBookmark.uid]?.toString();
+    final englishTitle = titles[latestBookmark.uid]?.toString() ?? '';
+    final title = zikrDisplayTitle(latestBookmark.uid,
+        englishTitle.isEmpty ? latestBookmark.title : englishTitle);
     entries.add(ContinueEntry(
       kind: ContinueKind.bookmark,
       caption: s.homeContinueBookmarkCaption(word),
       glyph: glyph,
-      title: (title == null || title.isEmpty) ? latestBookmark.title : title,
+      title: title,
       subtitle:
           tab.isEmpty ? s.homeContinueAtBookmark : s.homeContinueInTab(tab),
       updatedAt: latestBookmark.updatedAt,
@@ -203,6 +206,8 @@ class ContinueSection extends StatelessWidget {
       listenable: Listenable.merge([
         RecitationTrackerManager.instance,
         ZikrBookmarksManager.instance,
+        // The titles, when the translation language changes or loads.
+        ZikrTranslations.instance,
       ]),
       builder: (context, _) {
         final entries = continueEntries(
