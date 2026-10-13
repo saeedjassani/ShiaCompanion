@@ -9,7 +9,8 @@ import 'package:shia_companion/pages/zikr/zikr_content_viewer.dart';
 /// instruction leads because an English line straight after an Arabic verse
 /// is read as that verse's transliteration.)
 const _heading = 'DUA FOR SOMETHING';
-const _verse0 = 'بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ';
+const _verse0 = 'اَللّٰهُمَّ صَلِّ عَلٰى مُحَمَّدٍ وَآلِ مُحَمَّدٍ';
+const _bismillah = 'بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ';
 const _verse1 = 'الْحَمْدُ لِلَّهِ رَبِّ الْعَالَمِينَ';
 const _verse2 = 'الرَّحْمَٰنِ الرَّحِيمِ';
 const _instruction = 'Recite three times';
@@ -21,12 +22,13 @@ String _content() =>
 Future<void> _pumpViewer(
   WidgetTester tester, {
   int? bookmarkLineIndex,
+  String? content,
 }) async {
   await tester.pumpWidget(
     MaterialApp(
       home: Scaffold(
         body: ZikrContentViewerWidget(
-          tabContents: <String>[_content()],
+          tabContents: <String>[content ?? _content()],
           selectedTabIndex: 0,
           onTabChanged: (_) {},
           hasMerits: false,
@@ -226,6 +228,42 @@ void main() {
       // Still one continuous flowing block - not one widget per verse.
       expect(find.text(_mergedParagraph), findsOneWidget);
       expect(_ruleCount(), greaterThan(0));
+    },
+  );
+
+  testWidgets(
+    'puts a Bismillah that opens a paragraph on its own centred line',
+    (tester) async {
+      showTransliteration = false;
+      showTranslation = false;
+      await _pumpViewer(
+        tester,
+        content:
+            [_heading, _instruction, _bismillah, _verse0, _verse1].join('\n'),
+      );
+
+      final bismillah = tester.widget<Text>(find.text(_bismillah));
+      expect(bismillah.textAlign, TextAlign.center);
+      expect(bismillah.textDirection, TextDirection.rtl);
+
+      final rest = tester.widget<Text>(find.text('$_verse0 $_verse1'));
+      expect(rest.textAlign, TextAlign.justify);
+    },
+  );
+
+  testWidgets(
+    'lets a Bismillah inside a paragraph flow on with it',
+    (tester) async {
+      showTransliteration = false;
+      showTranslation = false;
+      await _pumpViewer(
+        tester,
+        content:
+            [_heading, _instruction, _verse0, _bismillah, _verse1].join('\n'),
+      );
+
+      expect(find.text(_bismillah), findsNothing);
+      expect(find.text('$_verse0 $_bismillah $_verse1'), findsOneWidget);
     },
   );
 }

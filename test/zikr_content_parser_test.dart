@@ -28,8 +28,7 @@ void main() {
     // is invisible in Qalam and is what lets other fonts draw the marks.
     for (final font in FontPreferences.validFonts) {
       arabicFont = font;
-      expect(ZikrContentParser.formatArabicText('لَه بِه'),
-          'لَهٗ بِهٖ');
+      expect(ZikrContentParser.formatArabicText('لَه بِه'), 'لَهٗ بِهٖ');
       expect(ZikrContentParser.formatArabicText('وَالْحِجَارَةُ ۖ'),
           'وَالْحِجَارَةُ ۖ');
     }
@@ -95,6 +94,27 @@ void main() {
       }
     }
     expect(offenders, isEmpty, reason: offenders.take(20).join('\n'));
+  });
+
+  test('isBismillah matches the Bismillah alone, however it is spelled', () {
+    expect(
+        ZikrContentParser.isBismillah('بِسْمِ اللهِ الرَّحْمٰنِ الرَّحِيْمِ'),
+        isTrue);
+    expect(
+        ZikrContentParser.isBismillah(
+            'بِسْمِ اللّٰهِ الرَّحْمٰنِ الرَّحِیْمِ.'),
+        isTrue);
+    expect(
+        ZikrContentParser.isBismillah(
+            'بِسۡمِ اللهِ الرَّحۡمٰنِ الرَّحِيۡمِ (1)'),
+        isTrue);
+    expect(
+        ZikrContentParser.isBismillah(
+            'بِسْمِ اللهِ الرَّحْمٰنِ الرَّحِيْمِ، يَا وَاسِعَ الْمَغْفِرَةِ'),
+        isFalse);
+    expect(ZikrContentParser.isBismillah('بِسْمِ اللهِ وَبِاللهِ'), isFalse);
+    expect(ZikrContentParser.isBismillah('BISMIL LAAHIR RAHMAANIR RAHEEM'),
+        isFalse);
   });
 
   test('isArabic scans each early character', () {
