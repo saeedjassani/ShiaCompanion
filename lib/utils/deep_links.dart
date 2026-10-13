@@ -324,6 +324,9 @@ const Set<String> _reservedNonZikrPaths = {
 };
 
 const Set<String> _appDeepLinkHosts = {
+  'shiacompanion.app',
+  'www.shiacompanion.app',
+  // Legacy host: links shared before the custom domain still resolve.
   'shia-companion.web.app',
   'www.shia-companion.web.app',
 };
@@ -371,7 +374,7 @@ String buildDeepLinkUrl({
   required int type,
   required List<String> segments,
 }) {
-  return 'https://shia-companion.web.app${buildDeepLinkPath(
+  return 'https://shiacompanion.app${buildDeepLinkPath(
     type: type,
     segments: segments,
   )}';
@@ -381,7 +384,7 @@ String buildZikrDeepLinkUrl({
   required String uid,
   String? slug,
 }) {
-  return 'https://shia-companion.web.app${buildZikrDeepLinkPath(
+  return 'https://shiacompanion.app${buildZikrDeepLinkPath(
     uid: uid,
     slug: slug,
   )}';
@@ -391,18 +394,18 @@ String buildLibraryDeepLinkUrl({
   required String bookSlug,
   String? chapterSlug,
 }) {
-  return 'https://shia-companion.web.app${buildLibraryDeepLinkPath(
+  return 'https://shiacompanion.app${buildLibraryDeepLinkPath(
     bookSlug: bookSlug,
     chapterSlug: chapterSlug,
   )}';
 }
 
 String buildCalendarDeepLinkUrl() {
-  return 'https://shia-companion.web.app$calendarDeepLinkPath';
+  return 'https://shiacompanion.app$calendarDeepLinkPath';
 }
 
 String buildQuranDeepLinkUrl({required int surah, int? ayah}) {
-  return 'https://shia-companion.web.app${buildQuranDeepLinkPath(
+  return 'https://shiacompanion.app${buildQuranDeepLinkPath(
     surah: surah,
     ayah: ayah,
   )}';

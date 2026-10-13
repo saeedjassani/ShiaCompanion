@@ -56,7 +56,7 @@ class HadithOfTheDayCard extends StatelessWidget {
     final text = localized?.shareText ?? hadith;
     final result = await SharePlus.instance.share(ShareParams(
       text:
-          '$text\n\n${context.l10n.hadithSharedVia('https://shia-companion.web.app/')}',
+          '$text\n\n${context.l10n.hadithSharedVia('https://shiacompanion.app/')}',
       sharePositionOrigin: Rect.fromLTWH(size.width / 2, 0, 2, 2),
     ));
     if (result.status == ShareResultStatus.success) {

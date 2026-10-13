@@ -92,6 +92,9 @@
                 <category android:name="android.intent.category.BROWSABLE"/>
                 <data
                     android:scheme="https"
+                    android:host="shiacompanion.app" />
+                <data
+                    android:scheme="https"
                     android:host="shia-companion.web.app" />
             </intent-filter>
         </activity>
