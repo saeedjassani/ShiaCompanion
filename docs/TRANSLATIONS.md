@@ -403,6 +403,21 @@ The place name from GPS is looked up online (bigdatacloud) in the app
 language, and both it and a chosen city are named again when the language
 changes (`LocationService.relabelForAppLanguage`).
 
+## Urdu font
+
+Urdu is set in Jameel Noori Nastaleeq, always - there is no font choice for
+it. The theme switches to it (`LanguageProvider.usesUrduFont`) when the app
+language is Urdu, or the translation language is and the app is in English
+or Gujarati; a Persian or Arabic app keeps its Naskh menus, so Urdu zikr
+translations there stay in the system font. Arabic text names its own font
+(Qalam or Scheherazade) and is unaffected.
+
+The font (`assets/fonts/jameel-noori-nastaleeq.ttf`, notice beside it) is
+~10 MB, so it is loaded on demand by `lib/utils/urdu_font.dart` rather than
+listed under `fonts:`: the web build would otherwise download it for every
+reader. It holds Arabic-script letters only, and the theme names the system
+font after it, so English words and 0-9 in Urdu text keep the system font.
+
 ## Not covered yet
 
 - **A juz** (the Quran read by juz rather than by surah) is assembled from
@@ -411,9 +426,8 @@ changes (`LocationService.relabelForAppLanguage`).
 - **Other content**: library books, the holy sites in `lib/data/` and the
   What's New notes are English content, not UI text, and would each need a
   translation overlay of their own.
-- **Fonts**: Urdu, Persian, Arabic and Gujarati translation text uses the
-  platform's system fonts. A bundled Nastaliq font for Urdu would be a
-  separate, deliberate choice.
+- **Fonts**: Persian, Arabic and Gujarati text uses the platform's system
+  fonts.
 - **Right-to-left polish**: Flutter mirrors layouts automatically for an
   RTL app language, but ~85 spots use left/right-specific padding or
   alignment (`EdgeInsets.only(left:)`, `Alignment.centerLeft`) and should be

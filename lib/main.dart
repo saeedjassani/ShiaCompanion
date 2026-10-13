@@ -19,6 +19,7 @@ import 'package:shia_companion/services/session_refresh_service.dart';
 import 'package:shia_companion/utils/app_text_scale.dart';
 import 'package:shia_companion/utils/language_provider.dart';
 import 'package:shia_companion/utils/theme_mode.dart';
+import 'package:shia_companion/utils/urdu_font.dart';
 import 'package:shia_companion/theme/app_theme.dart';
 import 'package:flutter/foundation.dart' show kDebugMode, kIsWeb;
 import 'package:flutter/services.dart' show BrowserContextMenu;
@@ -129,12 +130,19 @@ void main() async {
   // Decided before the first frame, so a fresh install opens straight on
   // setup rather than on Home with setup sliding over it.
   await SP.init();
+  final urduFont = LanguageProvider.savedLanguagesUseUrduFont()
+      ? UrduFont.ensureLoaded()
+      : null;
   restoreDayPreferences();
   final showFirstRunSetup = await FirstRunSetup.resolveOnLaunch();
   if (FirstRunSetup.freshInstallThisLaunch) {
     await AccountService.signOutLeftoverFromEarlierInstall();
   }
   await zikrIndex;
+  // A local asset, so on a device it is quick enough to wait for, and Urdu
+  // doesn't open in the system font and then change. The web downloads it,
+  // so there the first frame doesn't wait.
+  if (urduFont != null && !kIsWeb) await urduFont;
 
   runApp(MyApp(showFirstRunSetup: showFirstRunSetup));
 }
@@ -162,6 +170,11 @@ _AppLaunchDestination _resolveLaunchDestination(Uri uri) {
 // Built once: MyApp rebuilds on every frame of a text size slider drag.
 final ThemeData _lightTheme = buildAppTheme(Brightness.light);
 final ThemeData _darkTheme = buildAppTheme(Brightness.dark);
+// While the app shows Urdu (LanguageProvider.usesUrduFont).
+final ThemeData _urduLightTheme =
+    buildAppTheme(Brightness.light, fontFamily: UrduFont.family);
+final ThemeData _urduDarkTheme =
+    buildAppTheme(Brightness.dark, fontFamily: UrduFont.family);
 
 class MyApp extends StatelessWidget {
   const MyApp({Key? key, this.showFirstRunSetup = false}) : super(key: key);
@@ -217,8 +230,9 @@ class MyApp extends StatelessWidget {
               ],
             ),
           ),
-          theme: _lightTheme,
-          darkTheme: _darkTheme,
+          theme: languageProvider.usesUrduFont ? _urduLightTheme : _lightTheme,
+          darkTheme:
+              languageProvider.usesUrduFont ? _urduDarkTheme : _darkTheme,
           themeMode: themeModeProvider.themeMode,
           home: switch (_resolveLaunchDestination(Uri.base)) {
             _AppLaunchDestination.deleteAccount => const DeleteAccountPage(),

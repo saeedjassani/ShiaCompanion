@@ -99,6 +99,10 @@ flutter:
     # QuranWBW's IndoPak text (verbatim, used with permission - see
     # assets/fonts/QuranWBW-IndoPak-NOTICE.txt), shown when Qalam is.
     - assets/quran/
+    # Jameel Noori Nastaleeq, for Urdu (see assets/fonts/
+    # JameelNooriNastaleeq-NOTICE.txt). An asset rather than a `fonts:` entry
+    # so that only Urdu readers load it - see lib/utils/urdu_font.dart.
+    - assets/fonts/jameel-noori-nastaleeq.ttf
     # Listed file by file rather than as a directory: a directory entry
     # bundles whatever is sitting in it, which is how a Finder .DS_Store came
     # to ship inside the app. assets/hadith/ and assets/zikr/ hold hundreds of

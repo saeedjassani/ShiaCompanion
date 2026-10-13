@@ -12,6 +12,7 @@ import '../l10n/l10n.dart';
 import '../services/location_service.dart';
 import '../services/zikr_translations.dart';
 import 'shared_preferences.dart';
+import 'urdu_font.dart';
 
 /// The two language choices a reader makes:
 ///
@@ -72,7 +73,9 @@ class LanguageProvider extends ChangeNotifier with WidgetsBindingObserver {
   /// The language the device is set to, if app text has shipped in it,
   /// otherwise English: what the app is shown in while the reader has made
   /// no choice of their own.
-  AppLanguage get deviceLanguage {
+  AppLanguage get deviceLanguage => _deviceLanguage();
+
+  static AppLanguage _deviceLanguage() {
     final available = appTextLanguages;
     for (final locale in ui.PlatformDispatcher.instance.locales) {
       for (final language in available) {
@@ -84,11 +87,13 @@ class LanguageProvider extends ChangeNotifier with WidgetsBindingObserver {
 
   /// The language the app is actually shown in: the reader's choice if it
   /// has shipped, otherwise [deviceLanguage].
-  AppLanguage get appLanguage {
+  AppLanguage get appLanguage => _appLanguageFor(_appLanguageChoice);
+
+  static AppLanguage _appLanguageFor(String? choice) {
     for (final language in appTextLanguages) {
-      if (language.code == _appLanguageChoice) return language;
+      if (language.code == choice) return language;
     }
-    return deviceLanguage;
+    return _deviceLanguage();
   }
 
   Locale get locale => appLanguage.locale;
@@ -103,6 +108,36 @@ class LanguageProvider extends ChangeNotifier with WidgetsBindingObserver {
   /// whatever translation language they have picked at the moment.
   AppLanguage get appFollowingTranslationLanguage =>
       _translationLanguageFor(appLanguage.code);
+
+  /// Whether the app shows Urdu - its menus, or its zikr translations and
+  /// titles - and so is set in [UrduFont].
+  bool get usesUrduFont =>
+      usesUrduFontFor(appLanguage.code, translationLanguage.code);
+
+  /// Urdu text is set in [UrduFont] unless the app itself is in Persian or
+  /// Arabic: the theme's font is the menus' font too, and theirs must stay
+  /// Naskh. (The font has no Latin or Gujarati letters, so English and
+  /// Gujarati menus are untouched by it.)
+  static bool usesUrduFontFor(String appCode, String translationCode) =>
+      appCode == _urduCode ||
+      (translationCode == _urduCode &&
+          appCode != 'fa' &&
+          appCode != arabicLanguageCode);
+
+  static const String _urduCode = 'ur';
+
+  /// Whether the languages saved last time want [UrduFont], read before the
+  /// app starts so it can load the font ahead of the first frame. [SP] must
+  /// be initialized.
+  static bool savedLanguagesUseUrduFont() {
+    final app = _appLanguageFor(SP.prefs.getString(appLanguagePrefsKey)).code;
+    final translation = SP.prefs.getString(translationLanguagePrefsKey) ?? app;
+    return usesUrduFontFor(app, translation);
+  }
+
+  void _loadFonts() {
+    if (usesUrduFont) unawaited(UrduFont.ensureLoaded());
+  }
 
   AppLanguage _translationLanguageFor(String code) =>
       _translationLanguageCodes.contains(code)
@@ -145,6 +180,7 @@ class LanguageProvider extends ChangeNotifier with WidgetsBindingObserver {
   }
 
   void _applyAppLanguage() {
+    _loadFonts();
     final language = appLanguage;
     L10n.current = lookupAppLocalizations(language.locale);
     // Dates and numbers formatted anywhere in the app follow the app
@@ -170,8 +206,11 @@ class LanguageProvider extends ChangeNotifier with WidgetsBindingObserver {
     }
   }
 
-  Future<void> _applyTranslationLanguage() =>
-      ZikrTranslations.instance.setLanguage(translationLanguage.code, _bundle);
+  Future<void> _applyTranslationLanguage() {
+    _loadFonts();
+    return ZikrTranslations.instance
+        .setLanguage(translationLanguage.code, _bundle);
+  }
 
   Future<void> _persist(String key, String? code) async {
     if (!SP.isInitialized) return;
