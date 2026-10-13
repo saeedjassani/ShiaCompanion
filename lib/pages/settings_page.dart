@@ -31,7 +31,6 @@ import '../utils/shared_preferences.dart';
 import '../utils/sign_in_flow.dart';
 import '../utils/theme_mode.dart';
 import '../utils/widget_prayer_time_selection.dart';
-import '../widgets/arabic_runs.dart';
 import '../widgets/choice_sheet.dart';
 import '../widgets/content_request_dialog.dart';
 import '../services/zikr_translations.dart';
@@ -188,7 +187,8 @@ class _SettingsPageState extends State<SettingsPage> {
                       onTap: () => showThemeModePicker(context),
                     ),
                     _SettingsRow(
-                      icon: const _RowLetters('ع', fontSize: 15),
+                      icon: const _RowLetters('ع',
+                          fontSize: 15, inArabicFont: true),
                       title: l10n.settingsArabicFont,
                       subtitle: Text(
                         _bismillah,
@@ -945,10 +945,15 @@ class _RowGlyph extends StatelessWidget {
 /// A settings row's tile with letters in it: "ع" for the Arabic font, "Aa"
 /// (in the app language's own letters) for text size.
 class _RowLetters extends StatelessWidget {
-  const _RowLetters(this.letters, {required this.fontSize});
+  const _RowLetters(this.letters,
+      {required this.fontSize, this.inArabicFont = false});
 
   final String letters;
   final double fontSize;
+
+  /// Drawn in Qalam: the Arabic font row's "ع". Text size's letters are the
+  /// app language's own ("اب" in Urdu) and stay in the app's font.
+  final bool inArabicFont;
 
   @override
   Widget build(BuildContext context) {
@@ -963,9 +968,7 @@ class _RowLetters extends StatelessWidget {
             height: 1,
             fontWeight: FontWeight.w700,
             color: colors.onAccent,
-            // Qalam has Latin letters, so it would draw "Aa" as well.
-            fontFamilyFallback:
-                arabicRunSpans(letters) == null ? null : const ['Qalam'],
+            fontFamilyFallback: inArabicFont ? const ['Qalam'] : null,
           ),
         ),
       ),
