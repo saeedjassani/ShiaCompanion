@@ -913,6 +913,48 @@
       "label": "Tahlilaat (hymns of God's unity) - First 10 days of Zilhajj"
     }
   ],
+  "D1": [
+    {
+      "file": "taqibaat_general_abather_96k.mp3",
+      "label": "General Taqibaat",
+      "reciter": "Abather Alhalwachi"
+    }
+  ],
+  "D3": [
+    {
+      "file": "taqibaat_fajr_abather_96k.mp3",
+      "label": "Taqibaat of Namaz-e-Fajr",
+      "reciter": "Abather Alhalwachi"
+    }
+  ],
+  "D5": [
+    {
+      "file": "taqibaat_zuhr_abather_96k.mp3",
+      "label": "Taqibaat of Namaz-e-Zuhr",
+      "reciter": "Abather Alhalwachi"
+    }
+  ],
+  "D7": [
+    {
+      "file": "taqibaat_asr_abather_96k.mp3",
+      "label": "Taqibaat of Namaz-e-Asr",
+      "reciter": "Abather Alhalwachi"
+    }
+  ],
+  "D9": [
+    {
+      "file": "taqibaat_maghrib_abather_96k.mp3",
+      "label": "Taqibaat of Namaz-e-Maghrib",
+      "reciter": "Abather Alhalwachi"
+    }
+  ],
+  "D10": [
+    {
+      "file": "taqibaat_isha_abather_96k.mp3",
+      "label": "Taqibaat of Namaz-e-Isha",
+      "reciter": "Abather Alhalwachi"
+    }
+  ],
   "E1": [
     {
       "file": "e1_isteghatha.mp3",
@@ -957,6 +999,13 @@
       "reciter": "Ali Fani"
     }
   ],
+  "E19": [
+    {
+      "file": "dua_faraj_abather_96k.mp3",
+      "label": "Dua Faraj",
+      "reciter": "Abather Alhalwachi"
+    }
+  ],
   "E20": [
     {
       "file": "dua_faraj_azomal_bala_96k.mp3",
@@ -993,10 +1042,24 @@
       "label": "Dua Kumayl"
     }
   ],
+  "E33": [
+    {
+      "file": "dua_noor_abather_96k.mp3",
+      "label": "Dua Noor",
+      "reciter": "Abather Alhalwachi"
+    }
+  ],
   "E34": [
     {
       "file": "dua_nudbah_96k.mp3",
       "label": "Dua Nudba"
+    }
+  ],
+  "E35": [
+    {
+      "file": "dua_sabah_abather_96k.mp3",
+      "label": "Dua Sabah",
+      "reciter": "Abather Alhalwachi"
     }
   ],
   "E8": [
