@@ -928,7 +928,13 @@
   "E14": [
     {
       "file": "hadees_e_kisa_96k.mp3",
-      "label": "Hadith Kisa"
+      "label": "Hadith Kisa",
+      "reciter": "Ali Fani"
+    },
+    {
+      "file": "hadees_e_kisa_muhammad-wasi_96k.mp3",
+      "label": "Hadith Kisa",
+      "reciter": "Muhammad Wasi"
     }
   ],
   "E144": [
