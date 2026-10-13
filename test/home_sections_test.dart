@@ -269,7 +269,7 @@ void main() {
         'Duas',
         'Ziyarats',
         'Taqibaat',
-        'My Stats',
+        'Namaz',
         'Calendar',
         'Tasbeeh',
         'Qibla',
@@ -319,12 +319,7 @@ void main() {
         onOpenAllFeatures: () {},
       )));
 
-      for (final label in [
-        'Qaza',
-        'Playlists',
-        'Library',
-        'My Stats'
-      ]) {
+      for (final label in ['Qaza', 'Playlists', 'Library', 'My Stats']) {
         expect(find.text(label), findsOneWidget, reason: label);
       }
       // Qaza ends the second row; My Stats and All features end the third.
@@ -408,7 +403,7 @@ void main() {
         'duas',
         'ziyarats',
         'taqeebat_e_namaz',
-        'my_stats',
+        'namaz',
         'calendar_prayer_times',
         'tasbeeh_counter',
         'library',

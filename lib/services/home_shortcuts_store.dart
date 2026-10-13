@@ -27,7 +27,7 @@ class HomeShortcutsStore extends ChangeNotifier {
     'duas',
     'ziyarats',
     'taqeebat_e_namaz',
-    'my_stats',
+    'namaz',
     'calendar_prayer_times',
     'tasbeeh_counter',
     'qibla_finder',
@@ -40,7 +40,7 @@ class HomeShortcutsStore extends ChangeNotifier {
     'qaza_tracker',
     'playlists',
     'library',
-    'aamaal',
+    'my_stats',
   ];
 
   /// The chosen ids, or the phone's [defaultIds] when nothing has been

@@ -36,7 +36,7 @@ class ZikrPlaylistStore extends ChangeNotifier {
     ZikrPlaylist(
       id: 'default-thursday',
       name: 'Thursday',
-      // Dua Kumayl, Ziyarat Warith, Dua after Ziyarat Warith
+      // Dua Kumayl, Ziyarat Warith, a short Ziyarat of Imam Husayn (a.s.)
       zikrUids: const ['E31', 'G6', 'G54'],
       updatedAt: DateTime.utc(2026, 9, 25),
     ),

@@ -196,7 +196,7 @@ Top to bottom, each section hidden when it has nothing to show:
    size. Defaults on a phone: Duas, Ziyarats, Taqibaat, Namaz,
    Calendar, Tasbeeh, Qibla (two rows). Today's Recitations is never a
    shortcut, Home having Today (a saved pick of it is skipped). From the tablet
-   breakpoint up, Qaza Tracker, Playlists, Library and Aamal are added
+   breakpoint up, Qaza Tracker, Playlists, Library and My Stats are added
    (three rows). Defaults are never synced; the first save replaces them
    on every device. A wide screen at least 900 tall (portrait tablets,
    1080p desktops) has room to spare, so it shows every feature instead:
