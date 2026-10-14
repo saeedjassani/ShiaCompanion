@@ -1,8 +1,11 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:shia_companion/pages/city_picker.dart';
 import 'package:shia_companion/services/analytics_service.dart';
+import 'package:shia_companion/services/azaan_opt_in_service.dart';
+import 'package:shia_companion/services/first_run_setup.dart';
 import 'package:shia_companion/services/location_service.dart';
 import 'package:shia_companion/theme/shia_colors.dart';
 import 'package:shia_companion/utils/shared_preferences.dart';
@@ -23,6 +26,11 @@ import 'page_chrome.dart';
 /// With no location yet it asks "Which city are you in?" instead, until the
 /// reader says "Not now": then a single slim row stands in for it, one tap
 /// from the city picker. [footer], the next event, closes all three.
+///
+/// Once there are times, someone who has never answered the azan question
+/// (setup leaves it out without a location) is asked it here, under the
+/// times it is about, until they answer. A bell marks each time whose azan
+/// is on.
 class HomePrayerTimesCard extends StatefulWidget {
   const HomePrayerTimesCard({super.key, this.onTap, this.footer});
 
@@ -123,6 +131,40 @@ class PrayerTimesState extends State<HomePrayerTimesCard> {
     await _chooseCity();
   }
 
+  bool _answeringAzan = false;
+
+  /// The azan question, put here rather than in a dialog: it waits under the
+  /// times until answered, and either answer is final. "Turn on azan" asks
+  /// for notification permission; "Not now" leaves azan off for Settings.
+  Future<void> _answerAzan(bool turnOn) async {
+    if (_answeringAzan) return;
+    _answeringAzan = true;
+    try {
+      if (turnOn) {
+        try {
+          await ensureNotificationsPlugin();
+        } catch (e) {
+          debugPrint('Notifications could not start: $e');
+        }
+        // Reschedules too, so the azan starts from today's times.
+        await AzaanOptInService.setEnabled(true);
+      } else {
+        await AzaanOptInService.answer(const []);
+      }
+      unawaited(AnalyticsService.feature(
+        'azaan_opt_in',
+        label: 'Azan opt-in',
+        parameters: {
+          'choice': turnOn ? 'enabled' : 'declined',
+          'source': 'prayer_card',
+        },
+      ));
+    } finally {
+      _answeringAzan = false;
+    }
+    if (mounted) setState(() {});
+  }
+
   /// The same picker Settings offers, reachable from the card it changes.
   Future<void> _editTimesShown() async {
     final changed = await showWidgetPrayerTimesDialog(context);
@@ -170,6 +212,12 @@ class PrayerTimesState extends State<HomePrayerTimesCard> {
     // A chosen city whose clock no longer matches the phone's: most likely
     // one picked on a trip, still set after the flight home.
     final askStillInCity = _location.chosenCityClockDifference != null;
+    // One question at a time: the city comes first, since the times the
+    // azan would follow depend on it. Not on the web, which has no azan.
+    final askAzan = !askStillInCity &&
+        !kIsWeb &&
+        !FirstRunSetup.isPending &&
+        !AzaanOptInService.hasBeenAsked;
 
     return Semantics(
       container: true,
@@ -219,10 +267,26 @@ class PrayerTimesState extends State<HomePrayerTimesCard> {
                     if (askStillInCity)
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 6),
-                        child: _StillInCityNudge(
-                          city: city ?? context.l10n.prayerTheCityYouChose,
-                          onStillThere: _stillInCity,
-                          onChangeCity: _changeCityFromNudge,
+                        child: _CardNudge(
+                          title: context.l10n.prayerStillInCity(
+                              city ?? context.l10n.prayerTheCityYouChose),
+                          body: context.l10n.prayerPhoneZoneDiffers,
+                          primaryLabel: context.l10n.cityChangeCity,
+                          onPrimary: _changeCityFromNudge,
+                          secondaryLabel: context.l10n.prayerYesStillHere,
+                          onSecondary: _stillInCity,
+                        ),
+                      ),
+                    if (askAzan)
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 6),
+                        child: _CardNudge(
+                          title: context.l10n.setupAzanTitle,
+                          body: context.l10n.azanOfferBody,
+                          primaryLabel: context.l10n.setupTurnOnAzan,
+                          onPrimary: () => _answerAzan(true),
+                          secondaryLabel: context.l10n.setupNotNow,
+                          onSecondary: () => _answerAzan(false),
                         ),
                       ),
                   ],
@@ -241,18 +305,25 @@ bool _isSameDate(DateTime a, DateTime b) {
   return a.year == b.year && a.month == b.month && a.day == b.day;
 }
 
-/// "Still in Karbala?", under the times when the chosen city's clock no
-/// longer matches the phone's.
-class _StillInCityNudge extends StatelessWidget {
-  const _StillInCityNudge({
-    required this.city,
-    required this.onStillThere,
-    required this.onChangeCity,
+/// A question under the times, with two answers: "Still in Karbala?" when
+/// the chosen city's clock no longer matches the phone's, or the azan
+/// question for someone who has not answered it.
+class _CardNudge extends StatelessWidget {
+  const _CardNudge({
+    required this.title,
+    required this.body,
+    required this.primaryLabel,
+    required this.onPrimary,
+    required this.secondaryLabel,
+    required this.onSecondary,
   });
 
-  final String city;
-  final VoidCallback onStillThere;
-  final VoidCallback onChangeCity;
+  final String title;
+  final String body;
+  final String primaryLabel;
+  final VoidCallback onPrimary;
+  final String secondaryLabel;
+  final VoidCallback onSecondary;
 
   @override
   Widget build(BuildContext context) {
@@ -270,7 +341,7 @@ class _StillInCityNudge extends StatelessWidget {
           ),
           const SizedBox(height: 10),
           Text(
-            context.l10n.prayerStillInCity(city),
+            title,
             style: ShiaText.secondary.copyWith(
               fontWeight: FontWeight.w600,
               color: colors.onPrayerCard,
@@ -278,7 +349,7 @@ class _StillInCityNudge extends StatelessWidget {
           ),
           const SizedBox(height: 2),
           Text(
-            context.l10n.prayerPhoneZoneDiffers,
+            body,
             style: ShiaText.caption.copyWith(color: colors.onPrayerCardMuted),
           ),
           const SizedBox(height: 10),
@@ -286,7 +357,7 @@ class _StillInCityNudge extends StatelessWidget {
             children: [
               Expanded(
                 child: FilledButton(
-                  onPressed: onChangeCity,
+                  onPressed: onPrimary,
                   style: FilledButton.styleFrom(
                     backgroundColor: colors.gold,
                     foregroundColor: colors.onGold,
@@ -294,13 +365,13 @@ class _StillInCityNudge extends StatelessWidget {
                     shape: const StadiumBorder(),
                     textStyle: buttonText,
                   ),
-                  child: Text(context.l10n.cityChangeCity),
+                  child: Text(primaryLabel),
                 ),
               ),
               const SizedBox(width: 8),
               Expanded(
                 child: OutlinedButton(
-                  onPressed: onStillThere,
+                  onPressed: onSecondary,
                   style: OutlinedButton.styleFrom(
                     foregroundColor: colors.onPrayerCard,
                     minimumSize: const Size.fromHeight(40),
@@ -310,7 +381,7 @@ class _StillInCityNudge extends StatelessWidget {
                     shape: const StadiumBorder(),
                     textStyle: buttonText,
                   ),
-                  child: Text(context.l10n.prayerYesStillHere),
+                  child: Text(secondaryLabel),
                 ),
               ),
             ],
@@ -444,14 +515,49 @@ class _PrayerTimeColumn extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 3),
-          Text(
-            _clockLabel(reading),
-            textAlign: TextAlign.center,
-            maxLines: 1,
-            style: textStyle.copyWith(color: colors.onPrayerCardMuted),
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Flexible(
+                child: Text(
+                  _clockLabel(reading),
+                  textAlign: TextAlign.center,
+                  maxLines: 1,
+                  style: textStyle.copyWith(color: colors.onPrayerCardMuted),
+                ),
+              ),
+              if (_azanOn(reading)) ...[
+                const SizedBox(width: 2),
+                _AzanBell(color: colors.gold, size: 11),
+              ],
+            ],
           ),
         ],
       ),
+    );
+  }
+}
+
+/// Whether [reading]'s azan is on. Never on the web, which has none.
+bool _azanOn(WidgetPrayerTimeReading reading) =>
+    !kIsWeb &&
+    SP.isInitialized &&
+    SP.prefs.getBool(notificationPreferenceKeyForPrayer(reading.time.name)) ==
+        true;
+
+/// The bell beside a time whose azan is on.
+class _AzanBell extends StatelessWidget {
+  const _AzanBell({required this.color, required this.size});
+
+  final Color color;
+  final double size;
+
+  @override
+  Widget build(BuildContext context) {
+    return Semantics(
+      label: context.l10n.prayerAzanOn,
+      child: OutlineIcon(OutlineGlyph.bell,
+          size: size, color: color, filled: true),
     );
   }
 }
@@ -480,11 +586,13 @@ class _NextPrayer extends StatelessWidget {
     final colors = ShiaColors.of(context);
     final name = localizedPrayerName(reading.time.name, context.l10n);
     final time = _clockLabel(reading);
+    final azanOn = _azanOn(reading);
+    final spoken = context.l10n.prayerNextSemantics(label, name, time);
 
     return Semantics(
       container: true,
       // The countdown is left out: read aloud, it would change every second.
-      label: context.l10n.prayerNextSemantics(label, name, time),
+      label: azanOn ? '$spoken, ${context.l10n.prayerAzanOn}' : spoken,
       excludeSemantics: true,
       child: Container(
         padding: const EdgeInsetsDirectional.fromSTEB(12, 12, 14, 12),
@@ -513,13 +621,23 @@ class _NextPrayer extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    label,
-                    style: ShiaText.caption.copyWith(
-                      fontSize: 12,
-                      height: 15 / 12,
-                      color: colors.onPrayerCardMuted,
-                    ),
+                  Row(
+                    children: [
+                      Flexible(
+                        child: Text(
+                          label,
+                          style: ShiaText.caption.copyWith(
+                            fontSize: 12,
+                            height: 15 / 12,
+                            color: colors.onPrayerCardMuted,
+                          ),
+                        ),
+                      ),
+                      if (azanOn) ...[
+                        const SizedBox(width: 4),
+                        _AzanBell(color: colors.gold, size: 12),
+                      ],
+                    ],
                   ),
                   Text(
                     name,

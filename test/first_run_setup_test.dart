@@ -159,9 +159,9 @@ void main() {
 
       expect(done, 1);
       expect(SP.prefs.getString(FirstRunSetup.stateKey), FirstRunSetup.done);
-      // Setup is the only place azan is asked about, so skipping it
-      // answers "off" even without a location.
-      expect(AzaanOptInService.hasBeenAsked, isTrue);
+      // No location, so azan is left unanswered: it is asked once one is
+      // set, on Home's prayer card.
+      expect(AzaanOptInService.hasBeenAsked, isFalse);
       expect(AzaanOptInService.isEnabled, isFalse);
       expect(SP.prefs.containsKey('arabic_font'), isFalse);
       expect(themeMode.themeMode, ThemeMode.system);
@@ -280,9 +280,8 @@ void main() {
       await tapText(tester, 'Maybe later');
 
       expect(done, 1);
-      // Answered "off": nothing asks again outside setup.
-      expect(AzaanOptInService.hasBeenAsked, isTrue);
-      expect(AzaanOptInService.isEnabled, isFalse);
+      // Left for when a location is set.
+      expect(AzaanOptInService.hasBeenAsked, isFalse);
     });
 
     testWidgets('signing in finishes setup', (tester) async {
