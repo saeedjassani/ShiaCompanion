@@ -363,4 +363,11 @@ const Map<String, RetiredZikrRedirect> retiredZikrRedirects = {
   /// F59 (Imam al-Sadiq's evil-averting dua) is now the first tab of F57, Duas
   /// of the Imams (a.s.) to Ward Off Evil.
   'F59': RetiredZikrRedirect('F57'),
+
+  /// G8 and G9 were short salutations to Imam al-Reza and Imam al-Zaman,
+  /// recited in mosques but not narrated from an Imam, and already G76's
+  /// (Ziyarat after Namaz) tabs word for word. G8's second salutation ("Ya
+  /// Mu'in al-Du'afa...") went with it. Their slugs are G76's slugAliases.
+  'G8': RetiredZikrRedirect('G76', tabIndex: 0),
+  'G9': RetiredZikrRedirect('G76', tabIndex: 1),
 };
