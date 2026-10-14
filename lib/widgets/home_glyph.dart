@@ -31,7 +31,7 @@ enum HomeGlyphType {
   /// Material Symbols auto_stories (open book with dynamic turning page).
   todaysRecitations,
 
-  /// The Holy Shrine of Ahlulbayt with golden dome, minarets, and the waving Alam.
+  /// The Holy Shrine of Ahlulbayt: onion dome, twin minarets, and the Alam.
   ziyaraat,
 
   /// Three library volumes on a shelf plinth with the right tome resting against the centerpiece.
@@ -488,7 +488,8 @@ class _HomeGlyphPainter extends CustomPainter {
 
     // Draw string loop
     final loop = Path()
-      ..addOval(Rect.fromCenter(center: const Offset(cx, cy), width: rx * 2, height: ry * 2));
+      ..addOval(Rect.fromCenter(
+          center: const Offset(cx, cy), width: rx * 2, height: ry * 2));
     canvas.drawPath(loop, detail);
 
     // 10 beads around the loop
@@ -659,7 +660,9 @@ class _HomeGlyphPainter extends CustomPainter {
     canvas.drawPath(turbah, stroke);
   }
 
-  /// 10. ZIYARAAT: The Holy Shrine of Ahlulbayt with golden dome, twin minarets, and the waving Alam (flag of Karbala).
+  /// 10. ZIYARAAT: The Holy Shrine of Ahlulbayt: an onion dome over the shrine
+  /// hall with its arched door, twin minarets, and the Alam (flag of Karbala)
+  /// on the dome's pinnacle.
   void _paintZiyaraat(
     Canvas canvas,
     Paint stroke,
@@ -667,44 +670,63 @@ class _HomeGlyphPainter extends CustomPainter {
     Paint fill,
   ) {
     // Ground line
-    canvas.drawLine(const Offset(2.0, 21.0), const Offset(22.0, 21.0), stroke);
+    canvas.drawLine(const Offset(1.8, 21.0), const Offset(22.2, 21.0), stroke);
 
-    // Left minaret
-    canvas.drawLine(const Offset(3.5, 21.0), const Offset(3.5, 8.5), stroke);
-    canvas.drawLine(const Offset(5.5, 21.0), const Offset(5.5, 8.5), stroke);
-    canvas.drawLine(const Offset(2.5, 8.5), const Offset(6.5, 8.5), stroke); // balcony
-    canvas.drawLine(const Offset(4.5, 8.5), const Offset(4.5, 5.0), detail); // lantern shaft
-    canvas.drawCircle(const Offset(4.5, 4.2), 1.0, fill); // spire peak
+    // Twin minarets: a solid shaft, a gallery, and a pointed cap.
+    final shaft = Paint()
+      ..color = color
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 2.4
+      ..strokeCap = StrokeCap.round;
+    for (final x in const [3.6, 20.4]) {
+      canvas.drawLine(Offset(x, 21.0), Offset(x, 10.4), shaft);
+      canvas.drawLine(Offset(x - 1.3, 10.4), Offset(x + 1.3, 10.4), stroke);
+      final cap = Path()
+        ..moveTo(x - 0.9, 10.4)
+        ..quadraticBezierTo(x - 0.9, 8.4, x, 6.6)
+        ..quadraticBezierTo(x + 0.9, 8.4, x + 0.9, 10.4);
+      canvas.drawPath(cap, detail);
+    }
 
-    // Right minaret
-    canvas.drawLine(const Offset(18.5, 21.0), const Offset(18.5, 8.5), stroke);
-    canvas.drawLine(const Offset(20.5, 21.0), const Offset(20.5, 8.5), stroke);
-    canvas.drawLine(const Offset(17.5, 8.5), const Offset(21.5, 8.5), stroke); // balcony
-    canvas.drawLine(const Offset(19.5, 8.5), const Offset(19.5, 5.0), detail); // lantern shaft
-    canvas.drawCircle(const Offset(19.5, 4.2), 1.0, fill); // spire peak
+    // Shrine hall
+    final hall = Path()
+      ..moveTo(6.6, 21.0)
+      ..lineTo(6.6, 14.2)
+      ..lineTo(17.4, 14.2)
+      ..lineTo(17.4, 21.0);
+    canvas.drawPath(hall, stroke);
 
-    // Central Shrine Dome (swelling onion dome)
+    // Onion dome: swells past its base, then tapers to the pinnacle.
     final dome = Path()
-      ..moveTo(7.8, 14.5)
-      ..cubicTo(7.6, 10.2, 9.4, 6.6, 12.0, 5.2)
-      ..cubicTo(14.6, 6.6, 16.4, 10.2, 16.2, 14.5)
+      ..moveTo(8.41, 14.2)
+      ..cubicTo(6.25, 12.05, 7.17, 8.88, 10.39, 7.32)
+      ..cubicTo(11.45, 6.63, 12.0, 6.12, 12.0, 5.6)
+      ..cubicTo(12.0, 6.12, 12.55, 6.63, 13.61, 7.32)
+      ..cubicTo(16.83, 8.88, 17.75, 12.05, 15.59, 14.2)
       ..close();
     canvas.drawPath(dome, stroke);
 
-    // Wider Shrine Hall Roofline (wider than the dome)
-    canvas.drawLine(const Offset(6.0, 14.5), const Offset(18.0, 14.5), stroke);
+    // Arched door
+    final door = Path()
+      ..moveTo(10.4, 21.0)
+      ..lineTo(10.4, 18.2)
+      ..quadraticBezierTo(10.4, 16.8, 12.0, 16.2)
+      ..quadraticBezierTo(13.6, 16.8, 13.6, 18.2)
+      ..lineTo(13.6, 21.0);
+    canvas.drawPath(door, detail);
 
-    // Shrine Hall Side Walls down to ground line
-    canvas.drawLine(const Offset(6.8, 14.5), const Offset(6.8, 21.0), stroke);
-    canvas.drawLine(const Offset(17.2, 14.5), const Offset(17.2, 21.0), stroke);
-
-    // Sacred Flag of Karbala (Alam) mounted on the dome pinnacle
-    canvas.drawLine(const Offset(12.0, 5.2), const Offset(12.0, 1.8), detail); // pole
+    // Alam (flag of Karbala) on the dome's pinnacle
+    final pole = Paint()
+      ..color = color
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.4
+      ..strokeCap = StrokeCap.round;
+    canvas.drawLine(const Offset(12.0, 5.6), const Offset(12.0, 1.6), pole);
     final flag = Path()
-      ..moveTo(12.0, 1.8)
-      ..quadraticBezierTo(14.0, 1.3, 16.0, 2.2)
-      ..lineTo(15.2, 3.8)
-      ..quadraticBezierTo(13.6, 3.0, 12.0, 4.0)
+      ..moveTo(12.0, 1.6)
+      ..quadraticBezierTo(14.0, 1.1, 15.6, 2.1)
+      ..lineTo(14.9, 3.5)
+      ..quadraticBezierTo(13.6, 2.8, 12.0, 3.7)
       ..close();
     canvas.drawPath(flag, fill);
   }
@@ -744,7 +766,8 @@ class _HomeGlyphPainter extends CustomPainter {
     canvas.drawLine(const Offset(5.5, 3.6), const Offset(18.5, 3.6), divPaint);
 
     // Bottom border divider line
-    canvas.drawLine(const Offset(5.5, 20.4), const Offset(18.5, 20.4), divPaint);
+    canvas.drawLine(
+        const Offset(5.5, 20.4), const Offset(18.5, 20.4), divPaint);
 
     // Inner Mihrab arch shape
     final arch = Path()
@@ -878,8 +901,10 @@ class _HomeGlyphPainter extends CustomPainter {
       const Radius.circular(1.0),
     );
     canvas.drawRRect(book3, stroke);
-    canvas.drawLine(const Offset(pivotX, 10.0), const Offset(pivotX + 4.0, 10.0), detail);
-    canvas.drawLine(const Offset(pivotX, 17.6), const Offset(pivotX + 4.0, 17.6), detail);
+    canvas.drawLine(
+        const Offset(pivotX, 10.0), const Offset(pivotX + 4.0, 10.0), detail);
+    canvas.drawLine(
+        const Offset(pivotX, 17.6), const Offset(pivotX + 4.0, 17.6), detail);
 
     canvas.restore();
   }
@@ -920,12 +945,15 @@ class _HomeGlyphPainter extends CustomPainter {
     canvas.drawRRect(bookCover, bookStroke);
 
     // Spine divider on the left
-    canvas.drawLine(const Offset(7.6, 3.2), const Offset(7.6, 20.8), bookStroke);
+    canvas.drawLine(
+        const Offset(7.6, 3.2), const Offset(7.6, 20.8), bookStroke);
 
     // Three spine embossed raised bands
     canvas.drawLine(const Offset(4.5, 6.8), const Offset(7.6, 6.8), bookDetail);
-    canvas.drawLine(const Offset(4.5, 12.0), const Offset(7.6, 12.0), bookDetail);
-    canvas.drawLine(const Offset(4.5, 17.2), const Offset(7.6, 17.2), bookDetail);
+    canvas.drawLine(
+        const Offset(4.5, 12.0), const Offset(7.6, 12.0), bookDetail);
+    canvas.drawLine(
+        const Offset(4.5, 17.2), const Offset(7.6, 17.2), bookDetail);
 
     // Inner decorative border frame on the cover
     final innerFrame = RRect.fromRectAndRadius(
