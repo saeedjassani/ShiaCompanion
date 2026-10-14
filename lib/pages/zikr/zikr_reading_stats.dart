@@ -251,11 +251,13 @@ double zikrTabSeenFraction({
   return ((scrollOffset + viewport) / total).clamp(0.0, 1.0).toDouble();
 }
 
-/// How much of a tab has to have been on screen for it to count as recited.
+/// How much of a tab has to have been on screen for it to count as recited
+/// in the usage metrics (analytics, activity stats, the rating prompt).
 ///
-/// Short of 1 on purpose: zikrs close with notes, merits, references or a
-/// passage recited in sajdah, and the reader who has reached those has
-/// recited the zikr.
+/// Short of 1 for Ziyarat Ashura, whose closing passage is recited in sajdah
+/// and mostly from memory, so the reader finishes without scrolling to it.
+/// Only the metrics go by this; what the reader is shown goes by
+/// [zikrFullyReadThreshold].
 const double zikrCompletionSeenThreshold = 0.9;
 
 /// Share of a tab's estimated recitation time that has to have passed since
@@ -266,14 +268,13 @@ const double zikrCompletionTimeShare = 0.4;
 /// The floor on that time, for a dua short enough to fit on one screen.
 const Duration zikrCompletionMinTime = Duration(seconds: 10);
 
-/// How much of a surah or juz has to have been on screen for it to count as
-/// recited: all of it, down to the last word of the last ayah.
+/// How much of a tab has to have been on screen for the reader to be told
+/// it is "Completed": all of it, down to its last word.
 ///
-/// [zikrCompletionSeenThreshold]'s slack is for a zikr's closing notes and
-/// merits; the Quran has none, and 10% of al-Baqarah is some 25 ayahs - which
-/// is how "Completed" came to show with many ayahs still to go. Short of 1 by
-/// a rounding error only.
-const double quranCompletionSeenThreshold = 1 - 1e-9;
+/// [zikrCompletionSeenThreshold]'s slack left the last tenth unread - some 25
+/// ayahs of al-Baqarah - while the reader already said "Completed". Short of
+/// 1 by a rounding error only.
+const double zikrFullyReadThreshold = 1 - 1e-9;
 
 /// How much longer the reader has to stay on a tab before it counts as
 /// recited: [Duration.zero] if it already does, null if not enough of it has
@@ -286,17 +287,16 @@ const double quranCompletionSeenThreshold = 1 - 1e-9;
 /// reading time. [elapsed] is the time spent on *this* tab, so time spent
 /// reciting one tab does not let a fling through the next one count too.
 ///
-/// [isQuran] holds a surah or juz to its last ayah - see
-/// [quranCompletionSeenThreshold].
+/// [seenThreshold] is how much of the tab has to have been on screen:
+/// [zikrCompletionSeenThreshold] for the metrics, [zikrFullyReadThreshold]
+/// for the "Completed" the reader sees.
 Duration? zikrTabCompletionWait({
   required double seenFraction,
   required ZikrTabReadingStats? tab,
   required Duration elapsed,
-  bool isQuran = false,
+  double seenThreshold = zikrCompletionSeenThreshold,
 }) {
-  final threshold =
-      isQuran ? quranCompletionSeenThreshold : zikrCompletionSeenThreshold;
-  if (seenFraction < threshold) return null;
+  if (seenFraction < seenThreshold) return null;
   final tabSeconds = tab == null ? 0.0 : tab.minutes * 60;
   final requiredMs = (tabSeconds * zikrCompletionTimeShare * 1000).round();
   final required = Duration(
@@ -357,10 +357,10 @@ String zikrReadingTimeLabel(Duration duration) =>
 
 /// Label for how far through the tab being read the reader is.
 ///
-/// "Completed" is kept for [completed] - the tab counting as recited by
-/// [zikrTabCompletionWait], the same rule the activity stats go by - rather
-/// than for the end of the text merely being on screen, which a short dua
-/// is the moment it opens and any tab is after a fling to the bottom.
+/// "Completed" is kept for [completed] - the whole tab read, by
+/// [zikrTabCompletionWait] with [zikrFullyReadThreshold] - rather than for
+/// the end of the text merely being on screen, which a short dua is the
+/// moment it opens and any tab is after a fling to the bottom.
 String zikrProgressLabel(double progress, {bool completed = false}) {
   if (completed) return L10n.current.zikrProgressCompleted;
   final clamped = progress.clamp(0.0, 1.0).toDouble();

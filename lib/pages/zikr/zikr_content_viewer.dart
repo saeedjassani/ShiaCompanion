@@ -113,13 +113,13 @@ class ZikrContentScrollPosition {
 
   /// How far through the tab's text the reader is, measured by words at
   /// [zikrReadingLine] - see [zikrContentFractionAbove] for why not by
-  /// pixels. Null when it cannot be measured (nothing laid out, or a tab with
-  /// no words), for the page to fall back to the scroll offset.
+  /// pixels; by the scroll offset only for a tab with no words to weigh.
+  /// Null until the list has been laid out, when there is nothing to measure.
   final double? progressFraction;
 
   /// Share of the tab's text that has been on screen - measured by words down
-  /// to the bottom of the view. Null under the same conditions as
-  /// [progressFraction].
+  /// to the bottom of the view, as [progressFraction] is. Null under the same
+  /// condition.
   final double? seenFraction;
 }
 
@@ -979,6 +979,10 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget>
             laidOut: laidOut,
             line: line,
           );
+    // By pixels only for a laid out tab with no words to weigh - one whose
+    // every line is hidden in this language, say. Before the list is laid
+    // out there is nothing to measure, and both stay null.
+    final isLaidOut = laidOut != null;
     widget.onScrollPositionChanged!.call(
       ZikrContentScrollPosition(
         tabIndex: tabIndex,
@@ -988,13 +992,26 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget>
         lineIndex: _topLineIndex(tabIndex, controller),
         bookmarkLineIndex: _bookmarkLineIndex(tabIndex, controller),
         progressFraction: fractionAbove(zikrReadingLine(
-          scrollOffset: position.pixels,
-          maxScrollExtent: position.maxScrollExtent,
-          viewportDimension: position.viewportDimension,
-        )),
+              scrollOffset: position.pixels,
+              maxScrollExtent: position.maxScrollExtent,
+              viewportDimension: position.viewportDimension,
+            )) ??
+            (isLaidOut
+                ? zikrTabScrollFraction(
+                    scrollOffset: position.pixels,
+                    maxScrollExtent: position.maxScrollExtent,
+                  )
+                : null),
         seenFraction: fractionAbove(
-          position.pixels + position.viewportDimension,
-        ),
+              position.pixels + position.viewportDimension,
+            ) ??
+            (isLaidOut
+                ? zikrTabSeenFraction(
+                    scrollOffset: position.pixels,
+                    maxScrollExtent: position.maxScrollExtent,
+                    viewportDimension: position.viewportDimension,
+                  )
+                : null),
       ),
     );
   }

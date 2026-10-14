@@ -88,6 +88,35 @@ void main() {
       );
     });
 
+    test('90% seen counts in the metrics, but is not "Completed"', () {
+      expect(
+        zikrTabCompletionWait(
+          seenFraction: 0.95,
+          tab: tenMinutes,
+          elapsed: const Duration(hours: 1),
+        ),
+        Duration.zero,
+      );
+      expect(
+        zikrTabCompletionWait(
+          seenFraction: 0.95,
+          tab: tenMinutes,
+          elapsed: const Duration(hours: 1),
+          seenThreshold: zikrFullyReadThreshold,
+        ),
+        isNull,
+      );
+      expect(
+        zikrTabCompletionWait(
+          seenFraction: 1,
+          tab: tenMinutes,
+          elapsed: const Duration(minutes: 4),
+          seenThreshold: zikrFullyReadThreshold,
+        ),
+        Duration.zero,
+      );
+    });
+
     test('a tab is timed by its own length, not the compilation\'s', () {
       expect(
         zikrTabCompletionWait(
@@ -100,7 +129,7 @@ void main() {
     });
   });
 
-  group('a surah counts only once its last ayah is on screen', () {
+  group('a surah is "Completed" only once its last ayah is on screen', () {
     // Al-Baqarah's 286 ayahs, one list item each, 100px tall and of equal
     // weight; a 1,000px view shows ten at a time.
     const ayahs = 286;
@@ -135,7 +164,7 @@ void main() {
           seenFraction: seen,
           tab: long,
           elapsed: const Duration(hours: 3),
-          isQuran: true,
+          seenThreshold: zikrFullyReadThreshold,
         ),
         isNull,
       );
@@ -147,7 +176,7 @@ void main() {
           seenFraction: seenAt(285 * itemHeight + 50),
           tab: long,
           elapsed: const Duration(hours: 3),
-          isQuran: true,
+          seenThreshold: zikrFullyReadThreshold,
         ),
         isNull,
       );
@@ -162,7 +191,7 @@ void main() {
           seenFraction: seen,
           tab: long,
           elapsed: const Duration(hours: 3),
-          isQuran: true,
+          seenThreshold: zikrFullyReadThreshold,
         ),
         Duration.zero,
       );
@@ -171,7 +200,7 @@ void main() {
           seenFraction: seen,
           tab: long,
           elapsed: Duration.zero,
-          isQuran: true,
+          seenThreshold: zikrFullyReadThreshold,
         ),
         greaterThan(Duration.zero),
         reason: 'a fling to the end is not a recitation',
@@ -184,14 +213,15 @@ void main() {
           seenFraction: 1,
           tab: const ZikrTabReadingStats(arabicWords: 10, latinWords: 0),
           elapsed: const Duration(seconds: 10),
-          isQuran: true,
+          seenThreshold: zikrFullyReadThreshold,
         ),
         Duration.zero,
       );
     });
   });
 
-  test('Ziyarat Ashura counts with the sajdah passage on screen', () {
+  test('Ziyarat Ashura counts in the metrics with the sajdah passage on screen',
+      () {
     // The last ~5% of Ziyarat Ashura is recited in sajdah, so the reader
     // stops scrolling with it still on screen rather than scrolling it away.
     final data =
@@ -222,6 +252,16 @@ void main() {
       ),
       Duration.zero,
       reason: 'a five-minute recitation of a ~7 minute ziyarah counts',
+    );
+    expect(
+      zikrTabCompletionWait(
+        seenFraction: seen,
+        tab: stats.tabs.single,
+        elapsed: const Duration(minutes: 5),
+        seenThreshold: zikrFullyReadThreshold,
+      ),
+      seen >= zikrFullyReadThreshold ? Duration.zero : isNull,
+      reason: 'the reader is told "Completed" only once it is all on screen',
     );
   });
 }
