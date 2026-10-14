@@ -153,7 +153,19 @@ class LocationService extends ChangeNotifier {
 
   /// Refreshes only if the current reading has aged out. Safe to call on every
   /// app open and every resume — that is the point of it.
-  Future<bool> refreshIfStale({BuildContext? context}) {
+  ///
+  /// Without a location yet, an automatic call (no [context]) fetches only if
+  /// the phone already allows the app its location: it never prompts, and a
+  /// permission nobody has granted is not a failure to show. The prompt
+  /// follows an explicit tap - "Use my location" in setup or on the prayer
+  /// card.
+  Future<bool> refreshIfStale({
+    BuildContext? context,
+    Future<bool> Function() permitted = hasLocationPermission,
+  }) async {
+    if (!hasLocation && context == null && _inFlight == null) {
+      if (!await permitted()) return false;
+    }
     if (!isStale) {
       // The stored fix is good enough, so any error still on display is about
       // an attempt we have since decided we did not need. Clearing it stops a
@@ -163,7 +175,7 @@ class LocationService extends ChangeNotifier {
       // An app language changed while offline is caught up here, on the
       // next open or resume.
       unawaited(relabelForAppLanguage());
-      return Future.value(true);
+      return true;
     }
 
     // Back off from an attempt that got us nowhere, but never while one is
@@ -173,24 +185,19 @@ class LocationService extends ChangeNotifier {
     if (_inFlight == null &&
         lastUnproductiveAttemptAt != null &&
         DateTime.now().difference(lastUnproductiveAttemptAt) < retryCooldown) {
-      return Future.value(hasLocation);
+      return hasLocation;
     }
 
     return refresh(context: context);
   }
 
-  /// The launch-time refresh: [refreshIfStale] once there is a location, and
-  /// before that only if the phone already allows the app its location. The
-  /// permission prompt and the dialogs follow an explicit tap - "Use my
-  /// location" in setup or on the prayer card - never a launch; until then
-  /// the card offers both ways to set one.
+  /// The launch-time refresh: [refreshIfStale], which before there is a
+  /// location fetches only if the phone already allows it. Until then the
+  /// card offers both ways to set one.
   Future<bool> refreshIfAllowed({
     Future<bool> Function() permitted = hasLocationPermission,
-  }) async {
-    if (hasLocation) return refreshIfStale();
-    if (!await permitted()) return false;
-    return refreshIfStale();
-  }
+  }) =>
+      refreshIfStale(permitted: permitted);
 
   /// Fetches a new position.
   ///

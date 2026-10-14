@@ -532,7 +532,10 @@ Future<bool> initializeLocation(
     }
 
     var permissionStatus = await Geolocator.checkPermission();
-    if (permissionStatus == LocationPermission.denied) {
+    // Only an explicit tap - one that passes context - may ask. An automatic
+    // refresh (launch, resume, opening Qibla) never prompts: someone who
+    // skipped the location step in setup has said no for now.
+    if (permissionStatus == LocationPermission.denied && context != null) {
       permissionStatus = await Geolocator.requestPermission();
     }
 

@@ -133,6 +133,35 @@ void main() {
       expect(service.hasLocation, isFalse);
     });
 
+    // Return to the app, or opening Qibla, after skipping the location step.
+    test('a resume without a location never asks either', () async {
+      final geolocator = _CountingGeolocator(
+        currentPosition: _pos(32.6, 44.0),
+        permission: LocationPermission.denied,
+      );
+      GeolocatorPlatform.instance = geolocator;
+
+      expect(await service.refreshIfStale(), isFalse);
+
+      expect(geolocator.requestPermissionCalls, 0);
+      expect(geolocator.currentPositionCalls, 0);
+      // Not a failure to report: nobody has asked for a location yet.
+      expect(service.status, LocationRefreshStatus.idle);
+    });
+
+    test('no refresh without context asks for permission', () async {
+      final geolocator = _CountingGeolocator(
+        currentPosition: _pos(32.6, 44.0),
+        permission: LocationPermission.denied,
+      );
+      GeolocatorPlatform.instance = geolocator;
+
+      expect(await service.refresh(), isFalse);
+
+      expect(geolocator.requestPermissionCalls, 0);
+      expect(geolocator.currentPositionCalls, 0);
+    });
+
     test('fetches one the phone already allows', () async {
       final geolocator = _CountingGeolocator(currentPosition: _pos(32.6, 44.0));
       GeolocatorPlatform.instance = geolocator;

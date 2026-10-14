@@ -8,10 +8,15 @@ import 'package:http/testing.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shia_companion/constants.dart';
 import 'package:shia_companion/pages/home/home_header.dart';
+import 'package:shia_companion/services/azaan_opt_in_service.dart';
+import 'package:shia_companion/services/first_run_setup.dart';
 import 'package:shia_companion/services/location_service.dart';
 import 'package:shia_companion/utils/shared_preferences.dart';
 import 'package:shia_companion/utils/widget_prayer_time_selection.dart';
+import 'package:shia_companion/utils/timezone_database.dart';
+import 'package:shia_companion/widgets/outline_icon.dart';
 import 'package:shia_companion/widgets/prayer_times_widget.dart';
+import 'package:timezone/timezone.dart' as tz;
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -389,6 +394,92 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(tapped, isTrue);
+  });
+  group('the azan question under the times', () {
+    const question = 'Hear the azan at prayer time?';
+
+    setUp(() {
+      ensureTimeZoneDatabaseInitialized();
+      tz.setLocalLocation(tz.UTC);
+      lat = 32.02;
+      long = 44.34;
+      city = 'Najaf';
+    });
+
+    Iterable<OutlineIcon> bells(WidgetTester tester) => tester
+        .widgetList<OutlineIcon>(find.byType(OutlineIcon))
+        .where((icon) => icon.glyph == OutlineGlyph.bell);
+
+    testWidgets('is asked once there are times, and Not now is final',
+        (tester) async {
+      await pumpCard(tester);
+      expect(find.text(question), findsOneWidget);
+      expect(find.text('Fajr'), findsOneWidget);
+
+      await tester.tap(find.text('Not now'));
+      await tester.pumpAndSettle();
+
+      expect(find.text(question), findsNothing);
+      expect(AzaanOptInService.hasBeenAsked, isTrue);
+      expect(AzaanOptInService.isEnabled, isFalse);
+
+      await tester.pumpWidget(const SizedBox());
+      await pumpCard(tester);
+      expect(find.text(question), findsNothing);
+    });
+
+    testWidgets('Turn on azan enables the three it names, each with a bell',
+        (tester) async {
+      await pumpCard(tester);
+      expect(bells(tester), isEmpty);
+
+      await tester.tap(find.text('Turn on azan'));
+      await tester.pumpAndSettle();
+
+      expect(find.text(question), findsNothing);
+      expect(
+        AzaanOptInService.allPrayerKeys
+            .where((k) => SP.prefs.getBool(k) == true)
+            .toSet(),
+        AzaanOptInService.defaultEnabledPrayerKeys.toSet(),
+      );
+      // Fajr, Zuhr and Maghrib of the default five; not Sunrise or Sunset.
+      expect(bells(tester), hasLength(3));
+      expect(find.bySemanticsLabel(RegExp('Azan on')), findsWidgets);
+    });
+
+    testWidgets('fits a narrow phone with every bell on', (tester) async {
+      tester.view.physicalSize = const Size(320, 900);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+      for (final key in AzaanOptInService.allPrayerKeys) {
+        await SP.prefs.setBool(key, true);
+      }
+      await SP.prefs.setBool(AzaanOptInService.askedKey, true);
+      await pumpCard(tester);
+      expect(bells(tester), hasLength(5));
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('not without times', (tester) async {
+      lat = null;
+      long = null;
+      GeolocatorPlatform.instance = _FakeGeolocator(serviceEnabled: false);
+      await pumpCard(tester);
+      expect(find.text(question), findsNothing);
+    });
+
+    testWidgets('not during setup, which asks for itself', (tester) async {
+      await SP.prefs.setString(FirstRunSetup.stateKey, FirstRunSetup.pending);
+      await pumpCard(tester);
+      expect(find.text(question), findsNothing);
+    });
+
+    testWidgets('not once answered', (tester) async {
+      await SP.prefs.setBool(AzaanOptInService.askedKey, true);
+      await pumpCard(tester);
+      expect(find.text(question), findsNothing);
+    });
   });
 }
 
