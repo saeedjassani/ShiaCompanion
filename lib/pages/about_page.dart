@@ -10,7 +10,7 @@ import '../widgets/outline_icon.dart';
 import '../widgets/page_chrome.dart';
 import '../widgets/app_toast.dart';
 
-/// About: the app and its version, the dedication, the support address, and
+/// About: the app and its version, its intention, the support address, and
 /// the credits the content's licences ask for.
 class AboutPage extends StatefulWidget {
   const AboutPage({super.key});
@@ -78,49 +78,68 @@ class _AboutPageState extends State<AboutPage> {
       subtitle: l10n.aboutVersion(appVersion),
       maxWidth: compactContentWidth,
       slivers: [
+        // The app's identity sits on the page itself, not in a card.
         section(
-          Container(
-            padding: const EdgeInsets.fromLTRB(20, 24, 20, 20),
-            decoration: BoxDecoration(
-              color: colors.surface,
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: colors.line),
-            ),
-            child: Column(
-              children: [
-                Image.asset('assets/logo.png', width: 96, height: 96),
-                const SizedBox(height: 12),
-                Text(
-                  appName,
-                  textAlign: TextAlign.center,
-                  style: ShiaText.sectionTitle.copyWith(color: colors.text),
+          Column(
+            children: [
+              Image.asset('assets/logo.png', width: 88, height: 88),
+              const SizedBox(height: 10),
+              Text(
+                appName,
+                textAlign: TextAlign.center,
+                style: ShiaText.sectionTitle.copyWith(color: colors.text),
+              ),
+            ],
+          ),
+          bottom: 24,
+        ),
+        section(
+          Column(
+            children: [
+              Text(
+                '﷽',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontFamily: arabicFont,
+                  fontSize: 32,
+                  height: 1.6,
+                  color: colors.text,
                 ),
-                const SizedBox(height: 14),
-                Text(
-                  '﷽',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontFamily: arabicFont,
-                    fontSize: 32,
-                    height: 1.6,
-                    color: colors.text,
-                  ),
-                ),
-                const SizedBox(height: 10),
-                Text(
-                  l10n.aboutDedication,
-                  textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 10),
+              Text(
+                l10n.aboutIntention,
+                textAlign: TextAlign.center,
+                style: ShiaText.secondary.copyWith(color: colors.text),
+              ),
+              const SizedBox(height: 12),
+              Text(
+                l10n.aboutFatihaRequest,
+                textAlign: TextAlign.center,
+                style: ShiaText.secondary.copyWith(color: colors.textMuted),
+              ),
+            ],
+          ),
+          bottom: 24,
+        ),
+        // Feedback, requests, GitHub and rating live under Settings' Support
+        // group; this is just the address, for anyone who came here for it.
+        section(
+          CardList(
+            children: [
+              CardListRow(
+                first: true,
+                last: true,
+                leading: OutlineIcon(OutlineGlyph.mail,
+                    size: 20, color: colors.accent),
+                title: Text(l10n.aboutContactUs),
+                subtitle: Text(
+                  _supportEmail,
                   style: ShiaText.secondary.copyWith(color: colors.textMuted),
                 ),
-                const SizedBox(height: 16),
-                PageButton(
-                  label: _supportEmail,
-                  glyph: OutlineGlyph.mail,
-                  filled: true,
-                  onPressed: _email,
-                ),
-              ],
-            ),
+                onTap: _email,
+              ),
+            ],
           ),
           bottom: 20,
         ),
@@ -158,6 +177,15 @@ class _AboutPageState extends State<AboutPage> {
                 ),
             ],
           ),
+          bottom: 20,
+        ),
+        section(
+          Text(
+            l10n.aboutFooter,
+            textAlign: TextAlign.center,
+            style: ShiaText.caption.copyWith(color: colors.textMuted),
+          ),
+          bottom: 24,
         ),
       ],
     );
