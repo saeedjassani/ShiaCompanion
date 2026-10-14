@@ -121,4 +121,39 @@ void main() {
       expect(shouldClearSelectionForScroll(ScrollDirection.idle), isFalse);
     });
   });
+
+  group('zikrBottomFadeOpacity', () {
+    test('is in full while there is plenty of text below', () {
+      expect(
+        zikrBottomFadeOpacity(scrollOffset: 0, maxScrollExtent: 2000),
+        1.0,
+      );
+    });
+
+    test('eases out over the last of the text', () {
+      final near =
+          zikrBottomFadeOpacity(scrollOffset: 1969, maxScrollExtent: 2000);
+      expect(near, greaterThan(0.0));
+      expect(near, lessThan(1.0));
+    });
+
+    test('is gone at the end, so the last line reads at full strength', () {
+      expect(
+        zikrBottomFadeOpacity(scrollOffset: 2000, maxScrollExtent: 2000),
+        0.0,
+      );
+      // An overscroll bounce past the end.
+      expect(
+        zikrBottomFadeOpacity(scrollOffset: 2040, maxScrollExtent: 2000),
+        0.0,
+      );
+    });
+
+    test('is never drawn over text too short to scroll', () {
+      expect(
+        zikrBottomFadeOpacity(scrollOffset: 0, maxScrollExtent: 0),
+        0.0,
+      );
+    });
+  });
 }
