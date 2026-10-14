@@ -3,12 +3,14 @@ QuranWBW IndoPak Quran text and font
 
 Files:
   assets/quran/quranwbw-indopak.json   IndoPak Quran text, Madinah edition
-  assets/fonts/quranwbw-indopak.ttf    "AlQuran Neo 5x2 Arabic" v2.100
+  assets/fonts/quranwbw-indopak.ttf    "AlQuran Neo 5x3 Arabic" v2.100
 
 Source: https://quranwbw.com
   text: https://static.quranwbw.com/data/v4/words-data/arabic/3.json?version=7
         ("Qalam Digital Font (Madinah Edition)" on quranwbw.com)
-  font: https://quranwbw.com/fonts/AlQuranNeo5x2.woff2
+  font: AlQuranNeo5x3-Arabic.ttf, sent by QuranWBW (Ayman Siddiqui) on
+        14 October 2026 as an update to AlQuranNeo5x2 from
+        https://quranwbw.com/fonts/AlQuranNeo5x2.woff2
 
 Licence
 -------
@@ -44,9 +46,8 @@ from glyphs of the KFGQPC Nastaleeq font. Copyright line:
 Khan, Arif Karim, Shakir-ul-Qadree, Jawad.
 QuranWBW credits the IndoPak text to typemybook.com, originally by InPage.
 
-Both files are bundled verbatim. The JSON is the file as served. The font was
-converted from WOFF2 to TTF, because Flutter cannot load WOFF2; this is a
-container change only, and every glyph and the character map are identical.
+Both files are bundled verbatim. The JSON is the file as served; the font is
+the TTF as QuranWBW sent it.
 
 The text uses private-use codepoints for pause marks, rukuʿ signs and ayah
 numbers. It must be rendered in this font. Qalam uses private-use codepoints
