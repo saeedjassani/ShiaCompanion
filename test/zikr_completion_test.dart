@@ -88,6 +88,35 @@ void main() {
       );
     });
 
+    test('90% seen counts in the metrics, but is not "Completed"', () {
+      expect(
+        zikrTabCompletionWait(
+          seenFraction: 0.95,
+          tab: tenMinutes,
+          elapsed: const Duration(hours: 1),
+        ),
+        Duration.zero,
+      );
+      expect(
+        zikrTabCompletionWait(
+          seenFraction: 0.95,
+          tab: tenMinutes,
+          elapsed: const Duration(hours: 1),
+          seenThreshold: zikrFullyReadThreshold,
+        ),
+        isNull,
+      );
+      expect(
+        zikrTabCompletionWait(
+          seenFraction: 1,
+          tab: tenMinutes,
+          elapsed: const Duration(minutes: 4),
+          seenThreshold: zikrFullyReadThreshold,
+        ),
+        Duration.zero,
+      );
+    });
+
     test('a tab is timed by its own length, not the compilation\'s', () {
       expect(
         zikrTabCompletionWait(
@@ -100,7 +129,99 @@ void main() {
     });
   });
 
-  test('Ziyarat Ashura counts with the sajdah passage on screen', () {
+  group('a surah is "Completed" only once its last ayah is on screen', () {
+    // Al-Baqarah's 286 ayahs, one list item each, 100px tall and of equal
+    // weight; a 1,000px view shows ten at a time.
+    const ayahs = 286;
+    const itemHeight = 100.0;
+    const viewport = 1000.0;
+    final weights = List<double>.filled(ayahs, 10);
+    final long = ZikrTabReadingStats(arabicWords: ayahs * 10, latinWords: 0);
+
+    // What the viewer reports with the view's bottom edge at [bottom]: the
+    // items on screen plus one either side, as a lazily built list has them.
+    double seenAt(double bottom) {
+      final first = ((bottom - viewport) / itemHeight).floor() - 1;
+      final last = (bottom / itemHeight).ceil();
+      return zikrContentFractionAbove(
+        itemWeights: weights,
+        laidOut: [
+          for (var i = first.clamp(0, ayahs - 1);
+              i <= last.clamp(0, ayahs - 1);
+              i++)
+            ZikrLaidOutItem(index: i, top: i * itemHeight, extent: itemHeight),
+        ],
+        line: bottom,
+      )!;
+    }
+
+    test('not with 26 ayahs still to come', () {
+      final seen = seenAt(260 * itemHeight);
+      expect(seen, greaterThanOrEqualTo(zikrCompletionSeenThreshold),
+          reason: 'what a dua is allowed, and what used to say Completed');
+      expect(
+        zikrTabCompletionWait(
+          seenFraction: seen,
+          tab: long,
+          elapsed: const Duration(hours: 3),
+          seenThreshold: zikrFullyReadThreshold,
+        ),
+        isNull,
+      );
+    });
+
+    test('not with only the last ayah to come', () {
+      expect(
+        zikrTabCompletionWait(
+          seenFraction: seenAt(285 * itemHeight + 50),
+          tab: long,
+          elapsed: const Duration(hours: 3),
+          seenThreshold: zikrFullyReadThreshold,
+        ),
+        isNull,
+      );
+    });
+
+    test('once the end is reached, after the time it takes', () {
+      // The list stops with the bottom padding below the last ayah.
+      final seen = seenAt(ayahs * itemHeight + 120);
+      expect(seen, 1);
+      expect(
+        zikrTabCompletionWait(
+          seenFraction: seen,
+          tab: long,
+          elapsed: const Duration(hours: 3),
+          seenThreshold: zikrFullyReadThreshold,
+        ),
+        Duration.zero,
+      );
+      expect(
+        zikrTabCompletionWait(
+          seenFraction: seen,
+          tab: long,
+          elapsed: Duration.zero,
+          seenThreshold: zikrFullyReadThreshold,
+        ),
+        greaterThan(Duration.zero),
+        reason: 'a fling to the end is not a recitation',
+      );
+    });
+
+    test('a short surah that fits on screen counts as before', () {
+      expect(
+        zikrTabCompletionWait(
+          seenFraction: 1,
+          tab: const ZikrTabReadingStats(arabicWords: 10, latinWords: 0),
+          elapsed: const Duration(seconds: 10),
+          seenThreshold: zikrFullyReadThreshold,
+        ),
+        Duration.zero,
+      );
+    });
+  });
+
+  test('Ziyarat Ashura counts in the metrics with the sajdah passage on screen',
+      () {
     // The last ~5% of Ziyarat Ashura is recited in sajdah, so the reader
     // stops scrolling with it still on screen rather than scrolling it away.
     final data =
@@ -131,6 +252,16 @@ void main() {
       ),
       Duration.zero,
       reason: 'a five-minute recitation of a ~7 minute ziyarah counts',
+    );
+    expect(
+      zikrTabCompletionWait(
+        seenFraction: seen,
+        tab: stats.tabs.single,
+        elapsed: const Duration(minutes: 5),
+        seenThreshold: zikrFullyReadThreshold,
+      ),
+      seen >= zikrFullyReadThreshold ? Duration.zero : isNull,
+      reason: 'the reader is told "Completed" only once it is all on screen',
     );
   });
 }
