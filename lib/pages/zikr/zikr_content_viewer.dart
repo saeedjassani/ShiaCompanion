@@ -3510,11 +3510,18 @@ class _RuledArabicParagraph extends StatelessWidget {
         return Stack(
           children: [
             ...rules,
-            Text.rich(
-              span,
-              key: textKey,
-              textAlign: textAlign,
-              textDirection: TextDirection.rtl,
+            // Full width: a Stack hands its child loose constraints, so text
+            // that fits on one row would shrink to its own width and sit at
+            // the Stack's start edge, where centring or right-aligning it
+            // does nothing - a short Bismillah landed on the left.
+            SizedBox(
+              width: constraints.maxWidth,
+              child: Text.rich(
+                span,
+                key: textKey,
+                textAlign: textAlign,
+                textDirection: TextDirection.rtl,
+              ),
             ),
           ],
         );

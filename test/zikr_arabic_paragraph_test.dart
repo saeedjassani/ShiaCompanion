@@ -245,6 +245,13 @@ void main() {
       final bismillah = tester.widget<Text>(find.text(_bismillah));
       expect(bismillah.textAlign, TextAlign.center);
       expect(bismillah.textDirection, TextDirection.rtl);
+      // Centred across the whole row, not within a box shrunk to the text
+      // and pushed to one side - it fits on a single row here.
+      _useViewportWidth(tester, 800);
+      await tester.pumpAndSettle();
+      final row = tester.getRect(find.text(_bismillah));
+      expect(row.left, 0);
+      expect(row.right, 800);
 
       final rest = tester.widget<Text>(find.text('$_verse0 $_verse1'));
       expect(rest.textAlign, TextAlign.justify);
