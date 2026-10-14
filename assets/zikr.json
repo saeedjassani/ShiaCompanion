@@ -2203,9 +2203,8 @@
     "day": "08-07"
   },
   "G57": {
-    "title": "Ziyarat of Hazrat Abbas (a.s.)",
-    "slug": "ziyarate-hazrat-abbas-a-s",
-    "day": "08-04"
+    "title": "Ziyarat of Hazrat Abbas (a.s.) - Ya Aba al-Fadl",
+    "slug": "ziyarate-hazrat-abbas-a-s"
   },
   "G58": {
     "title": "Ziyarat of Habib ibn Mazahir (a.s.)",
@@ -2273,7 +2272,7 @@
     ]
   },
   "G68": {
-    "title": "Ziyarat of Imam Ali al-Reza (a.s.)",
+    "title": "Ziyarat of Imam Ali al-Reza (a.s.) - Ayyuha al-Siddiq al-Shahid",
     "slug": "ziyarate-imam-ali-raza-a-s",
     "day": [
       "02-17",
@@ -2291,7 +2290,7 @@
     ]
   },
   "G7": {
-    "title": "Ziyarat of Hazrat Abbas (a.s.)",
+    "title": "Ziyarat of Hazrat Abbas (a.s.) - Salamullahi wa Salamu Mala'ikatihi",
     "slug": "ziyarat-e-hazrat-abbas-a-s",
     "day": "08-04"
   },
@@ -2363,14 +2362,8 @@
     ]
   },
   "G8": {
-    "title": "Ziyarat of Imam Ali al-Reza (a.s.)",
-    "slug": "ziyarat-e-hazrat-imam-reza-a-s",
-    "day": [
-      "02-17",
-      "02-29",
-      "11-11",
-      "11-23"
-    ]
+    "title": "Ziyarat of Imam Ali al-Reza (a.s.) - Ya Gharib al-Ghuraba",
+    "slug": "ziyarat-e-hazrat-imam-reza-a-s"
   },
   "G80": {
     "title": "Ziyarat of Hazrat Abdul Muttalib (a.s.)",
@@ -2404,8 +2397,7 @@
   },
   "G9": {
     "title": "Ziyarat of Imam-e-Zamana (a.t.f.s.)",
-    "slug": "ziyarat-e-hazrat-imam-e-zamana-a-t-f-s",
-    "day": "08-15"
+    "slug": "ziyarat-e-hazrat-imam-e-zamana-a-t-f-s"
   },
   "H1": {
     "title": "1st Whispered Prayer of the Repenters - Munajat al-Taibeen",
