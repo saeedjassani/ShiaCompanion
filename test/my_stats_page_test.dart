@@ -141,4 +141,25 @@ void main() {
     }
     expect(find.text('6'), findsOneWidget);
   });
+
+  testWidgets('The khatm ring stays round beside a taller panel',
+      (tester) async {
+    await tester.pumpWidget(const MaterialApp(
+      home: Scaffold(
+        body: IntrinsicHeight(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              ProgressRing(value: 0.3, center: Text('30%')),
+              SizedBox(width: 40, height: 140),
+            ],
+          ),
+        ),
+      ),
+    ));
+
+    final ring = tester.getSize(find.descendant(
+        of: find.byType(ProgressRing), matching: find.byType(CustomPaint)));
+    expect(ring.width, ring.height);
+  });
 }

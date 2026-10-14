@@ -133,28 +133,34 @@ class ProgressRing extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    return SizedBox(
-      width: size,
-      height: size,
-      child: Stack(
-        fit: StackFit.expand,
-        children: [
-          CustomPaint(
-            painter: _RingPainter(
-              value: value.clamp(0.0, 1.0).toDouble(),
-              strokeWidth: strokeWidth,
-              color: color ?? colorScheme.primary,
-              trackColor:
-                  trackColor ?? colorScheme.onSurface.withValues(alpha: 0.08),
+    // Square whatever the parent asks: a row stretched to a taller panel
+    // beside it centres the ring instead of drawing it as an oval.
+    return Center(
+      widthFactor: 1,
+      heightFactor: 1,
+      child: SizedBox(
+        width: size,
+        height: size,
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            CustomPaint(
+              painter: _RingPainter(
+                value: value.clamp(0.0, 1.0).toDouble(),
+                strokeWidth: strokeWidth,
+                color: color ?? colorScheme.primary,
+                trackColor:
+                    trackColor ?? colorScheme.onSurface.withValues(alpha: 0.08),
+              ),
             ),
-          ),
-          Center(
-            child: Padding(
-              padding: EdgeInsets.all(strokeWidth + 2),
-              child: FittedBox(fit: BoxFit.scaleDown, child: center),
+            Center(
+              child: Padding(
+                padding: EdgeInsets.all(strokeWidth + 2),
+                child: FittedBox(fit: BoxFit.scaleDown, child: center),
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -175,11 +181,9 @@ class _RingPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    final rect = Rect.fromLTWH(
-      strokeWidth / 2,
-      strokeWidth / 2,
-      size.width - strokeWidth,
-      size.height - strokeWidth,
+    final rect = Rect.fromCircle(
+      center: size.center(Offset.zero),
+      radius: (size.shortestSide - strokeWidth) / 2,
     );
     final track = Paint()
       ..color = trackColor
