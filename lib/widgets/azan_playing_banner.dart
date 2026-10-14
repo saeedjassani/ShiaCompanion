@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 
 import '../l10n/l10n.dart';
 import '../services/azan_playback_service.dart';
@@ -21,8 +22,15 @@ import 'page_chrome.dart';
 /// AzanPlaybackService answers from wherever it is really playing. The
 /// playback notification also carries its own pause and stop, so this is a
 /// second, always-visible way to steer it rather than the only one.
+///
+/// It sits just above the page's own floating control ([FloatingBottomSlot])
+/// and a playing playlist's capsule; a toast goes above it ([top]).
 class AzanPlayingBanner extends StatefulWidget {
   const AzanPlayingBanner({Key? key}) : super(key: key);
+
+  /// How far the banner reaches up from the bottom of the screen, or 0
+  /// while it is hidden: where a toast goes to stay clear of it.
+  static final ValueNotifier<double> top = ValueNotifier(0);
 
   @override
   State<AzanPlayingBanner> createState() => _AzanPlayingBannerState();
@@ -44,7 +52,16 @@ class _AzanPlayingBannerState extends State<AzanPlayingBanner> {
   @override
   void dispose() {
     _poll?.cancel();
+    AzanPlayingBanner.top.value = 0;
     super.dispose();
+  }
+
+  // Never straight from build: a toast listening to [AzanPlayingBanner.top]
+  // sits elsewhere in the tree, and may not be marked dirty then.
+  void _publishTop(double value) {
+    SchedulerBinding.instance.addPostFrameCallback((_) {
+      if (mounted) AzanPlayingBanner.top.value = value;
+    });
   }
 
   Future<void> _check() async {
@@ -85,27 +102,39 @@ class _AzanPlayingBannerState extends State<AzanPlayingBanner> {
 
   @override
   Widget build(BuildContext context) {
-    if (!_playing) return const SizedBox.shrink();
+    if (!_playing) {
+      _publishTop(0);
+      return const SizedBox.shrink();
+    }
 
     final colors = ShiaColors.of(context);
     final l10n = context.l10n;
-    // Clear of the tab bar or a find field (62 px tall) wherever they float,
-    // and of a toast above them.
-    final bottom = MediaQuery.viewInsetsOf(context).bottom +
-        floatingBottomOffset(context) +
-        62 +
-        12 +
-        64;
+    final keyboard = MediaQuery.viewInsetsOf(context).bottom;
 
-    // Above a playing playlist's capsule too.
+    // Just above the page's floating control - the tab bar, a find field,
+    // the reader's tools - or, with the keyboard up, above a find field
+    // (62 px tall) riding on it. Above a playing playlist's capsule too.
     return ListenableBuilder(
       listenable: NowPlayingCapsule.layout,
-      builder: (context, child) => Positioned(
-        left: 16,
-        right: 16,
-        bottom: math.max(bottom, NowPlayingCapsule.top(context) + 12),
-        child: child!,
-      ),
+      builder: (context, child) {
+        final reserved = FloatingBottomSlot.reserved.value;
+        final base = keyboard > 0
+            ? keyboard + floatingBottomOffset(context) + 62 + 12
+            : reserved > 0
+                ? reserved + NowPlayingCapsule.gap
+                : floatingBottomOffset(context);
+        final bottom = math.max(
+            base, NowPlayingCapsule.top(context) + NowPlayingCapsule.gap);
+        return Positioned(
+          left: 16,
+          right: 16,
+          bottom: bottom,
+          child: _ReportHeight(
+            onHeight: (height) => _publishTop(bottom + height),
+            child: child!,
+          ),
+        );
+      },
       child: SafeArea(
         top: false,
         bottom: false,
@@ -182,5 +211,22 @@ class _AzanPlayingBannerState extends State<AzanPlayingBanner> {
         ),
       ),
     );
+  }
+}
+
+/// Reports [child]'s laid-out height after each frame it builds in.
+class _ReportHeight extends StatelessWidget {
+  const _ReportHeight({required this.onHeight, required this.child});
+
+  final ValueChanged<double> onHeight;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    SchedulerBinding.instance.addPostFrameCallback((_) {
+      final box = context.findRenderObject() as RenderBox?;
+      if (box != null && box.hasSize) onHeight(box.size.height);
+    });
+    return child;
   }
 }
