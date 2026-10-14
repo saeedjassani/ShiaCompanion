@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 
 import '../constants.dart' show appNavigatorKey;
 import '../theme/shia_colors.dart';
+import 'azan_playing_banner.dart';
 import 'glass_surface.dart';
 import 'now_playing_capsule.dart';
 import 'page_chrome.dart';
@@ -310,13 +311,19 @@ class _ToastViewState extends State<_ToastView>
             ),
     );
 
-    // Above a playing playlist's capsule, which floats there too.
+    // Above a playing playlist's capsule and the Azan's controls, which
+    // float there too.
     return ListenableBuilder(
-      listenable: NowPlayingCapsule.layout,
+      listenable:
+          Listenable.merge([NowPlayingCapsule.layout, AzanPlayingBanner.top]),
       builder: (context, child) => Positioned(
         left: 16,
         right: 16,
-        bottom: math.max(bottom, NowPlayingCapsule.top(context) + 12),
+        bottom: [
+          bottom,
+          NowPlayingCapsule.top(context) + 12,
+          if (AzanPlayingBanner.top.value > 0) AzanPlayingBanner.top.value + 12,
+        ].reduce(math.max),
         child: child!,
       ),
       child: SafeArea(
