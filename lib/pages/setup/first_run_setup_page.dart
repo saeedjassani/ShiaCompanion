@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../constants.dart';
+import '../../l10n/app_language.dart';
 import '../../l10n/l10n.dart';
 import '../../services/analytics_service.dart';
 import '../../services/azaan_opt_in_service.dart';
@@ -14,6 +15,7 @@ import '../../services/location_service.dart';
 import '../../theme/shia_colors.dart';
 import '../../utils/app_text_scale.dart';
 import '../../utils/font_preferences.dart';
+import '../../utils/language_provider.dart';
 import '../../utils/prayer_time_entries.dart';
 import '../../utils/shared_preferences.dart';
 import '../../utils/sign_in_flow.dart';
@@ -21,6 +23,7 @@ import '../../utils/theme_mode.dart';
 import '../../widgets/outline_icon.dart';
 import '../../widgets/page_chrome.dart';
 import '../../widgets/prayer_glyph.dart';
+import '../../widgets/language_settings.dart';
 import '../../widgets/zikr_reading_preferences.dart';
 import '../city_picker.dart';
 
@@ -59,17 +62,21 @@ class _FirstRunGateState extends State<FirstRunGate> {
 }
 
 /// First-run setup (docs/DESIGN_SPEC.md, "First-run setup"; mockups
-/// Setup-0-welcome … Setup-5-signin): a welcome, then five steps - prayer
-/// times, azan, Arabic style, theme, back up.
+/// Setup-0-welcome … Setup-5-signin): a welcome, where the app language and
+/// text size can be set first so every step after reads well, then five
+/// steps - prayer times, azan, Arabic style, theme, back up.
 ///
 /// The Azan step only follows a location: without one there are no times to
 /// show beside the switches, and turning azan on would seem to do nothing.
 /// Without it setup has four steps, and the question is put once a location
 /// is set later instead (offerAzanOnceLocated).
 ///
-/// Every step can be skipped, and skipping leaves that setting as it was:
-/// no location, azan off, the default font and theme. Choices apply as they
-/// are made, so the font sample and the whole page follow along. The OS
+/// "Skip setup", on the welcome and atop every step, ends setup there:
+/// what was chosen so far stays, the rest keeps its default - no location,
+/// azan off, the default font and theme. Each step also has its own way on
+/// without a choice (Not now, Continue on the default, Maybe later). Choices
+/// apply as they are made, so the font sample and the whole page follow
+/// along. The OS
 /// prompts only follow a tap here: "Use my location" asks for location,
 /// "Turn on azan" for notifications.
 class FirstRunSetupPage extends StatefulWidget {
@@ -175,6 +182,7 @@ class _FirstRunSetupPageState extends State<FirstRunSetupPage> {
         : _StepPosition(
             step: _step,
             total: steps.length,
+            onSkipAll: () => _finish(skipped: true),
             child: switch (steps[_step - 1]) {
               _Setup.location => _LocationStep(onNext: _next),
               _Setup.azan => _AzanStep(onNext: _next),
@@ -228,29 +236,32 @@ final TextStyle _titleStyle = ShiaText.largeTitle
 
 enum _Setup { location, azan, font, theme, backup }
 
-/// Where the step below sits among this run's steps, for its header.
+/// Where the step below sits among this run's steps, and how to end setup
+/// from it, for its header.
 class _StepPosition extends InheritedWidget {
   const _StepPosition({
     required this.step,
     required this.total,
+    required this.onSkipAll,
     required super.child,
   });
 
   final int step;
   final int total;
+  final VoidCallback onSkipAll;
 
   @override
   bool updateShouldNotify(_StepPosition oldWidget) =>
       step != oldWidget.step || total != oldWidget.total;
 }
 
-/// One step: "Step 2 of 5" with its dots and Skip at the top, the step's
-/// content (scrolling when the text is large), and its buttons at the
+/// One step: "Step 2 of 5" with its dots and Skip setup at the top, the
+/// step's content (scrolling when the text is large), and its buttons at the
 /// bottom.
 class _StepFrame extends StatelessWidget {
   const _StepFrame({
     this.numbered = true,
-    this.onSkip,
+    this.skippable = true,
     required this.children,
     required this.actions,
     this.centred = false,
@@ -259,7 +270,10 @@ class _StepFrame extends StatelessWidget {
 
   /// False for the welcome, which has no step line.
   final bool numbered;
-  final VoidCallback? onSkip;
+
+  /// Whether the header offers Skip setup: not on the last step, whose
+  /// Maybe later already ends setup, nor while the step is busy.
+  final bool skippable;
   final List<Widget> children;
   final List<Widget> actions;
 
@@ -280,7 +294,10 @@ class _StepFrame extends StatelessWidget {
         children: [
           if (position != null)
             _StepHeader(
-                step: position.step, total: position.total, onSkip: onSkip),
+              step: position.step,
+              total: position.total,
+              onSkip: skippable ? position.onSkipAll : null,
+            ),
           Expanded(
             child: LayoutBuilder(
               builder: (context, constraints) => SingleChildScrollView(
@@ -361,7 +378,7 @@ class _StepHeader extends StatelessWidget {
                 textStyle: buttonTextStyle(context, ShiaText.body)
                     .copyWith(fontWeight: FontWeight.w600),
               ),
-              child: Text(context.l10n.setupSkip),
+              child: Text(context.l10n.setupSkipAll),
             ),
         ],
       ),
@@ -666,7 +683,130 @@ class _WelcomeStep extends StatelessWidget {
           style:
               ShiaText.body.copyWith(height: 24 / 17, color: colors.textMuted),
         ),
+        const SizedBox(height: 28),
+        const _ReadingBasics(),
       ],
+    );
+  }
+}
+
+/// The welcome's card of what makes the rest readable: the app language
+/// (once more than English has shipped) and the app text size. Both apply
+/// and are saved at once, so the steps after are in them, and Skip setup
+/// keeps them.
+class _ReadingBasics extends StatelessWidget {
+  const _ReadingBasics();
+
+  /// Two of the Settings slider's 5% stops a tap.
+  static void _step(BuildContext context, int direction) {
+    final provider = context.read<AppTextScaleProvider>();
+    provider.setScale(provider.scale + 0.1 * direction);
+    unawaited(provider.save());
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = ShiaColors.of(context);
+    final l10n = context.l10n;
+    final scale = context.watch<AppTextScaleProvider>().scale;
+    final languages = context.watch<LanguageProvider>();
+    final language =
+        appLanguageFor(languages.appLanguageChoice) ?? languages.deviceLanguage;
+    final rowTitle = ShiaText.cardTitle.copyWith(color: colors.text);
+
+    return Container(
+      decoration: BoxDecoration(
+        color: colors.surface,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: colors.line),
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: Column(
+        children: [
+          if (appLanguageOffered())
+            InkWell(
+              onTap: () => pickAppLanguage(context, republish: false),
+              child: Container(
+                constraints: const BoxConstraints(minHeight: 56),
+                padding: const EdgeInsetsDirectional.fromSTEB(14, 6, 10, 6),
+                decoration: BoxDecoration(
+                  border: Border(bottom: BorderSide(color: colors.divider)),
+                ),
+                child: Row(
+                  children: [
+                    OutlineIcon(OutlineGlyph.globe,
+                        size: 22, color: colors.accent, strokeWidth: 1.8),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(l10n.settingsAppLanguage, style: rowTitle),
+                    ),
+                    const SizedBox(width: 8),
+                    ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: 160),
+                      child: Text(
+                        // The language the app is in now, by its own
+                        // name: shorter than Settings' "Same as phone (…)".
+                        language.nativeName,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        textAlign: TextAlign.end,
+                        style: ShiaText.secondary
+                            .copyWith(color: colors.textMuted),
+                      ),
+                    ),
+                    const SizedBox(width: 4),
+                    OutlineIcon(OutlineGlyph.chevronRight,
+                        size: 18, color: colors.chevron),
+                  ],
+                ),
+              ),
+            ),
+          Padding(
+            padding: const EdgeInsetsDirectional.fromSTEB(14, 6, 10, 6),
+            child: Row(
+              children: [
+                ExcludeSemantics(
+                  child: Text(
+                    l10n.textSizeGlyph,
+                    textScaler: TextScaler.noScaling,
+                    style: TextStyle(
+                        fontSize: 17,
+                        fontWeight: FontWeight.w700,
+                        color: colors.accent),
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                    child: Text(l10n.settingsAppTextSize, style: rowTitle)),
+                _SizeButton(
+                  text: '${l10n.textSizeLetter}−',
+                  fontSize: 15,
+                  label: l10n.setupTextSmaller,
+                  onPressed: scale > AppTextScaleProvider.minScale
+                      ? () => _step(context, -1)
+                      : null,
+                ),
+                SizedBox(
+                  width: 56,
+                  child: Text(
+                    AppTextScaleProvider.label(scale),
+                    textAlign: TextAlign.center,
+                    style: ShiaText.secondary.copyWith(color: colors.textMuted),
+                  ),
+                ),
+                _SizeButton(
+                  text: '${l10n.textSizeLetter}+',
+                  fontSize: 19,
+                  label: l10n.setupTextBigger,
+                  onPressed: scale < AppTextScaleProvider.maxScale
+                      ? () => _step(context, 1)
+                      : null,
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -715,7 +855,7 @@ class _LocationStepState extends State<_LocationStep> {
     final colors = ShiaColors.of(context);
     final l10n = context.l10n;
     return _StepFrame(
-      onSkip: _locating ? null : widget.onNext,
+      skippable: !_locating,
       centred: true,
       horizontalPadding: 24,
       actions: [
@@ -730,6 +870,12 @@ class _LocationStepState extends State<_LocationStep> {
           label: l10n.setupChooseCity,
           onPressed: _locating ? null : _chooseCity,
           kind: _ButtonKind.secondary,
+        ),
+        _SetupButton(
+          label: l10n.setupNotNow,
+          onPressed: _locating ? null : widget.onNext,
+          kind: _ButtonKind.quiet,
+          height: 48,
         ),
       ],
       children: [
@@ -872,7 +1018,7 @@ class _AzanStepState extends State<_AzanStep> {
     final isIOS = !kIsWeb && defaultTargetPlatform == TargetPlatform.iOS;
 
     return _StepFrame(
-      onSkip: _saving ? null : () => _answer(false),
+      skippable: !_saving,
       actions: [
         _SetupButton(
           label: l10n.setupTurnOnAzan,
@@ -1022,56 +1168,23 @@ class _FontStep extends StatefulWidget {
 }
 
 class _FontStepState extends State<_FontStep> {
-  /// What the step opened on, for Skip to put back.
-  late final String _initialFont;
-  late final double _initialScale;
-
-  @override
-  void initState() {
-    super.initState();
-    _initialFont = arabicFont;
-    _initialScale = context.read<AppTextScaleProvider>().scale;
-  }
-
   Future<void> _choose(String font) async {
     if (font == arabicFont) return;
     await saveArabicFontChoice(font);
     if (mounted) setState(() {});
   }
 
-  /// Two of the Settings slider's 5% stops a tap, applied to the whole app
-  /// at once so the step itself shows the change.
-  void _step(int direction) {
-    final provider = context.read<AppTextScaleProvider>();
-    provider.setScale(provider.scale + 0.1 * direction);
-  }
-
-  void _continue() {
-    final provider = context.read<AppTextScaleProvider>();
-    if (provider.scale != _initialScale) unawaited(provider.save());
-    widget.onNext();
-  }
-
-  Future<void> _skip() async {
-    if (arabicFont != _initialFont) await saveArabicFontChoice(_initialFont);
-    if (!mounted) return;
-    context.read<AppTextScaleProvider>().setScale(_initialScale);
-    widget.onNext();
-  }
-
   @override
   Widget build(BuildContext context) {
     final colors = ShiaColors.of(context);
     final l10n = context.l10n;
-    final scale = context.watch<AppTextScaleProvider>().scale;
     String hintFor(String font) => font == 'Scheherazade'
         ? l10n.setupFontScheherazadeHint
         : l10n.setupFontQalamHint;
 
     return _StepFrame(
-      onSkip: _skip,
       actions: [
-        _SetupButton(label: l10n.commonContinue, onPressed: _continue),
+        _SetupButton(label: l10n.commonContinue, onPressed: widget.onNext),
       ],
       children: [
         _Heading(title: l10n.setupFontTitle, body: l10n.setupFontBody),
@@ -1128,38 +1241,6 @@ class _FontStepState extends State<_FontStep> {
             ),
           ),
         ],
-        const SizedBox(height: 14),
-        Row(
-          children: [
-            Expanded(
-              child: Text(l10n.settingsAppTextSize,
-                  style: ShiaText.cardTitle.copyWith(color: colors.text)),
-            ),
-            _SizeButton(
-              text: '${l10n.textSizeLetter}−',
-              fontSize: 15,
-              label: l10n.setupTextSmaller,
-              onPressed: scale > AppTextScaleProvider.minScale
-                  ? () => _step(-1)
-                  : null,
-            ),
-            SizedBox(
-              width: 56,
-              child: Text(
-                AppTextScaleProvider.label(scale),
-                textAlign: TextAlign.center,
-                style: ShiaText.secondary.copyWith(color: colors.textMuted),
-              ),
-            ),
-            _SizeButton(
-              text: '${l10n.textSizeLetter}+',
-              fontSize: 19,
-              label: l10n.setupTextBigger,
-              onPressed:
-                  scale < AppTextScaleProvider.maxScale ? () => _step(1) : null,
-            ),
-          ],
-        ),
       ],
     );
   }
@@ -1227,36 +1308,15 @@ class _ThemeStep extends StatefulWidget {
 }
 
 class _ThemeStepState extends State<_ThemeStep> {
-  /// What the step opened on, for Skip to put back.
-  late final ThemeMode _initial;
-
-  @override
-  void initState() {
-    super.initState();
-    _initial = context.read<ThemeModeProvider>().themeMode;
-  }
-
   Future<void> _choose(ThemeMode mode) async {
     final provider = context.read<ThemeModeProvider>();
     if (provider.themeMode == mode) return;
     await provider.setThemeMode(mode);
-  }
-
-  void _continue() {
-    final mode = context.read<ThemeModeProvider>().themeMode;
-    if (mode != _initial) {
-      unawaited(AnalyticsService.feature(
-        'theme_mode_changed',
-        label: 'Theme changed',
-        parameters: {'theme_mode': mode.name},
-      ));
-    }
-    widget.onNext();
-  }
-
-  Future<void> _skip() async {
-    await context.read<ThemeModeProvider>().setThemeMode(_initial);
-    widget.onNext();
+    unawaited(AnalyticsService.feature(
+      'theme_mode_changed',
+      label: 'Theme changed',
+      parameters: {'theme_mode': mode.name},
+    ));
   }
 
   @override
@@ -1266,9 +1326,8 @@ class _ThemeStepState extends State<_ThemeStep> {
     final mode = context.watch<ThemeModeProvider>().themeMode;
 
     return _StepFrame(
-      onSkip: _skip,
       actions: [
-        _SetupButton(label: l10n.commonContinue, onPressed: _continue),
+        _SetupButton(label: l10n.commonContinue, onPressed: widget.onNext),
       ],
       children: [
         _Heading(title: l10n.setupThemeTitle, body: l10n.setupThemeBody),
@@ -1477,6 +1536,7 @@ class _BackupStepState extends State<_BackupStep> {
     final appleForeground = dark ? Colors.black : Colors.white;
 
     return _StepFrame(
+      skippable: false,
       centred: true,
       actions: [
         _SetupButton(
