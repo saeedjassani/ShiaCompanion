@@ -70,8 +70,9 @@ void main() {
           'E37': 'Dua Sanamay Quraish',
         }),
       ]);
-      // Jawshan Kabir and Simat on Friday are left to See all.
-      expect(_uids(picks), ['E34', 'G4', 'G6', 'E18']);
+      // Jawshan Kabir and the rites are left to See all; the day's
+      // ziyarat comes last.
+      expect(_uids(picks), ['E34', 'E26', 'G4', 'G6', 'E18', 'J3']);
     });
 
     test('leads with the whole of tonight\'s occasion, Jawshan Kabir first',
@@ -87,12 +88,15 @@ void main() {
           'AA16': 'Aamal of Sahar in the Holy Month of Ramazan',
           'AA10': 'Dua Iftitah',
         }),
-        titled(TodaysRecitationKind.weekday, {'E31': 'Dua Kumayl'}),
+        titled(TodaysRecitationKind.weekday, {
+          'Q3': 'Ziyarat on Thursday',
+          'E31': 'Dua Kumayl',
+        }),
         titled(TodaysRecitationKind.everyDay, {'G6': 'Ziyarat Warith'}),
       ]);
       // The month's aamal waits in See all, and with a dua for the night
       // the every-day ziyarat does too.
-      expect(_uids(picks), ['E29', 'G14', 'AA35', 'AA29', 'AA10', 'E31']);
+      expect(_uids(picks), ['E29', 'G14', 'AA35', 'AA29', 'AA10', 'E31', 'Q3']);
       expect(picks.first.kind, TodaysRecitationKind.night);
     });
 
@@ -190,12 +194,16 @@ void main() {
       await tester.pumpWidget(app(onSeeAll: () => seeAll++));
 
       expect(find.text('Today'), findsOneWidget);
-      // The every-day recitations centres recite; Sunday's ziyarat and
-      // supplication are left to See all.
-      for (final title in ['Ziyarat Ashura', 'Ziyarat Warith', 'Dua Ahad']) {
+      // The every-day recitations centres recite, then Sunday's ziyarat;
+      // its supplication is left to See all.
+      for (final title in [
+        'Ziyarat Ashura',
+        'Ziyarat Warith',
+        'Dua Ahad',
+        'Ziyarat on Sunday',
+      ]) {
         expect(find.text(title), findsOneWidget, reason: title);
       }
-      expect(find.text('Ziyarat on Sunday'), findsNothing);
       expect(find.text('The Supplication of Sunday'), findsNothing);
       expect(find.text('The Supplication of Thursday'), findsNothing);
       // No caption saying when: the heading says Today.
@@ -203,8 +211,8 @@ void main() {
       expect(find.text('Every day'), findsNothing);
       // One strip of cards, in order.
       expect(
-        tester.getTopLeft(find.text('Ziyarat Ashura')).dx,
-        lessThan(tester.getTopLeft(find.text('Ziyarat Warith')).dx),
+        tester.getTopLeft(find.text('Dua Ahad')).dx,
+        lessThan(tester.getTopLeft(find.text('Ziyarat on Sunday')).dx),
       );
 
       await tester.tap(find.text('See all'));

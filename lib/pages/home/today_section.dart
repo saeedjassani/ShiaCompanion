@@ -43,14 +43,16 @@ TodayRecitationType todayRecitationType(UidTitleData entry) {
 }
 
 /// The weekday's and every day's recitations that centres recite - Kumayl
-/// on Thursday, Nudba on Friday, Ziyarat Ashura and Warith daily - and the
-/// only ones of theirs Home shows. The rest (Jawshan Kabir and Simat on
-/// Friday, the weekday's ziyarat) wait in See all.
+/// on Thursday, Nudba on Friday, Ziyarat Ashura and Warith daily - and,
+/// with the weekday's own ziyarat, the only ones of theirs Home shows. The
+/// rest (Jawshan Kabir on Friday, the weekday's supplication) wait in See
+/// all.
 @visibleForTesting
 const Set<String> homeRoutineRecitations = {
   'E24', // Dua Tawassul, Tuesday
   'E31', // Dua Kumayl, Thursday
   'E34', // Dua Nudba, Friday
+  'E26', // Dua Simat, Friday
   'G4', // Ziyarat Ashura
   'G6', // Ziyarat Warith
   'E18', // Dua Ahad
@@ -90,6 +92,7 @@ const List<String> homeFamousRecitations = [
 ///    Iftitah).
 /// 3. The weekday's and every day's [homeRoutineRecitations] - but not the
 ///    every-day ones when an occasion has a dua or ziyarat of its own.
+/// 4. The weekday's ziyarat (Ziyarat on Thursday), always, last.
 ///
 /// Within each, [homeFamousRecitations] lead. Aamal outside an occasion,
 /// and the less recited weekday and every-day recitations, are left to See
@@ -108,6 +111,7 @@ List<TodayPick> todayPicks(List<TodaysRecitationGroup> groups) {
       .any((group) => isOccasion(group.kind) && group.items.any(isRecitation));
 
   final shown = <TodayPick>[];
+  final ziyaratOfTheDay = <TodayPick>[];
   for (final group in groups) {
     if (group.kind == TodaysRecitationKind.everyDay && occasionHasRecitation) {
       continue;
@@ -127,6 +131,11 @@ List<TodayPick> todayPicks(List<TodaysRecitationGroup> groups) {
           (pick) => isRecitation(pick.entry) && !isCatalogued(pick.entry)),
       ...rest.where((pick) => !isRecitation(pick.entry)),
     ];
+    if (group.kind == TodaysRecitationKind.weekday) {
+      ziyaratOfTheDay.addAll(ordered.where((pick) =>
+          !homeRoutineRecitations.contains(pick.entry.uid) &&
+          todayRecitationType(pick.entry) == TodayRecitationType.ziyarat));
+    }
     shown.addAll(switch (group.kind) {
       TodaysRecitationKind.night || TodaysRecitationKind.date => ordered,
       TodaysRecitationKind.month =>
@@ -135,7 +144,7 @@ List<TodayPick> todayPicks(List<TodaysRecitationGroup> groups) {
           .where((pick) => homeRoutineRecitations.contains(pick.entry.uid)),
     });
   }
-  return shown;
+  return [...shown, ...ziyaratOfTheDay];
 }
 
 /// "Today": today's recitations as a sideways strip of cards, in
