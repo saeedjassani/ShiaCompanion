@@ -79,10 +79,10 @@ void main() async {
     androidStopForegroundOnPause: false,
   );
 
-  // Registers android_alarm_manager_plus's dispatch so a prayer-time alarm
-  // fired while the app isn't running can still reach AzanPlaybackService's
-  // callback. No-op off Android.
-  await AzanPlaybackService.initialize();
+  // Hears the native Azan player start and stop (an alarm, its notification),
+  // so it and the recitation player never play over each other. No-op off
+  // Android.
+  AzanPlaybackService.initialize();
 
   final FirebaseApp app = await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,

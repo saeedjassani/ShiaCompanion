@@ -3,42 +3,66 @@ import 'dart:io' show File, Platform;
 import 'dart:isolate';
 import 'dart:ui';
 
-import 'package:android_alarm_manager_plus/android_alarm_manager_plus.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter/widgets.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:just_audio_background/just_audio_background.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../l10n/l10n.dart';
 import 'exclusive_audio.dart';
 
+/// One Full Azan / Custom Audio alarm, as Android's native player takes it.
+///
+/// [id] is the paired prayer notification's id, so the two are replaced and
+/// cancelled together.
+@immutable
+class AzanAlarm {
+  const AzanAlarm({
+    required this.id,
+    required this.fireTime,
+    required this.prayerName,
+    this.customFilePath,
+  });
+
+  final int id;
+  final DateTime fireTime;
+
+  /// The prayer's key (e.g. `Zuhr`), not its localized name.
+  final String prayerName;
+  final String? customFilePath;
+
+  Map<String, Object?> toChannelMap() => {
+        'id': id,
+        'fireAtMillis': fireTime.millisecondsSinceEpoch,
+        'prayerName': prayerName,
+        ..._titles(prayerName),
+        'customFilePath': customFilePath,
+      };
+}
+
 /// Plays the full Azan - or, on Android, a user's Custom Audio choice - as
 /// real, app-controlled audio rather than a plain notification sound.
 ///
 /// A notification's `sound:` field is a short OS ringtone: any other
 /// notification, an incoming call, or the user simply touching the phone can
-/// cut it off, and there is no player behind it to resume or stop. This
-/// service instead runs the recording through the same just_audio +
-/// just_audio_background pipeline `ZikrAudioPlayer` already uses for
-/// recitation - a real foreground media-playback service with its own audio
-/// focus and a lock-screen/notification media control - so it survives being
-/// backgrounded, and can still be dismissed on purpose from that
+/// cut it off, and there is no player behind it to resume or stop. This plays
+/// the recording through a real foreground media-playback service with its
+/// own audio focus and a notification to pause or stop it, so it survives
+/// being backgrounded, and can still be dismissed on purpose from that
 /// notification or from [stopIfPlaying].
 ///
-/// On Android, playback is triggered at the exact prayer time by
-/// [alarmCallback], scheduled through android_alarm_manager_plus (see
-/// [schedule]) - the one mechanism on this platform that can run Dart code
-/// at a precise wall-clock time even if the app was never opened. iOS has no
-/// equivalent (no background execution at an arbitrary future time without
-/// the app already running), so there Full Azan instead starts from
-/// [playNow] when the user taps the prayer notification; Custom Audio isn't
-/// offered on iOS at all.
+/// On Android, playback and its schedule are native (AzanPlayerService and
+/// AzanSchedule in the app's Kotlin): an alarm at the exact prayer time
+/// starts the player without starting Flutter at all. It used to run Dart in
+/// an android_alarm_manager_plus isolate, which also woke audio_service's
+/// cached engine - running the app's main() headless, where it hung behind
+/// the alarm's own audio setup, so opening the app during an Azan stuck on
+/// the splash screen and Android reported the app as not responding.
 ///
-/// The class needs its own entry-point pragma, not just [alarmCallback]: in a
-/// release (AOT) build the alarm plugin can't reach a static method of a class
-/// that isn't itself annotated, and the Azan silently never starts.
-@pragma('vm:entry-point')
+/// iOS has no equivalent (no background execution at an arbitrary future
+/// time without the app already running), so there Full Azan instead starts
+/// from [playNow] when the user taps the prayer notification, through
+/// just_audio in this isolate; Custom Audio isn't offered on iOS at all.
 class AzanPlaybackService {
   AzanPlaybackService._();
 
@@ -47,119 +71,54 @@ class AzanPlaybackService {
   static const String _playingPrayerPrefKey = 'azan_currently_playing_prayer';
   static const String _pausedPrefKey = 'azan_currently_paused';
 
-  /// Registers android_alarm_manager_plus's own background dispatch. Must
-  /// run in the main isolate before any [schedule] call - pairs with
-  /// `JustAudioBackground.init` in main.dart. Android-only: there is no
-  /// alarm manager to register on iOS/web.
-  static Future<void> initialize() async {
-    if (kIsWeb || !Platform.isAndroid) return;
-    await AndroidAlarmManager.initialize();
+  static const MethodChannel _channel = MethodChannel('shia_companion/azan');
+
+  static bool get _isNative => !kIsWeb && Platform.isAndroid;
+
+  /// Listens for the native player starting and stopping on its own (an
+  /// alarm, the notification's Stop), so a recitation playing at the same
+  /// time stops for the Azan, and starting one later stops the Azan - the
+  /// same hand-over [ExclusiveAudio] gives every other player. Android only;
+  /// call once from main().
+  static void initialize() {
+    if (!_isNative) return;
+    _channel.setMethodCallHandler((call) async {
+      if (call.method != 'stateChanged') return;
+      final playing = (call.arguments as Map?)?['playing'] == true;
+      if (playing) {
+        if (!ExclusiveAudio.isOwnedBy(_audioOwner)) {
+          await ExclusiveAudio.claim(_audioOwner, _stopNative);
+        }
+      } else {
+        ExclusiveAudio.relinquish(_audioOwner);
+      }
+    });
   }
 
-  /// Schedules the actual Azan audio for one prayer notification, alongside
-  /// (not instead of) the ordinary local notification banner.
-  ///
-  /// [alarmId] reuses the id `schedulePrayerTimeNotification` gives that
-  /// paired notification - android_alarm_manager_plus keeps an entirely
-  /// separate id namespace from flutter_local_notifications, so there is no
-  /// collision between the two.
-  static Future<void> schedule({
-    required int alarmId,
-    required DateTime fireTime,
-    required String prayerName,
-    required bool exact,
-    String? customFilePath,
-  }) async {
-    if (kIsWeb || !Platform.isAndroid) return;
-    if (fireTime.isBefore(DateTime.now())) return;
-    await AndroidAlarmManager.oneShotAt(
-      fireTime,
-      alarmId,
-      alarmCallback,
-      // Mirrors schedulePrayerTimeNotification's own AndroidScheduleMode
-      // choice for the paired notification: `exact` needs the user to have
-      // granted the SCHEDULE_EXACT_ALARM special access on Android 12+, and
-      // Android throws rather than falling back if it's requested without
-      // that - so this always stays a real degrade-gracefully choice, never
-      // hardcoded true.
-      exact: exact,
-      // An exact alarm alone rang the paired notification on time but left
-      // the Azan minutes late: this plugin hands each alarm to a
-      // JobIntentService, i.e. a JobScheduler job, and in Doze the job waits
-      // for the next maintenance window - and a second allow-while-idle alarm
-      // right after the notification's own is rate-limited on top. An alarm
-      // clock brings the phone out of Doze before it fires, so the job runs
-      // at once; the price is the system's alarm icon and "next alarm" line.
-      // It needs the same exact-alarm access, so it follows [exact].
-      alarmClock: exact,
-      allowWhileIdle: true,
-      wakeup: true,
-      rescheduleOnReboot: false,
-      params: {
-        'prayerName': prayerName,
-        if (customFilePath != null) 'customFilePath': customFilePath,
-      },
-    );
+  /// Replaces Android's whole Azan schedule with [alarms]: any alarm not in
+  /// it is cancelled, so one can never outlive the schedule that made it.
+  static Future<void> replaceSchedule(List<AzanAlarm> alarms) async {
+    if (!_isNative) return;
+    await _channel.invokeMethod<void>('replaceSchedule', {
+      'alarms': [for (final alarm in alarms) alarm.toChannelMap()],
+      'labels': _labels(),
+    });
   }
 
-  static Future<void> cancel(int alarmId) async {
-    if (kIsWeb || !Platform.isAndroid) return;
-    await AndroidAlarmManager.cancel(alarmId);
+  /// Cancels every scheduled Azan, including any android_alarm_manager_plus
+  /// armed for [legacyIds] before native playback replaced it.
+  static Future<void> clearSchedule({required List<int> legacyIds}) async {
+    if (!_isNative) return;
+    await _invoke('clearSchedule', {'legacyIds': legacyIds});
   }
 
-  static const MethodChannel _alarmsChannel =
-      MethodChannel('shia_companion/azan_alarms');
-
-  /// Whether Android still holds a scheduled alarm for any of [alarmIds].
-  ///
-  /// A force-stop or reboot deletes these alarms while flutter_local_notifications
-  /// keeps its own record of the paired notifications, so that record alone
-  /// can't say whether the Azan will actually play. Answers true when it can't
-  /// tell, so a failed check never turns into rescheduling on every launch.
-  static Future<bool> isAnyScheduled(List<int> alarmIds) async {
-    if (kIsWeb || !Platform.isAndroid || alarmIds.isEmpty) return true;
-    try {
-      return await _alarmsChannel.invokeMethod<bool>(
-              'anyScheduled', alarmIds) ??
-          true;
-    } catch (e) {
-      debugPrint('Could not check Azan alarms: $e');
-      return true;
-    }
-  }
-
-  /// Entry point android_alarm_manager_plus runs, in its own headless
-  /// isolate, at the exact prayer time - including when the app was never
-  /// opened. Must stay a top-level/static function and keep this pragma: the
-  /// plugin looks it up by callback handle after a restart, not by
-  /// reference.
-  /// Per isolate, like every static: set once [alarmCallback] has initialised
-  /// background audio in the alarm isolate.
-  static bool _alarmIsolateAudioReady = false;
-
-  @pragma('vm:entry-point')
-  static Future<void> alarmCallback(
-      int id, Map<String, dynamic>? params) async {
-    WidgetsFlutterBinding.ensureInitialized();
-    // android_alarm_manager_plus runs this headless, in its own isolate where
-    // main()'s JustAudioBackground.init() never ran - but it keeps that
-    // isolate alive and reuses it for every later alarm while the process
-    // lives, so this must run once per isolate, not once per Azan. A second
-    // init() wraps the plugin around itself and every Azan after the first
-    // fails with "supports only a single player instance". [playNow] never
-    // needs this: it only ever runs in the main isolate, where main() already
-    // did it once - see the crash note on [_startPlayback].
-    if (!_alarmIsolateAudioReady) {
-      await JustAudioBackground.init(
-        androidNotificationChannelId: 'com.developer110.shia_companion.azan',
-        androidNotificationChannelName: 'Azan playback',
-        androidNotificationOngoing: true,
-      );
-      _alarmIsolateAudioReady = true;
-    }
-    final prayerName = params?['prayerName'] as String? ?? 'Prayer';
-    final customFilePath = params?['customFilePath'] as String?;
-    await _startPlayback(prayerName, customFilePath: customFilePath);
+  /// Re-arms the stored schedule. Android drops every alarm on a force-stop
+  /// (and on a revoked exact-alarm permission) without telling the app, so
+  /// this runs at every launch; arming an alarm that already exists is
+  /// harmless.
+  static Future<void> rearm() async {
+    if (!_isNative) return;
+    await _invoke('rearm');
   }
 
   /// Starts the Azan on demand from the running app - the only trigger
@@ -173,8 +132,50 @@ class AzanPlaybackService {
     required String prayerName,
     String? customFilePath,
   }) async {
+    if (_isNative) {
+      // A recitation still playing stops for the Azan the reader asked for.
+      try {
+        await ExclusiveAudio.claim(_audioOwner, _stopNative);
+      } catch (e) {
+        debugPrint('Could not stop the other player for the Azan: $e');
+      }
+      await _invoke('play', {
+        'prayerName': prayerName,
+        ..._titles(prayerName),
+        'customFilePath': customFilePath,
+        'labels': _labels(),
+      });
+      return;
+    }
     await _startPlayback(prayerName, customFilePath: customFilePath);
   }
+
+  static Future<void> _stopNative() => _invoke('stop');
+
+  /// Calls the native player, logging rather than throwing when it can't be
+  /// reached - from an engine without the activity (audio_service's, run
+  /// headless) the channel isn't registered. Only [replaceSchedule] lets
+  /// failures through, so its caller knows to try again.
+  static Future<T?> _invoke<T>(String method, [Object? arguments]) async {
+    try {
+      return await _channel.invokeMethod<T>(method, arguments);
+    } on MissingPluginException {
+      debugPrint('Native Azan unavailable for $method');
+    } on PlatformException catch (e) {
+      debugPrint('Native Azan $method failed: $e');
+    }
+    return null;
+  }
+
+  static Map<String, String> _labels() => {
+        'pause': L10n.current.commonPause,
+        'resume': L10n.current.playlistResume,
+        'stop': L10n.current.commonStop,
+        'channel': L10n.current.notificationChannelAzanPlayback,
+      };
+
+  static Future<Map<Object?, Object?>> _nativeState() async =>
+      await _invoke<Map<Object?, Object?>>('state') ?? const {};
 
   static AudioPlayer? _activePlayer;
 
@@ -191,7 +192,7 @@ class AzanPlaybackService {
     String prayerName, {
     String? customFilePath,
   }) async {
-    // A stale or duplicate alarm firing while one Azan is still playing must
+    // A duplicate request while one Azan is still playing must
     // not start overlapping audio. This checks for a live player, never the
     // persisted flag [isPlaying] reads: that flag outlives the process, so an
     // Azan cut short by the app being killed (swiped away, or reclaimed by
@@ -209,20 +210,12 @@ class AzanPlaybackService {
       }
       await _stopPlayback();
     } else if (_playingPort() != null) {
-      // Another isolate (Android's alarm callback) is playing right now.
+      // Another isolate is playing right now.
       return;
     }
 
-    // JustAudioBackground.init() must never run a second time in an isolate
-    // that already called it - on iOS this isn't a catchable Dart exception
-    // but a native crash, which previously took the whole app down the
-    // instant a reader tapped a prayer notification or a sound preview
-    // (playNow's only callers), since main() already initializes it before
-    // runApp(). The alarm-callback isolate is the one place that genuinely
-    // needs its own call - see [alarmCallback], Android-only and always a
-    // fresh isolate.
-    //
-    // The same single player slot is why this claims the audio first: a
+    // just_audio_background's single player slot is why this claims the
+    // audio first: a
     // recitation player that is still alive - a playlist that finished or
     // was paused, a zikr with Listen open - made the Azan's player throw
     // "supports only a single player instance" on load, so a tap on the
@@ -345,13 +338,13 @@ class AzanPlaybackService {
 
   /// Stops whatever Azan is currently playing - the manual dismiss a reader
   /// asked for, on top of the pause/stop control the playback notification
-  /// already carries. Works regardless of which isolate started playback
-  /// (the alarm callback that starts it is very often not the isolate the
-  /// app UI is running in), so the request goes over a named port rather
-  /// than a shared Dart object. Falls back to just clearing the "is
-  /// playing" flag if that isolate is already gone, so the UI never gets
-  /// stuck showing a stop control for audio that in fact stopped on its own.
+  /// already carries. On Android that is the native player. Elsewhere the
+  /// request goes over a named port, so it reaches whichever isolate started
+  /// playback, and falls back to just clearing the "is playing" flag if that
+  /// isolate is already gone, so the UI never gets stuck showing a stop
+  /// control for audio that in fact stopped on its own.
   static Future<void> stopIfPlaying() async {
+    if (_isNative) return _stopNative();
     final port = _playingPort();
     if (port != null) {
       port.send('stop');
@@ -370,6 +363,7 @@ class AzanPlaybackService {
 
   /// Pauses the Azan, in whichever isolate is holding it.
   static Future<void> pauseIfPlaying() async {
+    if (_isNative) return _invoke('pause');
     final port = _playingPort();
     if (port != null) {
       port.send('pause');
@@ -381,6 +375,7 @@ class AzanPlaybackService {
   /// Resumes an Azan paused from its notification, in whichever isolate is
   /// holding it - see [stopIfPlaying] for why this goes over a named port.
   static Future<void> resumeIfPaused() async {
+    if (_isNative) return _invoke('resume');
     final port = _playingPort();
     if (port != null) {
       port.send('resume');
@@ -396,18 +391,17 @@ class AzanPlaybackService {
     unawaited(player.play());
   }
 
-  // Both reload() first: SharedPreferences.getInstance() is a singleton
-  // cached in memory per isolate, and playback is usually started by a
-  // *different* isolate than the one asking (the alarm callback vs. the app
-  // UI). Without a reload, this isolate's cache would just keep answering
-  // with whatever it last saw of its own, never picking up the other
-  // isolate's write to the same underlying native store.
+  // On Android the native player answers these directly. Elsewhere they
+  // reload() first: SharedPreferences.getInstance() is a singleton cached in
+  // memory per isolate, so without a reload an isolate that didn't start
+  // playback would keep answering with whatever it last saw of its own.
   //
   // The flag alone can also be stale - left true by an Azan whose process
   // was killed mid-playback. Whichever isolate is really playing always has
   // [_stopPortName] registered, and that registration dies with the process,
   // so a true flag with no port behind it is cleared rather than believed.
   static Future<bool> isPlaying() async {
+    if (_isNative) return (await _nativeState())['playing'] == true;
     final prefs = await SharedPreferences.getInstance();
     await prefs.reload();
     final flagged = prefs.getBool(_playingPrefKey) ?? false;
@@ -422,12 +416,14 @@ class AzanPlaybackService {
   /// Whether the Azan [isPlaying] reports is currently paused rather than
   /// audible - only meaningful while [isPlaying] is true.
   static Future<bool> isPaused() async {
+    if (_isNative) return (await _nativeState())['paused'] == true;
     final prefs = await SharedPreferences.getInstance();
     await prefs.reload();
     return prefs.getBool(_pausedPrefKey) ?? false;
   }
 
   static Future<String?> currentPrayerName() async {
+    if (_isNative) return (await _nativeState())['prayerName'] as String?;
     final prefs = await SharedPreferences.getInstance();
     await prefs.reload();
     return prefs.getString(_playingPrayerPrefKey);
@@ -451,4 +447,14 @@ class AzanPlaybackService {
     await prefs.remove(_playingPrayerPrefKey);
     await prefs.remove(_pausedPrefKey);
   }
+}
+
+/// The playback notification's title while the Azan for [prayerName] plays
+/// and while it is paused, in the reader's language.
+Map<String, String> _titles(String prayerName) {
+  final name = localizedPrayerName(prayerName);
+  return {
+    'title': L10n.current.azanPlaying(name),
+    'pausedTitle': L10n.current.azanPaused(name),
+  };
 }

@@ -10,4 +10,13 @@
     <string name="widget_daily_prayer_description">The prayer times you picked in Settings, for your saved location.</string>
     <string name="widget_prayer_description">The next of the times you picked in Settings, for your saved location.</string>
     <string name="widget_calendar_description">Today\'s Hijri date and the events coming up.</string>
+    <!-- Only until the app next opens after the update that brought native
+         Azan playback: from then on the app passes these in the reader's
+         language (see AzanPlaybackService in Dart). -->
+    <string name="azan_playing_fallback">%1$s Azan is playing</string>
+    <string name="azan_paused_fallback">%1$s Azan is paused</string>
+    <string name="azan_pause_fallback">Pause</string>
+    <string name="azan_resume_fallback">Resume</string>
+    <string name="azan_stop_fallback">Stop</string>
+    <string name="azan_channel_fallback">Azan playback</string>
 </resources>

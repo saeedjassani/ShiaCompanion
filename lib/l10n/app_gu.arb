@@ -167,6 +167,7 @@
   "notificationChannelSilentDescription": "શાંત નમાઝ-સમય સૂચનાઓ",
   "notificationChannelDescription": "નમાઝ-સમયની સૂચનાઓ",
   "notificationChannelGeneral": "સામાન્ય",
+  "notificationChannelAzanPlayback": "અઝાનનો અવાજ",
   "qiblaNeedsCalibratingBody": "રીડિંગ લગભગ {degrees}° જેટલું ખોટું છે. ધાતુ કે ચુંબકીય કોઈ પણ વસ્તુથી દૂર રહી ફોનને આઠના આકારમાં થોડી વાર ફેરવો.",
   "qiblaBearingFromNorth": "{place} સાચી ઉત્તરથી {bearing} પર છે",
   "qiblaFacing": "{place} તરફ મુખ",
