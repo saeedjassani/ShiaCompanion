@@ -41,6 +41,23 @@ class _MyStatsPageState extends State<MyStatsPage> {
 
   CommunityStats? _community;
 
+  /// What History plots; a tile picks it too.
+  StatsMetric _metric = StatsMetric.zikrs;
+  final GlobalKey _historyKey = GlobalKey();
+
+  void _showInHistory(StatsMetric metric) {
+    setState(() => _metric = metric);
+    final history = _historyKey.currentContext;
+    if (history != null) {
+      unawaited(Scrollable.ensureVisible(
+        history,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeOutCubic,
+        alignmentPolicy: ScrollPositionAlignmentPolicy.keepVisibleAtEnd,
+      ));
+    }
+  }
+
   @override
   void initState() {
     super.initState();
@@ -73,6 +90,13 @@ class _MyStatsPageState extends State<MyStatsPage> {
         final summary = ActivityStatsStore.instance.summary();
         final recitation = RecitationTrackerManager.instance.state;
         final community = _community;
+        // Qaza is offered only to someone who keeps qaza.
+        final metrics = [
+          StatsMetric.zikrs,
+          StatsMetric.verses,
+          if (summary.totalQaza > 0) StatsMetric.qaza,
+        ];
+        final metric = metrics.contains(_metric) ? _metric : metrics.first;
 
         // The streak and its history on the left; what was recited, the
         // Quran and the community on the right, once a desktop has room.
@@ -86,19 +110,46 @@ class _MyStatsPageState extends State<MyStatsPage> {
                 child: WideColumns(
                   spacing: 18,
                   start: [
-                    _StreakCard(summary: summary),
-                    _TotalsTiles(summary: summary),
-                    StatsHistoryCard(summary: summary),
+                    // Nothing read yet: one card on how it starts, not a
+                    // page of zeros.
+                    if (summary.isEmpty)
+                      EmptyStateCard(
+                        glyph: OutlineGlyph.flame,
+                        title: l10n.statsWelcomeTitle,
+                        body: l10n.statsStreakStart,
+                      )
+                    else ...[
+                      _StreakCard(summary: summary),
+                      _TotalsTiles(
+                        summary: summary,
+                        metrics: metrics,
+                        onSelect: _showInHistory,
+                      ),
+                      StatsHistoryCard(
+                        key: _historyKey,
+                        summary: summary,
+                        metric: metric,
+                        metrics: metrics,
+                        onMetricChanged: (metric) =>
+                            setState(() => _metric = metric),
+                      ),
+                    ],
                   ],
                   end: [
                     if (summary.zikrCounts.isNotEmpty)
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
-                          GroupLabel(l10n.statsYourMostRecited),
+                          _SeeAllHeader(
+                            title: l10n.statsYourMostRecited,
+                            onSeeAll: summary.zikrCounts.length > _topCount
+                                ? () => pushPageRoute(
+                                    context, const _AllRecitedPage())
+                                : null,
+                          ),
                           const SizedBox(height: 8),
                           _RankedZikrList(entries: [
-                            for (final entry in summary.topZikrs(5))
+                            for (final entry in summary.topZikrs(_topCount))
                               (entry.key, _titleFor(entry.key), entry.value),
                           ]),
                         ],
@@ -133,13 +184,86 @@ class _MyStatsPageState extends State<MyStatsPage> {
       },
     );
   }
+}
 
-  static String _titleFor(String uid, [String? fallback]) {
-    final title = items[uid];
-    if (title is String && title.trim().isNotEmpty) {
-      return zikrDisplayTitle(uid, title);
-    }
-    return fallback ?? uid;
+/// How many of the reader's most recited show before "See all".
+const int _topCount = 5;
+
+String _titleFor(String uid, [String? fallback]) {
+  final title = items[uid];
+  if (title is String && title.trim().isNotEmpty) {
+    return zikrDisplayTitle(uid, title);
+  }
+  return fallback ?? uid;
+}
+
+/// A group label with "See all" at the end when [onSeeAll] is set.
+class _SeeAllHeader extends StatelessWidget {
+  const _SeeAllHeader({required this.title, this.onSeeAll});
+
+  final String title;
+  final VoidCallback? onSeeAll;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = ShiaColors.of(context);
+    return Row(
+      children: [
+        Expanded(child: GroupLabel(title)),
+        if (onSeeAll != null)
+          InkWell(
+            onTap: onSeeAll,
+            borderRadius: BorderRadius.circular(8),
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(minHeight: 32),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 4),
+                child: Center(
+                  widthFactor: 1,
+                  child: Text(
+                    context.l10n.statsSeeAll,
+                    style: ShiaText.secondary.copyWith(
+                      color: colors.accent,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+      ],
+    );
+  }
+}
+
+/// Every zikr the reader has finished, most recited first.
+class _AllRecitedPage extends StatelessWidget {
+  const _AllRecitedPage();
+
+  @override
+  Widget build(BuildContext context) {
+    final gutter = pageGutter(context);
+    return ListenableBuilder(
+      listenable: ActivityStatsStore.instance,
+      builder: (context, _) {
+        final summary = ActivityStatsStore.instance.summary();
+        return LargeTitlePage(
+          title: context.l10n.statsYourMostRecited,
+          slivers: [
+            SliverPadding(
+              padding: gutter,
+              sliver: SliverToBoxAdapter(
+                child: _RankedZikrList(entries: [
+                  for (final entry
+                      in summary.topZikrs(summary.zikrCounts.length))
+                    (entry.key, _titleFor(entry.key), entry.value),
+                ]),
+              ),
+            ),
+          ],
+        );
+      },
+    );
   }
 }
 
@@ -166,8 +290,8 @@ class _RankedZikrList extends StatelessWidget {
             first: i == 0,
             last: i == entries.length - 1,
             minHeight: 48,
-            leading: SizedBox(
-              width: 20,
+            leading: ConstrainedBox(
+              constraints: const BoxConstraints(minWidth: 20),
               child: Text(localizeDigits('${i + 1}', context.l10n),
                   style: muted.copyWith(fontWeight: FontWeight.w700)),
             ),
@@ -191,12 +315,19 @@ class _RankedZikrList extends StatelessWidget {
   }
 }
 
-/// Lifetime totals as tiles, two by two: zikrs, verses, qaza and active
-/// days. The windows - week, month - are History's job.
+/// Lifetime totals as tiles: zikrs, verses, qaza (only for someone who
+/// keeps qaza) and active days - two by two, or three in a row. A metric's
+/// tile shows it in History.
 class _TotalsTiles extends StatelessWidget {
-  const _TotalsTiles({required this.summary});
+  const _TotalsTiles({
+    required this.summary,
+    required this.metrics,
+    required this.onSelect,
+  });
 
   final ActivitySummary summary;
+  final List<StatsMetric> metrics;
+  final ValueChanged<StatsMetric> onSelect;
 
   static final NumberFormat _count = NumberFormat.decimalPattern();
   static final NumberFormat _compact = NumberFormat.compact();
@@ -204,32 +335,44 @@ class _TotalsTiles extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
-    Widget tile(String label, int total) => Expanded(
-          child: StatsTile(
-            label: label,
-            value: localizeDigits(
-                total < 10000 ? _count.format(total) : _compact.format(total),
-                l10n),
+    String number(int value) => localizeDigits(
+        value < 10000 ? _count.format(value) : _compact.format(value), l10n);
+
+    final tiles = [
+      for (final metric in metrics)
+        StatsTile(
+          label: metric.label,
+          value: number(switch (metric) {
+            StatsMetric.zikrs => summary.totalZikrs,
+            StatsMetric.verses => summary.quranVersesTotal,
+            StatsMetric.qaza => summary.totalQaza,
+          }),
+          onTap: () => onSelect(metric),
+        ),
+      StatsTile(
+        label: l10n.statsActiveDays,
+        value: number(summary.activeDayCount),
+      ),
+    ];
+
+    Widget row(List<Widget> tiles) => IntrinsicHeight(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              for (var i = 0; i < tiles.length; i++) ...[
+                if (i > 0) const SizedBox(width: 12),
+                Expanded(child: tiles[i]),
+              ],
+            ],
           ),
         );
 
+    if (tiles.length < 4) return row(tiles);
     return Column(
       children: [
-        Row(
-          children: [
-            tile(l10n.statsMetricZikrs, summary.totalZikrs),
-            const SizedBox(width: 12),
-            tile(l10n.statsMetricVerses, summary.quranVersesTotal),
-          ],
-        ),
+        row(tiles.sublist(0, 2)),
         const SizedBox(height: 12),
-        Row(
-          children: [
-            tile(l10n.statsMetricQaza, summary.totalQaza),
-            const SizedBox(width: 12),
-            tile(l10n.statsActiveDays, summary.activeDayCount),
-          ],
-        ),
+        row(tiles.sublist(2)),
       ],
     );
   }
@@ -244,7 +387,6 @@ class _StreakCard extends StatelessWidget {
 
   /// Deliberately gentle: a missed day is a fresh start, not a failure.
   String get _notYetMessage {
-    if (summary.isEmpty) return L10n.current.statsStreakStart;
     if (summary.currentStreak == 0) return L10n.current.statsWelcomeBack;
     return L10n.current.statsReadToday;
   }
@@ -256,6 +398,9 @@ class _StreakCard extends StatelessWidget {
     final streak = summary.currentStreak;
     final best = summary.longestStreak;
     final doneToday = summary.isActiveToday;
+    // One day is not a streak yet: "Day 1", with the best so far if there
+    // was one, rather than "1 day in a row".
+    final firstDay = doneToday && streak <= 1;
     final message = ShiaText.secondary.copyWith(
       height: 21 / 15,
       color: colors.translation,
@@ -327,20 +472,25 @@ class _StreakCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      l10n.statsStreakDays(streak),
+                      firstDay
+                          ? l10n.statsDayOne
+                          : l10n.statsStreakDays(streak),
                       style: ShiaText.largeTitle.copyWith(
                         fontSize: 28,
                         height: 34 / 28,
                         color: colors.text,
                       ),
                     ),
-                    Text(
-                      best > streak
-                          ? l10n.statsStreakInARowBest(best)
-                          : l10n.statsStreakInARow,
-                      style:
-                          ShiaText.secondary.copyWith(color: colors.textMuted),
-                    ),
+                    if (!firstDay || best > 1)
+                      Text(
+                        firstDay
+                            ? l10n.statsYourBest(best)
+                            : best > streak
+                                ? l10n.statsStreakInARowBest(best)
+                                : l10n.statsStreakInARow,
+                        style: ShiaText.secondary
+                            .copyWith(color: colors.textMuted),
+                      ),
                   ],
                 ),
               ),

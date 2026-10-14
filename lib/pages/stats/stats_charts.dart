@@ -69,9 +69,22 @@ typedef _Bar = ({DateTime start, int value});
 /// the window as a segmented switcher, and the best day and the total in
 /// words.
 class StatsHistoryCard extends StatefulWidget {
-  const StatsHistoryCard({super.key, required this.summary});
+  const StatsHistoryCard({
+    super.key,
+    required this.summary,
+    required this.metric,
+    required this.onMetricChanged,
+    this.metrics = StatsMetric.values,
+  });
 
   final ActivitySummary summary;
+
+  /// What is plotted - chosen by its pill here or by a tile above.
+  final StatsMetric metric;
+  final ValueChanged<StatsMetric> onMetricChanged;
+
+  /// The pills offered, in order.
+  final List<StatsMetric> metrics;
 
   @override
   State<StatsHistoryCard> createState() => _StatsHistoryCardState();
@@ -81,19 +94,18 @@ class _StatsHistoryCardState extends State<StatsHistoryCard> {
   static final NumberFormat _count = NumberFormat.decimalPattern();
   static final NumberFormat _compact = NumberFormat.compact();
 
-  StatsMetric _metric = StatsMetric.zikrs;
   StatsPeriod _period = StatsPeriod.week;
 
   int _valueOn(DateTime day) {
     final summary = widget.summary;
-    return switch (_metric) {
+    return switch (widget.metric) {
       StatsMetric.verses => summary.quranVersesOn(day),
       StatsMetric.zikrs => summary.activityOn(day).zikrs,
       StatsMetric.qaza => summary.activityOn(day).qaza,
     };
   }
 
-  int get _lifetimeTotal => switch (_metric) {
+  int get _lifetimeTotal => switch (widget.metric) {
         StatsMetric.verses => widget.summary.quranVersesTotal,
         StatsMetric.zikrs => widget.summary.totalZikrs,
         StatsMetric.qaza => widget.summary.totalQaza,
@@ -140,8 +152,7 @@ class _StatsHistoryCardState extends State<StatsHistoryCard> {
           StatsPeriod.week =>
             last ? l10n.statsToday : DateFormat('EEE').format(start),
           StatsPeriod.month => DateFormat('d').format(start),
-          StatsPeriod.allTime =>
-            DateFormat('MMM').format(start).substring(0, 1),
+          StatsPeriod.allTime => DateFormat('MMM').format(start),
         };
     String barName(DateTime start) => switch (_period) {
           StatsPeriod.week => DateFormat('EEEE').format(start),
@@ -150,9 +161,9 @@ class _StatsHistoryCardState extends State<StatsHistoryCard> {
         };
 
     final caption = switch (_period) {
-      StatsPeriod.week => l10n.statsCaptionWeek(_metric.plural),
-      StatsPeriod.month => l10n.statsCaptionMonth(_metric.plural),
-      StatsPeriod.allTime => l10n.statsCaptionAllTime(_metric.plural),
+      StatsPeriod.week => l10n.statsCaptionWeek(widget.metric.plural),
+      StatsPeriod.month => l10n.statsCaptionMonth(widget.metric.plural),
+      StatsPeriod.allTime => l10n.statsCaptionAllTime(widget.metric.plural),
     };
 
     return StatsCard(
@@ -182,22 +193,18 @@ class _StatsHistoryCardState extends State<StatsHistoryCard> {
             spacing: 8,
             runSpacing: 8,
             children: [
-              for (final metric in const [
-                StatsMetric.zikrs,
-                StatsMetric.verses,
-                StatsMetric.qaza,
-              ])
+              for (final metric in widget.metrics)
                 ChoicePill(
                   label: metric.label,
-                  selected: metric == _metric,
-                  onTap: () => setState(() => _metric = metric),
+                  selected: metric == widget.metric,
+                  onTap: () => widget.onMetricChanged(metric),
                 ),
             ],
           ),
           const SizedBox(height: 12),
           Semantics(
             label: l10n.statsHistoryChart(
-              _metric.label,
+              widget.metric.label,
               [
                 for (final bar in bars)
                   '${barName(bar.start)} ${_count.format(bar.value)}',
@@ -208,11 +215,16 @@ class _StatsHistoryCardState extends State<StatsHistoryCard> {
               values: values,
               labels: [
                 for (var i = 0; i < bars.length; i++)
-                  // A month of labels would overlap: every fifth day,
-                  // counted back from today so today is always named.
-                  _period == StatsPeriod.month && (bars.length - 1 - i) % 5 != 0
-                      ? ''
-                      : barLabel(bars[i].start, i == bars.length - 1),
+                  // A month of labels would overlap: every fifth day, or
+                  // every third month, counted back from today so today -
+                  // or this month - is always named.
+                  switch (_period) {
+                    StatsPeriod.month => (bars.length - 1 - i) % 5 == 0,
+                    StatsPeriod.allTime => (bars.length - 1 - i) % 3 == 0,
+                    StatsPeriod.week => true,
+                  }
+                      ? barLabel(bars[i].start, i == bars.length - 1)
+                      : '',
               ],
               // Thirty values would overlap too.
               showValues: _period != StatsPeriod.month,
@@ -245,7 +257,7 @@ class _StatsHistoryCardState extends State<StatsHistoryCard> {
 /// (0 / 5 / 10, 0 / 1K / 2K) with a hairline gridline at each tick and its
 /// number at the start edge, its value on top when [showValues], its label
 /// under it, and the last - today, or this month - in the accent when
-/// [highlightLast]. [tooltips], when given, name each bar on hover or long
+/// [highlightLast]; an empty bar has no number over it. [tooltips], when given, name each bar on hover or long
 /// press.
 class StatsBarChart extends StatelessWidget {
   const StatsBarChart({
@@ -380,7 +392,7 @@ class StatsBarChart extends StatelessWidget {
                             child: Column(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                if (showValues) ...[
+                                if (showValues && values[i] > 0) ...[
                                   FittedBox(
                                     fit: BoxFit.scaleDown,
                                     child: Text(

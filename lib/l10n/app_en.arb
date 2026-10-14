@@ -3350,6 +3350,28 @@
   "@statsActiveDays": {
     "description": "Label of the My Stats tile counting the days on which anything was recited."
   },
+  "statsWelcomeTitle": "Your stats start here",
+  "@statsWelcomeTitle": {
+    "description": "My Stats before anything has been read: the title over statsStreakStart."
+  },
+  "statsDayOne": "Day 1",
+  "@statsDayOne": {
+    "description": "The streak card's headline on the first day read in a row - one day is not a streak yet."
+  },
+  "statsYourBest": "your best is {best}",
+  "@statsYourBest": {
+    "description": "Under statsDayOne when an earlier streak was longer: 'your best is 12'.",
+    "placeholders": {
+      "best": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "statsSeeAll": "See all",
+  "@statsSeeAll": {
+    "description": "Next to Your most recited: opens every zikr recited, most first."
+  },
   "statsHistoryChart": "{metric} each day: {values}",
   "@statsHistoryChart": {
     "description": "Screen-reader label of the history chart. {values} lists each bar: 'Sunday 3, Monday 2'.",

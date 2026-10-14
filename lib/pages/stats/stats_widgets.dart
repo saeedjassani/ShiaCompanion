@@ -56,30 +56,37 @@ class StatsSectionTitle extends StatelessWidget {
 }
 
 /// One headline number in a card: what it counts, and the number in large
-/// type.
+/// type. [onTap] makes the whole card a button.
 class StatsTile extends StatelessWidget {
   const StatsTile({
     super.key,
     required this.label,
     required this.value,
+    this.onTap,
   });
 
   final String label;
   final String value;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
     final colors = ShiaColors.of(context);
     return Semantics(
       container: true,
+      button: onTap != null,
       child: StatsCard(
+        onTap: onTap,
         padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
+          // In a row of tiles stretched to one height, a label that wraps
+          // pushes no number out of line: the numbers sit on the bottom.
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
               label,
-              maxLines: 1,
+              maxLines: 2,
               overflow: TextOverflow.ellipsis,
               style: ShiaText.secondary.copyWith(color: colors.textMuted),
             ),

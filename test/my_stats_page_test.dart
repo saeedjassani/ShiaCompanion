@@ -4,6 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shia_companion/constants.dart';
 import 'package:shia_companion/pages/my_stats_page.dart';
 import 'package:shia_companion/pages/stats/stats_charts.dart';
+import 'package:shia_companion/pages/stats/stats_widgets.dart';
 import 'package:shia_companion/services/activity_stats_store.dart';
 import 'package:shia_companion/services/recitation_tracker_manager.dart';
 import 'package:shia_companion/utils/quran_index.dart';
@@ -57,7 +58,10 @@ void main() {
       recitedAt: DateTime(now.year, now.month, now.day, 9),
       syncRemote: false,
     );
-    await ActivityStatsStore.instance.recordZikrCompleted('X1');
+    // Six zikrs, X1 twice: one more than the five Your most recited shows.
+    for (final uid in ['X1', 'X1', 'X2', 'X3', 'X4', 'X5', 'X6']) {
+      await ActivityStatsStore.instance.recordZikrCompleted(uid);
+    }
 
     await tester.pumpWidget(const MaterialApp(home: MyStatsPage()));
     await tester.pumpAndSettle();
@@ -71,10 +75,13 @@ void main() {
     // Lifetime totals as tiles: 7 + 141 + 19 verses over three days.
     expect(find.text('Active days'), findsOneWidget);
     expect(find.text('167'), findsOneWidget);
+    // No qaza kept, so no Qaza tile or pill.
+    expect(find.text('Qaza'), findsNothing);
     expect(find.textContaining('this week'), findsNothing);
     expect(find.text('Sessions'), findsNothing);
     // Your most recited counts plainly: "1", not "once".
     expect(find.text('once'), findsNothing);
+    expect(find.text('2'), findsWidgets);
     expect(find.text('Quran progress'), findsOneWidget);
     expect(find.text('Family'), findsWidgets);
     expect(find.text('Recited till'), findsOneWidget);
@@ -110,5 +117,28 @@ void main() {
     expect(StatsBarChart.ticksFor(12), [0, 5, 10, 15]);
     expect(StatsBarChart.ticksFor(167), [0, 100, 200]);
     expect(StatsBarChart.ticksFor(1400), [0, 500, 1000, 1500]);
+  });
+
+  testWidgets('A tile shows its metric in History; See all lists every zikr',
+      (tester) async {
+    await tester.binding.setSurfaceSize(const Size(430, 3200));
+    addTearDown(() => tester.binding.setSurfaceSize(null));
+    // Carries on from the test above: 167 verses and seven zikrs.
+    await tester.pumpWidget(const MaterialApp(home: MyStatsPage()));
+    await tester.pumpAndSettle();
+
+    expect(find.text('7 zikrs in the last 7 days'), findsOneWidget);
+    await tester.tap(find.byWidgetPredicate(
+        (widget) => widget is StatsTile && widget.label == 'Verses'));
+    await tester.pumpAndSettle();
+    expect(find.text('167 verses in the last 7 days'), findsOneWidget);
+
+    await tester.tap(find.text('See all'));
+    await tester.pumpAndSettle();
+    expect(tester.takeException(), isNull);
+    for (final uid in ['X1', 'X2', 'X3', 'X4', 'X5', 'X6']) {
+      expect(find.text(uid), findsOneWidget);
+    }
+    expect(find.text('6'), findsOneWidget);
   });
 }
