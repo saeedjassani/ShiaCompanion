@@ -175,7 +175,8 @@ void main() {
         await tester.pumpAndSettle();
       });
 
-      expect(geolocator.requestPermissionCalls, 2);
+      // Only the tap asks: the automatic refresh that failed never prompts.
+      expect(geolocator.requestPermissionCalls, 1);
       expect(find.byType(TextButton), findsNothing);
     });
 

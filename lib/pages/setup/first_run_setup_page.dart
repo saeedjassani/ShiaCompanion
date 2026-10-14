@@ -65,7 +65,7 @@ class _FirstRunGateState extends State<FirstRunGate> {
 /// The Azan step only follows a location: without one there are no times to
 /// show beside the switches, and turning azan on would seem to do nothing.
 /// Without it setup has four steps, and the question is put once a location
-/// is set later instead (offerAzanOnceLocated).
+/// is set later instead, on Home's prayer card (HomePrayerTimesCard).
 ///
 /// Every step can be skipped, and skipping leaves that setting as it was:
 /// no location, azan off, the default font and theme. Choices apply as they
@@ -144,7 +144,7 @@ class _FirstRunSetupPageState extends State<FirstRunSetupPage> {
     // Azan stays off unless the Azan step turned it on; recording that as
     // the answer is what keeps the question from coming back. Without a
     // location the step was never shown, so the question is left for when
-    // one is set (offerAzanOnceLocated).
+    // one is set, on Home's prayer card.
     if (!AzaanOptInService.hasBeenAsked &&
         LocationService.instance.hasLocation) {
       await AzaanOptInService.answer(const []);

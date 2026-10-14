@@ -160,7 +160,7 @@ void main() {
       expect(done, 1);
       expect(SP.prefs.getString(FirstRunSetup.stateKey), FirstRunSetup.done);
       // No location, so azan is left unanswered: it is asked once one is
-      // set (offerAzanOnceLocated).
+      // set, on Home's prayer card.
       expect(AzaanOptInService.hasBeenAsked, isFalse);
       expect(AzaanOptInService.isEnabled, isFalse);
       expect(SP.prefs.containsKey('arabic_font'), isFalse);

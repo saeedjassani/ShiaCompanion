@@ -3861,9 +3861,13 @@
   "setupAzanIosNote": "On iPhone the notification itself plays a short takbir.",
   "setupTurnOnAzan": "Turn on azan",
   "setupNotNow": "Not now",
-  "azanOfferBody": "Your prayer times are ready. Would you like a notification with the azan at Fajr, Zuhr and Maghrib? You can pick other prayers any time in Settings, under Azan.",
+  "azanOfferBody": "Fajr, Zuhr and Maghrib for now. You can pick other prayers any time in Settings, under Azan.",
   "@azanOfferBody": {
-    "description": "Asked once, after a location is first set outside first-run setup (whose Azan step is skipped without one). Titled setupAzanTitle; Fajr, Zuhr and Maghrib are what Turn on azan enables."
+    "description": "Under setupAzanTitle on Home's prayer card, for someone who has never answered the azan question (first-run setup skips its Azan step without a location). Fajr, Zuhr and Maghrib are what Turn on azan enables."
+  },
+  "prayerAzanOn": "Azan on",
+  "@prayerAzanOn": {
+    "description": "Read aloud for the bell beside a time on Home's prayer card whose azan is on."
   },
   "setupFontTitle": "How should Arabic look?",
   "setupFontBody": "Tap the one you find easier to read. Same words, two styles.",
