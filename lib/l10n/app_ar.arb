@@ -167,6 +167,7 @@
   "notificationChannelSilentDescription": "إشعارات صامتة لأوقات الصلاة",
   "notificationChannelDescription": "إشعارات أوقات الصلاة",
   "notificationChannelGeneral": "عام",
+  "notificationChannelAzanPlayback": "تشغيل الأذان",
   "qiblaNeedsCalibratingBody": "القراءات منحرفة بنحو {degrees}°. حرّك الهاتف على شكل الرقم ثمانية عدة مرات، بعيدًا عن أي معدن أو مغناطيس.",
   "qiblaBearingFromNorth": "{place} باتجاه {bearing} من الشمال الحقيقي",
   "qiblaFacing": "تواجه {place}",

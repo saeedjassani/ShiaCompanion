@@ -275,9 +275,11 @@ String buildPrayerNotificationScheduleFingerprint({DateTime? scheduleDate}) {
   // GPS jitter and force a full reschedule on the next app open.
   // Bumped to v10 when the Takbir Only iOS sound was renamed (see
   // AzaanOptions.takbir): the sound name is fixed at schedule time, so
-  // already-scheduled notifications have to be rebuilt.
+  // already-scheduled notifications have to be rebuilt. v11: Android's Azan
+  // moved from android_alarm_manager_plus to native alarms, which an
+  // existing install only gets by rebuilding its schedule.
   return [
-    'v10',
+    'v11',
     'date:${_scheduleDateKey(scheduleDate ?? DateTime.now())}',
     'tz:${tz.local.name}',
     'azaan:$azaanId',
@@ -332,38 +334,6 @@ bool _hasFreshScheduleReminder(List<PendingNotificationRequest>? pending) {
   }
 
   return false;
-}
-
-/// Whether the pending prayer notifications have lost the Full Azan / Custom
-/// Audio alarms that are meant to play alongside them (Android only).
-///
-/// Those notifications are silent by design, and a force-stop or reboot wipes
-/// the alarms without touching flutter_local_notifications' record of the
-/// notifications, which is all [shouldRefreshPrayerNotificationSchedule]
-/// looks at - so it would call a schedule fresh that can no longer make a
-/// sound.
-Future<bool> arePrayerAzanAlarmsMissing(
-    List<PendingNotificationRequest>? pending) async {
-  // Without exact alarms no Azan alarms are scheduled at all (see
-  // azanPlaysAutomatically), so there is nothing to have lost.
-  if (pending == null || !azanPlaysAutomatically()) return false;
-
-  final playsAzan =
-      enabledPrayerNotificationNames(getPrayerNotificationPrayerNames())
-          .map(getAzaanOptionForPrayer)
-          .any((azaan) =>
-              azaan.id == AzaanOptions.azaan.id ||
-              azaan.id == AzaanOptions.custom.id);
-  if (!playsAzan) return false;
-
-  // Azan alarms reuse their notification's id (see schedulePrayerTimeNotification).
-  // 786 is the "open the app" reminder, which never has one.
-  final ids = [
-    for (final request in pending)
-      if (request.id != 786) request.id,
-  ];
-  if (ids.isEmpty) return false;
-  return !await AzanPlaybackService.isAnyScheduled(ids);
 }
 
 bool shouldRefreshPrayerNotificationSchedule(
@@ -999,7 +969,9 @@ Future<void> cancelPrayerNotifications({bool includeReminder = true}) async {
   }
 
   await Future.wait(notificationIds.map((id) => plugin.cancel(id: id)));
-  await Future.wait(notificationIds.map(AzanPlaybackService.cancel));
+  // Also the android_alarm_manager_plus alarms an older version armed under
+  // these same ids, so an Azan can't play from both.
+  await AzanPlaybackService.clearSchedule(legacyIds: notificationIds);
 }
 
 Future<void> setUpNotifications() async {
@@ -1040,7 +1012,7 @@ Future<void> setUpNotifications() async {
 
   DateTime now = DateTime.now();
   PrayerTime prayers = getPrayerTimeObject();
-  final List<Future<void>> schedulingTasks = [];
+  final List<Future<AzanAlarm?>> schedulingTasks = [];
   for (int i = 0; i < scheduleDays; i++) {
     DateTime temp = now.add(Duration(days: i));
     final entries = buildPrayerNotificationEntriesForDay(
@@ -1059,7 +1031,18 @@ Future<void> setUpNotifications() async {
       ));
     });
   }
-  await Future.wait(schedulingTasks);
+  final azanAlarms = await Future.wait(schedulingTasks);
+  // In one go, after every notification is in place: the native schedule is
+  // replaced whole, so no alarm from an older schedule can outlive it. If it
+  // can't be, the schedule isn't recorded as built, so the next launch
+  // tries again rather than leaving the Azan silent.
+  var azanScheduled = true;
+  try {
+    await AzanPlaybackService.replaceSchedule(azanAlarms.nonNulls.toList());
+  } catch (e) {
+    debugPrint('Could not schedule the Azan: $e');
+    azanScheduled = false;
+  }
   AndroidNotificationDetails androidPlatformChannelSpecifics =
       AndroidNotificationDetails(
           "general", L10n.current.notificationChannelGeneral);
@@ -1077,7 +1060,7 @@ Future<void> setUpNotifications() async {
       notificationDetails: platformChannelSpecifics,
       androidScheduleMode: AndroidScheduleMode.inexact,
       payload: now.add(Duration(days: scheduleDays - 1)).toIso8601String());
-  await _storePrayerScheduleAnchor(scheduleFingerprint);
+  if (azanScheduled) await _storePrayerScheduleAnchor(scheduleFingerprint);
 }
 
 /// Records what this schedule was built from: the fingerprint, and the position
@@ -1310,10 +1293,13 @@ AzaanOption androidNotificationSoundOption(AzaanOption azaan,
 bool azanPlaysAutomatically() =>
     !kIsWeb && Platform.isAndroid && canScheduleExactPrayerNotifications;
 
-Future<void> schedulePrayerTimeNotification(
+/// Schedules one prayer's notification, and returns the Azan alarm that
+/// should play with it, if any - setUpNotifications hands those to Android
+/// all at once.
+Future<AzanAlarm?> schedulePrayerTimeNotification(
     int id, DateTime dateTime, String prayerName,
     {String? azaanId}) async {
-  if (dateTime.difference(DateTime.now()).isNegative) return;
+  if (dateTime.difference(DateTime.now()).isNegative) return null;
   if (SP.prefs.getBool(notificationPreferenceKeyForPrayer(prayerName)) ==
       true) {
     final azaan = azaanId != null
@@ -1345,22 +1331,19 @@ Future<void> schedulePrayerTimeNotification(
     // Audio isn't offered on iOS at all (see
     // isAzaanOptionAvailableOnCurrentPlatform).
     if (azanUsesPlaybackService(azaan) && azanPlaysAutomatically()) {
-      await AzanPlaybackService.schedule(
-        alarmId: id,
+      return AzanAlarm(
+        id: id,
         fireTime: dateTime,
         prayerName: prayerName,
-        exact: canScheduleExactPrayerNotifications,
         customFilePath: azaan.id == AzaanOptions.custom.id
             ? _customAudioPathForPlayback(prayerName)
             : null,
       );
-    } else {
-      await AzanPlaybackService.cancel(id);
     }
-  } else {
-    await flutterLocalNotificationsPlugin?.cancel(id: id);
-    await AzanPlaybackService.cancel(id);
+    return null;
   }
+  await flutterLocalNotificationsPlugin?.cancel(id: id);
+  return null;
 }
 
 /// The custom audio file a Full-Azan-or-Custom-Audio notification should

@@ -19,6 +19,7 @@ import 'package:shia_companion/utils/quran_index.dart';
 import 'package:shia_companion/utils/quran_portion.dart';
 import 'package:shia_companion/services/activity_stats_store.dart';
 import 'package:shia_companion/services/azaan_opt_in_service.dart';
+import 'package:shia_companion/services/azan_playback_service.dart';
 import 'package:shia_companion/services/deep_link_resolver.dart';
 import 'package:shia_companion/services/favorites_manager.dart';
 import 'package:shia_companion/services/home_screen_widget_service.dart';
@@ -615,13 +616,17 @@ class _MyHomePageState extends State<MyHomePage>
           ?.forEach((PendingNotificationRequest element) {
         debugPrint("${element.id} ${element.title} is scheduled");
       });
-      needToSchedule = shouldRefreshPrayerNotificationSchedule(
-              pendingNotificationRequests) ||
-          await arePrayerAzanAlarmsMissing(pendingNotificationRequests);
+      needToSchedule =
+          shouldRefreshPrayerNotificationSchedule(pendingNotificationRequests);
       if (needToSchedule) {
         await setUpNotifications();
       } else {
         debugPrint("Azan notifications not scheduled");
+        // A force-stop drops the Azan alarms while the notifications above
+        // survive it, and nothing tells the app - so the stored schedule is
+        // simply re-armed on every launch. Cheap, and harmless when nothing
+        // was lost.
+        await AzanPlaybackService.rearm();
       }
       // Cheap once there are no reminders, so this runs on every cold start
       // rather than trying to track whether anything changed.

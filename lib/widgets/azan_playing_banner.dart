@@ -17,11 +17,10 @@ import 'page_chrome.dart';
 /// until the Azan is stopped.
 ///
 /// Polls rather than listening to a stream: playback is very often started
-/// by a background alarm isolate this widget's isolate has no direct
-/// reference to, so a SharedPreferences flag - checked by both sides - is
-/// the only state they actually share. The system media notification
-/// AzanPlaybackService's player also carries its own pause control, so this
-/// is a second, always-visible way to steer it rather than the only one.
+/// outside this isolate - by Android's native player at prayer time - and
+/// AzanPlaybackService answers from wherever it is really playing. The
+/// playback notification also carries its own pause and stop, so this is a
+/// second, always-visible way to steer it rather than the only one.
 class AzanPlayingBanner extends StatefulWidget {
   const AzanPlayingBanner({Key? key}) : super(key: key);
 

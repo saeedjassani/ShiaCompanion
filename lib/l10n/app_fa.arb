@@ -167,6 +167,7 @@
   "notificationChannelSilentDescription": "اعلان‌های بی‌صدای اوقات شرعی",
   "notificationChannelDescription": "اعلان‌های اوقات شرعی",
   "notificationChannelGeneral": "عمومی",
+  "notificationChannelAzanPlayback": "پخش اذان",
   "qiblaNeedsCalibratingBody": "خطای قطب‌نما حدود {degrees}° است. گوشی را چند بار به شکل عدد ۸ انگلیسی در هوا حرکت دهید، دور از هر چیز فلزی یا مغناطیسی.",
   "qiblaBearingFromNorth": "{place} در زاویهٔ {bearing} نسبت به شمال جغرافیایی است",
   "qiblaFacing": "رو به {place}",

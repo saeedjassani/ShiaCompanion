@@ -405,6 +405,7 @@
   "notificationChannelSilentDescription": "Silent prayer time notifications",
   "notificationChannelDescription": "Prayer time notifications",
   "notificationChannelGeneral": "General",
+  "notificationChannelAzanPlayback": "Azan playback",
   "qiblaNeedsCalibratingBody": "Readings are off by around {degrees}°. Move the phone in a figure of eight a few times, away from anything metal or magnetic.",
   "@qiblaNeedsCalibratingBody": {
     "placeholders": {

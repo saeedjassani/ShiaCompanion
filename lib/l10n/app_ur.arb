@@ -167,6 +167,7 @@
   "notificationChannelSilentDescription": "نماز کے اوقات کی خاموش اطلاعات",
   "notificationChannelDescription": "نماز کے اوقات کی اطلاعات",
   "notificationChannelGeneral": "عام",
+  "notificationChannelAzanPlayback": "اذان کی آواز",
   "qiblaNeedsCalibratingBody": "ریڈنگ تقریباً {degrees}° غلط ہے۔ کسی دھات یا مقناطیسی چیز سے دور ہٹ کر فون کو چند بار ۸ کی شکل میں گھمائیں۔",
   "qiblaBearingFromNorth": "{place} حقیقی شمال سے {bearing} پر ہے",
   "qiblaFacing": "رخ {place} کی طرف ہے",

@@ -128,9 +128,16 @@ flutter {
 
 dependencies {
     testImplementation 'junit:junit:4.13.2'
+    // Android's org.json is a stub in local unit tests; AzanScheduleRulesTest needs the real one.
+    testImplementation 'org.json:json:20240303'
     androidTestImplementation 'androidx.test:runner:1.6.2'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.6.1'
     implementation 'androidx.glance:glance-appwidget:1.1.1'
+    implementation 'androidx.core:core-ktx:1.13.1'
+    // Native Azan playback reports what kept an Azan from playing. Same BoM
+    // firebase_core resolves (its FirebaseSDKVersion), so no second version.
+    implementation platform('com.google.firebase:firebase-bom:34.19.0')
+    implementation 'com.google.firebase:firebase-crashlytics'
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.10.2'
     implementation 'com.google.guava:listenablefuture:9999.0-empty-to-avoid-conflict-with-guava'
     coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.1.4'
