@@ -42,60 +42,109 @@ TodayRecitationType todayRecitationType(UidTitleData entry) {
   return TodayRecitationType.other;
 }
 
+/// The weekday's and every day's recitations that centres recite - Kumayl
+/// on Thursday, Nudba on Friday, Ziyarat Ashura and Warith daily - and,
+/// with the weekday's own ziyarat, the only ones of theirs Home shows. The
+/// rest (Jawshan Kabir on Friday, the weekday's supplication) wait in See
+/// all.
+@visibleForTesting
+const Set<String> homeRoutineRecitations = {
+  'E24', // Dua Tawassul, Tuesday
+  'E31', // Dua Kumayl, Thursday
+  'E34', // Dua Nudba, Friday
+  'E26', // Dua Simat, Friday
+  'G4', // Ziyarat Ashura
+  'G6', // Ziyarat Warith
+  'E18', // Dua Ahad
+};
+
+/// The best-known recitations, most recited first. On a day they lead the
+/// cards of their occasion, month or weekday: Jawshan Kabir first on the
+/// Nights of Qadr, Kumayl on the 15th of Shaban's night.
+@visibleForTesting
+const List<String> homeFamousRecitations = [
+  'E29', // Dua Jawshan Kabir
+  'E31', // Dua Kumayl
+  'G4', // Ziyarat Ashura
+  'AC12', // Dua Arafah
+  'E34', // Dua Nudba
+  'AA10', // Dua Iftitah
+  'AA12', // Dua Abu Hamza Thumali
+  'G3', // Ziyarat Arbaeen
+  'E8', // Dua Alqama
+  'G11', // Ziyarat Nahiya
+  'G14', // Ziyarat of Imam Husayn on the Qadr Nights
+  'Y4', // Munajat Shabaniyah
+  'X4', // Ziyarat Rajabiyah
+  'E28', // Dua Mujeer
+  'E27', // Dua Mashlool
+  'E24', // Dua Tawassul
+  'G6', // Ziyarat Warith
+  'E18', // Dua Ahad
+];
+
 /// What Home's Today shows, in order, from [groups] (most specific occasion
 /// first, as [buildTodaysRecitationGroups] gives them):
 ///
 /// 1. Tonight's and today's occasion (the Night of Qadr, 15 Shaban), all of
 ///    it, its duas and ziyarats first.
-/// 2. Every dua, ziyarat and munajat of the month, the weekday and every
-///    day - what centres recite (Kumayl on Thursday, Nudba on Friday,
-///    Ziyarat Warith and Ashura daily) - none ever left off.
-/// 3. The month's and weekday's other aamal and rites, only to make up
-///    [minimum] cards; See all has the rest.
+/// 2. The month's duas, ziyarats and munajat (Ziyarat Rajabiyah, Dua
+///    Iftitah).
+/// 3. The weekday's and every day's [homeRoutineRecitations] - but not the
+///    every-day ones when an occasion has a dua or ziyarat of its own.
+/// 4. The weekday's ziyarat (Ziyarat on Thursday), always, last.
+///
+/// Within each, [homeFamousRecitations] lead. Aamal outside an occasion,
+/// and the less recited weekday and every-day recitations, are left to See
+/// all.
 @visibleForTesting
-List<TodayPick> todayPicks(
-  List<TodaysRecitationGroup> groups, {
-  int minimum = TodaySection.minimumCards,
-}) {
+List<TodayPick> todayPicks(List<TodaysRecitationGroup> groups) {
   bool isRecitation(UidTitleData entry) =>
       todayRecitationType(entry) != TodayRecitationType.other;
   bool isCatalogued(UidTitleData entry) =>
       const {'E', 'G', 'H'}.contains(_leadingLetters.stringMatch(entry.uid));
   bool isOccasion(TodaysRecitationKind kind) =>
       kind == TodaysRecitationKind.night || kind == TodaysRecitationKind.date;
+  int fame(UidTitleData entry) => homeFamousRecitations.indexOf(entry.uid);
 
-  final occasion = <TodayPick>[];
-  final recitations = <TodayPick>[];
-  final rest = <TodayPick>[];
+  final occasionHasRecitation = groups
+      .any((group) => isOccasion(group.kind) && group.items.any(isRecitation));
+
+  final shown = <TodayPick>[];
+  final ziyaratOfTheDay = <TodayPick>[];
   for (final group in groups) {
+    if (group.kind == TodaysRecitationKind.everyDay && occasionHasRecitation) {
+      continue;
+    }
     final picks = [
       for (final entry in group.items) (kind: group.kind, entry: entry),
     ];
-    // Within an occasion, the Duas, Ziyarats and Munajat categories' own
-    // entries before ones known only by title: Dua Kumayl before the
-    // Ziyarat on Thursday.
-    final first = [
-      ...picks.where((pick) => isCatalogued(pick.entry)),
-      ...picks.where(
+    final famous = picks.where((pick) => fame(pick.entry) >= 0).toList()
+      ..sort((a, b) => fame(a.entry).compareTo(fame(b.entry)));
+    final rest = picks.where((pick) => fame(pick.entry) < 0);
+    // Then the Duas, Ziyarats and Munajat categories' own entries before
+    // ones known only by title, and aamal last.
+    final ordered = [
+      ...famous,
+      ...rest.where((pick) => isCatalogued(pick.entry)),
+      ...rest.where(
           (pick) => isRecitation(pick.entry) && !isCatalogued(pick.entry)),
+      ...rest.where((pick) => !isRecitation(pick.entry)),
     ];
-    final others = picks.where((pick) => !isRecitation(pick.entry));
-    if (isOccasion(group.kind)) {
-      occasion
-        ..addAll(first)
-        ..addAll(others);
-    } else {
-      recitations.addAll(first);
-      rest.addAll(others);
+    if (group.kind == TodaysRecitationKind.weekday) {
+      ziyaratOfTheDay.addAll(ordered.where((pick) =>
+          !homeRoutineRecitations.contains(pick.entry.uid) &&
+          todayRecitationType(pick.entry) == TodayRecitationType.ziyarat));
     }
+    shown.addAll(switch (group.kind) {
+      TodaysRecitationKind.night || TodaysRecitationKind.date => ordered,
+      TodaysRecitationKind.month =>
+        ordered.where((pick) => isRecitation(pick.entry)),
+      TodaysRecitationKind.weekday || TodaysRecitationKind.everyDay => ordered
+          .where((pick) => homeRoutineRecitations.contains(pick.entry.uid)),
+    });
   }
-
-  final shown = [...occasion, ...recitations];
-  for (final pick in rest) {
-    if (shown.length >= minimum) break;
-    shown.add(pick);
-  }
-  return shown;
+  return [...shown, ...ziyaratOfTheDay];
 }
 
 /// "Today": today's recitations as a sideways strip of cards, in
@@ -126,10 +175,6 @@ class TodaySection extends StatefulWidget {
 
   /// Space above the section, only when it shows.
   final double topSpacing;
-
-  /// How many cards Home tops up to with aamal and rites when the day has
-  /// few duas and ziyarats.
-  static const int minimumCards = 6;
 
   /// How wide a card is: narrower than Continue's, so a phone shows two
   /// and the start of a third, saying there is more to scroll.

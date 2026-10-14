@@ -53,40 +53,33 @@ void main() {
             UidTitleData(entry.key, entry.value),
         ]);
 
-    test('every dua and ziyarat shows, however many rites come first', () {
+    test('shows only the recited weekday and every-day recitations', () {
       final picks = todayPicks([
         titled(TodaysRecitationKind.weekday, {
           'J1': 'Merits & Rituals of Friday Night & Day',
           'J3': 'Ziyarat on Friday',
-          'J4': 'The Supplication of Friday',
           'J6': 'Recommended Rites of Friday',
-          'J7': 'Aamal of Zuhr Prayer on Friday',
-          'J8': 'Aamal of Asr on Friday',
           'E26': 'Dua Simat',
+          'E29': 'Dua Jawshan Kabir',
           'E34': 'Dua Nudba',
         }),
         titled(TodaysRecitationKind.everyDay, {
           'G4': 'Ziyarat Ashura',
           'G6': 'Ziyarat Warith',
           'E18': 'Dua Ahad',
+          'E37': 'Dua Sanamay Quraish',
         }),
       ]);
-      expect(_uids(picks), ['E26', 'E34', 'J3', 'G4', 'G6', 'E18']);
+      // Jawshan Kabir and the rites are left to See all; the day's
+      // ziyarat comes last.
+      expect(_uids(picks), ['E34', 'E26', 'G4', 'G6', 'E18', 'J3']);
     });
 
-    test('puts the duas category before a ziyarat known by its title', () {
-      final picks = todayPicks([
-        titled(TodaysRecitationKind.weekday, {
-          'Q3': 'Ziyarat on Thursday',
-          'E31': 'Dua Kumayl',
-        }),
-      ]);
-      expect(_uids(picks), ['E31', 'Q3']);
-    });
-
-    test('leads with the whole of tonight\'s occasion', () {
+    test('leads with the whole of tonight\'s occasion, Jawshan Kabir first',
+        () {
       final picks = todayPicks([
         titled(TodaysRecitationKind.night, {
+          'G14': 'Ziyarat of Imam Husayn (a.s.) on the Qadr Nights',
           'AA29': 'Common Aamal at Each of the Three Qadr Nights',
           'AA35': 'Dua for the 23rd Night of Ramazan',
           'E29': 'Dua Jawshan Kabir',
@@ -95,22 +88,26 @@ void main() {
           'AA16': 'Aamal of Sahar in the Holy Month of Ramazan',
           'AA10': 'Dua Iftitah',
         }),
+        titled(TodaysRecitationKind.weekday, {
+          'Q3': 'Ziyarat on Thursday',
+          'E31': 'Dua Kumayl',
+        }),
         titled(TodaysRecitationKind.everyDay, {'G6': 'Ziyarat Warith'}),
       ]);
-      expect(_uids(picks), ['E29', 'AA35', 'AA29', 'AA10', 'G6', 'AA16']);
+      // The month's aamal waits in See all, and with a dua for the night
+      // the every-day ziyarat does too.
+      expect(_uids(picks), ['E29', 'G14', 'AA35', 'AA29', 'AA10', 'E31', 'Q3']);
       expect(picks.first.kind, TodaysRecitationKind.night);
     });
 
-    test('tops up with rites only to the minimum', () {
+    test('keeps the every-day recitations when the occasion is only aamal', () {
       final picks = todayPicks([
-        titled(TodaysRecitationKind.weekday, {
-          'K1': 'The Supplication of Saturday',
-          'K2': 'Namaz on Saturdays',
-          'K3': 'Ziyarat on Saturday',
+        titled(TodaysRecitationKind.night, {
+          'AA30': 'The 13th Night of Ramazan',
         }),
         titled(TodaysRecitationKind.everyDay, {'G4': 'Ziyarat Ashura'}),
-      ], minimum: 3);
-      expect(_uids(picks), ['K3', 'G4', 'K1']);
+      ]);
+      expect(_uids(picks), ['AA30', 'G4']);
       expect(todayPicks(const []), isEmpty);
     });
 
@@ -178,18 +175,17 @@ void main() {
         (tester) async {
       items = {
         'L1': 'The Supplication of Sunday',
-        'L2': 'Namaz on Sundays',
         'L3': 'Ziyarat on Sunday',
-        'L4': 'Recommended Rites of Sunday',
-        'L5': 'Merits of Sunday',
         'E18': 'Dua Ahad',
         'G4': 'Ziyarat Ashura',
+        'G6': 'Ziyarat Warith',
         'Q1': 'The Supplication of Thursday',
       };
       itemMetadata = {
-        for (final uid in ['L1', 'L2', 'L3', 'L4', 'L5']) uid: {'day': '*-*-0'},
+        for (final uid in ['L1', 'L3']) uid: {'day': '*-*-0'},
         'E18': {'day': '*-*'},
         'G4': {'day': '*-*'},
+        'G6': {'day': '*-*'},
         'Q1': {'day': '*-*-4'},
       };
       zikrIndexReady.value = true;
@@ -198,27 +194,25 @@ void main() {
       await tester.pumpWidget(app(onSeeAll: () => seeAll++));
 
       expect(find.text('Today'), findsOneWidget);
-      // The day's ziyarat and the every-day recitations, then rites to
-      // make up six cards; the seventh is left to See all.
+      // The every-day recitations centres recite, then Sunday's ziyarat;
+      // its supplication is left to See all.
       for (final title in [
-        'Ziyarat on Sunday',
         'Ziyarat Ashura',
+        'Ziyarat Warith',
         'Dua Ahad',
-        'The Supplication of Sunday',
-        'Namaz on Sundays',
-        'Recommended Rites of Sunday',
+        'Ziyarat on Sunday',
       ]) {
         expect(find.text(title), findsOneWidget, reason: title);
       }
-      expect(find.text('Merits of Sunday'), findsNothing);
+      expect(find.text('The Supplication of Sunday'), findsNothing);
       expect(find.text('The Supplication of Thursday'), findsNothing);
       // No caption saying when: the heading says Today.
       expect(find.text('For Sunday'), findsNothing);
       expect(find.text('Every day'), findsNothing);
       // One strip of cards, in order.
       expect(
-        tester.getTopLeft(find.text('Ziyarat on Sunday')).dx,
-        lessThan(tester.getTopLeft(find.text('Ziyarat Ashura')).dx),
+        tester.getTopLeft(find.text('Dua Ahad')).dx,
+        lessThan(tester.getTopLeft(find.text('Ziyarat on Sunday')).dx),
       );
 
       await tester.tap(find.text('See all'));
@@ -227,9 +221,9 @@ void main() {
 
     testWidgets('has no See all when every recitation is already shown',
         (tester) async {
-      items = {'L3': 'Ziyarat on Sunday', 'G4': 'Ziyarat Ashura'};
+      items = {'G6': 'Ziyarat Warith', 'G4': 'Ziyarat Ashura'};
       itemMetadata = {
-        'L3': {'day': '*-*-0'},
+        'G6': {'day': '*-*'},
         'G4': {'day': '*-*'},
       };
       zikrIndexReady.value = true;
@@ -241,7 +235,8 @@ void main() {
       expect(find.text('See all'), findsNothing);
     });
 
-    testWidgets('tags tonight\'s occasion, and nothing else', (tester) async {
+    testWidgets('tags tonight\'s occasion, and leaves every day\'s to See all',
+        (tester) async {
       // 20:00: without a location the night runs from 16:00.
       final evening = DateTime(2024, 6, 16, 20);
       TodaySection.debugNow = () => evening;
@@ -256,10 +251,11 @@ void main() {
       await tester.pumpWidget(app());
 
       expect(find.text('TONIGHT'), findsOneWidget);
-      expect(
-        tester.getTopLeft(find.text('Dua of the Night')).dx,
-        lessThan(tester.getTopLeft(find.text('Ziyarat Ashura')).dx),
-      );
+      expect(find.text('Dua of the Night'), findsOneWidget);
+      // Tonight has a dua of its own, so the every-day ziyarat waits in
+      // See all.
+      expect(find.text('Ziyarat Ashura'), findsNothing);
+      expect(find.text('See all'), findsOneWidget);
     });
 
     testWidgets(

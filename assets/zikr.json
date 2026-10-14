@@ -2148,7 +2148,10 @@
     "title": "Ziyarat Ashura",
     "order": 0,
     "slug": "ziyarat-e-ashura",
-    "day": "*-*"
+    "day": [
+      "01-10",
+      "*-*"
+    ]
   },
   "G5": {
     "title": "Ziyarat al-Haqq al-Jadid",
@@ -2201,8 +2204,7 @@
   },
   "G57": {
     "title": "Ziyarat of Hazrat Abbas (a.s.)",
-    "slug": "ziyarate-hazrat-abbas-a-s",
-    "day": "08-04"
+    "slug": "ziyarate-hazrat-abbas-a-s"
   },
   "G58": {
     "title": "Ziyarat of Habib ibn Mazahir (a.s.)",
@@ -2335,7 +2337,12 @@
   },
   "G76": {
     "title": "Ziyarat after Namaz",
-    "slug": "ziyarat-after-namaz"
+    "order": 6.5,
+    "slug": "ziyarat-after-namaz",
+    "slugAliases": [
+      "ziyarat-e-hazrat-imam-reza-a-s",
+      "ziyarat-e-hazrat-imam-e-zamana-a-t-f-s"
+    ]
   },
   "G77": {
     "title": "Ziyarat of Imam al-Hujjah (a.t.f.s.)",
@@ -2357,16 +2364,6 @@
       "03-25",
       "07-26",
       "09-07"
-    ]
-  },
-  "G8": {
-    "title": "Ziyarat of Imam Ali al-Reza (a.s.)",
-    "slug": "ziyarat-e-hazrat-imam-reza-a-s",
-    "day": [
-      "02-17",
-      "02-29",
-      "11-11",
-      "11-23"
     ]
   },
   "G80": {
@@ -2398,11 +2395,6 @@
   "G84|AL17": {
     "title": "Ziyarat of Imam al-Mahdi (a.t.f.s.) after the Fajr Prayer (Allahumma Balligh)",
     "slug": "ziyarat-of-imam-mahdi-a-t-f-s-after-the-fajr-prayers-allaahumma-balligh"
-  },
-  "G9": {
-    "title": "Ziyarat of Imam-e-Zamana (a.t.f.s.)",
-    "slug": "ziyarat-e-hazrat-imam-e-zamana-a-t-f-s",
-    "day": "08-15"
   },
   "H1": {
     "title": "1st Whispered Prayer of the Repenters - Munajat al-Taibeen",

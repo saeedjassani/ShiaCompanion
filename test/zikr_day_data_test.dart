@@ -72,9 +72,11 @@ void main() {
   });
 
   test('the daily recitations are tagged every day', () {
-    for (final uid in ['E18', 'G6', 'G4', 'E37']) {
+    for (final uid in ['E18', 'G6', 'E37']) {
       expect(dayOf(uid), '*-*', reason: uid);
     }
+    // And Ziyarat Ashura on its own day too, so Home leads with it then.
+    expect(dayOf('G4'), '01-10,*-*');
   });
 
   test('events.json is keyed by fixed "MM-DD" lunar dates', () {
