@@ -73,9 +73,22 @@ import '../../widgets/app_toast.dart';
 /// wobble inside one never does.
 const double kZikrChromeScrollThreshold = 36.0;
 
-/// How far above the bottom action bar its [BottomFade] reaches - and so how
-/// much room the text keeps below its last line, to finish clear of the fade.
+/// How far above the bottom action bar its [BottomFade] reaches.
 const double _actionBarFadeExtent = 62.0;
+
+/// The gap the text keeps between its last line and the action bar.
+const double _actionBarContentGap = 16.0;
+
+/// How strongly the fade above the action bar is drawn, from how much text
+/// is still below the view: in full while a fade's height or more is left,
+/// easing out over the last of it, and gone at the end. The last line then
+/// reads at full strength just above the bar, without the text having to
+/// stop a whole fade's height short of it.
+double zikrBottomFadeOpacity({
+  required double scrollOffset,
+  required double maxScrollExtent,
+}) =>
+    ((maxScrollExtent - scrollOffset) / _actionBarFadeExtent).clamp(0.0, 1.0);
 
 /// The share of a surah or juz scrolled through that counts as having reached
 /// its end: the last verses are on screen below the top one, so the top
@@ -316,6 +329,10 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
   /// the one place that enforces the chrome staying pinned - every writer
   /// below goes through it rather than each having to check the setting.
   final ValueNotifier<bool> _chromeVisible = ValueNotifier(true);
+
+  /// The open tab's [zikrBottomFadeOpacity], for the fade above the action
+  /// bar. In full until the tab has reported where it is.
+  final ValueNotifier<double> _bottomFadeOpacity = ValueNotifier(1.0);
 
   /// Whether the bar is showing the player instead of the action row. Set by
   /// Listen, cleared by the player's close button. The player is only built
@@ -1031,6 +1048,7 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
     _counterCount.dispose();
     _chromeIdleTimer?.cancel();
     _chromeVisible.dispose();
+    _bottomFadeOpacity.dispose();
     _selectionFocusNode.dispose();
     _isDisposing = true;
     _maybeRecordCompletion();
@@ -2001,6 +2019,14 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
 
   void _updateReadingProgress() {
     _readingProgress.value = _computeReadingProgress();
+    final offset = _currentTabScrollOffsets[_selectedZikrTabIndex];
+    final maxExtent = _currentTabMaxScrollExtents[_selectedZikrTabIndex];
+    _bottomFadeOpacity.value = offset == null || maxExtent == null
+        ? 1.0
+        : zikrBottomFadeOpacity(
+            scrollOffset: offset,
+            maxScrollExtent: maxExtent,
+          );
   }
 
   /// Progress through the open tab alone.
@@ -2589,15 +2615,14 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
                                   onBookmarkMoved:
                                       _isQuran ? null : _handleBookmarkMoved,
                                   footer: _buildQuranSequenceFooter(),
-                                  // Under the action bar the text ends clear
-                                  // of the fade above it too, so the last
-                                  // line can be read at full strength.
+                                  // The fade above the action bar clears
+                                  // as the text reaches its end (see
+                                  // [zikrBottomFadeOpacity]), so the last
+                                  // line needs no room beyond a gap.
                                   listPadding: EdgeInsets.only(
                                     top: topChromeExtent + 16,
                                     bottom: bottomChromeExtent +
-                                        (showActionBar
-                                            ? _actionBarFadeExtent
-                                            : 16) +
+                                        _actionBarContentGap +
                                         (PlaylistAudioService
                                                 .instance.visible.value
                                             ? NowPlayingCapsule.contentClearance
@@ -2691,8 +2716,15 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
                             _actionBarFadeExtent,
                         child: Stack(
                           children: [
-                            const Positioned.fill(
-                              child: BottomFade(readerGround: true),
+                            Positioned.fill(
+                              child: ValueListenableBuilder<double>(
+                                valueListenable: _bottomFadeOpacity,
+                                builder: (context, opacity, child) => Opacity(
+                                  opacity: opacity,
+                                  child: child,
+                                ),
+                                child: const BottomFade(readerGround: true),
+                              ),
                             ),
                             Positioned(
                               left: 16,
