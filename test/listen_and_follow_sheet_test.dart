@@ -128,8 +128,7 @@ void main() {
     expect(recognizer.stopped, isTrue);
   });
 
-  testWidgets('asks which one when the verse repeats verbatim',
-      (tester) async {
+  testWidgets('asks which one when the verse repeats verbatim', (tester) async {
     final recognizer = _FakeRecognizer(
       transcripts: [arabicOf(const VerseKey(55, 13))],
     );
@@ -153,8 +152,9 @@ void main() {
           home: Builder(
             builder: (context) => Scaffold(
               body: ElevatedButton(
-                onPressed: () async => result =
-                    await showListenAndFollowSheet(context, recognizer: recognizer),
+                onPressed: () async => result = await showListenAndFollowSheet(
+                    context,
+                    recognizer: recognizer),
                 child: const Text('open'),
               ),
             ),

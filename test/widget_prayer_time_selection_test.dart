@@ -76,10 +76,10 @@ void main() {
       () async {
     await saveWidgetPrayerTimes(['fajr', 'zuhr', 'asr', 'maghrib', 'isha']);
 
-    final schedule = (HomeScreenWidgetService.instance
-                .buildUpcomingPrayerSnapshot()[
-            HomeScreenWidgetService.prayerScheduleKey] ??
-        '');
+    final schedule =
+        (HomeScreenWidgetService.instance.buildUpcomingPrayerSnapshot()[
+                HomeScreenWidgetService.prayerScheduleKey] ??
+            '');
     final footers = {
       for (final parts in schedule
           .split(';')
@@ -98,10 +98,10 @@ void main() {
   test('a daylight marker has no deadline of its own', () async {
     await saveWidgetPrayerTimes(['sunrise', 'sunset', 'midnight']);
 
-    final schedule = (HomeScreenWidgetService.instance
-                .buildUpcomingPrayerSnapshot()[
-            HomeScreenWidgetService.prayerScheduleKey] ??
-        '');
+    final schedule =
+        (HomeScreenWidgetService.instance.buildUpcomingPrayerSnapshot()[
+                HomeScreenWidgetService.prayerScheduleKey] ??
+            '');
 
     for (final parts in schedule
         .split(';')
@@ -233,8 +233,8 @@ void main() {
 
       // Late enough that every one of today's prayers has passed, so the row
       // can only be filled from tomorrow.
-      final evening = DateTime(
-          fallBackDay.year, fallBackDay.month, fallBackDay.day, 23);
+      final evening =
+          DateTime(fallBackDay.year, fallBackDay.month, fallBackDay.day, 23);
       final readings = nextWidgetPrayerTimeReadings(
         prayerTime: prayerTime,
         latitude: lat!,

@@ -99,7 +99,8 @@ void main() {
       expect(sanFrancisco, closeTo(13, 2));
     });
 
-    test('clamps outside the model validity window instead of extrapolating', () {
+    test('clamps outside the model validity window instead of extrapolating',
+        () {
       // 2030.0 is the last published year, so anything later must return the
       // same answer rather than drifting further every year the app is not
       // updated.

@@ -2,7 +2,6 @@ import 'dart:io';
 
 import 'dart:ui' as ui;
 
-
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
@@ -118,8 +117,8 @@ void main() {
 
         final counter = find.textContaining(RegExp(r'^1 / \d+$'));
         expect(counter, findsOneWidget);
-        final totalPages =
-            int.parse(tester.widget<Text>(counter).data!.split('/').last.trim());
+        final totalPages = int.parse(
+            tester.widget<Text>(counter).data!.split('/').last.trim());
         expect(totalPages, greaterThan(1),
             reason: 'a fixture that fits on one page tests nothing');
 
@@ -217,8 +216,8 @@ void main() {
 
     const chapterSlug = 'arrow-keys';
     seedChapter(chapterSlug, 'numbered_list.md');
-    await tester
-        .runAsync(() => LibraryService.loadChapterMarkdown('$bookSlug/$chapterSlug'));
+    await tester.runAsync(
+        () => LibraryService.loadChapterMarkdown('$bookSlug/$chapterSlug'));
 
     await pumpReader(
       tester,
@@ -255,8 +254,8 @@ void main() {
       seedChapter(slug, 'numbered_list.md');
       // Warmed so the reader's prefetch of its neighbours is a cache hit
       // rather than a request the test would have to wait on.
-      await tester
-          .runAsync(() => LibraryService.loadChapterMarkdown('$bookSlug/$slug'));
+      await tester.runAsync(
+          () => LibraryService.loadChapterMarkdown('$bookSlug/$slug'));
     }
 
     await pumpReader(
@@ -273,8 +272,8 @@ void main() {
     // Page one: back leaves the chapter, so it says where it goes; forward is
     // still just another page of this chapter. The controls are matched by
     // tooltip — the chapter handoff page carries the same words in its text.
-    expect(find.byTooltip('Previous chapter: The Chapter Before'),
-        findsOneWidget);
+    expect(
+        find.byTooltip('Previous chapter: The Chapter Before'), findsOneWidget);
     expect(
       find.descendant(
         of: find.byType(TextButton),
@@ -303,7 +302,8 @@ void main() {
       findsOneWidget,
     );
     expect(find.byTooltip('Previous page'), findsOneWidget);
-    expect(find.byTooltip('Previous chapter: The Chapter Before'), findsNothing);
+    expect(
+        find.byTooltip('Previous chapter: The Chapter Before'), findsNothing);
 
     expect(tester.takeException(), isNull);
   }, timeout: const Timeout(Duration(minutes: 5)));
@@ -318,7 +318,8 @@ void main() {
     const chapterSlug = 'font-size';
     const chapterPath = '$bookSlug/$chapterSlug';
     seedChapter(chapterSlug, 'numbered_list.md');
-    await tester.runAsync(() => LibraryService.loadChapterMarkdown(chapterPath));
+    await tester
+        .runAsync(() => LibraryService.loadChapterMarkdown(chapterPath));
 
     await tester.pumpWidget(MaterialApp(
       home: ChapterPage(
@@ -366,10 +367,10 @@ void main() {
         ))
         .where((box) => box.hasSize && box.size.height > 0)) {
       for (final line in linesIn(window)) {
-        final inside =
-            line.$1 >= -_tolerance && line.$2 <= window.size.height + _tolerance;
-        final outside = line.$2 <= _tolerance ||
-            line.$1 >= window.size.height - _tolerance;
+        final inside = line.$1 >= -_tolerance &&
+            line.$2 <= window.size.height + _tolerance;
+        final outside =
+            line.$2 <= _tolerance || line.$1 >= window.size.height - _tolerance;
         expect(inside || outside, isTrue,
             reason: 'a page shows only part of a line after a font change');
       }
@@ -384,7 +385,10 @@ void main() {
   final counter = find.textContaining(RegExp(r'^\d+ / \d+$'));
   expect(counter, findsOneWidget);
   final parts = tester.widget<Text>(counter).data!.split('/');
-  return (page: int.parse(parts.first.trim()), total: int.parse(parts.last.trim()));
+  return (
+    page: int.parse(parts.first.trim()),
+    total: int.parse(parts.last.trim())
+  );
 }
 
 /// Taps the right-hand edge of the reader — the tap-to-turn zone — at
@@ -409,7 +413,8 @@ List<(double, double)> linesIn(RenderBox window) {
     if (node is RenderParagraph) {
       if (!node.hasSize) return;
       final top = node.localToGlobal(Offset.zero, ancestor: window).dy;
-      final length = node.text.toPlainText(includeSemanticsLabels: false).length;
+      final length =
+          node.text.toPlainText(includeSemanticsLabels: false).length;
       if (length == 0) return;
       for (final box in node.getBoxesForSelection(
         TextSelection(baseOffset: 0, extentOffset: length),

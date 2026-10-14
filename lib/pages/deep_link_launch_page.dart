@@ -91,8 +91,7 @@ class _DeepLinkLaunchPageState extends State<DeepLinkLaunchPage> {
   }
 
   Future<Widget?> _resolveQuranDestination() async {
-    final destination =
-        DeepLinkResolver.resolveQuranDestination(widget.target);
+    final destination = DeepLinkResolver.resolveQuranDestination(widget.target);
     if (destination == null) return null;
     if (destination.isHome) return const QuranPage();
 

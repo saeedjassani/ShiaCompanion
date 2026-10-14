@@ -8,20 +8,22 @@ void main() {
     test('contains the expected distinct spiritual glyph types', () {
       final types = HomeGlyphType.values.toSet();
       expect(types, hasLength(HomeGlyphType.values.length));
-      expect(types, containsAll([
-        HomeGlyphType.namaz,
-        HomeGlyphType.duas,
-        HomeGlyphType.surahs,
-        HomeGlyphType.tasbeeh,
-        HomeGlyphType.aamaal,
-        HomeGlyphType.munajaat,
-        HomeGlyphType.rakaat,
-        HomeGlyphType.taqeebat,
-        HomeGlyphType.todaysRecitations,
-        HomeGlyphType.ziyaraat,
-        HomeGlyphType.library,
-        HomeGlyphType.baqeyaat,
-      ]));
+      expect(
+          types,
+          containsAll([
+            HomeGlyphType.namaz,
+            HomeGlyphType.duas,
+            HomeGlyphType.surahs,
+            HomeGlyphType.tasbeeh,
+            HomeGlyphType.aamaal,
+            HomeGlyphType.munajaat,
+            HomeGlyphType.rakaat,
+            HomeGlyphType.taqeebat,
+            HomeGlyphType.todaysRecitations,
+            HomeGlyphType.ziyaraat,
+            HomeGlyphType.library,
+            HomeGlyphType.baqeyaat,
+          ]));
     });
 
     test('all menu items with custom glyphs map to valid HomeGlyphTypes', () {
@@ -59,7 +61,8 @@ void main() {
       }
     });
 
-    testWidgets('renders all homeMenuItems icons and glyphs in home tile context',
+    testWidgets(
+        'renders all homeMenuItems icons and glyphs in home tile context',
         (WidgetTester tester) async {
       for (final item in homeMenuItems) {
         await tester.pumpWidget(

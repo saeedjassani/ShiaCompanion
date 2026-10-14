@@ -71,7 +71,9 @@ void main() {
     expect(ZikrReminder.listFrom(''), isEmpty);
   });
 
-  test('listFrom keeps valid entries and drops malformed ones from a mixed list', () {
+  test(
+      'listFrom keeps valid entries and drops malformed ones from a mixed list',
+      () {
     final reminder = ZikrReminder(
       id: 'a',
       notificationBaseId: 40000,
@@ -146,7 +148,9 @@ void main() {
     });
   });
 
-  test('daysLabel lists selected days Monday-first regardless of insertion order', () {
+  test(
+      'daysLabel lists selected days Monday-first regardless of insertion order',
+      () {
     final reminder = ZikrReminder(
       id: 'a',
       notificationBaseId: 1,

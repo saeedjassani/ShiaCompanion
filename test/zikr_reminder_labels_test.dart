@@ -32,8 +32,8 @@ void main() {
     });
 
     test('starts the week where the locale does', () {
-      expect(days({DateTime.sunday, DateTime.saturday}),
-          'Sundays and Saturdays');
+      expect(
+          days({DateTime.sunday, DateTime.saturday}), 'Sundays and Saturdays');
       expect(
         reminderDaysLabel({DateTime.sunday, DateTime.saturday}, l10n,
             firstDayOfWeek: 1),
@@ -89,8 +89,7 @@ void main() {
       lat = 51.5;
       long = -0.12;
       expect(
-        summary(
-            mode: ZikrReminderTimeMode.relativeToPrayer, offsetMinutes: 15),
+        summary(mode: ZikrReminderTimeMode.relativeToPrayer, offsetMinutes: 15),
         matches(RegExp(r'^Thursdays, 15 minutes after Maghrib '
             r'\(about \d{1,2}:\d\d [ap]m this week\)$')),
       );

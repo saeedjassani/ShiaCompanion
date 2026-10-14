@@ -32,7 +32,8 @@ void main() {
     }
   });
 
-  test('every Arabic line of every surah becomes Tanzil text, numbers kept', () {
+  test('every Arabic line of every surah becomes Tanzil text, numbers kept',
+      () {
     for (var surah = 1; surah <= surahCount; surah++) {
       final before = surahData(surah).split('\n');
       final after = toUthmani(surah, surahData(surah), quran).split('\n');
@@ -46,9 +47,8 @@ void main() {
         final ayah = ZikrContentParser.ayahNumberOf(before[i]);
         expect(ZikrContentParser.ayahNumberOf(after[i]), ayah,
             reason: 'surah $surah line $i');
-        final expected = ayah == null
-            ? quran.bismillah
-            : quran.verse(surah, ayah)!;
+        final expected =
+            ayah == null ? quran.bismillah : quran.verse(surah, ayah)!;
         // Verbatim apart from the no-break space that holds a pause mark to
         // its word.
         expect(after[i].replaceAll(' ', ' '),

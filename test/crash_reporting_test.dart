@@ -28,16 +28,20 @@ Object _castError() {
   }
 }
 
-FlutterErrorDetails _detailsFor({required Object exception, required String stack}) {
-  return FlutterErrorDetails(exception: exception, stack: StackTrace.fromString(stack));
+FlutterErrorDetails _detailsFor(
+    {required Object exception, required String stack}) {
+  return FlutterErrorDetails(
+      exception: exception, stack: StackTrace.fromString(stack));
 }
 
 void main() {
   group('isKnownSelectionGeometryNullCheckError', () {
-    test('matches the reported _ScrollableSelectionContainerDelegate crash', () {
+    test('matches the reported _ScrollableSelectionContainerDelegate crash',
+        () {
       final details = _detailsFor(
         exception: _nullCheckError(),
-        stack: '#0  _ScrollableSelectionContainerDelegate._updateDragLocationsFromGeometries '
+        stack:
+            '#0  _ScrollableSelectionContainerDelegate._updateDragLocationsFromGeometries '
             '(package:flutter/src/widgets/scrollable.dart:1361)\n'
             '#1  _ScrollableSelectionContainerDelegate.handleSelectWord '
             '(package:flutter/src/widgets/scrollable.dart:1389)',
@@ -49,7 +53,8 @@ void main() {
     test('matches the sibling StaticSelectionContainerDelegate crash', () {
       final details = _detailsFor(
         exception: _nullCheckError(),
-        stack: '#0  StaticSelectionContainerDelegate._updateLastSelectionEdgeLocationsFromGeometries '
+        stack:
+            '#0  StaticSelectionContainerDelegate._updateLastSelectionEdgeLocationsFromGeometries '
             '(package:flutter/src/widgets/selectable_region.dart:2200)',
       );
 
@@ -59,16 +64,19 @@ void main() {
     test('does not match a null-check error from unrelated code', () {
       final details = _detailsFor(
         exception: _nullCheckError(),
-        stack: '#0  SomeWidgetState.build (package:shia_companion/pages/home_page.dart:42)',
+        stack:
+            '#0  SomeWidgetState.build (package:shia_companion/pages/home_page.dart:42)',
       );
 
       expect(isKnownSelectionGeometryNullCheckError(details), isFalse);
     });
 
-    test('does not match a differently-worded TypeError with a matching stack', () {
+    test('does not match a differently-worded TypeError with a matching stack',
+        () {
       final details = _detailsFor(
         exception: _castError(),
-        stack: '#0  _ScrollableSelectionContainerDelegate._updateDragLocationsFromGeometries '
+        stack:
+            '#0  _ScrollableSelectionContainerDelegate._updateDragLocationsFromGeometries '
             '(package:flutter/src/widgets/scrollable.dart:1361)',
       );
 
@@ -78,7 +86,8 @@ void main() {
     test('does not match a non-TypeError exception with a matching stack', () {
       final details = _detailsFor(
         exception: StateError('Null check operator used on a null value'),
-        stack: '#0  _ScrollableSelectionContainerDelegate._updateDragLocationsFromGeometries '
+        stack:
+            '#0  _ScrollableSelectionContainerDelegate._updateDragLocationsFromGeometries '
             '(package:flutter/src/widgets/scrollable.dart:1361)',
       );
 

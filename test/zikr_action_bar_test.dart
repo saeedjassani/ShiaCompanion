@@ -51,7 +51,8 @@ ZikrActionBar _bar({
 /// The tool's tint; [Colors.transparent] when it is off.
 AnimatedContainer _tool(WidgetTester t, String label) =>
     t.widget<AnimatedContainer>(find
-        .ancestor(of: find.text(label), matching: find.byType(AnimatedContainer))
+        .ancestor(
+            of: find.text(label), matching: find.byType(AnimatedContainer))
         .first);
 
 Color? _pillColor(WidgetTester t, String label) =>

@@ -132,8 +132,8 @@ void main() {
           reason: 'not downloaded, so not listed');
       expect(find.text('2 KB'), findsOneWidget);
       expect(find.text('1 older recording'), findsOneWidget);
-      expect(find.text('Recitations saved on this phone · 4 KB'),
-          findsOneWidget);
+      expect(
+          find.text('Recitations saved on this phone · 4 KB'), findsOneWidget);
       expect(find.text('Remove all downloads'), findsOneWidget);
     });
   });

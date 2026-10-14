@@ -1465,7 +1465,6 @@
   "statsQuranEmpty": "Open a surah and start reading - the verses you recite are tracked here automatically, with your progress towards a full khatm.",
   "statsRecitedTill": "Recited till",
   "statsNotStarted": "Not started",
-  "statsJuzDone": "Juz done",
   "statsKhatmComplete": "Khatm complete - may it be accepted",
   "reminderAtPrayer": "At {prayer}",
   "@reminderAtPrayer": {
@@ -3384,17 +3383,31 @@
       }
     }
   },
-  "statsTimes": "{count, plural, =1{once} other{{formatted} times}}",
-  "@statsTimes": {
-    "description": "How often a zikr was recited: '41 times'.",
+  "statsActiveDays": "Active days",
+  "@statsActiveDays": {
+    "description": "Label of the My Stats tile counting the days on which anything was recited."
+  },
+  "statsWelcomeTitle": "Your stats start here",
+  "@statsWelcomeTitle": {
+    "description": "My Stats before anything has been read: the title over statsStreakStart."
+  },
+  "statsDayOne": "Day 1",
+  "@statsDayOne": {
+    "description": "The streak card's headline on the first day read in a row - one day is not a streak yet."
+  },
+  "statsYourBest": "your best is {best}",
+  "@statsYourBest": {
+    "description": "Under statsDayOne when an earlier streak was longer: 'your best is 12'.",
     "placeholders": {
-      "count": {
-        "type": "int"
-      },
-      "formatted": {
-        "type": "String"
+      "best": {
+        "type": "int",
+        "format": "decimalPattern"
       }
     }
+  },
+  "statsSeeAll": "See all",
+  "@statsSeeAll": {
+    "description": "Next to Your most recited: opens every zikr recited, most first."
   },
   "statsHistoryChart": "{metric} each day: {values}",
   "@statsHistoryChart": {

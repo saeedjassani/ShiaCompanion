@@ -144,7 +144,8 @@ void main() {
       );
     });
 
-    test('resolves the locality (not subdivision) using the real adminLevel schema',
+    test(
+        'resolves the locality (not subdivision) using the real adminLevel schema',
         () async {
       // Mirrors the actual BigDataCloud client response shape, where admin
       // levels are integers (2=country, 4=state, 8=city) under `adminLevel`.
@@ -434,7 +435,6 @@ class _FakeGeolocator extends GeolocatorPlatform {
   }
 
   @override
-  Future<Position?> getLastKnownPosition(
-          {bool forceLocationManager = false}) =>
+  Future<Position?> getLastKnownPosition({bool forceLocationManager = false}) =>
       Future.value(lastKnownPosition);
 }

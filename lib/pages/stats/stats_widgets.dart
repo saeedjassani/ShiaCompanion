@@ -55,6 +55,62 @@ class StatsSectionTitle extends StatelessWidget {
   }
 }
 
+/// One headline number in a card: what it counts, and the number in large
+/// type. [onTap] makes the whole card a button.
+class StatsTile extends StatelessWidget {
+  const StatsTile({
+    super.key,
+    required this.label,
+    required this.value,
+    this.onTap,
+  });
+
+  final String label;
+  final String value;
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = ShiaColors.of(context);
+    return Semantics(
+      container: true,
+      button: onTap != null,
+      child: StatsCard(
+        onTap: onTap,
+        padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          // In a row of tiles stretched to one height, a label that wraps
+          // pushes no number out of line: the numbers sit on the bottom.
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              label,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: ShiaText.secondary.copyWith(color: colors.textMuted),
+            ),
+            const SizedBox(height: 2),
+            FittedBox(
+              fit: BoxFit.scaleDown,
+              alignment: AlignmentDirectional.centerStart,
+              child: Text(
+                value,
+                maxLines: 1,
+                style: ShiaText.largeTitle.copyWith(
+                  fontSize: 26,
+                  height: 32 / 26,
+                  color: colors.text,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 /// A ring filled to [value] (0-1) with [center] inside it.
 class ProgressRing extends StatelessWidget {
   const ProgressRing({
@@ -77,28 +133,34 @@ class ProgressRing extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    return SizedBox(
-      width: size,
-      height: size,
-      child: Stack(
-        fit: StackFit.expand,
-        children: [
-          CustomPaint(
-            painter: _RingPainter(
-              value: value.clamp(0.0, 1.0).toDouble(),
-              strokeWidth: strokeWidth,
-              color: color ?? colorScheme.primary,
-              trackColor:
-                  trackColor ?? colorScheme.onSurface.withValues(alpha: 0.08),
+    // Square whatever the parent asks: a row stretched to a taller panel
+    // beside it centres the ring instead of drawing it as an oval.
+    return Center(
+      widthFactor: 1,
+      heightFactor: 1,
+      child: SizedBox(
+        width: size,
+        height: size,
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            CustomPaint(
+              painter: _RingPainter(
+                value: value.clamp(0.0, 1.0).toDouble(),
+                strokeWidth: strokeWidth,
+                color: color ?? colorScheme.primary,
+                trackColor:
+                    trackColor ?? colorScheme.onSurface.withValues(alpha: 0.08),
+              ),
             ),
-          ),
-          Center(
-            child: Padding(
-              padding: EdgeInsets.all(strokeWidth + 2),
-              child: FittedBox(fit: BoxFit.scaleDown, child: center),
+            Center(
+              child: Padding(
+                padding: EdgeInsets.all(strokeWidth + 2),
+                child: FittedBox(fit: BoxFit.scaleDown, child: center),
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -119,11 +181,9 @@ class _RingPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    final rect = Rect.fromLTWH(
-      strokeWidth / 2,
-      strokeWidth / 2,
-      size.width - strokeWidth,
-      size.height - strokeWidth,
+    final rect = Rect.fromCircle(
+      center: size.center(Offset.zero),
+      radius: (size.shortestSide - strokeWidth) / 2,
     );
     final track = Paint()
       ..color = trackColor

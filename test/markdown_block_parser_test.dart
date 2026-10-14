@@ -10,7 +10,8 @@ void main() {
   });
 
   test('blank lines split paragraphs into separate blocks', () {
-    final blocks = MarkdownBlockParser.parse('First paragraph.\n\nSecond paragraph.');
+    final blocks =
+        MarkdownBlockParser.parse('First paragraph.\n\nSecond paragraph.');
 
     expect(blocks, hasLength(2));
     expect(blocks[0].type, MarkdownBlockType.paragraph);
@@ -38,9 +39,11 @@ void main() {
   });
 
   test('a soft line break within a paragraph collapses to a space', () {
-    final blocks = MarkdownBlockParser.parse('Hard-wrapped line one\nline two continues.');
+    final blocks =
+        MarkdownBlockParser.parse('Hard-wrapped line one\nline two continues.');
 
-    expect(blocks.single.strippedText, 'Hard-wrapped line one line two continues.');
+    expect(blocks.single.strippedText,
+        'Hard-wrapped line one line two continues.');
   });
 
   test('unordered and ordered list markers are stripped', () {
@@ -53,7 +56,8 @@ void main() {
     expect(ordered.single.strippedText, 'an item');
   });
 
-  test('a run of three or more dashes is a horizontal rule with empty text', () {
+  test('a run of three or more dashes is a horizontal rule with empty text',
+      () {
     final blocks = MarkdownBlockParser.parse('---');
 
     expect(blocks.single.type, MarkdownBlockType.horizontalRule);
@@ -94,7 +98,8 @@ void main() {
   test('digits of any script are weak', () {
     // Arabic-Indic digit, then Arabic text.
     expect(
-      MarkdownBlockParser.parse('\u0667\u0640 \u0627\u0644\u0633\u0644\u0627\u0645')
+      MarkdownBlockParser.parse(
+              '\u0667\u0640 \u0627\u0644\u0633\u0644\u0627\u0645')
           .single
           .textDirection,
       TextDirection.rtl,
@@ -125,8 +130,4 @@ void main() {
     expect(blocks, hasLength(1));
     expect(blocks.single.type, MarkdownBlockType.listItem);
   });
-
-
-
-
 }

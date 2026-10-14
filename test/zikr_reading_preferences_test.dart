@@ -278,9 +278,8 @@ Future<void> _pumpPreferences(
 
 Future<void> _tapPreference(WidgetTester tester, String label,
     {int? occurrence}) async {
-  final finder = occurrence == null
-      ? find.text(label)
-      : find.text(label).at(occurrence);
+  final finder =
+      occurrence == null ? find.text(label) : find.text(label).at(occurrence);
   await tester.ensureVisible(finder);
   await tester.tap(finder);
   await tester.pumpAndSettle();

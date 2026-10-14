@@ -123,40 +123,61 @@ class QuranTrackCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 14),
-          IntrinsicHeight(
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                ProgressRing(
-                  value: percent / 100,
-                  center: Text(
-                    _percentText(percent),
-                    style: theme.textTheme.titleMedium
-                        ?.copyWith(fontWeight: FontWeight.w800),
-                  ),
+          // The ring, and beside it where the track stopped and how many
+          // juz are done - one column with the card's whole width, so a long
+          // surah name ("Ash-Shu'ara: 227") keeps its verse on its line.
+          Row(
+            children: [
+              ProgressRing(
+                value: percent / 100,
+                center: Text(
+                  _percentText(percent),
+                  style: theme.textTheme.titleMedium
+                      ?.copyWith(fontWeight: FontWeight.w800),
                 ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: _InfoPanel(
-                    title: context.l10n.statsRecitedTill,
-                    lines: last == null
-                        ? [context.l10n.statsNotStarted]
-                        : [
-                            '${_surahName(last.surah)}: '
-                                '${localizeDigits('${last.ayah}')}',
-                            context.l10n
-                                .quranJuzNumber(juzOf(last.surah, last.ayah!)),
-                          ],
-                  ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      context.l10n.statsRecitedTill,
+                      style: theme.textTheme.labelMedium
+                          ?.copyWith(color: colorScheme.onSurfaceVariant),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      last == null
+                          ? context.l10n.statsNotStarted
+                          : '${_surahName(last.surah)}: '
+                              '${localizeDigits('${last.ayah}')}',
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: theme.textTheme.titleMedium
+                          ?.copyWith(fontWeight: FontWeight.w700),
+                    ),
+                    if (last != null)
+                      Text(
+                        context.l10n
+                            .quranJuzNumber(juzOf(last.surah, last.ayah!)),
+                        style: theme.textTheme.bodyMedium
+                            ?.copyWith(color: colorScheme.onSurfaceVariant),
+                      ),
+                    const SizedBox(height: 8),
+                    Text(
+                      context.l10n.statsJuzComplete(juzDone),
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        color: juzDone > 0
+                            ? colorScheme.primary
+                            : colorScheme.onSurfaceVariant,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
                 ),
-                const SizedBox(width: 8),
-                _InfoPanel(
-                  title: context.l10n.statsJuzDone,
-                  big: localizeDigits('$juzDone', context.l10n),
-                  lines: [context.l10n.tasbeehOf(30)],
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
           const SizedBox(height: 14),
           _JuzMap(coverage: coverage),
@@ -191,53 +212,6 @@ class QuranTrackCard extends StatelessWidget {
               ),
             ),
           ],
-        ],
-      ),
-    );
-  }
-}
-
-class _InfoPanel extends StatelessWidget {
-  const _InfoPanel({required this.title, required this.lines, this.big});
-
-  final String title;
-  final String? big;
-  final List<String> lines;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-      decoration: BoxDecoration(
-        color: colorScheme.onSurface.withValues(alpha: 0.04),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text(
-            title,
-            style: theme.textTheme.labelSmall
-                ?.copyWith(color: colorScheme.onSurfaceVariant),
-          ),
-          const SizedBox(height: 4),
-          if (big != null)
-            Text(
-              big!,
-              style: theme.textTheme.headlineSmall
-                  ?.copyWith(fontWeight: FontWeight.w800),
-            ),
-          for (final line in lines)
-            Text(
-              line,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: theme.textTheme.bodyMedium
-                  ?.copyWith(fontWeight: FontWeight.w600),
-            ),
         ],
       ),
     );

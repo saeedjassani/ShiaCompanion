@@ -282,12 +282,11 @@ class _ListenAndFollowSheetState extends State<_ListenAndFollowSheet> {
 
       case _Stage.listening:
         return [
-          _Status(icon: Icons.mic, text: context.l10n.listenListening, busy: true),
+          _Status(
+              icon: Icons.mic, text: context.l10n.listenListening, busy: true),
           const SizedBox(height: 12),
           Text(
-            _transcript.isEmpty
-                ? context.l10n.listenHoldPhone
-                : _transcript,
+            _transcript.isEmpty ? context.l10n.listenHoldPhone : _transcript,
             textAlign: _transcript.isEmpty ? TextAlign.start : TextAlign.end,
             textDirection:
                 _transcript.isEmpty ? TextDirection.ltr : TextDirection.rtl,

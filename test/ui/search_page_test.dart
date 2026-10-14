@@ -197,8 +197,8 @@ void main() {
     await openSearch(tester, 'dua jameel');
 
     expect(find.text('Nothing called “dua jameel”'), findsOneWidget);
-    expect(find.textContaining('like jameel', findRichText: true),
-        findsOneWidget);
+    expect(
+        find.textContaining('like jameel', findRichText: true), findsOneWidget);
     expect(find.text('Still can\'t find it?'), findsOneWidget);
     expect(find.text('Request “dua jameel”'), findsOneWidget);
   });

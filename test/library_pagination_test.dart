@@ -81,8 +81,7 @@ void main() {
     }
 
     bool insideALine(double y) => geometry.lines.any(
-          (line) =>
-              line.top < y - tolerance && line.bottom > y + tolerance,
+          (line) => line.top < y - tolerance && line.bottom > y + tolerance,
         );
 
     return [
@@ -124,7 +123,8 @@ void main() {
       }
 
       // The blocks the page builds cover the window it shows.
-      expect(geometry.blockTops[page.firstBlock], lessThanOrEqualTo(page.top + epsilon),
+      expect(geometry.blockTops[page.firstBlock],
+          lessThanOrEqualTo(page.top + epsilon),
           reason: '$where starts above its first block');
       expect(geometry.blockBottom(page.lastBlock),
           greaterThanOrEqualTo(page.bottom - epsilon),

@@ -15,7 +15,8 @@ void main() {
 
   test('fast is the only non-prayer entry type', () {
     expect(QazaEntryType.fast.isPrayer, isFalse);
-    for (final type in QazaEntryType.values.where((t) => t != QazaEntryType.fast)) {
+    for (final type
+        in QazaEntryType.values.where((t) => t != QazaEntryType.fast)) {
       expect(type.isPrayer, isTrue, reason: type.name);
     }
   });
@@ -152,9 +153,12 @@ void main() {
       final delta = QazaTrackerDelta.between(previous, next);
       expect(delta.deltaFor(QazaEntryType.fajr).remaining, -2);
       expect(delta.deltaFor(QazaEntryType.fajr).completed, 2);
-      final reconstructed = previous.applyDelta(delta).countFor(QazaEntryType.fajr);
-      expect(reconstructed.remaining, next.countFor(QazaEntryType.fajr).remaining);
-      expect(reconstructed.completed, next.countFor(QazaEntryType.fajr).completed);
+      final reconstructed =
+          previous.applyDelta(delta).countFor(QazaEntryType.fajr);
+      expect(
+          reconstructed.remaining, next.countFor(QazaEntryType.fajr).remaining);
+      expect(
+          reconstructed.completed, next.countFor(QazaEntryType.fajr).completed);
     });
 
     test('plus and minus combine deltas per type', () {
@@ -245,8 +249,8 @@ void main() {
     });
 
     test('toJson/fromJson round trip and ignore unknown keys', () {
-      final state = QazaTrackerState.empty
-          .setCount(QazaEntryType.other, const QazaEntryCount(remaining: 6, completed: 2));
+      final state = QazaTrackerState.empty.setCount(QazaEntryType.other,
+          const QazaEntryCount(remaining: 6, completed: 2));
       final json = Map<String, dynamic>.from(state.toJson())
         ..['unknown_key'] = {'remaining': 1, 'completed': 1};
 

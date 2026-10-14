@@ -150,7 +150,8 @@ void main() {
     expect(decodePendingFavoriteOrder('not json'), isNull);
     expect(decodePendingFavoriteOrder('["1:first"]'), isNull);
     expect(decodePendingFavoriteOrder('{"version":1}'), isNull);
-    expect(decodePendingFavoriteOrder('{"version":1,"keys":"1:first"}'), isNull);
+    expect(
+        decodePendingFavoriteOrder('{"version":1,"keys":"1:first"}'), isNull);
     expect(decodePendingFavoriteOrder('{"version":1,"keys":[]}'), isNull);
   });
 

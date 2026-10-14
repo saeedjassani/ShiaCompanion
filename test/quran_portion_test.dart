@@ -130,7 +130,8 @@ void main() {
     test('juz 30 stitches all thirty-seven of its surahs', () async {
       final portion = (await loadJuzPortion(30, bundle))!;
 
-      expect(portion.index.spans.map((span) => span.surah).toSet(), hasLength(37));
+      expect(
+          portion.index.spans.map((span) => span.surah).toSet(), hasLength(37));
       expect(portion.index.verses, hasLength(564));
       expect(portion.firstVerse, const VerseKey(78, 1));
       expect(portion.lastVerse, const VerseKey(114, 6));

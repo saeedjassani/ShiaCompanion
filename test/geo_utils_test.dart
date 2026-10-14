@@ -104,8 +104,7 @@ void main() {
     test('uses hemisphere letters rather than signs', () {
       expect(formatCoordinates(sanFrancisco), '37.6°N 122.4°W');
       expect(formatCoordinates(istanbul), '41.3°N 28.7°E');
-      expect(formatCoordinates(const GeoPoint(-33.9, 151.2)),
-          '33.9°S 151.2°E');
+      expect(formatCoordinates(const GeoPoint(-33.9, 151.2)), '33.9°S 151.2°E');
     });
   });
 }

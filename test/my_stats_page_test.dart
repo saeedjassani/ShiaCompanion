@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shia_companion/constants.dart';
 import 'package:shia_companion/pages/my_stats_page.dart';
+import 'package:shia_companion/pages/stats/stats_charts.dart';
+import 'package:shia_companion/pages/stats/stats_widgets.dart';
 import 'package:shia_companion/services/activity_stats_store.dart';
 import 'package:shia_companion/services/recitation_tracker_manager.dart';
 import 'package:shia_companion/utils/quran_index.dart';
@@ -56,7 +59,10 @@ void main() {
       recitedAt: DateTime(now.year, now.month, now.day, 9),
       syncRemote: false,
     );
-    await ActivityStatsStore.instance.recordZikrCompleted('X1');
+    // Six zikrs, X1 twice: one more than the five Your most recited shows.
+    for (final uid in ['X1', 'X1', 'X2', 'X3', 'X4', 'X5', 'X6']) {
+      await ActivityStatsStore.instance.recordZikrCompleted(uid);
+    }
 
     await tester.pumpWidget(const MaterialApp(home: MyStatsPage()));
     await tester.pumpAndSettle();
@@ -67,10 +73,16 @@ void main() {
     expect(find.text('YOUR MOST RECITED'), findsOneWidget);
     expect(find.text('Milestones'), findsNothing);
     expect(find.text('Recent sessions'), findsNothing);
-    // The totals live under History's All time tab, not in tiles.
-    expect(find.text('Verses recited'), findsNothing);
-    expect(find.text('Active days'), findsNothing);
+    // Lifetime totals as tiles: 7 + 141 + 19 verses over three days.
+    expect(find.text('Active days'), findsOneWidget);
+    expect(find.text('167'), findsOneWidget);
+    // No qaza kept, so no Qaza tile or pill.
+    expect(find.text('Qaza'), findsNothing);
+    expect(find.textContaining('this week'), findsNothing);
     expect(find.text('Sessions'), findsNothing);
+    // Your most recited counts plainly: "1", not "once".
+    expect(find.text('once'), findsNothing);
+    expect(find.text('2'), findsWidgets);
     expect(find.text('Quran progress'), findsOneWidget);
     expect(find.text('Family'), findsWidgets);
     expect(find.text('Recited till'), findsOneWidget);
@@ -80,18 +92,107 @@ void main() {
     expect(find.text('Continue'), findsNothing);
 
     // Switching the history metric re-plots without error.
-    await tester.tap(find.text('Zikrs'));
+    // The tiles name the same metrics, so tap the history card's pills.
+    Finder inHistory(String text) => find.descendant(
+        of: find.byType(StatsHistoryCard), matching: find.text(text));
+    await tester.tap(inHistory('Zikrs'));
     await tester.tap(find.text('Month'));
     await tester.pumpAndSettle();
     expect(tester.takeException(), isNull);
 
     // All time: the lifetime total - 7 + 141 + 19 verses - and months for
     // bars.
-    await tester.tap(find.text('Verses'));
+    await tester.tap(inHistory('Verses'));
     await tester.tap(find.text('All time'));
     await tester.pumpAndSettle();
     expect(tester.takeException(), isNull);
     expect(find.text('167 verses in total'), findsOneWidget);
     expect(find.textContaining('Best month:'), findsOneWidget);
+  });
+
+  test("The bar chart's y-axis steps cleanly to just past the best value", () {
+    expect(StatsBarChart.ticksFor(0), [0, 1]);
+    expect(StatsBarChart.ticksFor(1), [0, 1]);
+    expect(StatsBarChart.ticksFor(3), [0, 1, 2, 3]);
+    expect(StatsBarChart.ticksFor(7), [0, 5, 10]);
+    expect(StatsBarChart.ticksFor(12), [0, 5, 10, 15]);
+    expect(StatsBarChart.ticksFor(167), [0, 100, 200]);
+    expect(StatsBarChart.ticksFor(1400), [0, 500, 1000, 1500]);
+  });
+
+  testWidgets('A tile shows its metric in History; See all lists every zikr',
+      (tester) async {
+    await tester.binding.setSurfaceSize(const Size(430, 3200));
+    addTearDown(() => tester.binding.setSurfaceSize(null));
+    // Carries on from the test above: 167 verses and seven zikrs.
+    await tester.pumpWidget(const MaterialApp(home: MyStatsPage()));
+    await tester.pumpAndSettle();
+
+    expect(find.text('7 zikrs in the last 7 days'), findsOneWidget);
+    await tester.tap(find.byWidgetPredicate(
+        (widget) => widget is StatsTile && widget.label == 'Verses'));
+    await tester.pumpAndSettle();
+    expect(find.text('167 verses in the last 7 days'), findsOneWidget);
+
+    await tester.tap(find.text('See all'));
+    await tester.pumpAndSettle();
+    expect(tester.takeException(), isNull);
+    for (final uid in ['X1', 'X2', 'X3', 'X4', 'X5', 'X6']) {
+      expect(find.text(uid), findsOneWidget);
+    }
+    expect(find.text('6'), findsOneWidget);
+  });
+
+  testWidgets('The khatm ring stays round beside a taller panel',
+      (tester) async {
+    await tester.pumpWidget(const MaterialApp(
+      home: Scaffold(
+        body: IntrinsicHeight(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              ProgressRing(value: 0.3, center: Text('30%')),
+              SizedBox(width: 40, height: 140),
+            ],
+          ),
+        ),
+      ),
+    ));
+
+    final ring = tester.getSize(find.descendant(
+        of: find.byType(ProgressRing), matching: find.byType(CustomPaint)));
+    expect(ring.width, ring.height);
+  });
+
+  testWidgets('An axis number is never cut short ("10" drawn as "1")',
+      (tester) async {
+    // The inherited style draws wider than the bare caption style: the
+    // axis must measure what it draws.
+    await tester.pumpWidget(MaterialApp(
+      home: Scaffold(
+        body: DefaultTextStyle(
+          style: const TextStyle(letterSpacing: 6),
+          child: SizedBox(
+            width: 300,
+            child: StatsBarChart(
+              values: const [8, 3, 0],
+              labels: const ['a', 'b', 'c'],
+              format: (value) => '$value',
+            ),
+          ),
+        ),
+      ),
+    ));
+
+    expect(find.text('10'), findsOneWidget);
+    final paragraph = tester.renderObject<RenderParagraph>(find.text('10'));
+    expect(paragraph.didExceedMaxLines, isFalse);
+    // And it fits the axis it measured: it ends before the plot begins.
+    final ten = tester.getRect(find.text('10'));
+    final bar = tester.getRect(find
+        .descendant(
+            of: find.byType(StatsBarChart), matching: find.byType(Container))
+        .first);
+    expect(ten.right, lessThanOrEqualTo(bar.left));
   });
 }

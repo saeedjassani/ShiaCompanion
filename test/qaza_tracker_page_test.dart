@@ -50,8 +50,7 @@ void main() {
     await settle(tester);
   }
 
-  testWidgets('with nothing owed, offers to work out how many',
-      (tester) async {
+  testWidgets('with nothing owed, offers to work out how many', (tester) async {
     await seed(tester, {});
     await pump(tester);
 
@@ -68,7 +67,8 @@ void main() {
 
   testWidgets('sums up what is owed, a row per prayer', (tester) async {
     await seed(tester, {
-      for (final type in qazaDailyPrayers) type: (remaining: 250, completed: 12),
+      for (final type in qazaDailyPrayers)
+        type: (remaining: 250, completed: 12),
       QazaEntryType.fast: (remaining: 30, completed: 0),
     });
     await pump(tester);
@@ -76,8 +76,8 @@ void main() {
     expect(find.text('1,280'), findsOneWidget);
     expect(find.text('left to make up'), findsOneWidget);
     expect(find.text('60 done'), findsOneWidget);
-    expect(find.text('250 left · 12 done', findRichText: true),
-        findsNWidgets(5));
+    expect(
+        find.text('250 left · 12 done', findRichText: true), findsNWidgets(5));
     expect(find.text('30 left · 0 done', findRichText: true), findsOneWidget);
     expect(find.text('Prayed'), findsNWidgets(7));
     expect(find.text('Fasted'), findsOneWidget);

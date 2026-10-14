@@ -32,7 +32,9 @@ void main() {
       // 7 days * up to 10 occurrence slots = 70, which must stay under the
       // per-reminder id block so two reminders' ids never overlap.
       final idsForOneReminder = <int>{
-        for (var weekday = DateTime.monday; weekday <= DateTime.sunday; weekday++)
+        for (var weekday = DateTime.monday;
+            weekday <= DateTime.sunday;
+            weekday++)
           for (var occurrence = 0; occurrence < 10; occurrence++)
             zikrReminderNotificationId(
               baseId: 40000,
@@ -138,7 +140,8 @@ void main() {
       ensureTimeZoneDatabaseInitialized();
       // Tuesday 20 October 2026 in London; the clocks go back on Sunday the
       // 25th, making it 25 hours long.
-      final now = tz.TZDateTime(tz.getLocation('Europe/London'), 2026, 10, 20, 10);
+      final now =
+          tz.TZDateTime(tz.getLocation('Europe/London'), 2026, 10, 20, 10);
 
       final occurrences = upcomingPrayerRelativeOccurrences(
         prayerTime: getPrayerTimeObject(),

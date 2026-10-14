@@ -82,8 +82,7 @@ void main() {
     expect(reported.saved, 3);
   });
 
-  test('asks the bucket for sizes up front, for the button to show',
-      () async {
+  test('asks the bucket for sizes up front, for the button to show', () async {
     final tracks = [track('a.mp3'), track('bb.mp3')];
     expect(store.bytesToDownload(tracks), isNull);
 

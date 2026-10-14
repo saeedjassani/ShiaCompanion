@@ -21,8 +21,10 @@ void main() {
       final ids = <dynamic>{};
       final slugs = <String>{};
       for (final b in books) {
-        expect(b['slug'], isA<String>().having((s) => s.isNotEmpty, 'set', true));
-        expect(b['title'], isA<String>().having((s) => s.isNotEmpty, 'set', true));
+        expect(
+            b['slug'], isA<String>().having((s) => s.isNotEmpty, 'set', true));
+        expect(
+            b['title'], isA<String>().having((s) => s.isNotEmpty, 'set', true));
         expect(ids.add(b['id']), isTrue, reason: 'duplicate id ${b['id']}');
         expect(slugs.add(b['slug'] as String), isTrue,
             reason: 'duplicate slug ${b['slug']}');
