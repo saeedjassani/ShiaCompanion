@@ -592,7 +592,6 @@
   "statsQuranEmpty": "سوره‌ای را باز کنید و شروع به خواندن کنید - آیاتی که می‌خوانید به‌طور خودکار اینجا ثبت می‌شود و پیشرفت شما تا یک ختم کامل را نشان می‌دهد.",
   "statsRecitedTill": "خوانده‌شده تا",
   "statsNotStarted": "شروع نشده",
-  "statsJuzDone": "جزء کامل",
   "statsKhatmComplete": "ختم کامل شد - قبول باشد",
   "reminderAtPrayer": "هنگام {prayer}",
   "reminderMinutesAfter": "{minutes} دقیقه بعد از {prayer}",

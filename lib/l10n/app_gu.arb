@@ -592,7 +592,6 @@
   "statsQuranEmpty": "સૂરહ ખોલો અને વાંચવાનું શરૂ કરો — તમે પઢો છો તે આયતો અહીં આપોઆપ નોંધાય છે, સંપૂર્ણ ખત્મ તરફની તમારી પ્રગતિ સાથે.",
   "statsRecitedTill": "આટલે સુધી પઢ્યું",
   "statsNotStarted": "શરૂ થયું નથી",
-  "statsJuzDone": "જુઝ પૂરો",
   "statsKhatmComplete": "ખત્મ પૂર્ણ — તે સ્વીકાર્ય થાય",
   "reminderAtPrayer": "{prayer} વખતે",
   "reminderMinutesAfter": "{prayer} પછી {minutes} મિનિટ",

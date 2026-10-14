@@ -1488,7 +1488,6 @@
   "statsQuranEmpty": "Open a surah and start reading - the verses you recite are tracked here automatically, with your progress towards a full khatm.",
   "statsRecitedTill": "Recited till",
   "statsNotStarted": "Not started",
-  "statsJuzDone": "Juz done",
   "statsKhatmComplete": "Khatm complete - may it be accepted",
   "reminderAtPrayer": "At {prayer}",
   "@reminderAtPrayer": {

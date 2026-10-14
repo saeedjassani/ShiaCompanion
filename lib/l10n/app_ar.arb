@@ -592,7 +592,6 @@
   "statsQuranEmpty": "افتح سورة وابدأ القراءة - تُتتبّع الآيات التي تتلوها هنا تلقائيًا، مع تقدّمك نحو ختمة كاملة.",
   "statsRecitedTill": "تُلي حتى",
   "statsNotStarted": "لم يبدأ",
-  "statsJuzDone": "اكتمل الجزء",
   "statsKhatmComplete": "اكتملت الختمة - تقبّلها الله",
   "reminderAtPrayer": "عند {prayer}",
   "reminderMinutesAfter": "بعد {minutes} دقيقة من {prayer}",
