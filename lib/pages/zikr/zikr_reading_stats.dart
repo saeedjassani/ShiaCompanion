@@ -266,6 +266,15 @@ const double zikrCompletionTimeShare = 0.4;
 /// The floor on that time, for a dua short enough to fit on one screen.
 const Duration zikrCompletionMinTime = Duration(seconds: 10);
 
+/// How much of a surah or juz has to have been on screen for it to count as
+/// recited: all of it, down to the last word of the last ayah.
+///
+/// [zikrCompletionSeenThreshold]'s slack is for a zikr's closing notes and
+/// merits; the Quran has none, and 10% of al-Baqarah is some 25 ayahs - which
+/// is how "Completed" came to show with many ayahs still to go. Short of 1 by
+/// a rounding error only.
+const double quranCompletionSeenThreshold = 1 - 1e-9;
+
 /// How much longer the reader has to stay on a tab before it counts as
 /// recited: [Duration.zero] if it already does, null if not enough of it has
 /// been on screen yet.
@@ -276,12 +285,18 @@ const Duration zikrCompletionMinTime = Duration(seconds: 10);
 /// tabs the reader never meant to open, nor on the whole compilation's
 /// reading time. [elapsed] is the time spent on *this* tab, so time spent
 /// reciting one tab does not let a fling through the next one count too.
+///
+/// [isQuran] holds a surah or juz to its last ayah - see
+/// [quranCompletionSeenThreshold].
 Duration? zikrTabCompletionWait({
   required double seenFraction,
   required ZikrTabReadingStats? tab,
   required Duration elapsed,
+  bool isQuran = false,
 }) {
-  if (seenFraction < zikrCompletionSeenThreshold) return null;
+  final threshold =
+      isQuran ? quranCompletionSeenThreshold : zikrCompletionSeenThreshold;
+  if (seenFraction < threshold) return null;
   final tabSeconds = tab == null ? 0.0 : tab.minutes * 60;
   final requiredMs = (tabSeconds * zikrCompletionTimeShare * 1000).round();
   final required = Duration(

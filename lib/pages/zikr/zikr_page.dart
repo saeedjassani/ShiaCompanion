@@ -461,6 +461,7 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
         seenFraction: seen,
         tab: tabIndex >= 0 && tabIndex < tabs.length ? tabs[tabIndex] : null,
         elapsed: _tabElapsed(tabIndex),
+        isQuran: _isQuran,
       );
       if (wait == null) return;
       if (wait == Duration.zero) {
@@ -1921,6 +1922,18 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
 
     // Measured by words where the viewer could lay the tab out, by pixels
     // only as a fallback - see [zikrContentFractionAbove].
+    //
+    // Not for the Quran, whose every ayah is weighted, so a missing measure
+    // only ever means the list was not laid out yet - and the pixel fallback
+    // counts a list with no scroll extent as fully read. One such report
+    // would stick, since the seen share only grows, and say "Completed" a
+    // few minutes later wherever the reader had got to.
+    final measured = !_isQuran ||
+        (position.seenFraction != null && position.progressFraction != null);
+    if (!measured) {
+      _updateReadingProgress();
+      return;
+    }
     final seen = position.seenFraction ??
         zikrTabSeenFraction(
           scrollOffset: position.scrollOffset,
