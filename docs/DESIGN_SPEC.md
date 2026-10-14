@@ -330,11 +330,8 @@ phone → 5 Back up (Google, Apple on iOS, Maybe later). "Skip" on every
 step; defaults apply when skipped (Skip puts back whatever that step
 changed; the Azan step's Skip is "Not now"). The Azan step only follows a
 location: with step 1 skipped, setup has four steps ("Step 2 of 4" is
-Arabic style) and azan stays unanswered. The first time a location is set
-afterwards (the city picker, "Use my location", or found at launch or on
-resume), a dialog asks "Hear the azan at prayer time?" for Fajr, Zuhr and
-Maghrib, with Turn on azan / Not now; either answer, or dismissing it, is
-final. Replaces the location explainer and azan dialogs; the OS prompts
+Arabic style) and azan stays off; it is turned on later from Settings,
+and no dialog asks about it again. Replaces the location explainer and azan dialogs; the OS prompts
 only follow an explicit tap. No setup checklist on Home. Fresh installs on
 Android and iOS only: an install that has run an earlier build skips it,
 and the web keeps its quiet first load. The "What's new" dialog for

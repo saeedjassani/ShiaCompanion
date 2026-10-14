@@ -3848,10 +3848,6 @@
   "setupAzanIosNote": "On iPhone the notification itself plays a short takbir.",
   "setupTurnOnAzan": "Turn on azan",
   "setupNotNow": "Not now",
-  "azanOfferBody": "Your prayer times are ready. Would you like a notification with the azan at Fajr, Zuhr and Maghrib? You can pick other prayers any time in Settings, under Azan.",
-  "@azanOfferBody": {
-    "description": "Asked once, after a location is first set outside first-run setup (whose Azan step is skipped without one). Titled setupAzanTitle; Fajr, Zuhr and Maghrib are what Turn on azan enables."
-  },
   "setupFontTitle": "How should Arabic look?",
   "setupFontBody": "Tap the one you find easier to read. Same words, two styles.",
   "setupFontQalamHint": "Indo-Pak style, like most South Asian dua books",

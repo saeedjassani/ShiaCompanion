@@ -64,8 +64,8 @@ class _FirstRunGateState extends State<FirstRunGate> {
 ///
 /// The Azan step only follows a location: without one there are no times to
 /// show beside the switches, and turning azan on would seem to do nothing.
-/// Without it setup has four steps, and the question is put once a location
-/// is set later instead (offerAzanOnceLocated).
+/// Without it setup has four steps, azan stays off, and Settings is where
+/// it is turned on later - nothing asks again.
 ///
 /// Every step can be skipped, and skipping leaves that setting as it was:
 /// no location, azan off, the default font and theme. Choices apply as they
@@ -141,12 +141,10 @@ class _FirstRunSetupPageState extends State<FirstRunSetupPage> {
   Future<void> _finish({required bool skipped}) async {
     if (_finishing) return;
     _finishing = true;
-    // Azan stays off unless the Azan step turned it on; recording that as
-    // the answer is what keeps the question from coming back. Without a
-    // location the step was never shown, so the question is left for when
-    // one is set (offerAzanOnceLocated).
-    if (!AzaanOptInService.hasBeenAsked &&
-        LocationService.instance.hasLocation) {
+    // Azan stays off unless the Azan step turned it on, even when the step
+    // was never shown for want of a location: setup is the only place the
+    // question is put, and Settings is where to change it afterwards.
+    if (!AzaanOptInService.hasBeenAsked) {
       await AzaanOptInService.answer(const []);
     }
     await FirstRunSetup.markDone();
