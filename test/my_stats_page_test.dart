@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shia_companion/constants.dart';
@@ -161,5 +162,37 @@ void main() {
     final ring = tester.getSize(find.descendant(
         of: find.byType(ProgressRing), matching: find.byType(CustomPaint)));
     expect(ring.width, ring.height);
+  });
+
+  testWidgets('An axis number is never cut short ("10" drawn as "1")',
+      (tester) async {
+    // The inherited style draws wider than the bare caption style: the
+    // axis must measure what it draws.
+    await tester.pumpWidget(MaterialApp(
+      home: Scaffold(
+        body: DefaultTextStyle(
+          style: const TextStyle(letterSpacing: 6),
+          child: SizedBox(
+            width: 300,
+            child: StatsBarChart(
+              values: const [8, 3, 0],
+              labels: const ['a', 'b', 'c'],
+              format: (value) => '$value',
+            ),
+          ),
+        ),
+      ),
+    ));
+
+    expect(find.text('10'), findsOneWidget);
+    final paragraph = tester.renderObject<RenderParagraph>(find.text('10'));
+    expect(paragraph.didExceedMaxLines, isFalse);
+    // And it fits the axis it measured: it ends before the plot begins.
+    final ten = tester.getRect(find.text('10'));
+    final bar = tester.getRect(find
+        .descendant(
+            of: find.byType(StatsBarChart), matching: find.byType(Container))
+        .first);
+    expect(ten.right, lessThanOrEqualTo(bar.left));
   });
 }

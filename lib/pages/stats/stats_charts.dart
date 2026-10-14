@@ -309,13 +309,17 @@ class StatsBarChart extends StatelessWidget {
     final direction = Directionality.of(context);
 
     // The axis is as wide as its widest number, and each number is centred
-    // on its gridline.
+    // on its gridline. Measured in the style the Text below draws in - the
+    // inherited default (the app's font and its fallback) merged with
+    // [style] - or a "10" measured in one font is cut to "1" in another.
+    final drawn = DefaultTextStyle.of(context).style.merge(style);
     final tickPainters = [
       for (final tick in ticks)
         TextPainter(
-          text: TextSpan(text: format(tick), style: style),
+          text: TextSpan(text: format(tick), style: drawn),
           textDirection: direction,
           textScaler: textScaler,
+          locale: Localizations.maybeLocaleOf(context),
           maxLines: 1,
         )..layout(),
     ];
@@ -373,9 +377,14 @@ class StatsBarChart extends StatelessWidget {
                       start: 0,
                       width: axisWidth - 6,
                       bottom: barArea * tick / top - tickHeight / 2,
+                      // Never wrapped or clipped: if the measurement is
+                      // still a hair short, the number spills into the gap
+                      // before the gridline rather than losing a digit.
                       child: Text(
                         format(tick),
                         maxLines: 1,
+                        softWrap: false,
+                        overflow: TextOverflow.visible,
                         textAlign: TextAlign.end,
                         style: style,
                       ),
