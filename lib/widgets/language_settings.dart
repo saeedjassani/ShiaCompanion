@@ -46,7 +46,12 @@ String translationLanguageValue(BuildContext context) {
 }
 
 /// Asks which language the app's own text is in, and applies the answer.
-Future<void> pickAppLanguage(BuildContext context) async {
+///
+/// [republish] false skips writing the widgets, notifications and reminders
+/// again: first-run setup asks before any are written, and Home writes them
+/// once setup is over.
+Future<void> pickAppLanguage(BuildContext context,
+    {bool republish = true}) async {
   final provider = context.read<LanguageProvider>();
   final l10n = context.l10n;
   final picked = await _pickLanguage(
@@ -58,11 +63,13 @@ Future<void> pickAppLanguage(BuildContext context) async {
   );
   if (picked == null) return;
   await provider.setAppLanguage(picked.code);
-  // The home screen widgets, scheduled prayer notifications and zikr
-  // reminders were written out in the old language: write them again.
-  unawaited(HomeScreenWidgetService.instance.publishAll());
-  unawaited(setUpNotifications());
-  unawaited(ZikrReminderService.instance.rescheduleAll());
+  if (republish) {
+    // The home screen widgets, scheduled prayer notifications and zikr
+    // reminders were written out in the old language: write them again.
+    unawaited(HomeScreenWidgetService.instance.publishAll());
+    unawaited(setUpNotifications());
+    unawaited(ZikrReminderService.instance.rescheduleAll());
+  }
   unawaited(AnalyticsService.feature(
     'app_language_changed',
     label: 'App language changed',
@@ -78,9 +85,8 @@ Future<void> pickTranslationLanguage(BuildContext context) async {
   final picked = await _pickLanguage(
     context,
     title: l10n.settingsTranslationLanguage,
-    defaultLabel:
-        l10n.languageFollowApp(
-            provider.appFollowingTranslationLanguage.nativeName),
+    defaultLabel: l10n
+        .languageFollowApp(provider.appFollowingTranslationLanguage.nativeName),
     languages: provider.translationLanguages,
     current: provider.translationLanguageChoice,
   );

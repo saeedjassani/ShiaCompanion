@@ -1154,7 +1154,6 @@
   "setupGetStarted": "ابدأ",
   "setupSkipAll": "تخطَّ الإعداد",
   "setupStepOf": "الخطوة {step} من {total}",
-  "setupSkip": "تخطَّ",
   "setupLocationTitle": "أوقات الصلاة لمدينتك",
   "setupLocationBody": "تتغيّر أوقات الصلاة بحسب موقعك. نستخدم موقعك لحساب أوقات الصلاة واتجاه القبلة.",
   "setupLocationAlternative": "لا تفضّل مشاركته؟ اختر مدينتك بدلًا من ذلك. يمكنك تغيير هذا في أي وقت.",

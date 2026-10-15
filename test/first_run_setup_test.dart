@@ -10,6 +10,7 @@ import 'package:shia_companion/services/location_service.dart';
 import 'package:shia_companion/services/whats_new_service.dart';
 import 'package:shia_companion/theme/app_theme.dart';
 import 'package:shia_companion/utils/app_text_scale.dart';
+import 'package:shia_companion/utils/language_provider.dart';
 import 'package:shia_companion/utils/shared_preferences.dart';
 import 'package:shia_companion/utils/sign_in_flow.dart';
 import 'package:shia_companion/utils/theme_mode.dart';
@@ -129,6 +130,7 @@ void main() {
         providers: [
           ChangeNotifierProvider.value(value: themeMode),
           ChangeNotifierProvider.value(value: textScale),
+          ChangeNotifierProvider(create: (_) => LanguageProvider()),
         ],
         child: Consumer<ThemeModeProvider>(
           builder: (context, provider, _) => MaterialApp(
@@ -154,6 +156,9 @@ void main() {
     testWidgets('Skip setup ends it with every default', (tester) async {
       await pumpSetup(tester);
       expect(find.text('Salamun Alaikum'), findsOneWidget);
+      // Language and text size come first, so every step reads well.
+      expect(find.text('App language'), findsOneWidget);
+      expect(find.text('App text size'), findsOneWidget);
 
       await tapText(tester, 'Skip setup');
 
@@ -173,11 +178,18 @@ void main() {
       lat = 51.5;
       long = -0.12;
       await pumpSetup(tester);
+      // The welcome sizes the whole app's text, so every step reads well.
+      await tester.ensureVisible(find.bySemanticsLabel('Bigger text'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.bySemanticsLabel('Bigger text'));
+      await tester.pumpAndSettle();
+      expect(find.text('110%'), findsOneWidget);
+      expect(SP.prefs.getDouble(AppTextScaleProvider.prefsKey), 1.1);
       await tapText(tester, 'Get started');
 
       expect(find.text('Step 1 of 5'), findsOneWidget);
       expect(find.text('Prayer times for your city'), findsOneWidget);
-      await tapText(tester, 'Skip');
+      await tapText(tester, 'Not now');
 
       expect(find.text('Step 2 of 5'), findsOneWidget);
       // The five switches, with Fajr, Zuhr and Maghrib on.
@@ -201,16 +213,9 @@ void main() {
       expect(find.text('How should Arabic look?'), findsOneWidget);
       await tester.tap(find.text('Scheherazade'));
       await tester.pumpAndSettle();
-      // The size here is the whole app's, not the Arabic's.
-      await tester.ensureVisible(find.bySemanticsLabel('Bigger text'));
-      await tester.pumpAndSettle();
-      await tester.tap(find.bySemanticsLabel('Bigger text'));
-      await tester.pumpAndSettle();
-      expect(find.text('110%'), findsOneWidget);
       await tapText(tester, 'Continue');
 
       expect(SP.prefs.getString('arabic_font'), 'Scheherazade');
-      expect(SP.prefs.getDouble(AppTextScaleProvider.prefsKey), 1.1);
       expect(SP.prefs.containsKey('ara_font_size'), isFalse);
 
       expect(find.text('Light or dark?'), findsOneWidget);
@@ -220,8 +225,8 @@ void main() {
       await tapText(tester, 'Continue');
 
       expect(find.text('Keep everything safe'), findsOneWidget);
-      // The last step has nothing to skip to; Maybe later is the way on.
-      expect(find.text('Skip'), findsNothing);
+      // On the last step Maybe later already ends setup.
+      expect(find.text('Skip setup'), findsNothing);
       await tapText(tester, 'Maybe later');
 
       expect(done, 1);
@@ -229,33 +234,46 @@ void main() {
       expect(SP.prefs.getString(ThemeModeProvider.prefsKey), 'dark');
     });
 
-    testWidgets('Skip puts back what a step had changed', (tester) async {
+    testWidgets('Skip setup on a step ends setup, keeping what was chosen',
+        (tester) async {
       await pumpSetup(tester);
       await tapText(tester, 'Get started');
-      await tapText(tester, 'Skip'); // Location; with none, no Azan step
+      await tapText(tester, 'Not now'); // Location; with none, no Azan step
 
       await tester.tap(find.text('Scheherazade'));
       await tester.pumpAndSettle();
-      expect(arabicFont, 'Scheherazade');
-      await tester.ensureVisible(find.bySemanticsLabel('Bigger text'));
-      await tester.tap(find.bySemanticsLabel('Bigger text'));
-      await tester.pumpAndSettle();
-      expect(textScale.scale, 1.1);
-      await tapText(tester, 'Skip');
-      expect(arabicFont, 'Qalam');
-      expect(textScale.scale, AppTextScaleProvider.defaultScale);
-      expect(SP.prefs.containsKey(AppTextScaleProvider.prefsKey), isFalse);
+      await tapText(tester, 'Continue');
 
       await tester.tap(find.text('Dark'));
       await tester.pumpAndSettle();
-      await tapText(tester, 'Skip');
-      expect(themeMode.themeMode, ThemeMode.system);
+      await tapText(tester, 'Skip setup');
+
+      expect(done, 1);
+      expect(SP.prefs.getString(FirstRunSetup.stateKey), FirstRunSetup.done);
+      expect(SP.prefs.getString('arabic_font'), 'Scheherazade');
+      expect(themeMode.themeMode, ThemeMode.dark);
+      expect(AzaanOptInService.hasBeenAsked, isFalse);
+    });
+
+    testWidgets('Skip setup on the Azan step leaves azan off', (tester) async {
+      lat = 51.5;
+      long = -0.12;
+      await pumpSetup(tester);
+      await tapText(tester, 'Get started');
+      await tapText(tester, 'Not now');
+      expect(find.text('Hear the azan at prayer time?'), findsOneWidget);
+
+      await tapText(tester, 'Skip setup');
+
+      expect(done, 1);
+      expect(AzaanOptInService.hasBeenAsked, isTrue);
+      expect(AzaanOptInService.isEnabled, isFalse);
     });
 
     testWidgets('back goes to the step before', (tester) async {
       await pumpSetup(tester);
       await tapText(tester, 'Get started');
-      await tapText(tester, 'Skip');
+      await tapText(tester, 'Not now');
       expect(find.text('Step 2 of 4'), findsOneWidget);
 
       await tester.binding.handlePopRoute();
@@ -269,13 +287,13 @@ void main() {
       await pumpSetup(tester);
       await tapText(tester, 'Get started');
       expect(find.text('Step 1 of 4'), findsOneWidget);
-      await tapText(tester, 'Skip');
+      await tapText(tester, 'Not now');
 
       expect(find.text('Step 2 of 4'), findsOneWidget);
       expect(find.text('Hear the azan at prayer time?'), findsNothing);
       expect(find.text('How should Arabic look?'), findsOneWidget);
       for (var i = 0; i < 2; i++) {
-        await tapText(tester, 'Skip');
+        await tapText(tester, 'Continue');
       }
       await tapText(tester, 'Maybe later');
 
@@ -291,8 +309,9 @@ void main() {
         return 'a user';
       });
       await tapText(tester, 'Get started');
-      for (var i = 0; i < 3; i++) {
-        await tapText(tester, 'Skip');
+      await tapText(tester, 'Not now');
+      for (var i = 0; i < 2; i++) {
+        await tapText(tester, 'Continue');
       }
 
       await tapText(tester, 'Continue with Google');
@@ -304,8 +323,9 @@ void main() {
     testWidgets('a cancelled sign-in stays on the step', (tester) async {
       await pumpSetup(tester);
       await tapText(tester, 'Get started');
-      for (var i = 0; i < 3; i++) {
-        await tapText(tester, 'Skip');
+      await tapText(tester, 'Not now');
+      for (var i = 0; i < 2; i++) {
+        await tapText(tester, 'Continue');
       }
 
       await tapText(tester, 'Continue with Google');
@@ -317,8 +337,12 @@ void main() {
 
   testWidgets('the gate opens on the app once setup is done', (tester) async {
     await _prefs({FirstRunSetup.stateKey: FirstRunSetup.pending});
-    await tester.pumpWidget(ChangeNotifierProvider(
-      create: (_) => ThemeModeProvider(),
+    await tester.pumpWidget(MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => ThemeModeProvider()),
+        ChangeNotifierProvider(create: (_) => AppTextScaleProvider()),
+        ChangeNotifierProvider(create: (_) => LanguageProvider()),
+      ],
       child: MaterialApp(
         theme: buildAppTheme(Brightness.light),
         home: const FirstRunGate(

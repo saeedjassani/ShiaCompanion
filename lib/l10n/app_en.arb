@@ -3836,10 +3836,6 @@
       }
     }
   },
-  "setupSkip": "Skip",
-  "@setupSkip": {
-    "description": "Top right of a setup step: go on without changing anything."
-  },
   "setupLocationTitle": "Prayer times for your city",
   "setupLocationBody": "Prayer times change with where you are. We use your location to work out prayer times and the Qibla direction.",
   "setupLocationAlternative": "Rather not share it? Choose your city instead. You can change this any time.",

@@ -324,13 +324,16 @@ bar. Results scroll behind it under the same fade.
 - Focus mode hides both bars as today.
 
 ### First-run setup
-Welcome → 1 Prayer times (location or city) → 2 Azan (per-prayer toggles,
-sample) → 3 Arabic style (font cards + size) → 4 Light / Dark / Same as
-phone → 5 Back up (Google, Apple on iOS, Maybe later). "Skip" on every
-step; defaults apply when skipped (Skip puts back whatever that step
-changed; the Azan step's Skip is "Not now"). The Azan step only follows a
-location: with step 1 skipped, setup has four steps ("Step 2 of 4" is
-Arabic style) and azan stays unanswered. Once a location is set
+Welcome (greeting, plus App language - once more than English has
+shipped - and App text size, so every step after reads well) → 1 Prayer
+times (location, city, or Not now) → 2 Azan (per-prayer toggles, sample;
+Turn on azan / Not now) → 3 Arabic style (font cards) → 4 Light / Dark /
+Same as phone → 5 Back up (Google, Apple on iOS, Maybe later). "Skip
+setup" on the welcome and atop steps 1-4 ends setup there: what was chosen
+so far stays, everything else keeps its default (azan off once a location
+is set). The Azan step only follows a location: with step 1 passed over,
+setup has four steps ("Step 2 of 4" is Arabic style) and azan stays
+unanswered. Once a location is set
 afterwards (however it arrives), Home's prayer card asks "Hear the azan at
 prayer time?" under the times, with Turn on azan (Fajr, Zuhr and Maghrib) /
 Not now - a row in the card, never a dialog, waiting until answered;
