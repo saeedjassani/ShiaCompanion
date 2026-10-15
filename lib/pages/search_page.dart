@@ -506,11 +506,28 @@ class _SearchPageState extends State<SearchPage> {
       bySource[_sourceOf(entry)]!.add(entry);
     }
 
-    final open = [
+    var open = [
       for (final source in SearchSource.values)
         if (_openSources.contains(source) && bySource[source]!.isNotEmpty)
           source,
     ];
+    // Folded sections still say they have matches, after the open ones -
+    // otherwise a search only a book matches would look like it found
+    // nothing.
+    var folded = [
+      for (final source in SearchSource.values)
+        if (!_openSources.contains(source) && bySource[source]!.isNotEmpty)
+          source,
+    ];
+    // When only folded sections matched ("Mutahhari" finds only books),
+    // their lists show anyway: a lone "41 matches in Library" row would
+    // make the reader tap again for what they plainly searched for. The
+    // saved preference is left alone, so they fold again next time.
+    final unfolded = open.isEmpty ? folded.toSet() : const <SearchSource>{};
+    if (unfolded.isNotEmpty) {
+      open = folded;
+      folded = const [];
+    }
     // The section with the better match goes first. Results arrive ranked,
     // so a section's first entry is its best; ties keep the order above.
     final lowered = query.toLowerCase();
@@ -521,14 +538,6 @@ class _SearchPageState extends State<SearchPage> {
     open.sort((a, b) => bestRank[a] != bestRank[b]
         ? bestRank[a]! - bestRank[b]!
         : a.index - b.index);
-    // Folded sections still say they have matches, after the open ones -
-    // otherwise a search only a book matches would look like it found
-    // nothing.
-    final folded = [
-      for (final source in SearchSource.values)
-        if (!_openSources.contains(source) && bySource[source]!.isNotEmpty)
-          source,
-    ];
     final verse = _verseQuery(query);
 
     if (results.isEmpty && verse == null) {
@@ -574,7 +583,8 @@ class _SearchPageState extends State<SearchPage> {
             child: _SectionHeader(
               label: l10n.searchSection(
                   source.label(l10n), bySource[source]!.length),
-              action: l10n.searchHide,
+              // Nothing to hide it under when it is all there is.
+              action: unfolded.contains(source) ? null : l10n.searchHide,
               actionSemantics: l10n.searchHideSource(source.label(l10n)),
               onAction: () => _setOpen(source, false),
             ),
@@ -701,43 +711,47 @@ class _SectionHeader extends StatelessWidget {
   });
 
   final String label;
-  final String action;
+
+  /// Null leaves the label alone, with no action beside it.
+  final String? action;
   final String actionSemantics;
   final VoidCallback onAction;
 
   @override
   Widget build(BuildContext context) {
     final colors = ShiaColors.of(context);
+    final action = this.action;
     return Row(
       children: [
         Expanded(child: GroupLabel(label)),
-        Semantics(
-          button: true,
-          label: actionSemantics,
-          excludeSemantics: true,
-          onTap: onAction,
-          child: InkWell(
+        if (action != null)
+          Semantics(
+            button: true,
+            label: actionSemantics,
+            excludeSemantics: true,
             onTap: onAction,
-            borderRadius: BorderRadius.circular(8),
-            child: ConstrainedBox(
-              // The row is short, but the target is not.
-              constraints: const BoxConstraints(minHeight: 44, minWidth: 44),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 4),
-                child: Center(
-                  widthFactor: 1,
-                  child: Text(
-                    action,
-                    style: ShiaText.secondary.copyWith(
-                      fontWeight: FontWeight.w600,
-                      color: colors.accent,
+            child: InkWell(
+              onTap: onAction,
+              borderRadius: BorderRadius.circular(8),
+              child: ConstrainedBox(
+                // The row is short, but the target is not.
+                constraints: const BoxConstraints(minHeight: 44, minWidth: 44),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 4),
+                  child: Center(
+                    widthFactor: 1,
+                    child: Text(
+                      action,
+                      style: ShiaText.secondary.copyWith(
+                        fontWeight: FontWeight.w600,
+                        color: colors.accent,
+                      ),
                     ),
                   ),
                 ),
               ),
             ),
           ),
-        ),
       ],
     );
   }

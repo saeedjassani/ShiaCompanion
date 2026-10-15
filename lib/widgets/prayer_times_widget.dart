@@ -29,8 +29,7 @@ import 'page_chrome.dart';
 ///
 /// Once there are times, someone who has never answered the azan question
 /// (setup leaves it out without a location) is asked it here, under the
-/// times it is about, until they answer. A bell marks each time whose azan
-/// is on.
+/// times it is about, until they answer.
 class HomePrayerTimesCard extends StatefulWidget {
   const HomePrayerTimesCard({super.key, this.onTap, this.footer});
 
@@ -526,38 +525,10 @@ class _PrayerTimeColumn extends StatelessWidget {
                   style: textStyle.copyWith(color: colors.onPrayerCardMuted),
                 ),
               ),
-              if (_azanOn(reading)) ...[
-                const SizedBox(width: 2),
-                _AzanBell(color: colors.gold, size: 11),
-              ],
             ],
           ),
         ],
       ),
-    );
-  }
-}
-
-/// Whether [reading]'s azan is on. Never on the web, which has none.
-bool _azanOn(WidgetPrayerTimeReading reading) =>
-    !kIsWeb &&
-    SP.isInitialized &&
-    SP.prefs.getBool(notificationPreferenceKeyForPrayer(reading.time.name)) ==
-        true;
-
-/// The bell beside a time whose azan is on.
-class _AzanBell extends StatelessWidget {
-  const _AzanBell({required this.color, required this.size});
-
-  final Color color;
-  final double size;
-
-  @override
-  Widget build(BuildContext context) {
-    return Semantics(
-      label: context.l10n.prayerAzanOn,
-      child: OutlineIcon(OutlineGlyph.bell,
-          size: size, color: color, filled: true),
     );
   }
 }
@@ -586,13 +557,12 @@ class _NextPrayer extends StatelessWidget {
     final colors = ShiaColors.of(context);
     final name = localizedPrayerName(reading.time.name, context.l10n);
     final time = _clockLabel(reading);
-    final azanOn = _azanOn(reading);
     final spoken = context.l10n.prayerNextSemantics(label, name, time);
 
     return Semantics(
       container: true,
       // The countdown is left out: read aloud, it would change every second.
-      label: azanOn ? '$spoken, ${context.l10n.prayerAzanOn}' : spoken,
+      label: spoken,
       excludeSemantics: true,
       child: Container(
         padding: const EdgeInsetsDirectional.fromSTEB(12, 12, 14, 12),
@@ -633,10 +603,6 @@ class _NextPrayer extends StatelessWidget {
                           ),
                         ),
                       ),
-                      if (azanOn) ...[
-                        const SizedBox(width: 4),
-                        _AzanBell(color: colors.gold, size: 12),
-                      ],
                     ],
                   ),
                   Text(

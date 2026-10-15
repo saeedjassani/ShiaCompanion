@@ -428,10 +428,8 @@ void main() {
       expect(find.text(question), findsNothing);
     });
 
-    testWidgets('Turn on azan enables the three it names, each with a bell',
-        (tester) async {
+    testWidgets('Turn on azan enables the three it names', (tester) async {
       await pumpCard(tester);
-      expect(bells(tester), isEmpty);
 
       await tester.tap(find.text('Turn on azan'));
       await tester.pumpAndSettle();
@@ -443,12 +441,12 @@ void main() {
             .toSet(),
         AzaanOptInService.defaultEnabledPrayerKeys.toSet(),
       );
-      // Fajr, Zuhr and Maghrib of the default five; not Sunrise or Sunset.
-      expect(bells(tester), hasLength(3));
-      expect(find.bySemanticsLabel(RegExp('Azan on')), findsWidgets);
+      // The card marks none of them: azan lives in Settings, not on Home.
+      expect(bells(tester), isEmpty);
     });
 
-    testWidgets('fits a narrow phone with every bell on', (tester) async {
+    testWidgets('fits a narrow phone with every azan on, and shows no bell',
+        (tester) async {
       tester.view.physicalSize = const Size(320, 900);
       tester.view.devicePixelRatio = 1;
       addTearDown(tester.view.reset);
@@ -457,7 +455,7 @@ void main() {
       }
       await SP.prefs.setBool(AzaanOptInService.askedKey, true);
       await pumpCard(tester);
-      expect(bells(tester), hasLength(5));
+      expect(bells(tester), isEmpty);
       expect(tester.takeException(), isNull);
     });
 

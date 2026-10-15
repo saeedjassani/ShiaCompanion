@@ -75,12 +75,17 @@ void main() {
         containsAll(['zikr', 'quran', 'library']));
   });
 
-  testWidgets('a search only the library matches still points to it',
+  testWidgets('a search only the library matches lists the books',
       (tester) async {
     await openSearch(tester, 'ansariyan');
 
     expect(find.textContaining('Nothing called'), findsNothing);
-    expect(find.text('2 matches in Library'), findsOneWidget);
+    expect(find.text('LIBRARY · 2'), findsOneWidget);
+    expect(find.text('Light Within Me', findRichText: true), findsOneWidget);
+    expect(find.text('2 matches in Library'), findsNothing);
+    // Nothing to hide it under, and the preference is left as it was.
+    expect(find.bySemanticsLabel('Hide Library'), findsNothing);
+    expect(SP.prefs.getStringList(SearchPage.sourcesPrefKey), isNull);
   });
 
   testWidgets('duas & more and the Quran are sections, both open by default',

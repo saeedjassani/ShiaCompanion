@@ -3873,10 +3873,6 @@
   "@azanOfferBody": {
     "description": "Under setupAzanTitle on Home's prayer card, for someone who has never answered the azan question (first-run setup skips its Azan step without a location). Fajr, Zuhr and Maghrib are what Turn on azan enables."
   },
-  "prayerAzanOn": "Azan on",
-  "@prayerAzanOn": {
-    "description": "Read aloud for the bell beside a time on Home's prayer card whose azan is on."
-  },
   "setupFontTitle": "How should Arabic look?",
   "setupFontBody": "Tap the one you find easier to read. Same words, two styles.",
   "setupFontQalamHint": "Indo-Pak style, like most South Asian dua books",
