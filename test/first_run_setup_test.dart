@@ -14,6 +14,7 @@ import 'package:shia_companion/utils/language_provider.dart';
 import 'package:shia_companion/utils/shared_preferences.dart';
 import 'package:shia_companion/utils/sign_in_flow.dart';
 import 'package:shia_companion/utils/theme_mode.dart';
+import 'package:shia_companion/widgets/prayer_times_widget.dart';
 
 Future<void> _prefs(Map<String, Object> values) async {
   SharedPreferences.setMockInitialValues(values);
@@ -287,9 +288,12 @@ void main() {
       await pumpSetup(tester);
       await tapText(tester, 'Get started');
       expect(find.text('Step 1 of 4'), findsOneWidget);
+      expect(SP.prefs.getBool(PrayerTimesState.cityPromptDismissedKey), isNull);
       await tapText(tester, 'Not now');
 
       expect(find.text('Step 2 of 4'), findsOneWidget);
+      // Home's card won't ask for a city again; it shows its slim row.
+      expect(SP.prefs.getBool(PrayerTimesState.cityPromptDismissedKey), isTrue);
       expect(find.text('Hear the azan at prayer time?'), findsNothing);
       expect(find.text('How should Arabic look?'), findsOneWidget);
       for (var i = 0; i < 2; i++) {

@@ -21,6 +21,7 @@ import '../../utils/shared_preferences.dart';
 import '../../utils/sign_in_flow.dart';
 import '../../utils/theme_mode.dart';
 import '../../widgets/outline_icon.dart';
+import '../../widgets/prayer_times_widget.dart';
 import '../../widgets/page_chrome.dart';
 import '../../widgets/prayer_glyph.dart';
 import '../../widgets/language_settings.dart';
@@ -850,6 +851,15 @@ class _LocationStepState extends State<_LocationStep> {
     }
   }
 
+  /// "Not now" here is the same answer as on Home's prayer card, so Home
+  /// doesn't ask "Which city are you in?" again: it shows the slim row.
+  Future<void> _notNow() async {
+    if (SP.isInitialized) {
+      await SP.prefs.setBool(PrayerTimesState.cityPromptDismissedKey, true);
+    }
+    if (mounted) widget.onNext();
+  }
+
   @override
   Widget build(BuildContext context) {
     final colors = ShiaColors.of(context);
@@ -873,7 +883,7 @@ class _LocationStepState extends State<_LocationStep> {
         ),
         _SetupButton(
           label: l10n.setupNotNow,
-          onPressed: _locating ? null : widget.onNext,
+          onPressed: _locating ? null : _notNow,
           kind: _ButtonKind.quiet,
           height: 48,
         ),
