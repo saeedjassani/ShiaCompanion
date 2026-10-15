@@ -156,7 +156,7 @@ Future<Uint8List?> buildZikrShareImage(ZikrShareImageRequest request) async {
       textAlign = TextAlign.center;
       textDirection = TextDirection.ltr;
     } else if (parsed.translaCodes.contains(i)) {
-      if (!showTranslation) continue;
+      if (!translationShown) continue;
       style = TextStyle(
         color: colors.primaryText,
         fontSize: 28,

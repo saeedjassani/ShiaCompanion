@@ -134,7 +134,7 @@ const double _lineEdgeTolerance = 0.5;
 /// consecutive Arabic verses can flow together as one prose paragraph instead
 /// of stacking as separate centered lines with a gap between each.
 bool get isArabicOnlyReadingView =>
-    !transliterationShown && !showTranslation && showArabicAsParagraph;
+    !transliterationShown && !translationShown && showArabicAsParagraph;
 
 /// Whether line [index] draws anything at all under the current reading
 /// settings. A transliteration or translation line the reader has switched
@@ -148,7 +148,7 @@ bool isZikrLineVisible(ParsedZikrContent content, int index) {
   if (content.arabicCodes.contains(index)) return true;
   if (content.isHiddenEnglish(index)) return false;
   if (content.transliCodes.contains(index)) return transliterationShown;
-  if (content.translaCodes.contains(index)) return showTranslation;
+  if (content.translaCodes.contains(index)) return translationShown;
   return true;
 }
 
@@ -2539,7 +2539,7 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget>
     final direction = parsedContent.directionOf(contentIndex);
 
     if (parsedContent.translaCodes.contains(contentIndex)) {
-      return showTranslation
+      return translationShown
           ? Padding(
               padding: const EdgeInsets.only(bottom: 4.0),
               child: Text.rich(

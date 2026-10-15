@@ -244,6 +244,10 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
   /// This zikr in the reader's translation language, or null in English or
   /// when none of it has been translated - see [ZikrTranslations].
   ZikrDocumentTranslation? _translation;
+
+  /// The translation language [_translation] was last looked up in, so a
+  /// null [_translation] can be told apart from one still loading.
+  String? _translationCheckedIn;
   PageRoute? _pageRoute;
   Uri? _previousBrowserUri;
   ZikrBookmark? _savedBookmark;
@@ -1593,12 +1597,28 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
   /// file to translate, so it stays in English.
   Future<void> _loadTranslation() async {
     if (widget.portion != null) return;
+    final language = ZikrTranslations.instance.language.code;
     final translation = await ZikrTranslations.instance
         .documentFor(_contentUid, DefaultAssetBundle.of(context));
     if (!mounted) return;
     // Rebuilt even when the document is unchanged: the title comes from the
     // language's index, which may have changed on its own.
-    setState(() => _translation = translation);
+    setState(() {
+      _translation = translation;
+      _translationCheckedIn = language;
+    });
+  }
+
+  /// This zikr, when nothing of it has been translated into the reader's
+  /// translation language, for the Text & reading sheet to say so. Null
+  /// while the lookup is still running, and for a juz (which is never
+  /// translated here).
+  UntranslatedZikr? get _untranslatedZikr {
+    if (widget.portion != null || _translation != null) return null;
+    if (_translationCheckedIn != ZikrTranslations.instance.language.code) {
+      return null;
+    }
+    return UntranslatedZikr(uid: _contentUid, englishTitle: _englishTitle());
   }
 
   void _applyZikrData(Map<String, dynamic> data) {
@@ -2444,6 +2464,7 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
       context,
       onChanged: refreshState,
       onStartAutoScroll: _startAutoScroll,
+      untranslated: _untranslatedZikr,
     ));
   }
 

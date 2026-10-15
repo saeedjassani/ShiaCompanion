@@ -3,6 +3,7 @@ import 'dart:async';
 import '../constants.dart';
 import '../services/analytics_service.dart';
 import '../services/preferences_sync_service.dart';
+import '../services/zikr_translations.dart';
 import '../utils/font_preferences.dart';
 import '../utils/shared_preferences.dart';
 
@@ -145,9 +146,17 @@ class ReadingSwitch {
 }
 
 /// Whether "Arabic as one paragraph" can be turned on: only with both
-/// English aids hidden - see isArabicOnlyReadingView.
-bool arabicParagraphAvailable() =>
-    !ReadingSwitch.transliteration.value && !ReadingSwitch.translation.value;
+/// English aids hidden - see isArabicOnlyReadingView. An aid the reading
+/// language never shows (transliteration outside English, translation in
+/// Arabic) counts as hidden whatever its stored switch says, since the
+/// reader has no switch for it to turn off.
+bool arabicParagraphAvailable() {
+  final translations = ZikrTranslations.instance;
+  final transliteration =
+      ReadingSwitch.transliteration.value && translations.isEnglish;
+  final translation = ReadingSwitch.translation.value && !translations.isArabic;
+  return !transliteration && !translation;
+}
 
 const double minArabicFontSize = 20;
 const double maxArabicFontSize = 44;

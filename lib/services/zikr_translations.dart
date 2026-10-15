@@ -321,3 +321,9 @@ String zikrDisplayTitle(String uid, String englishTitle) =>
 /// reading in Urdu, Persian, Arabic or Gujarati has no use for.
 bool get transliterationShown =>
     showTransliteration && ZikrTranslations.instance.isEnglish;
+
+/// Whether the reader shows translation lines: the reader's own setting,
+/// except in Arabic, where the zikr is already in the reader's language and
+/// there is nothing to translate it into.
+bool get translationShown =>
+    showTranslation && !ZikrTranslations.instance.isArabic;

@@ -1198,6 +1198,18 @@
   "readerEnglishBigger": "Bigger English",
   "readerTransliteration": "Transliteration",
   "readerTranslation": "Translation",
+  "readerTranslationUnavailable": "Not yet available in {language}",
+  "@readerTranslationUnavailable": {
+    "description": "In the reader's text settings, in place of the Translation switch when this zikr has no translation in the reader's language.",
+    "placeholders": {
+      "language": {
+        "type": "String",
+        "example": "اردو"
+      }
+    }
+  },
+  "readerTranslationRequest": "Request",
+  "readerTranslationRequested": "Requested",
   "readerArabicParagraph": "Arabic as one paragraph",
   "readerArabicParagraphHint": "Turn off both above to use this",
   "readerKeepScreenOn": "Keep screen on",

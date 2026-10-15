@@ -1,10 +1,15 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import '../constants.dart';
 import '../l10n/l10n.dart';
 import '../theme/shia_colors.dart';
 import '../utils/font_preferences.dart';
+import '../services/analytics_service.dart';
+import '../services/content_request_service.dart';
 import '../services/zikr_translations.dart';
+import 'app_toast.dart';
 import 'language_settings.dart';
 import 'outline_icon.dart';
 import 'choice_sheet.dart';
@@ -22,15 +27,21 @@ import 'zikr_reading_preferences.dart';
 ///
 /// [onStartAutoScroll] adds the Auto-scroll row - only from the reader
 /// itself, since there is no text to scroll from Settings.
+///
+/// [untranslated] is the zikr open behind the sheet when nothing of it has
+/// been translated into the reader's translation language: the Translation
+/// switch then gives way to a row saying so, with a button to ask for it.
 Future<void> showReaderTextSheet(
   BuildContext context, {
   required VoidCallback onChanged,
   VoidCallback? onStartAutoScroll,
+  UntranslatedZikr? untranslated,
 }) {
   final colors = ShiaColors.of(context);
   final sheet = ReaderTextSheet(
     onChanged: onChanged,
     onStartAutoScroll: onStartAutoScroll,
+    untranslated: untranslated,
   );
   // On a desktop, a panel down the side rather than a dialog in the middle:
   // the reading column stays in view, following each change.
@@ -106,17 +117,34 @@ Future<void> showReaderTextSheet(
   );
 }
 
+/// A zikr with no translation in the reader's translation language - see
+/// [showReaderTextSheet].
+@immutable
+class UntranslatedZikr {
+  const UntranslatedZikr({required this.uid, required this.englishTitle});
+
+  /// The uid whose content file is read (an alias's target).
+  final String uid;
+
+  /// Its English title, which is what the request is filed under.
+  final String englishTitle;
+}
+
 class ReaderTextSheet extends StatefulWidget {
   const ReaderTextSheet({
     super.key,
     required this.onChanged,
     this.onStartAutoScroll,
+    this.untranslated,
   });
 
   final VoidCallback onChanged;
 
   /// Closes the sheet and starts the text scrolling. Null hides the row.
   final VoidCallback? onStartAutoScroll;
+
+  /// See [showReaderTextSheet].
+  final UntranslatedZikr? untranslated;
 
   @override
   State<ReaderTextSheet> createState() => _ReaderTextSheetState();
@@ -168,6 +196,12 @@ class _ReaderTextSheetState extends State<ReaderTextSheet> {
     final l10n = context.l10n;
     final paragraphAvailable = arabicParagraphAvailable();
     final showLanguage = translationLanguageOffered(context);
+    final translations = ZikrTranslations.instance;
+    // Only outside English and Arabic: English is the corpus itself, and
+    // Arabic has no translation to miss.
+    final untranslated = translations.isEnglish || translations.isArabic
+        ? null
+        : widget.untranslated;
 
     final inPanel = SheetPresentation.inDialogOf(context);
 
@@ -272,11 +306,18 @@ class _ReaderTextSheetState extends State<ReaderTextSheet> {
                 value: ReadingSwitch.transliteration.value,
                 onChanged: (v) => _toggle(ReadingSwitch.transliteration, v),
               ),
-            CardSwitchRow(
-              label: l10n.readerTranslation,
-              value: ReadingSwitch.translation.value,
-              onChanged: (v) => _toggle(ReadingSwitch.translation, v),
-            ),
+            // Read in Arabic there is no translation to switch. A zikr
+            // nobody has translated yet says so rather than offering a
+            // switch that would do nothing; the stored setting is left as
+            // it is for the zikrs that do have one.
+            if (untranslated != null)
+              _TranslationUnavailableRow(zikr: untranslated)
+            else if (!translations.isArabic)
+              CardSwitchRow(
+                label: l10n.readerTranslation,
+                value: ReadingSwitch.translation.value,
+                onChanged: (v) => _toggle(ReadingSwitch.translation, v),
+              ),
             CardSwitchRow(
               label: l10n.readerArabicParagraph,
               hint: l10n.readerArabicParagraphHint,
@@ -358,6 +399,86 @@ class _AutoScrollRow extends StatelessWidget {
               ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+}
+
+/// "Translation - not yet available in Urdu  [Request]", in place of the
+/// Translation switch for a zikr with nothing translated into the reader's
+/// language. The button files a request once; after that it reads
+/// "Requested".
+class _TranslationUnavailableRow extends StatefulWidget {
+  const _TranslationUnavailableRow({required this.zikr});
+
+  final UntranslatedZikr zikr;
+
+  @override
+  State<_TranslationUnavailableRow> createState() =>
+      _TranslationUnavailableRowState();
+}
+
+class _TranslationUnavailableRowState
+    extends State<_TranslationUnavailableRow> {
+  bool _sending = false;
+
+  Future<void> _request() async {
+    final language = ZikrTranslations.instance.language;
+    setState(() => _sending = true);
+    unawaited(AnalyticsService.feature(
+      'zikr_translation_requested',
+      label: 'Zikr translation requested',
+      parameters: {'uid': widget.zikr.uid, 'language': language.code},
+    ));
+    final submitted = await TranslationRequests.request(
+      uid: widget.zikr.uid,
+      englishTitle: widget.zikr.englishTitle,
+      language: language,
+    );
+    showToast(
+        submitted ? L10n.current.requestThanks : L10n.current.requestFailed);
+    if (mounted) setState(() => _sending = false);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = ShiaColors.of(context);
+    final l10n = context.l10n;
+    final language = ZikrTranslations.instance.language;
+    final requested =
+        TranslationRequests.wasRequested(widget.zikr.uid, language.code);
+    return MergeSemantics(
+      child: Container(
+        constraints: const BoxConstraints(minHeight: 54),
+        padding: const EdgeInsetsDirectional.fromSTEB(14, 6, 10, 6),
+        decoration: BoxDecoration(
+          border: Border(bottom: BorderSide(color: colors.divider)),
+        ),
+        child: Row(
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(l10n.readerTranslation,
+                      style: ShiaText.body.copyWith(color: colors.textMuted)),
+                  Text(
+                    l10n.readerTranslationUnavailable(language.nativeName),
+                    style: ShiaText.caption.copyWith(color: colors.textMuted),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 12),
+            PillButton(
+              label: requested
+                  ? l10n.readerTranslationRequested
+                  : l10n.readerTranslationRequest,
+              height: 40,
+              onPressed: requested || _sending ? null : _request,
+            ),
+          ],
         ),
       ),
     );
