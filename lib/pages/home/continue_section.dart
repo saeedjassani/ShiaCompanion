@@ -103,7 +103,8 @@ List<ContinueEntry> continueEntries({
             ? s.homeCategoryQuran
             : s.homeContinueQuranTrack(label),
         glyph: HomeGlyphType.surahs,
-        title: info.displayName,
+        // "2: Al-Baqarah", numbered like the surah's zikr title.
+        title: '${localizeDigits('${info.number}', s)}: ${info.displayName}',
         subtitle: s.homeContinueVerseOf(ayah, info.ayahCount),
         progress: ayah / info.ayahCount,
         updatedAt: latestRecitation.recitedAt,
