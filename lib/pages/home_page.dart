@@ -646,7 +646,10 @@ class _MyHomePageState extends State<MyHomePage>
     final useMuharramQuotes =
         today.hMonth < 2 || (today.hMonth == 2 && today.hDay < 9);
     final bundle = DefaultAssetBundle.of(context);
-    final language = L10n.current.localeName;
+    // The language the page is actually showing, not L10n.current: at
+    // start-up the saved app language can still be loading, and a hadith
+    // picked for that moment's English would stay up.
+    final language = context.l10n.localeName;
     _hadithLanguage = language;
     final localized = await loadLocalizedHadith(
       bundle,
@@ -717,7 +720,12 @@ class _MyHomePageState extends State<MyHomePage>
   void didChangeDependencies() {
     super.didChangeDependencies();
     routeObserver.subscribe(this, ModalRoute.of(context) as PageRoute);
-    if (_hadithLanguage != null && _hadithLanguage != context.l10n.localeName) {
+    // Read unconditionally: it is what makes this page depend on the
+    // locale at all (its own build never reads context.l10n), so the saved
+    // language finishing loading after start-up lands here and the hadith
+    // follows it.
+    final language = context.l10n.localeName;
+    if (_hadithLanguage != null && _hadithLanguage != language) {
       getHadith();
     }
   }

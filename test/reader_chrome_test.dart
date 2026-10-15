@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shia_companion/constants.dart';
+import 'package:shia_companion/l10n/app_language.dart';
 import 'package:shia_companion/l10n/app_localizations.dart';
+import 'package:shia_companion/services/content_request_service.dart';
+import 'package:shia_companion/services/zikr_translations.dart';
 import 'package:shia_companion/theme/app_theme.dart';
 import 'package:shia_companion/utils/shared_preferences.dart';
 import 'package:shia_companion/widgets/reader_text_sheet.dart';
@@ -15,7 +19,41 @@ Widget _host(Widget child) => MaterialApp(
       home: Scaffold(body: child),
     );
 
+class _FakeBundle extends CachingAssetBundle {
+  _FakeBundle(this.files);
+
+  final Map<String, String> files;
+
+  @override
+  Future<ByteData> load(String key) async {
+    if (key == 'AssetManifest.bin') {
+      return const StandardMessageCodec().encodeMessage(<Object?, Object?>{
+        for (final path in files.keys)
+          path: <Object?>[
+            <Object?, Object?>{'asset': path},
+          ],
+      })!;
+    }
+    final text = files[key];
+    if (text == null) throw FlutterError('Missing asset: $key');
+    return ByteData.sublistView(Uint8List.fromList(text.codeUnits));
+  }
+}
+
+final _translationBundle = _FakeBundle({
+  zikrTranslationIndexPath('ar'): '{"titles": {}}',
+  zikrTranslationIndexPath('ur'): '{"titles": {}}',
+});
+
 void main() {
+  test('a translation request names the language and the zikr', () {
+    const urdu =
+        AppLanguage(code: 'ur', englishName: 'Urdu', nativeName: 'اردو');
+    expect(translationRequestTitle('Dua Kumayl', urdu),
+        'Urdu translation: Dua Kumayl');
+    expect(translationRequestTitle('x' * 300, urdu).length, 200);
+  });
+
   group('ReaderTopBar', () {
     testWidgets('shows the title without its trailing Arabic, and the sub-line',
         (t) async {
@@ -124,5 +162,107 @@ void main() {
       expect(SP.prefs.getBool('showTranslation'), isFalse);
       expect(paragraphSwitch().onChanged, isNotNull);
     });
+
+    group('in another reading language', () {
+      final translations = ZikrTranslations.instance;
+      setUp(translations.debugReset);
+      tearDown(translations.debugReset);
+
+      const zikr = UntranslatedZikr(uid: 'E31', englishTitle: 'Dua Kumayl');
+
+      testWidgets('Arabic has no Translation switch, and paragraphs are free',
+          (t) async {
+        await t
+            .runAsync(() => translations.setLanguage('ar', _translationBundle));
+        await t.binding.setSurfaceSize(const Size(390, 1200));
+        addTearDown(() => t.binding.setSurfaceSize(null));
+        await t.pumpWidget(_host(const ReaderTextSheet(
+          onChanged: _noop,
+          untranslated: zikr,
+        )));
+
+        expect(find.text('Translation'), findsNothing);
+        expect(find.text('Transliteration'), findsNothing);
+        expect(find.text('Request'), findsNothing);
+        expect(showTranslation, isTrue, reason: 'the setting is left alone');
+        expect(translationShown, isFalse);
+        final paragraph = t.widget<Switch>(find.descendant(
+          of: find.ancestor(
+            of: find.text('Arabic as one paragraph'),
+            matching: find.byType(InkWell),
+          ),
+          matching: find.byType(Switch),
+        ));
+        expect(paragraph.onChanged, isNotNull);
+      });
+
+      testWidgets('an untranslated zikr offers a request, not a switch',
+          (t) async {
+        await t
+            .runAsync(() => translations.setLanguage('ur', _translationBundle));
+        await t.binding.setSurfaceSize(const Size(390, 1200));
+        addTearDown(() => t.binding.setSurfaceSize(null));
+        await t.pumpWidget(_host(const ReaderTextSheet(
+          onChanged: _noop,
+          untranslated: zikr,
+        )));
+
+        expect(find.text('Translation'), findsOneWidget);
+        expect(find.text('Not yet available in اردو'), findsOneWidget);
+        expect(find.text('Request'), findsOneWidget);
+        expect(
+          find.descendant(
+            of: find.ancestor(
+              of: find.text('Translation'),
+              matching: find.byType(Row),
+            ),
+            matching: find.byType(Switch),
+          ),
+          findsNothing,
+        );
+        expect(SP.prefs.getBool('showTranslation'), isNull,
+            reason: 'other zikrs keep the reader\'s own setting');
+      });
+
+      testWidgets('a zikr already asked for reads Requested', (t) async {
+        await SP.prefs.setBool('translation_requested_ur_E31', true);
+        await t
+            .runAsync(() => translations.setLanguage('ur', _translationBundle));
+        await t.binding.setSurfaceSize(const Size(390, 1200));
+        addTearDown(() => t.binding.setSurfaceSize(null));
+        await t.pumpWidget(_host(const ReaderTextSheet(
+          onChanged: _noop,
+          untranslated: zikr,
+        )));
+
+        expect(find.text('Requested'), findsOneWidget);
+        expect(find.text('Request'), findsNothing);
+      });
+
+      testWidgets('a translated zikr keeps its switch', (t) async {
+        await t
+            .runAsync(() => translations.setLanguage('ur', _translationBundle));
+        await t.binding.setSurfaceSize(const Size(390, 1200));
+        addTearDown(() => t.binding.setSurfaceSize(null));
+        await t.pumpWidget(_host(const ReaderTextSheet(onChanged: _noop)));
+
+        expect(find.text('Translation'), findsOneWidget);
+        expect(find.text('Request'), findsNothing);
+      });
+
+      testWidgets('English ignores the untranslated zikr', (t) async {
+        await t.binding.setSurfaceSize(const Size(390, 1200));
+        addTearDown(() => t.binding.setSurfaceSize(null));
+        await t.pumpWidget(_host(const ReaderTextSheet(
+          onChanged: _noop,
+          untranslated: zikr,
+        )));
+
+        expect(find.text('Translation'), findsOneWidget);
+        expect(find.text('Request'), findsNothing);
+      });
+    });
   });
 }
+
+void _noop() {}

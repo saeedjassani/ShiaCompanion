@@ -436,7 +436,9 @@ class _SettingsPageState extends State<SettingsPage> {
       if (ReadingSwitch.transliteration.value &&
           ZikrTranslations.instance.isEnglish)
         l10n.readerTransliteration,
-      if (ReadingSwitch.translation.value) l10n.readerTranslation,
+      if (ReadingSwitch.translation.value &&
+          !ZikrTranslations.instance.isArabic)
+        l10n.readerTranslation,
     ];
     return l10n.settingsReadingSummary(
       arabicFontSize.toInt(),

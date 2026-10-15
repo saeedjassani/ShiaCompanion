@@ -2,6 +2,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 
+import '../l10n/app_language.dart';
+import '../utils/shared_preferences.dart';
+
 /// What a reader is asking to have added. Stored by [name], so renaming a
 /// value forks the queue - add new values rather than renaming old ones.
 enum ContentRequestType {
@@ -121,4 +124,47 @@ class ContentRequestService {
       'resolvedAt': resolved ? FieldValue.serverTimestamp() : null,
     });
   }
+}
+
+/// A reader's ask, from the reader's Text & reading sheet, for a zikr to be
+/// translated into their language. Filed as an ordinary zikr request (the
+/// rules only accept the existing types) whose title says what is wanted,
+/// so it lands in the same admin queue.
+///
+/// Each zikr and language is asked for once per device: the sheet shows
+/// "Requested" afterwards instead of filing it again.
+class TranslationRequests {
+  const TranslationRequests._();
+
+  static String _key(String uid, String languageCode) =>
+      'translation_requested_${languageCode}_$uid';
+
+  static bool wasRequested(String uid, String languageCode) =>
+      SP.isInitialized && (SP.prefs.getBool(_key(uid, languageCode)) ?? false);
+
+  /// Files the request; returns whether it reached Firestore.
+  static Future<bool> request({
+    required String uid,
+    required String englishTitle,
+    required AppLanguage language,
+  }) async {
+    final title = translationRequestTitle(englishTitle, language);
+    final submitted = await ContentRequestService.submit(
+      type: ContentRequestType.zikr,
+      title: title,
+      details: 'Translation request\nuid: $uid\nlanguage: ${language.code}',
+    );
+    if (submitted && SP.isInitialized) {
+      await SP.prefs.setBool(_key(uid, language.code), true);
+    }
+    return submitted;
+  }
+}
+
+/// "Urdu translation: Dua Kumayl", cut to the 200 characters
+/// `firestore.rules` allows a request title.
+@visibleForTesting
+String translationRequestTitle(String englishTitle, AppLanguage language) {
+  final title = '${language.englishName} translation: $englishTitle';
+  return title.length <= 200 ? title : title.substring(0, 200);
 }
