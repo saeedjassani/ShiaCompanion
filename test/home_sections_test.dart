@@ -224,7 +224,7 @@ void main() {
         ContinueKind.library,
       ]);
       expect(entries[0].caption, 'Dua · bookmark');
-      expect(entries[1].title, 'Al-Baqarah');
+      expect(entries[1].title, '2: Al-Baqarah');
       expect(entries[1].subtitle, 'Verse 141 of 286');
       expect(entries[1].progress, closeTo(141 / 286, 1e-9));
       expect(entries[2].title, 'A Book');
