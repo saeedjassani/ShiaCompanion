@@ -1,0 +1,55 @@
+[
+ {
+  "name": "home_loc",
+  "path": "/",
+  "wait": 8000,
+  "taps": [
+   [
+    195,
+    242,
+    9000
+   ]
+  ]
+ },
+ {
+  "name": "quran",
+  "path": "/",
+  "wait": 8000,
+  "taps": [
+   [
+    159,
+    787,
+    5000
+   ]
+  ]
+ },
+ {
+  "name": "calendar",
+  "path": "/",
+  "wait": 8000,
+  "taps": [
+   [
+    63,
+    645,
+    5000
+   ]
+  ]
+ },
+ {
+  "name": "qibla",
+  "path": "/",
+  "wait": 8000,
+  "taps": [
+   [
+    238,
+    645,
+    3000
+   ],
+   [
+    "eval",
+    "(() => { const a = 341; const fire = () => { for (const type of ['deviceorientationabsolute', 'deviceorientation']) { const e = new Event(type); Object.defineProperties(e, { absolute: {value: true}, alpha: {value: a}, beta: {value: 2}, gamma: {value: -1}, webkitCompassHeading: {value: (360 - a) % 360}, webkitCompassAccuracy: {value: 10} }); window.dispatchEvent(e); } }; fire(); setInterval(fire, 120); })()",
+    4000
+   ]
+  ]
+ }
+]
