@@ -1,21 +1,36 @@
 'use strict';
-// Final capture pass: every screen in dark mode, phone and tablet.
+// Drives the web build to every screen the 4.0 store listing shows and saves
+// raw captures to RAW_DIR as `<device>-<name>.png` (p = phone, t = tablet).
+// `node capture.js p` or `node capture.js t` captures one device only, and a
+// comma-separated list after it (`node capture.js p stats-l,qaza-d`) only those.
 const {launch, openApp, tapF, shot} = require('./flow');
 
-const PHONE = {width: 430, height: 932, dark: true};
-const TABLET = {width: 1024, height: 1366, dsf: 2, isMobile: false, dark: true};
+const PHONE = {width: 430, height: 932};
+const TABLET = {width: 1024, height: 1366, dsf: 2, isMobile: false};
 
-// Tap targets as viewport fractions, per layout.
+// Tap targets as viewport fractions, per layout. Home's own grid on the phone,
+// All features' grid for what Home does not show.
 const P = {
-  locCard: [0.5, 0.351], cont: [0.73, 0.599], calendar: [0.808, 0.777],
-  library: [0.19, 0.80], qibla: [0.19, 0.938], tasbeeh: [0.5, 0.938], qaza: [0.809, 0.938],
-  listen: [0.5, 0.957], counterTap: [215, 500], homeScroll: 1300,
+  useLocation: [0.5, 0.238], quranTab: [0.415, 0.943], allFeatures: [0.837, 0.724],
+  // With demo history, Home gains a Continue card and its grid moves down.
+  allFeaturesSeeded: [0.841, 0.886],
+  feature: {
+    playlists: [0.205, 0.537], stats: [0.484, 0.537], qibla: [0.75, 0.537],
+    tasbeeh: [0.205, 0.64], qaza: [0.484, 0.64], calendar: [0.75, 0.33],
+  },
+  playFirstPlaylist: [0.124, 0.243], listen: [0.318, 0.93], counterTap: [0.5, 0.54],
 };
+// The tablet's Home grid already holds every feature, so there is no All
+// features step (allFeatures: null).
 const T = {
-  locCard: [0.50, 0.202], cont: [0.887, 0.541], calendar: [0.693, 0.486],
-  library: [0.889, 0.486], qibla: [0.49, 0.627], tasbeeh: [0.693, 0.627], qaza: [0.889, 0.627],
-  listen: [0.50, 0.981], counterTap: [512, 750], homeScroll: 0,
+  useLocation: [0.273, 0.178], quranTab: [0.463, 0.958], allFeatures: null, allFeaturesSeeded: null,
+  feature: {
+    playlists: [0.603, 0.268], stats: [0.81, 0.268], qibla: [0.81, 0.205],
+    tasbeeh: [0.706, 0.205], qaza: [0.915, 0.205], calendar: [0.603, 0.205],
+  },
+  playFirstPlaylist: [0.06, 0.2], listen: [0.4, 0.955], counterTap: [0.5, 0.5],
 };
+if (process.env.TABLET_TAPS) Object.assign(T, JSON.parse(process.env.TABLET_TAPS));
 
 // Synthetic DeviceOrientation events: exactly what an Android magnetometer
 // emits. The bearing, distance and turn instruction are the app's own maths.
@@ -37,99 +52,69 @@ async function driveCompass(page, alpha = 341) {
   await page.waitForTimeout(2600);
 }
 
-async function run(b, vp, k, p) {
-  // Home and calendar, with a resolved location fix.
-  {
-    const {context, page} = await openApp(b, vp);
-    await tapF(page, ...k.locCard, 2500);
-    await tapF(page, ...k.cont, 12000);
-    await shot(page, `${p}-01-home`);
-    await tapF(page, ...k.calendar, 6000);
-    await shot(page, `${p}-05-calendar`);
+async function scrollReader(page, vp, down) {
+  await page.mouse.move(vp.width / 2, vp.height * 0.55);
+  await page.mouse.wheel(0, down); await page.waitForTimeout(1500);
+  await page.mouse.wheel(0, -240); await page.waitForTimeout(2600);
+}
+
+async function run(b, vp, k, p, shots) {
+  const go = async (name, opts, steps) => {
+    if (shots && !shots.includes(name)) return;
+    const {context, page} = await openApp(b, {...vp, seed: true, ...opts});
+    await steps(page);
+    await shot(page, `${p}-${name}`);
     await context.close();
+  };
+  // Home with a location fix, in both themes and in every UI language.
+  for (const [name, opts] of [
+    ['home-l', {}], ['home-d', {dark: true}],
+    ['home-ur', {locale: 'ur'}], ['home-fa', {locale: 'fa'}],
+    ['home-ar', {locale: 'ar'}], ['home-gu', {locale: 'gu'}],
+  ]) {
+    await go(name, opts, (page) => tapF(page, ...k.useLocation, 9000));
   }
-  // Reading: a different dua from the audio shot, scrolled well into the verses.
-  {
-    const {context, page} = await openApp(b, {...vp, route: '/zikr/dua-kumayl'});
-    await page.waitForTimeout(6000);
-    await page.mouse.move(vp.width / 2, vp.height * 0.55);
-    await page.mouse.wheel(0, 2800); await page.waitForTimeout(1500);
-    await page.mouse.wheel(0, -240); await page.waitForTimeout(2600);
-    await shot(page, `${p}-02-reading`);
-    await context.close();
-  }
-  // Audio player, mid-playback, deep in the Arabic.
-  {
-    const {context, page} = await openApp(b, {...vp, route: '/zikr/ziyarat-e-ameenullah'});
-    await page.waitForTimeout(6000);
-    await page.mouse.move(vp.width / 2, vp.height * 0.55);
-    await page.mouse.wheel(0, 2200); await page.waitForTimeout(1500);
-    await page.mouse.wheel(0, -240); await page.waitForTimeout(2600);
-    await tapF(page, ...k.listen, 7000);
-    await page.waitForTimeout(5000);
-    await shot(page, `${p}-03-player`);
-    await context.close();
-  }
-  // Focus mode: the chrome scrolled away, no audio running.
-  {
-    const {context, page} = await openApp(b, {...vp, route: '/zikr/ziyarat-e-ameenullah'});
-    await page.waitForTimeout(6000);
-    await page.mouse.move(vp.width / 2, vp.height * 0.55);
-    await page.mouse.wheel(0, 2400); await page.waitForTimeout(3200);
-    await shot(page, `${p}-09-focus`);
-    await context.close();
-  }
-  // Tabs.
-  {
-    const {context, page} = await openApp(b, {...vp, route: '/zikr/etiquettes-of-bedtime'});
-    await page.waitForTimeout(6500);
-    await shot(page, `${p}-10-tabs`);
-    await context.close();
-  }
-  // Qibla, with the compass driven.
-  {
-    const {context, page} = await openApp(b, vp);
-    if (k.homeScroll) { await page.mouse.move(vp.width/2, vp.height*0.65);
-      await page.mouse.wheel(0, k.homeScroll); await page.waitForTimeout(2200); }
-    await tapF(page, ...k.qibla, 5500);
-    await driveCompass(page);
-    await shot(page, `${p}-04-qibla`);
-    await context.close();
-  }
-  // Library.
-  {
-    const {context, page} = await openApp(b, vp);
-    if (k.homeScroll) { await page.mouse.move(vp.width/2, vp.height*0.65);
-      await page.mouse.wheel(0, k.homeScroll); await page.waitForTimeout(2200); }
-    await tapF(page, ...k.library, 6000);
-    await shot(page, `${p}-06-library`);
-    await context.close();
-  }
-  // Qaza tracker.
-  {
-    const {context, page} = await openApp(b, vp);
-    if (k.homeScroll) { await page.mouse.move(vp.width/2, vp.height*0.65);
-      await page.mouse.wheel(0, k.homeScroll); await page.waitForTimeout(2200); }
-    await tapF(page, ...k.qaza, 6000);
-    await shot(page, `${p}-07-qaza`);
-    await context.close();
-  }
-  // Tasbeeh, with a count on the dial.
-  {
-    const {context, page} = await openApp(b, vp);
-    if (k.homeScroll) { await page.mouse.move(vp.width/2, vp.height*0.65);
-      await page.mouse.wheel(0, k.homeScroll); await page.waitForTimeout(2200); }
-    await tapF(page, ...k.tasbeeh, 5000);
-    for (let i = 0; i < 33; i++) await page.mouse.click(...k.counterTap);
+  // The reader, scrolled well into the verses.
+  await go('read-l', {route: '/dua-kumayl'}, (page) => scrollReader(page, vp, 2600));
+  await go('read-ur-d', {route: '/dua-kumayl', locale: 'ur', dark: true},
+    (page) => scrollReader(page, vp, 2600));
+  // The audio player, mid-playback.
+  await go('player-d', {route: '/ziyarat-e-ameenullah', dark: true}, async (page) => {
+    await scrollReader(page, vp, 2200);
+    await tapF(page, ...k.listen, 9000);
+  });
+  await go('quran-d', {route: '/quran/36', dark: true}, (page) => page.waitForTimeout(5000));
+  await go('qurantab-l', {}, async (page) => {
+    await tapF(page, ...k.useLocation, 8000);
+    await tapF(page, ...k.quranTab, 5000);
+  });
+  // Everything else is reached from All features. Only My Stats needs the
+  // demo history; the rest open from a plain Home.
+  const feature = (name, opts, after) => go(name, {seed: false, ...opts}, async (page) => {
+    await tapF(page, ...k.useLocation, 8000);
+    const all = opts.seed ? k.allFeaturesSeeded : k.allFeatures;
+    if (all) await tapF(page, ...all, 3500);
+    await tapF(page, ...k.feature[name.split('-')[0]], 6000);
+    if (after) await after(page);
+  });
+  await feature('playlists-l', {}, (page) => tapF(page, ...k.playFirstPlaylist, 8000));
+  await feature('stats-l', {seed: true});
+  await feature('calendar-d', {dark: true});
+  await feature('qibla-d', {dark: true}, driveCompass);
+  await feature('tasbeeh-l', {}, async (page) => {
+    for (let i = 0; i < 33; i++) {
+      await page.touchscreen.tap(vp.width * k.counterTap[0], vp.height * k.counterTap[1]);
+    }
     await page.waitForTimeout(2500);
-    await shot(page, `${p}-08-tasbeeh`);
-    await context.close();
-  }
+  });
+  await feature('qaza-d', {dark: true, seed: true});
 }
 
 (async () => {
+  const only = process.argv[2];
   const b = await launch();
-  await run(b, PHONE, P, 'd');
-  await run(b, TABLET, T, 'dt');
+  const shots = process.argv[3] ? process.argv[3].split(',') : null;
+  if (!only || only === 'p') await run(b, PHONE, P, 'p', shots);
+  if (!only || only === 't') await run(b, TABLET, T, 't', shots);
   await b.close();
 })();

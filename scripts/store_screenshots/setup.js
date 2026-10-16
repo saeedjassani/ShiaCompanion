@@ -16,6 +16,8 @@ function vendorFonts() {
     ['@fontsource/roboto', ['roboto-latin-300-normal.woff2', 'roboto-latin-400-normal.woff2',
                             'roboto-latin-500-normal.woff2', 'roboto-latin-700-normal.woff2']],
     ['@fontsource/noto-sans-arabic', ['noto-sans-arabic-arabic-400-normal.woff2']],
+    ['@fontsource/noto-sans-gujarati', ['noto-sans-gujarati-gujarati-400-normal.woff2',
+                                        'noto-sans-gujarati-gujarati-700-normal.woff2']],
   ];
   for (const [pkg, files] of want) {
     for (const f of files) {

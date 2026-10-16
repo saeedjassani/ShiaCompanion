@@ -43,9 +43,10 @@ class QazaTrackerManager extends ChangeNotifier {
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
   /// Tells this install's operation ids apart from another device's ones
-  /// created in the same microsecond.
+  /// created in the same microsecond. Not `1 << 32`: on the web that
+  /// shift is 0, and nextInt(0) throws as the Qaza page opens.
   final String _deviceNonce =
-      Random().nextInt(1 << 32).toRadixString(36).padLeft(7, '0');
+      Random().nextInt(0xFFFFFFFF).toRadixString(36).padLeft(7, '0');
 
   StreamSubscription<DocumentSnapshot<Map<String, dynamic>>>? _listener;
   Future<void>? _loadQazaFuture;
