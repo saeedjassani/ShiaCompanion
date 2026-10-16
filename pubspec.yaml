@@ -115,6 +115,7 @@ flutter:
     - assets/images/ali_watermark.png
     - assets/images/mahdi_watermark.png
     - assets/sounds/full_azan.mp3
+    - assets/sounds/takbir.mp3
     - assets/zikr/
     - assets/zikr_i18n/gu/
 

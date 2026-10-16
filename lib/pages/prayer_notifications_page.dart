@@ -635,7 +635,7 @@ class _SoundPickerPageState extends State<_SoundPickerPage> {
     );
     // Previews what this prayer will really sound like, override included —
     // the old global-only test button could never do that.
-    await testNotification(
+    await previewPrayerSound(
       plugin,
       azaanId: soundId == 'app_default' ? null : soundId,
       prayerName: soundId == 'app_default' ? null : widget.prayerName,
