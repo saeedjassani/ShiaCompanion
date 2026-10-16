@@ -31,10 +31,12 @@ static double SCNormalizeDegrees(double degrees) {
 
 - (FlutterError *)onListenWithArguments:(id)arguments
                               eventSink:(FlutterEventSink)events {
+  // No compass (the simulator, some iPads): stay silent, which the qibla
+  // screen's "no reading yet" timeout already handles. An error returned
+  // here never reaches the Dart stream's error handler - Flutter reports
+  // it straight to FlutterError, i.e. Crashlytics.
   if (![CLLocationManager headingAvailable]) {
-    return [FlutterError errorWithCode:@"unavailable"
-                               message:@"This device does not have a compass."
-                               details:nil];
+    return nil;
   }
   if (!self.manager) {
     self.manager = [[CLLocationManager alloc] init];
