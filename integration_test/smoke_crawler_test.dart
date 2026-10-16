@@ -4,6 +4,8 @@ import 'package:integration_test/integration_test.dart';
 import 'package:shia_companion/main.dart' as app;
 import 'package:shia_companion/navigation/app_shell.dart';
 import 'package:shia_companion/navigation/home_menu.dart';
+import 'package:shia_companion/pages/all_features_page.dart';
+import 'package:shia_companion/widgets/page_chrome.dart';
 
 /// Automated Smoke Crawler for iOS & Android.
 ///
@@ -52,6 +54,46 @@ void main() {
       if (finder.evaluate().isNotEmpty) return true;
     }
     return finder.evaluate().isNotEmpty;
+  }
+
+  /// Pumps until [condition] holds or [timeout] passes, returning whether
+  /// it held. Route transitions on the CI emulator are not a fixed cost
+  /// either: with a software GPU single frames have taken over a minute.
+  Future<bool> pumpUntil(
+    WidgetTester tester,
+    bool Function() condition, {
+    Duration timeout = const Duration(seconds: 30),
+    Duration step = const Duration(milliseconds: 250),
+  }) async {
+    final deadline = DateTime.now().add(timeout);
+    while (DateTime.now().isBefore(deadline)) {
+      await tester.pump(step);
+      if (condition()) return true;
+    }
+    return condition();
+  }
+
+  /// Whether All features is the page on top, not merely still built
+  /// under the page pushed over it.
+  bool allFeaturesIsCurrent() {
+    final page = find.byType(AllFeaturesPage, skipOffstage: false);
+    if (page.evaluate().isEmpty) return false;
+    return ModalRoute.of(page.evaluate().first)?.isCurrent ?? false;
+  }
+
+  /// Taps Back on the page on top. Pages under it can still be built (and,
+  /// mid-transition, onstage), so the first Back in the tree may belong to
+  /// a covered page; the last one is the top page's.
+  Future<void> tapTopBack(WidgetTester tester) async {
+    final pageBack = find.byType(PageBackButton);
+    final materialBack = find.byType(BackButton);
+    if (pageBack.evaluate().isNotEmpty) {
+      await tester.tap(pageBack.last);
+    } else if (materialBack.evaluate().isNotEmpty) {
+      await tester.tap(materialBack.last);
+    } else {
+      tester.state<NavigatorState>(find.byType(Navigator).first).pop();
+    }
   }
 
   /// integration_test screenshot names become filenames on disk, so section
@@ -120,8 +162,10 @@ void main() {
         reason: 'Exception thrown when opening All features');
     await binding.takeScreenshot('00b_all_features');
 
+    // The labels as All features shows them ("Taqibaat", not the menu's
+    // internal "Taqeebat e Namaz"), or find.text never finds them.
     final sectionsToCrawl =
-        allFeaturesMenuItems.map((item) => item.label).toList();
+        allFeaturesMenuItems.map((item) => item.displayShortLabel).toList();
 
     for (var i = 0; i < sectionsToCrawl.length; i++) {
       final section = sectionsToCrawl[i];
@@ -180,19 +224,9 @@ void main() {
         }
 
         // Navigate back to All features
-        final backButtons = find.byType(BackButton);
-        final backTooltips = find.byTooltip('Back');
-        if (backButtons.evaluate().isNotEmpty) {
-          await tester.tap(backButtons.first);
-        } else if (backTooltips.evaluate().isNotEmpty) {
-          await tester.tap(backTooltips.first);
-        } else {
-          // Direct Navigator pop if back button widget was not found
-          final nav = tester.state<NavigatorState>(find.byType(Navigator).last);
-          nav.pop();
-        }
-
-        await settleBounded(tester, duration: const Duration(seconds: 2));
+        await tapTopBack(tester);
+        final returned = await pumpUntil(tester, allFeaturesIsCurrent);
+        await settleBounded(tester, duration: const Duration(seconds: 1));
 
         // Captured before the assertions below so that if one fails, the
         // artifact still shows exactly what was left on screen.
@@ -209,9 +243,8 @@ void main() {
         expect(tester.takeException(), isNull,
             reason:
                 'Exception thrown returning from "$section" to All features');
-        expect(find.byType(Scrollable), findsWidgets,
-            reason: 'Did not return to a scrollable All features page after '
-                '"$section"');
+        expect(returned, isTrue,
+            reason: 'Did not return to All features after "$section"');
 
         debugPrint('==> Smoke Crawler: "$section" passed cleanly.');
       } else {
@@ -221,13 +254,14 @@ void main() {
     }
 
     // Back from All features to Home.
-    final allFeaturesBack = find.byType(BackButton);
-    if (allFeaturesBack.evaluate().isNotEmpty) {
-      await tester.tap(allFeaturesBack.first);
-    } else {
-      tester.state<NavigatorState>(find.byType(Navigator).last).pop();
-    }
-    await settleBounded(tester, duration: const Duration(seconds: 2));
+    await tapTopBack(tester);
+    await pumpUntil(
+        tester,
+        () => find
+            .byType(AllFeaturesPage, skipOffstage: false)
+            .evaluate()
+            .isEmpty);
+    await settleBounded(tester, duration: const Duration(seconds: 1));
     expect(find.byType(AppTabBar), findsOneWidget,
         reason: 'Did not return to Home from All features');
 
