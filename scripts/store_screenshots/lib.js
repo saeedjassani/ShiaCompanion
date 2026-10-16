@@ -3,6 +3,7 @@ const fs = require('fs');
 const path = require('path');
 const {chromium} = require('playwright');
 const {VENDOR, CHROME_PATH, PORT, GEO, TIMEZONE} = require('./config');
+const {statsSeed, quranSeed, qazaSeed} = require('./demo_data');
 
 const FB_OUT = path.join(VENDOR, 'firebase');
 const FONT_DIR = path.join(VENDOR, 'fonts');
@@ -38,9 +39,12 @@ async function routeFirebase(context) {
     let file;
     if (url.includes('notosansarabic')) {
       file = path.join(FONT_DIR, 'noto-sans-arabic-arabic-400-normal.woff2');
+    } else if (url.includes('notosansgujarati')) {
+      // The Gujarati UI's fallback. Without it every Gujarati string is tofu.
+      file = path.join(FONT_DIR, 'noto-sans-gujarati-gujarati-400-normal.woff2');
     } else {
       const key = [...ROBOTO_WEIGHTS.keys()].find((k) => url.includes(k));
-      if (!key) seenFonts.add(url);
+      if (!key) { seenFonts.add(url); if (process.env.DEBUG_FONTS) console.log('font?', url); }
       const weight = key ? ROBOTO_WEIGHTS.get(key) : '400';
       file = path.join(ROBOTO_DIR, `roboto-latin-${weight}-normal.woff2`);
     }
@@ -67,7 +71,8 @@ async function launch() {
   });
 }
 
-async function openApp(browser, {width, height, dsf = 3, isMobile = true, route = '/', dark = false}) {
+async function openApp(browser, {width, height, dsf = 3, isMobile = true, route = '/', dark = false,
+                                 locale = 'en-US', seed = false}) {
   const context = await browser.newContext({
     viewport: {width, height},
     deviceScaleFactor: dsf,
@@ -75,13 +80,24 @@ async function openApp(browser, {width, height, dsf = 3, isMobile = true, route 
     hasTouch: true,
     geolocation: GEO,
     permissions: ['geolocation'],
-    locale: 'en-US',
+    // The app follows the device language until one is picked in Settings.
+    locale,
     timezoneId: TIMEZONE,
     colorScheme: dark ? 'dark' : 'light',
     reducedMotion: 'reduce',
   });
   await routeFirebase(context);
   const page = await context.newPage();
+  if (seed) {
+    // shared_preferences on the web keeps each value JSON-encoded under a
+    // `flutter.` prefix, and these two values are themselves JSON strings.
+    const enc = (o) => JSON.stringify(JSON.stringify(o));
+    await page.addInitScript(([stats, quran, qaza]) => {
+      localStorage.setItem('flutter.activity_stats_own_v1', stats);
+      localStorage.setItem('flutter.recitation_tracker_guest', quran);
+      localStorage.setItem('flutter.qaza_tracker_guest', qaza);
+    }, [enc(statsSeed()), enc(quranSeed()), enc(qazaSeed())]);
+  }
   await page.goto(`http://127.0.0.1:${PORT}` + route, {waitUntil: 'domcontentloaded'});
   await page.waitForSelector('#app-loading', {state: 'detached', timeout: 120000});
   // First frame is not the settled frame: fonts, the hadith fetch and the

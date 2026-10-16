@@ -7,10 +7,12 @@
     "setup": "node setup.js",
     "capture": "node capture.js",
     "frame": "node build.js",
-    "all": "node run.js"
+    "all": "node run.js",
+    "video": "node video.js"
   },
   "devDependencies": {
     "@fontsource/noto-sans-arabic": "^5.1.0",
+    "@fontsource/noto-sans-gujarati": "^5.3.0",
     "@fontsource/roboto": "^5.1.0",
     "esbuild": "^0.24.0",
     "firebase": "12.14.0",
