@@ -1,6 +1,6 @@
 // Records a live interaction with the Flutter web build as a frame sequence.
 // usage: node rec.js <outDir> <clipsJson>
-//   clip: {name, path, actions:[...]}, action one of
+//   clip: {name, path, seed?, actions:[...]} (seed: demo Quran reading history), action one of
 //     {wait:ms} {reload:settleMs, url} {tap:[x,y]} {wheel:dy, ms} {drag:[x1,y1,x2,y2], ms} {move:[x,y]}
 // Each clip runs in a fresh browser context, so app preferences start at defaults.
 // Output: <outDir>/<name>/raw_NNNN.jpg + frames.txt (ffconcat timings) + taps.json ({t, x, y} in seconds / logical px).
@@ -46,6 +46,10 @@ const WARP = `(() => {
       geolocation: { latitude: 51.5072, longitude: -0.1276 }, permissions: ['geolocation'], timezoneId: 'Europe/London' });
     const p = await ctx.newPage();
     await p.addInitScript(WARP);
+    // shared_preferences on the web keeps each value JSON-encoded under a
+    // `flutter.` prefix, and this value is itself a JSON string.
+    if (clip.seed) await p.addInitScript(v => localStorage.setItem('flutter.recitation_tracker_guest', v),
+      JSON.stringify(JSON.stringify(require('./demo_data').quranSeed())));
     await p.goto('http://127.0.0.1:4173' + (clip.path || '/'));
     await p.waitForSelector('#app-loading', { state: 'detached', timeout: 60000 }).catch(() => {});
     await sleep(clip.settle || 7000);

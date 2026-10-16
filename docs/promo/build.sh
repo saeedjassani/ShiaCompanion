@@ -27,7 +27,7 @@ fi
 [[ -f kumayl.mp3 ]] || curl -sS -r 0-2000000 -o kumayl.mp3 \
   https://pub-ee9041af06e644c2932c50c137c28aef.r2.dev/dua_kumayl_96k.mp3
 # Loudness envelope that drives the on-screen waveform.
-"$FFMPEG" -v error -i kumayl.mp3 -t 60 -ac 1 -ar 24000 -f s16le - | python3 -c "
+"$FFMPEG" -v error -i kumayl.mp3 -t 90 -ac 1 -ar 24000 -f s16le - | python3 -c "
 import sys, json, numpy as np
 a = np.frombuffer(sys.stdin.buffer.read(), dtype=np.int16).astype(float)
 r = [float(np.sqrt((a[i:i+800]**2).mean())) for i in range(0, len(a) - 800, 800)]
@@ -43,9 +43,9 @@ rm silent.mp4
 echo "wrote docs/promo/shia-companion-promo.mp4"
 
 # WhatsApp copy: the same video under WhatsApp's 16 MB inline limit, so it is
-# sent as-is rather than recompressed by the app (two-pass, ~1.8 Mbit/s).
-"$FFMPEG" -v error -y -i shia-companion-promo.mp4 -c:v libx264 -preset slow -b:v 1800k -pass 1 -passlogfile wa -an -f mp4 /dev/null
-"$FFMPEG" -v error -y -i shia-companion-promo.mp4 -c:v libx264 -preset slow -b:v 1800k -pass 2 -passlogfile wa \
+# sent as-is rather than recompressed by the app (two-pass, ~1.65 Mbit/s).
+"$FFMPEG" -v error -y -i shia-companion-promo.mp4 -c:v libx264 -preset slow -b:v 1650k -pass 1 -passlogfile wa -an -f mp4 /dev/null
+"$FFMPEG" -v error -y -i shia-companion-promo.mp4 -c:v libx264 -preset slow -b:v 1650k -pass 2 -passlogfile wa \
   -c:a aac -b:a 128k -movflags +faststart shia-companion-promo-whatsapp.mp4
 rm -f wa-0.log wa-0.log.mbtree
 echo "wrote docs/promo/shia-companion-promo-whatsapp.mp4"
