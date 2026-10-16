@@ -1,7 +1,13 @@
 'use strict';
 // Frames the raw captures into every store's screenshot sizes.
+// STORE_LANG=ur (or ar, fa, gu) frames that language's set instead, from
+// slides_i18n.js, into out/store-<lang> - set RAW_DIR to its captures.
 const {render, renderFeatureGraphic, launchBrowser} = require('./compose');
-const {OUT_DIR} = require('./config');
+const {HERE} = require('./config');
+const {slidesFor} = require('./slides_i18n');
+
+const LANG = process.env.STORE_LANG;
+const OUT_DIR = process.env.OUT_DIR || `${HERE}/out/${LANG ? `store-${LANG}` : 'store'}`;
 
 // Ordered by what earns the install: what the app is, its core content, what
 // 4.0 adds, then the tools. Shots name raw captures without the p-/t- prefix.
@@ -57,14 +63,16 @@ const TABLET = [
   {name: '06-tools', layout: 'fan', shots: ['qibla-d', 'tasbeeh-l'], caption: 'Qibla and tasbeeh,\nalways at hand'},
 ];
 
+const SET = LANG ? slidesFor(LANG)
+  : {phone: PHONE, phoneExtra: PHONE_EXTRA, tablet: TABLET, appStore: true, tagline: null};
 const TARGETS = [
-  {dir: 'appstore/iphone-6.9', W: 1320, H: 2868, kind: 'iphone', set: [...PHONE, ...PHONE_EXTRA]},
-  {dir: 'appstore/iphone-6.5', W: 1242, H: 2688, kind: 'iphone', set: [...PHONE, ...PHONE_EXTRA]},
-  {dir: 'appstore/ipad-13', W: 2064, H: 2752, kind: 'tablet', set: TABLET},
-  {dir: 'play/phone', W: 1080, H: 1920, kind: 'android', set: PHONE},
-  {dir: 'play/tablet-7', W: 1200, H: 1920, kind: 'tablet', set: TABLET},
-  {dir: 'play/tablet-10', W: 1600, H: 2560, kind: 'tablet', set: TABLET},
-];
+  {dir: 'appstore/iphone-6.9', W: 1320, H: 2868, kind: 'iphone', set: [...SET.phone, ...SET.phoneExtra]},
+  {dir: 'appstore/iphone-6.5', W: 1242, H: 2688, kind: 'iphone', set: [...SET.phone, ...SET.phoneExtra]},
+  {dir: 'appstore/ipad-13', W: 2064, H: 2752, kind: 'tablet', set: SET.tablet},
+  {dir: 'play/phone', W: 1080, H: 1920, kind: 'android', set: SET.phone},
+  {dir: 'play/tablet-7', W: 1200, H: 1920, kind: 'tablet', set: SET.tablet},
+  {dir: 'play/tablet-10', W: 1600, H: 2560, kind: 'tablet', set: SET.tablet},
+].filter((t) => SET.appStore || !t.dir.startsWith('appstore'));
 
 (async () => {
   const only = process.argv[2];
@@ -73,6 +81,10 @@ const TARGETS = [
     const pick = process.argv[3] ? process.argv[3].split(',') : null;
     for (const slide of t.set.filter((s) => !pick || pick.some((n) => s.name.startsWith(n)))) await render(b, slide, t, `${OUT_DIR}/${t.dir}/${slide.name}.png`);
   }
-  if (!only || only === 'feature') await renderFeatureGraphic(b, `${OUT_DIR}/play/feature-graphic.png`);
+  if (!only || only === 'feature') {
+    await renderFeatureGraphic(b, `${OUT_DIR}/play/feature-graphic.png`, LANG && {
+      lang: LANG, tagline: SET.tagline, shots: ['p-home-l', LANG === 'ur' ? 'p-ashura-d' : 'p-read-d'],
+    });
+  }
   await b.close();
 })();

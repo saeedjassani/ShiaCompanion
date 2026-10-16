@@ -28,6 +28,24 @@ function fontFace(weight) {
 }
 const FONTS = [400, 500, 700].map(fontFace).join('\n');
 
+// Caption type for each localized set: the app's own Nastaliq for Urdu, Noto
+// Sans for Arabic, Persian and Gujarati. Latin text in a caption stays Roboto.
+function face(family, weight, file, format) {
+  return `@font-face{font-family:${family};font-weight:${weight};
+    src:url(data:font/${format};base64,${fs.readFileSync(file).toString('base64')}) format('${format}')}`;
+}
+const REPO_FONTS = path.join(__dirname, '..', '..', 'assets', 'fonts');
+const LANG_TYPE = {
+  ar: () => ({css: [400, 700].map((w) => face('Script', w, path.join(VENDOR, 'fonts', `noto-sans-arabic-arabic-${w}-normal.woff2`), 'woff2')).join(''),
+              rtl: true, size: 1, lh: 1.3}),
+  fa: () => LANG_TYPE.ar(),
+  ur: () => ({css: face('Script', '400 700', path.join(REPO_FONTS, 'noto-nastaliq-urdu.ttf'), 'truetype'),
+              rtl: true, size: 0.84, lh: 1.55}),
+  gu: () => ({css: [400, 700].map((w) => face('Script', w, path.join(VENDOR, 'fonts', `noto-sans-gujarati-gujarati-${w}-normal.woff2`), 'woff2')).join(''),
+              rtl: false, size: 0.92, lh: 1.25}),
+};
+const typeFor = (lang) => (LANG_TYPE[lang] ? LANG_TYPE[lang]() : {css: '', rtl: false, size: 1, lh: 1.1});
+
 function pngSize(file) {
   const b = fs.readFileSync(file, {start: 0, end: 32});
   return {w: b.readUInt32BE(16), h: b.readUInt32BE(20)};
@@ -109,9 +127,10 @@ function page(slide, t) {
   const {DW, DH, kind} = t;
   const tablet = kind === 'tablet';
   const u = DW / 100;
+  const type = typeFor(slide.lang);
   const capTop = DH * (tablet ? 0.045 : 0.05);
-  const h1 = u * (tablet ? 5.6 : 7.3);
-  const lines = slide.caption.split('\n').length;
+  const h1 = u * (tablet ? 5.6 : 7.3) * type.size;
+  const lines = slide.caption.split('\n').length * type.lh / 1.1;
   const badgeH = slide.badge ? h1 * 0.95 : 0;
   const stageTop = capTop + badgeH + h1 * 1.1 * lines + DH * (tablet ? 0.035 : 0.045);
   const avail = DH - stageTop;
@@ -181,15 +200,16 @@ function page(slide, t) {
   }
 
   return `<!doctype html><html><head><meta charset="utf-8"><style>
-  ${FONTS}
+  ${FONTS}${type.css}
   *{margin:0;padding:0;box-sizing:border-box}
   html,body{width:${DW}px;height:${DH}px;overflow:hidden}
   body{font-family:Roboto,sans-serif;background:${BG};position:relative;perspective:${DW * 2}px}
+  .cap,.pill,.tag{font-family:Roboto,Script,sans-serif;direction:${type.rtl ? 'rtl' : 'ltr'}}
   .glow{position:absolute;inset:0;background:${GLOW}}
   .cap{position:absolute;left:0;right:0;top:${capTop}px;text-align:center;padding:0 ${u * 6}px;color:#fff;z-index:5}
   .badge{display:inline-block;font-size:${h1 * 0.36}px;font-weight:700;letter-spacing:.15em;
          background:rgba(255,255,255,.18);padding:${h1 * 0.14}px ${h1 * 0.36}px;border-radius:99px;margin-bottom:${h1 * 0.3}px}
-  h1{font-size:${h1}px;line-height:1.1;font-weight:700;letter-spacing:-.02em;
+  h1{font-size:${h1}px;line-height:${type.lh};font-weight:700;letter-spacing:-.02em;
      text-shadow:0 ${u * 0.3}px ${u * 1.2}px rgba(0,0,0,.18)}
   .dev{position:absolute;background:linear-gradient(145deg,#5c5c60 0%,#37373a 17%,#1d1d20 42%,#4e4e53 60%,#2a2a2d 80%,#141416 100%);
        box-shadow:0 ${u * 4}px ${u * 9}px rgba(20,10,6,.42),0 ${u * 0.7}px ${u * 1.6}px rgba(20,10,6,.25)}
@@ -221,12 +241,15 @@ async function render(browser, slide, t, out) {
 }
 
 /** Play's 1024x500 feature graphic: name and tagline beside two phones. */
-async function renderFeatureGraphic(browser, out) {
+async function renderFeatureGraphic(browser, out, local) {
   const DW = 2048, DH = 1000;
+  const type = typeFor(local && local.lang);
+  const shots = local ? local.shots : ['p-home-l', 'p-read-ur-d'];
+  const tagline = local ? local.tagline : 'Duas, ziyarats, Quran and prayer times, now in five languages';
   const logo = fs.readFileSync(path.join(__dirname, '..', '..', 'assets', 'logo.png')).toString('base64');
-  const a = device('p-home-l', 560, 'android', 'left:1250px;top:120px;transform:rotate(-8deg)');
-  const b = device('p-read-ur-d', 560, 'android', 'left:1560px;top:210px;transform:rotate(7deg)');
-  const html = `<!doctype html><html><head><meta charset="utf-8"><style>${FONTS}
+  const a = device(shots[0], 560, 'android', 'left:1250px;top:120px;transform:rotate(-8deg)');
+  const b = device(shots[1], 560, 'android', 'left:1560px;top:210px;transform:rotate(7deg)');
+  const html = `<!doctype html><html><head><meta charset="utf-8"><style>${FONTS}${type.css}
     *{margin:0;padding:0;box-sizing:border-box}
     body{width:${DW}px;height:${DH}px;overflow:hidden;position:relative;font-family:Roboto,sans-serif;background:${BG}}
     .glow{position:absolute;inset:0;background:${GLOW}}
@@ -235,10 +258,11 @@ async function renderFeatureGraphic(browser, out) {
     .t{position:absolute;left:120px;top:0;bottom:0;display:flex;flex-direction:column;justify-content:center;color:#fff;width:1050px}
     img.logo{width:170px;border-radius:38px;box-shadow:0 18px 40px rgba(0,0,0,.3);margin-bottom:48px}
     h1{font-size:112px;font-weight:700;letter-spacing:-.02em;line-height:1}
-    p{font-size:50px;margin-top:30px;opacity:.9;line-height:1.3}
+    p{font-size:${50 * type.size}px;margin-top:30px;opacity:.9;line-height:${Math.max(1.3, type.lh)};
+      font-family:Roboto,Script,sans-serif;direction:${type.rtl ? 'rtl' : 'ltr'};text-align:${type.rtl ? 'right' : 'left'}}
     </style></head><body><div class="glow"></div>
     <div class="t"><img class="logo" src="data:image/png;base64,${logo}"><h1>Shia Companion</h1>
-    <p>Duas, ziyarats, Quran and prayer times, now in five languages</p></div>
+    <p>${tagline}</p></div>
     ${a.html}${b.html}</body></html>`;
   const ctx = await browser.newContext({viewport: {width: DW, height: DH}, deviceScaleFactor: 0.5});
   const p = await ctx.newPage();

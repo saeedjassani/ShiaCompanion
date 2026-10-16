@@ -3,7 +3,7 @@
 // raw captures to RAW_DIR as `<device>-<name>.png` (p = phone, t = tablet).
 // `node capture.js p` or `node capture.js t` captures one device only, and a
 // comma-separated list after it (`node capture.js p stats-l,qaza-d`) only those.
-const {launch, openApp, tapF, shot} = require('./flow');
+const {launch, openApp, tapF: tapAt, shot} = require('./flow');
 
 const PHONE = {width: 430, height: 932};
 const TABLET = {width: 1024, height: 1366, dsf: 2, isMobile: false};
@@ -59,10 +59,20 @@ async function scrollReader(page, vp, down) {
   await page.mouse.wheel(0, -240); await page.waitForTimeout(2600);
 }
 
+// STORE_LANG=ur (or ar, fa, gu) captures a localized set into RAW_DIR: the
+// app in that language, with Arabic-script layouts mirrored, so every tap's x
+// is mirrored too. The English-only shots are skipped.
+const LANG = process.env.STORE_LANG;
+const RTL = ['ar', 'ur', 'fa'].includes(LANG);
+const LOCALIZED = ['home-l', 'home-d', 'read-l', 'read-d', 'ashura-d', 'player-d', 'quran-d',
+                   'playlists-l', 'stats-l', 'calendar-d', 'qibla-d', 'tasbeeh-l', 'qaza-d'];
+
 async function run(b, vp, k, p, shots) {
+  const tapF = (page, fx, fy, settle) => tapAt(page, RTL ? 1 - fx : fx, fy, settle);
   const go = async (name, opts, steps) => {
     if (shots && !shots.includes(name)) return;
-    const {context, page} = await openApp(b, {...vp, seed: true, ...opts});
+    if (LANG && !LOCALIZED.includes(name)) return;
+    const {context, page} = await openApp(b, {...vp, seed: true, ...(LANG && {locale: LANG}), ...opts});
     await steps(page);
     await shot(page, `${p}-${name}`);
     await context.close();
@@ -79,6 +89,10 @@ async function run(b, vp, k, p, shots) {
   await go('read-l', {route: '/dua-kumayl'}, (page) => scrollReader(page, vp, 2600));
   await go('read-ur-d', {route: '/dua-kumayl', locale: 'ur', dark: true},
     (page) => scrollReader(page, vp, 2600));
+  // Localized sets only: Kumayl in dark, and Ziyarat Ashura for the languages
+  // with no dua translations.
+  await go('read-d', {route: '/dua-kumayl', dark: true}, (page) => scrollReader(page, vp, 2600));
+  await go('ashura-d', {route: '/ziyarat-e-ashura', dark: true}, (page) => scrollReader(page, vp, 1400));
   // The audio player, mid-playback.
   await go('player-d', {route: '/ziyarat-e-ameenullah', dark: true}, async (page) => {
     await scrollReader(page, vp, 2200);

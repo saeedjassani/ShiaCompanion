@@ -32,15 +32,15 @@ what the app can actually show in that language:
 | Slide | English | Arabic | Urdu | Persian (Play only) | Gujarati |
 | --- | --- | --- | --- | --- | --- |
 | 01 light & dark | Home | Home in Arabic | Home in Urdu | Home in Persian | Home in Gujarati |
-| 02 reader | Kumayl, English | Kumayl, Arabic only (the reader hides translation in Arabic) | Kumayl with Urdu | Kumayl, Arabic only (no Persian dua translations yet) - use Ya-Sin with Persian instead | Kumayl with Gujarati |
+| 02 reader | Kumayl, English | Kumayl, Arabic only (the reader hides translation in Arabic) | Kumayl with Urdu | Kumayl, Arabic only (no Persian dua translations yet) | Kumayl with Gujarati |
 | 03 languages | the four languages | same | same | same | same |
 | 04 Quran | Ya-Sin, English | Ya-Sin, Arabic only | Ya-Sin, Urdu | Ya-Sin, Persian | Ya-Sin, Gujarati |
 | 05 listen | playlists + player | in Arabic | in Urdu | in Persian | in Gujarati |
 | 06 My Stats | | in Arabic | in Urdu | in Persian | in Gujarati |
 | 07 calendar | | in Arabic | in Urdu | in Persian | in Gujarati |
 | 08 tools | | in Arabic | in Urdu | in Persian | in Gujarati |
-| 09 translated duas | Kumayl in Urdu | **swap**: Ziyarat Ashura, Arabic | Kumayl in Urdu | **swap**: Quran in Persian | Kumayl in Gujarati |
-| 10 library (App Store) | | in Arabic | in Urdu | - | in Gujarati |
+| 09 duas (App Store) | Kumayl in Urdu | Ziyarat Ashura, Arabic | Ziyarat Ashura with Urdu | Ziyarat Ashura, Arabic (Play has no slot 9) | Ziyarat Ashura, Arabic |
+| 10 library (App Store) | | - | - | - | - |
 
 Rules behind the table:
 
@@ -49,9 +49,10 @@ Rules behind the table:
 - **Never promise a translation the app doesn't have.** Persian and Arabic
   have no dua translations, so their slide 09 shows what they do get. Urdu
   says "famous duas", not "all duas".
-- **The library stays English-titled.** Its books are in English; the slide
-  says so honestly by showing the list in the app's language around English
-  titles.
+- **No Library slide outside English.** Its books are all in English.
+- **Slide 09 is Ziyarat Ashura everywhere but English**, so Urdu and
+  Gujarati don't show Kumayl twice: with its Urdu translation in Urdu, and as
+  Arabic text, under a caption that promises nothing more, elsewhere.
 
 ## English
 
@@ -266,7 +267,6 @@ Shia Companion: أدعية وقرآن
 | 07 | الأشهر الهجرية من رؤية الهلال حيث أنت | المناسبات الإسلامية / مواقيت الصلاة |
 | 08 | القبلة والتسبيح ومتابعة القضاء | - |
 | 09 | زيارة عاشوراء وأكثر | مئات الأدعية والزيارات |
-| 10 | مكتبة تضم أكثر من ألف كتاب | 1,162 كتاباً / اطلب كتاباً |
 
 ## Urdu - اردو
 
@@ -368,8 +368,7 @@ Shia Companion: دعا اور قرآن
 | 06 | روزانہ کی تلاوت جاری رکھیں | روزانہ کا تسلسل / اذکار، آیات، قضا |
 | 07 | ہجری تاریخیں آپ کے شہر کے چاند سے | اسلامی مناسبتیں / نماز کے اوقات |
 | 08 | قبلہ، تسبیح اور قضا کا حساب | - |
-| 09 | مشہور دعائیں، اردو ترجمے کے ساتھ | کمیل، ندبہ، توسل / کوئی دعا نہیں ملی؟ |
-| 10 | ایک ہزار سے زیادہ کتابوں کی لائبریری | 1,162 کتابیں / کتاب کی درخواست |
+| 09 | مشہور دعائیں، اردو ترجمے کے ساتھ (Ziyarat Ashura) | دعائے کمیل، ندبہ، توسل / کوئی دعا نہیں ملی؟ |
 
 ## Persian - فارسی (Google Play only)
 
@@ -438,7 +437,7 @@ Shia Companion 4.0، بزرگ‌ترین به‌روزرسانی تا امروز
 | 06 | تلاوت روزانه را ادامه دهید | روزهای پیوسته / اذکار، آیات، قضا |
 | 07 | ماه‌های قمری از رؤیت هلال در شهر شما | مناسبت‌های اسلامی / اوقات شرعی |
 | 08 | قبله، تسبیح و حساب قضا | - |
-| 09 | قرآن با ترجمهٔ فارسی | ترجمهٔ آیت‌الله مکارم شیرازی |
+| 09 | زیارت عاشورا و صدها دعای دیگر (not used: Play has 8 slots) | صدها دعا و زیارت |
 
 ## Gujarati - ગુજરાતી
 
@@ -537,5 +536,4 @@ Shia Companion: દુઆ અને કુરઆન
 | 06 | રોજની તિલાવત ચાલુ રાખો | રોજનો સિલસિલો / ઝિક્ર, આયતો, કઝા |
 | 07 | હિજરી તારીખો તમારા શહેરના ચાંદથી | ઇસ્લામી પ્રસંગો / નમાઝના સમય |
 | 08 | કિબલા, તસ્બીહ અને કઝાનો હિસાબ | - |
-| 09 | દુઆએ કુમૈલ, ગુજરાતીમાં | કોઈ દુઆ ન મળી? અનુવાદની વિનંતી કરો |
-| 10 | હજારથી વધુ પુસ્તકોની લાઇબ્રેરી | 1,162 પુસ્તકો / પુસ્તકની વિનંતી |
+| 09 | ઝિયારતે આશૂરા અને સેંકડો દુઆઓ | સેંકડો દુઆઓ અને ઝિયારતો / અનુવાદ નથી મળ્યો? |

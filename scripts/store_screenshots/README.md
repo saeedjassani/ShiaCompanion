@@ -56,6 +56,24 @@ shows a Continue card, which moves its grid down - hence `allFeaturesSeeded`.
 `openApp`'s `locale` is all a translated capture needs. Gujarati needs Noto
 Sans Gujarati, served the same way as the Arabic fallback.
 
+## Localized sets
+
+Arabic, Urdu, Persian and Gujarati each get their own set: the app captured
+in that language, captions from `slides_i18n.js` (kept in step with
+`docs/STORE_LISTING.md`), set in the app's own type (Nastaliq for Urdu).
+
+```bash
+STORE_LANG=ur RAW_DIR=$PWD/out/raw-ur node capture.js   # the app in Urdu
+cp out/raw/p-home-{ar,gu,fa}.png out/raw-ur/              # slide 03's side phones
+cp out/raw/p-home-l.png out/raw-ur/p-home-en.png
+STORE_LANG=ur RAW_DIR=$PWD/out/raw-ur node build.js     # -> out/store-ur
+```
+
+Arabic-script layouts are mirrored, so `capture.js` mirrors every tap's x
+when the language is right-to-left. There is no Library slide outside
+English (its books are English), and Persian has no App Store page, so its
+set is Play only.
+
 ## App preview video
 
 `video.js` records each scene of the real app with Chrome's screencast, adds a
