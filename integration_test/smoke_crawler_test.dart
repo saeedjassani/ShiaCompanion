@@ -5,7 +5,6 @@ import 'package:shia_companion/main.dart' as app;
 import 'package:shia_companion/navigation/app_shell.dart';
 import 'package:shia_companion/navigation/home_menu.dart';
 import 'package:shia_companion/pages/all_features_page.dart';
-import 'package:shia_companion/widgets/page_chrome.dart';
 
 /// Automated Smoke Crawler for iOS & Android.
 ///
@@ -81,19 +80,14 @@ void main() {
     return ModalRoute.of(page.evaluate().first)?.isCurrent ?? false;
   }
 
-  /// Taps Back on the page on top. Pages under it can still be built (and,
-  /// mid-transition, onstage), so the first Back in the tree may belong to
-  /// a covered page; the last one is the top page's.
-  Future<void> tapTopBack(WidgetTester tester) async {
-    final pageBack = find.byType(PageBackButton);
-    final materialBack = find.byType(BackButton);
-    if (pageBack.evaluate().isNotEmpty) {
-      await tester.tap(pageBack.last);
-    } else if (materialBack.evaluate().isNotEmpty) {
-      await tester.tap(materialBack.last);
-    } else {
-      tester.state<NavigatorState>(find.byType(Navigator).first).pop();
-    }
+  /// Goes back from the page on top with the system Back (the Android back
+  /// gesture), which is what a reader does and pops whatever page is on
+  /// top. Tapping a page's round Back button instead depends on hitting it:
+  /// pages under the top one are still built, so the first Back in the tree
+  /// can be a covered page's, and once All features is scrolled to its end
+  /// its Back is obscured and the tap lands on nothing.
+  Future<void> goBack(WidgetTester tester) async {
+    await tester.binding.handlePopRoute();
   }
 
   /// integration_test screenshot names become filenames on disk, so section
@@ -224,7 +218,7 @@ void main() {
         }
 
         // Navigate back to All features
-        await tapTopBack(tester);
+        await goBack(tester);
         final returned = await pumpUntil(tester, allFeaturesIsCurrent);
         await settleBounded(tester, duration: const Duration(seconds: 1));
 
@@ -254,7 +248,7 @@ void main() {
     }
 
     // Back from All features to Home.
-    await tapTopBack(tester);
+    await goBack(tester);
     await pumpUntil(
         tester,
         () => find
