@@ -12,8 +12,7 @@ const PHONE = [
    caption: 'Read and understand\nevery dua',
    callouts: [['Arabic + translation', 'Line by line'], ['Bookmark a line', 'Pick up where you left off'],
               ['Auto-scroll', 'Hands-free reading']]},
-  {name: '03-languages', layout: 'row', shots: ['home-ur', 'home-ar', 'home-gu'],
-   labels: ['اردو', 'العربية', 'ગુજરાતી'],
+  {name: '03-languages', layout: 'peek', shots: ['home-gu', 'home-ur', 'home-ar'],
    caption: 'Now in Urdu, Persian,\nArabic and Gujarati'},
   {name: '04-quran', layout: 'tilt', shots: ['quran-d'],
    caption: 'The Quran, with\nyour own Khatm',
@@ -27,16 +26,18 @@ const PHONE = [
   {name: '07-calendar', layout: 'tilt', shots: ['calendar-d'],
    caption: 'Hijri dates from the\nmoon where you are',
    callouts: [['Islamic events', null], ['Prayer times', 'For any day, any city']]},
-  {name: '08-tools', layout: 'row', shots: ['qibla-d', 'tasbeeh-l', 'qaza-d'],
-   labels: ['Qibla', 'Tasbeeh', 'Qaza'],
+  {name: '08-tools', layout: 'peek', shots: ['qaza-d', 'tasbeeh-l', 'qibla-d'],
    caption: 'Qibla, tasbeeh and\nqaza tracker'},
 ];
 // The App Store takes ten; Play stops at eight.
 const PHONE_EXTRA = [
   {name: '09-urdu-duas', layout: 'tilt', shots: ['read-ur-d'],
-   caption: 'Famous duas, translated\ninto Urdu',
+   caption: 'Famous duas,\ntranslated',
    callouts: [['Kumayl, Nudba, Tawassul', 'Ziyarat Ashura, Hadith al-Kisa…'], ['Gujarati too', 'Dua Kumayl'],
               ['Missing one?', 'Request its translation in the app']]},
+  {name: '10-library', layout: 'tilt', shots: ['library-l'],
+   caption: 'A library of over\na thousand books',
+   callouts: [['1,162 books', 'Read them in the app'], ['Request a book', 'Missing one? Ask for it']]},
 ];
 
 // Tablets have no Home slide: on the web build Home carries a "Get the app"

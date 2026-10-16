@@ -17,6 +17,7 @@ const P = {
   feature: {
     playlists: [0.205, 0.537], stats: [0.484, 0.537], qibla: [0.75, 0.537],
     tasbeeh: [0.205, 0.64], qaza: [0.484, 0.64], calendar: [0.75, 0.33],
+    library: [0.205, 0.433], flight: [0.849, 0.64],
   },
   playFirstPlaylist: [0.124, 0.243], listen: [0.318, 0.93], counterTap: [0.5, 0.54],
 };
@@ -108,6 +109,8 @@ async function run(b, vp, k, p, shots) {
     await page.waitForTimeout(2500);
   });
   await feature('qaza-d', {dark: true, seed: true});
+  if (k.feature.library) await feature('library-l', {});
+  if (k.feature.flight) await feature('flight-l', {});
 }
 
 (async () => {

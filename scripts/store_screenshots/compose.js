@@ -4,6 +4,8 @@
 //   fan   - two devices fanned out, e.g. the same screen in light and dark
 //   fan3  - three devices, the middle one in front
 //   row   - three devices side by side, nothing hidden, the middle one raised
+//   peek  - one device in full, the other two behind it, their outer halves
+//           showing at either side
 //   tilt  - one device turned in 3D, with feature callouts beside it
 //
 // Slides are laid out on a design canvas DW px wide (1320 for phones, 2064 for
@@ -149,6 +151,21 @@ function page(slide, t) {
         top:${y - label}px;height:${label}px">${slide.labels[i]}</div>` : '';
       return tag + device(pre(i), w, kind, `left:${x0 + i * (w + gap)}px;top:${y}px`).html;
     }).join('');
+  } else if (slide.layout === 'peek') {
+    // The side devices are slightly smaller and centred on the same line, so
+    // the three read as one row; each shows its outer half past the middle one.
+    const w = Math.min(DW * (tablet ? 0.5 : 0.56), avail * (tablet ? 0.6 : 0.47));
+    const side = w * 0.86;
+    const midH = tall(1, w);
+    const top = centre(midH);
+    const sideTop = top + (midH - tall(0, side)) / 2;
+    const mx = (DW - w) / 2;
+    // Half of each side device, or as much as fits inside the canvas edge.
+    const visible = Math.min(side * 0.5, mx - DW * 0.03);
+    const l = device(pre(0), side, kind, `left:${mx - visible}px;top:${sideTop}px;filter:brightness(.9)`);
+    const r = device(pre(2), side, kind, `left:${mx + w - side + visible}px;top:${sideTop}px;filter:brightness(.9)`);
+    const mid = device(pre(1), w, kind, `left:${mx}px;top:${top}px;z-index:2`);
+    devices = l.html + r.html + mid.html;
   } else if (slide.layout === 'tilt') {
     const w = Math.min(DW * (tablet ? 0.8 : 0.7), avail * (tablet ? 0.68 : 0.5));
     const left = (DW - w) / 2 + DW * 0.05;
