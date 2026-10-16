@@ -173,9 +173,15 @@ void main() {
   group('looking up a city', () {
     testWidgets('offers only cities, and opens on the date asked about',
         (tester) async {
+      // A day that is never "today" on Karbala's clock, whenever this runs:
+      // the page shows its "Today in Karbala" button only for other days,
+      // so a fixed calendar date breaks on the day it stops being future.
+      final askedDate = tz.TZDateTime.now(tz.getLocation(farZone))
+          .add(const Duration(days: 2));
+      final asked = DateTime(askedDate.year, askedDate.month, askedDate.day);
       await pumpLauncher(
         tester,
-        (context) => lookUpCityFlow(context, date: DateTime(2026, 10, 16)),
+        (context) => lookUpCityFlow(context, date: asked),
       );
       expect(find.text('Another city'), findsOneWidget);
       expect(find.text('Use my current location'), findsNothing);
@@ -184,9 +190,9 @@ void main() {
       await pick(tester, 'karb', 'Iraq');
 
       expect(find.byType(AlertDialog), findsNothing);
-      expect(find.text('Friday 16 October'), findsOneWidget);
-      expect(find.text(fajrOnCityClock(karbala, DateTime(2026, 10, 16))),
+      expect(find.text(formatDate(asked, [DD, ' ', d, ' ', MM])),
           findsOneWidget);
+      expect(find.text(fajrOnCityClock(karbala, asked)), findsOneWidget);
       expect(find.text('Today in Karbala'), findsOneWidget);
       expect(service.isManual, isFalse);
     });
