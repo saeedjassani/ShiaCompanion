@@ -1,0 +1,205 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<!-- App Store preview cut: 886x1920 (6.5"/6.9" iPhone portrait), 29.7 s (Apple's limit is 30).
+     Apple wants previews built from footage of the app itself, so this is the
+     live recordings full size with a caption band; no device frame, no intro. -->
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600&family=Inter:wght@400;500;600&display=block" rel="stylesheet">
+<style>
+  :root { --gold: #e8c77a; --gold-soft: #f3dfae; --cream: #fbeee8; }
+  html, body { margin: 0; background: #000; }
+  #stage { position: relative; width: 886px; height: 1920px; overflow: hidden; font-family: 'Inter', sans-serif; color: var(--cream);
+           background: radial-gradient(ellipse 120% 80% at 50% 40%, #5a372b 0%, #37221b 50%, #140c0a 100%); }
+  #pattern { position: absolute; left: -160px; top: -160px; opacity: .06; }
+  #screen { position: absolute; left: 76px; top: 330px; width: 734px; height: 1589px; border-radius: 52px; overflow: hidden;
+            background: #fbf8f3; box-shadow: 0 40px 100px rgba(0,0,0,.6), 0 0 0 2px rgba(232,199,122,.25); }
+  #screen img { position: absolute; left: 0; top: 0; width: 734px; height: 1589px; object-fit: cover; }
+  #scr2, #still2 { opacity: 0; }
+  #sheen { position: absolute; inset: 0; z-index: 6; pointer-events: none; opacity: 0;
+           background: linear-gradient(105deg, rgba(255,255,255,0) 35%, rgba(255,255,255,.35) 50%, rgba(255,255,255,0) 65%); }
+  .tap { position: absolute; z-index: 5; width: 110px; height: 110px; margin: -55px 0 0 -55px; border-radius: 50%;
+         background: rgba(255,255,255,.35); border: 4px solid rgba(255,255,255,.9); box-shadow: 0 0 0 3px rgba(122,82,68,.35), 0 6px 20px rgba(0,0,0,.25); opacity: 0; }
+  .cap { position: absolute; left: 0; right: 0; top: 70px; text-align: center; }
+  .cap h1 { margin: 0; font-family: 'Cormorant Garamond', serif; font-weight: 600; font-size: 92px; line-height: 1.02; color: var(--gold-soft); }
+  .cap p { margin: 18px 0 0; font-size: 34px; color: rgba(251,238,232,.86); }
+  .cap span { display: inline-block; white-space: pre; }
+  .chip { display: inline-block; padding: 8px 26px; margin: 16px 8px 0; border-radius: 40px; font-size: 26px; font-weight: 600;
+          border: 2px solid rgba(232,199,122,.45); color: rgba(243,223,174,.7); }
+  .chip.on { background: var(--gold); color: #3a241d; border-color: var(--gold); box-shadow: 0 0 30px rgba(232,199,122,.45); }
+  #end { position: absolute; inset: 0; text-align: center; padding-top: 560px; opacity: 0;
+         background: radial-gradient(ellipse 120% 80% at 50% 40%, #5a372b 0%, #37221b 50%, #140c0a 100%); }
+  .logo { width: 250px; height: 250px; border-radius: 56px; box-shadow: 0 30px 80px rgba(0,0,0,.55), 0 0 0 2px rgba(232,199,122,.35); }
+  .title { margin-top: 56px; font-family: 'Cormorant Garamond', serif; font-weight: 600; font-size: 116px; color: var(--gold-soft); }
+  .tagline { margin-top: 30px; font-size: 34px; line-height: 1.5; color: rgba(251,238,232,.86); }
+  .free { display: inline-block; margin-top: 56px; padding: 12px 40px; border-radius: 40px; background: var(--gold); color: #3a241d; font-weight: 600; font-size: 34px; letter-spacing: 3px; }
+</style>
+</head>
+<body>
+<div id="stage">
+  <svg id="pattern" width="1200" height="2240">
+    <defs><pattern id="star" width="160" height="160" patternUnits="userSpaceOnUse">
+      <g transform="translate(80 80)" fill="none" stroke="#e8c77a" stroke-width="2">
+        <rect x="-34" y="-34" width="68" height="68"/><rect x="-34" y="-34" width="68" height="68" transform="rotate(45)"/>
+        <circle r="14"/><path d="M-80 0H-48M48 0H80M0 -80V-48M0 48V80"/></g></pattern></defs>
+    <rect width="1200" height="2240" fill="url(#star)"/>
+  </svg>
+  <div id="caps"></div>
+  <div id="screen">
+    <img id="scr"><img id="scr2"><img id="still"><img id="still2">
+    <div id="taps"></div>
+    <div id="sheen"></div>
+  </div>
+  <div id="end">
+    <img id="eLogo" class="logo" src="logo.png">
+    <div id="eTitle" class="title">Shia Companion</div>
+    <div id="eTag" class="tagline">Quran · Duas · Ziyarats · Audio<br>Prayer Times · Calendar · Qibla · Tasbeeh</div>
+    <div id="eFree"><span class="free">100% FREE</span></div>
+  </div>
+</div>
+
+<script src="taps.js"></script>
+<script>
+const FPS = 30, PS = 734 / 390;   // logical px -> screen px
+const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
+const ease = x => { x = clamp(x); return x < .5 ? 4*x*x*x : 1 - Math.pow(-2*x + 2, 3) / 2; };
+const easeOut = x => 1 - Math.pow(1 - clamp(x), 3);
+const easeBack = x => { x = clamp(x); const c = 1.4; return 1 + (c + 1) * Math.pow(x - 1, 3) + c * Math.pow(x - 1, 2); };
+const prog = (t, a, b) => clamp((t - a) / (b - a));
+const $ = id => document.getElementById(id);
+
+// ---- timeline ------------------------------------------------------------
+const shots = [
+  { clip: 'scroll',  t0: 0.0,  t1: 3.6,  from: 0, hold: 0.4, speed: 1.4 },
+  { clip: 'font',    t0: 3.6,  t1: 7.0,  from: 6, speed: 1.25 },
+  { clip: 'para',    t0: 7.0,  t1: 9.9,  from: 6, speed: 1.55 },
+  { clip: 'listen',  t0: 9.9,  t1: 12.6, from: 4, speed: 1.1 },
+  { clip: 'counter', t0: 12.6, t1: 15.6, from: 9, speed: 1.75 },
+  { clip: 'qtab',    t0: 15.6, t1: 19.0, from: 3, speed: 1.1 },
+  { clip: 'qread',   t0: 19.0, t1: 22.8, from: 6, speed: 1.4 },
+];
+const stills = [['home_loc', 'Prayer times', 'For wherever you are'], ['calendar', 'Hijri calendar', 'Every Islamic date and event'],
+                ['qibla', 'Qibla finder', 'Pointing you to the Kaaba']];
+const STILLS_T0 = 22.8, STILL_D = 1.8, END_T0 = 28.2, END = 29.7;
+const caps = [
+  { t0: 0.0,  t1: 3.6,  h: 'Read along', p: 'Arabic · translation · transliteration' },
+  { t0: 3.6,  t1: 7.0,  h: 'Choose your script', chips: ['Qalam (IndoPak)', 'Scheherazade'] },
+  { t0: 7.0,  t1: 9.9,  h: 'Arabic as a paragraph', p: 'Flowing text for fluent reciters' },
+  { t0: 9.9,  t1: 12.6, h: 'Hear it recited', p: 'Audio built into every dua' },
+  { t0: 12.6, t1: 15.6, h: 'Count as you recite', p: 'A tasbeeh counter on the page' },
+  { t0: 15.6, t1: 19.0, h: 'The whole Quran', p: 'Keep your Khatm going' },
+  { t0: 19.0, t1: 22.8, h: 'Save verses, add notes', p: 'Your own reflections, verse by verse' },
+  ...stills.map(([, h, p], i) => ({ t0: STILLS_T0 + i * STILL_D, t1: STILLS_T0 + (i + 1) * STILL_D, h, p })),
+];
+
+// ---- build ---------------------------------------------------------------
+const split = s => s.split(' ').map(w => `<span>${w} </span>`).join('');
+caps.forEach((c, i) => {
+  const d = document.createElement('div');
+  d.className = 'cap'; d.id = 'cap' + i;
+  d.innerHTML = `<h1>${split(c.h)}</h1>` + (c.p ? `<p>${split(c.p)}</p>` : '') +
+    (c.chips ? `<div>${c.chips.map((x, j) => `<span class="chip" id="chip${j}">${x}</span>`).join('')}</div>` : '');
+  $('caps').appendChild(d);
+});
+const tapEls = [];
+shots.forEach(s => (TAPS[s.clip] || []).forEach(tp => {
+  const vt = s.t0 + (tp.t - s.from / FPS) / s.speed + (s.hold ? s.hold - s.t0 : 0);
+  if (vt < s.t0 || vt > s.t1) return;
+  const e = document.createElement('div');
+  e.className = 'tap'; e.style.left = tp.x * PS + 'px'; e.style.top = tp.y * PS + 'px';
+  $('taps').appendChild(e);
+  tapEls.push({ e, t: vt });
+}));
+const fontShot = shots.find(s => s.clip === 'font');
+const FONT_SWITCH_T = fontShot.t0 + (TAPS.font[1].t - fontShot.from / FPS) / fontShot.speed + 0.15;
+
+async function setImg(el, src) {
+  if (el.dataset.src === src) return;
+  el.dataset.src = src; el.src = src;
+  try { await el.decode(); } catch (e) {}
+}
+
+async function render(t) {
+  $('pattern').style.transform = `translate(${-(t * 6 % 160)}px, ${-(t * 10 % 160)}px)`;
+  const jobs = [];
+  // live clips
+  const active = shots.find(sh => t >= sh.t0 && t < sh.t1) || shots[shots.length - 1];
+  const frameOf = (sh, tt) => {
+    const start = sh.hold ? Math.max(0, tt - sh.hold) : Math.max(0, tt - sh.t0);
+    return clamp(Math.floor(sh.from + start * FPS * sh.speed), 0, CLIP_FRAMES[sh.clip] - 1);
+  };
+  jobs.push(setImg($('scr'), `clips/${active.clip}/${String(frameOf(active, t)).padStart(4, '0')}.jpg`));
+  const nxt = shots[shots.indexOf(active) + 1];
+  const xf = nxt ? prog(t, active.t1 - 0.3, active.t1) : 0;
+  if (xf > 0) jobs.push(setImg($('scr2'), `clips/${nxt.clip}/${String(nxt.from).padStart(4, '0')}.jpg`));
+  $('scr2').style.opacity = xf;
+  // stills: crossfade with a slow push-in
+  const si = Math.floor((t - STILLS_T0) / STILL_D);
+  const inStills = t >= STILLS_T0 - 0.3;
+  $('still').style.opacity = inStills ? (t < STILLS_T0 ? prog(t, STILLS_T0 - 0.3, STILLS_T0) : 1) : 0;
+  if (inStills) {
+    const i = clamp(si, 0, stills.length - 1);
+    jobs.push(setImg($('still'), `shots/${stills[i][0]}.png`));
+    const k = prog(t, STILLS_T0 + i * STILL_D, STILLS_T0 + (i + 1) * STILL_D);
+    $('still').style.transform = `scale(${1 + 0.05 * k})`;
+    const xs = i + 1 < stills.length ? prog(t, STILLS_T0 + (i + 1) * STILL_D - 0.35, STILLS_T0 + (i + 1) * STILL_D) : 0;
+    if (xs > 0) jobs.push(setImg($('still2'), `shots/${stills[i + 1][0]}.png`));
+    $('still2').style.opacity = xs; $('still2').style.transform = 'scale(1)';
+  } else $('still2').style.opacity = 0;
+  // light sweep across the glass on each cut
+  const cuts = [...shots.slice(1).map(s => s.t0), STILLS_T0];
+  const sw = cuts.map(c => prog(t, c - 0.1, c + 0.8)).find(v => v > 0 && v < 1);
+  $('sheen').style.opacity = sw ? Math.sin(sw * Math.PI) * 0.7 : 0;
+  $('sheen').style.transform = `translateX(${sw ? (sw * 2 - 1) * 110 : 0}%)`;
+  tapEls.forEach(({ e, t: tt }) => {
+    const p = prog(t, tt - 0.1, tt + 0.4);
+    e.style.opacity = p > 0 && p < 1 ? (p < 0.25 ? p / 0.25 : 1 - (p - 0.25) / 0.75) : 0;
+    e.style.transform = `scale(${0.6 + p * 0.7})`;
+  });
+  // captions
+  caps.forEach((c, i) => {
+    const el = $('cap' + i);
+    const vis = t >= c.t0 && t < c.t1 + 0.05;
+    el.style.display = vis ? 'block' : 'none';
+    if (!vis) return;
+    const last = i === caps.length - 1;
+    const din = c.quick ? 0.3 : 0.5, dout = c.quick ? 0.15 : 0.3;
+    const out = last ? 0 : ease(prog(t, c.t1 - dout, c.t1));
+    const first = i === 0 ? 1 : 0;   // the poster frame (t = 0) shows the first caption in full
+    [...el.querySelectorAll('h1 span')].forEach((w, j) => {
+      const a = first || easeBack(prog(t, c.t0 + j * 0.05, c.t0 + j * 0.05 + din));
+      w.style.opacity = clamp(a) * (1 - out);
+      w.style.transform = `translateY(${(1 - a) * 40 - out * 16}px)`;
+    });
+    [...el.querySelectorAll('p span')].forEach((w, j) => {
+      const a = first || easeOut(prog(t, c.t0 + 0.2 + j * 0.03, c.t0 + 0.6 + j * 0.03));
+      w.style.opacity = a * (1 - out);
+      w.style.transform = `translateY(${(1 - a) * 14}px)`;
+    });
+    if (c.chips) {
+      const on = t >= FONT_SWITCH_T ? 1 : 0;
+      [0, 1].forEach(j => {
+        const ch = $('chip' + j); ch.classList.toggle('on', j === on);
+        const a = easeOut(prog(t, c.t0 + 0.3 + j * 0.1, c.t0 + 0.8 + j * 0.1));
+        ch.style.opacity = a * (1 - out);
+        const pop = j === on ? 1 + 0.12 * Math.sin(Math.PI * prog(t, FONT_SWITCH_T, FONT_SWITCH_T + 0.4)) : 1;
+        ch.style.transform = `translateY(${(1 - a) * 16}px) scale(${pop})`;
+      });
+    }
+  });
+  // end card
+  const e = ease(prog(t, END_T0, END_T0 + 0.35));
+  $('end').style.opacity = e;
+  const step = (id, a0) => { const a = easeOut(prog(t, END_T0 + a0, END_T0 + a0 + 0.5)); $(id).style.opacity = a; $(id).style.transform = `translateY(${(1 - a) * 24}px)`; };
+  step('eTitle', 0.15); step('eTag', 0.3);
+  const la = easeOut(prog(t, END_T0, END_T0 + 0.6));
+  $('eLogo').style.transform = `scale(${0.75 + 0.25 * la})`;
+  const fa = easeBack(prog(t, END_T0 + 0.45, END_T0 + 0.9));
+  $('eFree').style.opacity = clamp(fa); $('eFree').style.transform = `scale(${0.6 + 0.4 * fa})`;
+  await Promise.all(jobs);
+}
+window.render = render;
+window.DURATION = END;
+</script>
+</body>
+</html>
