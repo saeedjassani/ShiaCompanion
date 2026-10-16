@@ -175,7 +175,7 @@ void main() {
         (tester) async {
       await pumpLauncher(
         tester,
-        (context) => lookUpCityFlow(context, date: DateTime(2026, 10, 16)),
+        (context) => lookUpCityFlow(context, date: DateTime(2025, 10, 17)),
       );
       expect(find.text('Another city'), findsOneWidget);
       expect(find.text('Use my current location'), findsNothing);
@@ -184,8 +184,8 @@ void main() {
       await pick(tester, 'karb', 'Iraq');
 
       expect(find.byType(AlertDialog), findsNothing);
-      expect(find.text('Friday 16 October'), findsOneWidget);
-      expect(find.text(fajrOnCityClock(karbala, DateTime(2026, 10, 16))),
+      expect(find.text('Friday 17 October'), findsOneWidget);
+      expect(find.text(fajrOnCityClock(karbala, DateTime(2025, 10, 17))),
           findsOneWidget);
       expect(find.text('Today in Karbala'), findsOneWidget);
       expect(service.isManual, isFalse);
