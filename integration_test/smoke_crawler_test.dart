@@ -217,8 +217,10 @@ void main() {
               reason: 'Exception thrown when scrolling "$section"');
         }
 
-        // Navigate back to All features
-        await goBack(tester);
+        // Navigate back to All features - unless nothing was opened over
+        // it: some features only do something (Play Azan plays the azan),
+        // and Back would then leave All features itself.
+        if (!allFeaturesIsCurrent()) await goBack(tester);
         final returned = await pumpUntil(tester, allFeaturesIsCurrent);
         await settleBounded(tester, duration: const Duration(seconds: 1));
 
