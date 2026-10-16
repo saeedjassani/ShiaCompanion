@@ -1,4 +1,11 @@
 {
+  "A4": [
+    {
+      "file": "ayat_al-kursi_shakernejad_96k.mp3",
+      "label": "Ayat al-Kursi",
+      "reciter": "Hamed Shakernejad"
+    }
+  ],
   "A5": [
     {
       "file": "quran/shakernejad/surah-001.mp3",
@@ -1137,6 +1144,83 @@
     {
       "file": "ziyarat_imam_mahdi_friday_96k.mp3",
       "label": "Ziarat of Imam Mahdi (ajtfs)"
+    }
+  ],
+  "J4": [
+    {
+      "file": "dua_friday_abather_96k.mp3",
+      "label": "The Supplication of Friday",
+      "reciter": "Abather Alhalwachi"
+    }
+  ],
+  "K1": [
+    {
+      "file": "dua_saturday_abather_96k.mp3",
+      "label": "The Supplication of Saturday",
+      "reciter": "Abather Alhalwachi"
+    }
+  ],
+  "K3": [
+    {
+      "file": "ziyarat_saturday_ali_fani_96k.mp3",
+      "label": "Ziyarat on Saturday",
+      "reciter": "Ali Fani"
+    }
+  ],
+  "L1": [
+    {
+      "file": "dua_sunday_abather_96k.mp3",
+      "label": "The Supplication of Sunday",
+      "reciter": "Abather Alhalwachi"
+    }
+  ],
+  "M1": [
+    {
+      "file": "dua_monday_abather_96k.mp3",
+      "label": "The Supplication of Monday",
+      "reciter": "Abather Alhalwachi"
+    }
+  ],
+  "M3": [
+    {
+      "file": "ziyarat_monday_abather_96k.mp3",
+      "label": "Ziyarat on Monday",
+      "reciter": "Abather Alhalwachi"
+    }
+  ],
+  "N1": [
+    {
+      "file": "dua_tuesday_abather_96k.mp3",
+      "label": "The Supplication of Tuesday",
+      "reciter": "Abather Alhalwachi"
+    }
+  ],
+  "N3": [
+    {
+      "file": "ziyarat_tuesday_abather_96k.mp3",
+      "label": "Ziyarat on Tuesday",
+      "reciter": "Abather Alhalwachi"
+    }
+  ],
+  "O3": [
+    {
+      "file": "ziyarat_wednesday_abather_96k.mp3",
+      "label": "Ziyarat on Wednesday",
+      "reciter": "Abather Alhalwachi"
+    }
+  ],
+  "Q1": [
+    {
+      "file": "dua_thursday_abather_96k.mp3",
+      "label": "The Supplication of Thursday",
+      "reciter": "Abather Alhalwachi"
+    }
+  ],
+  "Q3": [
+    {
+      "file": "ziyarat_thursday_abather_96k.mp3",
+      "label": "Ziyarat on Thursday",
+      "reciter": "Abather Alhalwachi"
     }
   ],
   "R1": [
