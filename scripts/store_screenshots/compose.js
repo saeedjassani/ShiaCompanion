@@ -3,6 +3,7 @@
 //
 //   fan   - two devices fanned out, e.g. the same screen in light and dark
 //   fan3  - three devices, the middle one in front
+//   row   - three devices side by side, nothing hidden, the middle one raised
 //   tilt  - one device turned in 3D, with feature callouts beside it
 //
 // Slides are laid out on a design canvas DW px wide (1320 for phones, 2064 for
@@ -134,6 +135,20 @@ function page(slide, t) {
     const l = device(pre(0), side, kind, `left:${DW * 0.005}px;top:${top}px;transform:rotate(-9deg)`);
     const r = device(pre(2), side, kind, `right:${DW * 0.005}px;top:${top}px;transform:rotate(9deg)`);
     devices = l.html + r.html + mid.html;
+  } else if (slide.layout === 'row') {
+    // Each device can carry a label pill above it (slide.labels).
+    const gap = DW * 0.02;
+    const w = Math.min((DW - gap * 4) / 3, avail * (tablet ? 0.32 : 0.42));
+    const lift = avail * 0.09;
+    const label = slide.labels ? u * (tablet ? 5 : 8) : 0;
+    const top = centre(tall(0, w) + lift + label) + label;
+    const x0 = (DW - (w * 3 + gap * 2)) / 2;
+    devices = [0, 1, 2].map((i) => {
+      const y = top + (i === 1 ? 0 : lift);
+      const tag = slide.labels ? `<div class="tag" style="left:${x0 + i * (w + gap)}px;width:${w}px;
+        top:${y - label}px;height:${label}px">${slide.labels[i]}</div>` : '';
+      return tag + device(pre(i), w, kind, `left:${x0 + i * (w + gap)}px;top:${y}px`).html;
+    }).join('');
   } else if (slide.layout === 'tilt') {
     const w = Math.min(DW * (tablet ? 0.8 : 0.7), avail * (tablet ? 0.68 : 0.5));
     const left = (DW - w) / 2 + DW * 0.05;
@@ -164,6 +179,8 @@ function page(slide, t) {
   .pill{position:absolute;z-index:4;background:rgba(255,255,255,.95);color:#4a2c22;border-radius:${u * 2.6}px;
         padding:${u * 2}px ${u * 2.8}px;font-size:${u * (tablet ? 2.3 : 3.7)}px;font-weight:700;
         box-shadow:0 ${u * 1.6}px ${u * 4.2}px rgba(0,0,0,.28);max-width:${u * 56}px}
+  .tag{position:absolute;display:flex;align-items:center;justify-content:center;color:#fff;
+       font-size:${u * (tablet ? 2.4 : 3.8)}px;font-weight:700;letter-spacing:.01em}
   .pill small{display:block;font-size:.72em;font-weight:400;color:#8a6a5c;margin-top:${u * 0.4}px}
   </style></head><body>
   <div class="glow"></div>

@@ -10,9 +10,10 @@ const PHONE = [
    caption: 'Prayer times, duas\nand Quran in one app'},
   {name: '02-reader', layout: 'tilt', shots: ['read-l'],
    caption: 'Read and understand\nevery dua',
-   callouts: [['Arabic + translation', 'Line by line'], ['Transliteration', 'Switch it on in Text'],
+   callouts: [['Arabic + translation', 'Line by line'], ['Bookmark a line', 'Pick up where you left off'],
               ['Auto-scroll', 'Hands-free reading']]},
-  {name: '03-languages', layout: 'fan3', shots: ['home-ur', 'home-ar', 'home-gu'],
+  {name: '03-languages', layout: 'row', shots: ['home-ur', 'home-ar', 'home-gu'],
+   labels: ['اردو', 'العربية', 'ગુજરાતી'],
    caption: 'Now in Urdu, Persian,\nArabic and Gujarati'},
   {name: '04-quran', layout: 'tilt', shots: ['quran-d'],
    caption: 'The Quran, with\nyour own Khatm',
@@ -25,15 +26,17 @@ const PHONE = [
    callouts: [['Daily streaks', null], ['Zikrs, verses, qaza', 'Week, month, all time']]},
   {name: '07-calendar', layout: 'tilt', shots: ['calendar-d'],
    caption: 'Hijri dates from the\nmoon where you are',
-   callouts: [['Islamic events', 'Joyful and mourning days'], ['Prayer times', 'For any day, any city']]},
-  {name: '08-tools', layout: 'fan3', shots: ['qibla-d', 'tasbeeh-l', 'qaza-d'],
+   callouts: [['Islamic events', null], ['Prayer times', 'For any day, any city']]},
+  {name: '08-tools', layout: 'row', shots: ['qibla-d', 'tasbeeh-l', 'qaza-d'],
+   labels: ['Qibla', 'Tasbeeh', 'Qaza'],
    caption: 'Qibla, tasbeeh and\nqaza tracker'},
 ];
 // The App Store takes ten; Play stops at eight.
 const PHONE_EXTRA = [
   {name: '09-urdu-duas', layout: 'tilt', shots: ['read-ur-d'],
    caption: 'Famous duas, translated\ninto Urdu',
-   callouts: [['Kumayl, Nudba, Tawassul', 'Ziyarat Ashura, Hadith al-Kisa…'], ['Gujarati too', 'Dua Kumayl']]},
+   callouts: [['Kumayl, Nudba, Tawassul', 'Ziyarat Ashura, Hadith al-Kisa…'], ['Gujarati too', 'Dua Kumayl'],
+              ['Missing one?', 'Request its translation in the app']]},
 ];
 
 // Tablets have no Home slide: on the web build Home carries a "Get the app"
@@ -45,7 +48,7 @@ const TABLET = [
    callouts: [['Translated', 'English, Urdu, Persian, Gujarati'], ['Notes on any verse', null],
               ['Track every Khatm', null]]},
   {name: '03-calendar', layout: 'tilt', shots: ['calendar-d'], caption: 'Hijri dates from the\nmoon where you are',
-   callouts: [['Islamic events', 'Joyful and mourning days'], ['Prayer times', 'For any day, any city']]},
+   callouts: [['Islamic events', null], ['Prayer times', 'For any day, any city']]},
   {name: '04-stats', layout: 'tilt', shots: ['stats-l'], caption: 'Keep up your\ndaily recitation',
    callouts: [['Daily streaks', null], ['Zikrs, verses, qaza', null]]},
   {name: '05-listen', layout: 'tilt', shots: ['playlists-l'], caption: 'Listen to duas,\nor a whole playlist',
