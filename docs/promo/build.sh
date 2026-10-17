@@ -35,7 +35,7 @@ m = np.percentile(r, 98)
 open('env.js', 'w').write('window.ENV=' + json.dumps([round(min(1, x / m), 3) for x in r]) + ';')"
 
 node render.js "$PWD/promo.html" video silent.mp4
-DUR=$(node -e "console.log(require('fs').readFileSync('promo.html','utf8').match(/END = ([0-9.]+)/)[1])")
+DUR=$(ffprobe -v error -show_entries format=duration -of csv=p=0 silent.mp4)
 "$FFMPEG" -v error -y -i silent.mp4 -i kumayl.mp3 -filter_complex \
   "[1:a]atrim=0:$DUR,asetpts=PTS-STARTPTS,loudnorm=I=-16:TP=-1.5:LRA=11,afade=t=in:d=0.3,afade=t=out:st=$(python3 -c "print($DUR-3.7)"):d=3.7[a]" \
   -map 0:v -map "[a]" -c:v copy -c:a aac -b:a 160k -ar 48000 -shortest -movflags +faststart shia-companion-promo.mp4
@@ -52,7 +52,7 @@ echo "wrote docs/promo/shia-companion-promo-whatsapp.mp4"
 
 # App Store preview: 886x1920 (6.5"/6.9" iPhone), 29.5 s, stereo AAC.
 node render.js "$PWD/store.html" video silent.mp4
-DUR=$(node -e "console.log(require('fs').readFileSync('store.html','utf8').match(/END = ([0-9.]+)/)[1])")
+DUR=$(ffprobe -v error -show_entries format=duration -of csv=p=0 silent.mp4)
 "$FFMPEG" -v error -y -i silent.mp4 -i kumayl.mp3 -filter_complex \
   "[1:a]atrim=0:$DUR,asetpts=PTS-STARTPTS,loudnorm=I=-16:TP=-1.5:LRA=11,afade=t=in:d=0.3,afade=t=out:st=$(python3 -c "print($DUR-1.5)"):d=1.5[a]" \
   -map 0:v -map "[a]" -c:v libx264 -profile:v high -level 4.0 -pix_fmt yuv420p -crf 16 -preset slow -r 30 \

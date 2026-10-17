@@ -15,3 +15,18 @@ function quranSeed(today = new Date()) {
   return {entries, labels: []};
 }
 module.exports = {quranSeed};
+
+// A qaza tracker partway through making up a few years of prayers (same source).
+function qazaSeed() {
+  const e = (remaining, completed) => ({remaining, completed});
+  return {fajr: e(212, 38), dhuhr: e(181, 69), asr: e(181, 69), maghrib: e(176, 74),
+          isha: e(177, 73), namaz_e_ayat: e(3, 1), other: e(0, 0), fast: e(28, 2)};
+}
+module.exports.qazaSeed = qazaSeed;
+
+// localStorage entries for a clip's or shot's `seed` list. shared_preferences on
+// the web keeps each value JSON-encoded under a `flutter.` prefix, and these
+// values are themselves JSON strings.
+const SEEDS = {quran: ['recitation_tracker_guest', quranSeed], qaza: ['qaza_tracker_guest', qazaSeed]};
+module.exports.seedEntries = (names) => (names === true ? ['quran'] : names || [])
+  .map((n) => ['flutter.' + SEEDS[n][0], JSON.stringify(JSON.stringify(SEEDS[n][1]()))]);

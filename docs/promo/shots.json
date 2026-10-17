@@ -1,13 +1,26 @@
 [
  {
-  "name": "home_loc",
+  "name": "qaza",
   "path": "/",
+  "seed": [
+   "qaza"
+  ],
   "wait": 8000,
   "taps": [
    [
     195,
     242,
-    9000
+    12000
+   ],
+   [
+    326,
+    645,
+    3000
+   ],
+   [
+    195,
+    570,
+    5000
    ]
   ]
  },
@@ -37,6 +50,71 @@
     "eval",
     "(() => { const a = 341; const fire = () => { for (const type of ['deviceorientationabsolute', 'deviceorientation']) { const e = new Event(type); Object.defineProperties(e, { absolute: {value: true}, alpha: {value: a}, beta: {value: 2}, gamma: {value: -1}, webkitCompassHeading: {value: (360 - a) % 360}, webkitCompassAccuracy: {value: 10} }); window.dispatchEvent(e); } }; fire(); setInterval(fire, 120); })()",
     4000
+   ]
+  ]
+ },
+ {
+  "name": "lang_en",
+  "path": "/",
+  "locale": "en-GB",
+  "wait": 9000,
+  "taps": [
+   [
+    195,
+    242,
+    15000
+   ]
+  ]
+ },
+ {
+  "name": "lang_ur",
+  "path": "/",
+  "locale": "ur",
+  "wait": 9000,
+  "taps": [
+   [
+    195,
+    242,
+    15000
+   ]
+  ]
+ },
+ {
+  "name": "lang_fa",
+  "path": "/",
+  "locale": "fa",
+  "wait": 9000,
+  "taps": [
+   [
+    195,
+    242,
+    15000
+   ]
+  ]
+ },
+ {
+  "name": "lang_ar",
+  "path": "/",
+  "locale": "ar",
+  "wait": 9000,
+  "taps": [
+   [
+    195,
+    242,
+    15000
+   ]
+  ]
+ },
+ {
+  "name": "lang_gu",
+  "path": "/",
+  "locale": "gu",
+  "wait": 9000,
+  "taps": [
+   [
+    195,
+    242,
+    15000
    ]
   ]
  }

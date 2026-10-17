@@ -1,12 +1,17 @@
 const { chromium } = require(require('path').join(__dirname, '../../test_visual/node_modules/playwright'));
 const out = process.argv[2];
-const plan = JSON.parse(process.argv[3]);   // [{name, path, taps:[[x,y],..], scroll, wait}]
+const plan = JSON.parse(process.argv[3]);   // [{name, path, seed?, locale?, taps:[[x,y],..], scroll, wait}]
 (async () => {
   const b = await chromium.launch({executablePath: process.env.CHROMIUM_PATH || undefined, args:['--ignore-certificate-errors']});
   const ctx = await b.newContext({ ignoreHTTPSErrors: true, viewport: { width: 390, height: 844 }, deviceScaleFactor: 2,
     geolocation: { latitude: 51.5072, longitude: -0.1276 }, permissions: ['geolocation'], timezoneId: 'Europe/London' });
   for (const s of plan) {
-    const p = await ctx.newPage();
+    // A UI language means its own context: the app follows the device locale
+    // until a language is picked in Settings.
+    const own = s.locale && await b.newContext({ ignoreHTTPSErrors: true, viewport: { width: 390, height: 844 }, deviceScaleFactor: 2,
+      geolocation: { latitude: 51.5072, longitude: -0.1276 }, permissions: ['geolocation'], timezoneId: 'Europe/London', locale: s.locale });
+    const p = await (own || ctx).newPage();
+    if (s.seed) await p.addInitScript(es => es.forEach(([k, v]) => localStorage.setItem(k, v)), require('./demo_data').seedEntries(s.seed));
     await p.goto('http://127.0.0.1:4173' + (s.path || '/'));
     await p.waitForSelector('#app-loading', {state:'detached', timeout: 60000}).catch(()=>{});
     await p.waitForTimeout(s.wait || 5000);
@@ -20,6 +25,7 @@ const plan = JSON.parse(process.argv[3]);   // [{name, path, taps:[[x,y],..], sc
     await p.mouse.move(170, 28); await p.waitForTimeout(1800);
     await p.screenshot({ path: `${out}/${s.name}.png` });
     await p.close();
+    if (own) await own.close();
   }
   await b.close();
 })();
