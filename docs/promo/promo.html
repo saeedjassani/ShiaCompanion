@@ -142,7 +142,7 @@
     <div id="oFree" style="margin-top:60px"><span class="free">100% FREE</span></div>
     <div id="oCta" style="margin-top:70px">
       <div class="badges"><img src="shots/appstore.svg"><img src="shots/gplay_c.png"></div>
-      <div class="url" style="margin-top:50px">shia-companion.web.app</div>
+      <div class="url" style="margin-top:50px">shiacompanion.app</div>
     </div>
   </div>
 </div>
@@ -169,20 +169,23 @@ const shots = [
   { clip: 'listen', t0: 32.4, t1: 36.2, from: 4, speed: 1.0 },
   // The phone switches to dark mode after clip frame 95; frames 96-101 are washed-out
   // in-between paint, so `soft` skips them and crossfades the last light frame into the first dark one.
-  { clip: 'dark',   t0: 36.2, t1: 40.4, from: 6, speed: 1.0, soft: { pre: 95, frame: 102, d: 0.5 } },
+  { clip: 'dark',   t0: 36.2, t1: 41.4, from: 6, speed: 1.0, soft: { pre: 95, frame: 102, d: 0.5 } },
   // one take: Home's prayer card, then Continue opens the Quran at verse 120, then the verse sheet
-  { clip: 'home',   t0: 40.4, t1: 49.6, from: 3, speed: 1.0, dark: true },
+  { clip: 'home',   t0: 41.4, t1: 50.6, from: 3, speed: 1.0, dark: true },
+  // the Quran tab with three Khatms: swipe the row, open Family Khatm where it left off
+  { clip: 'khatms', t0: 50.6, t1: 54.8, from: 6, speed: 1.15 },
 ];
 const caps = [
   { t0: 18.9, t1: 24.0, h: 'Read along, line by line', p: 'Arabic · translation · transliteration' },
   { t0: 24.2, t1: 28.4, h: 'Choose your script', p: 'Two Arabic fonts, beautifully typeset', chips: ['Qalam (IndoPak)', 'Scheherazade'] },
   { t0: 28.6, t1: 32.4, h: 'Auto-scroll', p: 'Hands-free, at your own pace' },
   { t0: 32.6, t1: 36.2, h: 'Hear it recited', p: 'Audio built in, like the recitation you hear now' },
-  { t0: 36.4, t1: 40.4, h: 'Easy on the eyes at night', p: 'Dark mode follows your phone' },
-  { t0: 40.6, t1: 45.1, h: 'Prayer times', p: 'Countdown to the next prayer · upcoming events' },
-  { t0: 45.3, t1: 49.6, h: 'Pick up where you left off', p: 'Your Khatm reopens at the very verse' },
-  { t0: 50.2, t1: 54.4, h: 'And so much more', p: 'Qaza tracker · Hijri calendar · Qibla' },
-  { t0: 54.6, t1: 58.0, h: 'In five languages', p: 'Every screen, in your language' },
+  { t0: 36.4, t1: 41.4, h: 'Easy on the eyes at night', p: 'Dark mode follows your phone' },
+  { t0: 41.6, t1: 46.1, h: 'Prayer times', p: 'Countdown to the next prayer · upcoming events' },
+  { t0: 46.3, t1: 50.6, h: 'Pick up where you left off', p: 'Your Khatm reopens at the very verse' },
+  { t0: 50.8, t1: 54.8, h: 'Keep several Khatms', p: 'One for you, one with family, one for Ramazan' },
+  { t0: 55.4, t1: 59.6, h: 'And so much more', p: 'Qaza tracker · Hijri calendar · Qibla' },
+  { t0: 59.8, t1: 64.0, h: 'In five languages', p: 'Every screen, in your language' },
 ];
 // camera: [t, scale, tx, ty, rotY, rotX]; phone transform relative to its resting place
 const cam = [
@@ -198,17 +201,21 @@ const cam = [
   [33.0, 0.88, 0, -90, 5, 1],     // listen: step back to make room for the waveform
   [35.8, 0.88, 0, -90, 0, 0],
   [36.8, 1.0, 0, 0, -4, 2],       // dark mode
-  [38.6, 1.06, 0, 30, 0, 0],
-  [40.2, 1.0, 0, 0, 3, 2],
-  [41.2, 1.15, 0, 160, 0, 0],     // Home: the prayer card
-  [44.6, 1.15, 0, 160, 0, 0],
-  [45.4, 1.0, 0, 0, -3, 2],       // the Quran, resumed
-  [47.2, 1.0, 0, 0, 2, 2],
-  [48.0, 1.1, 0, -180, 0, 0],     // the verse sheet
-  [49.6, 1.1, 0, -180, 0, 0],
-  [50.6, 0.9, 0, 200, 0, 0],
+  [39.4, 1.06, 0, 30, 0, 0],
+  [41.2, 1.0, 0, 0, 3, 2],
+  [42.2, 1.15, 0, 160, 0, 0],     // Home: the prayer card
+  [45.6, 1.15, 0, 160, 0, 0],
+  [46.4, 1.0, 0, 0, -3, 2],       // the Quran, resumed
+  [48.2, 1.0, 0, 0, 2, 2],
+  [49.0, 1.1, 0, -180, 0, 0],     // the verse sheet
+  [50.4, 1.1, 0, -180, 0, 0],
+  [51.2, 1.15, 0, 300, 0, 0],     // the Khatm cards along the top
+  [52.9, 1.15, 0, 300, 0, 0],
+  [53.7, 1.0, 0, 0, 3, 2],        // Al-Kahf, where the Family Khatm left off
+  [54.8, 1.0, 0, 0, 0, 2],
+  [55.8, 0.9, 0, 200, 0, 0],
 ];
-const PHONE_IN = 16.2, PHONE_OUT = 49.8, FAN_IN = 50.2, LANGS_IN = 54.4, OUTRO_IN = 58.0, END = 64.3;
+const PHONE_IN = 16.2, PHONE_OUT = 55.0, FAN_IN = 55.4, LANGS_IN = 59.6, OUTRO_IN = 64.0, END = 70.3;
 const LANGS = [['en', 'English'], ['ur', 'اردو'], ['gu', 'ગુજરાતી'], ['ar', 'العربية'], ['fa', 'فارسی']];
 const darkShot = shots.find(s => s.soft);
 const DARK_T = darkShot.t0 + (darkShot.soft.pre + 1 - darkShot.from) / FPS / darkShot.speed;
@@ -426,7 +433,7 @@ async function render(t) {
       });
     }
   });
-  $('capScrim').style.opacity = scrim * (t > 24 && t < 49.6 ? 1 : 0.4);
+  $('capScrim').style.opacity = scrim * (t > 24 && t < 54.8 ? 1 : 0.4);
 
   // fan of other features
   fanShots.forEach((_, i) => {

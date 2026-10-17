@@ -27,6 +27,13 @@
   .chip { display: inline-block; padding: 8px 26px; margin: 16px 8px 0; border-radius: 40px; font-size: 26px; font-weight: 600;
           border: 2px solid rgba(232,199,122,.45); color: rgba(243,223,174,.7); }
   .chip.on { background: var(--gold); color: #3a241d; border-color: var(--gold); box-shadow: 0 0 30px rgba(232,199,122,.45); }
+  #langs { position: absolute; inset: 0; display: none; }
+  .ltile { position: absolute; top: 470px; width: 430px; }
+  .ltile .crop { width: 430px; height: 931px; border-radius: 40px; overflow: hidden; background: #f8f5f0;
+                 box-shadow: 0 30px 70px rgba(0,0,0,.55), 0 0 0 2px rgba(232,199,122,.35); }
+  .ltile img { width: 430px; display: block; }
+  .ltile .nm { position: absolute; left: 50%; bottom: -72px; transform: translateX(-50%); white-space: nowrap; padding: 4px 28px;
+               border-radius: 30px; background: var(--gold); color: #3a241d; font-size: 32px; font-weight: 600; }
   #end { position: absolute; inset: 0; text-align: center; padding-top: 560px; opacity: 0;
          background: radial-gradient(ellipse 120% 80% at 50% 40%, #5a372b 0%, #37221b 50%, #140c0a 100%); }
   .logo { width: 250px; height: 250px; border-radius: 56px; box-shadow: 0 30px 80px rgba(0,0,0,.55), 0 0 0 2px rgba(232,199,122,.35); }
@@ -50,6 +57,7 @@
     <div id="taps"></div>
     <div id="sheen"></div>
   </div>
+  <div id="langs"></div>
   <div id="end">
     <img id="eLogo" class="logo" src="logo.png">
     <div id="eTitle" class="title">Shia Companion</div>
@@ -70,41 +78,50 @@ const $ = id => document.getElementById(id);
 
 // ---- timeline ------------------------------------------------------------
 const shots = [
-  { clip: 'scroll', t0: 0.0,  t1: 3.4,  from: 0, hold: 0.4, speed: 1.4 },
-  { clip: 'font',   t0: 3.4,  t1: 6.6,  from: 6, speed: 1.3 },
-  { clip: 'auto',   t0: 6.6,  t1: 9.4,  from: 9, speed: 1.8 },
-  { clip: 'listen', t0: 9.4,  t1: 11.9, from: 4, speed: 1.2 },
+  { clip: 'scroll', t0: 0.0,  t1: 3.0,  from: 0, hold: 0.4, speed: 1.5 },
+  { clip: 'font',   t0: 3.0,  t1: 5.9,  from: 6, speed: 1.45 },
+  { clip: 'auto',   t0: 5.9,  t1: 8.3,  from: 9, speed: 2.0 },
+  { clip: 'listen', t0: 8.3,  t1: 10.4, from: 4, speed: 1.4 },
   // dark mode: frames 96-101 are a washed-out in-between paint, skipped and crossfaded (see promo.html)
-  { clip: 'dark',   t0: 11.9, t1: 14.9, from: 45, speed: 1.2, soft: { pre: 95, frame: 102, d: 0.45 } },
+  { clip: 'dark',   t0: 10.4, t1: 13.4, from: 45, speed: 1.2, soft: { pre: 95, frame: 102, d: 0.45 } },
   // one take: Home's prayer card, Continue opens the Quran at verse 120, then the verse sheet
-  { clip: 'home',   t0: 14.9, t1: 21.5, from: 3, speed: 1.38 },
+  { clip: 'home',   t0: 13.4, t1: 20.0, from: 3, speed: 1.38 },
+  // three Khatms on the Quran tab; Family Khatm opens where it left off
+  { clip: 'khatms', t0: 20.0, t1: 22.6, from: 15, speed: 1.75 },
 ];
-// stills after the clips, each [image, seconds]; the five languages go by quickly under one caption
-const LANGS = ['en', 'ur', 'fa', 'ar', 'gu'];
-const stills = [['qaza', 1.6], ['calendar', 1.6], ['qibla', 1.6], ...LANGS.map(l => ['lang_' + l, 0.44])];
-const STILLS_T0 = 21.5;
+// stills after the clips, each [image, seconds]
+const stills = [['qaza', 1.5], ['calendar', 1.5]];
+const STILLS_T0 = 22.6;
 let acc = STILLS_T0;
 stills.forEach(st => { st.t0 = acc; acc += st[1]; st.t1 = acc; });
-const END_T0 = acc, END = END_T0 + 1.3;
+// then the UI languages: whole Home screens, two per frame (English is on screen all along)
+const LANGS = [['ur', 'اردو'], ['gu', 'ગુજરાતી'], ['ar', 'العربية'], ['fa', 'فارسی']];
+const LANGS_IN = acc, LANG_FRAME = 1.6, END_T0 = LANGS_IN + 2 * LANG_FRAME, END = END_T0 + 1.0;
 const darkShot = shots.find(s => s.soft);
 const DARK_T = darkShot.t0 + (darkShot.soft.pre + 1 - darkShot.from) / FPS / darkShot.speed;
 const homeShot = shots.find(s => s.clip === 'home');
 const CONTINUE_T = homeShot.t0 + (TAPS.home[0].t - homeShot.from / FPS) / homeShot.speed;
 const caps = [
-  { t0: 0.0,  t1: 3.4,  h: 'Read along', p: 'Arabic · translation · transliteration' },
-  { t0: 3.4,  t1: 6.6,  h: 'Choose your script', chips: ['Qalam (IndoPak)', 'Scheherazade'] },
-  { t0: 6.6,  t1: 9.4,  h: 'Auto-scroll', p: 'Hands-free, at your own pace' },
-  { t0: 9.4,  t1: 11.9, h: 'Hear it recited', p: 'Audio built into every dua' },
-  { t0: 11.9, t1: 14.9, h: 'Dark mode', p: 'Follows your phone at night' },
-  { t0: 14.9, t1: CONTINUE_T, h: 'Prayer times', p: 'Next-prayer countdown · upcoming events' },
-  { t0: CONTINUE_T, t1: 21.5, h: 'Resume your Khatm', p: 'Right where you left off' },
+  { t0: 0.0,  t1: 3.0,  h: 'Read along', p: 'Arabic · translation · transliteration' },
+  { t0: 3.0,  t1: 5.9,  h: 'Choose your script', chips: ['Qalam (IndoPak)', 'Scheherazade'] },
+  { t0: 5.9,  t1: 8.3,  h: 'Auto-scroll', p: 'Hands-free, at your own pace' },
+  { t0: 8.3,  t1: 10.4, h: 'Hear it recited', p: 'Audio built into every dua' },
+  { t0: 10.4, t1: 13.4, h: 'Dark mode', p: 'Follows your phone at night' },
+  { t0: 13.4, t1: CONTINUE_T, h: 'Prayer times', p: 'Next-prayer countdown · upcoming events' },
+  { t0: CONTINUE_T, t1: 20.0, h: 'Resume your Khatm', p: 'Right where you left off' },
+  { t0: 20.0, t1: 22.6, h: 'Keep several Khatms', p: 'For you, your family, Ramazan' },
   { t0: stills[0].t0, t1: stills[0].t1, h: 'Qaza tracker', p: 'Make up missed prayers and fasts' },
   { t0: stills[1].t0, t1: stills[1].t1, h: 'Hijri calendar', p: 'Every Islamic date and event' },
-  { t0: stills[2].t0, t1: stills[2].t1, h: 'Qibla finder', p: 'Pointing you to the Kaaba' },
-  { t0: stills[3].t0, t1: END_T0, h: 'In five languages', p: 'English · <bdi>اردو</bdi> · <bdi>فارسی</bdi> · <bdi>العربية</bdi> · ગુજરાતી', last: true },
+  { t0: LANGS_IN, t1: END_T0, h: 'In five languages', p: 'Every screen, in your language' },
 ];
 
 // ---- build ---------------------------------------------------------------
+LANGS.forEach(([c, l], i) => {
+  const d = document.createElement('div');
+  d.className = 'ltile'; d.id = 'lang' + i; d.style.left = (i % 2 ? 444 : 12) + 'px';
+  d.innerHTML = `<div class="crop"><img src="shots/lang_${c}.png"></div><div class="nm"><bdi>${l}</bdi></div>`;
+  $('langs').appendChild(d);
+});
 const split = s => s.split(' ').map(w => `<span>${w} </span>`).join('');
 caps.forEach((c, i) => {
   const d = document.createElement('div');
@@ -209,6 +226,19 @@ async function render(t) {
       });
     }
   });
+  // UI languages: the app screen gives way to two whole Home screens per frame
+  const inL = t >= LANGS_IN - 0.3 && t < END_T0 + 0.4;
+  $('langs').style.display = inL ? 'block' : 'none';
+  $('screen').style.opacity = 1 - ease(prog(t, LANGS_IN - 0.3, LANGS_IN));
+  LANGS.forEach((_, i) => {
+    const f0 = LANGS_IN + (i < 2 ? 0 : LANG_FRAME), f1 = f0 + LANG_FRAME;
+    const a = easeBack(prog(t, f0 - 0.15 + (i % 2) * 0.1, f0 + 0.35 + (i % 2) * 0.1));
+    const o = i < 2 ? ease(prog(t, f1 - 0.25, f1)) : 0;
+    $('lang' + i).style.display = t > f0 - 0.3 && t < f1 + 0.05 ? 'block' : 'none';
+    $('lang' + i).style.opacity = clamp(a * 2) * (1 - o);
+    $('lang' + i).style.transform = `translateY(${(1 - a) * 50 - o * 30}px) scale(${0.95 + 0.05 * a})`;
+  });
+
   // end card
   const e = ease(prog(t, END_T0, END_T0 + 0.35));
   $('end').style.opacity = e;

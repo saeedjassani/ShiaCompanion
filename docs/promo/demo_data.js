@@ -12,7 +12,18 @@ function quranSeed(today = new Date()) {
     const id = `seed${i}`;
     entries[id] = {id, label: 'Unlabeled', recitedAt: d.toISOString(), surah, fromAyah, toAyah};
   });
-  return {entries, labels: []};
+  // Two more Khatms kept alongside it, so the Quran tab shows several tracks:
+  // one shared with family (into Al-Kahf), one for Ramazan (through Al-An'am).
+  const extra = [['Family Khatm', [[2, 1, 286], [3, 1, 200], [4, 1, 176], [5, 1, 120], [6, 1, 165], [7, 1, 206], [8, 1, 75],
+                                   [9, 1, 129], [10, 1, 109], [11, 1, 123], [12, 1, 111], [13, 1, 43], [14, 1, 52],
+                                   [15, 1, 99], [16, 1, 128], [17, 1, 111], [18, 1, 60]]],
+                 ['Ramazan', [[1, 1, 7], [2, 1, 286], [3, 1, 200], [4, 1, 176], [5, 1, 120], [6, 1, 165]]]];
+  extra.forEach(([label, ranges], k) => ranges.forEach(([surah, fromAyah, toAyah], i) => {
+    const d = new Date(today); d.setDate(d.getDate() - (ranges.length - i) * 2 - k); d.setHours(21, 30);
+    const id = `seed${k}x${i}`;
+    entries[id] = {id, label, recitedAt: d.toISOString(), surah, fromAyah, toAyah};
+  }));
+  return {entries, labels: extra.map(([label]) => label)};
 }
 module.exports = {quranSeed};
 

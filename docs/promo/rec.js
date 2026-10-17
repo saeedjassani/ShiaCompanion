@@ -4,6 +4,7 @@
 //   quran; dark: phone in dark mode), action one of
 //     {wait:ms} {reload:settleMs, url} {tap:[x,y]} {wheel:dy, ms} {drag:[x1,y1,x2,y2], ms} {move:[x,y]}
 //     {scheme:'dark'|'light'} (the phone's theme changes; the app follows it live)
+//     {wheelX:dx, ms, at:[x,y]} (horizontal swipe of a carousel)
 // Each clip runs in a fresh browser context, so app preferences start at defaults.
 // Output: <outDir>/<name>/raw_NNNN.jpg + frames.txt (ffconcat timings) + taps.json ({t, x, y} in seconds / logical px).
 const path = require('path');
@@ -123,6 +124,17 @@ async function run(p, a, K, onTap) {
     onTap(...a.tap);
     await p.mouse.move(...a.tap);
     await p.mouse.down(); await sleep(70 * K); await p.mouse.up();
+    return;
+  }
+  if (a.wheelX !== undefined) {
+    // a horizontal swipe on a carousel: shift-free horizontal wheel steps at `at`
+    await p.mouse.move(...(a.at || [195, 500]));
+    const steps = Math.max(1, Math.round((a.ms || 1000) / 16));
+    for (let i = 0; i < steps; i++) {
+      const f = x => 0.5 - Math.cos(Math.PI * x) / 2;
+      await p.mouse.wheel((f((i + 1) / steps) - f(i / steps)) * a.wheelX, 0);
+      await sleep(16 * K);
+    }
     return;
   }
   if (a.wheel !== undefined) {
