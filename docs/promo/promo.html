@@ -71,12 +71,12 @@
 
   /* five languages: one phone cycling through the UI languages */
   #langs { position: absolute; inset: 0; opacity: 0; }
-  #langCard { opacity: 1; }
-  #langCard img { position: absolute; left: 12px; top: 58px; }
-  #langRow { position: absolute; left: 0; right: 0; top: 1640px; text-align: center; }
-  #langRow span { display: inline-block; margin: 0 12px; padding: 10px 24px; border-radius: 40px; font-size: 30px; font-weight: 500;
-                  color: rgba(243,223,174,.6); border: 2px solid rgba(232,199,122,.3); }
-  #langRow span.on { background: var(--gold); color: #3a241d; border-color: var(--gold); }
+  /* five tiles at once, each the top of Home (date header + prayer card) in one UI language */
+  .ltile { position: absolute; width: 480px; text-align: center; }
+  .ltile .crop { width: 480px; height: 424px; border-radius: 34px; overflow: hidden; background: #f8f5f0;
+                 box-shadow: 0 30px 70px rgba(0,0,0,.55), 0 0 0 2px rgba(232,199,122,.35); }
+  .ltile img { width: 480px; display: block; }
+  .ltile .nm { margin-top: 14px; font-size: 34px; font-weight: 500; color: var(--gold-soft); }
 
   /* outro */
   .logo { width: 250px; height: 250px; border-radius: 56px; box-shadow: 0 30px 80px rgba(0,0,0,.55), 0 0 0 2px rgba(232,199,122,.35); }
@@ -132,8 +132,6 @@
   <div id="caps"></div>
 
   <div id="langs">
-    <div id="langCard" class="card"><div class="in"><div class="bar"></div></div></div>
-    <div id="langRow" class="ml"></div>
   </div>
 
   <div id="outro">
@@ -226,10 +224,14 @@ caps.forEach((c, i) => {
   capWrap.appendChild(d);
 });
 const fanShots = [['qaza', 'Qaza tracker'], ['calendar', 'Hijri calendar'], ['qibla', 'Qibla']];
+// two, two, one; each tile 480 wide, rows 500 apart under the caption
+const LANG_POS = [[40, 370], [560, 370], [40, 870], [560, 870], [300, 1370]];
 LANGS.forEach(([c, l], i) => {
-  const img = document.createElement('img'); img.id = 'lang' + i; img.src = `shots/lang_${c}.png`; img.style.opacity = i ? 0 : 1;
-  $('langCard').appendChild(img);
-  const chip = document.createElement('span'); chip.id = 'langChip' + i; chip.textContent = l; $('langRow').appendChild(chip);
+  const d = document.createElement('div');
+  d.className = 'ltile ml'; d.id = 'lang' + i;
+  d.style.left = LANG_POS[i][0] + 'px'; d.style.top = LANG_POS[i][1] + 'px';
+  d.innerHTML = `<div class="crop"><img src="shots/lang_${c}.png"></div><div class="nm"><bdi>${l}</bdi></div>`;
+  $('langs').appendChild(d);
 });
 fanShots.forEach(([s, l], i) => {
   const d = document.createElement('div');
@@ -441,16 +443,10 @@ async function render(t) {
   const li = ease(prog(t, LANGS_IN - 0.1, LANGS_IN + 0.5)), lo = ease(prog(t, OUTRO_IN - 0.4, OUTRO_IN));
   $('langs').style.display = t > LANGS_IN - 0.2 && t < OUTRO_IN + 0.1 ? 'block' : 'none';
   $('langs').style.opacity = li * (1 - lo);
-  $('langCard').style.transform = `translateY(${90 + (1 - li) * 120}px) scale(${1.2 + 0.05 * prog(t, LANGS_IN, OUTRO_IN)})`;
-  const per = (OUTRO_IN - LANGS_IN - 0.4) / LANGS.length;
   LANGS.forEach((_, i) => {
-    const a = i === 0 ? 1 : ease(prog(t, LANGS_IN + 0.2 + i * per - 0.25, LANGS_IN + 0.2 + i * per));
-    $('lang' + i).style.opacity = a;
-    const on = t >= LANGS_IN + 0.2 + i * per - 0.12 && (i === LANGS.length - 1 || t < LANGS_IN + 0.2 + (i + 1) * per - 0.12);
-    $('langChip' + i).classList.toggle('on', on);
-    const ca = easeOut(prog(t, LANGS_IN + 0.1 + i * 0.08, LANGS_IN + 0.6 + i * 0.08));
-    $('langChip' + i).style.opacity = ca;
-    $('langChip' + i).style.transform = `translateY(${(1 - ca) * 20}px) scale(${on ? 1.06 : 1})`;
+    const a = easeBack(prog(t, LANGS_IN + 0.1 + i * 0.12, LANGS_IN + 0.7 + i * 0.12));
+    $('lang' + i).style.opacity = clamp(a * 2);
+    $('lang' + i).style.transform = `translateY(${(1 - a) * 60}px) scale(${0.92 + 0.08 * a})`;
   });
 
   // outro
