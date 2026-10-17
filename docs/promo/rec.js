@@ -1,7 +1,10 @@
 // Records a live interaction with the Flutter web build as a frame sequence.
 // usage: node rec.js <outDir> <clipsJson>
-//   clip: {name, path, seed?, actions:[...]} (seed: demo Quran reading history), action one of
+//   clip: {name, path, seed?, dark?, setup?, actions:[...]} (seed: demo history, ['quran', 'qaza'] or true for
+//   quran; dark: phone in dark mode), action one of
 //     {wait:ms} {reload:settleMs, url} {tap:[x,y]} {wheel:dy, ms} {drag:[x1,y1,x2,y2], ms} {move:[x,y]}
+//     {scheme:'dark'|'light'} (the phone's theme changes; the app follows it live)
+//     {wheelX:dx, ms, at:[x,y]} (horizontal swipe of a carousel)
 // Each clip runs in a fresh browser context, so app preferences start at defaults.
 // Output: <outDir>/<name>/raw_NNNN.jpg + frames.txt (ffconcat timings) + taps.json ({t, x, y} in seconds / logical px).
 const path = require('path');
@@ -46,10 +49,8 @@ const WARP = `(() => {
       geolocation: { latitude: 51.5072, longitude: -0.1276 }, permissions: ['geolocation'], timezoneId: 'Europe/London' });
     const p = await ctx.newPage();
     await p.addInitScript(WARP);
-    // shared_preferences on the web keeps each value JSON-encoded under a
-    // `flutter.` prefix, and this value is itself a JSON string.
-    if (clip.seed) await p.addInitScript(v => localStorage.setItem('flutter.recitation_tracker_guest', v),
-      JSON.stringify(JSON.stringify(require('./demo_data').quranSeed())));
+    await p.addInitScript(es => es.forEach(([k, v]) => localStorage.setItem(k, v)), require('./demo_data').seedEntries(clip.seed));
+    if (clip.dark) await p.emulateMedia({ colorScheme: 'dark' });
     await p.goto('http://127.0.0.1:4173' + (clip.path || '/'));
     await p.waitForSelector('#app-loading', { state: 'detached', timeout: 60000 }).catch(() => {});
     await sleep(clip.settle || 7000);
@@ -118,10 +119,22 @@ async function run(p, a, K, onTap) {
     return sleep(a.reload);
   }
   if (a.move) return p.mouse.move(...a.move);
+  if (a.scheme) return p.emulateMedia({ colorScheme: a.scheme });
   if (a.tap) {
     onTap(...a.tap);
     await p.mouse.move(...a.tap);
     await p.mouse.down(); await sleep(70 * K); await p.mouse.up();
+    return;
+  }
+  if (a.wheelX !== undefined) {
+    // a horizontal swipe on a carousel: shift-free horizontal wheel steps at `at`
+    await p.mouse.move(...(a.at || [195, 500]));
+    const steps = Math.max(1, Math.round((a.ms || 1000) / 16));
+    for (let i = 0; i < steps; i++) {
+      const f = x => 0.5 - Math.cos(Math.PI * x) / 2;
+      await p.mouse.wheel((f((i + 1) / steps) - f(i / steps)) * a.wheelX, 0);
+      await sleep(16 * K);
+    }
     return;
   }
   if (a.wheel !== undefined) {
