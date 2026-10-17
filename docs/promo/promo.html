@@ -72,11 +72,11 @@
   /* five languages: one phone cycling through the UI languages */
   #langs { position: absolute; inset: 0; opacity: 0; }
   /* five tiles at once, each the top of Home (date header + prayer card) in one UI language */
-  .ltile { position: absolute; width: 820px; text-align: center; }
-  .ltile .crop { width: 820px; height: 730px; border-radius: 44px; overflow: hidden; background: #f8f5f0;
+  .ltile { position: absolute; width: 500px; text-align: center; }
+  .ltile .crop { width: 500px; height: 1082px; border-radius: 44px; overflow: hidden; background: #f8f5f0;
                  box-shadow: 0 30px 70px rgba(0,0,0,.55), 0 0 0 2px rgba(232,199,122,.35); }
-  .ltile img { width: 820px; display: block; }
-  .ltile .nm { position: absolute; left: 50%; top: -26px; transform: translateX(-50%); padding: 6px 30px; border-radius: 30px; background: var(--gold); color: #3a241d; font-size: 34px; font-weight: 600; box-shadow: 0 8px 24px rgba(0,0,0,.4); }
+  .ltile img { width: 500px; display: block; }
+  .ltile .nm { position: absolute; left: 50%; bottom: -78px; transform: translateX(-50%); white-space: nowrap; padding: 6px 30px; border-radius: 30px; background: var(--gold); color: #3a241d; font-size: 34px; font-weight: 600; box-shadow: 0 8px 24px rgba(0,0,0,.4); }
 
   /* outro */
   .logo { width: 250px; height: 250px; border-radius: 56px; box-shadow: 0 30px 80px rgba(0,0,0,.55), 0 0 0 2px rgba(232,199,122,.35); }
@@ -224,8 +224,8 @@ caps.forEach((c, i) => {
   capWrap.appendChild(d);
 });
 const fanShots = [['qaza', 'Qaza tracker'], ['calendar', 'Hijri calendar'], ['qibla', 'Qibla']];
-// English is on screen all video; the other four go by two at a time, stacked full width
-const LANG_POS = [[130, 370], [130, 1150], [130, 370], [130, 1150]];
+// English is on screen all video; the other four go by two at a time, whole screens side by side
+const LANG_POS = [[30, 400], [550, 400], [30, 400], [550, 400]];
 LANGS.slice(1).forEach(([c, l], i) => {
   const d = document.createElement('div');
   d.className = 'ltile ml'; d.id = 'lang' + i;
