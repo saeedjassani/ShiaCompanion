@@ -5,6 +5,7 @@ import 'package:shia_companion/constants.dart';
 import 'package:shia_companion/data/quran_ali_verses.dart';
 import 'package:shia_companion/data/quran_mahdi_verses.dart';
 import 'package:shia_companion/pages/quran/quran_page.dart';
+import 'package:shia_companion/pages/quran/recitation_track_sheet.dart';
 import 'package:shia_companion/widgets/page_chrome.dart';
 import 'package:shia_companion/services/recitation_tracker_manager.dart';
 import 'package:shia_companion/services/saved_verses_manager.dart';
@@ -33,7 +34,19 @@ void main() {
     };
   });
 
-  tearDown(() => items = {});
+  /// The tracks "Start Khatm" opened - recorded instead of opening the
+  /// reader, which never settles in a widget test.
+  late List<String> openedTracks;
+
+  setUp(() {
+    openedTracks = [];
+    openNewRecitationTrack = (context, label) async => openedTracks.add(label);
+  });
+
+  tearDown(() {
+    items = {};
+    openNewRecitationTrack = openRecitationTrack;
+  });
 
   Future<void> pump(WidgetTester tester) async {
     await tester.pumpWidget(const MaterialApp(home: QuranPage()));
@@ -366,6 +379,12 @@ void main() {
     expect(find.text('Start Khatm'), findsNothing);
     expect(find.bySemanticsLabel('Edit Khatm'), findsOneWidget);
     expect(find.text('Juz 12'), findsOneWidget);
+    // Starting it opens the reader at its start.
+    expect(openedTracks, ['Khatm']);
+    final target =
+        RecitationTrackerManager.instance.state.resumeTargetFor('Khatm');
+    expect(target.inJuz, isTrue);
+    expect(target.juz, 12);
   });
 
   testWidgets('a track can be switched to juz later', (tester) async {
@@ -433,6 +452,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Give the Khatm a name'), findsOneWidget);
+    expect(openedTracks, isEmpty);
   });
 
   testWidgets('a new track cannot take the default track\'s name',

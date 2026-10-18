@@ -31,7 +31,6 @@ import 'package:shia_companion/utils/quran_indopak.dart';
 import 'package:shia_companion/utils/quran_script.dart';
 import 'package:shia_companion/utils/quran_portion.dart';
 import 'package:shia_companion/utils/external_launch.dart';
-import 'package:shia_companion/utils/shared_preferences.dart';
 import 'package:shia_companion/utils/web_route_sync.dart';
 import 'package:shia_companion/utils/zikr_wakelock.dart';
 import 'package:shia_companion/models/zikr_audio_track.dart';
@@ -1871,8 +1870,7 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
     });
 
     try {
-      final shareImage = SP.prefs.getBool('share_zikr_image') ?? true;
-      if (!shareImage) {
+      if (!ReadingSwitch.shareAsImage.value) {
         await _shareZikrText(
           title: title,
           deepLink: deepLink,
