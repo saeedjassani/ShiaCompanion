@@ -61,8 +61,13 @@ Future<void> showRecitationTrackSheet(
     builder: (context) => _RecitationTrackSheet(label: label),
   );
   if (created == null || !context.mounted) return;
-  await openRecitationTrack(context, created);
+  await openNewRecitationTrack(context, created);
 }
+
+/// What "Start Khatm" opens; tests swap in a stand-in for the reader.
+@visibleForTesting
+Future<void> Function(BuildContext context, String label)
+    openNewRecitationTrack = openRecitationTrack;
 
 /// Opens the reader where [label]'s track picks up, in its own view.
 Future<void> openRecitationTrack(BuildContext context, String label) async {
