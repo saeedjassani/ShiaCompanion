@@ -19,8 +19,11 @@ import 'urdu_font.dart';
 /// * the **app language** - menus, buttons, settings, notifications - backed
 ///   by the `lib/l10n/app_<code>.arb` files, and
 /// * the **translation language** - what a zikr's translation lines,
-///   instructions, merits and title are shown in - backed by
+///   instructions and merits are shown in - backed by
 ///   `assets/zikr_i18n/<code>/`.
+///
+/// Zikr titles come from `assets/zikr_i18n/<code>/index.json` too, but they
+/// name things in menus and lists, so they follow the app language.
 ///
 /// They are separate because they are separate needs: plenty of readers are
 /// happy with English menus but want a dua's meaning in Urdu. The translation
@@ -109,8 +112,8 @@ class LanguageProvider extends ChangeNotifier with WidgetsBindingObserver {
   AppLanguage get appFollowingTranslationLanguage =>
       _translationLanguageFor(appLanguage.code);
 
-  /// Whether the app shows Urdu - its menus, or its zikr translations and
-  /// titles - and so is set in [UrduFont].
+  /// Whether the app shows Urdu - its menus and zikr titles, or its zikr
+  /// translations - and so is set in [UrduFont].
   bool get usesUrduFont =>
       usesUrduFontFor(appLanguage.code, translationLanguage.code);
 
@@ -152,7 +155,7 @@ class LanguageProvider extends ChangeNotifier with WidgetsBindingObserver {
     _translationLanguageCodes =
         await ZikrTranslations.instance.availableLanguageCodes(_bundle);
     _applyAppLanguage();
-    await _applyTranslationLanguage();
+    await _applyZikrLanguages();
     notifyListeners();
   }
 
@@ -162,7 +165,7 @@ class LanguageProvider extends ChangeNotifier with WidgetsBindingObserver {
     _appLanguageChoice = code;
     // The zikr titles first: the rebuild the new locale sets off redraws
     // every title on screen, and must find them in the new language.
-    await _applyTranslationLanguage();
+    await _applyZikrLanguages();
     _applyAppLanguage();
     notifyListeners();
     unawaited(LocationService.instance.relabelForAppLanguage());
@@ -175,7 +178,7 @@ class LanguageProvider extends ChangeNotifier with WidgetsBindingObserver {
     if (code == _translationLanguageChoice) return;
     _translationLanguageChoice = code;
     notifyListeners();
-    await _applyTranslationLanguage();
+    await _applyZikrLanguages();
     await _persist(translationLanguagePrefsKey, code);
   }
 
@@ -206,10 +209,16 @@ class LanguageProvider extends ChangeNotifier with WidgetsBindingObserver {
     }
   }
 
-  Future<void> _applyTranslationLanguage() {
+  /// Loads the zikr titles in the app language and the zikr content in the
+  /// translation language. Both are settled before either loads, so a
+  /// language change mid-load cannot mix them.
+  Future<void> _applyZikrLanguages() async {
     _loadFonts();
-    return ZikrTranslations.instance
-        .setLanguage(translationLanguage.code, _bundle);
+    final titles = appFollowingTranslationLanguage.code;
+    final content = translationLanguage.code;
+    final translations = ZikrTranslations.instance;
+    await translations.setTitleLanguage(titles, _bundle);
+    await translations.setLanguage(content, _bundle);
   }
 
   Future<void> _persist(String key, String? code) async {
@@ -230,7 +239,7 @@ class LanguageProvider extends ChangeNotifier with WidgetsBindingObserver {
   }
 
   Future<void> _followDeviceLanguage() async {
-    await _applyTranslationLanguage();
+    await _applyZikrLanguages();
     _applyAppLanguage();
     notifyListeners();
     unawaited(LocationService.instance.relabelForAppLanguage());

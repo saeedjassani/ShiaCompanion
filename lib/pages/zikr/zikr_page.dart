@@ -1700,8 +1700,8 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
   }
 
   /// The title shown in the app bar and used for a new reminder's default
-  /// text — translated into the reader's translation language when it has
-  /// been, the English title otherwise.
+  /// text — in the app language when it has been translated, the English
+  /// title otherwise.
   String _currentDisplayTitle() =>
       ZikrTranslations.instance.titleFor(widget.item.uid) ?? _englishTitle();
 
@@ -1913,7 +1913,7 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
           titleDirection:
               ZikrTranslations.instance.titleFor(widget.item.uid) == null
                   ? TextDirection.ltr
-                  : ZikrTranslations.instance.language.textDirection,
+                  : ZikrTranslations.instance.titleLanguage.textDirection,
         ),
       );
       if (imageBytes == null) {

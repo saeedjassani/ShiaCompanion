@@ -290,7 +290,7 @@ void main() {
       expect(find.text('Ziyarat Ashura'), findsOneWidget);
 
       await tester
-          .runAsync(() => translations.setLanguage('ar', _arabicTitles));
+          .runAsync(() => translations.setTitleLanguage('ar', _arabicTitles));
       await tester.pump();
       expect(find.text('زيارة عاشوراء'), findsOneWidget);
       expect(find.text('Ziyarat Ashura'), findsNothing);
