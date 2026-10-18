@@ -9,6 +9,8 @@ import '../../theme/shia_colors.dart';
 import '../../widgets/choice_sheet.dart';
 import '../../widgets/outline_icon.dart';
 import '../../widgets/page_chrome.dart';
+import '../../services/analytics_service.dart' show ZikrOpenSource;
+import 'quran_navigation.dart';
 import 'verse_position_picker.dart';
 import '../../l10n/l10n.dart';
 
@@ -46,12 +48,40 @@ String describeRecitationPosition(
 /// Creating also asks for a name; editing shows where the track has got to
 /// as "Continue from", so moving a khatm along after reading some of it away
 /// from the app is the same tap as choosing where a new one begins.
-Future<void> showRecitationTrackSheet(BuildContext context, {String? label}) {
-  return showRevampSheet<void>(
+///
+/// "Start Khatm" opens the reader at the new track's start straight away.
+Future<void> showRecitationTrackSheet(
+  BuildContext context, {
+  String? label,
+}) async {
+  final created = await showRevampSheet<String>(
     context,
     title: label ?? context.l10n.trackNew,
     closeLabel: context.l10n.commonCancel,
     builder: (context) => _RecitationTrackSheet(label: label),
+  );
+  if (created == null || !context.mounted) return;
+  await openRecitationTrack(context, created);
+}
+
+/// Opens the reader where [label]'s track picks up, in its own view.
+Future<void> openRecitationTrack(BuildContext context, String label) async {
+  final target = RecitationTrackerManager.instance.state.resumeTargetFor(label);
+  if (target.inJuz) {
+    await openQuranJuz(
+      context,
+      target.juz,
+      at: target.verse,
+      source: ZikrOpenSource.quranResume,
+      recitationLabel: label,
+    );
+    return;
+  }
+  await openQuranVerse(
+    context,
+    target.verse,
+    source: ZikrOpenSource.quranResume,
+    recitationLabel: label,
   );
 }
 
@@ -177,7 +207,7 @@ class _RecitationTrackSheetState extends State<_RecitationTrackSheet> {
         readBefore: !startsAtBeginning && _markEarlierRead ? position : null,
       ),
     ));
-    Navigator.pop(context);
+    Navigator.pop(context, name);
   }
 
   @override
