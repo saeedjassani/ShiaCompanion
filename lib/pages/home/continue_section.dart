@@ -207,7 +207,7 @@ class ContinueSection extends StatelessWidget {
       listenable: Listenable.merge([
         RecitationTrackerManager.instance,
         ZikrBookmarksManager.instance,
-        // The titles, when the translation language changes or loads.
+        // The titles, when the app language changes or they load.
         ZikrTranslations.instance,
       ]),
       builder: (context, _) {
