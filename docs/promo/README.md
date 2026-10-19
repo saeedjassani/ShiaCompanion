@@ -4,8 +4,8 @@ Three files, all made by `build.sh` from live recordings of the web build:
 
 | File | For | Spec |
 |---|---|---|
-| `shia-companion-promo-whatsapp.mp4` | WhatsApp, Instagram, Shorts | 70.3 s, 1080×1920, ~15 MB (under WhatsApp's 16 MB, so it isn't recompressed) |
-| `shia-companion-promo.mp4` (gitignored) | YouTube / Play Store promo video, master copy | 70.3 s, 1080×1920, CRF 18, ~33 MB |
+| `shia-companion-promo-whatsapp.mp4` | WhatsApp, Instagram, Shorts | 62.3 s, 1080×1920, ~12 MB (under WhatsApp's 16 MB, so it isn't recompressed) |
+| `shia-companion-promo.mp4` (gitignored) | YouTube / Play Store promo video, master copy | 62.3 s, 1080×1920, CRF 17, ~38 MB |
 | `app-store-preview.mp4` | App Store app preview (6.5"/6.9" iPhone slot) | 29.8 s, 886×1920, 30 fps, H.264 + stereo AAC |
 
 The App Store cut (`store.html`) is only app footage with a caption band: no
@@ -21,14 +21,18 @@ music.
 
 | Time | What happens |
 |---|---|
-| 0–16 s | Cold open. Bismillah, then "Allahumma inni as'aluka bi-raḥmatika…", written in gold Qalam **word by word in time with the reciter** (timings from a Whisper transcription of the recording), with the English fading in beneath and a waveform that follows the audio. |
-| 16–18 s | Match cut: the calligraphy dissolves and the camera pulls back out of the phone, where the same verse sits on the Dua Kumayl page. |
-| 18–41 s | **Live recordings** of the zikr page, not screenshots: scrolling, switching Qalam→Scheherazade in the Text & reading sheet, starting auto-scroll, starting the audio player (with a waveform driven by the soundtrack), and the phone switching to dark mode, which the page follows live. The camera pushes in on each interaction, taps show as touch ripples, and captions animate in word by word. |
-| 41–51 s | One take, in dark mode: Home's prayer card (countdown to the next prayer, the next event), then its Continue card opens the Quran at the verse the Khatm reached (seeded demo history, `demo_data.js`), in IndoPak, and a verse's sheet (save, note, share). |
-| 51–55 s | The Quran tab holding three Khatms (My reading, Family Khatm, Ramazan; seeded): the row is swiped and Family Khatm opens at Al-Kahf 60, where it left off. |
-| 55–60 s | "And so much more": a fan of the Qaza tracker, Hijri calendar and Qibla. |
-| 60–64 s | "In five languages": whole Home screens, two at a time, in Urdu and Gujarati, then Arabic and Persian (English is on screen all along). |
-| 64–70.3 s | Outro: logo, **100% FREE**, the official App Store / Google Play badges, `shiacompanion.app`. The recitation fades out. |
+| 0–6 s | Cold open. Bismillah, then "Allahumma inni as'aluka bi-raḥmatika…", written in gold Qalam **word by word in time with the reciter** (timings from a Whisper transcription of the recording), with the English fading in beneath and a waveform that follows the audio. |
+| 6–16 s | Match cut into the phone, where the same verse sits on the Dua Kumayl page. **Live recordings** of the zikr page, not screenshots: "Read along, line by line" (scrolling), then "Choose your script" (Qalam→Scheherazade in the Text & reading sheet). Taps show as touch ripples, and captions animate in word by word. |
+| 16–21 s | "Auto-scroll", then "Hear it recited": the recitation player starts, with a waveform driven by the soundtrack. |
+| 21–24 s | "Easy on the eyes at night": the phone switches to dark mode and the page follows live. |
+| 24–34 s | Home in dark mode, location set to Toronto: the prayer-times card (countdown to the next prayer, the next event), then a hard cut to the same Home on Thursday evening — "Today's recitations, one tap away / Dua Kumayl on Thursdays, Dua Nudba on Fridays — right on Home". |
+| 34–39 s | "Pick up where you left off": the Continue card opens the Quran at the verse the Khatm reached (seeded demo history, `demo_data.js`), and a verse's sheet (save, note, share). |
+| 39–43 s | "Keep several Khatms": the Quran tab holding three Khatms (My reading, Family Khatm, Ramazan; seeded). |
+| 43–46 s | "Track · Read · Listen": a three-phone fan of My Stats, the book library and playlists. |
+| 46–49 s | "At a glance": the app's real prayer widgets arranged around the Apple Watch. |
+| 49–53 s | "And so much more": a three-phone fan of the Qaza tracker, Hijri calendar and Qibla, in the same layout as the Track fan. |
+| 53–57 s | "In five languages": whole Home screens, two at a time, in Urdu and Gujarati, then Arabic and Persian (English is on screen all along). |
+| 57–62.3 s | Outro: logo, `www.shiacompanion.app`, **100% FREE**. The recitation fades out. |
 
 ## Files
 
