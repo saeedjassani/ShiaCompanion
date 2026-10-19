@@ -34,6 +34,33 @@ music.
 | 53–57 s | "In five languages": whole Home screens, two at a time, in Urdu and Gujarati, then Arabic and Persian (English is on screen all along). |
 | 57–62.3 s | Outro: logo, `www.shiacompanion.app`, **100% FREE**. The recitation fades out. |
 
+## Final cut (v22) — where everything lives
+
+The shipped WhatsApp video above is the v22 cut. Its composition is
+`promo.html` in this folder (the v14 revision of the composition; also kept
+verbatim as `promo_v14.html`). Three scenes come from side pipelines:
+
+- **Thursday Home** ("Today's recitations…"): `promo_thu.html`, rendered as
+  `promo_thu2.html` (same file with the scene extended so the used window
+  opens on the settled Home — that is what makes the Home→Thursday cut a
+  clean hard cut). The take is recorded with `rec_home_pw2.js`, which pins
+  the clock to Thursday 20:30 and selects Toronto in the city picker.
+- **"At a glance" fan**: built by `make_fan3_v20anim.py` (layout:
+  `make_fan3_v20.py`; widget cut-outs: `make_fan3_v14.py`) from the app's
+  real widget screenshots in `shots/widget_*.jpg` around the Watch.
+- **Home + recitation clips**: recorded with `rec_fix2.js`, which routes
+  the R2 audio and font requests through a local mirror (the recording
+  sandbox cannot reach them directly — without it the app shows its
+  "recitation couldn't be loaded" toast) and runs the setup under the
+  slow clock so the city-picker flow registers. Specs: `clips_home3.json`
+  (Toronto flow; also folded into `clips.json` as the `home` clip) and
+  `clips_listen2.json`.
+
+`assemble_v22.sh` is the exact assembly: window renders of the composition
+(`render_win.js`), the hard-cut join, and the crossfade graph. The recorded
+frames themselves (`clips/`, ~150 MB) stay gitignored, as before; re-record
+them with the scripts above.
+
 ## Files
 
 - `promo.html`: the whole composition. `render(t)` draws any moment; the

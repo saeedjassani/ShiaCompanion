@@ -1,0 +1,11 @@
+[
+  {
+    "name": "listen2",
+    "path": "/dua-kumayl",
+    "actions": [
+      { "wait": 300 },
+      { "tap": [125, 787] },
+      { "wait": 6500 }
+    ]
+  }
+]

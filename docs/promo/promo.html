@@ -2,13 +2,21 @@
 <html>
 <head>
 <meta charset="utf-8">
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Inter:wght@400;500;600&family=Noto+Sans+Arabic:wght@500&family=Noto+Sans+Gujarati:wght@500&display=block" rel="stylesheet">
+<style>
+@font-face { font-family: 'Cormorant Garamond'; src: url('fonts/CormorantGaramond.ttf'); font-weight: 500 700; }
+@font-face { font-family: 'Inter'; src: url('fonts/Inter.ttf'); font-weight: 400 900; }
+@font-face { font-family: 'Roboto'; src: url('fonts/Roboto-Regular.ttf'); font-weight: 400; }
+@font-face { font-family: 'Roboto'; src: url('fonts/Roboto-Medium.ttf'); font-weight: 500; }
+@font-face { font-family: 'Roboto'; src: url('fonts/Roboto-Bold.ttf'); font-weight: 700; }
+@font-face { font-family: 'Noto Sans Arabic'; src: url('fonts/NotoSansArabic.ttf'); font-weight: 500; }
+@font-face { font-family: 'Noto Sans Gujarati'; src: url('fonts/NotoSansGujarati.ttf'); font-weight: 500; }
+</style>
 <style>
   @font-face { font-family: 'Qalam'; src: url('../../assets/fonts/qalam'); font-display: block; }
   :root { --gold: #e8c77a; --gold-soft: #f3dfae; --cream: #fbeee8; --deep: #1c110e; }
   html, body { margin: 0; background: #000; }
   #stage { position: relative; width: 1080px; height: 1920px; overflow: hidden; background: var(--deep);
-           font-family: 'Inter', sans-serif; color: var(--cream); }
+           font-family: 'Roboto', sans-serif; color: var(--cream); }
   .layer { position: absolute; inset: 0; }
   #bg { background: radial-gradient(ellipse 110% 75% at 50% 45%, #5a372b 0%, #37221b 45%, #140c0a 100%); }
   #pattern { position: absolute; left: -160px; top: -160px; opacity: .06; }
@@ -16,13 +24,13 @@
           background: radial-gradient(circle, rgba(232,199,122,.20) 0%, rgba(232,199,122,0) 60%); }
   #vignette { background: radial-gradient(ellipse 90% 70% at 50% 55%, rgba(0,0,0,0) 40%, rgba(0,0,0,.75) 100%); pointer-events: none; }
   canvas { position: absolute; left: 0; top: 0; }
-  .ml { font-family: 'Inter', 'Noto Sans Arabic', 'Noto Sans Gujarati', sans-serif; }
+  .ml { font-family: 'Roboto', 'Noto Sans Arabic', 'Noto Sans Gujarati', sans-serif; }
 
   /* calligraphy */
   .ar { font-family: 'Qalam'; direction: rtl; color: var(--gold-soft); text-align: center; white-space: nowrap;
         text-shadow: 0 0 40px rgba(232,199,122,.35), 0 0 2px rgba(255,240,200,.6); }
   .ar span, .en span { display: inline-block; }
-  .en { font-family: 'Cormorant Garamond', serif; font-style: italic; font-weight: 500; text-align: center; color: rgba(251,238,232,.88); }
+  .en { font-family: 'Roboto', sans-serif; font-weight: 400; text-align: center; color: rgba(251,238,232,.88); }
   #bism { position: absolute; left: 0; right: 0; top: 780px; font-size: 118px; }
   #bismEn { position: absolute; left: 0; right: 0; top: 1010px; font-size: 46px; }
   #verse { position: absolute; left: 0; right: 0; top: 560px; }
@@ -53,7 +61,7 @@
   /* captions */
   #capScrim { background: linear-gradient(180deg, rgba(20,12,10,.92) 0%, rgba(20,12,10,.75) 20%, rgba(20,12,10,0) 30%); opacity: 0; }
   .cap { position: absolute; left: 0; right: 0; top: 120px; text-align: center; }
-  .cap h1 { margin: 0; font-family: 'Cormorant Garamond', serif; font-weight: 600; font-size: 100px; line-height: 1.02; color: var(--gold-soft); }
+  .cap h1 { margin: 0; font-family: 'Roboto', sans-serif; font-weight: 700; font-size: 100px; line-height: 1.02; color: var(--gold-soft); }
   .cap p { margin: 22px 0 0; font-size: 38px; color: rgba(251,238,232,.86); }
   .cap span { display: inline-block; white-space: pre; }
   .chips { margin-top: 30px; }
@@ -67,7 +75,7 @@
   .card .in { width: 366px; height: 866px; border-radius: 42px; overflow: hidden; background: #fff; }
   .card .bar { height: 46px; background: #f8f5f0; }
   .card img { width: 366px; display: block; }
-  .card .lbl { position: absolute; left: 0; right: 0; bottom: -70px; text-align: center; font-size: 30px; font-weight: 600; color: var(--gold-soft); }
+  .card .lbl { position: absolute; left: 0; right: 0; bottom: -70px; text-align: center; font-size: 30px; font-weight: 500; color: var(--gold-soft); }
 
   /* five languages: one phone cycling through the UI languages */
   #langs { position: absolute; inset: 0; opacity: 0; }
@@ -80,7 +88,7 @@
 
   /* outro */
   .logo { width: 250px; height: 250px; border-radius: 56px; box-shadow: 0 30px 80px rgba(0,0,0,.55), 0 0 0 2px rgba(232,199,122,.35); }
-  .title { font-family: 'Cormorant Garamond', serif; font-weight: 600; font-size: 120px; color: var(--gold-soft); }
+  .title { font-family: 'Roboto', sans-serif; font-weight: 700; font-size: 120px; color: var(--gold-soft); }
   .rule { width: 140px; height: 2px; margin: 0 auto; background: linear-gradient(90deg, transparent, var(--gold), transparent); }
   .tagline { font-size: 38px; line-height: 1.5; color: rgba(251,238,232,.86); }
   .badges img { height: 128px; margin: 0 16px; vertical-align: middle; }
@@ -142,7 +150,7 @@
     <div id="oFree" style="margin-top:60px"><span class="free">100% FREE</span></div>
     <div id="oCta" style="margin-top:70px">
       <div class="badges"><img src="shots/appstore.svg"><img src="shots/gplay_c.png"></div>
-      <div class="url" style="margin-top:50px">shiacompanion.app</div>
+      <div class="url" style="margin-top:50px">www.shiacompanion.app</div>
     </div>
   </div>
 </div>
@@ -169,7 +177,7 @@ const shots = [
   { clip: 'listen', t0: 32.4, t1: 36.2, from: 4, speed: 1.0 },
   // The phone switches to dark mode after clip frame 95; frames 96-101 are washed-out
   // in-between paint, so `soft` skips them and crossfades the last light frame into the first dark one.
-  { clip: 'dark',   t0: 36.2, t1: 41.4, from: 6, speed: 1.0, soft: { pre: 95, frame: 102, d: 0.5 } },
+  { clip: 'dark',   t0: 36.2, t1: 41.4, from: 6, speed: 1.0, soft: { pre: 105, frame: 111, d: 0.5 } },
   // one take: Home's prayer card, then Continue opens the Quran at verse 120, then the verse sheet
   { clip: 'home',   t0: 41.4, t1: 50.6, from: 3, speed: 1.0, dark: true },
   // the Quran tab with three Khatms: swipe the row, open Family Khatm where it left off
@@ -184,8 +192,9 @@ const caps = [
   { t0: 41.6, t1: 46.1, h: 'Prayer times', p: 'Countdown to the next prayer · upcoming events' },
   { t0: 46.3, t1: 50.6, h: 'Pick up where you left off', p: 'Your Khatm reopens at the very verse' },
   { t0: 50.8, t1: 54.8, h: 'Keep several Khatms', p: 'One for you, one with family, one for Ramazan' },
-  { t0: 55.4, t1: 59.6, h: 'And so much more', p: 'Qaza tracker · Hijri calendar · Qibla' },
-  { t0: 59.8, t1: 64.0, h: 'In five languages', p: 'Every screen, in your language' },
+  { t0: 55.4, t1: 59.9, h: 'Track · Read · Listen', p: 'Your stats · a library of 1,162 books · your playlists' },
+  { t0: 60.0, t1: 64.5, h: 'And so much more', p: 'Qaza tracker · Hijri calendar · Qibla' },
+  { t0: 64.8, t1: 68.5, h: 'In five languages', p: 'Every screen, in your language' },
 ];
 // camera: [t, scale, tx, ty, rotY, rotX]; phone transform relative to its resting place
 const cam = [
@@ -215,7 +224,7 @@ const cam = [
   [54.8, 1.0, 0, 0, 0, 2],
   [55.8, 0.9, 0, 200, 0, 0],
 ];
-const PHONE_IN = 16.2, PHONE_OUT = 55.0, FAN_IN = 55.4, LANGS_IN = 59.6, OUTRO_IN = 64.0, END = 70.3;
+const PHONE_IN = 16.2, PHONE_OUT = 55.0, FAN_IN = 55.4, FAN2_IN = 60.0, LANGS_IN = 64.6, OUTRO_IN = 68.6, END = 74.9;
 const LANGS = [['en', 'English'], ['ur', 'اردو'], ['gu', 'ગુજરાતી'], ['ar', 'العربية'], ['fa', 'فارسی']];
 const darkShot = shots.find(s => s.soft);
 const DARK_T = darkShot.t0 + (darkShot.soft.pre + 1 - darkShot.from) / FPS / darkShot.speed;
@@ -230,7 +239,8 @@ caps.forEach((c, i) => {
     (c.chips ? `<div class="chips">${c.chips.map((x, j) => `<span class="chip" id="chip${j}">${x}</span>`).join('')}</div>` : '');
   capWrap.appendChild(d);
 });
-const fanShots = [['qaza', 'Qaza tracker'], ['calendar', 'Hijri calendar'], ['qibla', 'Qibla']];
+const fanShotsA = [['track_library', 'Library'], ['track_stats', 'My Stats'], ['track_playlists', 'Playlists']];
+const fanShotsB = [['qaza', 'Qaza tracker'], ['calendar', 'Hijri calendar'], ['qibla', 'Qibla']];
 // English is on screen all video; the other four go by two at a time, whole screens side by side
 const LANG_POS = [[30, 400], [550, 400], [30, 400], [550, 400]];
 LANGS.slice(1).forEach(([c, l], i) => {
@@ -240,12 +250,12 @@ LANGS.slice(1).forEach(([c, l], i) => {
   d.innerHTML = `<div class="crop"><img src="shots/lang_${c}.png"></div><div class="nm"><bdi>${l}</bdi></div>`;
   $('langs').appendChild(d);
 });
-fanShots.forEach(([s, l], i) => {
+[['A', fanShotsA], ['B', fanShotsB]].forEach(([pfx, shots]) => shots.forEach(([s, l], i) => {
   const d = document.createElement('div');
-  d.className = 'card'; d.id = 'card' + i;
+  d.className = 'card'; d.id = 'card' + pfx + i;
   d.innerHTML = `<div class="in"><div class="bar"></div><img src="shots/${s}.png"></div><div class="lbl">${l}</div>`;
   $('fan').appendChild(d);
-});
+}));
 // taps: TAPS[clip] = [{t, x, y}] in clip seconds / logical px
 const tapEls = [];
 shots.forEach(s => (TAPS[s.clip] || []).forEach(tp => {
@@ -435,16 +445,17 @@ async function render(t) {
   });
   $('capScrim').style.opacity = scrim * (t > 24 && t < 54.8 ? 1 : 0.4);
 
-  // fan of other features
-  fanShots.forEach((_, i) => {
-    const el = $('card' + i);
-    const a = easeBack(prog(t, FAN_IN + i * 0.15, FAN_IN + 1.1 + i * 0.15));
-    const out = ease(prog(t, LANGS_IN - 0.6, LANGS_IN + 0.1));
-    const spread = [-1, 0, 1][i];
+  // fans of other features: Track first, then And so much more
+  const drawFan = (pfx, tIn, out0, out1) => [-1, 0, 1].forEach((spread, i) => {
+    const el = $('card' + pfx + i);
+    const a = easeBack(prog(t, tIn + i * 0.15, tIn + 1.1 + i * 0.15));
+    const out = ease(prog(t, out0, out1));
     el.style.opacity = clamp(a * 3) * (1 - out);
     el.style.transform = `translate(${spread * 300 * a}px, ${110 + Math.abs(spread) * 70 * a + out * 300}px) rotate(${spread * 10 * a}deg) scale(${0.76 + 0.1 * a})`;
     el.style.zIndex = 10 - Math.abs(spread);
   });
+  drawFan('A', FAN_IN, FAN2_IN - 0.6, FAN2_IN + 0.1);
+  drawFan('B', FAN2_IN, LANGS_IN - 0.6, LANGS_IN + 0.1);
 
   // five languages
   const li = ease(prog(t, LANGS_IN - 0.1, LANGS_IN + 0.5)), lo = ease(prog(t, OUTRO_IN - 0.4, OUTRO_IN));
