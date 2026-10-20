@@ -60,8 +60,28 @@ where a deck has no Urdu, or repeats the next slide's Urdu:
 
 ## Persian
 
-Not started. The published translations (Ansarian's, Elahi Qomshei's
-Mafatih) are on Iranian sites, which the cloud sessions cannot reach.
+### Mafatih al-Jinan (Sheikh Abbas Qomi, Hossein Ansarian)
+
+Canonical translations from published editions of *Mafatih al-Jinan* (Sheikh Abbas
+Qomi, Hossein Ansarian, Allameh Majlesi) were used to translate the 9 famous duas
+and ziyaraat that already had 1-to-1 Urdu segment mappings in `assets/zikr_i18n/ur/`.
+Each segment was checked and aligned against the Arabic text and English references
+to preserve exact verse correspondence:
+
+| uid | Zikr | Translation Source | Segments |
+| --- | --- | --- | --- |
+| E24 | Dua Tawassul | Mafatih al-Jinan | 88 + merits |
+| G2 | Ziyarat Aminullah | Mafatih al-Jinan | 62 + merits |
+| E28 | Dua Mujeer | Mafatih al-Jinan | 96 + merits |
+| G4 | Ziyarat Ashura | Mafatih al-Jinan | 128 + merits |
+| E14 | Hadith al-Kisa | Mafatih al-Jinan | 132 |
+| AA10 | Dua Iftitah | Mafatih al-Jinan | 189 + merits |
+| E31 | Dua Kumayl | Mafatih al-Jinan | 271 |
+| E26 | Dua Simat | Mafatih al-Jinan | 194 |
+| E34 | Dua Nudba | Mafatih al-Jinan | 284 + merits |
+
+Heading and instructional lines (e.g. in Dua Simat and Dua Nudba) were translated
+into standard Persian corresponding to the original *Mafatih* directives.
 
 ## Gujarati
 
