@@ -12,8 +12,8 @@ XF=0.3
 
 # Segments in order: name, then a window of promo.html (t0 t1), or a file made below.
 SEGMENTS=(
-  "opening  3.4  9.9"    # Bismillah and the first verse, word by word
-  "reader  18.75 28.0"   # Read along, choose your script
+  "opening  0.0  5.9"    # Bismillah, in time with the recitation (no verse before the phone)
+  "reader  17.0  28.0"   # the phone zooms out on Dua Kumayl: read along, choose your script
   "listen  30.0  36.2"   # auto-scroll's end, Hear it recited
   "dark    38.6  41.4"   # Easy on the eyes at night
   "home    41.4  54.9"   # one take: prayer card, Home's features, Continue into the Quran, verse sheet
