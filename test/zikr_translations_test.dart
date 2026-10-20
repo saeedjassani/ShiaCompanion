@@ -139,6 +139,17 @@ void main() {
       // line itself is hidden from the content); tab two follows on.
       expect(ZikrContentParser.segmentOffsets([_content, second]), [0, 3]);
     });
+
+    test('verse segments are told from instructions and tab labels', () {
+      const second = 'Part two\nO Allah\nO Allah, have mercy';
+      expect(ZikrContentParser.verseSegmentNumbers([_content]), {1, 2});
+      // Tab one's label (0) hides "Say the following:"; tab two is labels
+      // and lines only.
+      expect(
+        ZikrContentParser.verseSegmentNumbers([_content, second]),
+        {1, 2},
+      );
+    });
   });
 
   group('ParsedZikrContent.localizedTo', () {

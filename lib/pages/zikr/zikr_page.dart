@@ -1608,16 +1608,37 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
     });
   }
 
-  /// This zikr, when nothing of it has been translated into the reader's
-  /// translation language, for the Text & reading sheet to say so. Null
-  /// while the lookup is still running, and for a juz (which is never
-  /// translated here).
+  /// This zikr, when none of its verses has been translated into the
+  /// reader's translation language, for the Text & reading sheet to say so -
+  /// a zikr with only its instructions translated still reads as Arabic
+  /// alone. Null while the lookup is still running, and for a juz (which is
+  /// never translated here).
   UntranslatedZikr? get _untranslatedZikr {
-    if (widget.portion != null || _translation != null) return null;
+    if (widget.portion != null) return null;
     if (_translationCheckedIn != ZikrTranslations.instance.language.code) {
       return null;
     }
+    if (_translatesAnyVerse(_translation)) return null;
     return UntranslatedZikr(uid: _contentUid, englishTitle: _englishTitle());
+  }
+
+  ZikrDocumentTranslation? _verseCheckTranslation;
+  Map<String, dynamic>? _verseCheckData;
+  bool _verseCheckResult = false;
+
+  /// Whether [translation] translates at least one of this zikr's verses,
+  /// worked out once per translation and content.
+  bool _translatesAnyVerse(ZikrDocumentTranslation? translation) {
+    if (translation == null) return false;
+    if (!identical(translation, _verseCheckTranslation) ||
+        !identical(zikrData, _verseCheckData)) {
+      final verses =
+          ZikrContentParser.verseSegmentNumbers(_buildVisibleTabContents());
+      _verseCheckTranslation = translation;
+      _verseCheckData = zikrData;
+      _verseCheckResult = verses.any((n) => translation.segment(n) != null);
+    }
+    return _verseCheckResult;
   }
 
   void _applyZikrData(Map<String, dynamic> data) {

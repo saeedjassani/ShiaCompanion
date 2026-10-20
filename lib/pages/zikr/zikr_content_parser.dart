@@ -254,6 +254,23 @@ class ZikrContentParser {
     return offsets;
   }
 
+  /// The numbers of [tabContents]' verse segments - the ones an Arabic line
+  /// anchors - numbered as [segmentOffsets] numbers them.
+  static Set<int> verseSegmentNumbers(List<String> tabContents) {
+    final hasHeaders = tabContents.length > 1;
+    final verses = <int>{};
+    var next = 0;
+    for (final content in tabContents) {
+      if (hasHeaders) next++;
+      final parsed = parseContent(content, hideHeaderLine: hasHeaders);
+      for (final segment in parsed.segments) {
+        if (parsed.arabicCodes.contains(segment.anchorLine)) verses.add(next);
+        next++;
+      }
+    }
+    return verses;
+  }
+
   /// The label of tab [tabIndex] (whose text is [content]) as read in
   /// [language], or null when it has none to show - the caller numbers the
   /// tab instead. [offsets] are the zikr's [segmentOffsets].
