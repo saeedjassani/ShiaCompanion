@@ -225,10 +225,16 @@ class AnalyticsService {
   /// Records a feature actually being *used*, as opposed to its screen merely
   /// being opened. [name] is a stable snake_case id; [label] is what the
   /// dashboard shows a human.
+  ///
+  /// [countOnDashboard] false sends the event to GA4 only. That is for
+  /// things the app does on its own, or that mirror an action already
+  /// counted under its own key - the dashboard ranks choices people make, and
+  /// those would only pad it.
   static Future<void> feature(
     String name, {
     String? label,
     Map<String, Object>? parameters,
+    bool countOnDashboard = true,
   }) async {
     if (!_isLive) return;
     if (name.trim().isEmpty) return;
@@ -237,7 +243,7 @@ class AnalyticsService {
           name: 'feature_use',
           parameters: {'feature': name, ...?parameters},
         ));
-    _count(metricFeature, name, label: label ?? name);
+    if (countOnDashboard) _count(metricFeature, name, label: label ?? name);
   }
 
   /// Records the "Prayer Times Shown" selection being saved — which times the

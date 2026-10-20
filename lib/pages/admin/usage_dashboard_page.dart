@@ -6,7 +6,10 @@ import 'package:intl/intl.dart';
 
 import '../../constants.dart';
 import '../../services/analytics_service.dart';
-import '../../widgets/responsive_content.dart';
+import '../../theme/shia_colors.dart';
+import '../../widgets/outline_icon.dart';
+import '../../widgets/page_chrome.dart';
+import 'usage_cards.dart';
 import 'usage_charts.dart';
 
 /// How far back a view of the counters reaches.
@@ -37,11 +40,20 @@ enum UsageRange {
 
 /// One row of the ranking.
 class UsageRow {
-  const UsageRow({required this.key, required this.label, required this.count});
+  const UsageRow({
+    required this.key,
+    required this.label,
+    required this.count,
+    this.note,
+  });
 
   final String key;
   final String label;
   final int count;
+
+  /// A line under the label: how many of a zikr's opens were read to the
+  /// end.
+  final String? note;
 }
 
 /// Everything the dashboard needs, read in one pass.
@@ -149,7 +161,6 @@ class PeriodDelta {
 /// Null when both are zero — a metric nobody has touched in either period is
 /// not a trend worth reporting. A previous figure of zero is reported as
 /// "New" rather than a division by zero or a meaningless "+∞%".
-@visibleForTesting
 PeriodDelta? periodDelta(int current, int previous) {
   if (current == 0 && previous == 0) return null;
   if (previous == 0) {
@@ -171,11 +182,12 @@ PeriodDelta? periodDelta(int current, int previous) {
 /// used" reads as a handful of groups instead of one flat list.
 ///
 /// Grouped by what someone was *doing*, not by which screen the action
-/// happened to fire from — "how did they get to this zikr" and "did they
-/// search" are both wayfinding, whether the tap was on the home screen, in
-/// search, or via a deep link, so they share [findingContent] rather than
-/// splitting into a "Home menu" group and a separate "Search" group each too
-/// thin to read as its own trend. Likewise the qaza tracker, the tasbeeh
+/// happened to fire from — a home-screen tap and a search are both
+/// wayfinding, so they share [findingContent] rather than splitting into a
+/// "Home menu" group and a separate "Search" group each too thin to read as
+/// its own trend. Where a zikr open came from (`zikr_source_*`) is not in
+/// any group: it is the zikr open itself, recorded a second time, so it
+/// gets its own section (see [zikrSourceMetric]). Likewise the qaza tracker, the tasbeeh
 /// counter and flight-aware prayer times are worship tools first, so they
 /// sit in [prayerAndWorship] rather than the old catch-all "Account & tools".
 ///
@@ -186,13 +198,14 @@ enum FeatureGroup {
   readingContent(
     'Reading the content',
     'Bookmarks, sharing, audio (including downloads and playlists), fonts, '
-        'reminders, and translation/transliteration toggles while reading a '
-        'zikr, a library chapter, or the Quran',
+        'reminders, auto-scroll, Quran notes and the recitation tracker, and '
+        'translation/transliteration toggles while reading a zikr, a library '
+        'chapter, or the Quran',
   ),
   findingContent(
     'Finding content',
-    'Home-screen taps, search, Quran listen-and-follow, and how a zikr was '
-        'reached — a deep link, a widget, or search itself',
+    'Home-screen taps, search and Quran listen-and-follow. Where each zikr '
+        'open came from has its own section above',
   ),
   prayerAndWorship(
     'Prayer & worship tools',
@@ -202,12 +215,14 @@ enum FeatureGroup {
   ),
   personalizationAndAccount(
     'Personalization & account',
-    'Favorites, dark mode, app text size, sign-in and account deletion',
+    'Favorites, theme, app text size, app and translation language, sign-in '
+        'and account deletion',
   ),
   feedbackAndRatings(
     'Feedback & ratings',
-    'App-store rating prompts, the feedback email, mistake reports and '
-        'content requests (including admins resolving them)',
+    'App-store rating prompts and links, the feedback email, mistake '
+        'reports, and content and translation requests (including admins '
+        'resolving them)',
   ),
   other('Other', 'Not yet sorted into a group');
 
@@ -218,8 +233,8 @@ enum FeatureGroup {
 }
 
 /// Feature keys with no shared prefix to match on, grouped by [FeatureGroup].
-/// Keys under a shared prefix (`home_menu_*`, `zikr_source_*`) are matched in
-/// [featureGroupFor] instead, so they don't need an entry here.
+/// `home_menu_*` keys are matched by prefix in [featureGroupFor] instead, so
+/// they don't need an entry here.
 const Set<String> _readingContentFeatureKeys = {
   'zikr_counter_shown',
   'zikr_audio_opened',
@@ -252,13 +267,18 @@ const Set<String> _readingContentFeatureKeys = {
   'zikr_reminder_entry_point_opened',
   'quran_verse_saved',
   'quran_verse_unsaved',
-  // Historical only: logged on every automatic save while scrolling until it
-  // stopped being counted as a feature. Kept so its old totals still group.
-  'recitation_tracker_updated',
+  'quran_note_added',
+  'quran_note_edited',
+  'quran_note_deleted',
   'recitation_track_added',
   'recitation_entry_removed',
+  'recitation_track_settings_changed',
+  'quran_tracking_hint_dismissed',
   'quran_surah_step',
   'quran_juz_step',
+  // The end-of-surah offer to read Dua Khatm al-Quran.
+  'quran_khatm_dua',
+  'zikr_auto_scroll_started',
 };
 
 const Set<String> _findingContentFeatureKeys = {
@@ -283,6 +303,12 @@ const Set<String> _prayerAndWorshipFeatureKeys = {
   // Looking up another city's times, and the Home card's "Still in X?".
   'city_times_viewed',
   'city_nudge_answered',
+  'city_prompt_dismissed',
+  // The fix-it button on the prayer card's location line.
+  'location_status_action',
+  // Historical only: the prayer notifications screen before its rebuild.
+  'prayer_notifications_master_toggled',
+  'prayer_notifications_sheet_saved',
   'qibla_target_changed',
   'qaza_updated',
   'tasbeeh_session',
@@ -302,7 +328,8 @@ const Set<String> _personalizationAndAccountFeatureKeys = {
   'theme_mode_changed',
   'home_shortcuts_changed',
   'app_text_scale_changed',
-  'first_run_setup',
+  'app_language_changed',
+  'translation_language_changed',
 };
 
 const Set<String> _feedbackAndRatingsFeatureKeys = {
@@ -311,9 +338,11 @@ const Set<String> _feedbackAndRatingsFeatureKeys = {
   'rate_us_settings',
   'feedback_email_opened',
   'github_settings',
-  'rating_positive_action',
+  // The web Home's "Get the app" store links.
+  'home_get_app',
   'zikr_mistake_reported',
   'content_requested',
+  'zikr_translation_requested',
   // Admins working through those reports and requests.
   'mistake_report_resolved',
   'mistake_report_reopened',
@@ -321,11 +350,47 @@ const Set<String> _feedbackAndRatingsFeatureKeys = {
   'content_request_reopened',
 };
 
+/// Feature keys the dashboard leaves out entirely. Each one is something the
+/// app did on its own, or a copy of an action already counted under its own
+/// key, so ranking it beside real choices would only pad the numbers. They
+/// now go to GA4 only (`countOnDashboard: false`); this hides the counts
+/// they built up before that.
+const Set<String> _unrankedFeatureKeys = {
+  // Every new install passes through first-run setup.
+  'first_run_setup',
+  // Fired with every share, bookmark and favorite, each counted already.
+  'rating_positive_action',
+  // A one-off migration of old Quran bookmarks.
+  'quran_legacy_bookmark_retired',
+  // Logged on every automatic save while scrolling the Quran.
+  'recitation_tracker_updated',
+};
+
+/// Prefix [AnalyticsService.zikrView] puts on the feature counter it bumps
+/// next to every zikr open.
+const String zikrSourcePrefix = 'zikr_source_';
+
+/// Not a database bucket: where the dashboard files the `zikr_source_*`
+/// counters once it has taken them out of the feature metric. One of them
+/// is bumped with every zikr open, so left among the features they made
+/// each open count twice - once in "Zikr opens", again in "Feature uses",
+/// and a third time with the Home tap that led to it inside "Finding
+/// content".
+const String zikrSourceMetric = 'zikr_source';
+
+/// The dashboard metric a stored counter is shown under, or null for one it
+/// leaves out (see [_unrankedFeatureKeys]).
+String? _dashboardMetricFor(String metric, String key) {
+  if (metric != AnalyticsService.metricFeature) return metric;
+  if (key.startsWith(zikrSourcePrefix)) return zikrSourceMetric;
+  if (_unrankedFeatureKeys.contains(key)) return null;
+  return metric;
+}
+
 /// See [FeatureGroup].
 @visibleForTesting
 FeatureGroup featureGroupFor(String key) {
   if (key.startsWith('home_menu_') ||
-      key.startsWith('zikr_source_') ||
       _findingContentFeatureKeys.contains(key)) {
     return FeatureGroup.findingContent;
   }
@@ -387,7 +452,9 @@ const String zikrPlaylistSuffix = '~playlist';
 bool _isZikrOpenKey(String key) =>
     !key.endsWith(zikrCompletionSuffix) && !key.endsWith(zikrPlaylistSuffix);
 
-/// Parses `usage/totals`'s raw snapshot value into metric -> key -> count.
+/// Parses `usage/totals`'s raw snapshot value into metric -> key -> count,
+/// with each counter filed under its dashboard metric (see
+/// [_dashboardMetricFor]).
 ///
 /// A standalone function, because a counter written by
 /// [ServerValue.increment] comes back as an `int` on Android/iOS but a
@@ -402,11 +469,12 @@ Map<String, Map<String, int>> parseUsageTotals(Object? value) {
   if (value is Map) {
     value.forEach((metric, keys) {
       if (keys is! Map) return;
-      final bucket = counts.putIfAbsent('$metric', () => <String, int>{});
       keys.forEach((key, count) {
-        if (count is num) {
-          bucket['$key'] = (bucket['$key'] ?? 0) + count.toInt();
-        }
+        if (count is! num) return;
+        final shownAs = _dashboardMetricFor('$metric', '$key');
+        if (shownAs == null) return;
+        final bucket = counts.putIfAbsent(shownAs, () => <String, int>{});
+        bucket['$key'] = (bucket['$key'] ?? 0) + count.toInt();
       });
     });
   }
@@ -418,6 +486,10 @@ Map<String, Map<String, int>> parseUsageTotals(Object? value) {
 /// totals, the day-by-day trend, and each metric's own day-by-day trend (for
 /// the "activity by area" chart). See [parseUsageTotals] for why `count` is
 /// checked against `num` rather than `int`.
+///
+/// Counters are filed the way [parseUsageTotals] files them. The
+/// [zikrSourceMetric] ones stay out of both trends, since each is a zikr
+/// open the zikr metric already plotted.
 @visibleForTesting
 ({
   Map<String, Map<String, int>> counts,
@@ -434,17 +506,19 @@ Map<String, Map<String, int>> parseUsageTotals(Object? value) {
       if (!trend.containsKey(day) || metrics is! Map) return;
       metrics.forEach((metric, keys) {
         if (keys is! Map) return;
-        final metricKey = '$metric';
-        final bucket = counts.putIfAbsent(metricKey, () => <String, int>{});
-        final dayBucket = metricTrend.putIfAbsent(
-          metricKey,
-          () => {for (final d in wantedDays) d: 0},
-        );
         keys.forEach((key, count) {
           if (count is! num) return;
+          final shownAs = _dashboardMetricFor('$metric', '$key');
+          if (shownAs == null) return;
           final value = count.toInt();
+          final bucket = counts.putIfAbsent(shownAs, () => <String, int>{});
           bucket['$key'] = (bucket['$key'] ?? 0) + value;
+          if (shownAs == zikrSourceMetric) return;
           trend[day] = (trend[day] ?? 0) + value;
+          final dayBucket = metricTrend.putIfAbsent(
+            shownAs,
+            () => {for (final d in wantedDays) d: 0},
+          );
           dayBucket[day] = (dayBucket[day] ?? 0) + value;
         });
       });
@@ -453,9 +527,9 @@ Map<String, Map<String, int>> parseUsageTotals(Object? value) {
   return (counts: counts, trend: trend, metricTrend: metricTrend);
 }
 
-/// Folds the completion counters back into the zikr they belong to, and
-/// drops the playlist-play counters (see [zikrPlaylistRows]) so the result is
-/// opens only.
+/// Folds the completion counters back into the zikr they belong to, as its
+/// [UsageRow.note], and drops the playlist-play counters (see
+/// [zikrPlaylistRows]) so the result is opens only.
 ///
 /// They live in the same metric as opens, so without this a popular zikr would
 /// appear twice in the ranking and its completions would compete with its own
@@ -472,11 +546,67 @@ List<UsageRow> splitZikrCompletions(List<UsageRow> rows) {
     final done = completions[row.key] ?? 0;
     return UsageRow(
       key: row.key,
-      label: done > 0 ? '${row.label}  ·  $done finished' : row.label,
+      label: row.label,
       count: row.count,
+      note: done > 0 && row.count > 0
+          ? '$done finished · ${(done * 100 / row.count).round()}%'
+          : null,
     );
   }).toList();
 }
+
+/// Every completion in the zikr metric: zikrs read to the end.
+@visibleForTesting
+int zikrCompletionTotal(Map<String, int>? zikrCounts) =>
+    (zikrCounts ?? const {})
+        .entries
+        .where((entry) => entry.key.endsWith(zikrCompletionSuffix))
+        .fold<int>(0, (sum, entry) => sum + entry.value);
+
+/// Short names for the [zikrSourceMetric] rows, in the fixed order the
+/// "How zikrs were opened" share bar colors them by. The recorded labels
+/// ("Zikr opened from a category list") are written to stand alone in a
+/// flat list; under a heading that already says "opened", the place is
+/// enough. A key not listed keeps its recorded label and folds into the
+/// share bar's "Other".
+const Map<String, String> zikrSourceShortLabels = {
+  'zikr_source_list': 'Category lists',
+  'zikr_source_favorites': 'Favorites',
+  'zikr_source_todays_recitation': "Today's Recitations",
+  'zikr_source_search': 'Search',
+  'zikr_source_deep_link': 'Shared links',
+  'zikr_source_quran': 'Quran screen',
+  'zikr_source_home_today': 'Today on Home',
+  'zikr_source_quran_resume': 'Quran: carried on',
+};
+
+/// The rest, by name only.
+const Map<String, String> _zikrSourceOtherLabels = {
+  'zikr_source_zikr_link': 'A link inside another zikr',
+  'zikr_source_home_continue': 'Continue on Home',
+  'zikr_source_downloads': 'Downloaded recitations',
+  'zikr_source_home_widget_recitation': "Today's Recitation widget",
+  'zikr_source_home_widget_favorites': 'Favorites widget',
+  'zikr_source_my_stats': 'My Stats',
+  'zikr_source_zikr_reminder': 'A reminder notification',
+  'zikr_source_playlist': 'A playlist',
+  'zikr_source_library': 'The library',
+  'zikr_source_admin': 'The admin list',
+  'zikr_source_quran_listen_and_follow': 'Quran listen and follow',
+  'zikr_source_unknown': 'Untagged',
+};
+
+/// [rows] of the zikr-source metric under their short names.
+List<UsageRow> shortZikrSourceRows(List<UsageRow> rows) => [
+      for (final row in rows)
+        UsageRow(
+          key: row.key,
+          label: zikrSourceShortLabels[row.key] ??
+              _zikrSourceOtherLabels[row.key] ??
+              row.label,
+          count: row.count,
+        ),
+    ];
 
 /// The previous period's zikr *open* counts, keyed the same way
 /// [splitZikrCompletions] keys its rows (by uid, completions stripped out) —
@@ -535,9 +665,6 @@ class UsageDashboardPage extends StatefulWidget {
 
 class _UsageDashboardPageState extends State<UsageDashboardPage> {
   static final DateFormat _dayFormat = DateFormat('yyyy-MM-dd');
-  static final NumberFormat _countFormat = NumberFormat.decimalPattern();
-  static final NumberFormat _percentFormat =
-      NumberFormat.decimalPercentPattern(decimalDigits: 0);
 
   UsageRange _range = UsageRange.week;
   late Future<UsageSnapshot> _snapshot;
@@ -679,7 +806,10 @@ class _UsageDashboardPageState extends State<UsageDashboardPage> {
   /// zikr index, and shows the raw key when a zikr has since been deleted so a
   /// row is never silently dropped.
   String _labelFor(String metric, String key, Map<String, String> labels) {
-    final recorded = labels['$metric/$key'];
+    // Zikr sources are stored, labels and all, under the feature metric.
+    final storedAs =
+        metric == zikrSourceMetric ? AnalyticsService.metricFeature : metric;
+    final recorded = labels['$storedAs/$key'];
     if (recorded != null && recorded.isNotEmpty) return recorded;
     if (metric == AnalyticsService.metricZikr) {
       final uid = key.endsWith(zikrPlaylistSuffix)
@@ -693,151 +823,328 @@ class _UsageDashboardPageState extends State<UsageDashboardPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Usage'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.refresh),
-            tooltip: 'Refresh',
-            onPressed: _reload,
-          ),
-        ],
-      ),
-      body: FutureBuilder<UsageSnapshot>(
-        future: _snapshot,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState != ConnectionState.done) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          if (snapshot.hasError) {
-            return _ErrorView(error: snapshot.error!, onRetry: _reload);
-          }
-          return _buildBody(context, snapshot.data ?? UsageSnapshot.empty);
-        },
-      ),
-    );
-  }
-
-  Widget _buildBody(BuildContext context, UsageSnapshot data) {
-    final theme = Theme.of(context);
-    final previousCaption = _range.previousPeriodLabel;
-    // Null, not an empty map, when there's no previous period at all (All
-    // time) — zikrPreviousByKey on its own can't tell "no previous period"
-    // apart from "previous period had zero zikr activity", since both parse
-    // to {}.
-    final zikrPrevious = data.previousCounts == null
-        ? null
-        : zikrPreviousByKey(data.previousCounts);
-    final playlistPrevious = data.previousCounts == null
-        ? null
-        : zikrPlaylistPreviousByKey(data.previousCounts);
-
-    return RefreshIndicator(
-      onRefresh: () async => _reload(),
-      child: ListView(
-        padding: const EdgeInsets.symmetric(vertical: 16),
-        children: [
-          ResponsiveContent(
-            maxWidth: listContentWidth,
-            padding: const EdgeInsets.symmetric(horizontal: 16),
+    final colors = ShiaColors.of(context);
+    return LargeTitlePage(
+      maxWidth: widePageWidth,
+      title: 'Usage',
+      subtitle: 'How people use the app',
+      actions: [
+        RoundIconButton(
+          icon: OutlineIcon(OutlineGlyph.reset, color: colors.accent),
+          label: 'Refresh',
+          onPressed: _reload,
+        ),
+      ],
+      slivers: [
+        SliverPadding(
+          padding: pageGutter(context, maxWidth: widePageWidth)
+              .copyWith(bottom: 32),
+          sliver: SliverToBoxAdapter(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                _buildRangePicker(context),
-                const SizedBox(height: 16),
-                if (data.isEmpty)
-                  _EmptyView(range: _range)
-                else ...[
-                  _buildHeadlines(context, data),
-                  if (data.trend.length > 1) ...[
-                    const SizedBox(height: 28),
-                    TrendAreaChart(
-                      title: 'Events per day',
-                      trend: data.trend,
-                      color: theme.colorScheme.primary,
-                    ),
+                SegmentedSwitcher<UsageRange>(
+                  segments: [
+                    for (final range in UsageRange.values)
+                      Segment(range, range.label),
                   ],
-                  if (data.metricTrend.length > 1) ...[
-                    const SizedBox(height: 28),
-                    MetricTrendChart(series: _metricSeries(context, data)),
-                  ],
-                  const SizedBox(height: 8),
-                  _UsageSection(
-                    title: 'Most opened zikrs',
-                    subtitle: 'Aliases counted with the zikr they point at',
-                    rows: _zikrRows(data),
-                    countFormat: _countFormat,
-                    percentFormat: _percentFormat,
-                    previousTotal: data.previous?.zikrOpens,
-                    previousByKey: zikrPrevious,
-                    previousCaption: previousCaption,
-                  ),
-                  _UsageSection(
-                    title: 'Played in playlists',
-                    subtitle: 'Each zikr counted once per playlist run, '
-                        'whether started on it or reached by the queue',
-                    rows: zikrPlaylistRows(
-                        data.rowsFor(AnalyticsService.metricZikr)),
-                    countFormat: _countFormat,
-                    percentFormat: _percentFormat,
-                    previousTotal: playlistPrevious?.values
-                        .fold<int>(0, (sum, count) => sum + count),
-                    previousByKey: playlistPrevious,
-                    previousCaption: previousCaption,
-                  ),
-                  _FeatureUsageSections(
-                    rows: data.rowsFor(AnalyticsService.metricFeature),
-                    countFormat: _countFormat,
-                    percentFormat: _percentFormat,
-                    previousByKey:
-                        data.previousCounts?[AnalyticsService.metricFeature],
-                    previousCaption: previousCaption,
-                  ),
-                  _UsageSection(
-                    title: 'Screens',
-                    rows: data.rowsFor(AnalyticsService.metricScreen),
-                    countFormat: _countFormat,
-                    percentFormat: _percentFormat,
-                    previousTotal:
-                        data.previousTotalFor(AnalyticsService.metricScreen),
-                    previousByKey:
-                        data.previousCounts?[AnalyticsService.metricScreen],
-                    previousCaption: previousCaption,
-                  ),
-                  _UsageSection(
-                    title: 'Library',
-                    subtitle: 'Chapters opened, by book',
-                    rows: data.rowsFor(AnalyticsService.metricLibrary),
-                    countFormat: _countFormat,
-                    percentFormat: _percentFormat,
-                    previousTotal:
-                        data.previousTotalFor(AnalyticsService.metricLibrary),
-                    previousByKey:
-                        data.previousCounts?[AnalyticsService.metricLibrary],
-                    previousCaption: previousCaption,
-                  ),
-                  _UsageSection(
-                    title: 'Live streams',
-                    rows: data.rowsFor(AnalyticsService.metricStream),
-                    countFormat: _countFormat,
-                    percentFormat: _percentFormat,
-                    previousTotal:
-                        data.previousTotalFor(AnalyticsService.metricStream),
-                    previousByKey:
-                        data.previousCounts?[AnalyticsService.metricStream],
-                    previousCaption: previousCaption,
-                  ),
-                ],
+                  selected: _range,
+                  onChanged: (range) => setState(() {
+                    _range = range;
+                    _snapshot = _load();
+                  }),
+                ),
+                const SizedBox(height: 18),
+                FutureBuilder<UsageSnapshot>(
+                  future: _snapshot,
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState != ConnectionState.done) {
+                      return const SizedBox(
+                        height: 240,
+                        child: Center(child: CircularProgressIndicator()),
+                      );
+                    }
+                    if (snapshot.hasError) {
+                      return EmptyStateCard(
+                        glyph: OutlineGlyph.alert,
+                        title: 'Could not read usage',
+                        body: '${snapshot.error}',
+                        actionLabel: 'Retry',
+                        onAction: _reload,
+                      );
+                    }
+                    final data = snapshot.data ?? UsageSnapshot.empty;
+                    if (data.isEmpty) {
+                      return EmptyStateCard(
+                        glyph: OutlineGlyph.stats,
+                        title: 'No usage recorded for '
+                            '${_range.label.toLowerCase()}',
+                        body: 'Counters start filling once a release with '
+                            "analytics is in people's hands. Debug builds "
+                            'are excluded on purpose.',
+                      );
+                    }
+                    return UsageOverview(data: data, range: _range);
+                  },
+                ),
               ],
             ),
           ),
+        ),
+      ],
+    );
+  }
+}
+
+/// The dashboard's content for one loaded [UsageSnapshot]: the headline
+/// numbers, the activity chart, then a card per question - which zikrs, how
+/// people reach them, whether search finds things, what they do in each
+/// area of the app. A widget of its own so it renders in a test without a
+/// database.
+@visibleForTesting
+class UsageOverview extends StatelessWidget {
+  const UsageOverview({super.key, required this.data, required this.range});
+
+  final UsageSnapshot data;
+  final UsageRange range;
+
+  @override
+  Widget build(BuildContext context) {
+    final previousCaption = range.previousPeriodLabel;
+    final previous = data.previousCounts;
+    final hasPrevious = previous != null;
+    final brightness = Theme.of(context).brightness;
+
+    final zikrPrevious = hasPrevious ? zikrPreviousByKey(previous) : null;
+    final playlistPrevious =
+        hasPrevious ? zikrPlaylistPreviousByKey(previous) : null;
+    final featureRows = data.rowsFor(AnalyticsService.metricFeature);
+
+    final cardsStart = <Widget>[
+      if (_zikrRows().isNotEmpty)
+        UsageRankedCard(
+          title: 'Most opened zikrs',
+          subtitle: 'With how many were read to the end. Aliases count '
+              'with the zikr they point at',
+          rows: _zikrRows(),
+          previousTotal: data.previous?.zikrOpens,
+          previousByKey: zikrPrevious,
+          previousCaption: previousCaption,
+        ),
+      if (data.rowsFor(zikrSourceMetric).isNotEmpty)
+        _buildEntryPoints(context),
+      if (_searchSteps().any((step) => step.value > 0))
+        _buildSearch(),
+      if (zikrPlaylistRows(data.rowsFor(AnalyticsService.metricZikr))
+          .isNotEmpty)
+        UsageRankedCard(
+          title: 'Played in playlists',
+          subtitle: 'Each zikr counted once per playlist run',
+          rows: zikrPlaylistRows(data.rowsFor(AnalyticsService.metricZikr)),
+          previousTotal: playlistPrevious?.values
+              .fold<int>(0, (sum, count) => sum + count),
+          previousByKey: playlistPrevious,
+          previousCaption: previousCaption,
+          color: categoricalColor(6, brightness),
+        ),
+    ];
+
+    final cardsEnd = <Widget>[
+      if (featureRows.isNotEmpty) _buildAreas(context, featureRows),
+      if (data.rowsFor(AnalyticsService.metricLibrary).isNotEmpty)
+        UsageRankedCard(
+          title: 'Library',
+          subtitle: 'Chapters opened, by book',
+          rows: data.rowsFor(AnalyticsService.metricLibrary),
+          previousTotal: data.previousTotalFor(AnalyticsService.metricLibrary),
+          previousByKey: previous?[AnalyticsService.metricLibrary],
+          previousCaption: previousCaption,
+          color: categoricalColor(3, brightness),
+        ),
+      if (data.rowsFor(AnalyticsService.metricStream).isNotEmpty)
+        UsageRankedCard(
+          title: 'Live streams',
+          rows: data.rowsFor(AnalyticsService.metricStream),
+          previousTotal: data.previousTotalFor(AnalyticsService.metricStream),
+          previousByKey: previous?[AnalyticsService.metricStream],
+          previousCaption: previousCaption,
+          color: categoricalColor(4, brightness),
+        ),
+      if (data.rowsFor(AnalyticsService.metricScreen).isNotEmpty)
+        UsageRankedCard(
+          title: 'Screens',
+          subtitle: 'Pages opened, whatever was done there',
+          rows: data.rowsFor(AnalyticsService.metricScreen),
+          previousTotal: data.previousTotalFor(AnalyticsService.metricScreen),
+          previousByKey: previous?[AnalyticsService.metricScreen],
+          previousCaption: previousCaption,
+          color: categoricalColor(1, brightness),
+        ),
+    ];
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        _buildHeadlines(),
+        if (data.metricTrend.isNotEmpty && data.trend.length > 1) ...[
+          const SizedBox(height: 18),
+          UsageCard(
+            title: 'Activity',
+            subtitle: 'Events per day, by kind',
+            child: MetricTrendChart(series: _metricSeries(context)),
+          ),
+        ],
+        const SizedBox(height: 18),
+        WideColumns(
+          spacing: 18,
+          gap: 18,
+          start: cardsStart.isEmpty ? cardsEnd : cardsStart,
+          end: cardsStart.isEmpty ? const [] : cardsEnd,
+        ),
+      ],
+    );
+  }
+
+  /// Where zikr opens start: a share bar of the main entry points, and
+  /// the ranking under it in the same colors.
+  Widget _buildEntryPoints(BuildContext context) {
+    final colors = ShiaColors.of(context);
+    final brightness = Theme.of(context).brightness;
+    final rows = shortZikrSourceRows(data.rowsFor(zikrSourceMetric));
+    final named = zikrSourceShortLabels.keys.toList();
+    Color? colorFor(UsageRow row) {
+      final slot = named.indexOf(row.key);
+      return slot < 0 ? colors.textMuted : categoricalColor(slot, brightness);
+    }
+
+    return UsageRankedCard(
+      title: 'How zikrs were opened',
+      subtitle: 'Every zikr open, counted once, by where it started',
+      rows: rows,
+      previousTotal: data.previousTotalFor(zikrSourceMetric),
+      previousByKey: data.previousCounts?[zikrSourceMetric],
+      previousCaption: range.previousPeriodLabel,
+      colorFor: colorFor,
+      header: ShareBar(
+        segments:
+            namedShareSegments(rows, named, brightness, colors.textMuted),
+      ),
+    );
+  }
+
+  /// Opened search, typed a search, opened a result.
+  List<({String label, int value, PeriodDelta? delta})> _searchSteps() {
+    int now(String metric, String key) =>
+        data.rowsFor(metric).where((row) => row.key == key).fold<int>(
+            0, (sum, row) => sum + row.count);
+    PeriodDelta? delta(String metric, String key, int value) {
+      final previous = data.previousCounts;
+      if (previous == null) return null;
+      return periodDelta(value, previous[metric]?[key] ?? 0);
+    }
+
+    ({String label, int value, PeriodDelta? delta}) step(
+        String label, String metric, String key) {
+      final value = now(metric, key);
+      return (label: label, value: value, delta: delta(metric, key, value));
+    }
+
+    return [
+      step('Opened search', AnalyticsService.metricFeature, 'search_opened'),
+      step('Searches typed', AnalyticsService.metricFeature, 'search'),
+      step('Results opened', zikrSourceMetric, 'zikr_source_search'),
+    ];
+  }
+
+  Widget _buildSearch() {
+    final steps = _searchSteps();
+    final opened = steps.first.value;
+    final results = steps.last.value;
+    return UsageCard(
+      title: 'Search',
+      subtitle: 'From opening search to opening what it found',
+      child: UsageFunnel(
+        steps: steps,
+        note: opened == 0
+            ? null
+            : '${(results / opened).toStringAsFixed(1)} results opened for '
+                'every time search is opened',
+      ),
+    );
+  }
+
+  /// Feature uses by area: the share bar, and a tile per area opening its
+  /// actions.
+  Widget _buildAreas(BuildContext context, List<UsageRow> rows) {
+    final brightness = Theme.of(context).brightness;
+    final grouped = groupFeatureRows(rows);
+    final previousByKey = data.previousCounts?[AnalyticsService.metricFeature];
+    final previousTotals = groupPreviousTotals(previousByKey);
+    final total = rows.fold<int>(0, (sum, row) => sum + row.count);
+    final present = [
+      for (final group in FeatureGroup.values)
+        if (grouped[group] case final groupRows? when groupRows.isNotEmpty)
+          (group, groupRows),
+    ];
+    Color colorOf(FeatureGroup group) =>
+        categoricalColor(FeatureGroup.values.indexOf(group), brightness);
+
+    return UsageCard(
+      title: 'What people do',
+      subtitle: 'Actions taken, by area of the app. Open one for its '
+          'actions',
+      total: total,
+      delta: data.previous == null
+          ? null
+          : periodDelta(total, data.previous!.featureUses),
+      deltaCaption: range.previousPeriodLabel,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          if (present.length > 1) ...[
+            ShareBar(segments: [
+              for (final (group, groupRows) in present)
+                ShareSegment(
+                  label: group.title,
+                  value: groupRows.fold<int>(0, (sum, r) => sum + r.count),
+                  color: colorOf(group),
+                ),
+            ]),
+            const SizedBox(height: 14),
+          ],
+          UsageTileGrid(tiles: [
+            for (final (group, groupRows) in present)
+              Builder(builder: (context) {
+                final groupTotal =
+                    groupRows.fold<int>(0, (sum, r) => sum + r.count);
+                return UsageAreaTile(
+                  title: group.title,
+                  color: colorOf(group),
+                  total: groupTotal,
+                  share: total == 0 ? 0 : groupTotal / total,
+                  delta: previousByKey == null
+                      ? null
+                      : periodDelta(groupTotal, previousTotals[group] ?? 0),
+                  top: groupRows.first.label,
+                  onTap: () => pushPageRoute(
+                    context,
+                    UsageRankedPage(
+                      title: group.title,
+                      subtitle: group.subtitle,
+                      rows: groupRows,
+                      previousByKey: previousByKey,
+                      color: colorOf(group),
+                    ),
+                  ),
+                );
+              }),
+          ]),
         ],
       ),
     );
   }
 
-  List<UsageRow> _zikrRows(UsageSnapshot data) =>
+  List<UsageRow> _zikrRows() =>
       splitZikrCompletions(data.rowsFor(AnalyticsService.metricZikr));
 
   /// One fixed-color line per metric that had activity in the range, in a
@@ -851,15 +1158,14 @@ class _UsageDashboardPageState extends State<UsageDashboardPage> {
   ];
 
   static const Map<String, String> _metricLabels = {
-    AnalyticsService.metricZikr: 'Zikr',
+    AnalyticsService.metricZikr: 'Zikrs',
     AnalyticsService.metricScreen: 'Screens',
-    AnalyticsService.metricFeature: 'Features',
+    AnalyticsService.metricFeature: 'Actions',
     AnalyticsService.metricLibrary: 'Library',
     AnalyticsService.metricStream: 'Streams',
   };
 
-  List<UsageMetricSeries> _metricSeries(
-      BuildContext context, UsageSnapshot data) {
+  List<UsageMetricSeries> _metricSeries(BuildContext context) {
     final brightness = Theme.of(context).brightness;
     return [
       for (var i = 0; i < _metricOrder.length; i++)
@@ -872,647 +1178,76 @@ class _UsageDashboardPageState extends State<UsageDashboardPage> {
     ];
   }
 
-  Widget _buildRangePicker(BuildContext context) {
-    return SegmentedButton<UsageRange>(
-      segments: UsageRange.values
-          .map((range) => ButtonSegment<UsageRange>(
-                value: range,
-                label: Text(range.label),
-              ))
-          .toList(),
-      selected: {_range},
-      showSelectedIcon: false,
-      onSelectionChanged: (selection) {
-        setState(() {
-          _range = selection.first;
-          _snapshot = _load();
-        });
-      },
-    );
-  }
-
-  Widget _buildHeadlines(BuildContext context, UsageSnapshot data) {
-    final zikrRows = _zikrRows(data);
+  Widget _buildHeadlines() {
+    final zikrRows = _zikrRows();
     final zikrOpens = zikrRows.fold<int>(0, (sum, r) => sum + r.count);
-    final distinctZikrs = zikrRows.length;
+    final finished = zikrCompletionTotal({
+      for (final row in data.rowsFor(AnalyticsService.metricZikr))
+        row.key: row.count,
+    });
+    final searches = data
+        .rowsFor(AnalyticsService.metricFeature)
+        .where((row) => row.key == 'search')
+        .fold<int>(0, (sum, row) => sum + row.count);
     final featureUses = data.totalFor(AnalyticsService.metricFeature);
-    final screenViews = data.totalFor(AnalyticsService.metricScreen);
     final libraryOpens = data.totalFor(AnalyticsService.metricLibrary);
     final previous = data.previous;
-    final previousCaption = _range.previousPeriodLabel;
-    final previousScreens =
-        data.previousTotalFor(AnalyticsService.metricScreen);
+    final previousCounts = data.previousCounts;
+    final caption = range.previousPeriodLabel;
     final previousLibrary =
         data.previousTotalFor(AnalyticsService.metricLibrary);
 
-    final tiles = [
-      _StatTile(
+    String count(int value) => usageCountFormat.format(value);
+
+    return UsageKpiGrid(tiles: [
+      UsageKpiTile(
         label: 'Zikr opens',
-        value: _countFormat.format(zikrOpens),
+        value: count(zikrOpens),
         delta: previous == null
             ? null
             : periodDelta(zikrOpens, previous.zikrOpens),
-        deltaCaption: previousCaption,
+        deltaCaption: caption,
       ),
-      _StatTile(
-        label: 'Distinct zikrs',
-        value: _countFormat.format(distinctZikrs),
+      UsageKpiTile(
+        label: 'Read to the end',
+        value: zikrOpens == 0
+            ? '–'
+            : usagePercentFormat.format(finished / zikrOpens),
+        note: '${count(finished)} finished',
+      ),
+      UsageKpiTile(
+        label: 'Different zikrs',
+        value: count(zikrRows.length),
         delta: previous == null
             ? null
-            : periodDelta(distinctZikrs, previous.distinctZikrs),
-        deltaCaption: previousCaption,
+            : periodDelta(zikrRows.length, previous.distinctZikrs),
+        deltaCaption: caption,
       ),
-      _StatTile(
-        label: 'Feature uses',
-        value: _countFormat.format(featureUses),
+      UsageKpiTile(
+        label: 'Searches',
+        value: count(searches),
+        delta: previousCounts == null
+            ? null
+            : periodDelta(searches,
+                previousCounts[AnalyticsService.metricFeature]?['search'] ?? 0),
+        deltaCaption: caption,
+      ),
+      UsageKpiTile(
+        label: 'Actions taken',
+        value: count(featureUses),
         delta: previous == null
             ? null
             : periodDelta(featureUses, previous.featureUses),
-        deltaCaption: previousCaption,
+        deltaCaption: caption,
       ),
-      _StatTile(
-        label: 'Screens viewed',
-        value: _countFormat.format(screenViews),
-        delta: previousScreens == null
-            ? null
-            : periodDelta(screenViews, previousScreens),
-        deltaCaption: previousCaption,
-      ),
-      _StatTile(
-        label: 'Library opens',
-        value: _countFormat.format(libraryOpens),
+      UsageKpiTile(
+        label: 'Library chapters',
+        value: count(libraryOpens),
         delta: previousLibrary == null
             ? null
             : periodDelta(libraryOpens, previousLibrary),
-        deltaCaption: previousCaption,
+        deltaCaption: caption,
       ),
-    ];
-
-    // A Wrap rather than a fixed-column GridView: each tile keeps its own
-    // intrinsic height (the delta row makes some tiles taller than others),
-    // and a 4th/5th tile simply wraps to a new row at the same width.
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        const spacing = 12.0;
-        const columns = 3;
-        final tileWidth =
-            (constraints.maxWidth - spacing * (columns - 1)) / columns;
-        return Wrap(
-          spacing: spacing,
-          runSpacing: spacing,
-          children: [
-            for (final tile in tiles) SizedBox(width: tileWidth, child: tile),
-          ],
-        );
-      },
-    );
-  }
-}
-
-class _StatTile extends StatelessWidget {
-  const _StatTile({
-    required this.label,
-    required this.value,
-    this.delta,
-    this.deltaCaption,
-  });
-
-  final String label;
-  final String value;
-
-  /// Change versus the previous equal-length period. Null when that period
-  /// doesn't apply (All time) or when both periods are zero.
-  final PeriodDelta? delta;
-
-  /// What [delta] is measured against, e.g. "the previous 7 days" — shown in
-  /// a tooltip so the tile itself stays a single short line.
-  final String? deltaCaption;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final delta = this.delta;
-    return Card(
-      margin: EdgeInsets.zero,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(value, style: theme.textTheme.headlineSmall),
-            const SizedBox(height: 4),
-            Text(
-              label,
-              style: theme.textTheme.bodySmall?.copyWith(
-                color: theme.colorScheme.onSurfaceVariant,
-              ),
-            ),
-            if (delta != null) ...[
-              const SizedBox(height: 4),
-              _DeltaChip(delta: delta, caption: deltaCaption),
-            ],
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-/// Which arrow and color a [PeriodDelta] gets — shared by the headline
-/// tiles, section header totals, and individual ranked rows, so "up" always
-/// looks the same wherever it appears on the dashboard.
-IconData _deltaIcon(DeltaDirection direction) => switch (direction) {
-      DeltaDirection.up || DeltaDirection.isNew => Icons.arrow_upward,
-      DeltaDirection.down => Icons.arrow_downward,
-      DeltaDirection.flat => Icons.remove,
-    };
-
-Color _deltaColor(DeltaDirection direction, ThemeData theme) {
-  final dark = theme.brightness == Brightness.dark;
-  return switch (direction) {
-    DeltaDirection.up ||
-    DeltaDirection.isNew =>
-      dark ? Colors.green.shade300 : Colors.green.shade700,
-    DeltaDirection.down => theme.colorScheme.error,
-    DeltaDirection.flat => theme.colorScheme.onSurfaceVariant,
-  };
-}
-
-/// A small "+12%"-style chip for a [PeriodDelta]. Reused by the headline
-/// tiles (normal size, with a tooltip naming the comparison period), each
-/// section's header total, and individual ranked rows (dense, no tooltip —
-/// a row is busy enough already).
-class _DeltaChip extends StatelessWidget {
-  const _DeltaChip({required this.delta, this.caption, this.dense = false});
-
-  final PeriodDelta delta;
-  final String? caption;
-  final bool dense;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final color = _deltaColor(delta.direction, theme);
-    final chip = Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Icon(_deltaIcon(delta.direction), size: dense ? 12 : 14, color: color),
-        const SizedBox(width: 2),
-        Text(
-          delta.label,
-          style:
-              (dense ? theme.textTheme.labelSmall : theme.textTheme.bodySmall)
-                  ?.copyWith(color: color, fontWeight: FontWeight.w600),
-        ),
-      ],
-    );
-    if (caption == null || caption!.isEmpty) return chip;
-    return Tooltip(message: 'vs $caption', child: chip);
-  }
-}
-
-/// Ranked list with a proportional bar, so the shape of the distribution reads
-/// at a glance instead of having to compare numbers.
-class _UsageSection extends StatefulWidget {
-  const _UsageSection({
-    required this.title,
-    required this.rows,
-    required this.countFormat,
-    required this.percentFormat,
-    this.subtitle,
-    this.dense = false,
-    this.accentColor,
-    this.previousTotal,
-    this.previousByKey,
-    this.previousCaption,
-  });
-
-  static const int _collapsedRowCount = 10;
-
-  final String title;
-  final String? subtitle;
-  final List<UsageRow> rows;
-  final NumberFormat countFormat;
-  final NumberFormat percentFormat;
-
-  /// True for a subsection nested under a group heading (see
-  /// [_FeatureUsageSections]): a smaller title and no extra top margin, since
-  /// the group heading above it already carries both.
-  final bool dense;
-
-  /// This group's fixed slot in the categorical palette — the same color as
-  /// its swatch in the share bar above, so a group reads as one visual
-  /// identity wherever it shows up. Only ever set on a [dense] group section;
-  /// null renders the plain (no card, default-colored bars) look the
-  /// top-level sections use.
-  final Color? accentColor;
-
-  /// The previous equal-length period's total for this section, for the
-  /// header's change % chip. Null when there's no previous period (All time)
-  /// or the caller has nothing to compare (e.g. a nested feature group with
-  /// no previous-period breakdown).
-  final int? previousTotal;
-
-  /// The previous period's count for each row's key, for that row's own
-  /// change % chip. A key absent from this map means zero for that period —
-  /// the RTDB counters it comes from are only ever incremented, so "never
-  /// written" and "zero" are the same state — which shows as "New" rather
-  /// than being silently skipped. Null (as opposed to an empty map) means
-  /// there is no previous period at all (All time), so no row gets a chip.
-  final Map<String, int>? previousByKey;
-
-  /// What [previousTotal]/[previousByKey] are measured against, e.g. "the
-  /// previous 7 days".
-  final String? previousCaption;
-
-  @override
-  State<_UsageSection> createState() => _UsageSectionState();
-}
-
-class _UsageSectionState extends State<_UsageSection> {
-  // Whether every row beyond the top ten is showing — independent of
-  // [_sectionCollapsed], which hides the section's rows entirely.
-  bool _expanded = false;
-
-  // Starts open: collapsing is something the admin opts into per section, not
-  // a default that would hide numbers nobody asked to hide.
-  bool _sectionCollapsed = false;
-
-  @override
-  Widget build(BuildContext context) {
-    if (widget.rows.isEmpty) return const SizedBox.shrink();
-
-    final theme = Theme.of(context);
-    final max = widget.rows.first.count;
-    final total = widget.rows.fold<int>(0, (sum, row) => sum + row.count);
-    final visible = _expanded
-        ? widget.rows
-        : widget.rows.take(_UsageSection._collapsedRowCount).toList();
-    final hidden = widget.rows.length - visible.length;
-    final sectionDelta = widget.previousTotal == null
-        ? null
-        : periodDelta(total, widget.previousTotal!);
-    final accent = widget.accentColor;
-
-    final content = Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        InkWell(
-          onTap: () => setState(() => _sectionCollapsed = !_sectionCollapsed),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              if (accent != null) ...[
-                Padding(
-                  padding: const EdgeInsets.only(top: 4),
-                  child: Container(
-                    width: 10,
-                    height: 10,
-                    decoration:
-                        BoxDecoration(color: accent, shape: BoxShape.circle),
-                  ),
-                ),
-                const SizedBox(width: 8),
-              ],
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      widget.title,
-                      style: widget.dense
-                          ? theme.textTheme.titleSmall
-                          : theme.textTheme.titleMedium,
-                    ),
-                    if (widget.subtitle != null) ...[
-                      const SizedBox(height: 2),
-                      Text(
-                        widget.subtitle!,
-                        style: theme.textTheme.bodySmall?.copyWith(
-                          color: theme.colorScheme.onSurfaceVariant,
-                        ),
-                      ),
-                    ],
-                  ],
-                ),
-              ),
-              if (sectionDelta != null) ...[
-                _DeltaChip(
-                    delta: sectionDelta, caption: widget.previousCaption),
-                const SizedBox(width: 8),
-              ],
-              if (_sectionCollapsed) ...[
-                Text(
-                  widget.countFormat.format(total),
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    color: theme.colorScheme.onSurfaceVariant,
-                  ),
-                ),
-                const SizedBox(width: 4),
-              ],
-              Icon(
-                _sectionCollapsed ? Icons.expand_more : Icons.expand_less,
-                color: theme.colorScheme.onSurfaceVariant,
-              ),
-            ],
-          ),
-        ),
-        if (!_sectionCollapsed) ...[
-          const SizedBox(height: 8),
-          for (var i = 0; i < visible.length; i++)
-            _UsageBar(
-              rank: i + 1,
-              row: visible[i],
-              fraction: max == 0 ? 0 : visible[i].count / max,
-              percentOfTotal: total == 0 ? 0 : visible[i].count / total,
-              countFormat: widget.countFormat,
-              percentFormat: widget.percentFormat,
-              accentColor: accent,
-              delta: widget.previousByKey == null
-                  ? null
-                  : periodDelta(visible[i].count,
-                      widget.previousByKey![visible[i].key] ?? 0),
-            ),
-          if (hidden > 0 || _expanded)
-            Align(
-              alignment: Alignment.centerLeft,
-              child: TextButton(
-                onPressed: () => setState(() => _expanded = !_expanded),
-                child: Text(_expanded ? 'Show less' : 'Show $hidden more'),
-              ),
-            ),
-        ],
-      ],
-    );
-
-    // A group section gets its own tinted card, in its fixed accent color, so
-    // "Features used" reads as a row of distinct panels rather than one long
-    // list with subheadings. Top-level sections (accent == null) keep the
-    // plain look — they aren't part of a group of siblings that need telling
-    // apart.
-    if (accent == null) {
-      return Padding(
-        padding: EdgeInsets.only(top: widget.dense ? 16 : 24),
-        child: content,
-      );
-    }
-    return Padding(
-      padding: const EdgeInsets.only(top: 12),
-      child: Container(
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          color: accent.withValues(alpha: 0.06),
-          borderRadius: BorderRadius.circular(12),
-          border: Border(left: BorderSide(color: accent, width: 3)),
-        ),
-        child: content,
-      ),
-    );
-  }
-}
-
-/// "Features used", broken into its [FeatureGroup]s. A group with no rows for
-/// the current range is left out entirely rather than shown empty.
-class _FeatureUsageSections extends StatelessWidget {
-  const _FeatureUsageSections({
-    required this.rows,
-    required this.countFormat,
-    required this.percentFormat,
-    this.previousByKey,
-    this.previousCaption,
-  });
-
-  final List<UsageRow> rows;
-  final NumberFormat countFormat;
-  final NumberFormat percentFormat;
-
-  /// The previous period's raw feature counts (metric-level, not yet split
-  /// by group) — see [_UsageSection.previousByKey].
-  final Map<String, int>? previousByKey;
-  final String? previousCaption;
-
-  @override
-  Widget build(BuildContext context) {
-    if (rows.isEmpty) return const SizedBox.shrink();
-
-    final theme = Theme.of(context);
-    final grouped = groupFeatureRows(rows);
-    final previousTotals = groupPreviousTotals(previousByKey);
-    final brightness = theme.brightness;
-
-    final shareSegments = [
-      for (final group in FeatureGroup.values)
-        if (grouped[group] case final groupRows? when groupRows.isNotEmpty)
-          ShareSegment(
-            label: group.title,
-            value: groupRows.fold<int>(0, (sum, r) => sum + r.count),
-            color: categoricalColor(
-                FeatureGroup.values.indexOf(group), brightness),
-          ),
-    ];
-
-    return Padding(
-      padding: const EdgeInsets.only(top: 24),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Text('Features used', style: theme.textTheme.titleMedium),
-          const SizedBox(height: 2),
-          Text(
-            'Actions taken, not just screens opened, grouped by area of the '
-            'app',
-            style: theme.textTheme.bodySmall?.copyWith(
-              color: theme.colorScheme.onSurfaceVariant,
-            ),
-          ),
-          if (shareSegments.length > 1) ...[
-            const SizedBox(height: 16),
-            ShareBar(segments: shareSegments),
-          ],
-          for (final group in FeatureGroup.values)
-            if (grouped[group] case final groupRows? when groupRows.isNotEmpty)
-              _UsageSection(
-                title: group.title,
-                subtitle: group.subtitle,
-                rows: groupRows,
-                countFormat: countFormat,
-                percentFormat: percentFormat,
-                dense: true,
-                accentColor: categoricalColor(
-                    FeatureGroup.values.indexOf(group), brightness),
-                previousTotal:
-                    previousByKey == null ? null : previousTotals[group] ?? 0,
-                previousByKey: previousByKey,
-                previousCaption: previousCaption,
-              ),
-        ],
-      ),
-    );
-  }
-}
-
-class _UsageBar extends StatelessWidget {
-  const _UsageBar({
-    required this.rank,
-    required this.row,
-    required this.fraction,
-    required this.percentOfTotal,
-    required this.countFormat,
-    required this.percentFormat,
-    this.accentColor,
-    this.delta,
-  });
-
-  final int rank;
-  final UsageRow row;
-
-  /// Share of the section's top row, for the proportional bar.
-  final double fraction;
-
-  /// Share of the section's total, shown next to the count.
-  final double percentOfTotal;
-
-  final NumberFormat countFormat;
-  final NumberFormat percentFormat;
-
-  /// The bar's own color, when this row belongs to a group with a fixed
-  /// identity color (see [_UsageSection.accentColor]). Null keeps the
-  /// default primary-colored bar the top-level sections use.
-  final Color? accentColor;
-
-  /// This row's own change % versus the previous equal-length period. Null
-  /// when there's no previous period to compare (All time).
-  final PeriodDelta? delta;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 6),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Row(
-            children: [
-              SizedBox(
-                width: 24,
-                child: Text(
-                  '$rank',
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    color: theme.colorScheme.onSurfaceVariant,
-                  ),
-                ),
-              ),
-              Expanded(
-                child: Text(
-                  row.label,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: theme.textTheme.bodyMedium,
-                ),
-              ),
-              const SizedBox(width: 8),
-              Text(
-                countFormat.format(row.count),
-                style: theme.textTheme.bodyMedium
-                    ?.copyWith(fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(width: 4),
-              Text(
-                '(${percentFormat.format(percentOfTotal)})',
-                style: theme.textTheme.bodySmall?.copyWith(
-                  color: theme.colorScheme.onSurfaceVariant,
-                ),
-              ),
-              if (delta != null) ...[
-                const SizedBox(width: 6),
-                _DeltaChip(delta: delta!, dense: true),
-              ],
-            ],
-          ),
-          const SizedBox(height: 4),
-          Padding(
-            padding: const EdgeInsets.only(left: 24),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(3),
-              child: LinearProgressIndicator(
-                value: fraction.clamp(0.0, 1.0),
-                minHeight: 6,
-                backgroundColor: theme.colorScheme.surfaceContainerHighest,
-                color: accentColor,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _EmptyView extends StatelessWidget {
-  const _EmptyView({required this.range});
-
-  final UsageRange range;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 48),
-      child: Column(
-        children: [
-          Icon(
-            Icons.query_stats,
-            size: 48,
-            color: theme.colorScheme.onSurfaceVariant,
-          ),
-          const SizedBox(height: 12),
-          Text('No usage recorded for ${range.label.toLowerCase()}',
-              style: theme.textTheme.titleSmall),
-          const SizedBox(height: 4),
-          Text(
-            'Counters start filling once a release with analytics is in '
-            'people\'s hands. Debug builds are excluded on purpose.',
-            textAlign: TextAlign.center,
-            style: theme.textTheme.bodySmall?.copyWith(
-              color: theme.colorScheme.onSurfaceVariant,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _ErrorView extends StatelessWidget {
-  const _ErrorView({required this.error, required this.onRetry});
-
-  final Object error;
-  final VoidCallback onRetry;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(Icons.error_outline, size: 48, color: theme.colorScheme.error),
-            const SizedBox(height: 12),
-            Text('Could not read usage', style: theme.textTheme.titleSmall),
-            const SizedBox(height: 4),
-            Text(
-              '$error',
-              textAlign: TextAlign.center,
-              style: theme.textTheme.bodySmall,
-            ),
-            const SizedBox(height: 16),
-            FilledButton(onPressed: onRetry, child: const Text('Retry')),
-          ],
-        ),
-      ),
-    );
+    ]);
   }
 }

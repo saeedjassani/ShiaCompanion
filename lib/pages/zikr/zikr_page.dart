@@ -1168,6 +1168,8 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
       'quran_legacy_bookmark_retired',
       label: 'Quran legacy bookmark retired',
       parameters: {'zikr_uid': _bookmarkUid},
+      // A migration the app runs on its own, not something the reader did.
+      countOnDashboard: false,
     ));
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;

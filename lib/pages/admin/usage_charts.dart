@@ -212,9 +212,12 @@ class UsageMetricSeries {
 /// activity on a given day still gets a zero point rather than a gap, so the
 /// lines stay comparable.
 class MetricTrendChart extends StatelessWidget {
-  const MetricTrendChart({super.key, required this.series});
+  const MetricTrendChart({super.key, required this.series, this.title});
 
   final List<UsageMetricSeries> series;
+
+  /// Left out when the card the chart sits in already has one.
+  final String? title;
 
   @override
   Widget build(BuildContext context) {
@@ -230,14 +233,10 @@ class MetricTrendChart extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Text('Activity by area', style: theme.textTheme.titleMedium),
-        const SizedBox(height: 2),
-        Text(
-          'Same day axis as above, split out by what was used',
-          style: theme.textTheme.bodySmall
-              ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
-        ),
-        const SizedBox(height: 12),
+        if (title != null) ...[
+          Text(title!, style: theme.textTheme.titleMedium),
+          const SizedBox(height: 12),
+        ],
         SizedBox(
           height: 200,
           child: LineChart(
@@ -334,6 +333,9 @@ class ShareBar extends StatelessWidget {
           child: SizedBox(
             height: 20,
             child: Row(
+              // Stretched, or each childless ColoredBox takes its smallest
+              // height - none - and only the gaps between them show.
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 for (var i = 0; i < segments.length; i++) ...[
                   if (i > 0)
