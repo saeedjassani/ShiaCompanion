@@ -42,7 +42,6 @@ import 'package:shia_companion/utils/hadith_loader.dart';
 import 'package:shia_companion/utils/localized_hadith.dart';
 import 'package:shia_companion/utils/islamic_day.dart';
 import 'package:shia_companion/utils/shared_preferences.dart';
-import 'package:shia_companion/utils/web_route_sync.dart';
 
 import 'package:shia_companion/pages/all_features_page.dart';
 import 'package:shia_companion/pages/home/coming_up_section.dart';
@@ -750,7 +749,8 @@ class _MyHomePageState extends State<MyHomePage>
 
   @override
   void didPopNext() {
-    syncWebRoutePath('/', replace: true);
+    // The address bar is put back by AppShell, which knows which tab is
+    // showing.
     setState(() {});
   }
 }

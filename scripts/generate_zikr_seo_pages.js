@@ -12,6 +12,12 @@ const GENERATED_ZIKR_DIR = path.join(BUILD_WEB_DIR, 'zikr');
 // Matches zikrDeepLinkType (0) in lib/utils/deep_links.dart: the numeric
 // fallback path the app shares when it doesn't yet know an item's slug.
 const GENERATED_UID_REDIRECT_DIR = path.join(BUILD_WEB_DIR, '0');
+// The Quran's structure - ayah counts, juz boundaries and which zikr document
+// holds which surah - is read from the Dart source the app itself uses, so the
+// pages cannot drift from what the reader opens at the same URL.
+const QURAN_INDEX_DART_PATH = path.join(REPO_ROOT, 'lib', 'utils', 'quran_index.dart');
+const GENERATED_QURAN_DIR = path.join(BUILD_WEB_DIR, 'quran');
+const QURAN_SECTION = {name: 'Quran', path: '/quran'};
 const SITE_ORIGIN = (process.env.SITE_ORIGIN || 'https://shiacompanion.app')
   .replace(/\/+$/, '');
 // Title tags longer than this get truncated in results. Search engines show
@@ -200,7 +206,12 @@ function lineParagraph(line) {
     : `        <p>${escapeHtml(line)}</p>`;
 }
 
-function buildStructuredData({title, description, canonicalUrl}) {
+function buildStructuredData({
+  title,
+  description,
+  canonicalUrl,
+  section = {name: 'Zikr', path: '/zikr'},
+}) {
   return {
     '@context': 'https://schema.org',
     '@type': 'WebPage',
@@ -224,8 +235,8 @@ function buildStructuredData({title, description, canonicalUrl}) {
         {
           '@type': 'ListItem',
           position: 2,
-          name: 'Zikr',
-          item: `${SITE_ORIGIN}/zikr`,
+          name: section.name,
+          item: `${SITE_ORIGIN}${section.path}`,
         },
         {
           '@type': 'ListItem',
@@ -444,6 +455,300 @@ function buildZikrIndexPage(templateHtml, pages) {
   );
 }
 
+// --- Quran -----------------------------------------------------------------
+//
+// A surah is an ordinary zikr document, so it already has its indexed page at
+// /zikr/<slug>, and that is where the app's reader puts the address bar too.
+// What the zikr pages do not cover is the Quran screen itself (/quran) and the
+// thirty juz (/quran/juz/<n>), which the reader assembles across surahs. Those
+// get pages here. /quran/<n> - a link the app opens but never writes - gets a
+// redirect page to the surah's canonical /zikr/<slug>, so it is not indexed as
+// a second copy of it. Verse links (/quran/<n>/<ayah>) stay app-only.
+
+function dartConstBody(source, pattern, name) {
+  const match = source.match(pattern);
+  if (!match) {
+    throw new Error(`Could not find ${name} in ${QURAN_INDEX_DART_PATH}`);
+  }
+  return match[1];
+}
+
+function readQuranStructure() {
+  const source = fs.readFileSync(QURAN_INDEX_DART_PATH, 'utf8');
+
+  const uidOffset = Number(dartConstBody(
+    source,
+    /const int _surahUidOffset = (\d+);/,
+    '_surahUidOffset',
+  ));
+  const ayahCounts = dartConstBody(
+    source,
+    /const List<int> surahAyahCounts = \[([\s\S]*?)\];/,
+    'surahAyahCounts',
+  ).match(/\d+/g).map(Number);
+  const juzStarts = [...dartConstBody(
+    source,
+    /const List<List<int>> _juzStarts = \[([\s\S]*?)\];/,
+    '_juzStarts',
+  ).matchAll(/\[\s*(\d+)\s*,\s*(\d+)\s*\]/g)]
+    .map((match) => ({surah: Number(match[1]), ayah: Number(match[2])}));
+
+  if (ayahCounts.length !== 114) {
+    throw new Error(`Expected 114 surah ayah counts, read ${ayahCounts.length}`);
+  }
+  if (juzStarts.length !== 30) {
+    throw new Error(`Expected 30 juz starts, read ${juzStarts.length}`);
+  }
+
+  // Each juz ends right before the next one starts, as allJuz() derives it.
+  const juz = juzStarts.map((start, i) => {
+    const next = juzStarts[i + 1];
+    let end;
+    if (!next) {
+      end = {surah: 114, ayah: ayahCounts[113]};
+    } else if (next.ayah > 1) {
+      end = {surah: next.surah, ayah: next.ayah - 1};
+    } else {
+      end = {surah: next.surah - 1, ayah: ayahCounts[next.surah - 2]};
+    }
+    return {number: i + 1, start, end};
+  });
+
+  return {uidOffset, ayahCounts, juz};
+}
+
+// Mirrors ZikrContentParser.isArabic: a line is Arabic when an Arabic letter
+// turns up within its first 35 characters.
+function isArabicLine(line) {
+  return ARABIC_SCRIPT.test([...line].slice(0, 35).join(''));
+}
+
+// Mirrors ZikrContentParser.ayahNumberOf.
+function ayahNumberOf(line) {
+  const match = line.trim().match(/\((\d+)\)\s*$/);
+  return match ? Number(match[1]) : null;
+}
+
+// A surah document as spans, one per Arabic line - the verse and the lines
+// that follow it - the way spansOfParsedContent cuts it. Lines before the
+// first verse (a surah's introduction) belong to no span and are dropped.
+function surahSpans(content) {
+  const lines = `${content?.data ?? ''}`
+    .replace(/\r/g, '')
+    .split('\n')
+    .map((line) => line.trim());
+  const arabicIndexes = lines
+    .map((line, i) => (line && isArabicLine(line) ? i : -1))
+    .filter((i) => i >= 0);
+
+  return arabicIndexes.map((start, i) => ({
+    ayah: ayahNumberOf(lines[start]),
+    lines: lines
+      .slice(start, arabicIndexes[i + 1] ?? lines.length)
+      .map((line) => normalizeWhitespace(stripInlineMarkers(line)))
+      .filter(Boolean),
+  }));
+}
+
+function loadSurahs(index, uidOffset) {
+  const surahs = [];
+  for (let number = 1; number <= 114; number++) {
+    const uid = `A${number + uidOffset}`;
+    const entry = index[uid];
+    const content = loadContent(uid);
+    if (!entry?.slug || !content) {
+      throw new Error(`Surah ${number} (${uid}) has no slug or no document`);
+    }
+    const title = normalizeWhitespace(entry.title || content.title);
+    // "2: Al-Baqarah البقرة" -> "Al-Baqarah"
+    const name = title
+      .replace(/^\s*\d+\s*:\s*/, '')
+      .replace(/[؀-ۿ\s]+$/, '')
+      .trim();
+    surahs.push({
+      number,
+      uid,
+      title,
+      name,
+      canonicalPath: `/zikr/${safeSlug(entry.slug)}`,
+      spans: surahSpans(content),
+    });
+  }
+  return surahs;
+}
+
+function juzPath(number) {
+  return `/quran/juz/${number}`;
+}
+
+function juzTitle(number) {
+  // The one juz widely searched for by its name rather than its number.
+  return number === 30 ? 'Juz 30 (Juz Amma)' : `Juz ${number}`;
+}
+
+function verseRef({surah, ayah}) {
+  return `${surah}:${ayah}`;
+}
+
+// The surahs a juz runs through, each cut to the verses inside the juz. The
+// Bismillah opening a surah rides along only when the juz takes that surah
+// from its first verse, as _keeps does in lib/utils/quran_portion.dart.
+function juzParts(juz, surahs) {
+  const parts = [];
+  for (let number = juz.start.surah; number <= juz.end.surah; number++) {
+    const surah = surahs[number - 1];
+    const from = number === juz.start.surah ? juz.start.ayah : 1;
+    const to = number === juz.end.surah
+      ? juz.end.ayah
+      : surah.spans.reduce((max, span) => Math.max(max, span.ayah ?? 0), 0);
+    const lines = surah.spans
+      .filter((span) => (span.ayah == null ? from <= 1 : span.ayah >= from && span.ayah <= to))
+      .flatMap((span) => span.lines);
+    parts.push({surah, from, to, lines});
+  }
+  return parts;
+}
+
+function buildJuzPageHtml(templateHtml, juz, surahs) {
+  const title = juzTitle(juz.number);
+  const canonicalPath = juzPath(juz.number);
+  const canonicalUrl = `${SITE_ORIGIN}${canonicalPath}`;
+  const first = surahs[juz.start.surah - 1];
+  const last = surahs[juz.end.surah - 1];
+  const range = `${first.name} ${verseRef(juz.start)} to ${last.name} ${verseRef(juz.end)}`;
+  const description = `Read ${title} of the Holy Quran, from ${range}, in Arabic with transliteration and English translation on Shia Companion.`;
+  const titleTag = [
+    `${title}: Quran in Arabic and English${TITLE_SUFFIX}`,
+    `${title} of the Quran${TITLE_SUFFIX}`,
+  ].find((candidate) => candidate.length <= MAX_TITLE_TAG_LENGTH) ?? title;
+
+  const previous = juz.number > 1 ? juz.number - 1 : null;
+  const next = juz.number < 30 ? juz.number + 1 : null;
+  const sequence = [
+    previous && `<a href="${juzPath(previous)}">Previous: ${escapeHtml(juzTitle(previous))}</a>`,
+    next && `<a href="${juzPath(next)}">Next: ${escapeHtml(juzTitle(next))}</a>`,
+  ].filter(Boolean).join(' · ');
+
+  const partsHtml = juzParts(juz, surahs).map(({surah, from, to, lines}) => {
+    const whole = from === 1 && to === surah.spans.reduce(
+      (max, span) => Math.max(max, span.ayah ?? 0),
+      0,
+    );
+    const heading = whole ? surah.title : `${surah.title}, verses ${from}-${to}`;
+    return [
+      '      <section class="seo-lines">',
+      `        <h2><a href="${escapeHtml(surah.canonicalPath)}">${escapeHtml(heading)}</a></h2>`,
+      ...lines.map(lineParagraph),
+      '      </section>',
+    ].join('\n');
+  });
+
+  const staticContent = [
+    '  <main class="seo-zikr-content">',
+    '    <article>',
+    '      <nav aria-label="Breadcrumb"><a href="/">Shia Companion</a> / <a href="/quran">Quran</a></nav>',
+    `      <h1>${escapeHtml(title)}</h1>`,
+    `      <p>${escapeHtml(description)}</p>`,
+    `      <p><a href="${canonicalPath}">Open ${escapeHtml(title)} in Shia Companion</a></p>`,
+    ...partsHtml,
+    `      <p>${sequence}</p>`,
+    '    </article>',
+    '  </main>',
+  ].join('\n');
+
+  return buildPageHtml(templateHtml, {
+    seo: {
+      titleTag,
+      description,
+      canonicalUrl,
+      structuredData: buildStructuredData({
+        title,
+        description,
+        canonicalUrl,
+        section: QURAN_SECTION,
+      }),
+    },
+    staticContent,
+  });
+}
+
+function buildQuranIndexPage(templateHtml, surahs, juzList) {
+  const canonicalUrl = `${SITE_ORIGIN}/quran`;
+  const title = 'The Holy Quran';
+  const titleTag = `The Holy Quran: All Surahs and Juz${TITLE_SUFFIX}`;
+  const description = 'Read all 114 surahs and 30 juz of the Holy Quran in Arabic with transliteration and English translation on Shia Companion.';
+  const staticContent = [
+    '  <main class="seo-zikr-content">',
+    '    <article>',
+    '      <nav aria-label="Breadcrumb"><a href="/">Shia Companion</a></nav>',
+    `      <h1>${title}</h1>`,
+    `      <p>${escapeHtml(description)}</p>`,
+    '      <section>',
+    '        <h2>Surahs</h2>',
+    '        <ul>',
+    ...surahs.map((surah) => `          <li><a href="${escapeHtml(surah.canonicalPath)}">${escapeHtml(surah.title)}</a></li>`),
+    '        </ul>',
+    '      </section>',
+    '      <section>',
+    '        <h2>Juz</h2>',
+    '        <ul>',
+    ...juzList.map((juz) => `          <li><a href="${juzPath(juz.number)}">${escapeHtml(juzTitle(juz.number))}</a></li>`),
+    '        </ul>',
+    '      </section>',
+    '    </article>',
+    '  </main>',
+  ].join('\n');
+
+  return buildPageHtml(templateHtml, {
+    seo: {
+      titleTag,
+      description,
+      canonicalUrl,
+      structuredData: buildStructuredData({
+        title,
+        description,
+        canonicalUrl,
+        section: QURAN_SECTION,
+      }),
+    },
+    staticContent,
+  });
+}
+
+// Writes the Quran pages and returns the paths that belong in the sitemap.
+function generateQuranPages(templateHtml, index) {
+  const {uidOffset, juz: juzList} = readQuranStructure();
+  const surahs = loadSurahs(index, uidOffset);
+
+  fs.rmSync(GENERATED_QURAN_DIR, {recursive: true, force: true});
+
+  for (const juz of juzList) {
+    writePage(path.join('quran', 'juz', `${juz.number}`), buildJuzPageHtml(templateHtml, juz, surahs));
+  }
+
+  for (const surah of surahs) {
+    writePage(
+      path.join('quran', `${surah.number}`),
+      buildRedirectPageHtml({
+        title: surah.title,
+        canonicalPath: surah.canonicalPath,
+        canonicalUrl: `${SITE_ORIGIN}${surah.canonicalPath}`,
+      }),
+    );
+  }
+
+  fs.writeFileSync(
+    path.join(GENERATED_QURAN_DIR, 'index.html'),
+    buildQuranIndexPage(templateHtml, surahs, juzList),
+    'utf8',
+  );
+
+  console.log(`Generated the /quran index and ${juzList.length} juz pages in ${GENERATED_QURAN_DIR}`);
+  console.log(`Generated ${surahs.length} /quran/<n> surah redirect pages`);
+
+  return ['/quran', ...juzList.map((juz) => juzPath(juz.number))];
+}
+
 function main() {
   if (!fs.existsSync(FLUTTER_INDEX_PATH)) {
     throw new Error(
@@ -606,7 +911,12 @@ function main() {
     redirectCount += 1;
   }
 
-  const sitemap = buildSitemap(indexedPages.map((page) => page.canonicalPath));
+  const quranPaths = generateQuranPages(templateHtml, index);
+
+  const sitemap = buildSitemap([
+    ...indexedPages.map((page) => page.canonicalPath),
+    ...quranPaths,
+  ]);
   for (const filename of SITEMAP_FILENAMES) {
     fs.writeFileSync(path.join(BUILD_WEB_DIR, filename), sitemap, 'utf8');
   }

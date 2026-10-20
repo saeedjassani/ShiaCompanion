@@ -35,6 +35,9 @@ const int quranDeepLinkType = 2;
 
 const String quranJuzSegment = 'juz';
 
+/// The Quran screen, what the address bar shows while it is open on the web.
+const String quranDeepLinkPath = '/quran';
+
 /// The Calendar page. Takes no segments: `/calendar` is the whole link, and
 /// is what the Islamic calendar widgets open.
 const int calendarDeepLinkType = 3;

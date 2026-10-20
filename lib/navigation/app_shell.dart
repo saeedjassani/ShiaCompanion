@@ -10,6 +10,8 @@ import '../pages/home_page.dart';
 import '../theme/app_theme.dart';
 import '../theme/shia_colors.dart';
 import '../pages/search_page.dart';
+import '../utils/deep_links.dart';
+import '../utils/web_route_sync.dart';
 import '../widgets/app_toast.dart';
 import '../widgets/glass_surface.dart';
 import '../widgets/home_glyph.dart';
@@ -27,6 +29,7 @@ class AppShellTab {
     required this.builder,
     this.onSelected,
     this.contentKey,
+    this.webPath = '/',
   });
 
   final String label;
@@ -45,6 +48,11 @@ class AppShellTab {
   /// Identifies what [builder] currently builds; a change replaces the tab's
   /// page rather than updating it.
   final Object? contentKey;
+
+  /// What the address bar shows on the web while this tab is current, so a
+  /// tab with a page of its own on the site (`/quran`) can be linked to and
+  /// indexed. A tab without one stays on the home page's `/`.
+  final String webPath;
 }
 
 /// The app's root: Home, Quran and Favorites as tabs, with a floating glass
@@ -68,7 +76,7 @@ class AppShell extends StatefulWidget {
   State<AppShell> createState() => _AppShellState();
 }
 
-class _AppShellState extends State<AppShell> {
+class _AppShellState extends State<AppShell> with RouteAware {
   int _index = 0;
 
   /// Tabs built so far. A tab is built on first visit and then kept alive in
@@ -89,7 +97,27 @@ class _AppShellState extends State<AppShell> {
   @override
   void dispose() {
     adminState.removeListener(_handleAdminChanged);
+    routeObserver.unsubscribe(this);
     super.dispose();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final route = ModalRoute.of(context);
+    if (route is PageRoute) routeObserver.subscribe(this, route);
+  }
+
+  /// Back on the tabs, the address goes back to the current tab's. After the
+  /// frame, so it lands after the page that was just popped has put back the
+  /// address it was opened from - which, for a page the app was launched
+  /// into, is that page's own.
+  @override
+  void didPopNext() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      syncWebRoutePath(_tabs[_index].webPath, replace: true);
+    });
   }
 
   void _handleAdminChanged() {
@@ -112,6 +140,7 @@ class _AppShellState extends State<AppShell> {
         builder: (_) => quranItem.pageBuilder(),
         onSelected: quranItem.recordOpen,
         contentKey: quranItem.analyticsId,
+        webPath: quranDeepLinkPath,
       ),
       AppShellTab(
         label: l10n.shellTabFavorites,
@@ -130,6 +159,9 @@ class _AppShellState extends State<AppShell> {
       _index = index;
       _visited.add(index);
     });
+    // Replaced rather than pushed: switching tabs is not a step for Back to
+    // undo - Back on Quran or Favorites goes to Home (the PopScope below).
+    syncWebRoutePath(_tabs[index].webPath, replace: true);
     _tabs[index].onSelected?.call();
   }
 

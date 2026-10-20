@@ -56,7 +56,8 @@ Three things have to line up, and all three ship in the same bundle:
 | File | Where it comes from |
 | --- | --- |
 | `sitemap.xml` | generated into `build/web` by `scripts/generate_zikr_seo_pages.js`; `web/sitemap.xml` is only the fallback |
-| `/zikr/<slug>/index.html` | same script, one pre-rendered page per zikr |
+| `/zikr/<slug>/index.html` | same script, one pre-rendered page per zikr (the 114 surahs among them) |
+| `/quran`, `/quran/juz/<n>` | same script: the Quran index and one page per juz with its text; `/quran/<n>` is a redirect page to the surah's `/zikr/<slug>` |
 | `robots.txt` | checked in at `web/robots.txt`, points at `SITE_ORIGIN/sitemap.xml` |
 
 `test_visual/specs/seo.spec.js` asserts all of it against the built bundle.
