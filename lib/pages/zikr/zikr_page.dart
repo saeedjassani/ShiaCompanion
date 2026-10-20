@@ -1626,8 +1626,9 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
   Map<String, dynamic>? _verseCheckData;
   bool _verseCheckResult = false;
 
-  /// Whether [translation] translates at least one of this zikr's verses,
-  /// worked out once per translation and content.
+  /// Whether [translation] translates at least one of this zikr's verses -
+  /// or, for a zikr of prose alone with no verses, anything of it - worked
+  /// out once per translation and content.
   bool _translatesAnyVerse(ZikrDocumentTranslation? translation) {
     if (translation == null) return false;
     if (!identical(translation, _verseCheckTranslation) ||
@@ -1636,7 +1637,9 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
           ZikrContentParser.verseSegmentNumbers(_buildVisibleTabContents());
       _verseCheckTranslation = translation;
       _verseCheckData = zikrData;
-      _verseCheckResult = verses.any((n) => translation.segment(n) != null);
+      _verseCheckResult = verses.isEmpty
+          ? !translation.isEmpty
+          : verses.any((n) => translation.segment(n) != null);
     }
     return _verseCheckResult;
   }
