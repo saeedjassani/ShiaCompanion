@@ -38,6 +38,17 @@ module.exports.qazaSeed = qazaSeed;
 // localStorage entries for a clip's or shot's `seed` list. shared_preferences on
 // the web keeps each value JSON-encoded under a `flutter.` prefix, and these
 // values are themselves JSON strings.
-const SEEDS = {quran: ['recitation_tracker_guest', quranSeed], qaza: ['qaza_tracker_guest', qazaSeed]};
-module.exports.seedEntries = (names) => (names === true ? ['quran'] : names || [])
-  .map((n) => ['flutter.' + SEEDS[n][0], JSON.stringify(JSON.stringify(SEEDS[n][1]()))]);
+// A book from the library partway read, so Home's Continue row has it beside the Quran.
+function bookSeed(today = new Date()) {
+  return [{version: 1, bookSlug: 'man-and-his-destiny', bookTitle: 'Man and His Destiny',
+           chapterSlug: 'part-2-evil-effects-of-the-doctrine-of-predestination',
+           chapterTitle: 'Part 2: Evil Effects of the Doctrine of Predestination',
+           chapterIndex: 1, pageIndex: 3, pageCount: 9, fontSize: 18,
+           updatedAt: new Date(today.getTime() - 26 * 3600e3).toISOString()}];
+}
+module.exports.bookSeed = bookSeed;
+
+const SEEDS = {quran: ['recitation_tracker_guest', quranSeed], qaza: ['qaza_tracker_guest', qazaSeed],
+               book: ['library_recent_reads_v1', bookSeed]};
+module.exports.seedEntries = (names, today) => (names === true ? ['quran'] : names || [])
+  .map((n) => ['flutter.' + SEEDS[n][0], JSON.stringify(JSON.stringify(SEEDS[n][1](today || undefined)))]);

@@ -1,9 +1,10 @@
-const { chromium } = require('/home/hatch/workspace/v7/pr325x/ShiaCompanion-claude-stoic-cannon-63w6pp/test_visual/node_modules/playwright');
+// Renders promo.html's render(t) from t0 to t1 at 30 fps: node render_win.js <html> <t0> <t1> <out.mp4>
+const { chromium } = require(require('path').join(__dirname, '../../test_visual/node_modules/playwright'));
 const { spawn } = require('child_process');
 const [,, html, t0s, t1s, out] = process.argv;
 const T0 = parseFloat(t0s), T1 = parseFloat(t1s), FPS = 30;
 (async () => {
-  const b = await chromium.launch({ args: ['--ignore-certificate-errors', '--allow-file-access-from-files'] });
+  const b = await chromium.launch({ executablePath: process.env.CHROMIUM_PATH || undefined, args: ['--ignore-certificate-errors', '--allow-file-access-from-files'] });
   const p = await b.newPage({ ignoreHTTPSErrors: true, viewport: { width: 1080, height: 1920 } });
   await p.goto('file://' + html);
   await p.evaluate(() => document.fonts.ready);

@@ -82,12 +82,12 @@ const shots = [
   { clip: 'font',   t0: 3.0,  t1: 5.9,  from: 6, speed: 1.45 },
   { clip: 'auto',   t0: 5.9,  t1: 8.3,  from: 9, speed: 2.0 },
   { clip: 'listen', t0: 8.3,  t1: 10.4, from: 4, speed: 1.4 },
-  // dark mode: frames 96-101 are a washed-out in-between paint, skipped and crossfaded (see promo.html)
-  { clip: 'dark',   t0: 10.4, t1: 13.4, from: 45, speed: 1.2, soft: { pre: 95, frame: 102, d: 0.45 } },
-  // one take: Home's prayer card, Continue opens the Quran at verse 120, then the verse sheet
-  { clip: 'home',   t0: 13.4, t1: 20.0, from: 3, speed: 1.38 },
+  // dark mode: frames 98-103 are a washed-out in-between paint, skipped and crossfaded (see promo.html)
+  { clip: 'dark',   t0: 10.4, t1: 13.4, from: 45, speed: 1.2, soft: { pre: 97, frame: 104, d: 0.45 } },
+  // one take: Home's prayer card, a glide down Home, then Continue opens the Quran at verse 120
+  { clip: 'home',   t0: 13.4, t1: 20.0, from: 45, speed: 1.5, soft: { pre: 274, frame: 289, d: 0.3 } },
   // three Khatms on the Quran tab; Family Khatm opens where it left off
-  { clip: 'khatms', t0: 20.0, t1: 22.6, from: 15, speed: 1.75 },
+  { clip: 'khatms', t0: 20.0, t1: 22.6, from: 15, speed: 1.75, soft: { pre: 102, frame: 113, d: 0.25 } },
 ];
 // stills after the clips, each [image, seconds]
 const stills = [['qaza', 1.5], ['calendar', 1.5]];
@@ -98,16 +98,19 @@ stills.forEach(st => { st.t0 = acc; acc += st[1]; st.t1 = acc; });
 const LANGS = [['ur', 'اردو'], ['gu', 'ગુજરાતી'], ['ar', 'العربية'], ['fa', 'فارسی']];
 const LANGS_IN = acc, LANG_FRAME = 1.6, END_T0 = LANGS_IN + 2 * LANG_FRAME, END = END_T0 + 1.0;
 const darkShot = shots.find(s => s.soft);
-const DARK_T = darkShot.t0 + (darkShot.soft.pre + 1 - darkShot.from) / FPS / darkShot.speed;
+const softT = sh => sh.t0 + (sh.soft.pre + 1 - sh.from) / FPS / sh.speed;
+const DARK_T = softT(darkShot);
 const homeShot = shots.find(s => s.clip === 'home');
 const CONTINUE_T = homeShot.t0 + (TAPS.home[0].t - homeShot.from / FPS) / homeShot.speed;
+const HOME_SCROLL_T = homeShot.t0 + (3.2 - homeShot.from / FPS) / homeShot.speed;   // the glide starts 3.2 s into the take
 const caps = [
   { t0: 0.0,  t1: 3.0,  h: 'Read along', p: 'Arabic · translation · transliteration' },
   { t0: 3.0,  t1: 5.9,  h: 'Choose your script', chips: ['Qalam (IndoPak)', 'Scheherazade'] },
   { t0: 5.9,  t1: 8.3,  h: 'Auto-scroll', p: 'Hands-free, at your own pace' },
   { t0: 8.3,  t1: 10.4, h: 'Hear it recited', p: 'Audio built into every dua' },
   { t0: 10.4, t1: 13.4, h: 'Dark mode', p: 'Follows your phone at night' },
-  { t0: 13.4, t1: CONTINUE_T, h: 'Prayer times', p: 'Next-prayer countdown · upcoming events' },
+  { t0: 13.4, t1: HOME_SCROLL_T, h: 'Prayer times', p: 'Next-prayer countdown · upcoming events' },
+  { t0: HOME_SCROLL_T, t1: CONTINUE_T, h: 'Everything on Home', p: 'Every feature, one tap away' },
   { t0: CONTINUE_T, t1: 20.0, h: 'Resume your Khatm', p: 'Right where you left off' },
   { t0: 20.0, t1: 22.6, h: 'Keep several Khatms', p: 'For you, your family, Ramazan' },
   { t0: stills[0].t0, t1: stills[0].t1, h: 'Qaza tracker', p: 'Make up missed prayers and fasts' },
@@ -164,9 +167,10 @@ async function render(t) {
   const xf = nxt ? prog(t, active.t1 - 0.3, active.t1) : 0;
   if (xf > 0) jobs.push(setImg($('scr2'), `clips/${nxt.clip}/${String(nxt.from).padStart(4, '0')}.jpg`));
   $('scr2').style.opacity = xf;
-  // soften the app's one-frame theme switch: the last light frame fades out over the dark one
+  // skip a shot's in-between paint (the theme switch, a page's blank first frame): its last good
+  // frame fades out over the next good one
   if (active.soft) {
-    const k = prog(t, DARK_T, DARK_T + active.soft.d);
+    const st = softT(active), k = prog(t, st, st + active.soft.d);
     if (k > 0 && k < 1) {
       jobs.push(setImg($('scr2'), `clips/${active.clip}/${String(active.soft.pre).padStart(4, '0')}.jpg`));
       $('scr2').style.opacity = 1 - ease(k);

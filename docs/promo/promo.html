@@ -175,13 +175,15 @@ const shots = [
   { clip: 'font',   t0: 24.0, t1: 28.4, from: 6, speed: 1.0 },
   { clip: 'auto',   t0: 28.4, t1: 32.4, from: 9, speed: 1.4 },
   { clip: 'listen', t0: 32.4, t1: 36.2, from: 4, speed: 1.0 },
-  // The phone switches to dark mode after clip frame 95; frames 96-101 are washed-out
+  // The phone switches to dark mode after clip frame 97; frames 98-103 are washed-out
   // in-between paint, so `soft` skips them and crossfades the last light frame into the first dark one.
-  { clip: 'dark',   t0: 36.2, t1: 41.4, from: 6, speed: 1.0, soft: { pre: 105, frame: 111, d: 0.5 } },
-  // one take: Home's prayer card, then Continue opens the Quran at verse 120, then the verse sheet
-  { clip: 'home',   t0: 41.4, t1: 50.6, from: 3, speed: 1.0, dark: true },
-  // the Quran tab with three Khatms: swipe the row, open Family Khatm where it left off
-  { clip: 'khatms', t0: 50.6, t1: 54.8, from: 6, speed: 1.15 },
+  { clip: 'dark',   t0: 36.2, t1: 41.4, from: 6, speed: 1.0, soft: { pre: 97, frame: 104, d: 0.5 } },
+  // one take on Thursday evening in Toronto: the prayer card, a glide down Home (Continue, Today's
+  // Dua Kumayl, every feature), then Continue opens the Quran at verse 120 and its sheet. `soft`
+  // skips the Quran page's blank first paint (frames 275-288).
+  { clip: 'home',   t0: 41.4, t1: 54.9, from: 3, speed: 1.0, dark: true, soft: { pre: 274, frame: 289, d: 0.35 } },
+  // the Quran tab with three Khatms: swipe the row, open Family Khatm where it left off (past its blank first paint)
+  { clip: 'khatms', t0: 54.9, t1: 59.1, from: 6, speed: 1.15, soft: { pre: 102, frame: 113, d: 0.3 } },
 ];
 const caps = [
   { t0: 18.9, t1: 24.0, h: 'Read along, line by line', p: 'Arabic · translation · transliteration' },
@@ -189,12 +191,13 @@ const caps = [
   { t0: 28.6, t1: 32.4, h: 'Auto-scroll', p: 'Hands-free, at your own pace' },
   { t0: 32.6, t1: 36.2, h: 'Hear it recited', p: 'Audio built in, like the recitation you hear now' },
   { t0: 36.4, t1: 41.4, h: 'Easy on the eyes at night', p: 'Dark mode follows your phone' },
-  { t0: 41.6, t1: 46.1, h: 'Prayer times', p: 'Countdown to the next prayer · upcoming events' },
-  { t0: 46.3, t1: 50.6, h: 'Pick up where you left off', p: 'Your Khatm reopens at the very verse' },
-  { t0: 50.8, t1: 54.8, h: 'Keep several Khatms', p: 'One for you, one with family, one for Ramazan' },
-  { t0: 55.4, t1: 59.9, h: 'Track · Read · Listen', p: 'Your stats · a library of 1,162 books · your playlists' },
-  { t0: 60.0, t1: 64.5, h: 'And so much more', p: 'Qaza tracker · Hijri calendar · Qibla' },
-  { t0: 64.8, t1: 68.5, h: 'In five languages', p: 'Every screen, in your language' },
+  { t0: 41.6, t1: 44.7, h: 'Prayer times', p: 'Countdown to the next prayer · upcoming events' },
+  { t0: 44.9, t1: 50.0, h: 'Everything on Home', p: 'Dua Kumayl on Thursdays, Dua Nudba on Fridays — and every feature, one tap away' },
+  { t0: 50.2, t1: 54.9, h: 'Pick up where you left off', p: 'Your Khatm reopens at the very verse' },
+  { t0: 55.1, t1: 59.1, h: 'Keep several Khatms', p: 'One for you, one with family, one for Ramazan' },
+  { t0: 59.7, t1: 64.2, h: 'Track · Read · Listen', p: 'Your stats · a library of 1,162 books · your playlists' },
+  { t0: 64.3, t1: 68.8, h: 'And so much more', p: 'Qaza tracker · Hijri calendar · Qibla' },
+  { t0: 69.1, t1: 72.8, h: 'In five languages', p: 'Every screen, in your language' },
 ];
 // camera: [t, scale, tx, ty, rotY, rotX]; phone transform relative to its resting place
 const cam = [
@@ -213,21 +216,25 @@ const cam = [
   [39.4, 1.06, 0, 30, 0, 0],
   [41.2, 1.0, 0, 0, 3, 2],
   [42.2, 1.15, 0, 160, 0, 0],     // Home: the prayer card
-  [45.6, 1.15, 0, 160, 0, 0],
-  [46.4, 1.0, 0, 0, -3, 2],       // the Quran, resumed
-  [48.2, 1.0, 0, 0, 2, 2],
-  [49.0, 1.1, 0, -180, 0, 0],     // the verse sheet
-  [50.4, 1.1, 0, -180, 0, 0],
-  [51.2, 1.15, 0, 300, 0, 0],     // the Khatm cards along the top
-  [52.9, 1.15, 0, 300, 0, 0],
-  [53.7, 1.0, 0, 0, 3, 2],        // Al-Kahf, where the Family Khatm left off
-  [54.8, 1.0, 0, 0, 0, 2],
-  [55.8, 0.9, 0, 200, 0, 0],
+  [44.3, 1.15, 0, 160, 0, 0],
+  [45.6, 1.0, 0, 0, -2, 2],       // pull back as Home glides down: the whole screen in view
+  [49.4, 1.0, 0, 0, 2, 2],
+  [50.6, 1.0, 0, 0, -2, 2],       // the Quran, resumed
+  [52.4, 1.0, 0, 0, 1, 2],
+  [53.2, 1.1, 0, -180, 0, 0],     // the verse sheet
+  [54.7, 1.1, 0, -180, 0, 0],
+  [55.5, 1.15, 0, 300, 0, 0],     // the Khatm cards along the top
+  [57.2, 1.15, 0, 300, 0, 0],
+  [58.0, 1.0, 0, 0, 3, 2],        // Al-Kahf, where the Family Khatm left off
+  [59.1, 1.0, 0, 0, 0, 2],
+  [60.1, 0.9, 0, 200, 0, 0],
 ];
-const PHONE_IN = 16.2, PHONE_OUT = 55.0, FAN_IN = 55.4, FAN2_IN = 60.0, LANGS_IN = 64.6, OUTRO_IN = 68.6, END = 74.9;
+const PHONE_IN = 16.2, PHONE_OUT = 59.3, FAN_IN = 59.7, FAN2_IN = 64.3, LANGS_IN = 68.9, OUTRO_IN = 72.9, END = 79.2;
 const LANGS = [['en', 'English'], ['ur', 'اردو'], ['gu', 'ગુજરાતી'], ['ar', 'العربية'], ['fa', 'فارسی']];
 const darkShot = shots.find(s => s.soft);
-const DARK_T = darkShot.t0 + (darkShot.soft.pre + 1 - darkShot.from) / FPS / darkShot.speed;
+// when a `soft` shot reaches the frame after `pre`
+const softT = sh => sh.t0 + (sh.soft.pre + 1 - sh.from) / FPS / sh.speed;
+const DARK_T = softT(darkShot);
 
 // ---- build ---------------------------------------------------------------
 const capWrap = $('caps');
@@ -387,9 +394,10 @@ async function render(t) {
   const xf = nxt ? prog(t, active.t1 - 0.35, active.t1) : 0;
   if (xf > 0) jobs.push(setImg($('scr2'), `clips/${nxt.clip}/${String(nxt.from).padStart(4, '0')}.jpg`));
   $('scr2').style.opacity = xf;
-  // soften the app's one-frame theme switch: the last light frame fades out over the dark one
+  // skip a shot's in-between paint (the theme switch, a page's blank first frame): its last good
+  // frame fades out over the next good one
   if (active.soft) {
-    const k = prog(t, DARK_T, DARK_T + active.soft.d);
+    const st = softT(active), k = prog(t, st, st + active.soft.d);
     if (k > 0 && k < 1) {
       jobs.push(setImg($('scr2'), `clips/${active.clip}/${String(active.soft.pre).padStart(4, '0')}.jpg`));
       $('scr2').style.opacity = 1 - ease(k);
@@ -443,7 +451,7 @@ async function render(t) {
       });
     }
   });
-  $('capScrim').style.opacity = scrim * (t > 24 && t < 54.8 ? 1 : 0.4);
+  $('capScrim').style.opacity = scrim * (t > 24 && t < 59.1 ? 1 : 0.4);
 
   // fans of other features: Track first, then And so much more
   const drawFan = (pfx, tIn, out0, out1) => [-1, 0, 1].forEach((spread, i) => {
