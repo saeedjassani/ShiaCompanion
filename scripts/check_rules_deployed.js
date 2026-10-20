@@ -79,12 +79,23 @@ async function liveFirestoreRules(token) {
   return (files.find((f) => f.name === 'firestore.rules') || files[0]).content;
 }
 
-function liveDatabaseRules(token) {
-  return get(
-    `${DATABASE_URL}/.settings/rules.json`,
-    token,
-    'Firebase Realtime Database Viewer',
-  );
+async function liveDatabaseRules(token) {
+  try {
+    return await get(
+      `${DATABASE_URL}/.settings/rules.json`,
+      token,
+      'Firebase Realtime Database Viewer',
+    );
+  } catch (e) {
+    // Tell "no database access at all" from "can read data, not rules".
+    const probe = await fetch(`${DATABASE_URL}/.json?shallow=true`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    throw new Error(
+      `${e.message} Probe: reading the database root as this account ` +
+        `returned ${probe.status}${probe.ok ? ', so it can read data but not rules' : ''}.`,
+    );
+  }
 }
 
 // The console and the CLI both keep the source as uploaded, so only line
