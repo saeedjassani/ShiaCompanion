@@ -3,7 +3,8 @@ const { spawn } = require('child_process');
 const [,, html, mode, arg] = process.argv;   // mode: stills "1,5,9" | video out.mp4
 const FPS = 30;
 (async () => {
-  const b = await chromium.launch({executablePath: process.env.CHROMIUM_PATH || undefined, args:['--ignore-certificate-errors']});
+  const b = await chromium.launch({executablePath: process.env.CHROMIUM_PATH || undefined, args:['--ignore-certificate-errors'],
+    proxy: process.env.HTTPS_PROXY ? { server: process.env.HTTPS_PROXY, bypass: '127.0.0.1,localhost' } : undefined});
   const p = await b.newPage({ ignoreHTTPSErrors: true, viewport: { width: 1080, height: 1920 } });
   await p.goto('file://' + html);
   await p.evaluate(() => document.fonts.ready);

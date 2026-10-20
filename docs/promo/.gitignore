@@ -4,3 +4,4 @@ still_*.png
 silent.mp4
 # full-quality master (~29 MB); build.sh rebuilds it
 shia-companion-promo.mp4
+build-cut/
