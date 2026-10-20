@@ -1,0 +1,55 @@
+name: Rules deployed
+
+# Fails when the Firestore rules live in production are not the ones on
+# master. Nothing deploys rules automatically, so a merged rules change stays
+# undeployed until someone runs `firebase deploy` - verse notes were denied
+# for every user that way. This turns that into a red check instead of a
+# silent deny.
+#
+# - push to master: goes red on the merge that needs a deploy;
+# - pull request touching the rules: red until they are deployed, as a
+#   reminder that the app must not ship before its rules do;
+# - daily: catches a console edit that never came back to git.
+#
+# Read-only: it never deploys. Firestore only - docs/CI.md says why the
+# Realtime Database is left out, and the IAM role it needs.
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    paths:
+      - firestore.rules
+      - firebase.json
+      - scripts/check_rules_deployed.js
+      - .github/workflows/rules-deployed.yml
+  schedule:
+    - cron: '41 4 * * *'
+  workflow_dispatch:
+
+concurrency:
+  group: rules-deployed-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    name: Live Firestore rules match the repo
+    # Forks get no secrets.
+    if: >
+      github.event_name != 'pull_request' ||
+      github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Compare live rules with the repo
+        env:
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_SHIA_COMAPNION }}
+        run: |
+          set -euo pipefail
+          export GOOGLE_APPLICATION_CREDENTIALS="${RUNNER_TEMP}/firebase-sa.json"
+          printf '%s' "${FIREBASE_SERVICE_ACCOUNT}" > "${GOOGLE_APPLICATION_CREDENTIALS}"
+          trap 'rm -f "${GOOGLE_APPLICATION_CREDENTIALS}"' EXIT
+          node scripts/check_rules_deployed.js
