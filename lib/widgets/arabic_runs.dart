@@ -26,7 +26,7 @@ final RegExp _arabicRun = RegExp(
 bool get arabicFontForTitles {
   bool arabicScript(String code) => appLanguageFor(code)?.isRtl ?? false;
   return !arabicScript(L10n.current.localeName) &&
-      !arabicScript(ZikrTranslations.instance.language.code);
+      !arabicScript(ZikrTranslations.instance.titleLanguage.code);
 }
 
 /// [text] as spans, with each run of Arabic in the reader's Arabic font and

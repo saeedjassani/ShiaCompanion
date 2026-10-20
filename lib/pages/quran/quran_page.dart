@@ -362,25 +362,8 @@ class _TrackCard extends StatelessWidget {
     );
   }
 
-  Future<void> _resume(BuildContext context) async {
-    final target = state.resumeTargetFor(label);
-    if (target.inJuz) {
-      await openQuranJuz(
-        context,
-        target.juz,
-        at: target.verse,
-        source: ZikrOpenSource.quranResume,
-        recitationLabel: label,
-      );
-      return;
-    }
-    await openQuranVerse(
-      context,
-      target.verse,
-      source: ZikrOpenSource.quranResume,
-      recitationLabel: label,
-    );
-  }
+  Future<void> _resume(BuildContext context) =>
+      openRecitationTrack(context, label);
 }
 
 /// A short note under the track cards that the place is kept on its own.

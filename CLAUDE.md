@@ -37,7 +37,8 @@
     and Alqama (no trustworthy deck), and for Abu Hamza, Arafah and Jawshan
     Kabir (decks exist). Dua Ahad came from the Urdu Mafatih on
     mafatih.duas.co, which may have the others too;
-  - Persian beyond G12 and the Quran: Ansarian's Mafatih on erfan.ir loads
+  - Persian beyond the nine famous duas (PR #326), G12 and the Quran:
+    Ansarian's Mafatih on erfan.ir loads
     from the user's Mac but not from cloud sessions;
   - Gujarati, from the owner's PDF;
   - merits notes.

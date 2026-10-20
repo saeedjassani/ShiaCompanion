@@ -24,7 +24,7 @@ class UniversalData {
 
   String get favoriteKey => '$type:$canonicalUid';
 
-  /// [title] as shown: a zikr's in the reader's translation language when it
+  /// [title] as shown: a zikr's in the app language when it
   /// has been translated. Books keep their own title.
   String get displayTitle => type == 0 ? zikrDisplayTitle(uid, title) : title;
 

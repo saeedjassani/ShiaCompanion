@@ -31,7 +31,7 @@ class UidTitleData {
     return title;
   }
 
-  /// [title] as shown, for a zikr: in the reader's translation language when
+  /// [title] as shown, for a zikr: in the app language when
   /// it has been translated. Not for library books, whose uids are their own.
   String get displayTitle => zikrDisplayTitle(uid, title);
 

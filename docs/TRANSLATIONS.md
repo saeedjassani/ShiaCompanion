@@ -10,7 +10,8 @@ There are two independent things to translate, each with its own files:
 | What | Where | Picked in Settings as |
 | --- | --- | --- |
 | **App text** - menus, buttons, settings, dialogs, notifications | `lib/l10n/app_<code>.arb` | App language |
-| **Zikr content** - each dua's translation, instructions, tab labels, merits and title, and recording labels | `assets/zikr_i18n/<code>/` | Translation language |
+| **Zikr content** - each dua's translation, instructions, tab labels and merits, and recording labels | `assets/zikr_i18n/<code>/` | Translation language |
+| **Zikr titles** | `assets/zikr_i18n/<code>/index.json` | App language |
 
 They are separate because readers need them separately: many want English
 menus but a dua's meaning in Urdu. The translation language follows the app
@@ -18,6 +19,10 @@ language until the reader picks one of their own. Either side can ship
 without the other, and a language is offered in a picker only once its files
 exist. A missing ARB key shows in English; zikr content works differently -
 see "No English outside English" below.
+
+Zikr titles live with the zikr content but follow the **app** language:
+they name things in menus, lists, search and the reader's app bar, so
+picking Urdu translations with English menus leaves every title English.
 
 With no choice made, the app language follows the phone's: once
 `app_ur.arb` ships, a phone set to Urdu opens the app in Urdu (the reader can
@@ -177,8 +182,8 @@ assets/zikr_i18n/ur/
   (`SurahInfo.displayName`), without its number.
 - `titles` is keyed by the `assets/zikr.json` key, alias keys
   (`"<uid>|<targetUid>"`) included, since an alias's title often differs
-  from its canonical's. Translated titles show in lists, search, favorites,
-  playlists and the reader; search still matches the English title and
+  from its canonical's. Translated titles show, in the app language, in
+  lists, search, favorites, playlists and the reader; search still matches the English title and
   slugs too.
 - `audio.labels` is keyed by a recording's `file` in
   `assets/zikr_audio.json`; `audio.reciters` by the reciter's name as that

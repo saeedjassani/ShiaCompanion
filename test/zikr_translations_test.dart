@@ -354,14 +354,28 @@ void main() {
       );
     });
 
-    test('loads titles and documents for the chosen language', () async {
-      await translations.setLanguage('ur', bundle);
+    test('loads titles for the title language', () async {
+      await translations.setTitleLanguage('ur', bundle);
 
-      expect(translations.language.code, 'ur');
+      expect(translations.titleLanguage.code, 'ur');
       expect(translations.titleFor('E1'), 'دعائے کمیل');
       // An empty title is no title.
       expect(translations.titleFor('G17|L4'), isNull);
       expect(translations.displayTitle('E2', 'Dua Nudba'), 'Dua Nudba');
+      // Titles follow the app language, not the translation language.
+      expect(translations.isEnglish, isTrue);
+    });
+
+    test('the translation language leaves the titles alone', () async {
+      await translations.setLanguage('ur', bundle);
+
+      expect(translations.language.code, 'ur');
+      expect(translations.titleLanguage.code, 'en');
+      expect(translations.titleFor('E1'), isNull);
+    });
+
+    test('loads documents for the translation language', () async {
+      await translations.setLanguage('ur', bundle);
 
       final document = await translations.documentFor('E1', bundle);
       expect(document, isNotNull);
@@ -402,7 +416,9 @@ void main() {
     test('a language with nothing shipped leaves everything in English',
         () async {
       await translations.setLanguage('fa', bundle);
+      await translations.setTitleLanguage('fa', bundle);
       expect(translations.isEnglish, isTrue);
+      expect(translations.titleLanguage.code, 'en');
       expect(translations.titleFor('E1'), isNull);
       expect(await translations.documentFor('E1', bundle), isNull);
 

@@ -103,7 +103,8 @@ List<ContinueEntry> continueEntries({
             ? s.homeCategoryQuran
             : s.homeContinueQuranTrack(label),
         glyph: HomeGlyphType.surahs,
-        title: info.displayName,
+        // "2: Al-Baqarah", numbered like the surah's zikr title.
+        title: '${localizeDigits('${info.number}', s)}: ${info.displayName}',
         subtitle: s.homeContinueVerseOf(ayah, info.ayahCount),
         progress: ayah / info.ayahCount,
         updatedAt: latestRecitation.recitedAt,
@@ -206,7 +207,7 @@ class ContinueSection extends StatelessWidget {
       listenable: Listenable.merge([
         RecitationTrackerManager.instance,
         ZikrBookmarksManager.instance,
-        // The titles, when the translation language changes or loads.
+        // The titles, when the app language changes or they load.
         ZikrTranslations.instance,
       ]),
       builder: (context, _) {

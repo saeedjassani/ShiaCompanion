@@ -92,7 +92,7 @@ class SurahInfo {
   final int ayahCount;
   final String? slug;
 
-  /// The surah's name as the reader sees it: its title in the translation
+  /// The surah's name as the reader sees it: its title in the app
   /// language ("سورة البقرة", "سورۃ البقرہ") without the leading number, or
   /// [englishName] in English and where no title has been translated.
   String get displayName {

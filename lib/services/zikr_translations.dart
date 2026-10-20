@@ -116,7 +116,12 @@ class ZikrTranslationIndex {
   }
 }
 
-/// Loads the zikr translations for the reader's chosen translation language.
+/// Loads the zikr translations for the reader's chosen translation language,
+/// and the zikr titles for the app language.
+///
+/// Titles name zikrs in menus, lists, search and the reader's app bar, so
+/// they are part of the app's own text and follow the app language: picking
+/// Urdu translations with English menus must not turn every list Urdu.
 ///
 /// English is the corpus itself, so in English there is nothing to load and
 /// every lookup returns null.
@@ -127,6 +132,8 @@ class ZikrTranslations extends ChangeNotifier {
 
   AppLanguage _language = englishLanguage;
   ZikrTranslationIndex? _index;
+  AppLanguage _titleLanguage = englishLanguage;
+  ZikrTranslationIndex? _titleIndex;
   final Map<String, Future<ZikrDocumentTranslation?>> _documents = {};
   Future<Set<String>>? _translationAssets;
 
@@ -134,6 +141,9 @@ class ZikrTranslations extends ChangeNotifier {
   AppLanguage get language => _language;
 
   bool get isEnglish => _language.code == englishLanguageCode;
+
+  /// The language zikr titles are currently being shown in.
+  AppLanguage get titleLanguage => _titleLanguage;
 
   /// In Arabic the zikr is already in the reader's language, so it is read
   /// with no translation lines.
@@ -186,7 +196,9 @@ class ZikrTranslations extends ChangeNotifier {
     _index = null;
     _documents.clear();
     if (language.code != englishLanguageCode) {
-      final index = await _loadIndex(language, bundle);
+      final index = language.code == _titleIndex?.language.code
+          ? _titleIndex
+          : await _loadIndex(language, bundle);
       // Another switch may have landed while this one was loading.
       if (_language.code != language.code) return;
       _index = index;
@@ -194,6 +206,30 @@ class ZikrTranslations extends ChangeNotifier {
       // reading in it would hide all the English and leave nothing in its
       // place.
       if (index == null) _language = englishLanguage;
+    }
+    notifyListeners();
+  }
+
+  /// Switches the zikr titles to [code], loading its index. A language with
+  /// no translations shipped (or an unknown code) leaves the titles in
+  /// English.
+  Future<void> setTitleLanguage(String code, AssetBundle bundle) async {
+    final language = appLanguageFor(code) ?? englishLanguage;
+    if (language.code == _titleLanguage.code &&
+        (_titleIndex != null || language.code == englishLanguageCode)) {
+      return;
+    }
+
+    _titleLanguage = language;
+    _titleIndex = null;
+    if (language.code != englishLanguageCode) {
+      final index = language.code == _index?.language.code
+          ? _index
+          : await _loadIndex(language, bundle);
+      // Another switch may have landed while this one was loading.
+      if (_titleLanguage.code != language.code) return;
+      _titleIndex = index;
+      if (index == null) _titleLanguage = englishLanguage;
     }
     notifyListeners();
   }
@@ -219,10 +255,10 @@ class ZikrTranslations extends ChangeNotifier {
     }
   }
 
-  /// The translated title for `assets/zikr.json` key [key], or null to show
-  /// the English one.
+  /// The title for `assets/zikr.json` key [key] in [titleLanguage], or null
+  /// to show the English one.
   String? titleFor(String key) {
-    final title = _index?.titles[key]?.trim();
+    final title = _titleIndex?.titles[key]?.trim();
     return title == null || title.isEmpty ? null : title;
   }
 
@@ -288,6 +324,8 @@ class ZikrTranslations extends ChangeNotifier {
   void debugReset() {
     _language = englishLanguage;
     _index = null;
+    _titleLanguage = englishLanguage;
+    _titleIndex = null;
     _documents.clear();
     _translationAssets = null;
   }
@@ -306,8 +344,8 @@ Map<String, String> _stringMap(Object? raw, [AppLanguage? language]) {
   return result;
 }
 
-/// [englishTitle] of `assets/zikr.json` entry [uid], in the reader's
-/// translation language when it has been translated.
+/// [englishTitle] of `assets/zikr.json` entry [uid], in the app language
+/// when it has been translated.
 ///
 /// Titles are translated where they are shown, never in the `items` index
 /// itself: several things read structure out of the English titles (a surah's
