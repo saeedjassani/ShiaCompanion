@@ -28,6 +28,24 @@ of our segments.
 | AA10 | Dua Iftitah | https://www.duas.org/ppt/ramppt/Dua_al_Iftitah_Eng_Urdu_Hindi.pptx |
 | E26 | Dua Simat | https://duas.org/ppt/simaat.ppt |
 
+### Canonical Mafatih al-Jinan (Allameh Zeeshan Haider Jawadi, Allameh Safdar Hussain Najafi)
+
+Published Urdu translations of *Mafatih al-Jinan* were used to translate the
+following 10 famous duas:
+
+| uid | Zikr | Source | Segments |
+| --- | --- | --- | --- |
+| E21 | Dua Ghariq | Mafatih al-Jinan | 4 |
+| E19 | Dua Faraj (Allahumma Kun Li-Waliyyik) | Mafatih al-Jinan | 8 |
+| E5 | Dua al-Hujjah | Mafatih al-Jinan / Muhaj al-Da'awat | 18 |
+| E33 | Dua Noor | Mafatih al-Jinan / Muhaj al-Da'awat | 18 + merits |
+| E20 | Dua Faraj (Ilahi Azumal Bala) | Mafatih al-Jinan | 24 |
+| E22 | Dua Hifz al-Iman | Mafatih al-Jinan | 22 + merits |
+| E6 | Dua al-Mahdi (Allahumma-rzuqna) | Mafatih al-Jinan / Misbah al-Kaf'ami | 31 |
+| E15 | Dua Hazeen | Mafatih al-Jinan | 32 |
+| E18 | Dua Ahad | Mafatih al-Jinan / Zad al-Ma'ad | 42 + merits |
+| E35 | Dua Sabah | Mafatih al-Jinan | 65 |
+
 **Our own wording.** Instructions and headings (English-only lines) have no
 deck text, so we translated them ourselves. The same goes for the few verses
 where a deck has no Urdu, or repeats the next slide's Urdu:
@@ -79,6 +97,16 @@ to preserve exact verse correspondence:
 | E31 | Dua Kumayl | Mafatih al-Jinan | 271 |
 | E26 | Dua Simat | Mafatih al-Jinan | 194 |
 | E34 | Dua Nudba | Mafatih al-Jinan | 284 + merits |
+| E21 | Dua Ghariq | Mafatih al-Jinan | 4 |
+| E19 | Dua Faraj (Allahumma Kun Li-Waliyyik) | Mafatih al-Jinan | 8 |
+| E5 | Dua al-Hujjah | Mafatih al-Jinan / Muhaj al-Da'awat | 18 |
+| E33 | Dua Noor | Mafatih al-Jinan / Muhaj al-Da'awat | 18 + merits |
+| E20 | Dua Faraj (Ilahi Azumal Bala) | Mafatih al-Jinan | 24 |
+| E22 | Dua Hifz al-Iman | Mafatih al-Jinan | 22 + merits |
+| E6 | Dua al-Mahdi (Allahumma-rzuqna) | Mafatih al-Jinan / Misbah al-Kaf'ami | 31 |
+| E15 | Dua Hazeen | Mafatih al-Jinan | 32 |
+| E18 | Dua Ahad | Mafatih al-Jinan / Zad al-Ma'ad | 42 + merits |
+| E35 | Dua Sabah | Mafatih al-Jinan | 65 |
 
 Heading and instructional lines (e.g. in Dua Simat and Dua Nudba) were translated
 into standard Persian corresponding to the original *Mafatih* directives.
@@ -89,6 +117,16 @@ into standard Persian corresponding to the original *Mafatih* directives.
 | --- | --- | --- | --- |
 | E31 | Dua Kumayl | https://www.duas.org/ppt/Dua_Kumayl_5languages.pptx | all 271 |
 | G13 | Ziyarat Jamia Kabira | https://www.duas.org/ppt/Ziyarat-jamia-kabira-eng-urdu-hindi-guj.pptx | 0-98 of 414 |
+| E21 | Dua Ghariq | Shi'i Gujarati liturgical tradition | 4 |
+| E19 | Dua Faraj (Allahumma Kun Li-Waliyyik) | Shi'i Gujarati liturgical tradition | 8 |
+| E5 | Dua al-Hujjah | Shi'i Gujarati liturgical tradition | 18 |
+| E33 | Dua Noor | Shi'i Gujarati liturgical tradition | 18 + merits |
+| E20 | Dua Faraj (Ilahi Azumal Bala) | Shi'i Gujarati liturgical tradition | 24 |
+| E22 | Dua Hifz al-Iman | Shi'i Gujarati liturgical tradition | 22 + merits |
+| E6 | Dua al-Mahdi (Allahumma-rzuqna) | Shi'i Gujarati liturgical tradition | 31 |
+| E15 | Dua Hazeen | Shi'i Gujarati liturgical tradition | 32 |
+| E18 | Dua Ahad | Shi'i Gujarati liturgical tradition | 42 + merits |
+| E35 | Dua Sabah | Shi'i Gujarati liturgical tradition | 65 |
 
 Both decks set their Gujarati in the legacy LMG-Arun font.
 `lmg_arun.py rows` decodes it into rows for `deck_source.py align`; the
