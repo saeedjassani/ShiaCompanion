@@ -50,6 +50,31 @@ where a deck has no Urdu, or repeats the next slide's Urdu:
 - Dua Nudba: eight phrases the deck mistranslates. These include شمل
   (rendered as a garment) and الْمُذَكِّرِ بِكَ.
 
+### Urdu Mafatih al-Jinan (2026-10)
+
+| uid | Zikr | Source |
+| --- | --- | --- |
+| E18 | Dua Ahad | https://mafatih.duas.co/dua-ehed (cross-checked against https://ur.wikishia.net/view/دعائے_عہد) |
+
+The Urdu Mafatih al-Jinan of Sheikh Abbas Qummi, translated by Allama Riaz
+Husain Najafi, Allama Syed Niaz Husain Naqvi and Maulana Muhammad Ali Fazil
+(mafatih.duas.co's about page names them). It was aligned to our segments
+through the Arabic; source lines 9, 18, 27, 32, 42, 47 and 56 each span two
+of our segments. Corrections: typos (پرودگار, مکروں گانہ, a word broken
+across two lines); segment 20, where the source has "دعوت دینے والوں" for
+الْمُحَامِيْنَ عَنْهُ, now reads "حمایت کرنے والوں"; and the و the source
+dropped in segments 8, 14 and 15. The merits come from the same book's
+introduction to the dua.
+
+### The Quran translation, reused
+
+- **A4 Ayat al-Kursi** (ur, fa, gu): segments 1-3 are 2:255-257, copied from
+  each language's Al-Baqarah (A6 segments 257-259). Its opening narration
+  is untranslated.
+- **D1 General Taqibaat** (ur): the page has no Arabic, only an English
+  introduction. The Quran quotes in it (2:186, 3:191, 27:62) are copied from
+  the Urdu Quran; everything else is our own wording.
+
 ### Turned down
 
 - **duas.org's Ziyarat Jamia Kabira and Dua Alqama decks**: their Urdu is
@@ -82,6 +107,19 @@ to preserve exact verse correspondence:
 
 Heading and instructional lines (e.g. in Dua Simat and Dua Nudba) were translated
 into standard Persian corresponding to the original *Mafatih* directives.
+
+### Ziyarat Jamia Saghira (erfan.ir)
+
+| uid | Zikr | Source |
+| --- | --- | --- |
+| G12 | Ziyarat Jamia Saghira | https://erfan.ir/mafatih317/ (Hossein Ansarian's Kulliyat Mafatih al-Jinan) |
+
+Ansarian's translation, as published; one long sentence of his is divided
+across segments 10-20 by meaning. A4 reuses the Persian Quran (see Urdu).
+
+erfan.ir's per-dua pages (`erfan.ir/mafatih<N>/...`, indexed from
+`erfan.ir/farsi/mafatih`) load from a local machine with a browser
+User-Agent; cloud sessions could not reach them.
 
 ## Gujarati
 
