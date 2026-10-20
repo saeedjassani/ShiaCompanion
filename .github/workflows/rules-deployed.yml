@@ -1,17 +1,18 @@
 name: Rules deployed
 
-# Fails when the Firestore or Realtime Database rules live in production are
-# not the ones on master. Nothing deploys rules automatically, so a merged
-# rules change stays undeployed until someone runs `firebase deploy` - verse
-# notes and the My Stats community totals were both denied for every user
-# that way. This turns that into a red check instead of a silent deny.
+# Fails when the Firestore rules live in production are not the ones on
+# master. Nothing deploys rules automatically, so a merged rules change stays
+# undeployed until someone runs `firebase deploy` - verse notes were denied
+# for every user that way. This turns that into a red check instead of a
+# silent deny.
 #
 # - push to master: goes red on the merge that needs a deploy;
 # - pull request touching the rules: red until they are deployed, as a
 #   reminder that the app must not ship before its rules do;
 # - daily: catches a console edit that never came back to git.
 #
-# Read-only: it never deploys. Setup (two IAM roles) is in docs/CI.md.
+# Read-only: it never deploys. Firestore only - docs/CI.md says why the
+# Realtime Database is left out, and the IAM role it needs.
 on:
   push:
     branches:
@@ -19,7 +20,6 @@ on:
   pull_request:
     paths:
       - firestore.rules
-      - database.rules.json
       - firebase.json
       - scripts/check_rules_deployed.js
       - .github/workflows/rules-deployed.yml
@@ -33,7 +33,7 @@ concurrency:
 
 jobs:
   check:
-    name: Live rules match the repo
+    name: Live Firestore rules match the repo
     # Forks get no secrets.
     if: >
       github.event_name != 'pull_request' ||

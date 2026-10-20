@@ -9,7 +9,7 @@
 | `web-release.yml` | push to `master` that changes the version in `pubspec.yaml`, manual | The only workflow that writes to the live site |
 | `smoke-test.yml` | push to `master` that bumps the version in `pubspec.yaml`, manual | Runs the automated smoke crawler integration test on both an iOS Simulator and an Android emulator |
 | `internal-testing.yml` | manual only | Builds any branch, commit or PR and uploads it to TestFlight and/or the Play internal testing track. Never submits anything for review. |
-| `rules-deployed.yml` | push to `master`, PRs touching the rules, daily, manual | Fails when the live Firestore or Realtime Database rules differ from the repo's. Read-only, never deploys. |
+| `rules-deployed.yml` | push to `master`, PRs touching the rules, daily, manual | Fails when the live Firestore rules differ from `firestore.rules`. Read-only, never deploys. |
 
 `ci.yml` runs analysis and tests first, on Ubuntu, and only starts the slow
 platform builds once they pass. A failing test is reported in about three
@@ -94,37 +94,41 @@ domains), but everything it builds or shares, and every canonical URL and
 sitemap entry, uses `shiacompanion.app` (`appWebOrigin`, and `site-origin` in
 `.github/actions/build-web/action.yml`), so search engines index one origin.
 
-## Security rules
+## Security rules and Cloud Functions
 
-**Nothing deploys rules automatically.** `firestore.rules` and
-`database.rules.json` only reach production when someone runs
+**Nothing deploys these automatically.** Rules and functions only reach
+production when someone runs
 
 ```bash
-firebase deploy --only firestore:rules   # Firestore
-firebase deploy --only database          # Realtime Database
+firebase deploy --only firestore:rules   # firestore.rules
+firebase deploy --only database          # database.rules.json
+firebase deploy --only functions         # functions/src
 ```
 
-A rules change merged without that deploy is silently denied for every user.
-Verse notes (Firestore) and the My Stats community totals (Realtime Database)
-both shipped that way. `rules-deployed.yml` makes it a red check instead: it
-reads the live rules and diffs them against the repo
+A merged change that skips this is silently missing from production. Verse
+notes (Firestore rules), the My Stats community totals (Realtime Database
+rules) and the function that publishes those totals all shipped that way.
+Deploy rules *before* the app that needs them ships.
+
+`rules-deployed.yml` turns this into a red check for Firestore: it reads the
+live rules and diffs them against `firestore.rules`
 (`scripts/check_rules_deployed.js`). The failure shows the diff and the deploy
-command. Deploy the rules *before* the app that needs them ships. A PR that
-changes rules stays red until they are live, and that order is the safe one.
+command. A PR that changes Firestore rules stays red until they are live; that
+order is the safe one.
+
+The Realtime Database and functions are not checked. Reading RTDB rules needs
+Firebase Realtime Database Admin. Viewer can read the data but gets a 401 on
+`/.settings/rules.json`. Admin would let the key rewrite all user data and
+the rules, and the key is a repo-wide secret, so after merging a change to
+`database.rules.json` or `functions/`, deploy it by hand.
 
 ### One-time setup
 
 The check uses the `FIREBASE_SERVICE_ACCOUNT_SHIA_COMAPNION` secret that the
-Hosting workflows already use. In Google Cloud console → IAM for
-`shia-comapnion`, give that service account two read-only roles:
-
-- **Firebase Rules Viewer** (`roles/firebaserules.viewer`), for Firestore;
-- **Firebase Realtime Database Viewer** (`roles/firebasedatabase.viewer`), for
-  the Realtime Database. Rules can't be read with less, but this role can also
-  read the database's data, so a key with only these two roles in a secret of
-  its own is the tighter alternative.
-
-Without them the job fails with a 403 that names the missing role.
+Hosting workflows already use. That service account needs the read-only
+**Firebase Rules Viewer** role (`roles/firebaserules.viewer`) in Google Cloud
+console → IAM for `shia-comapnion`. Without it the job fails with a 403 that
+names the role.
 
 ## Where to test changes before releasing
 
