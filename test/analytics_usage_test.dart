@@ -135,6 +135,59 @@ void main() {
     });
   });
 
+  group('zikr sources and automatic events', () {
+    test('parseUsageTotals takes zikr_source_* out of the feature metric', () {
+      // One per zikr open, so left among the features each open counted
+      // twice - and three times with the Home tap that led to it.
+      final counts = parseUsageTotals({
+        'feature': {
+          'zikr_source_favorites': 5,
+          'zikr_source_list': 7,
+          'home_menu_favorites': 5,
+        },
+      });
+      expect(counts['feature'], {'home_menu_favorites': 5});
+      expect(counts[zikrSourceMetric],
+          {'zikr_source_favorites': 5, 'zikr_source_list': 7});
+    });
+
+    test('drops what the app does on its own', () {
+      final counts = parseUsageTotals({
+        'feature': {
+          'first_run_setup': 3,
+          'rating_positive_action': 9,
+          'quran_legacy_bookmark_retired': 1,
+          'recitation_tracker_updated': 40,
+          'search': 2,
+        },
+      });
+      expect(counts['feature'], {'search': 2});
+    });
+
+    test('parseUsageDays keeps zikr sources out of the trends', () {
+      final result = parseUsageDays({
+        '2026-10-19': {
+          'zikr': {'G1': 2},
+          'feature': {'zikr_source_list': 2, 'search': 1},
+        },
+      }, ['2026-10-19']);
+      expect(result.trend['2026-10-19'], 3);
+      expect(result.metricTrend['feature']?['2026-10-19'], 1);
+      expect(result.metricTrend.containsKey(zikrSourceMetric), isFalse);
+      expect(result.counts[zikrSourceMetric], {'zikr_source_list': 2});
+    });
+
+    test('previousTotalsFrom no longer counts a zikr open as a feature use',
+        () {
+      final totals = previousTotalsFrom(parseUsageTotals({
+        'zikr': {'G1': 4},
+        'feature': {'zikr_source_list': 4, 'search': 1},
+      }));
+      expect(totals.zikrOpens, 4);
+      expect(totals.featureUses, 1);
+    });
+  });
+
   group('parseUsageDays', () {
     test('sums double counts into both the metric bucket and the trend', () {
       final result = parseUsageDays({
@@ -200,8 +253,8 @@ void main() {
       expect(rows.length, 1);
       expect(rows.single.key, 'G1');
       expect(rows.single.count, 40);
-      expect(rows.single.label, contains('Dua Kumayl'));
-      expect(rows.single.label, contains('12 finished'));
+      expect(rows.single.label, 'Dua Kumayl');
+      expect(rows.single.note, '12 finished · 30%');
     });
 
     test('leaves a zikr nobody finished with a plain label', () {
@@ -210,6 +263,7 @@ void main() {
       ]);
 
       expect(rows.single.label, 'Ziyarat Ashura');
+      expect(rows.single.note, isNull);
     });
 
     test('never lets a completion row compete for a place in the ranking', () {
@@ -332,13 +386,20 @@ void main() {
         'zikr_reminder_entry_point_opened': FeatureGroup.readingContent,
         'quran_verse_saved': FeatureGroup.readingContent,
         'quran_verse_unsaved': FeatureGroup.readingContent,
-        'recitation_tracker_updated': FeatureGroup.readingContent,
-        // Finding content — home menu taps, search, and where a zikr open
-        // came from (the dynamic zikr_source_* and home_menu_* families).
-        'zikr_source_search': FeatureGroup.findingContent,
-        'zikr_source_deep_link': FeatureGroup.findingContent,
-        'zikr_source_home_widget_favorites': FeatureGroup.findingContent,
-        'zikr_source_home_widget_recitation': FeatureGroup.findingContent,
+        'quran_note_added': FeatureGroup.readingContent,
+        'quran_note_edited': FeatureGroup.readingContent,
+        'quran_note_deleted': FeatureGroup.readingContent,
+        'recitation_track_added': FeatureGroup.readingContent,
+        'recitation_entry_removed': FeatureGroup.readingContent,
+        'recitation_track_settings_changed': FeatureGroup.readingContent,
+        'quran_tracking_hint_dismissed': FeatureGroup.readingContent,
+        'quran_surah_step': FeatureGroup.readingContent,
+        'quran_juz_step': FeatureGroup.readingContent,
+        'quran_khatm_dua': FeatureGroup.readingContent,
+        'zikr_auto_scroll_started': FeatureGroup.readingContent,
+        // Finding content — home menu taps (the dynamic home_menu_* family)
+        // and search. zikr_source_* is not a feature group at all; see
+        // parseUsageTotals.
         'home_menu_qibla': FeatureGroup.findingContent,
         'home_menu_tasbeeh': FeatureGroup.findingContent,
         'search': FeatureGroup.findingContent,
@@ -361,6 +422,10 @@ void main() {
         'tasbeeh_session': FeatureGroup.prayerAndWorship,
         'flight_added': FeatureGroup.prayerAndWorship,
         'flight_edited': FeatureGroup.prayerAndWorship,
+        'city_prompt_dismissed': FeatureGroup.prayerAndWorship,
+        'location_status_action': FeatureGroup.prayerAndWorship,
+        'prayer_notifications_master_toggled': FeatureGroup.prayerAndWorship,
+        'prayer_notifications_sheet_saved': FeatureGroup.prayerAndWorship,
         // Personalization & account
         'account_deleted': FeatureGroup.personalizationAndAccount,
         'account_signed_in': FeatureGroup.personalizationAndAccount,
@@ -371,17 +436,20 @@ void main() {
         'theme_mode_changed': FeatureGroup.personalizationAndAccount,
         'home_shortcuts_changed': FeatureGroup.personalizationAndAccount,
         'home_menu_all_features': FeatureGroup.findingContent,
-        'zikr_source_home_continue': FeatureGroup.findingContent,
         'app_text_scale_changed': FeatureGroup.personalizationAndAccount,
+        'app_language_changed': FeatureGroup.personalizationAndAccount,
+        'translation_language_changed':
+            FeatureGroup.personalizationAndAccount,
         // Feedback & ratings
         'rating_prompt': FeatureGroup.feedbackAndRatings,
         'rating_prompt_feedback': FeatureGroup.feedbackAndRatings,
         'rate_us_settings': FeatureGroup.feedbackAndRatings,
         'feedback_email_opened': FeatureGroup.feedbackAndRatings,
         'github_settings': FeatureGroup.feedbackAndRatings,
-        'rating_positive_action': FeatureGroup.feedbackAndRatings,
+        'home_get_app': FeatureGroup.feedbackAndRatings,
         'zikr_mistake_reported': FeatureGroup.feedbackAndRatings,
         'content_requested': FeatureGroup.feedbackAndRatings,
+        'zikr_translation_requested': FeatureGroup.feedbackAndRatings,
         'mistake_report_resolved': FeatureGroup.feedbackAndRatings,
         'mistake_report_reopened': FeatureGroup.feedbackAndRatings,
         'content_request_resolved': FeatureGroup.feedbackAndRatings,

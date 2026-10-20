@@ -276,6 +276,9 @@ class RatingPromptService {
       'rating_positive_action',
       label: 'Rating positive action',
       parameters: {'action': action},
+      // Fires alongside the share, bookmark or favorite that caused it,
+      // each already counted under its own key.
+      countOnDashboard: false,
     ));
     if (!shouldAsk()) return;
     _pendingAsk = true;

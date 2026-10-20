@@ -11,12 +11,26 @@ Those counters are what the in-app **Usage Dashboard** reads, and they are live.
 ## Seeing the numbers
 
 Home grid → **Usage** (admin only; the tile is not built for anyone else).
-Ranges: Today / 7 days / 30 days / All time. It shows most-opened zikrs,
-features actually used (grouped — see below), screens, library books by
-chapters read, and live streams. Every ranked row also shows its share of that
-section's total, and the three headline tiles (zikr opens, distinct zikrs,
-feature uses) show the change against the equivalent previous period — All
-time has no "previous" to compare against, so it skips the delta.
+Ranges: Today / 7 days / 30 days / All time. It is laid out as a card per
+question rather than one long list:
+
+- **Headline tiles** — zikr opens, the share read to the end, different
+  zikrs, searches, actions taken and library chapters.
+- **Activity** — events per day, one line per kind (zikrs, screens,
+  actions, library, streams).
+- **Most opened zikrs**, each with how many were finished.
+- **How zikrs were opened** — the entry points, as a share bar and a
+  ranking (`zikr_source_*`, see below).
+- **Search** — opened search, searches typed, results opened.
+- **What people do** — a tile per feature group (see below) with its total,
+  share and top action; a tile opens that group's full ranking.
+- Playlists, library books, live streams and screens.
+
+Every card shows its top five and opens the full ranking on a page of its
+own. Every number shows its change against the equivalent previous period —
+All time has no "previous" to compare against, so it skips the delta. The
+widgets are in `usage_cards.dart`; `UsageOverview` lays them out from a
+loaded snapshot, which is what `test/ui/usage_overview_test.dart` renders.
 
 The tile comes from `adminHomeMenuItems`, kept out of `homeMenuItems` so the
 grid every user gets stays a compile-time constant and admin state — which
@@ -53,8 +67,11 @@ before ranking them; the grouping below mirrors that.
 `zikr_show_transliteration_toggled`, `zikr_show_translation_toggled` (all four
 +`enabled`), `arabic_font_size_changed`, `english_font_size_changed`,
 `arabic_font_changed` (+`font`), `library_shared` (+`book_uid`, `chapter_uid`,
-`scope`), `library_offline_saved` / `library_offline_removed` (+`book_uid`),
-`zikr_source_*`.
+`scope`), `library_offline_saved` / `library_offline_removed` (+`book_uid`).
+
+**Where a zikr open came from** — `zikr_source_*`, one per `ZikrOpenSource`
+(see below), bumped by `AnalyticsService.zikrView` with every open. Not a
+feature group: see [Features used, grouped](#features-used-grouped).
 
 **Home menu** — `home_menu_*`, one per home menu item (Qibla, Tasbeeh, Qaza,
 Calendar, Flights, Library, Favorites, …) (+`menu_item`). Choosing the Quran or
@@ -82,7 +99,8 @@ matches the chosen city's.
 `dark_mode_toggled` along with the Dark mode switch),
 `home_shortcuts_changed` (+`count`, `shortcuts`: the chosen ids in order),
 `first_run_setup` (+`outcome`: `finished`, or `skipped` from Skip setup;
-+`step`: 0 for the welcome, 5 for Back up), once when setup ends; its steps
++`step`: 0 for the welcome, 5 for Back up), once when setup ends, GA4 only
+(see below); its steps
 count under their own keys (`azaan_opt_in`, `arabic_font_changed`,
 `theme_mode_changed`, `account_signed_in`, `city_chosen`,
 `device_location_chosen`),
@@ -162,6 +180,24 @@ set per group (see the list above) — a key that matches nothing falls into
 safety net for a `feature()` call nobody has sorted into a group yet.
 `groupFeatureRows` does the actual split and is unit tested directly, so a
 regrouping mistake shows up without a live database.
+
+Two kinds of `feature` counter stay out of the groups, both filed at parse time
+by `parseUsageTotals` / `parseUsageDays`:
+
+- **`zikr_source_*`** go to their own "How zikrs were opened" section. Each is
+  a zikr open recorded a second time, so among the features it counted every
+  open twice (in "Zikr opens" and again in "Feature uses"). Inside "Finding
+  content" it counted it a third time: Home → Favorites → a zikr logged
+  `home_menu_favorites` *and* `zikr_source_favorites`. They are kept out of
+  "Events per day" and the per-area chart for the same reason.
+- **Automatic events** are left out entirely (`_unrankedFeatureKeys`):
+  `first_run_setup` (every new install passes through it),
+  `rating_positive_action` (fires alongside a share, bookmark or favorite
+  already counted under its own key), `quran_legacy_bookmark_retired` (a
+  migration) and the historical `recitation_tracker_updated`. The first three
+  now call `feature(..., countOnDashboard: false)`, which still sends the GA4
+  event with its parameters but writes no counter. Use it for anything the app
+  does on its own rather than something a person chose.
 
 ## Why `zikr_view` lives in `ZikrPage`, not in the tap handlers
 

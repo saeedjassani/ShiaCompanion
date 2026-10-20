@@ -165,6 +165,9 @@ class _FirstRunSetupPageState extends State<FirstRunSetupPage> {
         'outcome': skipped ? 'skipped' : 'finished',
         'step': _step,
       },
+      // Every new install passes through here, so the count is just
+      // installs; the skipped/finished split is what GA4 is for.
+      countOnDashboard: false,
     ));
     widget.onDone();
   }
