@@ -55,6 +55,10 @@ where a deck has no Urdu, or repeats the next slide's Urdu:
 | uid | Zikr | Source |
 | --- | --- | --- |
 | E18 | Dua Ahad | https://mafatih.duas.co/dua-ehed (cross-checked against https://ur.wikishia.net/view/دعائے_عہد) |
+| E1 | Dua Istighatha | https://mafatih.duas.co/istighasa-qayim |
+| E4 | Dua Adeela | https://mafatih.duas.co/dua-adeela |
+| G3 | Ziyarat Arbaeen | https://mafatih.duas.co/ziarat-arbaeen (verses and merits) |
+| G6 | Ziyarat Warith | https://mafatih.duas.co/ziarat-warisa (tabs 1-3); tab 4, al-Abbas, is the short ziyarat inside https://mafatih.duas.co/ziarat-qadr |
 
 The Urdu Mafatih al-Jinan of Sheikh Abbas Qummi, translated by Allama Riaz
 Husain Najafi, Allama Syed Niaz Husain Naqvi and Maulana Muhammad Ali Fazil
@@ -65,6 +69,53 @@ across two lines); segment 20, where the source has "دعوت دینے والو�
 الْمُحَامِيْنَ عَنْهُ, now reads "حمایت کرنے والوں"; and the و the source
 dropped in segments 8, 14 and 15. The merits come from the same book's
 introduction to the dua.
+
+E1, E4 and G3 were asked for by readers (2026-10); G6 followed. A page's prose holds
+the Mafatih's own introduction, which supplied G3's merits. Corrections to
+the source:
+
+- **E1 Dua Istighatha:**
+  - 2: "بہت زیادہ" for الشامل العام, now "ہمہ گیر اور عام".
+  - 8: "نبوت کی نشانی" for سلالة النبوة, now "نسل نبوت".
+  - 49: "اس امر" for بأمره, now "اپنے امر".
+  - Words the source dropped: القائمة (4), وانت الذي (32) and لي (45).
+  - 0, 1, 44 and 54 are our earlier instruction lines.
+- **E4 Dua Adeela:**
+  - 2-3: قائماً بالقسط is about Allah, not the scholars. 3 uses our Urdu
+    Quran's 3:18.
+  - 41: "اضداد" for العلل, now "ہر عذر".
+  - 48: "نام" for نيله, now "انعام".
+  - 60: the source adds "جو میرا وصی ہے" and drops اشار.
+  - 67: the source names علی بن الحسین for العابد.
+  - 122: "یاد دلا دینا" for فرده, now "لوٹا دینا".
+  - 123 (منکر و نکیر) is missing from the source, so it is our own.
+  - ur.wikishia has the same اضداد and نام, so those two are in the
+    printed translation.
+- **G3 Ziyarat Arbaeen:**
+  - 14: تَوَازَرَ عَلَيْهِ as "ظلم", now "گٹھ جوڑ".
+  - 15: بَاعَ حَظَّهُ as "جانیں", now "حصہ".
+  - 20: مُحْتَسِبًا, now "اجر کی امید کے ساتھ".
+  - 37: the object of لَمْ تُنَجِّسْكَ, now "آپ کو".
+  - 38: المدلهمات, now "تاریک".
+  - 44: إيابكم read as "بزرگوں", now "واپسی".
+  - Segment 0 is our earlier instruction.
+- **G6 Ziyarat Warith** (not requested, but the same source had it):
+  - 7: the source's Arabic lacks علی and ولی الله, and its Urdu adds
+    "و جانشین". It now follows our Arabic.
+  - 12-13: ثار الله / الوتر الموتور, worded as in our G4 Urdu.
+  - 27: مدلهمات as "ناپاک", now "تاریک".
+  - 28-29: دعائم as "نگہبان", now "ستونوں".
+  - 37-38: إيابكم read as "باپ دادا", now "آپ کی واپسی" (as in G3).
+  - 59: أوداء, now "دوستو".
+  - 66: "تم" made "آپ", as in the rest of the ziyarat.
+  - Tab labels 0, 47, 57 and 70 are our earlier ones.
+- **All four:** dropped و's were restored, and ؑ/ؐ written (ع)/(ص), and (س) for Lady Fatimah, as
+  in the other files.
+
+**E21 Dua Ghariq** isn't in the Mafatih. Its Urdu is from a Hawzah News
+article citing Kamal al-Din vol. 2 p. 351
+(https://ur.hawzahnews.com/news/410402), divided at our segment breaks;
+segment 0 is the Mafatih's Bismillah.
 
 ### The Quran translation, reused
 
