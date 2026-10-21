@@ -15,6 +15,7 @@ file is the procedure. Arabic orthography is a different job (the
 |---|---|
 | `python3 scripts/zikr_structure/lint.py <uids>` | Every rule breach in those entries. A finished entry has **no `error`**. `review` findings (`LONG_PROSE`, `NOTHING_TO_DO`, `OCCASION_NOTE`) are for the owner - report them, don't act on them unless the rule is clear-cut. |
 | `python3 scripts/zikr_structure/lint.py --summary` | Corpus-wide counts. |
+| `python3 scripts/zikr_structure/link_mentions.py --write <uids>` | Link every surah and named dua/ziyarat/namaz the entry mentions (lint's `UNLINKED`). |
 | `python3 scripts/zikr_structure/dump.py <uid> [--short]` | The entry's lines, numbered per part and tagged `A`rabic / `t`ranslit / `T`ranslation / `N`ote. |
 | `python3 scripts/zikr_structure/check_preserved.py <uids>` | Against `master`: every Arabic/translit/translation line still present (exit 1 if not), English sentences dropped/added. `--html out.html` builds the side-by-side review page. |
 

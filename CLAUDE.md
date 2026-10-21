@@ -209,7 +209,8 @@ entries should follow the same house style:
   spelling: Muharram, Dhul Qa'dah, Dhul Hijjah, Jumada al-Awwal/al-Akhirah,
   Ashura, Ghadir, Eid al-Adha, Ziyarat (never Ziyaarat/Ziyarah), Ziyarat
   Warith, Aal-e-Yasin, Jamia Kabira, Aminullah,
-  Munajat, Istikhara, Taqibaat, Nafilah, Zuhr, Maghrib, Wudu, Aamal, Husayn,
+  Munajat, Istikhara, Taqibaat, Nafilah, Witr, Namaz-e-Ayat, Zuhr, Maghrib,
+  Wudu, Aamal, Husayn,
   Muhammad, Musa, Reza, Zayn al-Abidin, Fatimah al-Zahra, Amir al-Mu'minin,
   Hadith al-Kisa, Ayat al-Kursi.
 - Named duas drop the Urdu izafat: `Dua Ahad`, `Dua Nudba`, `Ziyarat

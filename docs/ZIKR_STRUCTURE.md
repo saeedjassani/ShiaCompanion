@@ -107,6 +107,13 @@ prayer in Ramazan).
 - A named dua/ziyarat that is famous on its own (Dua Kumayl, Dua Simaat,
   Ziyarat Ashura) has its own entry. A compilation that includes it links
   to it (`Recite [Dua Simaat](E..).`) rather than carrying a second copy.
+- Every mention of a surah or of a named dua, ziyarat or namaz with its own
+  entry is a link, in instructions and merits alike: `after [Surah
+  al-Hamd](A5) recite [Surah al-Tawheed](A116)`. A surah's uid is
+  `A<number + 4>`. `scripts/zikr_structure/link_mentions.py --write <uids>`
+  adds them (any spelling - Hamd, al-Faatehah, Fatiha - and lists like
+  "Surahs al-Falaq and al-Nas"); lint reports what it would link as
+  `UNLINKED`. A translation of a linked line links the same names.
 - To list the same entry in another category, add an alias key
   `"<uid>|<targetUid>"` in `assets/zikr.json` with the **same title and the
   same slug** as the target (CLAUDE.md, slug-collision note). Never copy
