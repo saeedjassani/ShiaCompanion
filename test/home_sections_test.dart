@@ -429,6 +429,35 @@ void main() {
       );
     });
 
+    testWidgets('an admin tool appears once the admin claim lands',
+        (tester) async {
+      addTearDown(() => adminState.value = false);
+      await HomeShortcutsStore.instance.save(['duas', 'usage']);
+      await tester.pumpWidget(_app(ShortcutsSection(
+        onOpen: (_) {},
+        onOpenAllFeatures: () {},
+      )));
+      expect(find.text('Usage'), findsNothing);
+
+      // Read after Home is up, and nothing rebuilds Home for it.
+      adminState.value = true;
+      await tester.pump();
+      expect(find.text('Usage'), findsOneWidget);
+    });
+
+    testWidgets('the editor keeps a shortcut it cannot show', (tester) async {
+      // An admin tool, saved while the claim had not yet landed.
+      await HomeShortcutsStore.instance.save(['duas', 'usage']);
+      await pumpEditor(tester);
+
+      await tester.tap(find.bySemanticsLabel('Add Library'));
+      await tester.pump();
+      await tester.tap(find.text('Done'));
+      await tester.pumpAndSettle();
+
+      expect(HomeShortcutsStore.instance.ids, ['duas', 'library', 'usage']);
+    });
+
     testWidgets('Cancel leaves the shortcuts as they were', (tester) async {
       await pumpEditor(tester);
       tester.semantics.tap(find.semantics.byLabel(RegExp(r'^Remove Duas')));
@@ -465,6 +494,27 @@ void main() {
         expect(find.text(item.shortLabel), findsOneWidget,
             reason: item.shortLabel);
       }
+    });
+  });
+
+  group('All features (admin)', () {
+    setUp(() => _prefs());
+    tearDown(() => adminState.value = false);
+
+    testWidgets('adds the admin tools when the claim lands', (tester) async {
+      tester.view.physicalSize = const Size(390, 4000);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+
+      await tester.pumpWidget(MaterialApp(
+        theme: buildAppTheme(Brightness.light),
+        home: const AllFeaturesPage(),
+      ));
+      expect(find.text('Usage'), findsNothing);
+
+      adminState.value = true;
+      await tester.pump();
+      expect(find.text('Usage'), findsOneWidget);
     });
   });
 

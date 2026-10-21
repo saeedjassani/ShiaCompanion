@@ -21,20 +21,13 @@ import 'package:shia_companion/services/activity_stats_store.dart';
 import 'package:shia_companion/services/azaan_opt_in_service.dart';
 import 'package:shia_companion/services/azan_playback_service.dart';
 import 'package:shia_companion/services/deep_link_resolver.dart';
-import 'package:shia_companion/services/favorites_manager.dart';
 import 'package:shia_companion/services/home_screen_widget_service.dart';
 import 'package:shia_companion/services/library_service.dart';
 import 'package:shia_companion/services/location_service.dart';
-import 'package:shia_companion/services/prayer_preferences_sync_service.dart';
-import 'package:shia_companion/services/preferences_sync_service.dart';
-import 'package:shia_companion/services/qaza_tracker_manager.dart';
-import 'package:shia_companion/services/recitation_tracker_manager.dart';
-import 'package:shia_companion/services/saved_verses_manager.dart';
 import 'package:shia_companion/services/rating_prompt_service.dart';
 import 'package:shia_companion/services/session_refresh_service.dart';
+import 'package:shia_companion/services/synced_data.dart';
 import 'package:shia_companion/services/whats_new_service.dart';
-import 'package:shia_companion/services/verse_notes_manager.dart';
-import 'package:shia_companion/services/zikr_bookmarks_manager.dart';
 import 'package:shia_companion/services/zikr_reminder_service.dart';
 import 'package:shia_companion/utils/deep_links.dart';
 import 'package:shia_companion/utils/font_preferences.dart';
@@ -102,12 +95,6 @@ class _MyHomePageState extends State<MyHomePage>
 
   void _openHomeMenuItem(HomeMenuItem item) {
     item.open(context);
-  }
-
-  Future<void> _refreshHomeSessionState() async {
-    await SessionRefreshService.refreshSessionState();
-    _itemsLoaded = true;
-    _resolvePendingDeepLink();
   }
 
   @override
@@ -558,29 +545,31 @@ class _MyHomePageState extends State<MyHomePage>
       unawaited(handleNotificationThatOpenedApp());
     }
 
-    await _refreshHomeSessionState();
+    // Then what needs only this device. A deep link needs only the zikr
+    // index (main() loaded it before the first frame); it used to wait for
+    // the admin claim too, a network round-trip it never reads.
     getHadith();
+    await SessionRefreshService.loadItemsFromAssets();
+    _itemsLoaded = true;
+    _resolvePendingDeepLink();
 
-    // Initialize synced user data from SharedPreferences or Firestore.
-    await FavoritesManager.instance.loadFavorites();
-    await QazaTrackerManager.instance.loadQaza();
-    await RecitationTrackerManager.instance.loadRecitations();
-    await SavedVersesManager.instance.loadSavedVerses();
-    await ZikrBookmarksManager.instance.loadBookmarks();
-    await VerseNotesManager.instance.loadNotes();
-    await PreferencesSyncService.instance.pullOrSeed();
-    await PrayerPreferencesSyncService.instance.pullOrSeed();
-    unawaited(ActivityStatsStore.instance.pullAndMerge());
+    // Who is signed in, before anything reads their data: at once on a
+    // phone, a moment later on the web.
+    await SessionRefreshService.restoreSignedInUser();
+    // Not waited for: the admin claim can take seconds (an expired token is
+    // minted again over the network), nothing below needs it, and what it
+    // changes listens to adminState and updates whenever it lands.
+    unawaited(SessionRefreshService.refreshSessionState());
 
-    // On web, keep first load quiet and let the prayer card request location
-    // only after the user taps it.
-    if (!kIsWeb) {
-      // Never with context: an automatic refresh must not interrupt with a
-      // dialog or a permission prompt - those follow "Use my location" in
-      // setup or on the prayer card. Without a location yet this fetches
-      // only if the phone already allows it; the card offers the rest.
-      await LocationService.instance.refreshIfAllowed();
-    }
+    // The account's data and the location don't depend on each other, so
+    // they load side by side; the notifications and widgets below need both
+    // (the synced prayer toggles, and where the reader is).
+    await Future.wait([
+      SyncedData.pullAll(),
+      // On web, keep first load quiet and let the prayer card request
+      // location only after the user taps it.
+      if (!kIsWeb) _refreshLocationAtLaunch(),
+    ]);
 
     if (!kIsWeb) {
       await initializeNotificationTimeZone();
@@ -629,6 +618,20 @@ class _MyHomePageState extends State<MyHomePage>
     }
     await HomeScreenWidgetService.instance.publishAll();
     setState(() {});
+  }
+
+  Future<void> _refreshLocationAtLaunch() async {
+    try {
+      // Never with context: an automatic refresh must not interrupt with a
+      // dialog or a permission prompt - those follow "Use my location" in
+      // setup or on the prayer card. Without a location yet this fetches
+      // only if the phone already allows it; the card offers the rest.
+      await LocationService.instance.refreshIfAllowed();
+    } catch (error) {
+      // The stored location still gives prayer times; scheduling below
+      // must not be lost to a failed fix.
+      debugPrint('Unable to refresh location at launch: $error');
+    }
   }
 
   Future<void> _refreshLocationOnResume() async {
