@@ -10,9 +10,11 @@ import '../../services/recitation_tracker_manager.dart';
 import '../../services/saved_verses_manager.dart';
 import '../../services/verse_notes_manager.dart';
 import '../../models/saved_verse.dart';
+import '../../utils/deep_links.dart';
 import '../../utils/quran_index.dart';
 import '../../utils/shared_preferences.dart';
 import '../../utils/quran_text_index.dart';
+import '../../utils/web_route_sync.dart';
 import '../../theme/shia_colors.dart';
 import '../../widgets/favorite_icon.dart';
 import '../../widgets/outline_icon.dart';
@@ -40,12 +42,16 @@ class QuranPage extends StatefulWidget {
   State<QuranPage> createState() => _QuranPageState();
 }
 
-class _QuranPageState extends State<QuranPage> {
+class _QuranPageState extends State<QuranPage>
+    with WebRoutePathSync<QuranPage> {
   late final List<SurahInfo> _surahs;
   late final List<Juz> _juz;
   late _QuranView _view;
   QuranCollection _collection = QuranCollection.readSelected();
   bool _prewarmed = false;
+
+  @override
+  String get webRoutePath => quranDeepLinkPath;
 
   @override
   void initState() {

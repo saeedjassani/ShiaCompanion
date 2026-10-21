@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../data/uid_title_data.dart';
 import '../services/deep_link_resolver.dart';
 import '../services/library_service.dart';
+import 'library_page.dart';
 import '../services/session_refresh_service.dart';
 import '../utils/deep_links.dart';
 import '../utils/quran_index.dart';
@@ -66,10 +67,13 @@ class _DeepLinkLaunchPageState extends State<DeepLinkLaunchPage> {
   }
 
   Future<Widget?> _resolveDestination() async {
-    // A bare /quran is the one link with nothing after it - it names the Quran
-    // screen rather than anything inside it.
+    // A bare /quran or /library has nothing after it - it names the screen
+    // itself rather than anything inside it.
     if (widget.target.type == quranDeepLinkType) {
       return await _resolveQuranDestination();
+    }
+    if (widget.target.type == libraryDeepLinkType) {
+      return await _resolveLibraryDestination();
     }
     if (widget.target.segments.isEmpty) return null;
 
@@ -83,8 +87,6 @@ class _DeepLinkLaunchPageState extends State<DeepLinkLaunchPage> {
                 source: widget.target.source ?? ZikrOpenSource.deepLink,
                 initialVerse: zikrLinkVerse(widget.target, item),
               );
-      case libraryDeepLinkType:
-        return _resolveLibraryDestination();
       default:
         return null;
     }
@@ -119,6 +121,8 @@ class _DeepLinkLaunchPageState extends State<DeepLinkLaunchPage> {
   }
 
   Future<Widget?> _resolveLibraryDestination() async {
+    if (widget.target.segments.isEmpty) return LibraryPage();
+
     // A retired duplicate's slug still resolves, to the copy that survived, so
     // old links and saved positions do not dead-end.
     final bookSlug =

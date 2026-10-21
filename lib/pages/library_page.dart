@@ -5,6 +5,8 @@ import 'package:shia_companion/services/library_progress_store.dart';
 import 'package:shia_companion/services/library_service.dart';
 import 'package:shia_companion/theme/shia_colors.dart';
 import 'package:shia_companion/utils/data_search_filter.dart';
+import 'package:shia_companion/utils/deep_links.dart';
+import 'package:shia_companion/utils/web_route_sync.dart';
 import 'package:shia_companion/widgets/find_field.dart';
 import 'package:shia_companion/widgets/home_glyph.dart';
 import 'package:shia_companion/widgets/outline_icon.dart';
@@ -29,7 +31,11 @@ class LibraryPage extends StatefulWidget {
   _LibraryPageState createState() => _LibraryPageState();
 }
 
-class _LibraryPageState extends State<LibraryPage> {
+class _LibraryPageState extends State<LibraryPage>
+    with WebRoutePathSync<LibraryPage> {
+  @override
+  String get webRoutePath => libraryDeepLinkPath;
+
   late Future<List<UidTitleData>> _booksFuture;
   List<LibraryProgress> _recentProgress = const [];
   final TextEditingController _find = TextEditingController();

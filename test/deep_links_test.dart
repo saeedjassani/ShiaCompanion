@@ -170,11 +170,16 @@ void main() {
     expect(target?.segments, ['some-book']);
   });
 
+  test('parseDeepLinkUri opens the Library itself at /library', () {
+    final target =
+        parseDeepLinkUri(Uri.parse('https://shiacompanion.app/library'));
+
+    expect(target?.type, libraryDeepLinkType);
+    expect(target?.segments, isEmpty);
+    expect(parseLaunchRouteName('/library')?.type, libraryDeepLinkType);
+  });
+
   test('parseDeepLinkUri rejects malformed library links', () {
-    expect(
-      parseDeepLinkUri(Uri.parse('https://shiacompanion.app/library')),
-      isNull,
-    );
     expect(
       parseDeepLinkUri(
         Uri.parse('https://shiacompanion.app/library/a/b/c'),

@@ -24,6 +24,7 @@ import 'package:shia_companion/services/deep_link_resolver.dart';
 import 'package:shia_companion/services/favorites_manager.dart';
 import 'package:shia_companion/services/home_screen_widget_service.dart';
 import 'package:shia_companion/services/library_service.dart';
+import 'package:shia_companion/pages/library_page.dart';
 import 'package:shia_companion/services/location_service.dart';
 import 'package:shia_companion/services/prayer_preferences_sync_service.dart';
 import 'package:shia_companion/services/preferences_sync_service.dart';
@@ -42,7 +43,6 @@ import 'package:shia_companion/utils/hadith_loader.dart';
 import 'package:shia_companion/utils/localized_hadith.dart';
 import 'package:shia_companion/utils/islamic_day.dart';
 import 'package:shia_companion/utils/shared_preferences.dart';
-import 'package:shia_companion/utils/web_route_sync.dart';
 
 import 'package:shia_companion/pages/all_features_page.dart';
 import 'package:shia_companion/pages/home/coming_up_section.dart';
@@ -198,10 +198,15 @@ class _MyHomePageState extends State<MyHomePage>
     final target = _pendingDeepLink!;
     _pendingDeepLink = null;
 
-    // Checked before the empty-segment guard: a bare /quran names the Quran
-    // screen, and is the one link that carries nothing after its prefix.
+    // Checked before the empty-segment guard: a bare /quran or /library names
+    // the screen itself, with nothing after its prefix.
     if (target.type == quranDeepLinkType) {
       await _resolveQuranDeepLink(target);
+      return;
+    }
+
+    if (target.type == libraryDeepLinkType) {
+      await _resolveLibraryDeepLink(target);
       return;
     }
 
@@ -215,11 +220,6 @@ class _MyHomePageState extends State<MyHomePage>
 
     if (target.segments.isEmpty) {
       _openDeepLinkNotFound(target.key);
-      return;
-    }
-
-    if (target.type == libraryDeepLinkType) {
-      await _resolveLibraryDeepLink(target);
       return;
     }
 
@@ -307,6 +307,15 @@ class _MyHomePageState extends State<MyHomePage>
   }
 
   Future<void> _resolveLibraryDeepLink(DeepLinkTarget target) async {
+    if (target.segments.isEmpty) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        final route = LibraryPage();
+        pushRootPageRoute(route) ?? pushPageRoute(context, route);
+      });
+      return;
+    }
+
     // A retired duplicate's slug still resolves, to the copy that survived, so
     // old links and saved positions do not dead-end.
     final bookSlug =
@@ -750,7 +759,8 @@ class _MyHomePageState extends State<MyHomePage>
 
   @override
   void didPopNext() {
-    syncWebRoutePath('/', replace: true);
+    // The address bar is put back by AppShell, which knows which tab is
+    // showing.
     setState(() {});
   }
 }
