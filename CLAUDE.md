@@ -209,7 +209,7 @@ entries should follow the same house style:
   spelling: Muharram, Dhul Qa'dah, Dhul Hijjah, Jumada al-Awwal/al-Akhirah,
   Ashura, Ghadir, Eid al-Adha, Ziyarat (never Ziyaarat/Ziyarah), Ziyarat
   Warith, Aal-e-Yasin, Jamia Kabira, Aminullah,
-  Munajat, Istikhara, Taqibaat, Nafilah, Witr, Namaz-e-Ayat, Zuhr, Maghrib,
+  Munajat, Istikhara, Taqibaat, Nafilah, Watr, Namaz-e-Ayat, Zuhr, Maghrib,
   Wudu, Aamal, Husayn,
   Muhammad, Musa, Reza, Zayn al-Abidin, Fatimah al-Zahra, Amir al-Mu'minin,
   Hadith al-Kisa, Ayat al-Kursi.
