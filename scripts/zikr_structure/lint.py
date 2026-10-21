@@ -21,6 +21,7 @@ import re
 import sys
 
 import corpus
+import link_mentions
 
 ORDINAL_WORD = (
     r'(first|second|third|fourth|fifth|sixth|seventh|eighth|ninth|tenth|'
@@ -85,6 +86,16 @@ MAX_LABEL = 40
 Finding = collections.namedtuple('Finding', 'uid severity code where detail')
 
 
+_LINK_CONTEXT = {}
+
+
+def _link_context(index):
+    if id(index) not in _LINK_CONTEXT:
+        _LINK_CONTEXT[id(index)] = (link_mentions.surah_keys(index),
+                                    link_mentions.alias_groups(index))
+    return _LINK_CONTEXT[id(index)]
+
+
 def lint_entry(uid, entry, index, redirects, live):
     out = []
 
@@ -123,9 +134,10 @@ def lint_entry(uid, entry, index, redirects, live):
             body_text.append(line)
             if ORDINAL.match(line):
                 add('error', 'ORDINAL', f'{where} line {i + 1}', line[:90])
-            if len(line) > MAX_NOTE:
+            shown = LINK.sub(r'\1', line)
+            if len(shown) > MAX_NOTE:
                 add('error', 'LONG_LINE', f'{where} line {i + 1}',
-                    f'{len(line)} chars: {line[:70]}...')
+                    f'{len(shown)} chars: {shown[:70]}...')
         for line in part.lines:
             m = BACKREF.search(unquoted(line))
             if m:
@@ -183,6 +195,11 @@ def lint_entry(uid, entry, index, redirects, live):
             add('review', 'OCCASION_NOTE', 'body',
                 f'no Arabic, reports an occasion ({len(prose)} chars) - check rule 6: '
                 + prose[:80].replace('\n', ' / '))
+
+    _, unlinked = link_mentions.link_entry(uid, entry, *_link_context(index))
+    for _, _, label, target in unlinked:
+        add('error', 'UNLINKED', 'link',
+            f'{label!r} has its own entry ({target}) - link_mentions.py --write {uid}')
 
     for text in [p for p in corpus.parts_of(entry)] + [merits]:
         for _, target in LINK.findall(text):
