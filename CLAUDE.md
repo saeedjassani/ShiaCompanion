@@ -33,10 +33,11 @@
 - **Zikr translations: Urdu has the first famous duas; Persian and
   Gujarati have none yet.** See `scripts/zikr_i18n/SOURCES.md` for what is
   done, which sources were turned down and why, and what's next. The rest:
-  - Urdu for Ziyarat Warith, Aal-e-Yasin, Munajat Shabaniyah, Jamia Kabira
-    and Alqama (no trustworthy deck), and for Abu Hamza, Arafah and Jawshan
-    Kabir (decks exist). Dua Ahad came from the Urdu Mafatih on
-    mafatih.duas.co, which may have the others too;
+  - Urdu for Aal-e-Yasin, Munajat Shabaniyah, Jamia Kabira and Alqama (no
+    trustworthy deck), and for Abu Hamza, Arafah and Jawshan Kabir (decks
+    exist). The Urdu Mafatih on mafatih.duas.co supplied Dua Ahad, Ziyarat
+    Warith, Istighatha, Adeela and Arbaeen, and likely has the others: its
+    pages scrape cleanly into `deck_source.py` rows (Arabic/Urdu box pairs);
   - Persian beyond the nine famous duas (PR #326), G12 and the Quran:
     Ansarian's Mafatih on erfan.ir loads
     from the user's Mac but not from cloud sessions;
