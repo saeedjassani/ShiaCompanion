@@ -59,6 +59,9 @@ where a deck has no Urdu, or repeats the next slide's Urdu:
 | E4 | Dua Adeela | https://mafatih.duas.co/dua-adeela |
 | G3 | Ziyarat Arbaeen | https://mafatih.duas.co/ziarat-arbaeen (verses and merits) |
 | G6 | Ziyarat Warith | https://mafatih.duas.co/ziarat-warisa (tabs 1-3); tab 4, al-Abbas, is the short ziyarat inside https://mafatih.duas.co/ziarat-qadr |
+| G1 | Ziyarat Aal-e-Yasin | https://mafatih.duas.co/ziarat-aaleyasin |
+| Y4 | Munajat Shabaniyah | https://mafatih.duas.co/shaban-munajat |
+| E8 | Dua Alqama | https://mafatih.duas.co/dua-alqama |
 
 The Urdu Mafatih al-Jinan of Sheikh Abbas Qummi, translated by Allama Riaz
 Husain Najafi, Allama Syed Niaz Husain Naqvi and Maulana Muhammad Ali Fazil
@@ -111,6 +114,29 @@ the source:
   - Tab labels 0, 47, 57 and 70 are our earlier ones.
 - **All four:** dropped و's were restored, and ؑ/ؐ written (ع)/(ص), and (س) for Lady Fatimah, as
   in the other files.
+
+- **G1 Ziyarat Aal-e-Yasin:**
+  - 0: `سَلَامٌ عَلٰى آلِ يٰسٓ` translated directly as "سلام ہو آلِ یٰس (ع) پر" (source used "اولاد پیغمبرؐ").
+  - 9-10: Slide 6 spans both segments (`اَلسَّلَامُ عَلَیْكَ یَا تَالِیَ كِتَابِ ﷲِ` / `وَتَرْجُمَانَہٗ`), divided cleanly.
+  - 26: source had generic "ذکر الہیٰ کریں", rendered as "لا الہ الا اللہ کہتے ہیں اور تکبیر کہتے ہیں" for تُهَلِّلُ وَتُكَبِّرُ.
+  - 85: Instruction heading "زیارت کے بعد پڑھی جانے والی دعا" following Mafatih.
+  - 128 (اَللّٰهُمَّ انْصُرْهُ), 142 (وَاخْذُلْ خَاذِلِیْهِ), and 150 (وَّاَظْهِرْ بِهٖ دِیْنَ نَبِیِّكَ): the published source drops these three short phrases; the Urdu is restored against the Arabic (missing from the source, so it is our own).
+  - 82-84: realigned to the source — 82 (وَنُصْرَتِىْ مُعَدَّةٌ لَكُمْ) takes the source's own line; an audit found 82-83 each carrying the next segment's translation.
+- **Y4 Munajat Shabaniyah:**
+  - 16: "عافیت" for لِعَاقِبَتِيْ corrected to "انجام/عاقبت".
+  - 23: "رسوا کیا" for خَذَلْتَنِيْ corrected to "بے یار و مددگار چھوڑ دے".
+  - 25: "عذاب" for سَخَطِكَ corrected to "ناراضگی".
+  - 30: joins slides 24 & 25 (فَقُلْتَ مَا أَنْتَ أَهْلُهُ and وَتَغَمَّدْتَنِي بِعَفْوِكَ).
+  - 45: Source dropped اِلٰهِيْ قَدْ اَحْسَنْتَ اِلَيَّ from its Arabic slide 40, restored in Urdu to match our Arabic segment.
+  - 114: فَصَعِقَ لِجَلَالِكَ mistranslated as "نعرہ لگایا", now "جلال و ہیبت سے غش کھا گئے".
+  - 118: اَسْقَطَتْنِيْ لَدَيْكَ mistranslated as "نظر انداز کر دی گئیں", now "تیری نگاہ میں گرا دیا ہے".
+  - 129: وَلَا يَنْقُضُ عَهْدَكَ translated as "نافرمانی نہیں کی", now "عہد کو نہیں توڑتے".
+  - 0 (opening instruction) and 139 (closing note) are our earlier instruction lines.
+- **E8 Dua Alqama:**
+  - Re-aligned group-by-group against the published dataset after an audit found displaced blocks.
+  - 0: Standard Bismillah ("بِسْمِ اللهِ الرَّحْمٰنِ الرَّحِيْمِ.").
+  - 163-164: Combined on slide 123 (ٲَسْتَوْدِعُكُمَا ﷲَ، وَلَا جَعَلَہُ ﷲُ اٰخِرَ الْعَھْدِ مِنِّیْ اِلَیْكُمَا), divided at segment break.
+- **Across G1, Y4, E8:** dropped و's were restored, and ؑ/ؐ written (ع)/(ص), and (س) for Lady Fatimah.
 
 **E21 Dua Ghariq** isn't in the Mafatih. Its Urdu is from a Hawzah News
 article citing Kamal al-Din vol. 2 p. 351
@@ -203,3 +229,10 @@ half on the other's slide, and are our own. In 73, the deck's "વિદ્વ�
 Not to use: the Haji Naji Trust's "Mukhtasar Mafatih al-Jinan" PDF
 (Tohafa-e-Saiyada). Its translations are Urdu written in Gujarati script,
 not Gujarati.
+
+### Jafri Library (jafrilibrary.com)
+
+Jafri Library is the designated Gujarati source. Its catalog was searched for G1, Y4, and E8:
+- Book 6687 (*Ziarat E Ale Yasin #*, published by Hadi Library / Haji Naji) and Book 84725 (*Munajaat E Shabania #*, Hadi Library / Haji Naji) exist only as scanned images; PDF downloads require client-side Google reCAPTCHA v3 and the API exposes only thumbnail page previews.
+- Dua Alqama has 0 records in the catalog.
+- Following the project's rule against OCR-guessing sacred text, Gujarati translations for G1, Y4, and E8 remain deferred until clean digital text editions or verified transcriptions become available.
