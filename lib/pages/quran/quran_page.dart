@@ -42,19 +42,16 @@ class QuranPage extends StatefulWidget {
   State<QuranPage> createState() => _QuranPageState();
 }
 
-class _QuranPageState extends State<QuranPage> with RouteAware {
+class _QuranPageState extends State<QuranPage>
+    with WebRoutePathSync<QuranPage> {
   late final List<SurahInfo> _surahs;
   late final List<Juz> _juz;
   late _QuranView _view;
   QuranCollection _collection = QuranCollection.readSelected();
   bool _prewarmed = false;
 
-  /// Set only when this page is a route of its own - opened from the menu or
-  /// a `/quran` link - rather than the Quran tab, whose address the shell
-  /// keeps (see [AppShellTab.webPath]).
-  PageRoute<dynamic>? _pageRoute;
-  bool _isCurrentRoute = false;
-  Uri? _previousBrowserUri;
+  @override
+  String get webRoutePath => quranDeepLinkPath;
 
   @override
   void initState() {
@@ -69,12 +66,6 @@ class _QuranPageState extends State<QuranPage> with RouteAware {
     unawaited(VerseNotesManager.instance.loadNotes());
   }
 
-  @override
-  void dispose() {
-    if (_pageRoute != null) routeObserver.unsubscribe(this);
-    super.dispose();
-  }
-
   /// Starts building the verse text index while the surah list is being read.
   ///
   /// Only for admins, since that is who can reach context.l10n.listenTitle - nobody
@@ -85,50 +76,9 @@ class _QuranPageState extends State<QuranPage> with RouteAware {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    final route = ModalRoute.of(context);
-    // The first route is the tab shell, which owns the address on its own.
-    if (route is PageRoute && !route.isFirst && route != _pageRoute) {
-      if (_pageRoute != null) routeObserver.unsubscribe(this);
-      _pageRoute = route;
-      routeObserver.subscribe(this, route);
-    }
     if (_prewarmed || !isUserAdmin) return;
     _prewarmed = true;
     prewarmQuranTextIndex(DefaultAssetBundle.of(context));
-  }
-
-  void _scheduleWebRouteSync({bool replace = false}) {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!mounted || !_isCurrentRoute) return;
-      syncWebRoutePath(quranDeepLinkPath, replace: replace);
-    });
-  }
-
-  @override
-  void didPush() {
-    _isCurrentRoute = true;
-    _previousBrowserUri ??= Uri.base;
-    _scheduleWebRouteSync();
-  }
-
-  @override
-  void didPopNext() {
-    _isCurrentRoute = true;
-    _scheduleWebRouteSync(replace: true);
-  }
-
-  @override
-  void didPushNext() {
-    _isCurrentRoute = false;
-  }
-
-  @override
-  void didPop() {
-    _isCurrentRoute = false;
-    final previousBrowserUri = _previousBrowserUri;
-    if (previousBrowserUri != null) {
-      syncWebRouteUri(previousBrowserUri, replace: true);
-    }
   }
 
   Future<void> _open(VerseKey verse,

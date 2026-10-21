@@ -20,7 +20,13 @@ class DeepLinkTarget {
 }
 
 const int zikrDeepLinkType = 0;
+
+/// Library links. Segments are `[]` for the Library itself, `[book]` or
+/// `[book, chapter]`.
 const int libraryDeepLinkType = 1;
+
+/// The Library, what the address bar shows while it is open on the web.
+const String libraryDeepLinkPath = '/library';
 
 /// Quran links. Segments are one of:
 ///
@@ -147,7 +153,7 @@ DeepLinkTarget? parseDeepLinkUri(Uri uri) {
   }
 
   if (segments.first == 'library') {
-    if (segments.length < 2 || segments.length > 3) return null;
+    if (segments.length > 3) return null;
     return DeepLinkTarget(
       type: libraryDeepLinkType,
       segments: segments.sublist(1),

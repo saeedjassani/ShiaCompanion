@@ -18,6 +18,17 @@ const GENERATED_UID_REDIRECT_DIR = path.join(BUILD_WEB_DIR, '0');
 const QURAN_INDEX_DART_PATH = path.join(REPO_ROOT, 'lib', 'utils', 'quran_index.dart');
 const GENERATED_QURAN_DIR = path.join(BUILD_WEB_DIR, 'quran');
 const QURAN_SECTION = {name: 'Quran', path: '/quran'};
+// The library's books live in another repo (shiavault-library). The build
+// condenses their metadata into one JSON file with
+// scripts/library_seo_index.dart and names it here; without it the /library
+// pages are skipped, which is what an offline local run gets.
+const LIBRARY_INDEX_PATH = process.env.LIBRARY_INDEX
+  ? path.resolve(process.env.LIBRARY_INDEX)
+  : null;
+const BOOKS_PATH = path.join(REPO_ROOT, 'assets', 'books.json');
+const RETIRED_BOOK_SLUGS_PATH = path.join(REPO_ROOT, 'assets', 'retired_slugs.json');
+const GENERATED_LIBRARY_DIR = path.join(BUILD_WEB_DIR, 'library');
+const LIBRARY_SECTION = {name: 'Library', path: '/library'};
 const SITE_ORIGIN = (process.env.SITE_ORIGIN || 'https://shiacompanion.app')
   .replace(/\/+$/, '');
 // Title tags longer than this get truncated in results. Search engines show
@@ -749,6 +760,218 @@ function generateQuranPages(templateHtml, index) {
   return ['/quran', ...juzList.map((juz) => juzPath(juz.number))];
 }
 
+// --- Library -----------------------------------------------------------------
+//
+// One page per book: what it is, who wrote and translated it, its chapter
+// titles and where it was first published. Deliberately not the chapters'
+// text: every book is copied from al-islam.org, alhassanain.org or
+// maaref-foundation.com, and pages of text that already lives elsewhere rank
+// for the original site rather than this one, and can pull the whole site's
+// standing down with them. Chapter links (/library/<book>/<chapter>) stay
+// app-only, so the chapter titles are listed as text rather than linked:
+// each link would lead a crawler to an app shell it can only file as a copy
+// of the home page.
+
+function truncateAtWord(value, max) {
+  const text = normalizeWhitespace(value);
+  if (text.length <= max) return text;
+  const cut = text.slice(0, max - 1);
+  const lastSpace = cut.lastIndexOf(' ');
+  return `${(lastSpace > max / 2 ? cut.slice(0, lastSpace) : cut).replace(/[\s,;:.]+$/, '')}…`;
+}
+
+function sourceSiteName(sourceUrl) {
+  try {
+    return new URL(sourceUrl).hostname.replace(/^www\./, '');
+  } catch (_) {
+    return null;
+  }
+}
+
+// Book slugs come from the library repo and are not held to the zikr rule:
+// one ends in a hyphen. Anything that is a single plain path segment is
+// fine, since it is what the app opens at /library/<slug> either way.
+function safeBookSlug(slug) {
+  const normalized = `${slug ?? ''}`.trim();
+  if (!/^[a-z0-9-]+$/.test(normalized)) {
+    throw new Error(`Unsafe book slug: ${slug}`);
+  }
+  return normalized;
+}
+
+function libraryBookPath(slug) {
+  return `/library/${slug}`;
+}
+
+function buildBookPageHtml(templateHtml, book) {
+  const {title, slug, author, meta} = book;
+  const canonicalPath = libraryBookPath(slug);
+  const canonicalUrl = `${SITE_ORIGIN}${canonicalPath}`;
+  const chapters = meta.chapters ?? [];
+  const byline = author ? ` by ${author}` : '';
+  const description = meta.description
+    ? truncateAtWord(meta.description, 155)
+    : truncateAtWord(
+      `Read ${title}${byline} free in the Shia Companion library`
+        + (chapters.length > 0 ? `: ${chapters.length} chapters.` : '.'),
+      155,
+    );
+  const titleTag = [
+    `${title}${TITLE_SUFFIX}`,
+  ].find((candidate) => candidate.length <= MAX_TITLE_TAG_LENGTH) ?? title;
+
+  const credits = [
+    ['Subtitle', meta.subtitle],
+    ['Author', author],
+    ['Translator', meta.translator],
+    ['Compiler', meta.compiler],
+    ['Publisher', meta.publisher],
+  ].filter(([, value]) => value);
+  const site = sourceSiteName(meta.source_url);
+
+  const staticContent = [
+    '  <main class="seo-zikr-content">',
+    '    <article>',
+    '      <nav aria-label="Breadcrumb"><a href="/">Shia Companion</a> / <a href="/library">Library</a></nav>',
+    `      <h1>${escapeHtml(title)}</h1>`,
+    ...credits.map(([label, value]) => `      <p>${label}: ${escapeHtml(normalizeWhitespace(value))}</p>`),
+    meta.description ? `      <p>${escapeHtml(normalizeWhitespace(meta.description))}</p>` : '',
+    `      <p><a href="${escapeHtml(canonicalPath)}">Read ${escapeHtml(title)} in Shia Companion</a></p>`,
+    chapters.length > 0
+      ? [
+        '      <section>',
+        '        <h2>Chapters</h2>',
+        '        <ol>',
+        ...chapters.map((chapter) => `          <li>${escapeHtml(normalizeWhitespace(chapter))}</li>`),
+        '        </ol>',
+        '      </section>',
+      ].join('\n')
+      : '',
+    site
+      ? `      <p>First published on <a href="${escapeHtml(meta.source_url)}" rel="nofollow">${escapeHtml(site)}</a>.</p>`
+      : '',
+    '    </article>',
+    '  </main>',
+  ].filter(Boolean).join('\n');
+
+  return buildPageHtml(templateHtml, {
+    seo: {
+      titleTag,
+      description,
+      canonicalUrl,
+      structuredData: buildStructuredData({
+        title,
+        description,
+        canonicalUrl,
+        section: LIBRARY_SECTION,
+      }),
+    },
+    staticContent,
+  });
+}
+
+function buildLibraryIndexPage(templateHtml, books) {
+  const canonicalUrl = `${SITE_ORIGIN}/library`;
+  const title = 'Islamic Library';
+  const titleTag = `Islamic Library: ${books.length} Shia Books${TITLE_SUFFIX}`;
+  const description = `Read ${books.length} Shia Islamic books free in Shia Companion: history, theology, ethics, the lives of the Ahl al-Bayt and more.`;
+  const staticContent = [
+    '  <main class="seo-zikr-content">',
+    '    <article>',
+    '      <nav aria-label="Breadcrumb"><a href="/">Shia Companion</a></nav>',
+    `      <h1>${title}</h1>`,
+    `      <p>${escapeHtml(description)}</p>`,
+    '      <ul>',
+    ...books.map((book) => {
+      const byline = book.author ? ` - ${escapeHtml(book.author)}` : '';
+      return `        <li><a href="${escapeHtml(libraryBookPath(book.slug))}">${escapeHtml(book.title)}</a>${byline}</li>`;
+    }),
+    '      </ul>',
+    '    </article>',
+    '  </main>',
+  ].join('\n');
+
+  return buildPageHtml(templateHtml, {
+    seo: {
+      titleTag,
+      description,
+      canonicalUrl,
+      structuredData: buildStructuredData({
+        title,
+        description,
+        canonicalUrl,
+        section: LIBRARY_SECTION,
+      }),
+    },
+    staticContent,
+  });
+}
+
+// Writes the library pages and returns the paths that belong in the sitemap.
+function generateLibraryPages(templateHtml) {
+  fs.rmSync(GENERATED_LIBRARY_DIR, {recursive: true, force: true});
+  if (!LIBRARY_INDEX_PATH) {
+    console.log('LIBRARY_INDEX not set: skipping the /library pages');
+    return [];
+  }
+  if (!fs.existsSync(LIBRARY_INDEX_PATH)) {
+    throw new Error(`LIBRARY_INDEX names a missing file: ${LIBRARY_INDEX_PATH}`);
+  }
+
+  const metadata = readJson(LIBRARY_INDEX_PATH);
+  const books = readJson(BOOKS_PATH)
+    .map((entry) => ({
+      slug: safeBookSlug(entry.slug),
+      title: normalizeWhitespace(entry.title),
+      author: normalizeWhitespace(entry.author) || null,
+    }))
+    .filter((book) => book.title);
+
+  const missing = books.filter((book) => !metadata[book.slug]);
+  if (missing.length > 0) {
+    // A book the app lists but the library repo does not have cannot be
+    // opened either; better to hear about it than to ship a page for it.
+    throw new Error(
+      `No library metadata for ${missing.length} book(s): `
+      + missing.slice(0, 5).map((book) => book.slug).join(', '),
+    );
+  }
+
+  for (const book of books) {
+    book.meta = metadata[book.slug];
+    writePage(path.join('library', book.slug), buildBookPageHtml(templateHtml, book));
+  }
+
+  // Retired duplicates still open in the app; give a crawler the same answer.
+  const bySlug = new Map(books.map((book) => [book.slug, book]));
+  let retiredCount = 0;
+  for (const [from, to] of Object.entries(readJson(RETIRED_BOOK_SLUGS_PATH))) {
+    const target = bySlug.get(to);
+    if (!target || bySlug.has(from)) continue;
+    writePage(
+      path.join('library', safeBookSlug(from)),
+      buildRedirectPageHtml({
+        title: target.title,
+        canonicalPath: libraryBookPath(target.slug),
+        canonicalUrl: `${SITE_ORIGIN}${libraryBookPath(target.slug)}`,
+      }),
+    );
+    retiredCount += 1;
+  }
+
+  const sorted = [...books].sort((a, b) => a.title.localeCompare(b.title));
+  fs.writeFileSync(
+    path.join(GENERATED_LIBRARY_DIR, 'index.html'),
+    buildLibraryIndexPage(templateHtml, sorted),
+    'utf8',
+  );
+
+  console.log(`Generated the /library index and ${books.length} book pages in ${GENERATED_LIBRARY_DIR}`);
+  console.log(`Generated ${retiredCount} retired book redirect pages`);
+
+  return ['/library', ...sorted.map((book) => libraryBookPath(book.slug))];
+}
+
 function main() {
   if (!fs.existsSync(FLUTTER_INDEX_PATH)) {
     throw new Error(
@@ -912,10 +1135,12 @@ function main() {
   }
 
   const quranPaths = generateQuranPages(templateHtml, index);
+  const libraryPaths = generateLibraryPages(templateHtml);
 
   const sitemap = buildSitemap([
     ...indexedPages.map((page) => page.canonicalPath),
     ...quranPaths,
+    ...libraryPaths,
   ]);
   for (const filename of SITEMAP_FILENAMES) {
     fs.writeFileSync(path.join(BUILD_WEB_DIR, filename), sitemap, 'utf8');

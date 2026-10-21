@@ -1,7 +1,7 @@
 name: Build web bundle
 description: >
   Builds the Flutter web bundle into build/web, including the generated hadith
-  shards and the pre-rendered zikr SEO pages.
+  shards and the pre-rendered zikr, Quran and library SEO pages.
 
 inputs:
   site-origin:
@@ -36,6 +36,18 @@ runs:
       shell: bash
       run: flutter build web --wasm
 
+    # The /library pages are made from the shiavault-library repo's book
+    # metadata. Only the metadata.yml files are fetched (a couple of seconds),
+    # then condensed to one JSON file with the same YAML parser the app uses.
+    - name: Fetch library metadata
+      shell: bash
+      run: |
+        git clone --quiet --depth 1 --filter=blob:none --sparse \
+          https://github.com/saeedjassani/shiavault-library "$RUNNER_TEMP/shiavault-library"
+        git -C "$RUNNER_TEMP/shiavault-library" sparse-checkout set --no-cone '/books/*/metadata.yml'
+        dart run scripts/library_seo_index.dart \
+          "$RUNNER_TEMP/shiavault-library" "$RUNNER_TEMP/library_seo_index.json"
+
     # Must target build/web. The script defaults to the web/ source directory,
     # which `flutter build web` has already copied by this point, so on a clean
     # CI checkout the generated pages and sitemap land somewhere nothing reads.
@@ -47,3 +59,4 @@ runs:
       env:
         WEB_BUILD_DIR: build/web
         SITE_ORIGIN: ${{ inputs.site-origin }}
+        LIBRARY_INDEX: ${{ runner.temp }}/library_seo_index.json

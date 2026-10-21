@@ -283,6 +283,7 @@ scripts/search_config.json
 web/zikr/
 web/0/
 web/quran/
+web/library/
 
 
 # Playwright visual tests

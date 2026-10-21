@@ -284,6 +284,41 @@ test.describe('Quran pages', () => {
   });
 });
 
+test.describe('Library pages', () => {
+  // Only built when the build was handed LIBRARY_INDEX (the build-web action
+  // always is); a local bundle made without it has no /library pages at all.
+  const hasLibrary = fs.existsSync(path.join(BUILD_DIR, 'library', 'index.html'));
+
+  test('the sitemap lists /library and every book, and /library links to each', async ({request}) => {
+    test.skip(!hasLibrary, 'bundle built without LIBRARY_INDEX');
+    const locs = locsFrom(await (await request.get('/sitemap.xml')).text())
+      .map((loc) => loc.slice(SITE_ORIGIN.length));
+    expect(locs).toContain('/library');
+
+    const bookPaths = locs.filter((urlPath) => urlPath.startsWith('/library/'));
+    expect(bookPaths.length).toBeGreaterThan(1000);
+
+    const html = await (await request.get('/library')).text();
+    const hrefs = new Set([...html.matchAll(/href="([^"]+)"/g)].map((match) => match[1]));
+    const unlinked = bookPaths.filter((urlPath) => !hrefs.has(urlPath));
+    expect(unlinked, 'book pages missing from the /library index').toEqual([]);
+  });
+
+  test('a book page lists its chapters without linking into app-only URLs', async ({request}) => {
+    test.skip(!hasLibrary, 'bundle built without LIBRARY_INDEX');
+    const response = await request.get('/library/tawassul', {maxRedirects: 0});
+    expect(response.status()).toBe(200);
+
+    const html = await response.text();
+    expect(html).toContain(`<link rel="canonical" href="${SITE_ORIGIN}/library/tawassul">`);
+    expect(html).toContain('<h1>Tawassul</h1>');
+    expect(html).toContain('<h2>Chapters</h2>');
+    // Chapter URLs only resolve to the app shell, which a crawler files as a
+    // copy of the home page.
+    expect(html).not.toMatch(/href="\/library\/tawassul\/[^"]+"/);
+  });
+});
+
 test('robots.txt allows crawling and advertises the sitemap', async ({request}) => {
   const response = await request.get('/robots.txt');
   expect(response.status()).toBe(200);

@@ -58,6 +58,7 @@ Three things have to line up, and all three ship in the same bundle:
 | `sitemap.xml` | generated into `build/web` by `scripts/generate_zikr_seo_pages.js`; `web/sitemap.xml` is only the fallback |
 | `/zikr/<slug>/index.html` | same script, one pre-rendered page per zikr (the 114 surahs among them) |
 | `/quran`, `/quran/juz/<n>` | same script: the Quran index and one page per juz with its text; `/quran/<n>` is a redirect page to the surah's `/zikr/<slug>` |
+| `/library`, `/library/<book>` | same script, from `LIBRARY_INDEX`: the build-web action sparse-clones `shiavault-library`'s `metadata.yml` files and condenses them with `scripts/library_seo_index.dart`. One page per book (credits, description, chapter titles, source); no chapter text, since every book is copied from another site. Skipped when `LIBRARY_INDEX` is unset, as in the pre-push hook |
 | `robots.txt` | checked in at `web/robots.txt`, points at `SITE_ORIGIN/sitemap.xml` |
 
 `test_visual/specs/seo.spec.js` asserts all of it against the built bundle.
