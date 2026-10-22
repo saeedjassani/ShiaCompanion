@@ -204,6 +204,7 @@ User-Agent; cloud sessions could not reach them.
 | --- | --- | --- | --- |
 | E31 | Dua Kumayl | https://www.duas.org/ppt/Dua_Kumayl_5languages.pptx | all 271 |
 | G13 | Ziyarat Jamia Kabira | https://www.duas.org/ppt/Ziyarat-jamia-kabira-eng-urdu-hindi-guj.pptx | 0-98 of 414 |
+| G1 | Ziyarat Aal-e-Yasin | Jafri Library book 6687 (Hadi Library / Haji Naji) | all 159 |
 
 Both decks set their Gujarati in the legacy LMG-Arun font.
 `lmg_arun.py rows` decodes it into rows for `deck_source.py align`; the
@@ -233,6 +234,14 @@ not Gujarati.
 ### Jafri Library (jafrilibrary.com)
 
 Jafri Library is the designated Gujarati source. Its catalog was searched for G1, Y4, and E8:
-- Book 6687 (*Ziarat E Ale Yasin #*, published by Hadi Library / Haji Naji) and Book 84725 (*Munajaat E Shabania #*, Hadi Library / Haji Naji) exist only as scanned images; PDF downloads require client-side Google reCAPTCHA v3 and the API exposes only thumbnail page previews.
-- Dua Alqama has 0 records in the catalog.
-- Following the project's rule against OCR-guessing sacred text, Gujarati translations for G1, Y4, and E8 remain deferred until clean digital text editions or verified transcriptions become available.
+- **G1 Ziyarat Aal-e-Yasin:** completed all 159 segments (0-158) from Book 6687 (*Ziarat E Ale Yasin #*, published by Hadi Library / Haji Naji, 36 pages). The PDF was obtained without CAPTCHA and has a full text layer set in the legacy LMG-Arun font, decoded with `lmg_arun.py`. Aligned via the booklet's Gujarati transliteration blocks (each serving as an exact phonetic anchor for its Arabic segment) and cross-checked against the Arabic and the PR 338 Urdu. Segment 85 ("ઝિયારત પછી પઢવાની દુઆ") is preserved from the existing heading. Multi-segment sentences are partitioned cleanly across segment boundaries (1/2, 3/4, 5/6, 7/8, 9/10, 11/12, 18/19, 29/30, 34/35, 38/39, 40/41, 42/43, 44/45, 46/47, 48/49, 50/51, 52/53, 54-56, 59/60, 66/67, 69/70, 72/73, 74/75, 78/79, 86/87, 97/98, 99/100, 121/122, 128/129, 130/131, 135/136, 145/146, 147/148, 150/151, 152/153). Two split second halves are restored in our own Gujarati to complete the Arabic: 98 ("હઝરત મોહમ્મદ(સ.) અને તેમની આલ (અ.સ.) માટે") and 151 ("સલ્લલ્લાહો અલય્હે વ આલેહ"). Hand-corrected legacy-decode artifacts:
+  - `Ò` (dropped by `lmg_arun.py`'s `DROP` set): represented `જી` in the font, hand-restored in `રાજી` (74), `ફરજિયાત` (125), and `વાજિબ` (126);
+  - `Ô` (Latin character representing `જા` / `જો` glyph in the font): hand-corrected in `દરવાજા` (3), `છવાઇ જાય છે` (29), `પ્રકાશિત થઇ જાય છે.` (30), `સજા` (68), `રહેજો` (71), `માનવજાતની` (118), `ઈજાથી` (134), `વંશજોનું` (138), `જાહેર` (139), and `કમજોર` (143);
+  - Vocalic r / ru-matra (decoded as apostrophe `'`): corrected in `મૃત્યુ` (57);
+  - Ligature `Þ` (glyph for `ક્ક` conjunct): corrected in `'મક્કમ'` (90, 91);
+  - Ligature `w` (glyph for half-dha): corrected in `ધ્વજ` (16);
+  - Conjunct `ચ્ચ` (typed as `rR`, decoded with `ઇ` for `r`): corrected in `સચ્ચાઇના` (93) and `સચ્ચાઇની` (112);
+  - Opening/closing quotation marks (decoded as `—` and dropped `˜`): restored in `'મુન્કર'` (77) and `'મક્કમ ઇરાદા'` (90);
+  - Original book typo: duplicated `અને અને` corrected to single `અને` (137).
+- **Y4 Munajat Shabaniyah:** Book 84725 (*Munajaat E Shabania #*, Hadi Library / Haji Naji) PDF was likewise obtained and has a text layer in a different legacy font ("Gujrati"), decode pending — Y4 Gujarati itself stays deferred.
+- **E8 Dua Alqama:** has 0 records in the Jafri Library catalog (unchanged, deferred).
