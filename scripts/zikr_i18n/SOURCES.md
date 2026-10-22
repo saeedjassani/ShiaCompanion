@@ -232,7 +232,86 @@ not Gujarati.
 
 ### Jafri Library (jafrilibrary.com)
 
-Jafri Library is the designated Gujarati source. Its catalog was searched for G1, Y4, and E8:
-- Book 6687 (*Ziarat E Ale Yasin #*, published by Hadi Library / Haji Naji) and Book 84725 (*Munajaat E Shabania #*, Hadi Library / Haji Naji) exist only as scanned images; PDF downloads require client-side Google reCAPTCHA v3 and the API exposes only thumbnail page previews.
-- Dua Alqama has 0 records in the catalog.
-- Following the project's rule against OCR-guessing sacred text, Gujarati translations for G1, Y4, and E8 remain deferred until clean digital text editions or verified transcriptions become available.
+Jafri Library hosts Gujarati booklets of the Haji Naji Trust and
+hadilibrary.org (Bhavnagar) as free PDFs. Its listing filters by language
+(`/books/browse/all?language=5` is Gujarati) and category, and
+`/api/books/<id>` gives a book's metadata. A download needs the site's
+reCAPTCHA token, so it works from a browser (10 a day without an account)
+but not from curl or a cloud session.
+
+| uid | Zikr | Book | Segments |
+| --- | --- | --- | --- |
+| E14 | Hadith al-Kisa | 6666 *Hadees E Kisa* (Ishaat-e-Ilm-e-Deen Committee, Bhavnagar; ed. Nasirhusain G. Nurani), pp. 21-44 | all 132 |
+| G4 | Ziyarat Ashura | 6685 *Ziarat E Ashura Arabic Gujarati* (Haji Naji / hadilibrary.org) | all 128 |
+| G6 | Ziyarat Warith | 6684 *Ziarat E Warisa* (Haji Naji; typeset by Maulana Rizwanali Palsaniya) | all 80 |
+| E37 | Dua Sanamay Quraish | 118431 *Dua E Sanam E Quraish* (Allama Haji Naji; *Tohfa-e-Mahdi* pp. 226-229) | all 64 |
+| H17 | Munajat of Amir al-Mu'minin | 6678 *Munajaat E Ali* (typeset by Maulana Rizwanali Palsaniya) | all 69 |
+
+These were asked for by readers (2026-10). Unlike the Mukhtasar Mafatih
+above, they are real Gujarati. None of the PDFs' Gujarati copies out as
+Unicode:
+
+- **6684 and 6678** use Arial Unicode MS glyph ids with no Unicode map;
+  `gu_pdf.py arialunicode` maps them back through the system font.
+- **6666 and 6685** use the LMG-Arun key layout (fonts LMG ArunA and
+  InvGuj); `gu_pdf.py legacy` decodes them with `lmg_arun.py` plus the
+  keys these PDFs add. In 6685 InvGuj holds the Arabic spelled in
+  Gujarati letters and LMG ArunA the translation; in 6666 it is the other
+  way round.
+- **118431** is in Shree-Lipi, which `gu_pdf.py` does not decode. It was
+  transcribed by hand from the page images (220 dpi), and every word was
+  checked against the PDF's raw Shree-Lipi keys. No word was unclear.
+
+Each zikr was then aligned to our segments by reading our Arabic, and every
+segment was checked by hand, as with the Urdu decks. Throughout, honorifics
+are in our style ((અ.સ.), (સ.અ.વ.), (સ.અ.)), decoding slips were fixed
+against the page images, and Quran citations and intention lines ("હું ...
+પઢું છું કુર્બતન એલલ્લાહ") were dropped. None of the five books gives merits
+for these zikrs.
+
+- **E14 Hadith al-Kisa.**
+  - The booklet's chain starts at Fatimah. Segments 1-4 add Jabir and
+    "daughter of the Messenger" in its wording.
+  - Our own: 34 (يا من اختاره الله), 48 (a dropped السلام عليك), 95
+    (وعزتي وجلالي; the booklet has "about you" for يقول لك), and 119 and
+    131 (ورب الكعبة).
+  - 77-80 and 96-99 follow the booklet: "I made the sky ... only for their
+    love". The Arabic says "I did not create the sky ... except for their
+    love".
+  - The booklet's quotation marks, which open in one segment and close in
+    another, were removed, as the Urdu has none.
+- **G4 Ziyarat Ashura.**
+  - The booklet says it gives the sense (ભાવાર્થ), not word for word.
+  - Our own:
+    - 14 (في السماوات);
+    - 32: تنقبت is "નકાબ પહેર્યા", where the booklet has "advanced";
+    - 34, 59 and 61: الذي اكرم / اكرمني / رزقني in the past tense, where
+      the booklet makes them requests;
+    - 67: امام هدى, where the booklet has "ઇમામે ઝમાના" from the reading
+      امام مهدي;
+    - 93: "them", where the booklet has "your enemies" in a line addressed
+      to Allah;
+    - 96, 102, 112 and 121: our earlier instruction lines.
+  - Dua Alqama is not in the booklet.
+- **G6 Ziyarat Warith.**
+  - Our own: 31, where الْمَهْدِىُّ is "હિદાયત પામેલા" (the booklet has
+    "guide" twice), and 68, where عَظِيْمًا is missing in the booklet.
+  - The booklet's three salutations before وارث آدم are not in our G6.
+- **E37 Dua Sanamay Quraish.**
+  - The booklet follows a slightly different Arabic and skips some
+    phrases. Our own: 17, 19, 23, 26, 31, 32, 45, 47, 50, 54 and 61.
+  - 47: the booklet's "made false claims" reverses دعوى أبطلوها.
+  - 45: its "changed" is "abandoned" for تركوها.
+- **H17 Munajat of Amir al-Mu'minin.** 66: كرمك is "તારા કરમ", where the
+  booklet has "mercy".
+
+Other Gujarati books in the listing, by number:
+- 6687 Ziyarat Aal-e-Yasin and 84725 Munajat Shabaniyah. An earlier
+  search found these as scanned images.
+- 6690 and 122353 Jamia Kabira (60 and 41 pages; our G13 has only
+  segments 0-98).
+- 90862 Ziyarat Nahiya.
+- 6663 Dua Tauba.
+
+Its Dua category has no Gujarati Dua Tawassul, and the catalog has no Dua
+Alqama.
