@@ -206,6 +206,15 @@ erfan.ir's per-dua pages (`erfan.ir/mafatih<N>/...`, indexed from
 `erfan.ir/farsi/mafatih`) load from a local machine with a browser
 User-Agent; cloud sessions could not reach them.
 
+### Ziyarat Jamia Kabira (valasr.app)
+
+| uid | Zikr | Source |
+| --- | --- | --- |
+| G13 | Ziyarat Jamia Kabira | https://valasr.app/library/mafatih/زیارت-جامعه-کبیره (published Persian Mafatih al-Jinan translation) |
+
+The published page pairs each Arabic passage with exactly one Persian line,
+matching the app's segments; 414 segments.
+
 ## Gujarati
 
 | uid | Zikr | Deck | Segments |
