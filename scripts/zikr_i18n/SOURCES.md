@@ -212,6 +212,7 @@ User-Agent; cloud sessions could not reach them.
 | --- | --- | --- | --- |
 | E31 | Dua Kumayl | https://www.duas.org/ppt/Dua_Kumayl_5languages.pptx | all 271 |
 | G13 | Ziyarat Jamia Kabira | https://www.duas.org/ppt/Ziyarat-jamia-kabira-eng-urdu-hindi-guj.pptx | 0-98 of 414 |
+| G1 | Ziyarat Aal-e-Yasin | Jafri Library book 6687 (Hadi Library / Haji Naji) | all 159 |
 
 Both decks set their Gujarati in the legacy LMG-Arun font.
 `lmg_arun.py rows` decodes it into rows for `deck_source.py align`; the
@@ -254,6 +255,7 @@ but not from curl or a cloud session.
 | G6 | Ziyarat Warith | 6684 *Ziarat E Warisa* (Haji Naji; typeset by Maulana Rizwanali Palsaniya) | all 80 |
 | E37 | Dua Sanamay Quraish | 118431 *Dua E Sanam E Quraish* (Allama Haji Naji; *Tohfa-e-Mahdi* pp. 226-229) | all 64 |
 | H17 | Munajat of Amir al-Mu'minin | 6678 *Munajaat E Ali* (typeset by Maulana Rizwanali Palsaniya) | all 69 |
+| G1 | Ziyarat Aal-e-Yasin | 6687 *Ziarat E Ale Yasin* (Hadi Library / Haji Naji), 36 pp | all 159 |
 
 These were asked for by readers (2026-10). Unlike the Mukhtasar Mafatih
 above, they are real Gujarati. None of the PDFs' Gujarati copies out as
@@ -313,9 +315,49 @@ for these zikrs.
 - **H17 Munajat of Amir al-Mu'minin.** 66: كرمك is "તારા કરમ", where the
   booklet has "mercy".
 
+- **G1 Ziyarat Aal-e-Yasin.** Book 6687's PDF has a full text layer set
+  in the legacy LMG-Arun font, decoded with `lmg_arun.py`. Each
+  translation block was aligned via the booklet's Gujarati
+  transliteration block (a phonetic anchor for its Arabic segment) and
+  cross-checked against the Arabic and the verified Urdu. Segment 85
+  ("ઝિયારત પછી પઢવાની દુઆ") is preserved from the existing heading.
+  Multi-segment sentences are partitioned cleanly across segment
+  boundaries (1/2, 3/4, 5/6, 7/8, 9/10, 11/12, 18/19, 29/30, 34/35,
+  38/39, 40/41, 42/43, 44/45, 46/47, 48/49, 50/51, 52/53, 54-56, 59/60,
+  66/67, 69/70, 72/73, 74/75, 78/79, 86/87, 97/98, 99/100, 121/122,
+  128/129, 130/131, 135/136, 145/146, 147/148, 150/151, 152/153). Two
+  split second halves are restored in our own Gujarati to complete the
+  Arabic: 98 ("હઝરત મોહમ્મદ(સ.) અને તેમની આલ (અ.સ.) માટે") and 151
+  ("સલ્લલ્લાહો અલય્હે વ આલેહ"). Hand-corrected legacy-decode artifacts:
+  - `Ò` (dropped by `lmg_arun.py`'s `DROP` set): represented `જી` in the
+    font, hand-restored in `રાજી` (74), `ફરજિયાત` (125), and `વાજિબ` (126);
+  - `Ô` (Latin character representing `જા` / `જો` glyph in the font):
+    hand-corrected in `દરવાજા` (3), `છવાઇ જાય છે` (29), `પ્રકાશિત થઇ જાય છે.`
+    (30), `સજા` (68), `રહેજો` (71), `માનવજાતની` (118), `ઈજાથી` (134),
+    `વંશજોનું` (138), `જાહેર` (139), and `કમજોર` (143);
+  - Vocalic r / ru-matra (decoded as apostrophe `'`): corrected in
+    `મૃત્યુ` (57);
+  - Ligature `Þ` (glyph for `ક્ક` conjunct): corrected in `'મક્કમ'` (90, 91);
+  - Ligature `w` (glyph for half-dha): corrected in `ધ્વજ` (16);
+  - Conjunct `ચ્ચ` (typed as `rR`, decoded with `ઇ` for `r`): corrected in
+    `સચ્ચાઇના` (93) and `સચ્ચાઇની` (112);
+  - Conjunct `ક્ત` (LMG-Arun sequence decoded as `કિત`): corrected in
+    `પરખશક્તિ` (94), `મુક્તિની` (116) and `શક્તિશાળી` (140);
+  - Opening/closing quotation marks (decoded as `—` and dropped `˜`):
+    restored in `'મુન્કર'` (77) and `'મક્કમ ઇરાદા'` (90);
+  - Original book typo: duplicated `અને અને` corrected to single `અને` (137).
+
+  One correction to the book itself: segment 114. Book 6687 prints
+  "ડરી ગયેલાઓનું રક્ષણ કરનાર છે" (protector of the frightened) for
+  الْمُرْتَقِبِ الْخَائِفِ, but the Arabic describes the Imam himself, as
+  do the published Urdu ("نگراں اور خوفِ خدا رکھنے والے"), Persian and
+  English translations. Corrected to "નિગરાન અને ખૌફે ખુદા રાખનાર છે"
+  (watchful, and God-fearing).
+
 Other Gujarati books in the listing, by number:
-- 6687 Ziyarat Aal-e-Yasin and 84725 Munajat Shabaniyah. An earlier
-  search found these as scanned images.
+- 84725 Munajat Shabaniyah. An earlier search found it as scanned
+  images; its PDF was likewise obtained, and its text layer is a
+  different legacy font ("Gujrati"), decode pending.
 - 6690 and 122353 Jamia Kabira (60 and 41 pages; our G13 has only
   segments 0-98).
 - 90862 Ziyarat Nahiya.
