@@ -62,6 +62,7 @@ where a deck has no Urdu, or repeats the next slide's Urdu:
 | G1 | Ziyarat Aal-e-Yasin | https://mafatih.duas.co/ziarat-aaleyasin |
 | Y4 | Munajat Shabaniyah | https://mafatih.duas.co/shaban-munajat |
 | E8 | Dua Alqama | https://mafatih.duas.co/dua-alqama |
+| E10 | Dua Asharat | https://mafatih.duas.co/dua-asharat |
 
 The Urdu Mafatih al-Jinan of Sheikh Abbas Qummi, translated by Allama Riaz
 Husain Najafi, Allama Syed Niaz Husain Naqvi and Maulana Muhammad Ali Fazil
@@ -138,6 +139,12 @@ the source:
   - 163-164: Combined on slide 123 (ٲَسْتَوْدِعُكُمَا ﷲَ، وَلَا جَعَلَہُ ﷲُ اٰخِرَ الْعَھْدِ مِنِّیْ اِلَیْكُمَا), divided at segment break.
 - **Across G1, Y4, E8:** dropped و's were restored, and ؑ/ؐ written (ع)/(ص), and (س) for Lady Fatimah.
 
+- **E10 Dua Asharat:** the mafatih.duas.co page prints 151 numbered
+  Arabic/Urdu line pairs — the dua's repeated phrase-blocks are written
+  out in full at every repetition — aligned to our 61 verse segments.
+  Segments 0, 52, 59, 60 and 63 are our earlier instruction lines. Its
+  Persian is Ansarian's, from erfan.ir/mafatih42 (see Persian below).
+
 **E21 Dua Ghariq** isn't in the Mafatih. Its Urdu is from a Hawzah News
 article citing Kamal al-Din vol. 2 p. 351
 (https://ur.hawzahnews.com/news/410402), divided at our segment breaks;
@@ -173,6 +180,7 @@ to preserve exact verse correspondence:
 | uid | Zikr | Translation Source | Segments |
 | --- | --- | --- | --- |
 | E24 | Dua Tawassul | Mafatih al-Jinan | 88 + merits |
+| E10 | Dua Asharat | Mafatih al-Jinan (erfan.ir/mafatih42) | 66 |
 | G2 | Ziyarat Aminullah | Mafatih al-Jinan | 62 + merits |
 | E28 | Dua Mujeer | Mafatih al-Jinan | 96 + merits |
 | G4 | Ziyarat Ashura | Mafatih al-Jinan | 128 + merits |
