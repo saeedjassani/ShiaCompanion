@@ -14,6 +14,7 @@ import 'package:shia_companion/utils/language_provider.dart';
 import 'package:shia_companion/utils/shared_preferences.dart';
 import 'package:shia_companion/utils/sign_in_flow.dart';
 import 'package:shia_companion/utils/theme_mode.dart';
+import 'package:shia_companion/utils/theme_palette.dart';
 import 'package:shia_companion/widgets/prayer_times_widget.dart';
 
 Future<void> _prefs(Map<String, Object> values) async {
@@ -130,6 +131,7 @@ void main() {
       await tester.pumpWidget(MultiProvider(
         providers: [
           ChangeNotifierProvider.value(value: themeMode),
+          ChangeNotifierProvider(create: (_) => ThemePaletteProvider()),
           ChangeNotifierProvider.value(value: textScale),
           ChangeNotifierProvider(create: (_) => LanguageProvider()),
         ],
@@ -344,6 +346,7 @@ void main() {
     await tester.pumpWidget(MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => ThemeModeProvider()),
+        ChangeNotifierProvider(create: (_) => ThemePaletteProvider()),
         ChangeNotifierProvider(create: (_) => AppTextScaleProvider()),
         ChangeNotifierProvider(create: (_) => LanguageProvider()),
       ],

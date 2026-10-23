@@ -199,7 +199,8 @@ class _AppShellState extends State<AppShell> with RouteAware {
     final brightness = theme.brightness;
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
-      value: systemOverlayStyleFor(brightness),
+      value: systemOverlayStyleFor(brightness,
+          ground: ShiaColors.of(context).ground),
       // Back on Quran or Favorites goes to Home first, rather than out of
       // the app.
       child: PopScope(

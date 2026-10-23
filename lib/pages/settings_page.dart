@@ -30,6 +30,7 @@ import '../utils/font_preferences.dart';
 import '../utils/shared_preferences.dart';
 import '../utils/sign_in_flow.dart';
 import '../utils/theme_mode.dart';
+import '../utils/theme_palette.dart';
 import '../utils/widget_prayer_time_selection.dart';
 import '../widgets/choice_sheet.dart';
 import '../widgets/content_request_dialog.dart';
@@ -39,6 +40,7 @@ import '../widgets/outline_icon.dart';
 import '../widgets/page_chrome.dart';
 import '../widgets/reader_text_sheet.dart';
 import '../widgets/theme_mode_picker.dart';
+import '../widgets/theme_palette_picker.dart';
 import '../widgets/widget_prayer_times_dialog.dart';
 import '../widgets/zikr_reading_preferences.dart';
 import 'about_page.dart';
@@ -146,6 +148,7 @@ class _SettingsPageState extends State<SettingsPage> {
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     final themeMode = context.watch<ThemeModeProvider>().themeMode;
+    final palette = context.watch<ThemePaletteProvider>().palette;
     final textScale = context.watch<AppTextScaleProvider>().scale;
     final currentUser = _currentUser;
     final profile = widget.profile ??
@@ -185,6 +188,15 @@ class _SettingsPageState extends State<SettingsPage> {
                       title: l10n.settingsTheme,
                       value: ThemeModeProvider.label(themeMode, l10n),
                       onTap: () => showThemeModePicker(context),
+                    ),
+                    _SettingsRow(
+                      icon: _RowTile(
+                        child: Icon(Icons.palette_outlined,
+                            size: 18, color: ShiaColors.of(context).onAccent),
+                      ),
+                      title: l10n.settingsColor,
+                      value: palette.label(l10n),
+                      onTap: () => showThemePalettePicker(context),
                     ),
                     _SettingsRow(
                       icon: const _RowLetters('ع',

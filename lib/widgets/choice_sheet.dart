@@ -182,7 +182,7 @@ class SheetDragHandle extends StatelessWidget {
 
 /// One choice of a [showChoiceSheet].
 class Choice<T> {
-  const Choice(this.value, this.label, {this.hint, this.sample});
+  const Choice(this.value, this.label, {this.hint, this.sample, this.leading});
 
   final T value;
   final String label;
@@ -192,6 +192,9 @@ class Choice<T> {
 
   /// Drawn under the label instead of a hint: an Arabic font's sample.
   final Widget? sample;
+
+  /// Drawn before the label: a color's swatch.
+  final Widget? leading;
 }
 
 /// Asks for one of [choices] in a [showRevampSheet], the [current] one
@@ -231,6 +234,7 @@ Future<T?> showChoiceSheet<T>(
                     child: CardListRow(
                       first: i == 0,
                       last: i == choices.length - 1,
+                      leading: choice.leading,
                       title: Text(choice.label),
                       subtitle: choice.sample ??
                           (choice.hint == null ? null : Text(choice.hint!)),

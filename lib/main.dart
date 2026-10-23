@@ -20,7 +20,9 @@ import 'package:shia_companion/services/session_refresh_service.dart';
 import 'package:shia_companion/utils/app_text_scale.dart';
 import 'package:shia_companion/utils/language_provider.dart';
 import 'package:shia_companion/utils/theme_mode.dart';
+import 'package:shia_companion/utils/theme_palette.dart';
 import 'package:shia_companion/utils/urdu_font.dart';
+import 'package:shia_companion/theme/app_palette.dart';
 import 'package:shia_companion/theme/app_theme.dart';
 import 'package:flutter/foundation.dart' show kDebugMode, kIsWeb;
 import 'package:flutter/services.dart' show BrowserContextMenu;
@@ -168,14 +170,17 @@ _AppLaunchDestination _resolveLaunchDestination(Uri uri) {
   return _AppLaunchDestination.home;
 }
 
-// Built once: MyApp rebuilds on every frame of a text size slider drag.
-final ThemeData _lightTheme = buildAppTheme(Brightness.light);
-final ThemeData _darkTheme = buildAppTheme(Brightness.dark);
-// While the app shows Urdu (LanguageProvider.usesUrduFont).
-final ThemeData _urduLightTheme =
-    buildAppTheme(Brightness.light, fontFamily: UrduFont.family);
-final ThemeData _urduDarkTheme =
-    buildAppTheme(Brightness.dark, fontFamily: UrduFont.family);
+// Built once each: MyApp rebuilds on every frame of a text size slider drag.
+final Map<(Brightness, AppPalette, bool), ThemeData> _themes = {};
+
+/// The theme for [brightness] in [palette], in the Urdu font while the app
+/// shows Urdu ([LanguageProvider.usesUrduFont]).
+ThemeData _themeFor(Brightness brightness, AppPalette palette, bool urdu) =>
+    _themes[(brightness, palette, urdu)] ??= buildAppTheme(
+      brightness,
+      palette: palette,
+      fontFamily: urdu ? UrduFont.family : null,
+    );
 
 class MyApp extends StatelessWidget {
   const MyApp({Key? key, this.showFirstRunSetup = false}) : super(key: key);
@@ -194,13 +199,16 @@ class MyApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (context) => ThemeModeProvider()),
+        ChangeNotifierProvider(create: (context) => ThemePaletteProvider()),
         ChangeNotifierProvider(create: (context) => AppTextScaleProvider()),
         ChangeNotifierProvider(create: (context) => LanguageProvider()),
       ],
-      child:
-          Consumer3<ThemeModeProvider, AppTextScaleProvider, LanguageProvider>(
-              builder: (context, themeModeProvider, textScaleProvider,
-                  languageProvider, _) {
+      child: Consumer4<ThemeModeProvider, ThemePaletteProvider,
+              AppTextScaleProvider, LanguageProvider>(
+          builder: (context, themeModeProvider, paletteProvider,
+              textScaleProvider, languageProvider, _) {
+        final palette = paletteProvider.palette;
+        final urdu = languageProvider.usesUrduFont;
         return MaterialApp(
           navigatorKey: appNavigatorKey,
           title: appName,
@@ -233,9 +241,8 @@ class MyApp extends StatelessWidget {
               ),
             ),
           ),
-          theme: languageProvider.usesUrduFont ? _urduLightTheme : _lightTheme,
-          darkTheme:
-              languageProvider.usesUrduFont ? _urduDarkTheme : _darkTheme,
+          theme: _themeFor(Brightness.light, palette, urdu),
+          darkTheme: _themeFor(Brightness.dark, palette, urdu),
           themeMode: themeModeProvider.themeMode,
           home: switch (_resolveLaunchDestination(Uri.base)) {
             _AppLaunchDestination.deleteAccount => const DeleteAccountPage(),

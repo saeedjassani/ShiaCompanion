@@ -12,6 +12,7 @@ import '../../services/azaan_opt_in_service.dart';
 import '../../services/azan_playback_service.dart';
 import '../../services/first_run_setup.dart';
 import '../../services/location_service.dart';
+import '../../theme/app_palette.dart';
 import '../../theme/shia_colors.dart';
 import '../../utils/app_text_scale.dart';
 import '../../utils/font_preferences.dart';
@@ -20,11 +21,13 @@ import '../../utils/prayer_time_entries.dart';
 import '../../utils/shared_preferences.dart';
 import '../../utils/sign_in_flow.dart';
 import '../../utils/theme_mode.dart';
+import '../../utils/theme_palette.dart';
 import '../../widgets/outline_icon.dart';
 import '../../widgets/prayer_times_widget.dart';
 import '../../widgets/page_chrome.dart';
 import '../../widgets/prayer_glyph.dart';
 import '../../widgets/language_settings.dart';
+import '../../widgets/theme_palette_picker.dart';
 import '../../widgets/zikr_reading_preferences.dart';
 import '../city_picker.dart';
 
@@ -1337,6 +1340,7 @@ class _ThemeStepState extends State<_ThemeStep> {
     final colors = ShiaColors.of(context);
     final l10n = context.l10n;
     final mode = context.watch<ThemeModeProvider>().themeMode;
+    final palette = context.watch<ThemePaletteProvider>().palette;
 
     return _StepFrame(
       actions: [
@@ -1360,9 +1364,9 @@ class _ThemeStepState extends State<_ThemeStep> {
                   child: Column(
                     children: [
                       _ThemePreview(
-                        colors: choice == ThemeMode.dark
-                            ? ShiaColors.dark
-                            : ShiaColors.light,
+                        colors: palette.colors(choice == ThemeMode.dark
+                            ? Brightness.dark
+                            : Brightness.light),
                       ),
                       const SizedBox(height: 10),
                       Row(
@@ -1411,8 +1415,12 @@ class _ThemeStepState extends State<_ThemeStep> {
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    Expanded(child: Container(color: ShiaColors.light.ground)),
-                    Expanded(child: Container(color: ShiaColors.dark.ground)),
+                    Expanded(
+                        child: Container(
+                            color: palette.colors(Brightness.light).ground)),
+                    Expanded(
+                        child: Container(
+                            color: palette.colors(Brightness.dark).ground)),
                   ],
                 ),
               ),
@@ -1442,7 +1450,71 @@ class _ThemeStepState extends State<_ThemeStep> {
             ],
           ),
         ),
+        const SizedBox(height: 22),
+        Text(
+          l10n.settingsColor,
+          style: ShiaText.cardTitle
+              .copyWith(fontWeight: FontWeight.w700, color: colors.text),
+        ),
+        const SizedBox(height: 10),
+        Wrap(
+          spacing: 10,
+          runSpacing: 10,
+          children: [
+            for (final choice in AppPalette.values)
+              _PaletteDot(
+                palette: choice,
+                selected: choice == palette,
+                onTap: () => choosePalette(context, choice),
+              ),
+          ],
+        ),
       ],
+    );
+  }
+}
+
+/// One of the theme step's colors: its swatch, ringed in the accent while
+/// it is the one chosen.
+class _PaletteDot extends StatelessWidget {
+  const _PaletteDot({
+    required this.palette,
+    required this.selected,
+    required this.onTap,
+  });
+
+  final AppPalette palette;
+  final bool selected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = ShiaColors.of(context);
+    return Semantics(
+      button: true,
+      selected: selected,
+      label: palette.label(context.l10n),
+      child: Tooltip(
+        message: palette.label(context.l10n),
+        excludeFromSemantics: true,
+        child: InkWell(
+          onTap: onTap,
+          customBorder: const CircleBorder(),
+          child: Container(
+            width: 48,
+            height: 48,
+            padding: const EdgeInsets.all(4),
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              border: Border.all(
+                color: selected ? colors.accent : Colors.transparent,
+                width: 2.4,
+              ),
+            ),
+            child: PaletteSwatch(palette),
+          ),
+        ),
+      ),
     );
   }
 }

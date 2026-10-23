@@ -2444,6 +2444,24 @@
     "description": "Theme option."
   },
   "themeSameAsPhoneSubtitle": "Light or dark, as your phone is set",
+  "settingsColor": "Color",
+  "@settingsColor": {
+    "description": "Settings row and setup heading for the color the app is drawn in (brown, green, blue...)."
+  },
+  "paletteBrown": "Brown",
+  "@paletteBrown": {
+    "description": "Color option, the app's original color. The palette names are colors; keep them short."
+  },
+  "paletteClear": "Clear",
+  "@paletteClear": {
+    "description": "Color option: plain white and gray with a blue accent. Translate as plain/simple, not transparent."
+  },
+  "paletteGray": "Gray",
+  "paletteGreen": "Green",
+  "paletteTeal": "Teal",
+  "paletteBlue": "Blue",
+  "palettePurple": "Purple",
+  "paletteMaroon": "Maroon",
   "prayerTimesTitle": "Prayer times",
   "@prayerTimesTitle": {
     "description": "Caption of Home's prayer card, and its screen-reader label."

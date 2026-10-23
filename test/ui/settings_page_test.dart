@@ -10,6 +10,7 @@ import 'package:shia_companion/utils/app_text_scale.dart';
 import 'package:shia_companion/utils/language_provider.dart';
 import 'package:shia_companion/utils/shared_preferences.dart';
 import 'package:shia_companion/utils/theme_mode.dart';
+import 'package:shia_companion/utils/theme_palette.dart';
 
 import 'firebase_test_doubles.dart';
 
@@ -99,6 +100,22 @@ void main() {
     expect(find.text('Dark'), findsOneWidget, reason: 'the row shows it');
   });
 
+  testWidgets('Color lists every color and applies one', (tester) async {
+    await _pump(tester, const SettingsPage());
+    expect(find.text('Brown'), findsOneWidget, reason: 'the row shows it');
+
+    await tester.tap(find.text('Color'));
+    await tester.pumpAndSettle();
+    for (final name in ['Clear', 'Gray', 'Green', 'Teal', 'Purple']) {
+      expect(find.text(name), findsOneWidget);
+    }
+
+    await tester.tap(find.text('Green'));
+    await tester.pumpAndSettle();
+    expect(SP.prefs.getString(ThemePaletteProvider.prefsKey), 'green');
+    expect(find.text('Green'), findsOneWidget, reason: 'the row shows it');
+  });
+
   testWidgets('a short value stays on one line, never broken mid-word',
       (tester) async {
     await _pump(tester, const SettingsPage());
@@ -142,6 +159,8 @@ void main() {
   testWidgets('App text size opens a slider', (tester) async {
     await _pump(tester, const SettingsPage());
 
+    await tester.drag(find.byType(CustomScrollView), const Offset(0, -150));
+    await tester.pumpAndSettle();
     await tester.tap(find.text('App text size'));
     await tester.pumpAndSettle();
     expect(find.byType(Slider), findsOneWidget);
@@ -195,6 +214,7 @@ Future<void> _pump(
           onThemes?.call(provider);
           return provider;
         }),
+        ChangeNotifierProvider(create: (_) => ThemePaletteProvider()),
         ChangeNotifierProvider(create: (_) => AppTextScaleProvider()),
         ChangeNotifierProvider(create: (_) => LanguageProvider()),
       ],
