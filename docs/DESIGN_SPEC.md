@@ -65,6 +65,31 @@ Glass (tab bar, search button, reader tools): light
 Light / Dark / **Same as phone** (`ThemeMode.system`, the new default for
 fresh installs). Existing users keep whatever `darkMode` holds today.
 
+**Color setting.** Beside Theme, a Color row (and a row of swatches on the
+setup's theme step) picks the hue the app is drawn in: Brown (the tokens
+above, the default), Clear, Gray, Green, Teal, Blue, Purple, Maroon
+(`AppPalette` in `lib/theme/app_palette.dart`). The others aren't drawn by
+hand: each recolours the brown tokens in OKLCH, keeping every token's
+lightness (so the contrast column holds) and giving it the palette's hue
+and a chroma scaled per palette, one setting for the accent tokens (accent,
+prayer card and what's on it, tinted notice) and one for the neutrals.
+Gold (the prayer card's button and the current prayer's highlight) takes
+the palette's hue too, softer than the accent: a light mint in Green, a
+light grey in Gray. Success and danger stay the same in every palette.
+Clear is the one palette not made only by recolouring: its prayer card is
+a white surface card with the page's text and the accent as its button,
+so nothing on the page is dark or strongly coloured.
+`test/app_theme_test.dart` checks every palette's contrast. Add a palette
+by adding an enum value, its label in every `app_<code>.arb`, nothing more.
+The home-screen widgets follow it too: the app publishes the palette's
+prayer-card colours (fill, border, the three text tones, divider, gold,
+the calendar's event colours) with the
+rest of the widget data (`HomeScreenWidgetService.buildPaletteSnapshot`),
+and the Android and iOS widgets fall back to their own brown
+(`res/values(-night)/colors.xml`, the Swift `Color` extension) until it
+has. The widget picker's previews stay brown. The Watch app keeps its
+sand accent.
+
 ## Typography
 
 - **UI text:** platform system fonts, which Flutter already picks (SF on

@@ -41,9 +41,9 @@
   - Persian beyond the nine famous duas (PR #326), G12 and the Quran:
     Ansarian's Mafatih on erfan.ir loads
     from the user's Mac but not from cloud sessions;
-  - Gujarati: Jafri Library (jafrilibrary.com) is the designated source;
-    book scans there currently require client-side captcha and no text
-    edition exists for these duas;
+  - Gujarati: G1 Ziyarat Aal-e-Yasin complete (Jafri Library book 6687
+    decoded from LMG-Arun); Y4 (book 84725) PDF obtained with text layer in
+    legacy "Gujrati" font, decode pending; E8 not in Jafri catalog;
   - merits notes.
 
 - **Trim Firestore cost of the synced-data managers.** Zikr bookmarks

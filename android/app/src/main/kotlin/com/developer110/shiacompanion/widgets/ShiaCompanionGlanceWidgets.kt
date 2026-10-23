@@ -5,11 +5,14 @@ import android.app.PendingIntent
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.content.res.Configuration
 import android.os.Build
 import android.os.SystemClock
 import android.util.TypedValue
 import android.widget.RemoteViews
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.glance.ColorFilter
 import androidx.glance.GlanceId
 import androidx.glance.GlanceModifier
@@ -33,6 +36,7 @@ import androidx.glance.appwidget.lazy.items
 import androidx.glance.appwidget.provideContent
 import androidx.glance.appwidget.updateAll
 import androidx.glance.background
+import androidx.glance.color.ColorProvider as dayNightColor
 import androidx.glance.layout.Alignment
 import androidx.glance.layout.Box
 import androidx.glance.layout.Column
@@ -101,16 +105,101 @@ private const val KEY_CALENDAR_EVENTS = "sc_calendar_events"
 private const val KEY_CALENDAR_URL = "sc_calendar_url"
 private const val DAY_MILLIS = 24L * 60L * 60L * 1000L
 
-// Colours live in res/values(-night)/colors.xml so the shape drawables and the
-// picker previews share them, and so API 31+ hosts resolve day/night themselves.
-private val primaryTextColor = ColorProvider(R.color.widget_primary_text)
-private val bodyTextColor = ColorProvider(R.color.widget_body_text)
-private val secondaryTextColor = ColorProvider(R.color.widget_secondary_text)
-private val accentColor = ColorProvider(R.color.widget_accent)
+// The prayer card's colours in the app's Color setting, which the app
+// publishes as sc_color_<token>_day / _night (#AARRGGBB). Without them (an app
+// build from before the setting) the brown in res/values(-night)/colors.xml,
+// which the picker previews always use. Both kinds resolve day/night on the
+// host on API 31+.
+private class WidgetPalette(prefs: android.content.SharedPreferences) {
+    private val published: Map<String, Pair<Color, Color>> = buildMap {
+        for (token in listOf(
+            "surface", "border", "primary_text", "body_text", "secondary_text", "divider",
+            "accent", "event_joy", "event_mourning"
+        )) {
+            val day = prefs.getString("sc_color_${token}_day", null)?.toColorOrNull()
+            val night = prefs.getString("sc_color_${token}_night", null)?.toColorOrNull()
+            if (day != null && night != null) put(token, day to night)
+        }
+    }
+
+    private fun color(token: String, fallback: Int): ColorProvider =
+        published[token]?.let { (day, night) -> dayNightColor(day = day, night = night) }
+            ?: ColorProvider(fallback)
+
+    val primaryText = color("primary_text", R.color.widget_primary_text)
+    val bodyText = color("body_text", R.color.widget_body_text)
+    val secondaryText = color("secondary_text", R.color.widget_secondary_text)
+    val divider = color("divider", R.color.widget_divider)
+    val accent = color("accent", R.color.widget_accent)
+    val eventJoy = color("event_joy", R.color.widget_event_joy)
+    val eventMourning = color("event_mourning", R.color.widget_event_mourning)
+
+    /** The accent to tint the washes behind icons and the next prayer with; null for the gold drawables. */
+    val accentTint: ColorProvider? = if ("accent" in published) accent else null
+
+    /** [token] for a RemoteViews text, which takes ARGB ints; null for its own colour. */
+    fun argb(token: String): Pair<Int, Int>? =
+        published[token]?.let { (day, night) -> day.toArgb() to night.toArgb() }
+
+    /**
+     * The surface's fill and border, to tint a white shape with; null for the
+     * brown shape drawable. The app sends both opaque (a tint keeps the
+     * shape's alpha, so a transparent one would draw white).
+     */
+    val surface: Pair<ColorProvider, ColorProvider>? =
+        if ("surface" in published && "border" in published) {
+            color("surface", R.color.widget_surface) to color("border", R.color.widget_border)
+        } else {
+            null
+        }
+}
+
+private fun String.toColorOrNull(): Color? =
+    try {
+        Color(android.graphics.Color.parseColor(this))
+    } catch (e: IllegalArgumentException) {
+        null
+    }
+
+@Composable
+private fun widgetPalette() = WidgetPalette(LocalContext.current.widgetData())
+
+private val primaryTextColor: ColorProvider @Composable get() = widgetPalette().primaryText
+private val bodyTextColor: ColorProvider @Composable get() = widgetPalette().bodyText
+private val secondaryTextColor: ColorProvider @Composable get() = widgetPalette().secondaryText
+// Gold in brown, the palette's softer accent in the others.
+private val accentColor: ColorProvider @Composable get() = widgetPalette().accent
 // events.json codes: 1 joy (green), 0 mourning (silver; the Calendar page's black
-// would vanish on the widget's brown).
-private val eventJoyColor = ColorProvider(R.color.widget_event_joy)
-private val eventMourningColor = ColorProvider(R.color.widget_event_mourning)
+// would vanish on the widget's brown). A light card gets the page's own.
+private val eventJoyColor: ColorProvider @Composable get() = widgetPalette().eventJoy
+private val eventMourningColor: ColorProvider @Composable get() = widgetPalette().eventMourning
+
+/**
+ * A wash of the accent: the next prayer's pill, the badge behind a prayer icon,
+ * today's card in the calendar. The gold drawable [brown], or in another palette
+ * [mask] (the same shape in white at the same alpha) tinted with its accent.
+ */
+@Composable
+private fun GlanceModifier.accentWash(brown: Int, mask: Int): GlanceModifier {
+    val tint = widgetPalette().accentTint
+    return if (tint == null) {
+        background(ImageProvider(brown))
+    } else {
+        background(ImageProvider(mask), colorFilter = ColorFilter.tint(tint))
+    }
+}
+
+/** Sets a RemoteViews text's colour to the palette's day/night [colors], when the app has published them. */
+private fun RemoteViews.setPaletteTextColor(context: Context, viewId: Int, colors: Pair<Int, Int>?) {
+    if (colors == null) return
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+        setColorInt(viewId, "setTextColor", colors.first, colors.second)
+    } else {
+        val night = (context.resources.configuration.uiMode and
+            Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES
+        setTextColor(viewId, if (night) colors.second else colors.first)
+    }
+}
 
 class FavoritesWidget : GlanceAppWidget() {
     override val sizeMode: SizeMode = SizeMode.Exact
@@ -740,7 +829,7 @@ private fun PrayerColumnsRow(
             Column(
                 modifier = GlanceModifier
                     .defaultWeight()
-                    .let { if (next) it.background(ImageProvider(R.drawable.widget_highlight)) else it }
+                    .let { if (next) it.accentWash(R.drawable.widget_highlight, R.drawable.widget_highlight_mask) else it }
                     .padding(vertical = verticalPadding.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
@@ -788,7 +877,7 @@ private fun DailyPrayerRow(
         modifier = GlanceModifier
             .fillMaxWidth()
             .height(rowHeight.dp)
-            .let { if (isNext) it.background(ImageProvider(R.drawable.widget_highlight)) else it }
+            .let { if (isNext) it.accentWash(R.drawable.widget_highlight, R.drawable.widget_highlight_mask) else it }
             .padding(horizontal = 6.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -862,7 +951,9 @@ private fun splitClockTime(time: String): Pair<String, String> {
 @Composable
 private fun Countdown(targetEpochMillis: Long, prefix: String, sizeSp: Float) {
     val context = LocalContext.current
+    val color = widgetPalette().argb("accent")
     val views = RemoteViews(context.packageName, R.layout.widget_countdown).apply {
+        setPaletteTextColor(context, R.id.widget_countdown, color)
         val base = SystemClock.elapsedRealtime() + (targetEpochMillis - System.currentTimeMillis())
         setChronometer(R.id.widget_countdown, base, null, true)
         setChronometerCountDown(R.id.widget_countdown, true)
@@ -960,7 +1051,7 @@ private fun HorizontalDivider() {
         modifier = GlanceModifier
             .fillMaxWidth()
             .height(1.dp)
-            .background(ColorProvider(R.color.widget_divider))
+            .background(widgetPalette().divider)
     ) {}
 }
 
@@ -970,7 +1061,7 @@ private fun VerticalDivider() {
         modifier = GlanceModifier
             .width(1.dp)
             .fillMaxHeight()
-            .background(ColorProvider(R.color.widget_divider))
+            .background(widgetPalette().divider)
     ) {}
 }
 
@@ -983,7 +1074,7 @@ private fun PrayerIconBadge(
     Box(
         modifier = GlanceModifier
             .size(containerSizeDp.dp)
-            .background(ImageProvider(R.drawable.widget_icon_badge)),
+            .accentWash(R.drawable.widget_icon_badge, R.drawable.widget_icon_badge_mask),
         contentAlignment = Alignment.Center
     ) {
         Image(
@@ -1003,12 +1094,26 @@ private fun WidgetSurface(
     content: @Composable ColumnScope.() -> Unit
 ) {
     val context = LocalContext.current
+    val tints = widgetPalette().surface
     // GlanceModifier.cornerRadius() is a no-op below API 31, so the rounded
-    // surface comes from a shape drawable instead of a flat colour + radius.
-    val modifier = GlanceModifier
+    // surface comes from a shape drawable instead of a flat colour + radius:
+    // the brown one, or in another palette a white one tinted twice, the
+    // border's colour behind a fill inset by its 1 dp.
+    val outer = GlanceModifier
         .fillMaxSize()
         .appWidgetBackground()
-        .background(ImageProvider(R.drawable.widget_surface))
+        .then(
+            if (tints == null) {
+                GlanceModifier.background(ImageProvider(R.drawable.widget_surface))
+            } else {
+                GlanceModifier
+                    .background(
+                        ImageProvider(R.drawable.widget_surface_mask),
+                        colorFilter = ColorFilter.tint(tints.second)
+                    )
+                    .padding(1.dp)
+            }
+        )
         .let {
             if (clickable) {
                 it.clickable(actionStartActivity(context.openWidgetIntent(clickUrl)))
@@ -1016,14 +1121,30 @@ private fun WidgetSurface(
                 it
             }
         }
-        .padding(contentPadding.dp)
 
-    Column(
-        modifier = modifier,
-        verticalAlignment = Alignment.Top,
-        horizontalAlignment = Alignment.Start,
-        content = content
-    )
+    if (tints == null) {
+        Column(
+            modifier = outer.padding(contentPadding.dp),
+            verticalAlignment = Alignment.Top,
+            horizontalAlignment = Alignment.Start,
+            content = content
+        )
+        return
+    }
+    Box(modifier = outer) {
+        Column(
+            modifier = GlanceModifier
+                .fillMaxSize()
+                .background(
+                    ImageProvider(R.drawable.widget_surface_mask),
+                    colorFilter = ColorFilter.tint(tints.first)
+                )
+                .padding((contentPadding - 1).dp),
+            verticalAlignment = Alignment.Top,
+            horizontalAlignment = Alignment.Start,
+            content = content
+        )
+    }
 }
 
 private fun Context.widgetData() = getSharedPreferences(WIDGET_PREFS, Context.MODE_PRIVATE)
@@ -1514,6 +1635,7 @@ private fun agendaMetaLine(kind: String, startEpochMillis: Long, days: Int): Str
     return if (kind.isBlank()) time else "$kind · $time"
 }
 
+@Composable
 private fun calendarEventColor(code: Int): ColorProvider = when (code) {
     0 -> eventMourningColor
     1 -> eventJoyColor
@@ -1735,7 +1857,7 @@ private fun CalendarTodayCard(today: CalendarDay) {
     Column(
         modifier = GlanceModifier
             .fillMaxWidth()
-            .background(ImageProvider(R.drawable.widget_highlight))
+            .accentWash(R.drawable.widget_highlight, R.drawable.widget_highlight_mask)
             .padding(horizontal = 11.dp, vertical = 9.dp)
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {

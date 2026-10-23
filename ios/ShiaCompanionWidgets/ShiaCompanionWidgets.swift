@@ -1017,27 +1017,83 @@ private extension Color {
     // The prayer card's tokens from docs/DESIGN_SPEC.md, the same values as
     // the Android widgets' res/values(-night)/colors.xml. Only the fill and
     // the icon badge change with dark mode; the text and gold sit on a dark
-    // brown either way. Body text is halfway between onPrayerCard and its
+    // card either way. Body text is halfway between onPrayerCard and its
     // muted tone.
-    static let widgetBackground = Color(UIColor { traits in
-        traits.userInterfaceStyle == .dark
-            ? UIColor(red: 0.23, green: 0.16, blue: 0.12, alpha: 1.0)
-            : UIColor(red: 0.29, green: 0.20, blue: 0.15, alpha: 1.0)
-    })
-    static let primaryText = Color(red: 0.98, green: 0.96, blue: 0.93)
-    static let bodyText = Color(red: 0.92, green: 0.88, blue: 0.83)
-    static let secondaryText = Color(red: 0.85, green: 0.80, blue: 0.72)
-    static let iconBackground = Color(UIColor { traits in
-        UIColor(red: 0.89, green: 0.76, blue: 0.48,
-                alpha: traits.userInterfaceStyle == .dark ? 0.16 : 0.20)
-    })
-    static let accentText = Color(red: 0.89, green: 0.76, blue: 0.48)
+    //
+    // The fill, text and gold follow the app's Color setting: the app
+    // publishes them as sc_color_<token>_day / _night (#AARRGGBB). The brown
+    // below is for a build from before the setting.
+    static var widgetBackground: Color {
+        published("surface") ?? Color(UIColor { traits in
+            traits.userInterfaceStyle == .dark
+                ? UIColor(red: 0.23, green: 0.16, blue: 0.12, alpha: 1.0)
+                : UIColor(red: 0.29, green: 0.20, blue: 0.15, alpha: 1.0)
+        })
+    }
+    static var primaryText: Color {
+        published("primary_text") ?? Color(red: 0.98, green: 0.96, blue: 0.93)
+    }
+    static var bodyText: Color {
+        published("body_text") ?? Color(red: 0.92, green: 0.88, blue: 0.83)
+    }
+    static var secondaryText: Color {
+        published("secondary_text") ?? Color(red: 0.85, green: 0.80, blue: 0.72)
+    }
+
+    /// The app's colour for `token`, light and dark, or nil if it hasn't
+    /// published one.
+    static func published(_ token: String) -> Color? {
+        guard let pair = publishedPair(token) else { return nil }
+        let (day, night) = pair
+        return Color(UIColor { $0.userInterfaceStyle == .dark ? night : day })
+    }
+
+    static func publishedPair(_ token: String) -> (UIColor, UIColor)? {
+        let defaults = UserDefaults.widgetData
+        guard
+            let day = defaults?.string(forKey: "sc_color_\(token)_day").flatMap(UIColor.init(argbHex:)),
+            let night = defaults?.string(forKey: "sc_color_\(token)_night").flatMap(UIColor.init(argbHex:))
+        else { return nil }
+        return (day, night)
+    }
+
+    static var iconBackground: Color {
+        let gold = UIColor(red: 0.89, green: 0.76, blue: 0.48, alpha: 1.0)
+        let (day, night) = publishedPair("accent") ?? (gold, gold)
+        return Color(UIColor { traits in
+            traits.userInterfaceStyle == .dark
+                ? night.withAlphaComponent(0.16)
+                : day.withAlphaComponent(0.20)
+        })
+    }
+    static var accentText: Color {
+        published("accent") ?? Color(red: 0.89, green: 0.76, blue: 0.48)
+    }
     /// Event markers on the Islamic calendar widget. events.json codes an
     /// event 1 for joy (green, as on the Calendar page) or 0 for mourning.
     /// The page's black would vanish on the widget's brown, so mourning is a
-    /// cool silver here, apart from the warm text around it.
-    static let eventJoy = Color(red: 0.50, green: 0.75, blue: 0.58)
-    static let eventMourning = Color(red: 0.77, green: 0.78, blue: 0.81)
+    /// cool silver here, apart from the warm text around it. A light card
+    /// (the Clear palette) gets the page's own dark green and near-black.
+    static var eventJoy: Color {
+        published("event_joy") ?? Color(red: 0.50, green: 0.75, blue: 0.58)
+    }
+    static var eventMourning: Color {
+        published("event_mourning") ?? Color(red: 0.77, green: 0.78, blue: 0.81)
+    }
+}
+
+private extension UIColor {
+    /// "#AARRGGBB", as the app publishes its colours.
+    convenience init?(argbHex: String) {
+        let hex = argbHex.hasPrefix("#") ? String(argbHex.dropFirst()) : argbHex
+        guard hex.count == 8, let value = UInt32(hex, radix: 16) else { return nil }
+        self.init(
+            red: CGFloat((value >> 16) & 0xFF) / 255,
+            green: CGFloat((value >> 8) & 0xFF) / 255,
+            blue: CGFloat(value & 0xFF) / 255,
+            alpha: CGFloat((value >> 24) & 0xFF) / 255
+        )
+    }
 }
 
 struct FavoritesWidget: Widget {

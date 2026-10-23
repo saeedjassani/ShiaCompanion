@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 
 import '../utils/shared_preferences.dart';
 import '../utils/theme_mode.dart';
+import '../utils/theme_palette.dart';
 import 'azaan_opt_in_service.dart';
 import 'whats_new_service.dart';
 
@@ -25,8 +26,8 @@ class FirstRunSetup {
 
   /// Preferences only an install that has run an earlier build can have:
   /// a location, an answer to the azan question (or the prayer switches and
-  /// sound that predate it), a "What's new" baseline, a chosen theme or
-  /// Arabic font.
+  /// sound that predate it), a "What's new" baseline, a chosen theme,
+  /// color or Arabic font.
   ///
   /// Not `buildNumber`, for the reason [AzaanOptInService.priorInstallMarkerKeys]
   /// gives.
@@ -38,6 +39,7 @@ class FirstRunSetup {
     WhatsNewService.lastSeenBuildKey,
     ThemeModeProvider.prefsKey,
     ThemeModeProvider.legacyDarkModeKey,
+    ThemePaletteProvider.prefsKey,
     'arabic_font',
   ];
 

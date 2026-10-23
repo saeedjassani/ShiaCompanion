@@ -20,6 +20,7 @@ import 'package:shia_companion/theme/app_theme.dart';
 import 'package:shia_companion/utils/app_text_scale.dart';
 import 'package:shia_companion/utils/language_provider.dart';
 import 'package:shia_companion/utils/theme_mode.dart';
+import 'package:shia_companion/utils/theme_palette.dart';
 import 'package:shia_companion/widgets/prayer_times_widget.dart';
 import 'package:shia_companion/utils/shared_preferences.dart';
 
@@ -260,11 +261,13 @@ Future<void> _pump(
   addTearDown(tester.view.resetDevicePixelRatio);
 
   await tester.pumpWidget(
-    // Settings reads ThemeModeProvider, AppTextScaleProvider and
-    // LanguageProvider from the tree, exactly as main.dart supplies them.
+    // Settings reads ThemeModeProvider, ThemePaletteProvider,
+    // AppTextScaleProvider and LanguageProvider from the tree, exactly as
+    // main.dart supplies them.
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => ThemeModeProvider()),
+        ChangeNotifierProvider(create: (_) => ThemePaletteProvider()),
         ChangeNotifierProvider(create: (_) => AppTextScaleProvider()),
         ChangeNotifierProvider(create: (_) => LanguageProvider()),
       ],
