@@ -193,6 +193,32 @@ to preserve exact verse correspondence:
 Heading and instructional lines (e.g. in Dua Simat and Dua Nudba) were translated
 into standard Persian corresponding to the original *Mafatih* directives.
 
+### valasr.app — Persian Mafatih (2026-10)
+
+valasr.app's Mafatih library pairs each Arabic passage with exactly one Persian
+line of the published *Mafatih al-Jinan* translation — the same Ansarian text as
+hawzah.net's serialized Mafatih (collection 79461). Where one published line
+covers two of our segments it was divided by meaning at the Arabic phrase
+boundary.
+
+| uid | Zikr | Source | Segments |
+| --- | --- | --- | --- |
+| G1 | Ziyarat Aal-e-Yasin | https://valasr.app/library/mafatih/زیارت-ال-یاسینیس-امام-زمان | 159 |
+| Y4 | Munajat Shabaniyah | valasr.app/library/mafatih (مناجات شعبانیه); cross-checked against the same published translation at https://www.tabnak.ir/fa/news/895176/مناجات-شعبانیه-متن-و-ترجمه | 140 |
+| E8 | Dua Alqama | valasr.app/library/mafatih (دعای علقمه); cross-checked at https://hawzah.net/fa/pray/View/79461/7195/دعاى_علقمه_بعد_از_نماز_زیارت_عاشوراء | 185 of 186 |
+
+- **G1:** valasr's page repeats one salutation in its Persian (the
+  «سلام بر تو وقتی که می‌خوانی و بیان می‌کنی» line appears again at the head of
+  the نماز/قنوت passage); we follow the Arabic — segment 24 carries only the
+  نماز/قنوت line. valasr prints no separate Persian for segment 151
+  (صَلَّى اللّٰهُ عَلَيْهِ وَآلِهِ) and its Arabic omits the
+  وَاجْعَلْنِي اللّٰهُمَّ مِنْ أَنْصَارِهِ passage; segments 151–153 follow the
+  same published translation as printed in other editions of this dua.
+- **E8:** segment 87 (وَمُغِيثٌ لَامُغِيثَ سِوَاكَ) is left untranslated: the
+  published Persian gives the کافی/مفرّج/مغیث/جار sequence three clauses for
+  its four Arabic phrases, with no clause of its own for مغیث. Left blank
+  rather than composed.
+
 ### Ziyarat Jamia Saghira (erfan.ir)
 
 | uid | Zikr | Source |
