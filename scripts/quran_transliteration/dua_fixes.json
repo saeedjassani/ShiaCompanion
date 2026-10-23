@@ -1,0 +1,95 @@
+{
+ "fixes": [
+  {
+   "table": 0,
+   "old": "اَنْزَلَتُهٗ",
+   "new": "اَنْزَلْتُهٗ",
+   "note": "انزلتُه: sukun on the lam (anzaltuhu), as in dua 4"
+  },
+  {
+   "table": 2,
+   "old": "اَسْتَوْجَبَ",
+   "new": "اسْتَوْجَبَ",
+   "note": "استوجب is istawjaba (hamzat al-wasl), so LAZIS TAWJABA"
+  },
+  {
+   "table": 2,
+   "old": "اِعْطِنِيْ",
+   "new": "اَعْطِنِيْ",
+   "note": "اعطني is a‘ṭinī with a fatha (give me)"
+  },
+  {
+   "table": 3,
+   "old": "اِتِكَالِيْ",
+   "new": "اِتِّكَالِيْ",
+   "note": "اتّكالي needs a shadda on the ta (ittikālī)"
+  },
+  {
+   "table": 4,
+   "old": "الشَّرِ ",
+   "new": "الشَّرِّ ",
+   "note": "الشرّ needs a shadda on the ra (ash-sharri)"
+  },
+  {
+   "table": 6,
+   "old": "فِرْعَوْنَ اِكْفِنِيْ",
+   "new": "فِرْعَوْنَ، اِكْفِنِيْ",
+   "note": "pause added after فرعون, since the Arabic starts اِكْفِنِيْ fresh"
+  },
+  {
+   "table": 6,
+   "old": "مَا اَنَا فِيْهِ اَللّٰهُ",
+   "new": "مَا اَنَا فِيْهِ، اَللّٰهُ",
+   "note": "pause added before اَللّٰهُ اَللّٰهُ رَبِّيْ"
+  },
+  {
+   "table": 6,
+   "old": "الْمرْبُوْبِيْنَ",
+   "new": "الْمَرْبُوْبِيْنَ",
+   "note": "المربوبين: fatha on the meem was missing"
+  },
+  {
+   "table": 6,
+   "old": "حَبْسِيْ",
+   "new": "حَسْبِيْ",
+   "note": "حبسي is a typo for حسبي (hasbī)"
+  },
+  {
+   "table": 7,
+   "old": "تَخْفٰىٍ",
+   "new": "تَخْفٰى",
+   "note": "تخفى: stray tanween removed"
+  },
+  {
+   "table": 7,
+   "old": "تَشْتَبِهٗ",
+   "new": "تَشْتَبِهُ",
+   "note": "تشتبه: the ha is part of the verb (tashtabihu), not the pronoun"
+  },
+  {
+   "table": 7,
+   "old": "اكْنِفْنِيْ",
+   "new": "اكْنُفْنِيْ",
+   "note": "اكنفني: damma on the nun (uknufnī), as in dua 7"
+  },
+  {
+   "table": 7,
+   "old": "اِلْتِمَاسَ",
+   "new": "الْتِمَاسَ",
+   "note": "التماس begins with hamzat al-wasl (wal-timāsa)"
+  },
+  {
+   "table": 7,
+   "old": "لِاَوَاءٍ",
+   "new": "لَاْوَاءٍ",
+   "note": "لأواء (la’wā’, hardship), not li-awā’"
+  },
+  {
+   "table": 7,
+   "old": "خَلصْتَهٗ",
+   "new": "خَلَّصْتَهٗ",
+   "note": "خلصته had no vowels on lam; read as khallaṣtahu. Please check against the book"
+  }
+ ],
+ "translit": []
+}

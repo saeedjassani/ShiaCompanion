@@ -226,14 +226,53 @@ def respell_allah(cl, sk):
     return out
 
 
+# Quranic stop signs: these pause, like a full stop in a dua ...
+PAUSE_SIGNS = {'\u06d6', '\u06d7', '\u06da', '\u06d8', '\u0615'}
+# ... these only get a comma (laa, the paired dots, saktah)
+COMMA_SIGNS = {'\u06d9', '\u06db', '\u06dc'}
+AYAH_END = '\u06dd'
+LETTERS = {'\u06c1': 'ه', '\u06be': 'ه', '\u06c3': 'ة', '\u06cc': 'ي', '\u06a9': 'ك'}
+# (the iqlab meems ۢ ۭ too: link() and respell() put iqlab where a ب follows)
+DROP = re.compile('[\u06e2\u06ed\u200c\u200e\u200f\u06ea\u06eb\u06e8\u06e3\u061a\u06f0-\u06f9\u0660-\u0669«»‘’“”]')
+
+
+def normalise(text):
+    for a, b in LETTERS.items():
+        text = text.replace(a, b)
+    text = DROP.sub('', text)
+    # a hamza sign over / under a seat: اٴ -> أ, إ -> إ
+    text = re.sub('ا([\u064b-\u0652\u0670]*)\u0654', 'أ\\1', text)
+    text = re.sub('ا([\u064b-\u0652\u0670]*)\u0655', 'إ\\1', text)
+    text = re.sub('ي([\u064b-\u0652\u0670]*)\u0654', 'ئ\\1', text)
+    text = re.sub('و([\u064b-\u0652\u0670]*)\u0654', 'ؤ\\1', text)
+    text = text.replace('\u0654', '').replace('\u0655', '')
+    signs = PAUSE_SIGNS | COMMA_SIGNS | {AYAH_END}
+    text = ''.join(' ' + c + ' ' if c in signs else c for c in text)
+    # a mark cut off from its word by a space (رَحِيْمٍ ۭ, لَهٗ ۥ) goes back on it
+    marks = ''.join(MARKS | {SMALL_WAW, SMALL_YEH, INV_DAMMA, SUB_ALIF, ALT_SUKUN, SMALL_MADDA})
+    text = re.sub('\\s+([' + re.escape(marks) + ']+)(?=[\\s.,،]|$)', '\\1', text)
+    # the vocative يٰ written onto its noun (يٰنَارُ) is its own word, YAA NAARO
+    text = re.sub('(^|\\s)يٰ(?=[\u0621-\u064a])', '\\1يَا ', text)
+    return text
+
+
 def tokenize(text):
-    """-> list of sentences, each (words, closing punctuation)."""
-    text = text.replace('\u200c', '').replace('\u200f', '').replace('\u200e', '')
-    toks = text.split()
+    """-> list of sentences, each (words, closing punctuation, indices of
+    words followed by a comma without a pause)."""
+    toks = normalise(text).split()
     sents = []
     cur = []
+    commas = set()
     for t in toks:
         punct = None
+        if t in COMMA_SIGNS:
+            if cur:
+                commas.add(len(cur) - 1)
+            continue
+        if t in PAUSE_SIGNS:
+            punct, t = ',', ''
+        elif t == AYAH_END:
+            punct, t = '.', ''
         for p, rep in PUNCT:
             if t.endswith(p):
                 punct = rep
@@ -242,10 +281,12 @@ def tokenize(text):
         if t:
             cur.append(t)
         if punct and cur:
-            sents.append((cur, punct))
-            cur = []
+            sents.append((cur, punct, commas))
+            cur, commas = [], set()
+        elif punct and sents and punct == '.':
+            sents[-1] = (sents[-1][0], '.', sents[-1][2])
     if cur:
-        sents.append((cur, ''))
+        sents.append((cur, '', commas))
     return sents
 
 
@@ -278,11 +319,13 @@ def link(words):
 
 def transliterate(text):
     out = []
-    for words, punct in tokenize(text):
+    for words, punct, commas in tokenize(text):
         ws = [analyse(w, i == 0) for i, w in enumerate(link(words))]
         for i, w in enumerate(ws):
             w['idx'] = i + 1
-        txt, _ = render_utterance(ws, pause=True)
+        # no comma where the reading runs on into a hamzat al-wasl
+        cw = {i for i in commas if i + 1 < len(ws) and not ws[i + 1]['ar'].startswith(WASLA)}
+        txt, _ = render_utterance(ws, pause=True, comma_words=cw)
         out.append(txt + punct)
     return ' '.join(out)
 

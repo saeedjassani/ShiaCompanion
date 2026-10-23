@@ -1,61 +1,21 @@
 """Fill the empty right-hand (transliteration) column of a Word file of duas:
 one table per dua, Arabic in the left cell. Used for Dad's dua file.
 
-    python3 dua_docx.py in.docx out.docx 0 8      # tables 0-7
+    python3 dua_docx.py in.docx out.docx [first last]   # tables first..last-1
 
-FIXES corrects typos in the source Arabic before transliterating (the Arabic
-column is left as it is); the corrected words are highlighted yellow in the
-transliteration so they can be checked against the book.
+dua_fixes.json lists corrections to the source Arabic ("fixes": table, old,
+new, note) and to the transliteration where the program gets a correct
+Arabic word wrong ("translit": table, got, want). Corrected Arabic is
+written into the Arabic column, and the changed words are highlighted yellow
+in both columns so they can be checked against the book.
 """
-import re, sys, docx
+import copy, difflib, json, os, re, sys
+import docx
 from docx.enum.text import WD_COLOR_INDEX
 import dua
 
-# table -> [(old Arabic, new Arabic, note, transliteration to highlight)]
-FIXES = {
-    0: [
-        ('اَنْزَلَتُهٗ', 'اَنْزَلْتُهٗ',
-         'انزلتُه: sukun on the lam (anzaltuhu), as in dua 4', 'ANZALTOHU'),
-    ],
-    2: [
-        ('اَسْتَوْجَبَ', 'اسْتَوْجَبَ',
-         'استوجب is istawjaba (hamzat al-wasl), so LAZIS TAWJABA', 'LAZIS TAWJABASH'),
-        ('اِعْطِنِيْ', 'اَعْطِنِيْ',
-         'اعطني is a‘ṭinī with a fatha (give me)', 'A-A’TENEE'),
-    ],
-    3: [
-        ('اِتِكَالِيْ', 'اِتِّكَالِيْ',
-         'اتّكالي needs a shadda on the ta (ittikālī)', 'ITTEKAALEE'),
-    ],
-    4: [
-        ('الشَّرِ ', 'الشَّرِّ ',
-         'الشرّ needs a shadda on the ra (ash-sharri)', 'SHARRE'),
-    ],
-    6: [
-        ('فِرْعَوْنَ اِكْفِنِيْ', 'فِرْعَوْنَ، اِكْفِنِيْ',
-         'pause added after فرعون, since the Arabic starts اِكْفِنِيْ fresh', 'FIR-A’WN,'),
-        ('مَا اَنَا فِيْهِ اَللّٰهُ', 'مَا اَنَا فِيْهِ، اَللّٰهُ',
-         'pause added before اَللّٰهُ اَللّٰهُ رَبِّيْ', 'FEEH,'),
-        ('الْمرْبُوْبِيْنَ', 'الْمَرْبُوْبِيْنَ',
-         'المربوبين: fatha on the meem was missing', 'MARBOOBEENA'),
-        ('حَبْسِيْ', 'حَسْبِيْ',
-         'حبسي is a typo for حسبي (hasbī)', 'HASBEE MAL'),
-    ],
-    7: [
-        ('تَخْفٰىٍ', 'تَخْفٰى',
-         'تخفى: stray tanween removed', 'TAKHFAA'),
-        ('تَشْتَبِهٗ', 'تَشْتَبِهُ',
-         'تشتبه: the ha is part of the verb (tashtabihu), not the pronoun', 'TASHTABEHO'),
-        ('اكْنِفْنِيْ', 'اكْنُفْنِيْ',
-         'اكنفني: damma on the nun (uknufnī), as in dua 7', 'NUFNEE BE-RUKNEKAL LAZEE LAA YOZAAM'),
-        ('اِلْتِمَاسَ', 'الْتِمَاسَ',
-         'التماس begins with hamzat al-wasl (wal-timāsa)', 'WAL TEMAASA'),
-        ('لِاَوَاءٍ', 'لَاْوَاءٍ',
-         'لأواء (la’wā’, hardship), not li-awā’', 'LAAWAAA-INW'),
-        ('خَلصْتَهٗ', 'خَلَّصْتَهٗ',
-         'خلصته had no vowels on lam; read as khallaṣtahu. Please check against the book', 'KHALLASTAHU'),
-    ],
-}
+HERE = os.path.dirname(os.path.abspath(__file__))
+FIXES = json.load(open(os.path.join(HERE, 'dua_fixes.json'), encoding='utf-8'))
 
 
 def canon(t):
@@ -65,29 +25,69 @@ def canon(t):
 
 def fixed(i, ar):
     ar = canon(ar)
-    for old, new, _, _ in FIXES.get(i, []):
-        old, new = canon(old), canon(new)
-        assert ar.count(old) == 1, (i, old)
-        ar = ar.replace(old, new)
+    for f in FIXES['fixes']:
+        if f['table'] == i:
+            old, new = canon(f['old']), canon(f['new'])
+            assert ar.count(old) == 1, (i, f['old'], ar.count(old))
+            ar = ar.replace(old, new)
     return ar
 
 
-def main(src, out, lo, hi):
+def translit(i, ar):
+    text = dua.transliterate(ar)
+    for f in FIXES['translit']:
+        if f['table'] == i:
+            assert text.count(f['got']) == 1, (i, f['got'], text.count(f['got']))
+            text = text.replace(f['got'], f['want'])
+    return text
+
+
+def changed(before, after):
+    """-> [(chunk, is_changed)] covering `after`, by words."""
+    a, b = before.split(), after.split()
+    out = []
+    for op, i1, i2, j1, j2 in difflib.SequenceMatcher(a=a, b=b, autojunk=False).get_opcodes():
+        if j2 > j1:
+            out.append((' '.join(b[j1:j2]), op != 'equal'))
+    return out
+
+
+def fill(p, chunks, rpr=None):
+    for r in list(p.runs):
+        r._r.getparent().remove(r._r)
+    for k, (txt, hl) in enumerate(chunks):
+        r = p.add_run(txt + (' ' if k + 1 < len(chunks) else ''))
+        if rpr is not None:
+            r._r.insert(0, copy.deepcopy(rpr))
+        if hl:
+            r.font.highlight_color = WD_COLOR_INDEX.YELLOW
+
+
+def main(src, out, lo=0, hi=None):
     d = docx.Document(src)
+    hi = len(d.tables) if hi is None else hi
     for i in range(lo, hi):
-        t = d.tables[i]
-        text = dua.transliterate(fixed(i, t.rows[0].cells[0].text))
-        hl = [h for _, _, _, h in FIXES.get(i, [])]
-        for h in hl:
-            assert text.count(h) == 1, (i, h)
-        p = t.rows[0].cells[1].paragraphs[0]
-        parts = re.split('(' + '|'.join(map(re.escape, hl)) + ')', text) if hl else [text]
-        for part in filter(None, parts):
-            r = p.add_run(part)
-            if part in hl:
-                r.font.highlight_color = WD_COLOR_INDEX.YELLOW
+        ar_cell, tr_cell = d.tables[i].rows[0].cells
+        orig = ar_cell.text
+        new = fixed(i, orig)
+        if new != canon(orig):
+            # unchanged words keep their original spelling
+            o, n = orig.split(), new.split()
+            chunks = []
+            sm = difflib.SequenceMatcher(a=[canon(w) for w in o], b=n, autojunk=False)
+            for op, i1, i2, j1, j2 in sm.get_opcodes():
+                if op == 'equal':
+                    chunks.append((' '.join(o[i1:i2]), False))
+                elif j2 > j1:
+                    chunks.append((' '.join(n[j1:j2]), True))
+            p = ar_cell.paragraphs[0]
+            rpr = p.runs[0]._r.rPr if p.runs and p.runs[0]._r.rPr is not None else None
+            fill(p, chunks, rpr)
+        text = translit(i, new)
+        fill(tr_cell.paragraphs[0], changed(translit(i, canon(orig)), text))
     d.save(out)
 
 
 if __name__ == '__main__':
-    main(sys.argv[1], sys.argv[2], int(sys.argv[3]), int(sys.argv[4]))
+    a = sys.argv[1:]
+    main(a[0], a[1], *map(int, a[2:4]))
