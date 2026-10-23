@@ -5,11 +5,14 @@ import android.app.PendingIntent
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.content.res.Configuration
 import android.os.Build
 import android.os.SystemClock
 import android.util.TypedValue
 import android.widget.RemoteViews
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.glance.ColorFilter
 import androidx.glance.GlanceId
 import androidx.glance.GlanceModifier
@@ -33,6 +36,7 @@ import androidx.glance.appwidget.lazy.items
 import androidx.glance.appwidget.provideContent
 import androidx.glance.appwidget.updateAll
 import androidx.glance.background
+import androidx.glance.color.ColorProvider as dayNightColor
 import androidx.glance.layout.Alignment
 import androidx.glance.layout.Box
 import androidx.glance.layout.Column
@@ -101,11 +105,60 @@ private const val KEY_CALENDAR_EVENTS = "sc_calendar_events"
 private const val KEY_CALENDAR_URL = "sc_calendar_url"
 private const val DAY_MILLIS = 24L * 60L * 60L * 1000L
 
-// Colours live in res/values(-night)/colors.xml so the shape drawables and the
-// picker previews share them, and so API 31+ hosts resolve day/night themselves.
-private val primaryTextColor = ColorProvider(R.color.widget_primary_text)
-private val bodyTextColor = ColorProvider(R.color.widget_body_text)
-private val secondaryTextColor = ColorProvider(R.color.widget_secondary_text)
+// The prayer card's colours in the app's Color setting, which the app
+// publishes as sc_color_<token>_day / _night (#AARRGGBB). Without them (an app
+// build from before the setting) the brown in res/values(-night)/colors.xml,
+// which the picker previews always use. Both kinds resolve day/night on the
+// host on API 31+.
+private class WidgetPalette(prefs: android.content.SharedPreferences) {
+    private val published: Map<String, Pair<Color, Color>> = buildMap {
+        for (token in listOf("surface", "border", "primary_text", "body_text", "secondary_text", "divider")) {
+            val day = prefs.getString("sc_color_${token}_day", null)?.toColorOrNull()
+            val night = prefs.getString("sc_color_${token}_night", null)?.toColorOrNull()
+            if (day != null && night != null) put(token, day to night)
+        }
+    }
+
+    private fun color(token: String, fallback: Int): ColorProvider =
+        published[token]?.let { (day, night) -> dayNightColor(day = day, night = night) }
+            ?: ColorProvider(fallback)
+
+    val primaryText = color("primary_text", R.color.widget_primary_text)
+    val bodyText = color("body_text", R.color.widget_body_text)
+    val secondaryText = color("secondary_text", R.color.widget_secondary_text)
+    val divider = color("divider", R.color.widget_divider)
+
+    /** For a RemoteViews text, which takes ARGB ints; null for its own. */
+    val secondaryTextArgb: Pair<Int, Int>? =
+        published["secondary_text"]?.let { (day, night) -> day.toArgb() to night.toArgb() }
+
+    /**
+     * The surface's fill and border, to tint a white shape with; null for the
+     * brown shape drawable. The app sends both opaque (a tint keeps the
+     * shape's alpha, so a transparent one would draw white).
+     */
+    val surface: Pair<ColorProvider, ColorProvider>? =
+        if ("surface" in published && "border" in published) {
+            color("surface", R.color.widget_surface) to color("border", R.color.widget_border)
+        } else {
+            null
+        }
+}
+
+private fun String.toColorOrNull(): Color? =
+    try {
+        Color(android.graphics.Color.parseColor(this))
+    } catch (e: IllegalArgumentException) {
+        null
+    }
+
+@Composable
+private fun widgetPalette() = WidgetPalette(LocalContext.current.widgetData())
+
+private val primaryTextColor: ColorProvider @Composable get() = widgetPalette().primaryText
+private val bodyTextColor: ColorProvider @Composable get() = widgetPalette().bodyText
+private val secondaryTextColor: ColorProvider @Composable get() = widgetPalette().secondaryText
+// Gold, the same in every palette.
 private val accentColor = ColorProvider(R.color.widget_accent)
 // events.json codes: 1 joy (green), 0 mourning (silver; the Calendar page's black
 // would vanish on the widget's brown).
@@ -855,8 +908,18 @@ private fun Countdown(targetEpochMillis: Long, prefix: String, sizeSp: Float) {
 @Composable
 private fun DateText(sizeSp: Float) {
     val context = LocalContext.current
+    val color = widgetPalette().secondaryTextArgb
     val views = RemoteViews(context.packageName, R.layout.widget_date).apply {
         setTextViewTextSize(R.id.widget_date, TypedValue.COMPLEX_UNIT_SP, sizeSp)
+        if (color != null) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                setColorInt(R.id.widget_date, "setTextColor", color.first, color.second)
+            } else {
+                val night = (context.resources.configuration.uiMode and
+                    Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES
+                setTextColor(R.id.widget_date, if (night) color.second else color.first)
+            }
+        }
     }
     AndroidRemoteViews(views)
 }
@@ -867,7 +930,7 @@ private fun HorizontalDivider() {
         modifier = GlanceModifier
             .fillMaxWidth()
             .height(1.dp)
-            .background(ColorProvider(R.color.widget_divider))
+            .background(widgetPalette().divider)
     ) {}
 }
 
@@ -877,7 +940,7 @@ private fun VerticalDivider() {
         modifier = GlanceModifier
             .width(1.dp)
             .fillMaxHeight()
-            .background(ColorProvider(R.color.widget_divider))
+            .background(widgetPalette().divider)
     ) {}
 }
 
@@ -910,12 +973,26 @@ private fun WidgetSurface(
     content: @Composable ColumnScope.() -> Unit
 ) {
     val context = LocalContext.current
+    val tints = widgetPalette().surface
     // GlanceModifier.cornerRadius() is a no-op below API 31, so the rounded
-    // surface comes from a shape drawable instead of a flat colour + radius.
-    val modifier = GlanceModifier
+    // surface comes from a shape drawable instead of a flat colour + radius:
+    // the brown one, or in another palette a white one tinted twice, the
+    // border's colour behind a fill inset by its 1 dp.
+    val outer = GlanceModifier
         .fillMaxSize()
         .appWidgetBackground()
-        .background(ImageProvider(R.drawable.widget_surface))
+        .then(
+            if (tints == null) {
+                GlanceModifier.background(ImageProvider(R.drawable.widget_surface))
+            } else {
+                GlanceModifier
+                    .background(
+                        ImageProvider(R.drawable.widget_surface_mask),
+                        colorFilter = ColorFilter.tint(tints.second)
+                    )
+                    .padding(1.dp)
+            }
+        )
         .let {
             if (clickable) {
                 it.clickable(actionStartActivity(context.openWidgetIntent(clickUrl)))
@@ -923,14 +1000,30 @@ private fun WidgetSurface(
                 it
             }
         }
-        .padding(contentPadding.dp)
 
-    Column(
-        modifier = modifier,
-        verticalAlignment = Alignment.Top,
-        horizontalAlignment = Alignment.Start,
-        content = content
-    )
+    if (tints == null) {
+        Column(
+            modifier = outer.padding(contentPadding.dp),
+            verticalAlignment = Alignment.Top,
+            horizontalAlignment = Alignment.Start,
+            content = content
+        )
+        return
+    }
+    Box(modifier = outer) {
+        Column(
+            modifier = GlanceModifier
+                .fillMaxSize()
+                .background(
+                    ImageProvider(R.drawable.widget_surface_mask),
+                    colorFilter = ColorFilter.tint(tints.first)
+                )
+                .padding((contentPadding - 1).dp),
+            verticalAlignment = Alignment.Top,
+            horizontalAlignment = Alignment.Start,
+            content = content
+        )
+    }
 }
 
 private fun Context.widgetData() = getSharedPreferences(WIDGET_PREFS, Context.MODE_PRIVATE)

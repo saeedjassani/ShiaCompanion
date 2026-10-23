@@ -1,10 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- The single source of truth for the widget palette. The Glance widgets,
-         the shape drawables and the picker previews all read these, so the
-         launcher can resolve -night itself instead of us baking colours in.
+    <!-- The widgets' brown. The Glance widgets, the shape drawables and the
+         picker previews read these, so the launcher can resolve -night
+         itself instead of us baking colours in.
          The values are the prayer card's tokens from docs/DESIGN_SPEC.md;
-         body text sits halfway between onPrayerCard and its muted tone. -->
+         body text sits halfway between onPrayerCard and its muted tone.
+         This is the Brown palette: in another Color setting the app
+         publishes the same tokens in its colours (WidgetPalette in
+         ShiaCompanionGlanceWidgets.kt), and these are the fallback and the
+         picker previews. -->
     <color name="widget_surface">#FF4A3426</color>
     <!-- Matches the prayer card (docs/DESIGN_SPEC.md, "Colour tokens"):
          no border in light mode, a 1 px one in dark. -->

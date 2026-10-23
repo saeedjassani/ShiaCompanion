@@ -1,8 +1,9 @@
 import 'package:flutter/foundation.dart';
+import 'package:shia_companion/services/home_screen_widget_service.dart';
 import 'package:shia_companion/theme/app_palette.dart';
 import 'package:shia_companion/utils/shared_preferences.dart';
 
-/// The Colour setting ([AppPalette]). Brown unless someone picks another.
+/// The Color setting ([AppPalette]). Brown unless someone picks another.
 class ThemePaletteProvider extends ChangeNotifier {
   static const String prefsKey = 'themePalette';
 
@@ -22,7 +23,7 @@ class ThemePaletteProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  @visibleForTesting
+  /// What the stored preferences say; [SP] must be initialised.
   static AppPalette readStored() =>
       AppPalette.parse(SP.prefs.getString(prefsKey)) ?? AppPalette.brown;
 
@@ -33,5 +34,6 @@ class ThemePaletteProvider extends ChangeNotifier {
 
     if (!SP.isInitialized) await SP.init();
     await SP.prefs.setString(prefsKey, palette.name);
+    await HomeScreenWidgetService.instance.publishPalette(palette);
   }
 }

@@ -9,12 +9,15 @@ import 'package:shia_companion/constants.dart';
 import 'package:shia_companion/data/uid_title_data.dart';
 import 'package:shia_companion/data/universal_data.dart';
 import 'package:shia_companion/services/analytics_service.dart';
+import 'package:shia_companion/theme/app_palette.dart';
 import 'package:shia_companion/utils/calendar_events.dart';
 import 'package:shia_companion/utils/deep_links.dart';
 import 'package:shia_companion/utils/islamic_calendar_widget_data.dart';
 import 'package:shia_companion/utils/todays_recitation.dart';
 import 'package:shia_companion/utils/widget_prayer_time_selection.dart';
 import 'package:shia_companion/utils/prayer_time_entries.dart';
+import 'package:shia_companion/utils/shared_preferences.dart';
+import 'package:shia_companion/utils/theme_palette.dart';
 import '../l10n/l10n.dart';
 
 class HomeScreenWidgetService {
@@ -88,6 +91,22 @@ class HomeScreenWidgetService {
   static const String calendarEventsKey = 'sc_calendar_events';
   static const String calendarUrlKey = 'sc_calendar_url';
 
+  /// The widgets' colours in the Color setting's palette: the prayer
+  /// card's tokens, as `#AARRGGBB`, one key per [widgetColorTokens] entry
+  /// and brightness. The widgets fall back to their own brown when these
+  /// are missing (a build from before the setting).
+  static const List<String> widgetColorTokens = [
+    'surface',
+    'border',
+    'primary_text',
+    'body_text',
+    'secondary_text',
+    'divider',
+  ];
+
+  static String widgetColorKey(String token, Brightness brightness) =>
+      'sc_color_${token}_${brightness == Brightness.dark ? 'night' : 'day'}';
+
   List<UniversalData> _favorites = const [];
   Map<String, dynamic>? _calendarEvents;
 
@@ -113,6 +132,13 @@ class HomeScreenWidgetService {
 
     await _loadCalendarEvents();
     await _saveAndRefresh(buildCalendarSnapshot());
+  }
+
+  /// Recolours the widgets after the Color setting changes.
+  Future<void> publishPalette(AppPalette palette) async {
+    if (!_isSupported) return;
+
+    await _saveAndRefresh(buildPaletteSnapshot(palette));
   }
 
   Future<void> publishFavorites() async {
@@ -143,6 +169,7 @@ class HomeScreenWidgetService {
     Iterable<UniversalData>? favorites,
   }) {
     return {
+      ...buildPaletteSnapshot(),
       ...buildFavoritesSnapshot(favorites: favorites),
       ...buildTodaysRecitationsSnapshot(),
       ...buildUpcomingPrayerSnapshot(),
@@ -150,6 +177,49 @@ class HomeScreenWidgetService {
       ...buildCalendarSnapshot(),
     };
   }
+
+  /// The widgets' colours for [palette], the Color setting's when null.
+  ///
+  /// The same as the prayer card (docs/DESIGN_SPEC.md), as the widgets'
+  /// own colors.xml has them: body text is halfway between the card's text
+  /// and its muted tone, dividers are its text faintly.
+  ///
+  /// Every colour is opaque except the divider: the Android widgets tint a
+  /// white shape with the surface and border, and a tint keeps the shape's
+  /// own alpha, so a transparent border would draw white. Light mode has no
+  /// border, so it gets the surface there instead, which looks the same.
+  Map<String, String> buildPaletteSnapshot([AppPalette? palette]) {
+    final chosen = palette ??
+        (SP.isInitialized
+            ? ThemePaletteProvider.readStored()
+            : AppPalette.brown);
+    final values = <String, String>{};
+    for (final brightness in Brightness.values) {
+      final c = chosen.colors(brightness);
+      final isDark = brightness == Brightness.dark;
+      final colors = <String, Color>{
+        'surface': c.prayerCard,
+        'border': c.prayerCardBorder.a == 0 ? c.prayerCard : c.prayerCardBorder,
+        'primary_text': c.onPrayerCard,
+        'body_text': _midpoint(c.onPrayerCard, c.onPrayerCardMuted),
+        'secondary_text': c.onPrayerCardMuted,
+        'divider': c.onPrayerCard.withAlpha(isDark ? 0x21 : 0x2E),
+      };
+      colors.forEach((token, color) =>
+          values[widgetColorKey(token, brightness)] = _hex(color));
+    }
+    return values;
+  }
+
+  /// Halfway between [a] and [b], each channel rounded down as colors.xml
+  /// has it.
+  static Color _midpoint(Color a, Color b) {
+    int mid(double x, double y) => ((x * 255).round() + (y * 255).round()) ~/ 2;
+    return Color.fromARGB(255, mid(a.r, b.r), mid(a.g, b.g), mid(a.b, b.b));
+  }
+
+  static String _hex(Color color) =>
+      '#${color.toARGB32().toRadixString(16).padLeft(8, '0').toUpperCase()}';
 
   /// The Islamic calendar widgets and the watch's calendar complication: one
   /// entry per day for the hijri date, plus the events coming up.
