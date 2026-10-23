@@ -241,6 +241,7 @@ Jafri Library is the designated Gujarati source. Its catalog was searched for G1
   - Ligature `Þ` (glyph for `ક્ક` conjunct): corrected in `'મક્કમ'` (90, 91);
   - Ligature `w` (glyph for half-dha): corrected in `ધ્વજ` (16);
   - Conjunct `ચ્ચ` (typed as `rR`, decoded with `ઇ` for `r`): corrected in `સચ્ચાઇના` (93) and `સચ્ચાઇની` (112);
+  - Conjunct `ક્ત` (LMG-Arun sequence decoded as `કિત`): corrected in `પરખશક્તિ` (94), `મુક્તિની` (116) and `શક્તિશાળી` (140);
   - Opening/closing quotation marks (decoded as `—` and dropped `˜`): restored in `'મુન્કર'` (77) and `'મક્કમ ઇરાદા'` (90);
   - Original book typo: duplicated `અને અને` corrected to single `અને` (137).
 - **Y4 Munajat Shabaniyah:** Book 84725 (*Munajaat E Shabania #*, Hadi Library / Haji Naji) PDF was likewise obtained and has a text layer in a different legacy font ("Gujrati"), decode pending — Y4 Gujarati itself stays deferred.
