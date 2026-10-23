@@ -66,9 +66,7 @@ Future<void> showReaderTextSheet(
                 borderRadius: BorderRadius.circular(20),
                 boxShadow: [
                   BoxShadow(
-                    color: Theme.of(context).brightness == Brightness.dark
-                        ? Colors.black.withValues(alpha: 0.45)
-                        : const Color(0x242A1E16),
+                    color: ShiaColors.of(context).glassShadow,
                     blurRadius: 28,
                     offset: const Offset(0, 8),
                   ),

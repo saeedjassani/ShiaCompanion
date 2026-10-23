@@ -65,6 +65,20 @@ Glass (tab bar, search button, reader tools): light
 Light / Dark / **Same as phone** (`ThemeMode.system`, the new default for
 fresh installs). Existing users keep whatever `darkMode` holds today.
 
+**Color setting.** Beside Theme, a Color row (and a row of swatches on the
+setup's theme step) picks the hue the app is drawn in: Brown (the tokens
+above, the default), Clear, Gray, Green, Teal, Blue, Purple, Maroon
+(`AppPalette` in `lib/theme/app_palette.dart`). The others aren't drawn by
+hand: each recolours the brown tokens in OKLCH, keeping every token's
+lightness (so the contrast column holds) and giving it the palette's hue
+and a chroma scaled per palette, one setting for the accent tokens (accent,
+prayer card and what's on it, tinted notice) and one for the neutrals.
+Gold, success and danger stay the same in every palette.
+`test/app_theme_test.dart` checks every palette's contrast. Add a palette
+by adding an enum value, its label in every `app_<code>.arb`, nothing more.
+The home-screen widgets (`android/.../values/colors.xml`, the iOS widget
+extension) stay brown.
+
 ## Typography
 
 - **UI text:** platform system fonts, which Flutter already picks (SF on

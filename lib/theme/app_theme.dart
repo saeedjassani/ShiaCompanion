@@ -2,9 +2,11 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import 'app_palette.dart';
 import 'shia_colors.dart';
 
-/// The app's light or dark [ThemeData], built from [ShiaColors].
+/// The app's light or dark [ThemeData], built from [palette]'s
+/// [ShiaColors].
 ///
 /// [fontFamily], when given, is the font for all text that doesn't name its
 /// own (Arabic does): the Urdu font while the app shows Urdu.
@@ -14,9 +16,13 @@ import 'shia_colors.dart';
 /// which is exactly what the revamp moves away from. Every widget that
 /// already reads `colorScheme.primary`, `onSurfaceVariant` and so on picks up
 /// the new palette without changes.
-ThemeData buildAppTheme(Brightness brightness, {String? fontFamily}) {
-  final c = ShiaColors.forBrightness(brightness);
-  final scheme = _colorScheme(brightness, c);
+ThemeData buildAppTheme(
+  Brightness brightness, {
+  String? fontFamily,
+  AppPalette palette = AppPalette.brown,
+}) {
+  final c = palette.colors(brightness);
+  final scheme = _colorScheme(brightness, palette);
   final fontFamilyFallback = kIsWeb
       ? const ['Roboto', 'Scheherazade']
       : fontFamily == null
@@ -67,7 +73,7 @@ ThemeData buildAppTheme(Brightness brightness, {String? fontFamily}) {
       iconTheme: IconThemeData(color: c.accent),
       actionsIconTheme: IconThemeData(color: c.accent),
       titleTextStyle: withFont(ShiaText.cardTitle.copyWith(color: c.text)),
-      systemOverlayStyle: systemOverlayStyleFor(brightness),
+      systemOverlayStyle: systemOverlayStyleFor(brightness, ground: c.ground),
     ),
     tabBarTheme: TabBarThemeData(
       labelColor: c.accent,
@@ -130,8 +136,9 @@ String get _systemFontFamily => switch (defaultTargetPlatform) {
     };
 
 /// Status and navigation bar styling over the ground: transparent status bar
-/// with icons that read on it, and a navigation bar in the ground colour.
-SystemUiOverlayStyle systemOverlayStyleFor(Brightness brightness) {
+/// with icons that read on it, and a navigation bar in the [ground] colour.
+SystemUiOverlayStyle systemOverlayStyleFor(Brightness brightness,
+    {required Color ground}) {
   final isDark = brightness == Brightness.dark;
   final iconBrightness = isDark ? Brightness.light : Brightness.dark;
   return SystemUiOverlayStyle(
@@ -139,13 +146,14 @@ SystemUiOverlayStyle systemOverlayStyleFor(Brightness brightness) {
     statusBarIconBrightness: iconBrightness,
     // iOS names the status bar by its background, not its icons.
     statusBarBrightness: brightness,
-    systemNavigationBarColor: ShiaColors.forBrightness(brightness).ground,
+    systemNavigationBarColor: ground,
     systemNavigationBarDividerColor: Colors.transparent,
     systemNavigationBarIconBrightness: iconBrightness,
   );
 }
 
-ColorScheme _colorScheme(Brightness brightness, ShiaColors c) {
+ColorScheme _colorScheme(Brightness brightness, AppPalette palette) {
+  final c = palette.colors(brightness);
   final isDark = brightness == Brightness.dark;
   return ColorScheme(
     brightness: brightness,
@@ -153,7 +161,7 @@ ColorScheme _colorScheme(Brightness brightness, ShiaColors c) {
     onPrimary: c.onAccent,
     primaryContainer: c.tintedNotice,
     onPrimaryContainer: c.text,
-    // One brown: secondary is the accent too, so nothing in the app picks up
+    // One hue: secondary is the accent too, so nothing in the app picks up
     // a second, unplanned hue.
     secondary: c.accent,
     onSecondary: c.onAccent,
@@ -173,7 +181,8 @@ ColorScheme _colorScheme(Brightness brightness, ShiaColors c) {
     surface: c.ground,
     onSurface: c.text,
     onSurfaceVariant: c.textMuted,
-    surfaceDim: isDark ? c.ground : const Color(0xFFEDE5DA),
+    // Halfway between the well and the line: #EDE5DA in brown.
+    surfaceDim: isDark ? c.ground : Color.lerp(c.well, c.line, 0.5)!,
     surfaceBright: isDark ? c.line : c.surface,
     surfaceContainerLowest: isDark ? c.ground : c.surface,
     surfaceContainerLow: c.surface,
@@ -186,9 +195,8 @@ ColorScheme _colorScheme(Brightness brightness, ShiaColors c) {
     scrim: Colors.black,
     inverseSurface: c.text,
     onInverseSurface: c.ground,
-    inversePrimary: ShiaColors.forBrightness(
-      isDark ? Brightness.light : Brightness.dark,
-    ).accent,
+    inversePrimary:
+        palette.colors(isDark ? Brightness.light : Brightness.dark).accent,
     // No elevation tint anywhere: it is what turned surfaces pink.
     surfaceTint: Colors.transparent,
   );

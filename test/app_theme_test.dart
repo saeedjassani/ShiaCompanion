@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shia_companion/theme/app_palette.dart';
 import 'package:shia_companion/theme/app_theme.dart';
 import 'package:shia_companion/theme/shia_colors.dart';
 
@@ -54,6 +55,66 @@ void main() {
         expect(_contrast(c.onPrayerCardMuted, c.prayerCard),
             greaterThanOrEqualTo(4.5));
       }
+    });
+  });
+
+  group('every color', () {
+    test('brown is the spec\'s own tokens', () {
+      expect(AppPalette.brown.colors(Brightness.light), same(light));
+      expect(AppPalette.brown.colors(Brightness.dark), same(dark));
+    });
+
+    for (final palette in AppPalette.values) {
+      for (final brightness in Brightness.values) {
+        test('${palette.name} (${brightness.name}) keeps the spec\'s contrast',
+            () {
+          final c = palette.colors(brightness);
+          final brown = ShiaColors.forBrightness(brightness);
+          for (final bg in [c.ground, c.surface, c.well, c.glassSolid]) {
+            expect(_contrast(c.text, bg), greaterThanOrEqualTo(4.5));
+            expect(_contrast(c.textMuted, bg), greaterThanOrEqualTo(4.5));
+            expect(_contrast(c.accent, bg), greaterThanOrEqualTo(4.5));
+          }
+          expect(_contrast(c.translation, c.readerGround),
+              greaterThanOrEqualTo(7));
+          expect(_contrast(c.onAccent, c.accent), greaterThanOrEqualTo(4.5));
+          expect(
+              _contrast(c.onPrayerCard, c.prayerCard), greaterThanOrEqualTo(7));
+          expect(_contrast(c.onPrayerCardMuted, c.prayerCard),
+              greaterThanOrEqualTo(4.5));
+          expect(_contrast(c.onGold, c.gold), greaterThanOrEqualTo(7));
+          expect(_contrast(c.text, c.tintedNotice), greaterThanOrEqualTo(7));
+          expect(_contrast(c.chevron, c.surface), greaterThanOrEqualTo(3));
+          // Meanings, not decoration: the same in every color.
+          expect(c.gold, brown.gold);
+          expect(c.success, brown.success);
+          expect(c.danger, brown.danger);
+        });
+      }
+    }
+
+    test('recolours: green is green, gray has no hue', () {
+      final green = AppPalette.green.colors(Brightness.light).accent;
+      expect(green.g, greaterThan(green.r));
+      expect(green.g, greaterThan(green.b));
+      final gray = AppPalette.gray.colors(Brightness.light);
+      for (final token in [gray.ground, gray.accent, gray.prayerCard]) {
+        expect(token.r, closeTo(token.g, 1 / 255));
+        expect(token.g, closeTo(token.b, 1 / 255));
+      }
+      // White stays white rather than picking up a tint.
+      expect(AppPalette.teal.colors(Brightness.light).surface,
+          const Color(0xFFFFFFFF));
+    });
+
+    test('a palette themes the app', () {
+      final theme = buildAppTheme(Brightness.dark, palette: AppPalette.purple);
+      final c = AppPalette.purple.colors(Brightness.dark);
+      expect(theme.extension<ShiaColors>(), same(c));
+      expect(theme.colorScheme.primary, c.accent);
+      expect(theme.colorScheme.inversePrimary,
+          AppPalette.purple.colors(Brightness.light).accent);
+      expect(theme.scaffoldBackgroundColor, c.ground);
     });
   });
 
