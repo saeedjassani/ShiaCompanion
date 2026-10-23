@@ -171,6 +171,9 @@ class DailyPrayerTimesWidget : GlanceAppWidget() {
     override val sizeMode: SizeMode = SizeMode.Exact
 
     override suspend fun provideGlance(context: Context, id: GlanceId) {
+        // The tall size shows today's dates and event, which turn over at
+        // midnight; see IslamicCalendarWidget for why this runs every render.
+        scheduleNextCalendarWidgetRefresh(context.applicationContext)
         provideContent {
             DailyPrayerTimesWidgetContent()
         }
@@ -205,6 +208,7 @@ class CalendarWidgetRefreshReceiver : BroadcastReceiver() {
 
         CoroutineScope(Dispatchers.Main).launch {
             IslamicCalendarWidget().updateAll(context.applicationContext)
+            DailyPrayerTimesWidget().updateAll(context.applicationContext)
             scheduleNextCalendarWidgetRefresh(context.applicationContext)
         }
     }
@@ -601,13 +605,29 @@ private fun DailyPrayerTimesWidgetContent() {
             // sizes, which otherwise leave half the card empty).
             innerHeight >= 170f -> {
                 val scale = minOf(innerWidth / 300f, innerHeight / 210f).coerceIn(0.9f, 1.35f)
+                val now = System.currentTimeMillis()
+                val today = data.currentCalendarDay(now)
+                val featured = data.featuredCalendarEvent(today, now)
+                val headerSp = 11f * scale
                 Row(
                     modifier = GlanceModifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    LocationLabel(location, sizeSp = 11f * scale, modifier = GlanceModifier.defaultWeight())
+                    // Plain Text rather than the RemoteViews TextClock this
+                    // used to be, which crowded the location out of the row.
+                    // The midnight calendar refresh turns the date over.
+                    Text(
+                        text = dateLine(now, today, innerWidth - locationWidth(location, headerSp), headerSp),
+                        modifier = GlanceModifier.defaultWeight(),
+                        style = TextStyle(
+                            color = secondaryTextColor,
+                            fontSize = headerSp.sp,
+                            fontWeight = FontWeight.Bold
+                        ),
+                        maxLines = 1
+                    )
                     Spacer(GlanceModifier.width(8.dp))
-                    DateText(sizeSp = 11f * scale)
+                    LocationLabel(location, sizeSp = headerSp, modifier = GlanceModifier)
                 }
                 Spacer(GlanceModifier.defaultWeight())
                 Row(
@@ -617,7 +637,10 @@ private fun DailyPrayerTimesWidgetContent() {
                     val badge = (44f * scale).toInt()
                     PrayerIconBadge(nextPrayer.name, containerSizeDp = badge, iconSizeDp = badge / 2)
                     Spacer(GlanceModifier.width(12.dp))
-                    Column(modifier = GlanceModifier.defaultWeight()) {
+                    // With an event to show, the event takes the room on the
+                    // right; the prayer's time is already in its column below.
+                    val nameModifier = if (featured == null) GlanceModifier.defaultWeight() else GlanceModifier
+                    Column(modifier = nameModifier) {
                         Text(
                             text = nextPrayer.name,
                             style = TextStyle(
@@ -629,8 +652,12 @@ private fun DailyPrayerTimesWidgetContent() {
                         )
                         Countdown(nextPrayer.epochMillis!!, prefix = "in", sizeSp = 12f * scale)
                     }
-                    Spacer(GlanceModifier.width(8.dp))
-                    TimeText(nextPrayer.time, sizeSp = 30f * scale, color = bodyTextColor)
+                    Spacer(GlanceModifier.width(12.dp))
+                    if (featured == null) {
+                        TimeText(nextPrayer.time, sizeSp = 30f * scale, color = bodyTextColor)
+                    } else {
+                        HeroEvent(featured, scale, GlanceModifier.defaultWeight())
+                    }
                 }
                 Spacer(GlanceModifier.defaultWeight())
                 HorizontalDivider()
@@ -852,13 +879,79 @@ private fun Countdown(targetEpochMillis: Long, prefix: String, sizeSp: Float) {
     }
 }
 
-@Composable
-private fun DateText(sizeSp: Float) {
-    val context = LocalContext.current
-    val views = RemoteViews(context.packageName, R.layout.widget_date).apply {
-        setTextViewTextSize(R.id.widget_date, TypedValue.COMPLEX_UNIT_SP, sizeSp)
+/**
+ * "Thu, 22 Oct · 11 Jumada al-Awwal 1448", shortened until it fits in
+ * [widthDp]: the year goes first, then the month is abbreviated. Glance can't
+ * measure text, so the width is a conservative estimate for bold digits and
+ * letters. Just the Gregorian date when the app hasn't published hijri dates.
+ */
+private fun dateLine(now: Long, today: CalendarDay?, widthDp: Float, sizeSp: Float): String {
+    val gregorian = formatLocalDate(now, "EEE, d MMM")
+    if (today == null) return gregorian
+    val candidates = listOf(
+        "${today.day} ${today.month} ${today.year}",
+        "${today.day} ${today.month}",
+        "${today.day} ${today.monthShort} ${today.year}"
+    ).map { "$gregorian · $it" }
+    return candidates.firstOrNull { estimatedTextWidth(it, sizeSp) <= widthDp } ?: candidates.last()
+}
+
+private fun estimatedTextWidth(text: String, sizeSp: Float): Float = text.length * sizeSp * 0.58f
+
+/** Room [LocationLabel] needs: its pin, gap, and up to 12 characters of name, plus the gap before it. */
+private fun locationWidth(location: String, sizeSp: Float): Float =
+    sizeSp + 3f + estimatedTextWidth(location.take(12), sizeSp) + 8f
+
+/** Today's event, or failing that the next one, the way the 2x2 calendar widget picks it. */
+private fun android.content.SharedPreferences.featuredCalendarEvent(
+    today: CalendarDay?,
+    now: Long
+): FeaturedEvent? {
+    if (today != null && today.event.isNotBlank()) {
+        return FeaturedEvent(today.eventShort, today.kind, today.color, 0)
     }
-    AndroidRemoteViews(views)
+    val todayStart = startOfLocalDayMillis(now)
+    val from = if (today == null) todayStart else nextLocalMidnightMillis()
+    return calendarEvents().firstOrNull { it.startEpochMillis >= from }?.let {
+        FeaturedEvent(it.short, it.kind, it.color, daysAway(it.startEpochMillis, todayStart))
+    }
+}
+
+/** "● TODAY · BIRTH" over the name, right-aligned, beside the next prayer. */
+@Composable
+private fun HeroEvent(event: FeaturedEvent, scale: Float, modifier: GlanceModifier) {
+    val color = calendarEventColor(event.color)
+    Column(modifier = modifier, horizontalAlignment = Alignment.End) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text(
+                text = "●",
+                style = TextStyle(color = color, fontSize = (8f * scale).sp),
+                maxLines = 1
+            )
+            Spacer(GlanceModifier.width(4.dp))
+            Text(
+                text = eventMetaLine(event.kind, event.daysAway).uppercase(),
+                style = TextStyle(
+                    color = if (event.daysAway <= 0) color else secondaryTextColor,
+                    fontSize = (10f * scale).sp,
+                    fontWeight = FontWeight.Bold
+                ),
+                maxLines = 1
+            )
+        }
+        Spacer(GlanceModifier.height(2.dp))
+        Text(
+            text = event.name,
+            modifier = GlanceModifier.fillMaxWidth(),
+            style = TextStyle(
+                color = primaryTextColor,
+                fontSize = (13f * scale).sp,
+                fontWeight = FontWeight.Bold,
+                textAlign = TextAlign.End
+            ),
+            maxLines = 2
+        )
+    }
 }
 
 @Composable
@@ -1278,6 +1371,8 @@ private data class CalendarDay(
     val startEpochMillis: Long,
     val day: Int,
     val month: String,
+    /** "Jum I": [month] for when the full name won't fit. */
+    val monthShort: String,
     val year: Int,
     /** Today's event, name first ("Hazrat Fatima Zahra (s.a.)"); empty on most days. */
     val event: String,
@@ -1332,6 +1427,8 @@ private fun android.content.SharedPreferences.calendarDays(): List<CalendarDay> 
                 startEpochMillis = entry.optLong("start"),
                 day = entry.optInt("day"),
                 month = entry.optString("month", "").trim(),
+                monthShort = entry.optString("monthShort", "").trim()
+                    .ifBlank { entry.optString("month", "").trim() },
                 year = entry.optInt("year"),
                 event = event,
                 eventShort = entry.optString("eventShort", "").trim().ifBlank { event },
