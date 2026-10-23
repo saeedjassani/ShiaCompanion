@@ -347,6 +347,13 @@ for these zikrs.
     restored in `'મુન્કર'` (77) and `'મક્કમ ઇરાદા'` (90);
   - Original book typo: duplicated `અને અને` corrected to single `અને` (137).
 
+  One correction to the book itself: segment 114. Book 6687 prints
+  "ડરી ગયેલાઓનું રક્ષણ કરનાર છે" (protector of the frightened) for
+  الْمُرْتَقِبِ الْخَائِفِ, but the Arabic describes the Imam himself, as
+  do the published Urdu ("نگراں اور خوفِ خدا رکھنے والے"), Persian and
+  English translations. Corrected to "નિગરાન અને ખૌફે ખુદા રાખનાર છે"
+  (watchful, and God-fearing).
+
 Other Gujarati books in the listing, by number:
 - 84725 Munajat Shabaniyah. An earlier search found it as scanned
   images; its PDF was likewise obtained, and its text layer is a
