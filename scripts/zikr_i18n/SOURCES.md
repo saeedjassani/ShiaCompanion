@@ -206,6 +206,26 @@ erfan.ir's per-dua pages (`erfan.ir/mafatih<N>/...`, indexed from
 `erfan.ir/farsi/mafatih`) load from a local machine with a browser
 User-Agent; cloud sessions could not reach them.
 
+### Dua Abu Hamza Thumali (valasr.app / erfan.ir)
+
+| uid | Zikr | Source | Segments |
+| --- | --- | --- | --- |
+| AA12 | Dua Abu Hamza Thumali (دعای ابوحمزه ثمالی) | https://valasr.app/library/mafatih/%D8%AF%D8%B9%D8%A7%DB%8C-%D8%A7%D8%A8%D9%88-%D8%AD%D9%85%D8%B2%D9%87-%D8%AB%D9%85%D8%A7%D9%84%DB%8C (Ostad Hossein Ansarian's canonical translation of *Mafatih al-Jinan*; backstops: hawzah.net collection 79461 page 6624, erfan.ir/mafatih116/) | all 648 (0–647) |
+
+All 648 segments filled from Ostad Hossein Ansarian's published *Mafatih al-Jinan* translation:
+- Segments 0 and 11 preserved verbatim from existing shipped file.
+- Segment 1: standard Bismillah ("به نام خداوند بخشنده مهربان").
+- Segments 2–10 and 12–647: mapped 1-to-1 against the 274 sequential Arabic/Persian paired blocks of Valasr. Where a published block spanned multiple template segments, the published Persian sentence was divided by meaning at Arabic clause/phrase boundaries matching our segmentation.
+- Boundary combinations: 8 segments spanned across two consecutive Valasr blocks and were cleanly recombined to match our template segment boundaries:
+  - Seg 9: end of CID 4 + start of CID 5
+  - Seg 69: end of CID 28 + start of CID 29
+  - Seg 186: end of CID 74 + start of CID 75
+  - Seg 265: end of CID 108 + start of CID 109
+  - Seg 340: end of CID 140 + start of CID 141
+  - Seg 496: end of CID 209 + start of CID 210
+  - Seg 524: end of CID 222 + start of CID 223
+  - Seg 604: end of CID 257 + start of CID 258
+
 ## Gujarati
 
 | uid | Zikr | Deck | Segments |
