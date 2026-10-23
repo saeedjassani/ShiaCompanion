@@ -26,7 +26,7 @@ PUNCT = [('...', '...'), ('…', '...'), ('.', '.'), ('،', ','), (',', ','),
          ('؛', ';'), (':', ':'), ('!', '!'), ('؟', '?')]
 
 # Stems that glue onto a consonant prefix without a hyphen (BEKA, FAMAA, LAHUM).
-FUNCTION = set('''ما من لا لم لن قد لو لما هل هو هي هم هما هن ك كم كما كن ه ها
+FUNCTION = set('''ما من لا لم لن قد لو لما هل هو هي هم هما هن ك كم كما ه ها
 نا ي ني ذلك ذا هذا هذه هؤلاء في ذي مهما'''.split())
 
 # Words whose first letter looks like a prefix but is part of the root, or
@@ -40,6 +40,25 @@ PREFIX = {
     'لك': 1, 'لكم': 1, 'له': 1, 'لها': 1, 'لهم': 1, 'لنا': 1, 'لي': 1,
     'لطفا': 0, 'لطفك': 0, 'لعل': 0, 'لكن': 0, 'ليس': 0, 'ليلة': 0, 'لقاء': 0,
 }
+
+
+# Words starting with a root و / ف / ب / ل, by skeleton: whole words ...
+ROOT_EXACT = set('''بسم بئس وسع وسعت وسعني وسعه وسعتني فوق فوقه فوقها فوقهم وقب لين
+فقر فرح فرحا فخر فخرك فناء فجر وقرا'''.split())
+# ... and word beginnings (لِسَانِيْ, وَعَدْتَنِيْ, فَرَائِضِكَ)
+ROOT_STARTS = ('لسان', 'لباس', 'فسق', 'فقير', 'فرائض', 'فريض', 'فرض', 'فاق', 'فزع', 'فضل',
+               'وفاء', 'وجل', 'وداع', 'ودائع', 'ودايع', 'وكيل', 'وسيل', 'وحد', 'ولائج', 'وصي',
+               'وهن', 'وعظ', 'وحي', 'ولد', 'واحد', 'وجه', 'وقت', 'وراء',
+               'فاجر', 'فاحش', 'واجد', 'وزير', 'فرائد')
+
+
+def root_initial(sk, cl):
+    if sk in ROOT_EXACT or sk.startswith(ROOT_STARTS):
+        return True
+    if sk.startswith('وعد') and not sk.startswith('وعدو'):
+        return True  # وَعَدْتَنِيْ, but وَعَدُوِّيْ is wa + 'aduwwi
+    # وَلِيُّ, وَلِيِّكَ (waliyy) but وَلِيْ (wa + li)
+    return sk.startswith('ولي') and len(cl) > 2 and SHADDA in cl[2][1]
 
 
 PREP_PRON = set('''لك لكم له لها لهم لهما لنا لي بك بكم به بها بهم بنا بي'''.split())
@@ -115,8 +134,8 @@ def join(cl):
 ALLAH_RE = re.compile(r'^(و|ف|ب|ت)?(ا|أ)?للا?ه(م)?$')
 
 
-def analyse(tok, initial=False):
-    """-> word dict for engine.build_stream."""
+def analyse(tok, initial=False, prev=''):
+    """-> word dict for engine.build_stream. `prev` is the word before."""
     cl = respell(tok)
     sk = skel(tok)
     # a sentence-initial اَلْ / اَلَّذِيْ is the article's hamzat al-wasl (AL-HAMDO, LAZEE)
@@ -126,9 +145,18 @@ def analyse(tok, initial=False):
         cl[0] = [WASLA, []]
     is_allah = bool(ALLAH_RE.match(sk.replace('ٱ', 'ا'))) or sk in ('لله', 'للهم')
     if is_allah:
+        # يَا اَللّٰهُ keeps its hamza (YAA ALLAAHO)
+        keep = skel(prev) == 'يا' and cl[0][0] == 'أ'
         cl = respell_allah(cl, sk)
+        if keep:
+            cl[0] = ['أ', [FATHA]]
     # split prefixes
     npre = PREFIX.get(sk)
+    if npre is None and root_initial(sk, cl):
+        npre = 0
+    # after a separate وَ / فَ a leading و is the word's own: وَ وَفَاءً
+    if npre is None and skel(prev) in ('و', 'ف') and sk[:1] == 'و':
+        npre = 0
     pre = []
     k = 0
     while True:
@@ -138,7 +166,7 @@ def analyse(tok, initial=False):
         if npre is not None and len(pre) >= npre:
             break
         tag = None
-        conj = not pre or (len(pre) == 1 and pre[0][1] == 'CONJ' and b == 'ف')
+        conj = not pre
         prep = not any(t in ('P', 'EMPH') for _, t in pre)
         # لَكَ, بِهٖ: a preposition with a pronoun stays one word (FALAKA, WA BEHI)
         if npre is None and pre and skel(join(cl[k:])) in PREP_PRON:
@@ -177,7 +205,7 @@ def analyse(tok, initial=False):
         has_al = True  # لِلْمُؤْمِنِيْنَ
     if stem_s.lstrip('اٱ') in ('لذي', 'لذين', 'لتي', 'لذان', 'لتان', 'لاتي', 'لائي'):
         has_al = False  # الَّذِيْ is a pronoun: LILLAZEE
-    func = stem_s in FUNCTION or stem_s in PREP_PRON or stem_s.lstrip('اٱ') in ('لذي', 'لذين', 'لتي') or (pre and len(stem_s) <= 2 and stem_s in ('ك', 'كم', 'ه', 'ها', 'هم', 'هما', 'نا', 'ي', 'ني', 'هن', 'كما', 'كن'))
+    func = stem_s in FUNCTION or stem_s in PREP_PRON or stem_s.lstrip('اٱ') in ('لذي', 'لذين', 'لتي') or (pre and len(stem_s) <= 2 and stem_s in ('ك', 'كم', 'ه', 'ها', 'هم', 'هما', 'نا', 'ي', 'ني', 'هن', 'كما'))
     segs = [(join(stem), '', 'STEM', 'N', ['PRON' if func else 'ROOT:x'])]
     ar = join(pre and [] or []) + ''.join(p for p, _ in pre) + join(stem)
     return {'ar': ar, 'idx': 0, 'prefixes': pre, 'stem': join(stem), 'has_al': has_al,
@@ -190,6 +218,12 @@ def plausible_prefix(letter, rest, is_allah):
     if is_allah:
         return True
     rs = ''.join(b for b, _ in rest)
+    # no word starts with a doubled letter: فَرِّغْنِيْ, بِرٍّ are one word
+    if SHADDA in rest[0][1]:
+        return False
+    # بِ / لِ + one letter only as a pronoun: بِكَ, لِيْ, بِهٖ
+    if len(rs) == 1 and rs not in 'كهي':
+        return False
     if letter in 'وف':
         # وَ / فَ + a word of at least two letters; the root cases are in PREFIX
         return len(rs) >= 2
@@ -320,7 +354,8 @@ def link(words):
 def transliterate(text):
     out = []
     for words, punct, commas in tokenize(text):
-        ws = [analyse(w, i == 0) for i, w in enumerate(link(words))]
+        lw = link(words)
+        ws = [analyse(w, i == 0, lw[i - 1] if i else '') for i, w in enumerate(lw)]
         for i, w in enumerate(ws):
             w['idx'] = i + 1
         # no comma where the reading runs on into a hamzat al-wasl
