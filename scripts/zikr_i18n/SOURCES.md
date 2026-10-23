@@ -62,6 +62,7 @@ where a deck has no Urdu, or repeats the next slide's Urdu:
 | G1 | Ziyarat Aal-e-Yasin | https://mafatih.duas.co/ziarat-aaleyasin |
 | Y4 | Munajat Shabaniyah | https://mafatih.duas.co/shaban-munajat |
 | E8 | Dua Alqama | https://mafatih.duas.co/dua-alqama |
+| E10 | Dua Asharat | https://mafatih.duas.co/dua-asharat |
 
 The Urdu Mafatih al-Jinan of Sheikh Abbas Qummi, translated by Allama Riaz
 Husain Najafi, Allama Syed Niaz Husain Naqvi and Maulana Muhammad Ali Fazil
@@ -138,6 +139,12 @@ the source:
   - 163-164: Combined on slide 123 (ٲَسْتَوْدِعُكُمَا ﷲَ، وَلَا جَعَلَہُ ﷲُ اٰخِرَ الْعَھْدِ مِنِّیْ اِلَیْكُمَا), divided at segment break.
 - **Across G1, Y4, E8:** dropped و's were restored, and ؑ/ؐ written (ع)/(ص), and (س) for Lady Fatimah.
 
+- **E10 Dua Asharat:** the mafatih.duas.co page prints 151 numbered
+  Arabic/Urdu line pairs — the dua's repeated phrase-blocks are written
+  out in full at every repetition — aligned to our 61 verse segments.
+  Segments 0, 52, 59, 60 and 63 are our earlier instruction lines. Its
+  Persian is Ansarian's, from erfan.ir/mafatih42 (see Persian below).
+
 **E21 Dua Ghariq** isn't in the Mafatih. Its Urdu is from a Hawzah News
 article citing Kamal al-Din vol. 2 p. 351
 (https://ur.hawzahnews.com/news/410402), divided at our segment breaks;
@@ -173,6 +180,7 @@ to preserve exact verse correspondence:
 | uid | Zikr | Translation Source | Segments |
 | --- | --- | --- | --- |
 | E24 | Dua Tawassul | Mafatih al-Jinan | 88 + merits |
+| E10 | Dua Asharat | Mafatih al-Jinan (erfan.ir/mafatih42) | 66 |
 | G2 | Ziyarat Aminullah | Mafatih al-Jinan | 62 + merits |
 | E28 | Dua Mujeer | Mafatih al-Jinan | 96 + merits |
 | G4 | Ziyarat Ashura | Mafatih al-Jinan | 128 + merits |
@@ -233,16 +241,120 @@ not Gujarati.
 
 ### Jafri Library (jafrilibrary.com)
 
-Jafri Library is the designated Gujarati source. Its catalog was searched for G1, Y4, and E8:
-- **G1 Ziyarat Aal-e-Yasin:** completed all 159 segments (0-158) from Book 6687 (*Ziarat E Ale Yasin #*, published by Hadi Library / Haji Naji, 36 pages). The PDF was obtained without CAPTCHA and has a full text layer set in the legacy LMG-Arun font, decoded with `lmg_arun.py`. Aligned via the booklet's Gujarati transliteration blocks (each serving as an exact phonetic anchor for its Arabic segment) and cross-checked against the Arabic and the PR 338 Urdu. Segment 85 ("ઝિયારત પછી પઢવાની દુઆ") is preserved from the existing heading. Multi-segment sentences are partitioned cleanly across segment boundaries (1/2, 3/4, 5/6, 7/8, 9/10, 11/12, 18/19, 29/30, 34/35, 38/39, 40/41, 42/43, 44/45, 46/47, 48/49, 50/51, 52/53, 54-56, 59/60, 66/67, 69/70, 72/73, 74/75, 78/79, 86/87, 97/98, 99/100, 121/122, 128/129, 130/131, 135/136, 145/146, 147/148, 150/151, 152/153). Two split second halves are restored in our own Gujarati to complete the Arabic: 98 ("હઝરત મોહમ્મદ(સ.) અને તેમની આલ (અ.સ.) માટે") and 151 ("સલ્લલ્લાહો અલય્હે વ આલેહ"). Hand-corrected legacy-decode artifacts:
-  - `Ò` (dropped by `lmg_arun.py`'s `DROP` set): represented `જી` in the font, hand-restored in `રાજી` (74), `ફરજિયાત` (125), and `વાજિબ` (126);
-  - `Ô` (Latin character representing `જા` / `જો` glyph in the font): hand-corrected in `દરવાજા` (3), `છવાઇ જાય છે` (29), `પ્રકાશિત થઇ જાય છે.` (30), `સજા` (68), `રહેજો` (71), `માનવજાતની` (118), `ઈજાથી` (134), `વંશજોનું` (138), `જાહેર` (139), and `કમજોર` (143);
-  - Vocalic r / ru-matra (decoded as apostrophe `'`): corrected in `મૃત્યુ` (57);
+Jafri Library hosts Gujarati booklets of the Haji Naji Trust and
+hadilibrary.org (Bhavnagar) as free PDFs. Its listing filters by language
+(`/books/browse/all?language=5` is Gujarati) and category, and
+`/api/books/<id>` gives a book's metadata. A download needs the site's
+reCAPTCHA token, so it works from a browser (10 a day without an account)
+but not from curl or a cloud session.
+
+| uid | Zikr | Book | Segments |
+| --- | --- | --- | --- |
+| E14 | Hadith al-Kisa | 6666 *Hadees E Kisa* (Ishaat-e-Ilm-e-Deen Committee, Bhavnagar; ed. Nasirhusain G. Nurani), pp. 21-44 | all 132 |
+| G4 | Ziyarat Ashura | 6685 *Ziarat E Ashura Arabic Gujarati* (Haji Naji / hadilibrary.org) | all 128 |
+| G6 | Ziyarat Warith | 6684 *Ziarat E Warisa* (Haji Naji; typeset by Maulana Rizwanali Palsaniya) | all 80 |
+| E37 | Dua Sanamay Quraish | 118431 *Dua E Sanam E Quraish* (Allama Haji Naji; *Tohfa-e-Mahdi* pp. 226-229) | all 64 |
+| H17 | Munajat of Amir al-Mu'minin | 6678 *Munajaat E Ali* (typeset by Maulana Rizwanali Palsaniya) | all 69 |
+| G1 | Ziyarat Aal-e-Yasin | 6687 *Ziarat E Ale Yasin* (Hadi Library / Haji Naji), 36 pp | all 159 |
+
+These were asked for by readers (2026-10). Unlike the Mukhtasar Mafatih
+above, they are real Gujarati. None of the PDFs' Gujarati copies out as
+Unicode:
+
+- **6684 and 6678** use Arial Unicode MS glyph ids with no Unicode map;
+  `gu_pdf.py arialunicode` maps them back through the system font.
+- **6666 and 6685** use the LMG-Arun key layout (fonts LMG ArunA and
+  InvGuj); `gu_pdf.py legacy` decodes them with `lmg_arun.py` plus the
+  keys these PDFs add. In 6685 InvGuj holds the Arabic spelled in
+  Gujarati letters and LMG ArunA the translation; in 6666 it is the other
+  way round.
+- **118431** is in Shree-Lipi, which `gu_pdf.py` does not decode. It was
+  transcribed by hand from the page images (220 dpi), and every word was
+  checked against the PDF's raw Shree-Lipi keys. No word was unclear.
+
+Each zikr was then aligned to our segments by reading our Arabic, and every
+segment was checked by hand, as with the Urdu decks. Throughout, honorifics
+are in our style ((અ.સ.), (સ.અ.વ.), (સ.અ.)), decoding slips were fixed
+against the page images, and Quran citations and intention lines ("હું ...
+પઢું છું કુર્બતન એલલ્લાહ") were dropped. None of the five books gives merits
+for these zikrs.
+
+- **E14 Hadith al-Kisa.**
+  - The booklet's chain starts at Fatimah. Segments 1-4 add Jabir and
+    "daughter of the Messenger" in its wording.
+  - Our own: 34 (يا من اختاره الله), 48 (a dropped السلام عليك), 95
+    (وعزتي وجلالي; the booklet has "about you" for يقول لك), and 119 and
+    131 (ورب الكعبة).
+  - 77-80 and 96-99 follow the booklet: "I made the sky ... only for their
+    love". The Arabic says "I did not create the sky ... except for their
+    love".
+  - The booklet's quotation marks, which open in one segment and close in
+    another, were removed, as the Urdu has none.
+- **G4 Ziyarat Ashura.**
+  - The booklet says it gives the sense (ભાવાર્થ), not word for word.
+  - Our own:
+    - 14 (في السماوات);
+    - 32: تنقبت is "નકાબ પહેર્યા", where the booklet has "advanced";
+    - 34, 59 and 61: الذي اكرم / اكرمني / رزقني in the past tense, where
+      the booklet makes them requests;
+    - 67: امام هدى, where the booklet has "ઇમામે ઝમાના" from the reading
+      امام مهدي;
+    - 93: "them", where the booklet has "your enemies" in a line addressed
+      to Allah;
+    - 96, 102, 112 and 121: our earlier instruction lines.
+  - Dua Alqama is not in the booklet.
+- **G6 Ziyarat Warith.**
+  - Our own: 31, where الْمَهْدِىُّ is "હિદાયત પામેલા" (the booklet has
+    "guide" twice), and 68, where عَظِيْمًا is missing in the booklet.
+  - The booklet's three salutations before وارث آدم are not in our G6.
+- **E37 Dua Sanamay Quraish.**
+  - The booklet follows a slightly different Arabic and skips some
+    phrases. Our own: 17, 19, 23, 26, 31, 32, 45, 47, 50, 54 and 61.
+  - 47: the booklet's "made false claims" reverses دعوى أبطلوها.
+  - 45: its "changed" is "abandoned" for تركوها.
+- **H17 Munajat of Amir al-Mu'minin.** 66: كرمك is "તારા કરમ", where the
+  booklet has "mercy".
+
+- **G1 Ziyarat Aal-e-Yasin.** Book 6687's PDF has a full text layer set
+  in the legacy LMG-Arun font, decoded with `lmg_arun.py`. Each
+  translation block was aligned via the booklet's Gujarati
+  transliteration block (a phonetic anchor for its Arabic segment) and
+  cross-checked against the Arabic and the verified Urdu. Segment 85
+  ("ઝિયારત પછી પઢવાની દુઆ") is preserved from the existing heading.
+  Multi-segment sentences are partitioned cleanly across segment
+  boundaries (1/2, 3/4, 5/6, 7/8, 9/10, 11/12, 18/19, 29/30, 34/35,
+  38/39, 40/41, 42/43, 44/45, 46/47, 48/49, 50/51, 52/53, 54-56, 59/60,
+  66/67, 69/70, 72/73, 74/75, 78/79, 86/87, 97/98, 99/100, 121/122,
+  128/129, 130/131, 135/136, 145/146, 147/148, 150/151, 152/153). Two
+  split second halves are restored in our own Gujarati to complete the
+  Arabic: 98 ("હઝરત મોહમ્મદ(સ.) અને તેમની આલ (અ.સ.) માટે") and 151
+  ("સલ્લલ્લાહો અલય્હે વ આલેહ"). Hand-corrected legacy-decode artifacts:
+  - `Ò` (dropped by `lmg_arun.py`'s `DROP` set): represented `જી` in the
+    font, hand-restored in `રાજી` (74), `ફરજિયાત` (125), and `વાજિબ` (126);
+  - `Ô` (Latin character representing `જા` / `જો` glyph in the font):
+    hand-corrected in `દરવાજા` (3), `છવાઇ જાય છે` (29), `પ્રકાશિત થઇ જાય છે.`
+    (30), `સજા` (68), `રહેજો` (71), `માનવજાતની` (118), `ઈજાથી` (134),
+    `વંશજોનું` (138), `જાહેર` (139), and `કમજોર` (143);
+  - Vocalic r / ru-matra (decoded as apostrophe `'`): corrected in
+    `મૃત્યુ` (57);
   - Ligature `Þ` (glyph for `ક્ક` conjunct): corrected in `'મક્કમ'` (90, 91);
   - Ligature `w` (glyph for half-dha): corrected in `ધ્વજ` (16);
-  - Conjunct `ચ્ચ` (typed as `rR`, decoded with `ઇ` for `r`): corrected in `સચ્ચાઇના` (93) and `સચ્ચાઇની` (112);
-  - Conjunct `ક્ત` (LMG-Arun sequence decoded as `કિત`): corrected in `પરખશક્તિ` (94), `મુક્તિની` (116) and `શક્તિશાળી` (140);
-  - Opening/closing quotation marks (decoded as `—` and dropped `˜`): restored in `'મુન્કર'` (77) and `'મક્કમ ઇરાદા'` (90);
+  - Conjunct `ચ્ચ` (typed as `rR`, decoded with `ઇ` for `r`): corrected in
+    `સચ્ચાઇના` (93) and `સચ્ચાઇની` (112);
+  - Conjunct `ક્ત` (LMG-Arun sequence decoded as `કિત`): corrected in
+    `પરખશક્તિ` (94), `મુક્તિની` (116) and `શક્તિશાળી` (140);
+  - Opening/closing quotation marks (decoded as `—` and dropped `˜`):
+    restored in `'મુન્કર'` (77) and `'મક્કમ ઇરાદા'` (90);
   - Original book typo: duplicated `અને અને` corrected to single `અને` (137).
-- **Y4 Munajat Shabaniyah:** Book 84725 (*Munajaat E Shabania #*, Hadi Library / Haji Naji) PDF was likewise obtained and has a text layer in a different legacy font ("Gujrati"), decode pending — Y4 Gujarati itself stays deferred.
-- **E8 Dua Alqama:** has 0 records in the Jafri Library catalog (unchanged, deferred).
+
+Other Gujarati books in the listing, by number:
+- 84725 Munajat Shabaniyah. An earlier search found it as scanned
+  images; its PDF was likewise obtained, and its text layer is a
+  different legacy font ("Gujrati"), decode pending.
+- 6690 and 122353 Jamia Kabira (60 and 41 pages; our G13 has only
+  segments 0-98).
+- 90862 Ziyarat Nahiya.
+- 6663 Dua Tauba.
+
+Its Dua category has no Gujarati Dua Tawassul, and the catalog has no Dua
+Alqama.

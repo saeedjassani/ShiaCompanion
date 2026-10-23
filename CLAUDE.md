@@ -143,10 +143,18 @@
   cities of 100,000+ people and capitals, so someone in a small town would
   see the nearest big city's name; their times stay their own.
 
-- **Gujarati for the other famous duas: source found, text not yet fetched.**
-  Kumayl (E31) and Jamia Kabira's first 99 segments (G13) are done from
-  duas.org's decks (`scripts/zikr_i18n/lmg_arun.py`, see
-  `scripts/zikr_i18n/SOURCES.md`).
+- **Gujarati for the other famous duas: in progress.** Kumayl (E31) and
+  Jamia Kabira's first 99 segments (G13) are done from duas.org's decks
+  (`scripts/zikr_i18n/lmg_arun.py`). Hadith al-Kisa (E14), Ziyarat
+  Ashura (G4), Ziyarat Warith (G6), Sanamay Quraish (E37) and Munajat
+  Amir al-Mu'minin (H17) are done from Jafri Library PDFs
+  (`scripts/zikr_i18n/gu_pdf.py`). See `scripts/zikr_i18n/SOURCES.md`.
+  - Jafri Library (jafrilibrary.com, Gujarati is `?language=5`) is the
+    easiest source. Its PDFs download from a browser without signing in.
+    It also has Aal-e-Yasin, Munajat Shabaniyah, the rest of Jamia Kabira,
+    Nahiya and Tauba (book numbers in SOURCES.md).
+  - Still no Gujarati source for Dua Tawassul (E24, asked for twice), or
+    for E16, E92 and I29.
   - Don't use the Haji Naji Trust's "Mukhtasar Mafatih al-Jinan" PDF
     (Tohafa-e-Saiyada, `book_96.pdf`, 2,077 pages).
     - Its translations are Urdu written in Gujarati script, e.g.
