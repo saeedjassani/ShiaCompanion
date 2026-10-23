@@ -1,0 +1,291 @@
+"""Transliterate vocalised Indo-Pak-style dua text (اَ اِ اُ for hamza,
+يْ / وْ for long vowels, ٗ / ٖ for the pronoun silah) in the same house style
+as the Quran transliterations (see README.md).
+
+The Quran engine needs Tanzil spelling and corpus morphology. Duas have
+neither, so this module respells each word the Tanzil way and splits off the
+wa-/fa-/bi-/li-/ka-/la- prefixes by rule, with PREFIX for the exceptions.
+
+    python3 dua.py "اَللّٰهُمَّ اَنْتَ ثِقَتِيْ ..."
+"""
+import re, sys
+from translit import (FATHA, KASRA, DAMMA, FATHATAN, KASRATAN, DAMMATAN, SHADDA,
+                      SUKUN, DAGGER, MADDAH, IQLAB_HI, SMALL_WAW, SMALL_YEH, WASLA,
+                      TATWEEL, MARKS, clusters)
+from render import render_utterance
+
+VOWELS = {FATHA, KASRA, DAMMA}
+TANWEEN = {FATHATAN, KASRATAN, DAMMATAN}
+INV_DAMMA, SUB_ALIF = 'ٗ', 'ٖ'
+ALT_SUKUN = 'ۡ'
+SMALL_MADDA = 'ۤ'
+ALIF_MADDA = 'آ'
+
+# Punctuation that ends a breath: (pausal form?, text written after it)
+PUNCT = [('...', '...'), ('…', '...'), ('.', '.'), ('،', ','), (',', ','),
+         ('؛', ';'), (':', ':'), ('!', '!'), ('؟', '?')]
+
+# Stems that glue onto a consonant prefix without a hyphen (BEKA, FAMAA, LAHUM).
+FUNCTION = set('''ما من لا لم لن قد لو لما هل هو هي هم هما هن ك كم كما كن ه ها
+نا ي ني ذلك ذا هذا هذه هؤلاء في ذي مهما'''.split())
+
+# Words whose first letter looks like a prefix but is part of the root, or
+# that need a split the rules can't see: skeleton -> number of prefixes.
+PREFIX = {
+    'ولي': 0, 'وليا': 0, 'ولد': 0, 'ولدا': 0, 'واحد': 0, 'وكلني': 0, 'واسع': 0, 'وجه': 0, 'وجهي': 0, 'وجهك': 0,
+    'وحده': 0, 'وراء': 0, 'وسعت': 0, 'وقت': 0,
+    'فوق': 0, 'فيه': 0, 'فيها': 0, 'فيما': 0, 'فاضلا': 0, 'فضل': 0, 'فضله': 0,
+    'فقدت': 0, 'فرج': 0,
+    'بين': 0, 'بعد': 0, 'بعض': 0,
+    'لك': 1, 'لكم': 1, 'له': 1, 'لها': 1, 'لهم': 1, 'لنا': 1, 'لي': 1,
+    'لطفا': 0, 'لطفك': 0, 'لعل': 0, 'لكن': 0, 'ليس': 0, 'ليلة': 0, 'لقاء': 0,
+}
+
+
+PREP_PRON = set('''لك لكم له لها لهم لهما لنا لي بك بكم به بها بهم بنا بي'''.split())
+
+
+def skel(w):
+    return ''.join(c for c in w if c not in MARKS and c not in (
+        INV_DAMMA, SUB_ALIF, ALT_SUKUN, SMALL_MADDA, TATWEEL, SMALL_WAW, SMALL_YEH))
+
+
+def respell(tok):
+    """Indo-Pak spelling -> the Tanzil-like spelling translit.parse_word reads."""
+    t = tok.replace(ALT_SUKUN, SUKUN).replace(SMALL_MADDA, MADDAH).replace(TATWEEL, '')
+    # آ before a hamza is a drawn-out alif (اِسْرَآءِيْلَ); elsewhere a hamza + long a (آلِ)
+    t = re.sub(ALIF_MADDA + '(?=[ءأإؤئ])', 'ا' + MADDAH, t)
+    t = t.replace(ALIF_MADDA, 'ءَا' + MADDAH)
+    t = t.replace('ی', 'ي')
+    # اٰ is a hamza and a long a: اٰمَنُوْا, بِاٰيٰتِنَا, الْقُرْاٰنَ
+    t = re.sub('ا(' + DAGGER + MADDAH + '?)', 'ءَا' + MADDAH, t)
+    # pronoun silah / long vowel signs: هٗ -> هُۥ, هٖ -> هِۦ
+    # (only at the end of a word; inside one they are plain long vowels: اِبْرٰهٖمَ)
+    t = re.sub(INV_DAMMA + '(?=' + MADDAH + '?$)', DAMMA + SMALL_WAW, t)
+    t = re.sub(SUB_ALIF + '(?=' + MADDAH + '?$)', KASRA + SMALL_YEH, t)
+    t = t.replace(INV_DAMMA, DAMMA + 'و').replace(SUB_ALIF, KASRA + 'ي')
+    cl = clusters(t)
+    out = []
+    for i, (b, ms, _) in enumerate(cl):
+        ms = list(ms)
+        prev = cl[i - 1] if i else None
+        if b == 'ا' and any(m in VOWELS for m in ms):
+            v = [m for m in ms if m in VOWELS][0]
+            b = {FATHA: 'أ', KASRA: 'إ', DAMMA: 'أ'}[v]
+        # a bare alif before a vowelless consonant is hamzat al-wasl: فَاجْعَلْهُ, كَالَّذِيْ
+        if b == 'ا' and not ms and i and prev[0] in 'وفبكلت' and i + 1 < len(cl) and (
+                SUKUN in cl[i + 1][1] or (cl[i + 1][0] == 'ل' and SHADDA in cl[i + 1][1]) or
+                (not cl[i + 1][1] and i + 2 < len(cl) and SHADDA in cl[i + 2][1])):
+            b = WASLA
+        # long vowel letters carry a sukun in Indo-Pak: فِيْ, يَقُوْلُ, الَّذِىْ
+        if b == 'ى' and prev and KASRA in prev[1]:
+            b = 'ي'
+        if b in 'يو' and SUKUN in ms and prev and \
+                ((b == 'ي' and KASRA in prev[1]) or (b == 'و' and DAMMA in prev[1])):
+            ms.remove(SUKUN)
+        # و / ي with a standing fatha are consonants: السَّمٰوٰتِ, يٰۤاَيُّهَا, الْقِيٰمَةِ
+        if b in 'يو' and DAGGER in ms and not any(m in VOWELS for m in ms):
+            ms.insert(0, FATHA)
+        # a bare و after a standing fatha is only a spelling: الصَّلٰوةَ, الْحَيٰوةِ
+        if b == 'و' and not ms and prev and DAGGER in prev[1]:
+            continue
+        # iqlab inside a word: اَنْبِيَاء
+        if b == 'ن' and i + 1 < len(cl) and cl[i + 1][0] == 'ب' and not any(m in VOWELS for m in ms):
+            ms = [m for m in ms if m != SUKUN] + [IQLAB_HI]
+        # final ي after a fatha is an alif maqsura: صَلَّي
+        if b == 'ي' and not ms and i == len(cl) - 1 and prev and FATHA in prev[1]:
+            b = 'ى'
+        out.append([b, ms])
+    # a long vowel followed by a hamza in the same word is drawn out (SAMAAA-E)
+    for i in range(1, len(out) - 1):
+        b, ms = out[i]
+        nb = out[i + 1][0]
+        if nb in 'ءأإؤئ' and not ms and (
+                (b == 'ا' and FATHA in out[i - 1][1]) or
+                (b == 'ي' and KASRA in out[i - 1][1]) or
+                (b == 'و' and DAMMA in out[i - 1][1])):
+            ms.append(MADDAH)
+    return out
+
+
+def join(cl):
+    return ''.join(b + ''.join(ms) for b, ms in cl)
+
+
+ALLAH_RE = re.compile(r'^(و|ف|ب|ت)?(ا|أ)?للا?ه(م)?$')
+
+
+def analyse(tok, initial=False):
+    """-> word dict for engine.build_stream."""
+    cl = respell(tok)
+    sk = skel(tok)
+    # a sentence-initial اَلْ / اَلَّذِيْ is the article's hamzat al-wasl (AL-HAMDO, LAZEE)
+    if initial and len(cl) > 2 and cl[0][0] == 'أ' and cl[1][0] == 'ل' and \
+            (SUKUN in cl[1][1] or (not cl[1][1] and SHADDA in cl[2][1]) or
+             (SHADDA in cl[1][1] and sk[:3] in ('الذ', 'الت'))):
+        cl[0] = [WASLA, []]
+    is_allah = bool(ALLAH_RE.match(sk.replace('ٱ', 'ا'))) or sk in ('لله', 'للهم')
+    if is_allah:
+        cl = respell_allah(cl, sk)
+    # split prefixes
+    npre = PREFIX.get(sk)
+    pre = []
+    k = 0
+    while True:
+        if k >= len(cl) - 1:
+            break
+        b, ms = cl[k]
+        if npre is not None and len(pre) >= npre:
+            break
+        tag = None
+        conj = not pre or (len(pre) == 1 and pre[0][1] == 'CONJ' and b == 'ف')
+        prep = not any(t in ('P', 'EMPH') for _, t in pre)
+        # لَكَ, بِهٖ: a preposition with a pronoun stays one word (FALAKA, WA BEHI)
+        if npre is None and pre and skel(join(cl[k:])) in PREP_PRON:
+            break
+        if b == 'و' and FATHA in ms and SHADDA not in ms and conj:
+            tag = 'CONJ'
+        elif b == 'ف' and FATHA in ms and conj:
+            tag = 'REM'
+        elif not prep:
+            pass
+        elif b == 'ب' and KASRA in ms:
+            tag = 'P'
+        elif b == 'ل' and KASRA in ms:
+            tag = 'P'
+        elif b == 'ل' and FATHA in ms and (npre is not None or cl[k + 1][0] == WASLA):
+            tag = 'EMPH'
+        elif b == 'ك' and FATHA in ms and (npre is not None or cl[k + 1][0] == WASLA):
+            tag = 'P'
+        if tag is None:
+            break
+        rest = cl[k + 1:]
+        # bi-/li-/fa-/wa- need a stem after them: not the whole word (بِكَ is bi + ka)
+        if npre is None and not plausible_prefix(b, rest, is_allah):
+            break
+        pre.append((join([cl[k]]), tag))
+        k += 1
+    stem = cl[k:]
+    # a bare alif at the start of a word (or right after its prefixes) is hamzat al-wasl
+    if stem and stem[0][0] == 'ا' and not stem[0][1]:
+        stem[0][0] = WASLA
+    stem_s = skel(join(stem))
+    # (a written vowel on the alif makes it a real hamza: يَوْمَ اَلْقَاكَ, حِيْلَةٍ اَلْجَاُ)
+    has_al = len(stem) > 1 and stem[0][0] in (WASLA, 'ا') and stem[1][0] == 'ل' and not is_allah \
+        and (SUKUN in stem[1][1] or not stem[1][1] or (len(stem) > 2 and SHADDA in stem[2][1]))
+    if not has_al and pre and stem and stem[0][0] == 'ل' and SUKUN in stem[0][1] and pre[-1][1] == 'P':
+        has_al = True  # لِلْمُؤْمِنِيْنَ
+    if stem_s.lstrip('اٱ') in ('لذي', 'لذين', 'لتي', 'لذان', 'لتان', 'لاتي', 'لائي'):
+        has_al = False  # الَّذِيْ is a pronoun: LILLAZEE
+    func = stem_s in FUNCTION or stem_s in PREP_PRON or stem_s.lstrip('اٱ') in ('لذي', 'لذين', 'لتي') or (pre and len(stem_s) <= 2 and stem_s in ('ك', 'كم', 'ه', 'ها', 'هم', 'هما', 'نا', 'ي', 'ني', 'هن', 'كما', 'كن'))
+    segs = [(join(stem), '', 'STEM', 'N', ['PRON' if func else 'ROOT:x'])]
+    ar = join(pre and [] or []) + ''.join(p for p, _ in pre) + join(stem)
+    return {'ar': ar, 'idx': 0, 'prefixes': pre, 'stem': join(stem), 'has_al': has_al,
+            'pause_after': None, 'is_allah': is_allah, 'segs': segs, 'src': tok}
+
+
+def plausible_prefix(letter, rest, is_allah):
+    if not rest:
+        return False
+    if is_allah:
+        return True
+    rs = ''.join(b for b, _ in rest)
+    if letter in 'وف':
+        # وَ / فَ + a word of at least two letters; the root cases are in PREFIX
+        return len(rs) >= 2
+    # بِ / لِ + pronoun suffix (بِكَ, لِيْ) or + a word
+    return len(rs) >= 1
+
+
+def respell_allah(cl, sk):
+    """Allah-words in Tanzil spelling: ٱللَّهِ, لِلَّهِ, ٱللَّهُمَّ."""
+    out = []
+    i = 0
+    # prefix letter (وَ فَ بِ تَ) stays as written
+    if cl and cl[0][0] in 'وفبت' and (sk[0] in 'وفبت'):
+        out.append(cl[0]); i = 1
+    rest = cl[i:]
+    letters = ''.join(b for b, _ in rest)
+    end = rest[-1][1] if rest else []
+    if letters.startswith('لل'):          # لِلهِ (li-llah)
+        li = rest[0]
+        out.append(li)
+        h = [c for c in rest if c[0] == 'ه'][0]
+        out.append(['ل', [SHADDA, FATHA]])
+        out.append(['ه', [m for m in h[1] if m in VOWELS]])
+        if letters.endswith('م'):
+            out.append(['م', [SHADDA, FATHA]])
+        return out
+    out.append([WASLA, []])
+    out.append(['ل', []])
+    out.append(['ل', [SHADDA, FATHA]])
+    h = [c for c in rest if c[0] == 'ه'][0]
+    out.append(['ه', [m for m in h[1] if m in VOWELS]])
+    if letters.endswith('م'):
+        out.append(['م', [SHADDA, FATHA]])
+    return out
+
+
+def tokenize(text):
+    """-> list of sentences, each (words, closing punctuation)."""
+    text = text.replace('\u200c', '').replace('\u200f', '').replace('\u200e', '')
+    toks = text.split()
+    sents = []
+    cur = []
+    for t in toks:
+        punct = None
+        for p, rep in PUNCT:
+            if t.endswith(p):
+                punct = rep
+                t = t[:-len(p)]
+                break
+        if t:
+            cur.append(t)
+        if punct and cur:
+            sents.append((cur, punct))
+            cur = []
+    if cur:
+        sents.append((cur, ''))
+    return sents
+
+
+def link(words):
+    """Across-word assimilation the Indo-Pak spelling shows (or needs)."""
+    words = list(words)
+    for i in range(len(words) - 1):
+        a, b = words[i], words[i + 1].replace(ALT_SUKUN, SUKUN)
+        first = clusters(b)[0] if b else None
+        # لَهُمْ مِّنْ, قُلْ رَّبِّ: the shadda on the next word swallows the sukun
+        if first and SHADDA in first[1] and a.endswith((SUKUN, ALT_SUKUN)):
+            words[i] = a[:-1]
+        # iqlab: مِنْ بَعْدِ, عَلِيْمًا بِ
+        if first and first[0] == 'ب':
+            cl = clusters(words[i])
+            for j in range(len(cl) - 1, -1, -1):
+                ms = cl[j][1]
+                if any(m in TANWEEN for m in ms) or (cl[j][0] == 'ن' and not any(m in VOWELS for m in ms)):
+                    pos = cl[j][2] + 1 + len(ms)
+                    w = words[i].replace(ALT_SUKUN, SUKUN)
+                    if cl[j][0] == 'ن':
+                        w = w[:cl[j][2] + 1] + ''.join(m for m in ms if m not in (SUKUN, ALT_SUKUN)) + w[pos:]
+                        pos = cl[j][2] + 1 + len([m for m in ms if m not in (SUKUN, ALT_SUKUN)])
+                    words[i] = w[:pos] + IQLAB_HI + w[pos:]
+                    break
+                if cl[j][0] not in 'اى':
+                    break
+    return words
+
+
+def transliterate(text):
+    out = []
+    for words, punct in tokenize(text):
+        ws = [analyse(w, i == 0) for i, w in enumerate(link(words))]
+        for i, w in enumerate(ws):
+            w['idx'] = i + 1
+        txt, _ = render_utterance(ws, pause=True)
+        out.append(txt + punct)
+    return ' '.join(out)
+
+
+if __name__ == '__main__':
+    print(transliterate(' '.join(sys.argv[1:])))

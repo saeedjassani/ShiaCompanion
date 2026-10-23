@@ -54,3 +54,21 @@ python3 side.py 67         # side-by-side for one surah
 python3 apply.py 4         # fill the empty slots of surah 4
 python3 apply.py all       # every surah (only blank slots are touched)
 ```
+
+## Duas
+
+`dua.py` runs the same engine on vocalised Indo-Pak dua text (اَ اِ اُ for
+hamza, يْ / وْ for long vowels, ٗ / ٖ for the silah). It respells each word
+the Tanzil way and splits off wa-/fa-/bi-/li- by rule; `PREFIX` lists the
+words where a first و / ف / ب / ل is part of the root. Sentences pause at
+`.` `،` `…` only. Checked against the hand-made Quran (Indo-Pak lines in,
+93% of words identical; nearly all the rest are waqf positions, which a dua
+doesn't have).
+
+```
+python3 dua.py "اَللّٰهُمَّ اَنْتَ ثِقَتِيْ ..."
+python3 dua_docx.py in.docx out.docx 0 8   # fill tables 0-7 of a Word file
+```
+
+Words glued to a و / ف (وَكَشَفْتَهٗ vs وَلِيُّ) are the weak spot: read
+every one in the output.
