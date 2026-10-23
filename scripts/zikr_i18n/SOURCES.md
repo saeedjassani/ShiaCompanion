@@ -204,7 +204,7 @@ boundary.
 | uid | Zikr | Source | Segments |
 | --- | --- | --- | --- |
 | G1 | Ziyarat Aal-e-Yasin | https://valasr.app/library/mafatih/زیارت-ال-یاسینیس-امام-زمان | 159 |
-| Y4 | Munajat Shabaniyah | valasr.app/library/mafatih (مناجات شعبانیه); cross-checked against the same published translation at https://www.tabnak.ir/fa/news/895176/مناجات-شعبانیه-متن-و-ترجمه | 140 |
+| Y4 | Munajat Shabaniyah | hawzah.net Mafatih (collection 79461, item 11183) | 140 |
 | E8 | Dua Alqama | valasr.app/library/mafatih (دعای علقمه); cross-checked at https://hawzah.net/fa/pray/View/79461/7195/دعاى_علقمه_بعد_از_نماز_زیارت_عاشوراء | 185 of 186 |
 
 - **G1:** valasr's page repeats one salutation in its Persian (the
