@@ -1020,9 +1020,9 @@ private extension Color {
     // card either way. Body text is halfway between onPrayerCard and its
     // muted tone.
     //
-    // The fill and text follow the app's Color setting: the app publishes
-    // them as sc_color_<token>_day / _night (#AARRGGBB). The brown below is
-    // for a build from before the setting. Gold stays gold in every palette.
+    // The fill, text and gold follow the app's Color setting: the app
+    // publishes them as sc_color_<token>_day / _night (#AARRGGBB). The brown
+    // below is for a build from before the setting.
     static var widgetBackground: Color {
         published("surface") ?? Color(UIColor { traits in
             traits.userInterfaceStyle == .dark
@@ -1043,24 +1043,43 @@ private extension Color {
     /// The app's colour for `token`, light and dark, or nil if it hasn't
     /// published one.
     static func published(_ token: String) -> Color? {
+        guard let pair = publishedPair(token) else { return nil }
+        let (day, night) = pair
+        return Color(UIColor { $0.userInterfaceStyle == .dark ? night : day })
+    }
+
+    static func publishedPair(_ token: String) -> (UIColor, UIColor)? {
         let defaults = UserDefaults.widgetData
         guard
             let day = defaults?.string(forKey: "sc_color_\(token)_day").flatMap(UIColor.init(argbHex:)),
             let night = defaults?.string(forKey: "sc_color_\(token)_night").flatMap(UIColor.init(argbHex:))
         else { return nil }
-        return Color(UIColor { $0.userInterfaceStyle == .dark ? night : day })
+        return (day, night)
     }
-    static let iconBackground = Color(UIColor { traits in
-        UIColor(red: 0.89, green: 0.76, blue: 0.48,
-                alpha: traits.userInterfaceStyle == .dark ? 0.16 : 0.20)
-    })
-    static let accentText = Color(red: 0.89, green: 0.76, blue: 0.48)
+
+    static var iconBackground: Color {
+        let gold = UIColor(red: 0.89, green: 0.76, blue: 0.48, alpha: 1.0)
+        let (day, night) = publishedPair("accent") ?? (gold, gold)
+        return Color(UIColor { traits in
+            traits.userInterfaceStyle == .dark
+                ? night.withAlphaComponent(0.16)
+                : day.withAlphaComponent(0.20)
+        })
+    }
+    static var accentText: Color {
+        published("accent") ?? Color(red: 0.89, green: 0.76, blue: 0.48)
+    }
     /// Event markers on the Islamic calendar widget. events.json codes an
     /// event 1 for joy (green, as on the Calendar page) or 0 for mourning.
     /// The page's black would vanish on the widget's brown, so mourning is a
-    /// cool silver here, apart from the warm text around it.
-    static let eventJoy = Color(red: 0.50, green: 0.75, blue: 0.58)
-    static let eventMourning = Color(red: 0.77, green: 0.78, blue: 0.81)
+    /// cool silver here, apart from the warm text around it. A light card
+    /// (the Clear palette) gets the page's own dark green and near-black.
+    static var eventJoy: Color {
+        published("event_joy") ?? Color(red: 0.50, green: 0.75, blue: 0.58)
+    }
+    static var eventMourning: Color {
+        published("event_mourning") ?? Color(red: 0.77, green: 0.78, blue: 0.81)
+    }
 }
 
 private extension UIColor {

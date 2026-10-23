@@ -14,11 +14,22 @@ import 'shia_colors.dart';
 /// follows, so the spec's ratios carry over to every palette
 /// (test/app_theme_test.dart checks them all).
 ///
-/// Gold, success and danger mean the same thing in every palette and are
-/// left as they are.
+/// The gold (the prayer card's one button, the current prayer's highlight)
+/// is recoloured too, softer than the accent: a light mint in green, a
+/// light grey in gray. Success and danger mean the same thing in every
+/// palette and are left as they are.
+///
+/// [clear] is the exception to "recoloured": its prayer card is a white
+/// card like any other, with the page's text on it and the accent for its
+/// button, so nothing on the page is dark or strongly coloured.
 enum AppPalette {
   brown(null),
-  clear(_Tint(neutralHue: 240, neutral: 0, accentHue: 240, accent: 1.9)),
+  clear(_Tint(
+      neutralHue: 250,
+      neutral: 0,
+      accentHue: 250,
+      accent: 0.5,
+      plainCard: true)),
   gray(_Tint(neutralHue: 0, neutral: 0, accentHue: 0, accent: 0)),
   green(_Tint(neutralHue: 150, neutral: 0.7, accentHue: 148, accent: 1.5)),
   teal(_Tint(neutralHue: 195, neutral: 0.7, accentHue: 195, accent: 1.3)),
@@ -64,23 +75,45 @@ enum AppPalette {
 /// How a palette recolours the brown one. The accent tokens (the accent,
 /// the prayer card and what sits on it, the tinted notice) and the neutral
 /// ones (grounds, text, lines, glass) each get a hue (OKLCH degrees) and a
-/// factor for their chroma: 0 is grey, 1 as colourful as the brown.
+/// factor for their chroma: 0 is grey, 1 as colourful as the brown. Gold
+/// takes the accent's hue at a little over half its factor.
+///
+/// [plainCard] draws the prayer card as a surface card instead (see
+/// [AppPalette.clear]).
 class _Tint {
   const _Tint({
     required this.neutralHue,
     required this.neutral,
     required this.accentHue,
     required this.accent,
+    this.plainCard = false,
   });
 
   final double neutralHue;
   final double neutral;
   final double accentHue;
   final double accent;
+  final bool plainCard;
 
   ShiaColors apply(ShiaColors c) {
     Color n(Color color) => _recolour(color, neutralHue, neutral);
     Color a(Color color) => _recolour(color, accentHue, accent);
+    final recoloured = _recoloured(c, n, a);
+    if (!plainCard) return recoloured;
+    final r = recoloured;
+    return r.copyWith(
+      prayerCard: r.surface,
+      prayerCardBorder: r.line,
+      onPrayerCard: r.text,
+      onPrayerCardMuted: r.textMuted,
+      gold: r.accent,
+      onGold: r.onAccent,
+      tintedNotice: r.well,
+    );
+  }
+
+  ShiaColors _recoloured(
+      ShiaColors c, Color Function(Color) n, Color Function(Color) a) {
     return ShiaColors(
       ground: n(c.ground),
       readerGround: n(c.readerGround),
@@ -98,7 +131,7 @@ class _Tint {
       prayerCardBorder: a(c.prayerCardBorder),
       onPrayerCard: a(c.onPrayerCard),
       onPrayerCardMuted: a(c.onPrayerCardMuted),
-      gold: c.gold,
+      gold: _recolour(c.gold, accentHue, accent * 0.6),
       onGold: n(c.onGold),
       tintedNotice: a(c.tintedNotice),
       chevron: n(c.chevron),

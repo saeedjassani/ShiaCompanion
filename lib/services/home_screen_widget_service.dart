@@ -102,6 +102,9 @@ class HomeScreenWidgetService {
     'body_text',
     'secondary_text',
     'divider',
+    'accent',
+    'event_joy',
+    'event_mourning',
   ];
 
   static String widgetColorKey(String token, Brightness brightness) =>
@@ -182,7 +185,10 @@ class HomeScreenWidgetService {
   ///
   /// The same as the prayer card (docs/DESIGN_SPEC.md), as the widgets'
   /// own colors.xml has them: body text is halfway between the card's text
-  /// and its muted tone, dividers are its text faintly.
+  /// and its muted tone, dividers are its text faintly, the accent is the
+  /// gold. The calendar's event colours are the widget's own light green
+  /// and silver on a dark card, and the Calendar page's dark green and
+  /// near-black on a light one ([AppPalette.clear]).
   ///
   /// Every colour is opaque except the divider: the Android widgets tint a
   /// white shape with the surface and border, and a tint keeps the shape's
@@ -197,6 +203,7 @@ class HomeScreenWidgetService {
     for (final brightness in Brightness.values) {
       final c = chosen.colors(brightness);
       final isDark = brightness == Brightness.dark;
+      final lightCard = c.prayerCard.computeLuminance() > 0.5;
       final colors = <String, Color>{
         'surface': c.prayerCard,
         'border': c.prayerCardBorder.a == 0 ? c.prayerCard : c.prayerCardBorder,
@@ -204,6 +211,11 @@ class HomeScreenWidgetService {
         'body_text': _midpoint(c.onPrayerCard, c.onPrayerCardMuted),
         'secondary_text': c.onPrayerCardMuted,
         'divider': c.onPrayerCard.withAlpha(isDark ? 0x21 : 0x2E),
+        'accent': c.gold,
+        'event_joy':
+            lightCard ? const Color(0xFF2F7A4A) : const Color(0xFF7FBF95),
+        'event_mourning':
+            lightCard ? const Color(0xFF1F2023) : const Color(0xFFC5C8CE),
       };
       colors.forEach((token, color) =>
           values[widgetColorKey(token, brightness)] = _hex(color));

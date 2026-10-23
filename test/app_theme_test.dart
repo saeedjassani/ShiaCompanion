@@ -82,11 +82,12 @@ void main() {
               _contrast(c.onPrayerCard, c.prayerCard), greaterThanOrEqualTo(7));
           expect(_contrast(c.onPrayerCardMuted, c.prayerCard),
               greaterThanOrEqualTo(4.5));
-          expect(_contrast(c.onGold, c.gold), greaterThanOrEqualTo(7));
+          expect(_contrast(c.onGold, c.gold), greaterThanOrEqualTo(4.5));
+          // Gold is also text and icons on the card (the current prayer).
+          expect(_contrast(c.gold, c.prayerCard), greaterThanOrEqualTo(4.5));
           expect(_contrast(c.text, c.tintedNotice), greaterThanOrEqualTo(7));
           expect(_contrast(c.chevron, c.surface), greaterThanOrEqualTo(3));
           // Meanings, not decoration: the same in every color.
-          expect(c.gold, brown.gold);
           expect(c.success, brown.success);
           expect(c.danger, brown.danger);
         });
@@ -104,6 +105,27 @@ void main() {
       }
       // White stays white rather than picking up a tint.
       expect(AppPalette.teal.colors(Brightness.light).surface,
+          const Color(0xFFFFFFFF));
+    });
+
+    test('gold follows the palette, softly; brown keeps its own', () {
+      expect(AppPalette.brown.colors(Brightness.light).gold,
+          ShiaColors.light.gold);
+      final mint = AppPalette.green.colors(Brightness.light).gold;
+      expect(mint.g, greaterThan(mint.r));
+      final gray = AppPalette.gray.colors(Brightness.light).gold;
+      expect(gray.r, closeTo(gray.g, 1 / 255));
+      expect(gray.g, closeTo(gray.b, 1 / 255));
+    });
+
+    test('clear draws the prayer card as a plain card', () {
+      for (final brightness in Brightness.values) {
+        final c = AppPalette.clear.colors(brightness);
+        expect(c.prayerCard, c.surface);
+        expect(c.onPrayerCard, c.text);
+        expect(c.gold, c.accent, reason: 'its button is the accent');
+      }
+      expect(AppPalette.clear.colors(Brightness.light).prayerCard,
           const Color(0xFFFFFFFF));
     });
 
