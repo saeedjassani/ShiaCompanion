@@ -4,92 +4,2488 @@
    "table": 0,
    "old": "اَنْزَلَتُهٗ",
    "new": "اَنْزَلْتُهٗ",
-   "note": "انزلتُه: sukun on the lam (anzaltuhu), as in dua 4"
+   "note": "انزلتُه: sukun on the lam (anzaltuhu), as in dua 4",
+   "sure": true
   },
   {
    "table": 2,
    "old": "اَسْتَوْجَبَ",
    "new": "اسْتَوْجَبَ",
-   "note": "استوجب is istawjaba (hamzat al-wasl), so LAZIS TAWJABA"
+   "note": "استوجب is istawjaba",
+   "sure": true
   },
   {
    "table": 2,
    "old": "اِعْطِنِيْ",
    "new": "اَعْطِنِيْ",
-   "note": "اعطني is a‘ṭinī with a fatha (give me)"
+   "note": "اعطني is a‘ṭinī with a fatha (give me)",
+   "sure": true
   },
   {
    "table": 3,
    "old": "اِتِكَالِيْ",
    "new": "اِتِّكَالِيْ",
-   "note": "اتّكالي needs a shadda on the ta (ittikālī)"
+   "note": "اتّكالي needs a shadda on the ta (ittikālī)",
+   "sure": true
   },
   {
    "table": 4,
    "old": "الشَّرِ ",
    "new": "الشَّرِّ ",
-   "note": "الشرّ needs a shadda on the ra (ash-sharri)"
+   "note": "الشرّ needs a shadda on the ra (ash-sharri)",
+   "sure": true
   },
   {
    "table": 6,
    "old": "فِرْعَوْنَ اِكْفِنِيْ",
    "new": "فِرْعَوْنَ، اِكْفِنِيْ",
-   "note": "pause added after فرعون, since the Arabic starts اِكْفِنِيْ fresh"
+   "note": "pause added after فرعون, since the Arabic starts اِكْفِنِيْ fresh",
+   "sure": true
   },
   {
    "table": 6,
    "old": "مَا اَنَا فِيْهِ اَللّٰهُ",
    "new": "مَا اَنَا فِيْهِ، اَللّٰهُ",
-   "note": "pause added before اَللّٰهُ اَللّٰهُ رَبِّيْ"
+   "note": "pause added before اَللّٰهُ اَللّٰهُ رَبِّيْ",
+   "sure": true
   },
   {
    "table": 6,
    "old": "الْمرْبُوْبِيْنَ",
    "new": "الْمَرْبُوْبِيْنَ",
-   "note": "المربوبين: fatha on the meem was missing"
+   "note": "المربوبين: fatha on the meem was missing",
+   "sure": true
   },
   {
    "table": 6,
    "old": "حَبْسِيْ",
    "new": "حَسْبِيْ",
-   "note": "حبسي is a typo for حسبي (hasbī)"
+   "note": "حبسي is a typo for حسبي (hasbī)",
+   "sure": true
   },
   {
    "table": 7,
    "old": "تَخْفٰىٍ",
    "new": "تَخْفٰى",
-   "note": "تخفى: stray tanween removed"
+   "note": "تخفى: stray tanween removed",
+   "sure": true
   },
   {
    "table": 7,
    "old": "تَشْتَبِهٗ",
    "new": "تَشْتَبِهُ",
-   "note": "تشتبه: the ha is part of the verb (tashtabihu), not the pronoun"
+   "note": "تشتبه: the ha is part of the verb (tashtabihu), not the pronoun",
+   "sure": true
   },
   {
    "table": 7,
    "old": "اكْنِفْنِيْ",
    "new": "اكْنُفْنِيْ",
-   "note": "اكنفني: damma on the nun (uknufnī), as in dua 7"
+   "note": "اكنفني: damma on the nun (uknufnī), as in dua 7",
+   "sure": true
   },
   {
    "table": 7,
    "old": "اِلْتِمَاسَ",
    "new": "الْتِمَاسَ",
-   "note": "التماس begins with hamzat al-wasl (wal-timāsa)"
+   "note": "التماس begins with hamzat al-wasl (wal-timāsa)",
+   "sure": true
   },
   {
    "table": 7,
    "old": "لِاَوَاءٍ",
    "new": "لَاْوَاءٍ",
-   "note": "لأواء (la’wā’, hardship), not li-awā’"
+   "note": "لأواء (la’wā’, hardship), not li-awā’",
+   "sure": true
   },
   {
    "table": 7,
    "old": "خَلصْتَهٗ",
    "new": "خَلَّصْتَهٗ",
-   "note": "خلصته had no vowels on lam; read as khallaṣtahu. Please check against the book"
+   "note": "خلصته had no vowels on lam read as khallaṣtahu. Please check against the book",
+   "sure": true
+  },
+  {
+   "table": 8,
+   "old": "جَمِيْعَ مِنْ اَمْرُهٗ",
+   "new": "جَمِيْعَ مَنْ اَمْرُهٗ",
+   "note": "مِنْ should be مَنْ: \"everyone whose affair concerns me\" (man amruhū ya‘nīnī)",
+   "sure": true
+  },
+  {
+   "table": 8,
+   "old": "وَ الْمؤْمِنَاتِ",
+   "new": "وَ الْمُؤْمِنَاتِ",
+   "note": "الْمؤْمِنَاتِ is missing the damma on mim (al-mu’mināt)",
+   "sure": true
+  },
+  {
+   "table": 8,
+   "old": "بِرٌ وَّ لَا فَاجِرٌ",
+   "new": "بَرٌّ وَّ لَا فَاجِرٌ",
+   "note": "بِرٌ should be بَرٌّ (barrun, a righteous person, paired with fājir), with fatha and shadda",
+   "sure": true
+  },
+  {
+   "table": 8,
+   "old": "وَ آيَاتِ مُحْكَمَاتٍ",
+   "new": "وَ آيَاتٍ مُحْكَمَاتٍ",
+   "note": "آيَاتِ needs tanween (āyātin muḥkamātin), like the indefinite سُوْرَةٍ شَرِيْفَةٍ before it",
+   "sure": true
+  },
+  {
+   "table": 8,
+   "old": "الْاِنِجْيْلِ",
+   "new": "الْاِنْجِيْلِ",
+   "note": "الْاِنِجْيْلِ has its marks on the wrong letters: الْاِنْجِيْلِ (al-injīl)",
+   "sure": true
+  },
+  {
+   "table": 8,
+   "old": "وَ بِاَلآءِ اللّٰهِ",
+   "new": "وَ بِآلَاءِ اللّٰهِ",
+   "note": "بِاَلآءِ should be بِآلَاءِ (bi-ālā’i, \"by the bounties of\")",
+   "sure": true
+  },
+  {
+   "table": 8,
+   "old": "وَ حُلْمِ اللّٰهِ",
+   "new": "وَ حِلْمِ اللّٰهِ",
+   "note": "حُلْمِ (a dream) should be حِلْمِ (ḥilm, forbearance)",
+   "sure": true
+  },
+  {
+   "table": 8,
+   "old": "اَنْۢبِيَاِءِ اللّٰهِ",
+   "new": "اَنْۢبِيَاءِ اللّٰهِ",
+   "note": "stray kasra on the alif of اَنْبِيَاِءِ: اَنْبِيَاءِ (anbiyā’i)",
+   "sure": true
+  },
+  {
+   "table": 8,
+   "old": "وَ مِنْ نِقْمَةِ وَ اِعْرَاضِهٖ",
+   "new": "وَ مِنْ نِقْمَتِهٖ وَ اِعْرَاضِهٖ",
+   "note": "نِقْمَةِ with nothing after it cannot stand the run is \"His wrath and punishment ... His vengeance, turning away, rejection and forsaking\", so نِقْمَتِهٖ (or possibly نِقْمَةِ اللّٰهِ)",
+   "sure": true
+  },
+  {
+   "table": 8,
+   "old": "غِنىً مُطْغٍ",
+   "new": "غِنًى مُطْغٍ",
+   "note": "tanween belongs on the nun, not on the ى: غِنًى (ghinan), as هَوًى is written just before",
+   "sure": true
+  },
+  {
+   "table": 8,
+   "old": "وَ مِنْ مُرْدٍ اِلَى",
+   "new": "وَ مِنْ مَرَدٍّ اِلَى",
+   "note": "مُرْدٍ (\"destroying\", copied from هَوًى مُرْدٍ above) makes no sense before اِلَى النَّارِ most likely مَرَدٍّ (maraddin, \"a return to the Fire\"). Check against the printed source",
+   "sure": false
+  },
+  {
+   "table": 8,
+   "old": "آخِذٌ بِۢنَاصِيَتِهَا وَ مِنْ شَرِّ كُلِّ ذِيْ",
+   "new": "آخِذٌ بِنَاصِيَتِهَا وَ مِنْ شَرِّ كُلِّ ذِيْ",
+   "note": "stray iqlab sign ۢ on the ba of بِنَاصِيَتِهَا it belongs on the tanween of آخِذٌ if anywhere (the second occurrence has neither)",
+   "sure": true
+  },
+  {
+   "table": 8,
+   "old": "يَخرُجُ",
+   "new": "يَخْرُجُ",
+   "note": "missing sukun on kha: يَخْرُجُ (yakhruju)",
+   "sure": true
+  },
+  {
+   "table": 8,
+   "old": "وَ مِن شَرِّ الْفُسَّاقِ",
+   "new": "وَ مِنْ شَرِّ الْفُسَّاقِ",
+   "note": "missing sukun on the nun of مِنْ",
+   "sure": true
+  },
+  {
+   "table": 8,
+   "old": "مِّمَّا اِسْتَعَاذَ",
+   "new": "مِّمَّا اسْتَعَاذَ",
+   "note": "اِسْتَعَاذَ is form X, a wasl alif mid-sentence: مِّمَّا اسْتَعَاذَ (mimmas-ta‘ādha), as مَا اسْتَعَاذَ earlier in the line",
+   "sure": true
+  },
+  {
+   "table": 8,
+   "old": "يَاْتيْ",
+   "new": "يَاْتِيْ",
+   "note": "missing kasra on ta: يَاْتِيْ (ya’tī)",
+   "sure": true
+  },
+  {
+   "table": 8,
+   "old": "الْخْيْرَ",
+   "new": "الْخَيْرَ",
+   "note": "sukun on kha should be fatha: الْخَيْرَ (al-khayra)",
+   "sure": true
+  },
+  {
+   "table": 8,
+   "old": "شَـيْـــًٔـا",
+   "new": "شَيْئًا",
+   "note": "Written plainly it reads right",
+   "sure": true
+  },
+  {
+   "table": 8,
+   "old": "فَہُوَحَسْبُہٗ",
+   "new": "فَہُوَ حَسْبُہٗ",
+   "note": "two words run together: فَهُوَ حَسْبُهٗ (65:3)",
+   "sure": true
+  },
+  {
+   "table": 8,
+   "old": "يُّحِبُّوْنَہُمْ",
+   "new": "يُحِبُّوْنَہُمْ",
+   "note": "the shadda on ya comes from the Quran's اَنْدَادًا يُّحِبُّوْنَهُمْ (2:165, after tanween) here it follows ذِكْرَكَ, so no shadda.",
+   "sure": true
+  },
+  {
+   "table": 8,
+   "old": "شَـيْـــــًٔا",
+   "new": "شَيْئًا",
+   "note": "same as above",
+   "sure": true
+  },
+  {
+   "table": 8,
+   "old": "سُوْۗءٌ",
+   "new": "سُوْٓءٌ",
+   "note": "the sign ۗ (a waqf \"qali\" mark) is used inside the word as a madd Use the madd ٓ, as elsewhere in this text (كُلَّمَآ)",
+   "sure": true
+  },
+  {
+   "table": 8,
+   "old": "سَاۗءَتْ",
+   "new": "سَآءَتْ",
+   "note": "ۗ used as a madd inside سَآءَتْ (25:66) Use ٓ",
+   "sure": true
+  },
+  {
+   "table": 8,
+   "old": "دَاۗبَّۃٍ اِلَّا ہُوَ اٰخِذٌۢ بِنَاصِيَتِہَا۝۰ۭ اِنَّ رَبِّيْ عَلٰي صِرَاطٍ مُّسْتَقِيْمٍ فَسَتَذْكُرُوْنَ",
+   "new": "دَابَّۃٍ اِلَّا ہُوَ اٰخِذٌۢ بِنَاصِيَتِہَا۝۰ۭ اِنَّ رَبِّيْ عَلٰي صِرَاطٍ مُّسْتَقِيْمٍ فَسَتَذْكُرُوْنَ",
+   "note": "ۗ used as a madd inside دَابَّةٍ Long span only to make it unique",
+   "sure": true
+  },
+  {
+   "table": 8,
+   "old": "الۗمَّۗ",
+   "new": "الٓمّٓ",
+   "note": "ۗ used for the madd signs of the letters Alif-Lam-Mim (3:1) Should be الٓمّٓ",
+   "sure": true
+  },
+  {
+   "table": 8,
+   "old": "الۗمّۗ",
+   "new": "الٓمّٓ",
+   "note": "same for Alif-Lam-Mim of 2:1",
+   "sure": true
+  },
+  {
+   "table": 8,
+   "old": "بِمَا شَاۗءَ",
+   "new": "بِمَا شَآءَ",
+   "note": "ۗ used as a madd inside شَآءَ (2:255)",
+   "sure": true
+  },
+  {
+   "table": 8,
+   "old": "وَالْمَلٰۗىِٕكَۃُ وَاُولُوا",
+   "new": "وَالْمَلٰٓئِكَۃُ وَاُولُوا",
+   "note": "ۗ used as a madd and ىِٕ for the hamza seat in الْمَلٰٓئِكَةُ (3:18)",
+   "sure": true
+  },
+  {
+   "table": 8,
+   "old": "قَاۗىِٕمًۢا",
+   "new": "قَآئِمًۢا",
+   "note": "same in قَآئِمًۢا (3:18)",
+   "sure": true
+  },
+  {
+   "table": 8,
+   "old": "لَاانْفِصَامَ",
+   "new": "لَا انْفِصَامَ",
+   "note": "two words run together: لَا انْفِصَامَ (2:256)",
+   "sure": true
+  },
+  {
+   "table": 8,
+   "old": "يَـــــُٔـــوْدُہٗ",
+   "new": "يَئُوْدُہٗ",
+   "note": "kashida spelling of يَئُوْدُهٗ",
+   "sure": true
+  },
+  {
+   "table": 8,
+   "old": "ھُوَالْعَزِيْزُ",
+   "new": "ھُوَ الْعَزِيْزُ",
+   "note": "two words run together: هُوَ الْعَزِيْزُ (3:18)",
+   "sure": true
+  },
+  {
+   "table": 8,
+   "old": "مَنْ تَشَاۗءُ وَتَنْزِعُ",
+   "new": "مَنْ تَشَآءُ وَتَنْزِعُ",
+   "note": "ۗ used as a madd inside تَشَآءُ (3:26-27, first one)",
+   "sure": true
+  },
+  {
+   "table": 8,
+   "old": "مِمَّنْ تَشَاۗءُ",
+   "new": "مِمَّنْ تَشَآءُ",
+   "note": "ۗ used as a madd inside تَشَآءُ (3:26-27, second one)",
+   "sure": true
+  },
+  {
+   "table": 8,
+   "old": "وَتُعِزُّ مَنْ تَشَاۗءُ",
+   "new": "وَتُعِزُّ مَنْ تَشَآءُ",
+   "note": "ۗ used as a madd inside تَشَآءُ (3:26-27, third one)",
+   "sure": true
+  },
+  {
+   "table": 8,
+   "old": "وَتُذِلُّ مَنْ تَشَاۗءُ",
+   "new": "وَتُذِلُّ مَنْ تَشَآءُ",
+   "note": "ۗ used as a madd inside تَشَآءُ (3:26-27, fourth one)",
+   "sure": true
+  },
+  {
+   "table": 8,
+   "old": "وَتَرْزُقُ مَنْ تَشَاۗءُ",
+   "new": "وَتَرْزُقُ مَنْ تَشَآءُ",
+   "note": "ۗ used as a madd inside تَشَآءُ (3:26-27, fifth one) The rest of this word is sentence 70, in the other half",
+   "sure": true
+  },
+  {
+   "table": 8,
+   "old": "۝۰ۡوَتُعِزُّ",
+   "new": "۝۰ۡ وَتُعِزُّ",
+   "note": "the mark ۡ after the ayah sign is glued to the next word A space after it gives WA TO-...",
+   "sure": true
+  },
+  {
+   "table": 8,
+   "old": "۝۰ۡوَتُخْرِجُ",
+   "new": "۝۰ۡ وَتُخْرِجُ",
+   "note": "the mark ۡ after the ayah sign is glued to the next word A space after it gives WA TO-...",
+   "sure": true
+  },
+  {
+   "table": 8,
+   "old": "۝۰ۡوَتَرْزُقُ",
+   "new": "۝۰ۡ وَتَرْزُقُ",
+   "note": "the mark ۡ after the ayah sign is glued to the next word A space after it gives WA TO-...",
+   "sure": true
+  },
+  {
+   "table": 8,
+   "old": "جَاۗءَكُمْ",
+   "new": "جَاۤءَكُمْ",
+   "note": "جاۤءكم: ۗ is used here as the madd sign over the alif (not a stop sign) written as ۤ so the word is not cut in two (jāa-akum)",
+   "sure": true
+  },
+  {
+   "table": 8,
+   "old": "الْكِبْرِيَاۗءُ",
+   "new": "الْكِبْرِيَاۤءُ",
+   "note": "الكبرياۤء: ۗ is used here as the madd sign over the alif (not a stop sign) written as ۤ so the word is not cut in two",
+   "sure": true
+  },
+  {
+   "table": 8,
+   "old": "خَطِيْۗــــــَٔــتِيْ",
+   "new": "خَطِيْۤئَتِيْ",
+   "note": "خطيۤئتي (khaṭī-atī): ۗ here is the madd, and the hamza on its tatweel written as ئَ, so the word is read whole",
+   "sure": true
+  },
+  {
+   "table": 8,
+   "old": "الضَّاۗلِّيْنَ",
+   "new": "الضَّاۤلِّيْنَ",
+   "note": "الضاۤلّين: ۗ is used here as the madd sign over the alif (not a stop sign) written as ۤ so the word is not cut in two",
+   "sure": true
+  },
+  {
+   "table": 8,
+   "old": "الصّٰۗفّٰتِ",
+   "new": "الصّٰۤفّٰتِ",
+   "note": "الصّٰۤفّٰت: ۗ is used here as the madd sign over the alif (not a stop sign) written as ۤ so the word is not cut in two",
+   "sure": true
+  },
+  {
+   "table": 8,
+   "old": "السَّمَاۗءَ الدُّنْيَا",
+   "new": "السَّمَاۤءَ الدُّنْيَا",
+   "note": "السماۤء: ۗ is used here as the madd sign over the alif (not a stop sign) written as ۤ so the word is not cut in two",
+   "sure": true
+  },
+  {
+   "table": 8,
+   "old": "اٰلَاۗءِ",
+   "new": "اٰلَاۤءِ",
+   "note": "آلاۤء: ۗ is used here as the madd sign over the alif (not a stop sign) written as ۤ so the word is not cut in two",
+   "sure": true
+  },
+  {
+   "table": 8,
+   "old": "الْمَلٰۗىِٕكَۃِ",
+   "new": "الْمَلٰۤئِكَۃِ",
+   "note": "الملٰۤئكة: ۗ is used here as the madd sign over the alif (not a stop sign) written as ۤ so the word is not cut in two ىِٕ written as ئِ (same letter) so the hamza is read (malāa-ikah)",
+   "sure": true
+  },
+  {
+   "table": 8,
+   "old": "مَا يَشَاۗءُ",
+   "new": "مَا يَشَاۤءُ",
+   "note": "يشاۤء: ۗ is used here as the madd sign over the alif (not a stop sign) written as ۤ so the word is not cut in two",
+   "sure": true
+  },
+  {
+   "table": 8,
+   "old": "مَنْ يَّشَاۗءُ۝۰ۭ وَاللہُ",
+   "new": "مَنْ يَّشَاۤءُ۝۰ۭ وَاللہُ",
+   "note": "يشاۤء: ۗ is used here as the madd sign over the alif (not a stop sign) written as ۤ so the word is not cut in two",
+   "sure": true
+  },
+  {
+   "table": 8,
+   "old": "مَنْ يَّشَاۗءُ۝۰ۭ وَ اللہُ",
+   "new": "مَنْ يَّشَاۤءُ۝۰ۭ وَ اللہُ",
+   "note": "يشاۤء: ۗ is used here as the madd sign over the alif (not a stop sign) written as ۤ so the word is not cut in two",
+   "sure": true
+  },
+  {
+   "table": 8,
+   "old": "شِفَاۗءٌ",
+   "new": "شِفَاۤءٌ",
+   "note": "شفاۤء: ۗ is used here as the madd sign over the alif (not a stop sign) written as ۤ so the word is not cut in two",
+   "sure": true
+  },
+  {
+   "table": 8,
+   "old": "تَذَكَّرُوْنَ اُولٰۗىِٕكَ",
+   "new": "تَذَكَّرُوْنَ اُولٰۤئِكَ",
+   "note": "اولٰۤئك: ۗ is used here as the madd sign over the alif (not a stop sign) written as ۤ so the word is not cut in two ىِٕ written as ئِ (same letter)",
+   "sure": true
+  },
+  {
+   "table": 8,
+   "old": "وَ اُولٰۗىِٕكَ",
+   "new": "وَ اُولٰۤئِكَ",
+   "note": "اولٰۤئك: ۗ is used here as the madd sign over the alif (not a stop sign) written as ۤ so the word is not cut in two ىِٕ written as ئِ (same letter)",
+   "sure": true
+  },
+  {
+   "table": 8,
+   "old": "مِّنَ السَّمَاۗءِ",
+   "new": "مِّنَ السَّمَاۤءِ",
+   "note": "السماۤء: ۗ is used here as the madd sign over the alif (not a stop sign) written as ۤ so the word is not cut in two",
+   "sure": true
+  },
+  {
+   "table": 8,
+   "old": "الْاَسْمَاۗءُ",
+   "new": "الْاَسْمَاۤءُ",
+   "note": "الاسماۤء: ۗ is used here as the madd sign over the alif (not a stop sign) written as ۤ so the word is not cut in two",
+   "sure": true
+  },
+  {
+   "table": 8,
+   "old": "الْعَلِيْمُ اِنِّىْ تَوَكَّلْتُ عَلَي اللہِ رَبِّيْ وَ رَبِّكُمْ۝۰ۭ مَا مِنْ دَاۗبَّۃٍ",
+   "new": "الْعَلِيْمُ اِنِّىْ تَوَكَّلْتُ عَلَي اللہِ رَبِّيْ وَ رَبِّكُمْ۝۰ۭ مَا مِنْ دَاۤبَّۃٍ",
+   "note": "داۤبّة: ۗ is used here as the madd sign over the alif (not a stop sign) written as ۤ so the word is not cut in two",
+   "sure": true
+  },
+  {
+   "table": 8,
+   "old": "تَوَلَّوْا فَقُلْ حَسْبِيَ اللہُ۝۰ۤۡۖ",
+   "new": "تَوَلَّوْا فَقُلْ حَسْبِيَ اللہُ۝۰ۖ",
+   "note": "stray marks ۤۡ after the ayah sign removed (they stopped the pause after حسبي الله)",
+   "sure": true
+  },
+  {
+   "table": 8,
+   "old": "وَ الْاَرْضِ۝۰۠",
+   "new": "وَ الْاَرْضِ۝۰",
+   "note": "stray mark ۠ after the ayah sign removed (it stopped the pause)",
+   "sure": true
+  },
+  {
+   "table": 8,
+   "old": "وَالنُّوْرَ۝۰ۥۭ",
+   "new": "وَالنُّوْرَ۝۰ۭ",
+   "note": "stray ۥ after the ayah sign removed (it stopped the pause)",
+   "sure": true
+  },
+  {
+   "table": 8,
+   "old": "نَّارٍ۝۰ۥۙ",
+   "new": "نَّارٍ۝۰ۙ",
+   "note": "stray ۥ after the ayah sign removed (it was read as a letter",
+   "sure": true
+  },
+  {
+   "table": 8,
+   "old": "ہُوَ۝۰ۡۖ",
+   "new": "ہُوَ۝۰ۖ",
+   "note": "stray ۡ after the ayah sign removed (it stopped the pause)",
+   "sure": true
+  },
+  {
+   "table": 8,
+   "old": "يَلِدْ۝۰ۥۙ",
+   "new": "يَلِدْ۝۰ۙ",
+   "note": "stray ۥ after the ayah sign removed (it stopped the pause)",
+   "sure": true
+  },
+  {
+   "table": 8,
+   "old": "الْوَسْوَاسِ۝۰ۥۙ",
+   "new": "الْوَسْوَاسِ۝۰ۙ",
+   "note": "stray ۥ after the ayah sign removed (it was read as a letter",
+   "sure": true
+  },
+  {
+   "table": 8,
+   "old": "ھُوَالرَّحْمٰنُ",
+   "new": "ھُوَ الرَّحْمٰنُ",
+   "note": "هو الرحمن: two words run together (2:163)",
+   "sure": true
+  },
+  {
+   "table": 8,
+   "old": "وَہُوَعَلٰي",
+   "new": "وَہُوَ عَلٰي",
+   "note": "وهو على: two words run together (6:102)",
+   "sure": true
+  },
+  {
+   "table": 8,
+   "old": "ہُوَرَبِّيْ",
+   "new": "ہُوَ رَبِّيْ",
+   "note": "هو ربي: two words run together (13:30)",
+   "sure": true
+  },
+  {
+   "table": 8,
+   "old": "ہُوَالْـحَيُّ",
+   "new": "ہُوَ الْـحَيُّ",
+   "note": "هو الحي: two words run together (40:65)",
+   "sure": true
+  },
+  {
+   "table": 8,
+   "old": "ہُوَفَادْعُوْہُ",
+   "new": "ہُوَ فَادْعُوْہُ",
+   "note": "هو فادعوه: two words run together (40:65)",
+   "sure": true
+  },
+  {
+   "table": 8,
+   "old": "ہُوَفَاتَّخِذْہُ",
+   "new": "ہُوَ فَاتَّخِذْہُ",
+   "note": "هو فاتخذه: two words run together (73:9)",
+   "sure": true
+  },
+  {
+   "table": 8,
+   "old": "ذٰلِكُمُ اللہُ رَبُّكُمْ۝۰ۚ خَالِقُ",
+   "new": "ذٰلِكُمُ اللہُ رَبُّكُمْ۝۰ۖ لَآ اِلٰہَ اِلَّا ہُوَ۝۰ۚ خَالِقُ",
+   "note": "Quran 6:102 reads ذٰلِكُمُ اللّٰهُ رَبُّكُمْ لَآ اِلٰهَ اِلَّا هُوَ خَالِقُ كُلِّ شَيْءٍ لَآ اِلٰهَ اِلَّا هُوَ is missing (unless the dua's source drops it)",
+   "sure": false
+  },
+  {
+   "table": 8,
+   "old": "سُوْئَهٗ",
+   "new": "سُوْءَهٗ",
+   "note": "سوءه (sū-ahu): after a long و the hamza sits on the line, not on a ya seat",
+   "sure": true
+  },
+  {
+   "table": 8,
+   "old": "كُلِّ شَيءٍ قَدِيْرٌ.",
+   "new": "كُلِّ شَيْءٍ قَدِيْرٌ.",
+   "note": "شيء: sukun on the ya was missing",
+   "sure": true
+  },
+  {
+   "table": 8,
+   "old": "صَنَايِعُكَ",
+   "new": "صَنَائِعُكَ",
+   "note": "صنائعك (ṣanā-i‘uka): the hamza seat ئ, not a plain ي (Persian spelling)",
+   "sure": true
+  },
+  {
+   "table": 8,
+   "old": "وَدَايِعُكَ",
+   "new": "وَدَائِعُكَ",
+   "note": "ودائعك (wadā-i‘uka): the hamza seat ئ, not a plain ي (Persian spelling)",
+   "sure": true
+  },
+  {
+   "table": 8,
+   "old": "اِرَادَتَهٗ اَللّٰهُمَّ",
+   "new": "اِرَادَتَهٗ، اَللّٰهُمَّ",
+   "note": "pause added before the new اَللّٰهُمَّ (it was read on",
+   "sure": true
+  },
+  {
+   "table": 8,
+   "old": "مِنْكَ اَحَدٌ اَللّٰهُمَّ",
+   "new": "مِنْكَ اَحَدٌ، اَللّٰهُمَّ",
+   "note": "pause added before the new اَللّٰهُمَّ (it was read on",
+   "sure": true
+  },
+  {
+   "table": 38,
+   "old": "هُدًى لِّلْنَّاسِ",
+   "new": "هُدًى لِّلنَّاسِ",
+   "note": "Quran 2:185: no sukun on the lam before the sun letter nun (lin-nās)",
+   "sure": true
+  },
+  {
+   "table": 38,
+   "old": "اَنْ يَطْلَعَ",
+   "new": "اَنْ يَطْلُعَ",
+   "note": "طَلَعَ / يَطْلُعُ takes a damma on the lam (yaṭluʿa), not a fatha",
+   "sure": true
+  },
+  {
+   "table": 38,
+   "old": "مِنْ اَصنَاَف ِخَلْقِكَ",
+   "new": "مِنْ اَصْنَافِ خَلْقِكَ",
+   "note": "garbled: the kasra had moved to the next word, the fatha was on the alif, the sukun on ṣād was missing (aṣnāfi khalqika)",
+   "sure": true
+  },
+  {
+   "table": 38,
+   "old": "لَا يَنْفُذُ",
+   "new": "لَا يَنْفَدُ",
+   "note": "the word is لا يَنْفَدُ (that never runs out, nafida/yanfadu) يَنْفُذُ with ذ means 'penetrates'",
+   "sure": true
+  },
+  {
+   "table": 38,
+   "old": "مِنَ صَّلَاةِ",
+   "new": "مِنْ صَلَاةٍ",
+   "note": "'min ṣalātin' (of prayer): مِنْ with sukun, no shadda on ṣād, tanween on صلاة as written it reads 'minaṣ-ṣalāti' with the article missing",
+   "sure": true
+  },
+  {
+   "table": 38,
+   "old": "وَ دَوَامَ الْيُسْرِ",
+   "new": "وَ دَوَامِ الْيُسْرِ",
+   "note": "the last item of the list after فِيْ اَعْظَمِ الْاَجْرِ ... وَ حُسْنِ الشُّكْرِ, so genitive: dawāmi",
+   "sure": true
+  },
+  {
+   "table": 38,
+   "old": "مِنْ قَابِلِ فِيْ",
+   "new": "مِنْ قَابِلٍ فِيْ",
+   "note": "tanween missing: min qābilin (next year), as in sentence 5",
+   "sure": true
+  },
+  {
+   "table": 38,
+   "old": "حَتّٰى بَلَغَنَا",
+   "new": "حَتّٰى بَلَّغَنَا",
+   "note": "Allah is the subject (الَّذِيْ اَعَانَنَا ... حَتّٰى بَلَّغَنَا آخِرَ لَيْلَةٍ), so form II ballaghanā 'brought us to', as بَلَّغْتَنَا earlier in the dua",
+   "sure": true
+  },
+  {
+   "table": 38,
+   "old": "صَلَّي اللهُ",
+   "new": "صَلَّى اللهُ",
+   "note": "alif maqsura: صَلَّى, not a dotted ي",
+   "sure": true
+  },
+  {
+   "table": 38,
+   "old": "وَ دَاعَ خُرُوْجِيْ",
+   "new": "وَدَاعَ خُرُوْجِيْ",
+   "note": "وَدَاعَ",
+   "sure": true
+  },
+  {
+   "table": 38,
+   "old": "حُجَّاجَ بَيْتِكَ",
+   "new": "حُجَّاجِ بَيْتِكَ",
+   "note": "genitive after مِنْ: min ḥujjāji",
+   "sure": true
+  },
+  {
+   "table": 38,
+   "old": "جُوْدًا وَّكَرَمًا",
+   "new": "جُوْدًا وَّ كَرَمًا",
+   "note": "missing space after the wa",
+   "sure": true
+  },
+  {
+   "table": 38,
+   "old": "وَ اَحَبَّهَا",
+   "new": "وَ اَحَبِّهَا",
+   "note": "genitive in the series بِاَكْرَمِ ... وَ اَحَبِّهَا وَ اَشْرَفِهَا: aḥabbihā",
+   "sure": true
+  },
+  {
+   "table": 38,
+   "old": "وَّ اَجْزِ لَهَا",
+   "new": "وَّ اَجْزَلِهَا",
+   "note": "one word اَجْزَلِهَا (the most abundant of them) in the same genitive series as split it reads 'ajzi lahā'",
+   "sure": true
+  },
+  {
+   "table": 38,
+   "old": "الْمَخزُوْنِ",
+   "new": "الْمَخْزُوْنِ",
+   "note": "sukun missing on khā'",
+   "sure": true
+  },
+  {
+   "table": 38,
+   "old": "اشْتَدَّتُ",
+   "new": "اشْتَدَّتْ",
+   "note": "feminine ending takes a sukun (ishtaddat fāqatuhu), not a damma ('I became severe')",
+   "sure": true
+  },
+  {
+   "table": 38,
+   "old": "دُعَاءِ مَنْ لَا يَجِدُ",
+   "new": "دُعَاءَ مَنْ لَا يَجِدُ",
+   "note": "repeats the object of اَدْعُوْكَ دُعَاءَ مَنْ ... nothing makes it genitive, so duʿā'a",
+   "sure": true
+  },
+  {
+   "table": 38,
+   "old": "يَا عَظِيْمَ الْمَسَائِلِ",
+   "new": "بِاَعْظَمِ الْمَسَائِلِ",
+   "note": "most likely 'asaluka bi-aʿẓami l-masā'ili kullihā wa anjaḥihā allatī yanbaghī lil-ʿibādi an yas'alūka bihā' the genitive وَ اَنْجَحِهَا and the following بِهَا fit بِاَعْظَمِ, not a vocative يا عظيم. Not confirmed against a printed text",
+   "sure": false
+  },
+  {
+   "table": 38,
+   "old": "بِعَظِيْمِ مَا سَاَلَكَ اَحَدٌ",
+   "new": "بِاَعْظَمِ مَا سَاَلَكَ بِهٖ اَحَدٌ",
+   "note": "the usual wording is bi-aʿẓami mā sa'alaka bihi aḥadun (by the greatest thing anyone has asked You by) as typed, سَاَلَكَ has no بِهٖ to refer back to مَا. Not confirmed against a printed text",
+   "sure": false
+  },
+  {
+   "table": 38,
+   "old": "الْمُقَرَّبِينَ",
+   "new": "الْمُقَرَّبِيْنَ",
+   "note": "only for consistency: every other long ī in the text carries a sukun",
+   "sure": false
+  },
+  {
+   "table": 38,
+   "old": "لَا تَجْعَلْهُ آخِرِ شَهْرِ",
+   "new": "لَا تَجْعَلْهُ آخِرَ شَهْرِ",
+   "note": "آخِرِ should be آخِرَ (accusative, second object of تَجْعَلْ: ākhira)",
+   "sure": true
+  },
+  {
+   "table": 38,
+   "old": "وَ اَمِلَهٗ مِنْكَ",
+   "new": "وَ اَمَّلَهٗ مِنْكَ",
+   "note": "اَمِلَهٗ (amilahu) is doubtful the verb is اَمَّلَ (form II, 'what he hoped of You') اَمَلَهٗ is also possible",
+   "sure": false
+  },
+  {
+   "table": 38,
+   "old": "ارزُقْنِيْ",
+   "new": "ارْزُقْنِيْ",
+   "note": "missing sukun on ر in ارْزُقْنِيْ",
+   "sure": true
+  },
+  {
+   "table": 38,
+   "old": "دَاءًا",
+   "new": "دَاءً",
+   "note": "tanween on hamza after alif takes no extra alif: دَاءً",
+   "sure": false
+  },
+  {
+   "table": 38,
+   "old": "عَلَيْنا",
+   "new": "عَلَيْنَا",
+   "note": "missing fatha on ن in عَلَيْنَا",
+   "sure": true
+  },
+  {
+   "table": 38,
+   "old": "تُهِنِّيْ بَعْدَهَا",
+   "new": "تُهِيْنُنِيْ بَعْدَهَا",
+   "note": "in a descriptive clause (كَرَامَةً لَّا ...) the verb is indicative, like the parallel تُذِلُّنِيْ and تَضَعُنِيْ: تُهِيْنُنِيْ (tuhīnunī) تُهِنِّيْ is the jussive form",
+   "sure": false
+  },
+  {
+   "table": 38,
+   "old": "تَبْتَلِيَنِيْ",
+   "new": "تَبْتَلِيْنِيْ",
+   "note": "same clause type: indicative تَبْتَلِيْنِيْ (tabtalīnī), not subjunctive تَبْتَلِيَنِيْ",
+   "sure": false
+  },
+  {
+   "table": 38,
+   "old": "رَفَعَةً",
+   "new": "رِفْعَةً",
+   "note": "the noun is رِفْعَةً (rif'atan), not رَفَعَةً",
+   "sure": true
+  },
+  {
+   "table": 38,
+   "old": "بَذْخٍ",
+   "new": "بَذَخٍ",
+   "note": "the masdar 'arrogance' is بَذَخ (badhakh), with fatha on ذ",
+   "sure": false
+  },
+  {
+   "table": 38,
+   "old": "اَوْ رِيَاءَ",
+   "new": "اَوْ رِيَاءٍ",
+   "note": "رِيَاء is fully declined: اَوْ رِيَاءٍ (riyā'in), like the nouns around it (خُيَلَاءَ is correctly diptote)",
+   "sure": true
+  },
+  {
+   "table": 38,
+   "old": "تَصَلِّيَ",
+   "new": "تُصَلِّيَ",
+   "note": "تَصَلِّيَ is a typo for تُصَلِّيَ (tuṣalliya)",
+   "sure": true
+  },
+  {
+   "table": 38,
+   "old": "تَمْحُوْهُ",
+   "new": "تَمْحُوَهٗ",
+   "note": "after اَنْ the verb is subjunctive: تَمْحُوَهٗ (tamḥuwahu)",
+   "sure": true
+  },
+  {
+   "table": 38,
+   "old": "طُمَانِيْنَةً",
+   "new": "طُمَاْنِيْنَةً",
+   "note": "hamza sukun missing: طُمَاْنِيْنَةً (ṭuma'nīnah), otherwise it reads ṭumānīnah",
+   "sure": true
+  },
+  {
+   "table": 38,
+   "old": "بِعُقُوْقٍ لِوَالِدَيْنِ",
+   "new": "بِعُقُوْقِ الْوَالِدَيْنِ",
+   "note": "should be the construct بِعُقُوْقِ الْوَالِدَيْنِ ('by disobedience to parents')",
+   "sure": true
+  },
+  {
+   "table": 38,
+   "old": "بِذُنُوْبيْ",
+   "new": "بِذُنُوْبِيْ",
+   "note": "missing kasra on ب in بِذُنُوْبِيْ",
+   "sure": true
+  },
+  {
+   "table": 38,
+   "old": "وَ الثَّبَاتَ عَلٰى",
+   "new": "وَ الثَّبَاتِ عَلٰى",
+   "note": "likely genitive, joined to رَحْمَتِكَ ('my need for Your mercy and for steadfastness') الثَّبَاتَ is possible only as a second object of عَرَفْتُ",
+   "sure": false
+  },
+  {
+   "table": 38,
+   "old": "شَفَاعَتَهُمْ وَ الْقِيَامَةِ",
+   "new": "شَفَاعَتَهُمْ يَوْمَ الْقِيَامَةِ",
+   "note": "وَ الْقِيَامَةِ makes no sense here probably يَوْمَ الْقِيَامَةِ ('their intercession on the Day of Resurrection') check the source",
+   "sure": false
+  },
+  {
+   "table": 14,
+   "old": "تُخْلِفُ الْمِيْعَادِ.",
+   "new": "تُخْلِفُ الْمِيْعَادَ.",
+   "note": "Quran 3:194 ends الْمِيْعَادَ (fatha), not kasra.",
+   "sure": true
+  },
+  {
+   "table": 14,
+   "old": "بَاطِلٌ مُّضْمَحِلُّ",
+   "new": "بَاطِلٌ مُّضْمَحِلٌّ",
+   "note": "مضمحل is an adjective of باطلٌ, so it takes tanween: مُضْمَحِلٌّ (muḍmaḥillun).",
+   "sure": true
+  },
+  {
+   "table": 14,
+   "old": "اَمِيْرَ الْمُؤمِنِيْنَ",
+   "new": "اَمِيْرَ الْمُؤْمِنِيْنَ",
+   "note": "Missing sukun on the hamza of الْمُؤْمِنِيْنَ.",
+   "sure": true
+  },
+  {
+   "table": 14,
+   "old": "فَعَلَيَّ اَمِيْرُهٗ",
+   "new": "فَعَلِيٌّ اَمِيْرُهٗ",
+   "note": "فَعَلَيَّ ('upon me') is a typo for فَعَلِيٌّ ('then Ali'), as in فَعَلِيٌّ مَوْلَاهُ just before.",
+   "sure": true
+  },
+  {
+   "table": 14,
+   "old": "دَاعِيَاكَ",
+   "new": "دَاعِيَكَ",
+   "note": "دَاعِيَاكَ is a typo for دَاعِيَكَ (dāʿiyaka, 'Your caller') Iqbal: أجبنا داعيك.",
+   "sure": true
+  },
+  {
+   "table": 14,
+   "old": "عَلٰى بَصِيْرَتِهٖ هُوَ",
+   "new": "عَلٰى بَصِيْرَةٍ هُوَ",
+   "note": "Echoes Quran 12:108 عَلٰى بَصِيْرَةٍ اَنَا وَمَنِ اتَّبَعَنِيْ Iqbal has على بصيرة هو ومن اتبعه. بصيرته هو is possible but unlikely.",
+   "sure": false
+  },
+  {
+   "table": 14,
+   "old": "الْوَلَايِجِ",
+   "new": "الْوَلَائِجِ",
+   "note": "Standard spelling is الْوَلَائِجِ (hamza), as the dua itself writes وَلَائِجَ later",
+   "sure": false
+  },
+  {
+   "table": 14,
+   "old": "فَاَنَا نَشْهَدُ",
+   "new": "فَاِنَّا نَشْهَدُ",
+   "note": "فَاَنَا ('then I') does not fit the plural verb نَشْهَدُ Iqbal: فإنا نشهد (fa-innā).",
+   "sure": true
+  },
+  {
+   "table": 14,
+   "old": "نَبِيِّكَ النَّذِيْرُ الْمُنْذِرُ",
+   "new": "نَبِيِّكَ النَّذِيْرِ الْمُنْذِرِ",
+   "note": "النذير المنذر describes نبيك (genitive), as later in the same sentence: نَبِيِّكَ النَّذِيْرِ الْمُنْذِرِ.",
+   "sure": true
+  },
+  {
+   "table": 14,
+   "old": "بِالْوَحْدَانِيَّةِ اِنَّكَ اَنْتَ",
+   "new": "بِالْوَحْدَانِيَّةِ بِاَنَّكَ اَنْتَ",
+   "note": "Iqbal has بأنك أنت الله (bearing witness 'that You are Allah') اِنَّكَ is readable but likely a slip.",
+   "sure": false
+  },
+  {
+   "table": 14,
+   "old": "وَعَلَيٌّ اَمِيْرُ",
+   "new": "وَعَلِيٌّ اَمِيْرُ",
+   "note": "وَعَلَيٌّ is a typo for وَعَلِيٌّ (ʿAliyyun).",
+   "sure": true
+  },
+  {
+   "table": 14,
+   "old": "نَبِيَّكَ النَّذِيْرِ",
+   "new": "نَبِيِّكَ النَّذِيْرِ",
+   "note": "After مِنْ بَعْدِ the noun is genitive: نَبِيِّكَ (kasra, not fatha).",
+   "sure": true
+  },
+  {
+   "table": 14,
+   "old": "بِذٰلِك وَ",
+   "new": "بِذٰلِكَ وَ",
+   "note": "Missing fatha on the final kaf of بِذٰلِكَ (mid-sentence).",
+   "sure": true
+  },
+  {
+   "table": 14,
+   "old": "يُخَلِفُ الْمِيْعَادَ",
+   "new": "يُخْلِفُ الْمِيْعَادَ",
+   "note": "يُخَلِفُ is a typo for يُخْلِفُ (yukhlifu), sukun on kha.",
+   "sure": true
+  },
+  {
+   "table": 14,
+   "old": "اِنَّهُمْ مَسْؤُلُوْنَ",
+   "new": "اِنَّهُمْ مَسْئُوْلُوْنَ",
+   "note": "Quran 37:24 مَسْئُوْلُوْنَ (masʾūlūn): the long و after the hamza is missing.",
+   "sure": true
+  },
+  {
+   "table": 14,
+   "old": "وَ ذَكَرْتَنَا مِيْثَاقَكَ",
+   "new": "وَ ذَكَّرْتَنَا مِيْثَاقَكَ",
+   "note": "'You reminded us of Your covenant' is form II ذَكَّرْتَنَا, as elsewhere in the dua ذَكَرْتَنَا lacks the shadda.",
+   "sure": true
+  },
+  {
+   "table": 14,
+   "old": "ظُهُوْرِهِمْ وَ ذُرِّيَّتَهُمْ",
+   "new": "ظُهُوْرِهِمْ ذُرِّيَّتَهُمْ",
+   "note": "Quran 7:172 has no و before ذُرِّيَّتَهُمْ (it is the object of اَخَذَ).",
+   "sure": true
+  },
+  {
+   "table": 14,
+   "old": "اَنْفُسِهِمْ قَالُوْا بَلٰى",
+   "new": "اَنْفُسِهِمْ اَلَسْتُ بِرَبِّكُمْ قَالُوْا بَلٰى",
+   "note": "Quran 7:172 (and Iqbal) have اَلَسْتُ بِرَبِّكُمْ before قَالُوْا بَلٰى without it 'they said: yes' answers nothing.",
+   "sure": true
+  },
+  {
+   "table": 14,
+   "old": "نبِيُّنَا",
+   "new": "نَبِيُّنَا",
+   "note": "Missing fatha on the nun of نَبِيُّنَا",
+   "sure": true
+  },
+  {
+   "table": 14,
+   "old": "عَلِيٍّ بْنِ",
+   "new": "عَلِيِّ بْنِ",
+   "note": "No tanween on a name followed by ibn: عَلِيِّ بْنِ اَبِيْ طَالِبٍ.",
+   "sure": true
+  },
+  {
+   "table": 14,
+   "old": "مِن شَاْنِكَ",
+   "new": "مِنْ شَاْنِكَ",
+   "note": "Missing sukun on مِنْ.",
+   "sure": true
+  },
+  {
+   "table": 14,
+   "old": "بِنِعْمِتِكَ",
+   "new": "بِنِعْمَتِكَ",
+   "note": "بِنِعْمِتِكَ is a typo for بِنِعْمَتِكَ (niʿmatika).",
+   "sure": true
+  },
+  {
+   "table": 14,
+   "old": "وَ الْاَئمَّةِ",
+   "new": "وَ الْاَئِمَّةِ",
+   "note": "Missing kasra on the hamza of الْاَئِمَّةِ",
+   "sure": true
+  },
+  {
+   "table": 14,
+   "old": "وَّ ثَبِّتَ لَنَا",
+   "new": "وَّ ثَبِّتْ لَنَا",
+   "note": "Imperative: ثَبِّتْ (thabbit), not ثَبِّتَ cf. رَبَّنَا ثَبِّتْ اَقْدَامَنَا later.",
+   "sure": true
+  },
+  {
+   "table": 14,
+   "old": "دَارِ الْمَقَامَةِ",
+   "new": "دَارِ الْمُقَامَةِ",
+   "note": "Quran 35:35 دَارَ الْمُقَامَةِ (muqāmah, damma).",
+   "sure": true
+  },
+  {
+   "table": 14,
+   "old": "وَ الْاِمَامُ الْهَادِيْ",
+   "new": "وَ الْاِمَامِ الْهَادِيْ",
+   "note": "Probably genitive like the وَلِيِّكَ it is joined to (…وَ وَلِيِّكَ مَوْلَى الْمُؤْمِنِيْنَ عَلِيِّ…) the nominative only works as a new clause.",
+   "sure": false
+  },
+  {
+   "table": 14,
+   "old": "آلِ مُحَمّدٍ",
+   "new": "آلِ مُحَمَّدٍ",
+   "note": "Missing fatha on the mim of مُحَمَّدٍ.",
+   "sure": true
+  },
+  {
+   "table": 14,
+   "old": "وَ الرَدِّ اِلَيْهِمْ",
+   "new": "وَ الرَّدِّ اِلَيْهِمْ",
+   "note": "Missing shadda on the sun letter: الرَّدِّ.",
+   "sure": true
+  },
+  {
+   "table": 14,
+   "old": "الَّذِيْ وَ اثَقْتَنَا",
+   "new": "الَّذِيْ وَاثَقْتَنَا",
+   "note": "وَاثَقْتَنَا ('You made a covenant with us', form III) is one word",
+   "sure": true
+  },
+  {
+   "table": 14,
+   "old": "مَهْدِيًا",
+   "new": "مَهْدِيًّا",
+   "note": "Missing shadda on the ya of مَهْدِيًّا (mahdiyyan).",
+   "sure": true
+  },
+  {
+   "table": 14,
+   "old": "الْمُنْذِرِ وَالَيْنَا وَلِيَّهُمْ",
+   "new": "الْمُنْذِرِ وَ وَالَيْنَا وَلِيَّهُمْ",
+   "note": "A و is missing before وَالَيْنَا (Iqbal: ووالينا cf. وَ وَالَيْنَا وَلِيَّكَ in sentence 15).",
+   "sure": true
+  },
+  {
+   "table": 23,
+   "old": "وَ لَا تَجَعَلْهُ",
+   "new": "وَ لَا تَجْعَلْهُ",
+   "note": "تَجَعَلْهُ has a fatha on the jim it is تَجْعَلْهُ (taj'alhu).",
+   "sure": true
+  },
+  {
+   "table": 23,
+   "old": "وَ تَعْتِقَ رَقَبَتِيْ",
+   "new": "وَ تُعْتِقَ رَقَبَتِيْ",
+   "note": "'Free my neck' is form IV: تُعْتِقَ (tu'tiqa), not تَعْتِقَ.",
+   "sure": true
+  },
+  {
+   "table": 23,
+   "old": "اَجَزَ لَهٗ",
+   "new": "اَجْزَلِهٖ",
+   "note": "اَجَزَ لَهٗ is one word split in two: اَجْزَلِهٖ (ajzalihi, 'most abundant'), genitive like اَتَمِّهٖ / اَعَمِّهٖ / اَوْسَعِهٖ before it.",
+   "sure": true
+  },
+  {
+   "table": 23,
+   "old": "وَ اَهْنَاَهٗ",
+   "new": "وَ اَهْنَئِهٖ",
+   "note": "اَهْنَاَهٗ should be genitive like the other elatives after عَلٰى: اَهْنَئِهٖ (ahna'ihi).",
+   "sure": true
+  },
+  {
+   "table": 23,
+   "old": "اَوْ يَنْقَضِيْ",
+   "new": "اَوْ يَنْقَضِيَ",
+   "note": "Governed by اَنْ, so subjunctive: يَنْقَضِيَ (yanqaḍiya).",
+   "sure": true
+  },
+  {
+   "table": 23,
+   "old": "قَدْ فَزَعْتَ",
+   "new": "قَدْ فَزِعْتُ",
+   "note": "فَزَعْتَ ('you fled') is a typo for فَزِعْتُ (fazi'tu, 'I fled to You').",
+   "sure": true
+  },
+  {
+   "table": 23,
+   "old": "صَلِّ عَلٰى مُحَمِّدٍ",
+   "new": "صَلِّ عَلٰى مُحَمَّدٍ",
+   "note": "مُحَمِّدٍ has a kasra on the mim it is مُحَمَّدٍ.",
+   "sure": true
+  },
+  {
+   "table": 23,
+   "old": "غِنًي",
+   "new": "غِنًى",
+   "note": "Final letter should be alif maqsura ى (as in هُدًى, هَوًى), not dotted ي.",
+   "sure": true
+  },
+  {
+   "table": 23,
+   "old": "اَنْ تَكُوْنَ شَيْءٌ",
+   "new": "اَنْ يَّكُوْنَ شَيْءٌ",
+   "note": "شَيْءٌ is masculine, so the verb is يَكُوْنَ, not تَكُوْنَ.",
+   "sure": true
+  },
+  {
+   "table": 23,
+   "old": "اَجعَلَ",
+   "new": "اَجْعَلَ",
+   "note": "Missing sukun on the jim: اَجْعَلَ.",
+   "sure": true
+  },
+  {
+   "table": 23,
+   "old": "اَعُوْذُ بِعَفْوِكَ وَ",
+   "new": "اَعُوْذُ بِعَفْوِكَ مِنْ عُقُوْبَتِكَ وَ",
+   "note": "A phrase seems missing: the pattern is 'refuge in Your pardon from Your punishment, in Your pleasure from Your anger, in Your obedience from disobeying You' the standard wording is بِعَفْوِكَ مِنْ عُقُوْبَتِكَ. Please check the source book.",
+   "sure": false
+  },
+  {
+   "table": 23,
+   "old": "جَلَّ ثَنَاؤُكَ وَ وَجْهُكَ",
+   "new": "جَلَّ ثَنَاءُ وَجْهِكَ",
+   "note": "The usual formula is جَلَّ ثَنَاءُ وَجْهِكَ ('exalted is the praise of Your Face') ثَنَاؤُكَ وَ وَجْهُكَ looks like a corruption of it.",
+   "sure": false
+  },
+  {
+   "table": 23,
+   "old": "وَ لَا اَتَحَلَّلَهَا",
+   "new": "وَ لَا تَحَلُّلَهَا",
+   "note": "اَتَحَلَّلَهَا (subjunctive with no اَنْ) is ungrammatical. Most likely the masdar تَحَلُّلَهَا, parallel to اَدَاءَ ('I cannot repay it nor obtain release from it') otherwise indicative اَتَحَلَّلُهَا.",
+   "sure": false
+  },
+  {
+   "table": 23,
+   "old": "الْاِسْتِرْجَاعِ فِيْ الْمَعْصِيَةِ",
+   "new": "الْاِسْتِرْجَاعِ فِيْ الْمُصِيْبَةِ",
+   "note": "Istirja' (saying 'inna lillah...') is done at a calamity, الْمُصِيْبَةِ الْمَعْصِيَةِ ('sin') looks like a typo.",
+   "sure": false
+  },
+  {
+   "table": 23,
+   "old": "خَطَاً",
+   "new": "خَطَأً",
+   "note": "Missing hamza: خَطَأً (khaṭa'an), not خَطَا (khaṭā).",
+   "sure": true
+  },
+  {
+   "table": 23,
+   "old": "اَنْ اَشْتَرِيْ",
+   "new": "اَنْ اَشْتَرِيَ",
+   "note": "Governed by اَنْ, so subjunctive: اَشْتَرِيَ (ashtariya).",
+   "sure": true
+  },
+  {
+   "table": 23,
+   "old": "وَ اَكْلِ الرِّيَاءِ",
+   "new": "وَ اَكْلِ الرِّبَا",
+   "note": "'Eating' goes with usury: اَكْلِ الرِّبَا (ar-ribā). الرِّيَاءِ (showing off) is listed separately later (وَ الشِّرْكِ وَ الرِّيَاءِ).",
+   "sure": true
+  },
+  {
+   "table": 23,
+   "old": "وَ الطَّيَرَةِ",
+   "new": "وَ الطِّيَرَةِ",
+   "note": "Ill omen is الطِّيَرَةِ (aṭ-ṭiyara) with kasra on the ṭa.",
+   "sure": false
+  },
+  {
+   "table": 23,
+   "old": "قِلَّةِ الْعَدَدِ",
+   "new": "قِلَّةِ الْعَدْلِ",
+   "note": "'Having few numbers in family and children' is not a sin most likely قِلَّةِ الْعَدْلِ ('lack of justice towards family and children'). Please check the source.",
+   "sure": false
+  },
+  {
+   "table": 23,
+   "old": "بِغَيْرِ حَقِّ وَ",
+   "new": "بِغَيْرِ حَقٍّ وَّ",
+   "note": "Missing tanween: بِغَيْرِ حَقٍّ.",
+   "sure": true
+  },
+  {
+   "table": 23,
+   "old": "وَ الْتَمَنِّيْ",
+   "new": "وَ التَّمَنِّيْ",
+   "note": "ت is a sun letter: التَّمَنِّيْ (at-tamannī), not الْتَمَنِّيْ.",
+   "sure": true
+  },
+  {
+   "table": 23,
+   "old": "وَ اِنْتِهَارِ",
+   "new": "وَ انْتِهَارِ",
+   "note": "Form VII masdar is wasl mid-sentence write a bare alif: وَ انْتِهَارِ.",
+   "sure": true
+  },
+  {
+   "table": 23,
+   "old": "وَ الْحَنْثِ",
+   "new": "وَ الْحِنْثِ",
+   "note": "Breaking an oath is الْحِنْثِ (al-ḥinth), kasra on the ha.",
+   "sure": true
+  },
+  {
+   "table": 23,
+   "old": "فِيْ الْاِيْمَانِ",
+   "new": "فِيْ الْاَيْمَانِ",
+   "note": "Oaths are الْاَيْمَانِ (al-aymān, plural of يَمِيْن) الْاِيْمَانِ means 'faith'.",
+   "sure": true
+  },
+  {
+   "table": 23,
+   "old": "هُوَ لَكَ مَعْصِيَةً",
+   "new": "هُوَ لَكَ مَعْصِيَةٌ",
+   "note": "Predicate of هُوَ, so nominative: مَعْصِيَةٌ.",
+   "sure": false
+  },
+  {
+   "table": 23,
+   "old": "وَّكُلِّ يَمِيْنٍ زُوْرٍ",
+   "new": "وَّ كُلِّ يَمِيْنٍ زُوْرٍ",
+   "note": "وَ run into كُلِّ separate them like the rest of the text.",
+   "sure": true
+  },
+  {
+   "table": 23,
+   "old": "مَلَاءٍ",
+   "new": "مَلَإٍ",
+   "note": "'In company' is مَلَإٍ (mala'in) مَلَاءٍ adds a long alif.",
+   "sure": true
+  },
+  {
+   "table": 23,
+   "old": "لَا اَرْجَعَ",
+   "new": "لَا اَرْجِعَ",
+   "note": "رَجَعَ يَرْجِعُ: اَرْجِعَ (arji'a), kasra on the jim.",
+   "sure": true
+  },
+  {
+   "table": 23,
+   "old": "الصِّحَةِ",
+   "new": "الصِّحَّةِ",
+   "note": "Missing shadda: الصِّحَّةِ (aṣ-ṣiḥḥa).",
+   "sure": true
+  },
+  {
+   "table": 12,
+   "old": "بَهيٌّ",
+   "new": "بَهِيٌّ",
+   "note": "بَهيٌّ lacks the kasra on ha: بَهِيٌّ (bahiyy).",
+   "sure": true
+  },
+  {
+   "table": 12,
+   "old": "اَسْاَلُكَ برَحْمَتِكَ",
+   "new": "اَسْاَلُكَ بِرَحْمَتِكَ",
+   "note": "برَحْمَتِكَ lacks the kasra on the ba: بِرَحْمَتِكَ.",
+   "sure": true
+  },
+  {
+   "table": 12,
+   "old": "مِنْ مَشيئَتِكَ",
+   "new": "مِنْ مَشِيْئَتِكَ",
+   "note": "مَشيئَتِكَ lacks the kasra on shin. Note line 25 writes the same word مَشِيَّتِكَ (the Mafatih spelling) the owner may want one spelling throughout.",
+   "sure": true
+  },
+  {
+   "table": 12,
+   "old": "وَكُلِّ مَشِيْئَتِكَ",
+   "new": "وَكُلُّ مَشِيْئَتِكَ",
+   "note": "كُلِّ must be nominative here (subject): وَكُلُّ مَشِيْئَتِكَ مَاضِيَةٌ, like every other 'wa kullu ...' line.",
+   "sure": true
+  },
+  {
+   "table": 12,
+   "old": "بِاَحَبِّهَا وَ كُلُّهَا",
+   "new": "بِاَحَبِّهَا اِلَيْكَ وَ كُلُّهَا",
+   "note": "Mafatih reads بِاَحَبِّهَا اِلَيْكَ ('by the one most beloved to You') اِلَيْكَ seems dropped.",
+   "sure": false
+  },
+  {
+   "table": 12,
+   "old": "مِنْ مِلْكِكَ",
+   "new": "مِنْ مُلْكِكَ",
+   "note": "مِلْكِكَ should be مُلْكِكَ (mulk, dominion), as in the rest of the line and line 41.",
+   "sure": true
+  },
+  {
+   "table": 12,
+   "old": "بآيَاتِكَ",
+   "new": "بِآيَاتِكَ",
+   "note": "بآيَاتِكَ lacks the kasra on the ba: بِآيَاتِكَ.",
+   "sure": true
+  },
+  {
+   "table": 12,
+   "old": "مِنَ الشَاْنِ",
+   "new": "مِنَ الشَّاْنِ",
+   "note": "الشَاْنِ lacks the shadda of the sun letter: الشَّاْنِ (ash-sha'n).",
+   "sure": true
+  },
+  {
+   "table": 12,
+   "old": "شَاْنٍ وَّ كُلُّ جَبَرُوْتٍ",
+   "new": "شَاْنٍ وَّ كُلِّ جَبَرُوْتٍ",
+   "note": "كُلُّ is joined to بِكُلِّ and must be genitive: وَّ كُلِّ جَبَرُوْتٍ. (Mafatih reads بِكُلِّ شَاْنٍ وَحْدَهٗ وَ جَبَرُوْتٍ وَحْدَهَا this book's wording may be another version.)",
+   "sure": true
+  },
+  {
+   "table": 12,
+   "old": "عَامُّ",
+   "new": "عَامٌّ",
+   "note": "عَامُّ lacks its tanween: عَامٌّ.",
+   "sure": true
+  },
+  {
+   "table": 12,
+   "old": "مُحَمَّدًا صَلَّي",
+   "new": "مُحَمَّدًا صَلَّى",
+   "note": "صَلَّي ends in dotted ya it should be alif maqsura ى: صَلَّى.",
+   "sure": true
+  },
+  {
+   "table": 12,
+   "old": "مُحَمَّدٍ صَلَّي",
+   "new": "مُحَمَّدٍ صَلَّى",
+   "note": "صَلَّي ends in dotted ya it should be alif maqsura ى: صَلَّى.",
+   "sure": true
+  },
+  {
+   "table": 12,
+   "old": "الْمَلَاءِ الْاَعْلٰى",
+   "new": "الْمَلَاِ الْاَعْلٰى",
+   "note": "الملأ (al-mala', the host) has no long alif: الْمَلَاِ الْاَعْلٰى (al-mala-il a'la) الْمَلَاءِ reads 'al-malaa'i'.",
+   "sure": true
+  },
+  {
+   "table": 12,
+   "old": "اَللّٰهُمَّ اِعْطِ",
+   "new": "اَللّٰهُمَّ اَعْطِ",
+   "note": "Form IV imperative takes a fatha: اَعْطِ (a'ti), not اِعْطِ.",
+   "sure": true
+  },
+  {
+   "table": 12,
+   "old": "وَّ اقْنِعْنِيْ",
+   "new": "وَ قَنِّعْنِيْ",
+   "note": "The standard phrase is قَنِّعْنِيْ بِمَا رَزَقْتَنِيْ (form II, 'make me content') اقْنِعْنِيْ is not a valid transitive form.",
+   "sure": true
+  },
+  {
+   "table": 12,
+   "old": "كُلِّ شَرِّ وَمِنْ",
+   "new": "كُلِّ شَرٍّ وَمِنْ",
+   "note": "شَرِّ lacks its tanween: مِنْ كُلِّ شَرٍّ.",
+   "sure": true
+  },
+  {
+   "table": 12,
+   "old": "سَرُوْرٍ",
+   "new": "سُرُوْرٍ",
+   "note": "سُرُوْر (joy) has a damma on the sin, not a fatha.",
+   "sure": true
+  },
+  {
+   "table": 12,
+   "old": "وَ مِن كُلِّ بَهْجَةٍ",
+   "new": "وَ مِنْ كُلِّ بَهْجَةٍ",
+   "note": "مِن lacks the sukun on nun.",
+   "sure": true
+  },
+  {
+   "table": 12,
+   "old": "بِنْوُرِ",
+   "new": "بِنُوْرِ",
+   "note": "Marks swapped: sukun on nun and damma on waw should be بِنُوْرِ (bi-noori).",
+   "sure": true
+  },
+  {
+   "table": 12,
+   "old": "وَلِيِّكَ عَلَيَّ الْمُرْتَضٰى",
+   "new": "وَلِيِّكَ عَلِيٍّ الْمُرْتَضٰى",
+   "note": "عَلَيَّ means 'upon me' the name is عَلِيٍّ (genitive, after وَلِيِّكَ).",
+   "sure": true
+  },
+  {
+   "table": 12,
+   "old": "الَّذِيْنَ اَنْتَجَبْتَهُمْ",
+   "new": "الَّذِيْنَ انْتَجَبْتَهُمْ",
+   "note": "Form VIII verb, hamzat al-wasl: انْتَجَبْتَهُمْ (alladhina-ntajabtahum), not اَنْتَجَبْتَهُمْ.",
+   "sure": true
+  },
+  {
+   "table": 12,
+   "old": "الْجَّنَةَ",
+   "new": "الْجَنَّةَ",
+   "note": "Shadda on the wrong letter: الْجَنَّةَ (al-janna).",
+   "sure": true
+  },
+  {
+   "table": 9,
+   "old": "وَ اَعِيْنَ عَلٰى",
+   "new": "وَ اُعِيْنَ عَلٰى",
+   "note": "اَعِيْنَ should be اُعِيْنَ (u'ina, form IV أعان: 'that I help against myself') the present of form IV takes damma on the alif",
+   "sure": true
+  },
+  {
+   "table": 9,
+   "old": "لِمَنْ عَمَلَهَا",
+   "new": "لِمَنْ عَمِلَهَا",
+   "note": "عَمَلَهَا is a typo for the verb عَمِلَهَا ('amilahā, 'whoever does it')",
+   "sure": true
+  },
+  {
+   "table": 9,
+   "old": "عَبْرَتيْ",
+   "new": "عَبْرَتِيْ",
+   "note": "missing kasra on ت: عَبْرَتِيْ ('abratī, my tears)",
+   "sure": true
+  },
+  {
+   "table": 9,
+   "old": "لَصَمُتُّ",
+   "new": "لَصَمَتُّ",
+   "note": "the verb is صَمَتَ يَصْمُتُ, so the past is لَصَمَتُّ (la-samattu), not لَصَمُتُّ",
+   "sure": true
+  },
+  {
+   "table": 9,
+   "old": "يَا اِلٰهِيْ غَايَةُ",
+   "new": "يَا اِلٰهِيْ غَايَةَ",
+   "note": "after يَا اِلٰهِيْ the following title is also addressed, so غَايَةَ (ghāyata) is expected غَايَةُ only works if 'You are' is understood. Standard text not found to confirm",
+   "sure": false
+  },
+  {
+   "table": 9,
+   "old": "وَ نَقْمَتِكَ",
+   "new": "وَ نَقِمَتِكَ",
+   "note": "the word is نَقِمَة (naqima) or نِقْمَة (niqma) نَقْمَة with sukun is not the usual form (the Sahifa has نَقِمَة)",
+   "sure": false
+  },
+  {
+   "table": 9,
+   "old": "بَذُنُوْبِيْ",
+   "new": "بِذُنُوْبِيْ",
+   "note": "بَذُنُوْبِيْ should be بِذُنُوْبِيْ (bi-dhunūbī, for my sins): the preposition bi takes kasra",
+   "sure": true
+  },
+  {
+   "table": 9,
+   "old": "وَ اَخِرِهِمَا",
+   "new": "وَ آخِرِهِمَا",
+   "note": "اَخِرِهِمَا is missing its long ā: آخِرِهِمَا (ākhirihimā, the last of them), as in آخِرَتِيْ later in the line",
+   "sure": true
+  },
+  {
+   "table": 9,
+   "old": "يَا مَنَّانٌ",
+   "new": "يَا مَنَّانُ",
+   "note": "a vocative like this takes a plain damma, not tanween: يَا مَنَّانُ",
+   "sure": true
+  },
+  {
+   "table": 10,
+   "old": "عَلٰي قُلُوْبِہِمْ",
+   "new": "عَلٰى قُلُوْبِہِمْ",
+   "note": "the Quran (17:46) has عَلَىٰ with alif maqsura: عَلٰى",
+   "sure": true
+  },
+  {
+   "table": 10,
+   "old": "وَ لَّوْا",
+   "new": "وَلَّوْا",
+   "note": "وَلَّوْا (wallaw, 'they turn') is one verb, not wa + لَّوْا (Quran 17:46)",
+   "sure": true
+  },
+  {
+   "table": 10,
+   "old": "عَلٰٓي اَدْبَارِہِمْ",
+   "new": "عَلٰٓى اَدْبَارِہِمْ",
+   "note": "same dotted ي in عَلٰٓي write it with alif maqsura عَلٰٓى as in the Quran",
+   "sure": true
+  },
+  {
+   "table": 10,
+   "old": "تَزْرُقُ",
+   "new": "تَرْزُقُ",
+   "note": "letters swapped: تَزْرُقُ for تَرْزُقُ (tarzuqu, You provide)",
+   "sure": true
+  },
+  {
+   "table": 10,
+   "old": "وَ اَشْغِلْ عَنَّا",
+   "new": "وَ اشْغَلْ عَنَّا",
+   "note": "the verb is form I شَغَلَ يَشْغَلُ, so the imperative is اشْغَلْ (wash-ghal) اَشْغِلْ (form IV) is a rare usage. Check against the owner's source",
+   "sure": false
+  },
+  {
+   "table": 10,
+   "old": "قَلبَهٗ",
+   "new": "قَلْبَهٗ",
+   "note": "missing sukun on ل: قَلْبَهٗ (qalbahū)",
+   "sure": true
+  },
+  {
+   "table": 11,
+   "old": "لَّا يُخِيْبُ",
+   "new": "لَّا يُخَيِّبُ",
+   "note": "Sahifa 46 has يُخَيِّبُ (yukhayyibu, disappoint, form II) يُخِيْبُ is a typo",
+   "sure": true
+  },
+  {
+   "table": 11,
+   "old": "يَجْبَهٗ بِالرَدِّ",
+   "new": "يَجْبَهُ بِالرَّدِّ",
+   "note": "two errors: the ه of يَجْبَهُ is part of the root (j-b-h), so no silah sign ٗ and بِالرَّدِّ needs a shadda on ر (sun letter).",
+   "sure": true
+  },
+  {
+   "table": 11,
+   "old": "يُّشْكَرُ",
+   "new": "يَّشْكُرُ",
+   "note": "passive يُّشْكَرُ makes no sense here Sahifa 46 has the active يَشْكُرُ (yashkuru, 'who thanks for little')",
+   "sure": true
+  },
+  {
+   "table": 11,
+   "old": "بِالْقَلِيْلِ",
+   "new": "عَلَى الْقَلِيْلِ",
+   "note": "Sahifa 46 reads يَشْكُرُ عَلَى الْقَلِيْلِ بِالْقَلِيْلِ may be a typist's echo of بِالْجَلِيْلِ that follows",
+   "sure": false
+  },
+  {
+   "table": 11,
+   "old": "يُّدْنِيْ مَنْ دَنَا",
+   "new": "يَّدْنُوْ اِلٰى مَنْ دَنَا",
+   "note": "Sahifa 46 reads يَدْنُوْ اِلٰى مَنْ دَنَا مِنْهُ ('who comes near to whoever comes near Him') يُدْنِيْ مَنْ ('brings near') still makes sense, so this may be a variant",
+   "sure": false
+  },
+  {
+   "table": 11,
+   "old": "نَفسِهٖ",
+   "new": "نَفْسِهٖ",
+   "note": "missing sukun on ف: نَفْسِهٖ",
+   "sure": true
+  },
+  {
+   "table": 11,
+   "old": "لَّا يُغَيَّرُ",
+   "new": "لَّا يُغَيِّرُ",
+   "note": "يُغَيَّرُ is passive ('is changed') it must be active يُغَيِّرُ (yughayyiru, 'does not change the blessing')",
+   "sure": true
+  },
+  {
+   "table": 11,
+   "old": "بِالنَّقْمَةِ",
+   "new": "بِالنَّقِمَةِ",
+   "note": "Sahifa 46 vowels it بِالنَّقِمَةِ (naqima) نَقْمَة with sukun is not the usual form",
+   "sure": true
+  },
+  {
+   "table": 11,
+   "old": "يُعْفِيْهَا",
+   "new": "يُعَفِّيَهَا",
+   "note": "Sahifa 46 has يُعَفِّيَهَا (yu'affiyahā, 'effaces it', form II), subjunctive after حَتّٰى like يُنْمِيَهَا before it",
+   "sure": true
+  },
+  {
+   "table": 11,
+   "old": "اَوْعِيَةُ الطَّلَبَاتِ",
+   "new": "اَوْعِيَةُ الطَّلِبَاتِ",
+   "note": "Sahifa 46 is vowelled الطَّلِبَاتِ (talibāt, plural of talibah) الطَّلَبَاتِ is also a valid plural of 'request', so the owner may keep it",
+   "sure": false
+  },
+  {
+   "table": 11,
+   "old": "وَ تَفَتَّحَتْ",
+   "new": "وَ تَفَسَّخَتْ",
+   "note": "Sahifa 46: وَتَفَسَّخَتْ دُوْنَ بُلُوْغِ نَعْتِكَ الصِّفَاتُ ('descriptions fall apart before reaching Your praise') تَفَتَّحَتْ ('opened') is a wrong word",
+   "sure": true
+  },
+  {
+   "table": 11,
+   "old": "كُلِّ جَلَالٍ عِنْدَكَ",
+   "new": "كُلُّ جَلِيْلٍ عِنْدَكَ",
+   "note": "a new sentence starts here, so كُلُّ needs damma, and Sahifa 46 has جَلِيْلٍ: كُلُّ جَلِيْلٍ عِنْدَكَ صَغِيْرٌ ('every majestic thing is small before You')",
+   "sure": true
+  },
+  {
+   "table": 11,
+   "old": "وَكُلِّ شَرِيْفٍ",
+   "new": "وَكُلُّ شَرِيْفٍ",
+   "note": "كُلُّ is the subject of حَقِيْرٌ, so damma: وَكُلُّ شَرِيْفٍ",
+   "sure": true
+  },
+  {
+   "table": 11,
+   "old": "قَرِيْبَةُ مِنَ",
+   "new": "قَرِيْبَةٌ مِنَ",
+   "note": "missing tanween: قَرِيْبَةٌ (qarībatun) is the predicate",
+   "sure": true
+  },
+  {
+   "table": 11,
+   "old": "يَشْقِىْ",
+   "new": "يَشْقٰى",
+   "note": "the verb is شَقِيَ يَشْقٰى, so يَشْقٰى (yashqā), not يَشْقِىْ",
+   "sure": true
+  },
+  {
+   "table": 11,
+   "old": "بِنَقْمَتِكَ",
+   "new": "بِنَقِمَتِكَ",
+   "note": "Sahifa 46 vowels it بِنَقِمَتِكَ (naqima)",
+   "sure": true
+  },
+  {
+   "table": 11,
+   "old": "مُتَعَرِّضٌ لِمَنْ",
+   "new": "مُعْتَرِضٌ لِمَنْ",
+   "note": "Sahifa 46: وَحِلْمُكَ مُعْتَرِضٌ لِمَنْ نَاوَاكَ مُتَعَرِّضٌ looks copied from الْمُتَعَرِّضُوْنَ nearby",
+   "sure": true
+  },
+  {
+   "table": 11,
+   "old": "اَهْلَ الشَّقَاوَةِ",
+   "new": "اَهْلِ الشَّقَاوَةِ",
+   "note": "after مِنْ it must be genitive: مِنْ اَهْلِ الشَّقَاوَةِ",
+   "sure": true
+  },
+  {
+   "table": 11,
+   "old": "خَذَلْتَهٗ بِهَا",
+   "new": "خَذَلْتَهٗ لَهَا",
+   "note": "Sahifa 46 has خَذَلْتَهٗ لَهَا بِهَا may be a typist's echo of خَتَمْتَ لَهٗ بِهَا just before",
+   "sure": false
+  },
+  {
+   "table": 11,
+   "old": "لَمْ يَهُنْ",
+   "new": "لَمْ يَهِنْ",
+   "note": "Sahifa 46 has لَمْ يَهِنْ (from وَهَنَ, 'did not weaken') يَهُنْ (from هَانَ) means 'did not become lowly'",
+   "sure": true
+  },
+  {
+   "table": 11,
+   "old": "وَ لَمْ يُدْحَضْ",
+   "new": "وَ لَمْ يَدْحَضْ",
+   "note": "Sahifa 46 has the active لَمْ يَدْحَضْ (did not become void) the passive is grammatically possible, so low priority",
+   "sure": false
+  },
+  {
+   "table": 11,
+   "old": "وَ مَا اقْنَطَهٗ",
+   "new": "وَ مَا اَقْنَطَهٗ",
+   "note": "the wonder form مَا اَفْعَلَهٗ has a hamzat al-qat': وَ مَا اَقْنَطَهٗ (wa mā aqnatahū)",
+   "sure": true
+  },
+  {
+   "table": 11,
+   "old": "تَجوُرُ",
+   "new": "تَجُوْرُ",
+   "note": "marks on the wrong letter: the damma belongs on ج: تَجُوْرُ (tajūru)",
+   "sure": true
+  },
+  {
+   "table": 11,
+   "old": "وَاِنصَافًا",
+   "new": "وَاِنْصَافًا",
+   "note": "missing sukun on ن: اِنْصَافًا",
+   "sure": true
+  },
+  {
+   "table": 11,
+   "old": "اَبْلَيْتَ الْاِعْذَارَ",
+   "new": "اَبْلَيْتَ الْاَعْذَارَ",
+   "note": "Sahifa 46 has الْاَعْذَارَ (al-a'dhār, the excuses) الْاِعْذَار (giving fair warning) is a possible reading, so the owner may keep it",
+   "sure": false
+  },
+  {
+   "table": 11,
+   "old": "مُسْتَطِيْعٌ بِالْمُعَاجَلَةِ",
+   "new": "مُسْتَطِيْعٌ لِلْمُعَاجَلَةِ",
+   "note": "Sahifa 46 has لِلْمُعَاجَلَةِ بِالْمُعَاجَلَةِ may be an echo of بِالْمُبَادَرَةِ that follows",
+   "sure": false
+  },
+  {
+   "table": 11,
+   "old": "مَدَارَاةً",
+   "new": "مُدَارَاةً",
+   "note": "form III masdar: مُدَارَاةً (mudārātan), with damma on م",
+   "sure": true
+  },
+  {
+   "table": 11,
+   "old": "اَقَلِهٖ",
+   "new": "اَقَلِّهٖ",
+   "note": "missing shadda: اَقَلِّهٖ (aqallihī, the least of it)",
+   "sure": true
+  },
+  {
+   "table": 11,
+   "old": "قَصُرَ بِيَ",
+   "new": "قَصَّرَ بِيَ",
+   "note": "Sahifa 46 has قَصَّرَ بِيَ السُّكُوْتُ ('silence has held me back'), with shadda",
+   "sure": true
+  },
+  {
+   "table": 11,
+   "old": "وَ فَهَهَنِي",
+   "new": "وَ فَهَّهَنِيَ",
+   "note": "Sahifa 46 has فَهَّهَنِيَ (fahhahaniya, 'made me tongue-tied'): shadda on the first ه, and fatha on ي before the wasl",
+   "sure": true
+  },
+  {
+   "table": 11,
+   "old": "قُصَارَاىَ",
+   "new": "قُصَارَايَ",
+   "note": "the ي carries a vowel here, so it must be dotted ي, not ى: قُصَارَايَ (qusārāya)",
+   "sure": true
+  },
+  {
+   "table": 11,
+   "old": "لَا رَغْبَةَ",
+   "new": "لَا رَغْبَةً",
+   "note": "Sahifa 46 has لَا رَغْبَةً ... بَلْ عَجْزًا ('not from desire but from incapacity'), with tanween like عَجْزًا لَا رَغْبَةَ would mean 'there is no desire'",
+   "sure": true
+  },
+  {
+   "table": 11,
+   "old": "اَرُوْمُكَ",
+   "new": "اَؤُمُّكَ",
+   "note": "Sahifa 46 has اَؤُمُّكَ (a'ummuka, I head for You) اَرُوْمُكَ (I seek You) gives a similar meaning and may be a variant",
+   "sure": false
+  },
+  {
+   "table": 11,
+   "old": "لَا تَخْتُمْ",
+   "new": "لَا تَخْتِمْ",
+   "note": "the verb is خَتَمَ يَخْتِمُ: لَا تَخْتِمْ (lā takhtim)",
+   "sure": true
+  },
+  {
+   "table": 11,
+   "old": "مِنْ عِنْدَكَ",
+   "new": "مِنْ عِنْدِكَ",
+   "note": "after مِنْ it must be genitive: مِنْ عِنْدِكَ (min 'indika)",
+   "sure": true
+  },
+  {
+   "table": 11,
+   "old": "لَا عَاجِزٌ",
+   "new": "لَا عَاجِزٍ",
+   "note": "عَاجِزٍ is joined to ضَائِقٍ under غَيْرُ, so it is genitive: وَ لَا عَاجِزٍ (Sahifa 46)",
+   "sure": true
+  },
+  {
+   "table": 13,
+   "old": "عَهْدَهٗ اِلَيْنَا",
+   "new": "عَهِدَهٗ اِلَيْنَا",
+   "note": "this is the verb عَهِدَ ('which He enjoined upon us'), so عَهِدَهٗ ('ahidahū), not the noun عَهْدَهٗ",
+   "sure": true
+  },
+  {
+   "table": 15,
+   "old": "وَ اَوْصِيَاءِ نَبِيِّكَ",
+   "new": "وَ اَوْصِيَاءِ اَنْبِيَائِكَ",
+   "note": "Standard (Iqbal / Mafatih, Ghadir ziyarah): اَوْصِيَاءِ اَنْبِيَائِكَ \"the successors of Your prophets\" اوصياء نبيك (plural successors of one prophet) is a slip.",
+   "sure": true
+  },
+  {
+   "table": 15,
+   "old": "مَا حَمَلَ وَ رَعٰى",
+   "new": "مَا حُمِّلَ وَ رَعٰى",
+   "note": "Standard is passive حُمِّلَ (what he was charged with), parallel to اسْتُحْفِظَ / اسْتُوْدِعَ.",
+   "sure": true
+  },
+  {
+   "table": 15,
+   "old": "صَلَّي اللهُ",
+   "new": "صَلَّى اللهُ",
+   "note": "Final ya written dotted with a fatha before it should be alif maqsura صَلَّى (sallā).",
+   "sure": true
+  },
+  {
+   "table": 15,
+   "old": "وَ وَالِيَ اَوْلِيَاءَكَ",
+   "new": "وَ وَالٰى اَوْلِيَاءَكَ",
+   "note": "وَالِيَ is a typo for the past verb وَالٰى (wālā, he befriended), parallel to عَادٰى.",
+   "sure": true
+  },
+  {
+   "table": 15,
+   "old": "عَادٰي",
+   "new": "عَادٰى",
+   "note": "Final dotted ya should be alif maqsura عَادٰى (ʿādā).",
+   "sure": true
+  },
+  {
+   "table": 15,
+   "old": "النَّاكِثِيْنَ فِيْ سَبِيْلِكَ",
+   "new": "النَّاكِثِيْنَ عَنْ سَبِيْلِكَ",
+   "note": "Mafatih/Iqbal read النَّاكِثِيْنَ عَنْ سَبِيْلِكَ (who broke away from Your path). فِيْ may be a variant.",
+   "sure": false
+  },
+  {
+   "table": 15,
+   "old": "مُحْتَسِبًا غَيْرَ مُدْبِرٍ",
+   "new": "مُحْتَسِبًا مُقْبِلًا غَيْرَ مُدْبِرٍ",
+   "note": "A word is missing: standard is صَابِرًا مُحْتَسِبًا مُقْبِلًا غَيْرَ مُدْبِرٍ (advancing, never turning back).",
+   "sure": true
+  },
+  {
+   "table": 15,
+   "old": "وَ علِيًّا تَقِيًّا",
+   "new": "وَلِيًّا تَقِيًّا",
+   "note": "Garbled: standard is شَهِيْدًا سَعِيْدًا وَلِيًّا تَقِيًّا (waliyyan) وَ علِيًّا also has no vowel on ع.",
+   "sure": true
+  },
+  {
+   "table": 15,
+   "old": "تَقِيًّا وَصِيًّا زَكِيًّا",
+   "new": "تَقِيًّا رَضِيًّا زَكِيًّا",
+   "note": "Standard reads رَضِيًّا (well-pleased) here, not وَصِيًّا.",
+   "sure": false
+  },
+  {
+   "table": 15,
+   "old": "يَا رَبِّ الْعَالَمِيْنَ",
+   "new": "يَا رَبَّ الْعَالَمِيْنَ",
+   "note": "Vocative with a following noun takes fatha: يَا رَبَّ الْعَالَمِيْنَ (yā rabba l-ʿālamīn).",
+   "sure": true
+  },
+  {
+   "table": 18,
+   "old": "وَ تَصَرُّفِ الْخَطَرَاتِ",
+   "new": "وَ تَصَرُّفُ الْخَطَرَاتِ",
+   "note": "تَصَرُّفُ is joined to the subject خَوَاطِرُ, so it takes damma (as in the standard text).",
+   "sure": true
+  },
+  {
+   "table": 18,
+   "old": "وَ اْجَعَلْنِيْ فِيْهَا",
+   "new": "وَ اجْعَلْنِيْ فِيْهَا",
+   "note": "Marks misplaced: sukun on the alif and fatha on jim should be وَ اجْعَلْنِيْ.",
+   "sure": true
+  },
+  {
+   "table": 18,
+   "old": "لِعِبَادَتِك",
+   "new": "لِعِبَادَتِكَ",
+   "note": "Missing fatha on the final kaf.",
+   "sure": true
+  },
+  {
+   "table": 18,
+   "old": "وَ اجْعَلْنِيْ ممَّنْ",
+   "new": "وَ اجْعَلْنِيْ مِمَّنْ",
+   "note": "Missing kasra on mim: مِمَّنْ.",
+   "sure": true
+  },
+  {
+   "table": 18,
+   "old": "سَعُدَ جَدُّهٗ",
+   "new": "سَعِدَ جَدُّهٗ",
+   "note": "The usual form is سَعِدَ (saʿida) سَعُدَ is rare.",
+   "sure": false
+  },
+  {
+   "table": 18,
+   "old": "شَرَّ مَا اَسْلَفْتَ",
+   "new": "شَرَّ مَا اَسْلَفْتُ",
+   "note": "Should be اَسْلَفْتُ (what I have done before), not اَسْلَفْتَ (what You did).",
+   "sure": true
+  },
+  {
+   "table": 18,
+   "old": "يِحْبِسُ",
+   "new": "يَحْبِسُ",
+   "note": "Wrong vowel on ya: يَحْبِسُ (yaḥbisu).",
+   "sure": true
+  },
+  {
+   "table": 18,
+   "old": "وَ مِنْ حِلْمِكَ بِغَضَبِكَ",
+   "new": "وَ بِحِلْمِكَ مِنْ غَضَبِكَ",
+   "note": "Prepositions swapped: standard is وَبِحِلْمِكَ مِنْ غَضَبِكَ (in Your forbearance from Your anger), parallel to بِعَفْوِكَ مِنْ عُقُوْبَتِكَ.",
+   "sure": true
+  },
+  {
+   "table": 18,
+   "old": "لَا شَيْءَ هُوَ",
+   "new": "لَا بِشَيْءٍ هُوَ",
+   "note": "Standard: اَسْاَلُكَ بِكَ لَا بِشَيْءٍ هُوَ اَعْظَمُ مِنْكَ (by You, not by anything greater than You) the ب seems dropped.",
+   "sure": false
+  },
+  {
+   "table": 18,
+   "old": "اَعظَمُ",
+   "new": "اَعْظَمُ",
+   "note": "Missing sukun on ع.",
+   "sure": true
+  },
+  {
+   "table": 20,
+   "old": "فَسَلَّمْنَا فِيْهِ",
+   "new": "فَسَلِّمْنَا فِيْهِ",
+   "note": "Imperative: فَسَلِّمْنَا (kasra on lam), like سَلِّمْنَا مِنْهُ right after سَلَّمْنَا would be 'we greeted'.",
+   "sure": true
+  },
+  {
+   "table": 20,
+   "old": "وَ اَقْبَلْ مِنِّيْ",
+   "new": "وَ اقْبَلْ مِنِّيْ",
+   "note": "Imperative of قَبِلَ is wasl اقْبَلْ (and with a fatha on the alif it reads as a different word).",
+   "sure": true
+  },
+  {
+   "table": 20,
+   "old": "كُلِّ خِيْرٍ",
+   "new": "كُلِّ خَيْرٍ",
+   "note": "خِيْر is a typo for خَيْرٍ (khayr).",
+   "sure": true
+  },
+  {
+   "table": 20,
+   "old": "لَا تُحِبُ مَانِعًا",
+   "new": "لَا تُحِبُّ مَانِعًا",
+   "note": "Missing shadda: تُحِبُّ.",
+   "sure": true
+  },
+  {
+   "table": 20,
+   "old": "بِاِرْتِكَابِ",
+   "new": "بِارْتِكَابِ",
+   "note": "ارْتِكَاب is a form VIII masdar (wasl) after بِ the alif is bare: بِارْتِكَابِ.",
+   "sure": true
+  },
+  {
+   "table": 20,
+   "old": "وَجْهَكَ عَنِّيْ اجْعَلْنِيْ",
+   "new": "وَجْهَكَ وَ اجْعَلْنِيْ",
+   "note": "عَنِّيْ is repeated the second one should be وَ (فَلَا تَصْرِفْ عَنِّيْ وَجْهَكَ وَاجْعَلْنِيْ).",
+   "sure": true
+  },
+  {
+   "table": 20,
+   "old": "اَللّٰهُمَّ ابْقِنِيْ",
+   "new": "اَللّٰهُمَّ اَبْقِنِيْ",
+   "note": "Form IV imperative takes hamzat al-qat': اَبْقِنِيْ (abqinī), like اَفْنِنِيْ after it.",
+   "sure": true
+  },
+  {
+   "table": 20,
+   "old": "بِكتَابِكَ",
+   "new": "بِكِتَابِكَ",
+   "note": "Missing kasra on kaf: بِكِتَابِكَ.",
+   "sure": true
+  },
+  {
+   "table": 20,
+   "old": "رِيَاءَ",
+   "new": "رِيَاءٍ",
+   "note": "رِيَاء is not a diptote (unlike خُيَلَاءَ), so it takes kasratain like the words around it: رِيَاءٍ.",
+   "sure": true
+  },
+  {
+   "table": 20,
+   "old": "بَذْخٍ",
+   "new": "بَذَخٍ",
+   "note": "The noun 'arrogance' is usually voweled بَذَخ (badhakh).",
+   "sure": false
+  },
+  {
+   "table": 20,
+   "old": "مَنْ سُكَّانِ",
+   "new": "مِنْ سُكَّانِ",
+   "note": "Should be مِنْ (of), not مَنْ. (Mafatih has وَاَنَا وَمَنْ لَمْ يَعْصِكَ سُكَّانُ اَرْضِكَ without مِنْ either way مَنْ is wrong.)",
+   "sure": true
+  },
+  {
+   "table": 21,
+   "old": "اَللّٰهُمَّ سَلَّمْهُ لَنَا",
+   "new": "اَللّٰهُمَّ سَلِّمْهُ لَنَا",
+   "note": "Imperative: سَلِّمْهُ (kasra on lam).",
+   "sure": true
+  },
+  {
+   "table": 21,
+   "old": "الْحَرَامِ وَ الْمَبْرُوْرِ",
+   "new": "الْحَرَامِ الْمَبْرُوْرِ",
+   "note": "Extra وَ: الْمَبْرُوْرِ describes حُجَّاج (Mafatih: بَيْتِكَ الْحَرَامِ الْمَبْرُوْرِ حَجُّهُمْ).",
+   "sure": true
+  },
+  {
+   "table": 21,
+   "old": "حَجُّهُمْ اَلْمَشْكُوْرِ",
+   "new": "حَجُّهُمُ الْمَشْكُوْرِ",
+   "note": "Mid-sentence ال is wasl: no fatha on the alif, and the mim takes damma: حَجُّهُمُ الْمَشْكُوْرِ.",
+   "sure": true
+  },
+  {
+   "table": 21,
+   "old": "سَعْيُهُمْ اَلْمَغْفُوْرَةِ",
+   "new": "سَعْيُهُمُ الْمَغْفُوْرَةِ",
+   "note": "Same: wasl ال, so سَعْيُهُمُ الْ...",
+   "sure": true
+  },
+  {
+   "table": 21,
+   "old": "ذُنُوْبُهُمْ اَلْمُكَفَّرِ",
+   "new": "ذُنُوْبُهُمُ الْمُكَفَّرِ",
+   "note": "Same: wasl ال, so ذُنُوْبُهُمُ الْ...",
+   "sure": true
+  },
+  {
+   "table": 22,
+   "old": "زَرَقَنَا",
+   "new": "رَزَقَنَا",
+   "note": "Letters swapped: رَزَقَنَا (razaqanā, He provided for us).",
+   "sure": true
+  },
+  {
+   "table": 24,
+   "old": "تُطْفِىءُ",
+   "new": "تُطْفِئُ",
+   "note": "تُطْفِىءُ is misspelled (dotless ya + loose hamza reads as a long ee) it is تُطْفِئُ (tutfi'u)",
+   "sure": true
+  },
+  {
+   "table": 24,
+   "old": "وَّغِنًى",
+   "new": "وَّ غِنًى",
+   "note": "وَّ is run into غِنًى separate the words",
+   "sure": true
+  },
+  {
+   "table": 24,
+   "old": "عِزًا",
+   "new": "عِزًّا",
+   "note": "عِزًا is missing the shadda: عِزًّا ('izzan)",
+   "sure": true
+  },
+  {
+   "table": 24,
+   "old": "يَقِيْنًايَسُدُّ",
+   "new": "يَقِيْنًا يَّسُدُّ",
+   "note": "two words run together: يَقِيْنًا يَسُدُّ",
+   "sure": true
+  },
+  {
+   "table": 24,
+   "old": "بِهٖ كُلِّ رَحْمَةٍ",
+   "new": "بِهٖ كُلُّ رَحْمَةٍ",
+   "note": "كُلِّ is the subject of يَتَيَسَّرُ, so كُلُّ (damma). (Some texts read تُيَسِّرُ لِيْ بِهٖ كُلَّ رَحْمَةٍ kasra is wrong either way)",
+   "sure": true
+  },
+  {
+   "table": 25,
+   "old": "شَيْءٍ آثَرَ",
+   "new": "شَيْءٌ آثَرَ",
+   "note": "شَيْءٍ is the subject of لَا يَكُوْنَ, so شَيْءٌ (shay'un)",
+   "sure": true
+  },
+  {
+   "table": 25,
+   "old": "وَ الْعَمَلَ بِمَا",
+   "new": "وَ الْعَمَلِ بِمَا",
+   "note": "الْعَمَلَ continues مِنْ طَاعَتِكَ وَ خَشْيَتِكَ, so genitive: الْعَمَلِ",
+   "sure": true
+  },
+  {
+   "table": 25,
+   "old": "وَ التَّرْكَ لِمَا",
+   "new": "وَ التَّرْكِ لِمَا",
+   "note": "same as الْعَمَلِ: genitive التَّرْكِ",
+   "sure": true
+  },
+  {
+   "table": 26,
+   "old": "قَدِيْمِ مِنْكَ",
+   "new": "قَدِيْمِ مَنِّكَ",
+   "note": "مِنْكَ ('from You') makes no sense here it is قَدِيْمِ مَنِّكَ ('Your age-old favour')",
+   "sure": true
+  },
+  {
+   "table": 26,
+   "old": "وَ تُوَسِّعُ عَلَيَّ",
+   "new": "وَ تُوَسِّعَ عَلَيَّ",
+   "note": "subjunctive like the verbs around it (اَنْ ... تُنَجِّيَنِيْ وَ تَمُنَّ): تُوَسِّعَ",
+   "sure": true
+  },
+  {
+   "table": 26,
+   "old": "الْكِذْبِ",
+   "new": "الْكَذِبِ",
+   "note": "Mafatih and most texts read الْكَذِبِ (al-kadhib) الْكِذْب is a rare but attested form, so owner may keep it",
+   "sure": false
+  },
+  {
+   "table": 26,
+   "old": "عَامٍ اَلْحَجَّ",
+   "new": "عَامٍ الْحَجَّ",
+   "note": "the al- of الْحَجَّ is wasl mid-sentence",
+   "sure": true
+  },
+  {
+   "table": 27,
+   "old": "تَوَاضَعَ كُلِّ",
+   "new": "تَوَاضَعَ كُلُّ",
+   "note": "كُلِّ is the subject of the verb: كُلُّ شَيْءٍ (same in the next three lines)",
+   "sure": true
+  },
+  {
+   "table": 27,
+   "old": "ذَلَّ كُلِّ",
+   "new": "ذَلَّ كُلُّ",
+   "note": "subject of ذَلَّ: كُلُّ",
+   "sure": true
+  },
+  {
+   "table": 27,
+   "old": "اسْتَسْلَمَ كُلِّ",
+   "new": "اسْتَسْلَمَ كُلُّ",
+   "note": "subject of اسْتَسْلَمَ: كُلُّ",
+   "sure": true
+  },
+  {
+   "table": 27,
+   "old": "خَضَعَ كُلِّ",
+   "new": "خَضَعَ كُلُّ",
+   "note": "subject of خَضَعَ: كُلُّ",
+   "sure": true
+  },
+  {
+   "table": 27,
+   "old": "صَلَّى اللّٰهِ عَلَيْهِ",
+   "new": "صَلَّى اللّٰهُ عَلَيْهِ",
+   "note": "Allah is the subject: صَلَّى اللّٰهُ (sallal laahu)",
+   "sure": true
+  },
+  {
+   "table": 28,
+   "old": "الَّذِيْن اصْطَفَيْتَهُمْ",
+   "new": "الَّذِيْنَ اصْطَفَيْتَهُمْ",
+   "note": "الَّذِيْن lacks its fatha",
+   "sure": true
+  },
+  {
+   "table": 29,
+   "old": "كَانَ عِنْدِكَ",
+   "new": "كَانَ عِنْدَكَ",
+   "note": "عِنْدَ takes a fatha: عِنْدَكَ ('indaka)",
+   "sure": true
+  },
+  {
+   "table": 29,
+   "old": "مُقَتَّرُ عَلَيَّ",
+   "new": "مُقَتَّرٌ عَلَيَّ",
+   "note": "indefinite like شَقِيٌّ and مَحْرُوْمٌ before it: مُقَتَّرٌ (muqattarun)",
+   "sure": true
+  },
+  {
+   "table": 29,
+   "old": "الرَّاحِمْيْنَ",
+   "new": "الرَّاحِمِيْنَ",
+   "note": "sukun on the mim instead of kasra: الرَّاحِمِيْنَ",
+   "sure": true
+  },
+  {
+   "table": 30,
+   "old": "الشِدَّةِ",
+   "new": "الشِّدَّةِ",
+   "note": "ش is a sun letter: الشِّدَّةِ needs the shadda",
+   "sure": true
+  },
+  {
+   "table": 31,
+   "old": "لَا يَنْفَذُ",
+   "new": "لَا يَنْفَدُ",
+   "note": "يَنْفَذُ (with ذ, 'pierces') is a typo for يَنْفَدُ (with د, 'runs out'): نَعِيْمًا لَا يَنْفَدُ",
+   "sure": true
+  },
+  {
+   "table": 31,
+   "old": "جَنَّةٍ الْخُلْدِ",
+   "new": "جَنَّةِ الْخُلْدِ",
+   "note": "idafa, so no tanween: جَنَّةِ الْخُلْدِ (jannatil khuld)",
+   "sure": true
+  },
+  {
+   "table": 31,
+   "old": "فَضلِكَ",
+   "new": "فَضْلِكَ",
+   "note": "missing sukun on ض: فَضْلِكَ",
+   "sure": true
+  },
+  {
+   "table": 31,
+   "old": "مُنْجِىْ مِنْكَ",
+   "new": "مَنْجٰى مِنْكَ",
+   "note": "the fixed phrase is لَا مَلْجَاَ وَ لَا مَنْجٰى مِنْكَ اِلَّا اِلَيْكَ (manjā, 'place of escape'), not مُنْجِيْ ('rescuer')",
+   "sure": true
+  },
+  {
+   "table": 32,
+   "old": "فَيْمَا سَلَفَ",
+   "new": "فِيْمَا سَلَفَ",
+   "note": "فَيْمَا is a typo for فِيْمَا (fīmā, 'in what has passed').",
+   "sure": true
+  },
+  {
+   "table": 32,
+   "old": "تُصَلَّيَ",
+   "new": "تُصَلِّيَ",
+   "note": "Lam needs kasra: تُصَلِّيَ (tuṣalliya), not the passive-looking تُصَلَّيَ.",
+   "sure": true
+  },
+  {
+   "table": 33,
+   "old": "اَكْفٰي",
+   "new": "اَكُفُّ",
+   "note": "اَكْفٰي is not a word here the standard phrase is مَا اَكُفُّ بِهٖ وَجْهِيْ ('what I may keep my face from begging with').",
+   "sure": true
+  },
+  {
+   "table": 34,
+   "old": "اَملَاهُ",
+   "new": "اَمَلَاهُ",
+   "note": "Mim is missing its fatha: اَمَلَاهُ (amalāh, 'O my hope')",
+   "sure": true
+  },
+  {
+   "table": 34,
+   "old": "لَا تُشَوِّهُ",
+   "new": "اَنْ لَّا تُشَوِّهَ",
+   "note": "After اَسْاَلُكَ the verb needs اَنْ and the subjunctive fatha: اَنْ لَّا تُشَوِّهَ, matching the following وَ اَنْ تَقْضِيَ and the standard text.",
+   "sure": true
+  },
+  {
+   "table": 35,
+   "old": "بِصَالِحِ",
+   "new": "بِصَالِحٍ",
+   "note": "Needs tanween, like بِفَاحِشَةٍ before it: بِصَالِحٍ (bi-ṣāliḥin).",
+   "sure": true
+  },
+  {
+   "table": 35,
+   "old": "اَنْ وَعَدَنِيْ",
+   "new": "اِنْ وَعَدَنِيْ",
+   "note": "Conditional 'if': اِنْ وَعَدَنِيْ كَذَبَنِيْ (in wa'adanī), like the other اِنْ clauses around it.",
+   "sure": true
+  },
+  {
+   "table": 35,
+   "old": "تَصْرِفُ",
+   "new": "تَصْرِفْ",
+   "note": "After اِلَّا (= اِنْ لَا, 'if not') the verb is jussive: تَصْرِفْ, like تُفْلِتْنِيْ.",
+   "sure": true
+  },
+  {
+   "table": 35,
+   "old": "تَعْصِمُنِيْ",
+   "new": "تَعْصِمْنِيْ",
+   "note": "Jussive after اِلَّا: تَعْصِمْنِيْ (ta'ṣimnī).",
+   "sure": true
+  },
+  {
+   "table": 35,
+   "old": "يَسْتَزِلُّنِيْ",
+   "new": "يَسْتَزِلَّنِيْ",
+   "note": "Answer of the condition should be jussive: يَسْتَزِلَّنِيْ (yastazillanī). The damma form reads as indicative. (يَصُدُّنِيْ can stay: damma is allowed there.)",
+   "sure": false
+  },
+  {
+   "table": 36,
+   "old": "بِكَ الْحَمْدُ",
+   "new": "لَكَ الْحَمْدُ",
+   "note": "بِكَ is a typo for لَكَ: 'to You belongs all praise', parallel to وَ لَكَ الْمُلْكُ.",
+   "sure": true
+  },
+  {
+   "table": 36,
+   "old": "الشَّاْنِ كُلُّهٗ",
+   "new": "الشَّاْنِ كُلِّهٖ",
+   "note": "كُلّ follows the genitive الشَّاْنِ, so كُلِّهٖ (kullih).",
+   "sure": true
+  },
+  {
+   "table": 36,
+   "old": "الْخَيْرِ كُلُّهٗ",
+   "new": "الْخَيْرِ كُلِّهٖ",
+   "note": "After مِنَ الْخَيْرِ it must be genitive: كُلِّهٖ.",
+   "sure": true
+  },
+  {
+   "table": 36,
+   "old": "الشَّرِّ كُلُّهٗ",
+   "new": "الشَّرِّ كُلِّهٖ",
+   "note": "After مِنَ الشَّرِّ it must be genitive: كُلِّهٖ.",
+   "sure": true
+  },
+  {
+   "table": 36,
+   "old": "صلِّ",
+   "new": "صَلِّ",
+   "note": "Sad has no fatha: صَلِّ.",
+   "sure": true
+  },
+  {
+   "table": 36,
+   "old": "قَدْرِكَ",
+   "new": "قَدَرِكَ",
+   "note": "The usual reading is فِيْ قَدَرِكَ (qadarika, 'Your decree'), as in other copies of this line قَدْر is possible but less likely.",
+   "sure": false
+  },
+  {
+   "table": 36,
+   "old": "اُحِبُّ",
+   "new": "اُحِبَّ",
+   "note": "The usual text has the subjunctive after حَتّٰى: لَا اُحِبَّ (uḥibba). The damma is grammatically possible.",
+   "sure": false
+  },
+  {
+   "table": 36,
+   "old": "غَيْرِكَ",
+   "new": "غَيْرَكَ",
+   "note": "Object of لَا تُوَلِّ, so accusative: غَيْرَكَ (ghayraka).",
+   "sure": true
+  },
+  {
+   "table": 37,
+   "old": "الْاَمْر الْمَحْتُوْمِ",
+   "new": "الْاَمْرِ الْمَحْتُوْمِ",
+   "note": "Ra is missing its kasra: مِنَ الْاَمْرِ.",
+   "sure": true
+  },
+  {
+   "table": 37,
+   "old": "يُرَدُ",
+   "new": "يُرَدُّ",
+   "note": "Shadda missing: لَا يُرَدُّ (lā yuraddu).",
+   "sure": true
+  },
+  {
+   "table": 37,
+   "old": "سَيِّئَاتِهِمْ",
+   "new": "سَيِّئَاتُهُمْ",
+   "note": "Subject of the passive الْمُكَفَّرِ عَنْهُمْ, so nominative: سَيِّئَاتُهُمْ (sayyi'ātuhum), like حَجُّهُمُ and ذُنُوْبُهُمُ before it.",
+   "sure": true
+  },
+  {
+   "table": 30,
+   "old": "طَلَبْتُكَ اللّهُمَّ",
+   "new": "طَلَبْتُكَ، اللّهُمَّ",
+   "note": "pause added before the new اَللّٰهُمَّ",
+   "sure": true
   }
  ],
- "translit": []
+ "translit": [],
+ "questions": [
+  "Dua 9: وَ كُلِّ رَسُوْلٍ اَرْسَلَهٗ اِلَيْهِ - 'every messenger He sent to Him' reads oddly the parallel phrases have اَنْزَلَهُ اللّٰهُ / اَظْهَرَهُ اللّٰهُ, so the source may have اَرْسَلَهُ اللّٰهُ. Could not find the dua online to confirm please check the printed book.",
+  "Dua 9: قَرِيْنِ سُوْءٍ مُكْدٍ and وَ مِنْ مُرْدٍ اِلَى النَّارِ could not be checked against a source (dua not found online) مُكْدٍ is plausible, مُرْدٍ before اِلَى النَّارِ is reported as a likely مَرَدٍّ (unsure).",
+  "Dua 9: مِّمَّا اسْتَعَاذَ بِهٖ رَسُوْلُكَ - earlier lines use اسْتَعَاذَ مِنْهُ ('sought refuge from') بِهٖ ('sought refuge in') may be a slip for مِنْهُ. Left as is.",
+  "Dua 9: رَبِّ اِنِّىْ مَسَّنِيَ الضُّرُّ - the Quran (21:83) has اَنِّيْ اِنِّيْ is natural when it is said as one's own dua, so left as is.",
+  "The ۗ-as-madd fixes for Quran words in this half: the same pattern (تَشَاۗءُ, يَشَاۗءُ, جَاۗءَ, الْمَلٰۗىِٕكَۃِ ...) also occurs in the second half of Dua 9 the fifth تَشَاۗءُ fix (3:27) straddles sentences 69/70, so the other half's reviewer may report the same word.",
+  "Dua 9, Quran 13:30 (قُلْ هُوَ رَبِّيْ لَآ اِلٰهَ اِلَّا هُوَ عَلَيْهِ تَوَكَّلْتُ ...): the Quran ends وَاِلَيْهِ مَتَابِ, but the dua has وَاِلَيْہِ اُنِيْبُ (the ending of 11:88). Left as is the owner should check his source of the dua.",
+  "Dua 9, 6:102: the fix adding لَآ اِلٰهَ اِلَّا هُوَ after ذٰلِكُمُ اللہُ رَبُّكُمْ is marked unsure - the Quran has it, but the dua may quote it shortened (or mix 6:102 with 40:62). Owner to confirm.",
+  "Dua 9: many ayah ends inside the woven verses carry no ۝ sign (e.g. This follows the Arabic as written (continuous recitation), so not reported one by one",
+  "dua.py treats it as a pause sign and cuts the word in two I fixed each occurrence in sentences 70-138 by writing ۤ instead Also ىِٕ (U+0649 + U+0655) is not turned into ئ by normalise(), only ي + U+0655 is",
+  "Fixed per occurrence in my half by removing the stray marks.",
+  "Dua 9: the current dua.py already fixes several things the A2.txt snapshot still showed",
+  "I could not reach an online text of this dua (the last night of Ramadan, from Iqbal al-A'mal). Fixes marked sure are grammar-based. The two wording fixes (بِاَعْظَمِ ... بِهٖ in sentence 4, and بِاَعْظَمِ الْمَسَائِلِ in sentence 11) need checking against the owner's printed source.",
+  "Sentence 2: الْمُتَهَجِّدُوْنَ ... الْمُؤْثِرُوْنَ فِيْ ذِكْرِكَ, and اَعَنْتَهُمْ without a preceding الَّذِيْنَ. Some texts may read المجتهدون / الموقرون ذكرك / الذين أعنتهم. I left these as typed, since they read grammatically.",
+  "Sentence 4: وَ تُشَفِّعَنِيْ فِيْ مَسَائِلِيْ is a verb inside a list of genitive nouns (عِصْمَةِ، خَلَاصِ، قَضَاءِ ... تَمَامِ). The source may read وَ تَشْفِيْعِيْ. Check it against the book.",
+  "Sentence 11: وَ حَقَّ عَلَيْكَ is left as typed. It could also be the noun وَ حَقٌّ عَلَيْكَ check it against the book.",
+  "Dua 39 وَ لَا تُذِلَّنَا بَعْدَ اِذْ عَزَّزْتَنَا: many texts have اَعْزَزْتَنَا (form IV). عَزَّزْتَنَا (form II) is valid Arabic, so I left it unchanged. The owner should check the source.",
+  "Dua 39 بُلِيَ بِهَا is valid (the passive of بَلَا). Some texts may have ابْتُلِيَ. I left it unchanged.",
+  "Dua 39 وَثِقَةً is joined to its وَ, though every other وَ is written apart.",
+  "I could not find an online text of this dua (it is probably from Iqbal al-A'mal, for the last night of Ramadan). The unsure fixes rest on grammar alone.",
+  "Dua 15 is the Ghadir-day dua from Iqbal al-A'mal (Mafatih only points to it). Compared with an Iqbal text, the book drops several phrases. These may come from a shorter edition, so they are not listed as fixes: وَ مَنْ كُنْتُ وَلِيَّهٗ فَعَلِيٌّ وَلِيُّهٗ (sentence 3) وَ دَيَّانُ دِيْنِكَ after بَعْدَ نَبِيِّكَ (6) لَنَا in جَدَّدْتَ لَنَا عَهْدَكَ (6) وَ جَعَلْتَهٗ فِيْ اُمِّ الْكِتَابِ لَدَيْكَ عَلِيًّا حَكِيْمًا and الَّذِيْ هُمْ فِيْهِ مُخْتَلِفُوْنَ (9) اِلٰى يَوْمِ الدِّيْنِ after اِمَامًا (10) the second مُسَلِّمِيْنَ in مُسْلِمِيْنَ مُسَلِّمِيْنَ مُصَدِّقِيْنَ (14) وَ اجْعَلْنَا before تَحْتَ رَايَتِهٖ (17). The owner should decide whether to restore them.",
+  "Sentence 5: فَاشْهَدْ يَا اِلٰهِيْ ('so bear witness, my God') against Iqbal's فأشهد ('so I bear witness'). Both read well, so it was left as is.",
+  "Sentence 2: صَلَّي and sentence 15: صَلَّي are written with a dotted ي instead of ى. This was left as is.",
+  "Dua 24 وَ التَّمَنِّيْ بِمَا فَضَّلَ اللّٰهُ: the phrase alludes to Q4:32 (وَلَا تَتَمَنَّوْا مَا فَضَّلَ اللّٰهُ بِهٖ بَعْضَكُمْ عَلٰى بَعْضٍ) the source may read لِمَا / مَا فَضَّلَ اللّٰهُ بِهٖ ... - check the book, it looks shortened.",
+  "Dua 24 وَ الصُّدُوْدِ (after the istirja' phrase) could not be checked against a source it reads oddly in a list of neglected duties.",
+  "Dua 24 وَ طَاعَتِكَ الَّتِيْ يَحِقُّ لَكَ عَلَيَّ رِضَاكَ: the sentence is hard to parse (perhaps الَّذِيْ / حَتّٰى اَبْلُغَ ... رِضَاكَ) left as is.",
+  "Dua 24: I could not find this dua's Arabic online (duas.org / search gave nothing), so the fixes marked unsure are based on grammar and parallel wording only.",
+  "Line 51: Mafatih reads بِكُلِّ شَاْنٍ وَحْدَهٗ وَ جَبَرُوْتٍ وَحْدَهَا ('by every affair alone and every might alone') this book has بِكُلِّ شَاْنٍ وَّ كُلِّ جَبَرُوْتٍ. Owner to decide whether to follow Mafatih.",
+  "Line 52: Mafatih reads بِمَا تُجِيْبُنِيْ بِهٖ حِيْنَ اَسْاَلُكَ فَاَجِبْنِيْ يَا اَللّٰهُ this book omits بِهٖ and فَاَجِبْنِيْ. The book continues with a longer version (rizq, 'ata', the salawat and closing lines) that Mafatih does not have, so it may follow another source (e.g. Iqbal) not changed.",
+  "Line 43-44 uses عَلَائِكَ and line 45 بِاَعْجَبِهَا ... عَجِيْبَةٌ where the app's AA11 (Mafatih) has عُلُوِّكَ and بِاَكْرَمِهَا ... كَرِيْمَةٌ both are attested readings, left as is.",
+  "Line 65: the well-known text has اَعْطِ مُحَمَّدًا ... الْوَسِيْلَةَ وَ الشَّرَفَ وَ الْفَضِيْلَةَ وَ الدَّرَجَةَ الْكَبِيْرَةَ this book has no وَ الْفَضِيْلَةَ. Check against the source.",
+  "Line 68: مِنْ كُلِّ مُصِيْبَةٍ appears twice in the list (first and eighth item) may be a copying repeat - check against the source.",
+  "Lines 24/25: مَشِيْئَتِكَ and مَشِيَّتِكَ are both valid spellings Mafatih uses مَشِيَّتِكَ throughout.",
+  "Dua 10 (dua 10): I could not find this dua's standard text online, so Dua 10 was checked on grammar alone. Points to check against the owner's source: 'وَ لٰكِنَّكَ عَلٰى كُلِّ حَالٍ' ends abruptly (a word may be missing after it) 'وَ اسْتِعَاذَةِ الْعَائِذِيْنَ' may be 'مَعَاذَ الْعَائِذِيْنَ' 'اِنِّيْ لَيْسَ اَخَافُ' (possibly 'لَسْتُ اَخَافُ') 'يَا غَفُوْرُ لَا تُصْلِ' lacks the وَ every other clause in that series has 'وَ مَا لِيْ' is probably 'وَ مَالِيْ' (my wealth), which reads the same.",
+  "Dua 12 is Sahifa Sajjadiya 46. Other small differences from the Wikisource text that I left alone because they don't change the meaning: 'وَ لَمْ تَكُنْ' and 'وَ حُجَّتُكَ' (no وَ in the Sahifa), 'مُحَمَّدٍ وَّ آلِ مُحَمَّدٍ' (Sahifa: وَآلِهِ), 'نَاوَاَكَ' (Sahifa: نَاوَاكَ).",
+  "Dua 14: the Mafatih text of this Ghadir dua (the app's AC18) reads 'مِنَ الْمُوْفِيْنَ بِعَهْدِهٖ اِلَيْنَا ... وَالْقُوَّامِ بِقِسْطِهٖ'. This book has 'مِنَ الْمُؤْمِنِيْنَ بِعَهْدِهِ الَّذِيْ عَهِدَهٗ اِلَيْنَا ... وَ الْقِيَامِ بِقِسْطِهٖ'. That may be a different source's reading, so I didn't change it. The owner should decide whether to follow Mafatih.",
+  "Dua 11- are Quran 17:45-46. Apart from the fixes, they match the Quran.",
+  "Dua 19: يَحْبِسُ عَنِّيْ الْخَلْقَ - the copy in the app (Y9) reads يَحْبِسُ عَلَيَّ الْخُلُقَ (withholds good character from me). The owner should decide which reading his source has not changed.",
+  "Dua 19: other small differences from the app's copy (Y9), probably valid variants, left alone: لَا يَخْفٰى (Y9 لَا تَخْفٰى), يُقَرِّبُنِيْ لَدَيْكَ وَ مَا يُزْلِفُنِيْ (Y9 مِنْكَ وَيُزْلِفُنِيْ), جُدْ عَلَيَّ (Y9 وَجُدْ), وَ اَنْتَ اَرْحَمُ (Y9 فَاَنْتَ), عَطَايَاكَ (Y9 عَطَائِكَ).",
+  "Dua 19 اِجْعَلْنِيْ and Dua 21 اِغْفِرْ لِيَ are written with a kasra mid-sentence (TR: That is the reading after a pause if read joined they should be bare-alif اجْعَلْنِيْ / اغْفِرْ. Left as is.",
+  "Dua 22: اَلْمَغْفُوْرَةِ ذُنُوْبُهُمْ - Mafatih has الْمَغْفُوْرِ ذُنُوْبُهُمْ the feminine is grammatical too, so left alone.",
+  "Dua 21: could not find this dua's standard text online the fixes there rest on grammar. لَا يُؤَاخِذُنِيْ (some copies لَمْ يُؤَاخِذْنِيْ) and عَنِ الْمَعَاصِيْ (some copies عَنْ مَحَارِمِكَ) left as variants.",
+  "Dua 25: the text has 'عَافِيَةً مِّنْ كُلِّ بَلَاءٍ' and 'دُعَاءً تَبْسُطُ لِيْ فِيْهِ' some printings read 'بَلِيَّةٍ' and 'بِهٖ'. Left as they are (valid variants).",
+  "Dua 26: no 'وَحْدَكَ لَا شَرِيْكَ لَكَ' after 'اِلَّا مِنْكَ', and 'مَّقْبُوْلَةً' where some texts have 'مُتَقَبَّلَةً'. Could not confirm the source online left alone.",
+  "Dua 27: 'الْكِذْبِ' vs the usual 'الْكَذِبِ' is reported as unsure (owner's choice).",
+  "Dua 38: الْمَغْفُوْرَةِ ذُنُوْبُهُمُ is grammatical (feminine to agree with the broken plural ذُنُوْب), but Mafatih and the app's own copies (AA15, AA30, AA34) have الْمَغْفُوْرِ. The owner can choose. فِيْ الْقَضَاءِ is also a valid variant some copies have مِنَ الْقَضَاءِ.",
+  "Dua 40: the standard text, and the app's AA15 and AA32, read وَ لَكَ قِبَلِيْ تَبِعَةٌ this copy has عِنْدِيْ, which has the same meaning, and adds يَوْمَ اَلْقَاكَ at the end (found in AA43's longer version). Left as a variant.",
+  "Dua 35: the usual text is لَمْ يُؤَاخِذْ بِالْجَرِيْرَةِ (app's F11, F18) this copy has لَمْ يَاْخُذْ, which is valid Arabic. It also uses the يَا رَبَّاهُ / يَا سَيِّدَاهُ form where Mafatih has يَا رَبَّنَا / يَا سَيِّدَنَا. Both left.",
+  "Dua 36: no online copy of this dua could be found to check against. يُؤْمِنُنِيْ عَذَابَكَ (form IV) and اَقْنَطَنِيْ are valid and were left some texts may have يُؤَمِّنُنِيْ / قَنَّطَنِيْ. وَ يَعْرِضُ لِيْ بِهَا was also left it may be بِالشُّبُهَاتِ in the source."
+ ]
 }

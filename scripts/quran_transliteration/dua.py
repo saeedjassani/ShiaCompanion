@@ -12,7 +12,9 @@ import re, sys
 from translit import (FATHA, KASRA, DAMMA, FATHATAN, KASRATAN, DAMMATAN, SHADDA,
                       SUKUN, DAGGER, MADDAH, IQLAB_HI, SMALL_WAW, SMALL_YEH, WASLA,
                       TATWEEL, MARKS, clusters)
-from render import render_utterance
+from render import render_utterance, MUQ_LETTERS
+
+MUQ = '\x00'  # marks a token of disjoined letters
 
 VOWELS = {FATHA, KASRA, DAMMA}
 TANWEEN = {FATHATAN, KASRATAN, DAMMATAN}
@@ -44,12 +46,13 @@ PREFIX = {
 
 # Words starting with a root و / ف / ب / ل, by skeleton: whole words ...
 ROOT_EXACT = set('''بسم بئس وسع وسعت وسعني وسعه وسعتني فوق فوقه فوقها فوقهم وقب لين
-فقر فرح فرحا فخر فخرك فناء فجر وقرا'''.split())
+فقر فرح فرحا فخر فخرك فناء فجر وقرا وحي وحيك وحيه فرض فرضه فرضك وقت وقتا'''.split())
 # ... and word beginnings (لِسَانِيْ, وَعَدْتَنِيْ, فَرَائِضِكَ)
-ROOT_STARTS = ('لسان', 'لباس', 'فسق', 'فقير', 'فرائض', 'فريض', 'فرض', 'فاق', 'فزع', 'فضل',
+ROOT_STARTS = ('لسان', 'لباس', 'فسق', 'فقير', 'فرائض', 'فريض', 'فاقة', 'فاقت', 'فزع', 'فضل',
                'وفاء', 'وجل', 'وداع', 'ودائع', 'ودايع', 'وكيل', 'وسيل', 'وحد', 'ولائج', 'وصي',
-               'وهن', 'وعظ', 'وحي', 'ولد', 'واحد', 'وجه', 'وقت', 'وراء',
-               'فاجر', 'فاحش', 'واجد', 'وزير', 'فرائد')
+               'وهن', 'وعظ', 'ولد', 'واحد', 'وجه', 'وراء',
+               'فاجر', 'فاحشة', 'واجد', 'وزير', 'فرائد', 'والين', 'والى',
+               'ورث', 'واصب', 'فاطر', 'فاتح', 'واسع', 'فاخر', 'فاضل', 'فاز')
 
 
 def root_initial(sk, cl):
@@ -73,7 +76,7 @@ def respell(tok):
     """Indo-Pak spelling -> the Tanzil-like spelling translit.parse_word reads."""
     t = tok.replace(ALT_SUKUN, SUKUN).replace(SMALL_MADDA, MADDAH).replace(TATWEEL, '')
     # آ before a hamza is a drawn-out alif (اِسْرَآءِيْلَ); elsewhere a hamza + long a (آلِ)
-    t = re.sub(ALIF_MADDA + '(?=[ءأإؤئ])', 'ا' + MADDAH, t)
+    t = re.sub(ALIF_MADDA + '(?=[ءأإؤئ]|$)', 'ا' + MADDAH, t)
     t = t.replace(ALIF_MADDA, 'ءَا' + MADDAH)
     t = t.replace('ی', 'ي')
     # اٰ is a hamza and a long a: اٰمَنُوْا, بِاٰيٰتِنَا, الْقُرْاٰنَ
@@ -88,6 +91,9 @@ def respell(tok):
     for i, (b, ms, _) in enumerate(cl):
         ms = list(ms)
         prev = cl[i - 1] if i else None
+        # إٍ: the seat already says kasra, the tanween says it again (مَلَإٍ)
+        if b == 'إ' and any(m in TANWEEN for m in ms):
+            b = 'ء'
         if b == 'ا' and any(m in VOWELS for m in ms):
             v = [m for m in ms if m in VOWELS][0]
             b = {FATHA: 'أ', KASRA: 'إ', DAMMA: 'أ'}[v]
@@ -112,7 +118,7 @@ def respell(tok):
         if b == 'ن' and i + 1 < len(cl) and cl[i + 1][0] == 'ب' and not any(m in VOWELS for m in ms):
             ms = [m for m in ms if m != SUKUN] + [IQLAB_HI]
         # final ي after a fatha is an alif maqsura: صَلَّي
-        if b == 'ي' and not ms and i == len(cl) - 1 and prev and FATHA in prev[1]:
+        if b == 'ي' and not ms and i == len(cl) - 1 and prev and (FATHA in prev[1] or DAGGER in prev[1]):
             b = 'ى'
         out.append([b, ms])
     # a long vowel followed by a hamza in the same word is drawn out (SAMAAA-E)
@@ -171,7 +177,8 @@ def analyse(tok, initial=False, prev=''):
         # لَكَ, بِهٖ: a preposition with a pronoun stays one word (FALAKA, WA BEHI)
         if npre is None and pre and skel(join(cl[k:])) in PREP_PRON:
             break
-        if b == 'و' and FATHA in ms and SHADDA not in ms and conj:
+        # (a وَّ glued to its word is still wa: the shadda is the idgham)
+        if b == 'و' and FATHA in ms and conj:
             tag = 'CONJ'
         elif b == 'ف' and FATHA in ms and conj:
             tag = 'REM'
@@ -191,6 +198,8 @@ def analyse(tok, initial=False, prev=''):
         # bi-/li-/fa-/wa- need a stem after them: not the whole word (بِكَ is bi + ka)
         if npre is None and not plausible_prefix(b, rest, is_allah):
             break
+        if tag == 'CONJ' and SHADDA in ms:  # (a separate وَّ is handled in link())
+            cl[k] = [b, [m for m in ms if m != SHADDA]]
         pre.append((join([cl[k]]), tag))
         k += 1
     stem = cl[k:]
@@ -267,33 +276,139 @@ COMMA_SIGNS = {'\u06d9', '\u06db', '\u06dc'}
 AYAH_END = '\u06dd'
 LETTERS = {'\u06c1': 'ه', '\u06be': 'ه', '\u06c3': 'ة', '\u06cc': 'ي', '\u06a9': 'ك'}
 # (the iqlab meems ۢ ۭ too: link() and respell() put iqlab where a ب follows)
-DROP = re.compile('[\u06e2\u06ed\u200c\u200e\u200f\u06ea\u06eb\u06e8\u06e3\u061a\u06f0-\u06f9\u0660-\u0669«»‘’“”]')
+DROP = re.compile('[\u06e2\u06ed\u200c\u200e\u200f\u06ea\u06eb\u06e3\u061a\u06f0-\u06f9\u0660-\u0669«»‘’“”]')
 
 
 def normalise(text):
     for a, b in LETTERS.items():
         text = text.replace(a, b)
+    # the small noon ۨ (nun qutni) is the tanween's n before a wasl: شَكُوْرُۨ الَّذِيْ
+    text = re.sub('([\u064e\u064f\u0650])\u06e8', lambda m: {'\u064e': '\u064b', '\u064f': '\u064c', '\u0650': '\u064d'}[m.group(1)], text)
+    text = text.replace('\u06e8', '')
     text = DROP.sub('', text)
+    # an alif with a sukun is a hamza with a sukun: وَاْتُوْنِيْ, يَاْوِيْ
+    text = re.sub('ا\u0652', 'أ\u0652', text)
     # a hamza sign over / under a seat: اٴ -> أ, إ -> إ
     text = re.sub('ا([\u064b-\u0652\u0670]*)\u0654', 'أ\\1', text)
     text = re.sub('ا([\u064b-\u0652\u0670]*)\u0655', 'إ\\1', text)
     text = re.sub('ي([\u064b-\u0652\u0670]*)\u0654', 'ئ\\1', text)
     text = re.sub('و([\u064b-\u0652\u0670]*)\u0654', 'ؤ\\1', text)
+    text = re.sub('ى([\u064b-\u0652\u0670]*)[\u0654\u0655]', 'ئ\\1', text)
     text = text.replace('\u0654', '').replace('\u0655', '')
+    # ۗ inside a word is a madd sign, not a stop: تَشَاۗءُ, الْمَلٰۗىِٕكَةُ
+    text = re.sub('\u06d7(?=[\u0621-\u0670])', MADDAH, text)
+    # ص with a small seen is read as س: بَصْۜطَةً
+    text = re.sub('ص([\u064b-\u0652]*)\u06dc', 'س\\1', text)
     signs = PAUSE_SIGNS | COMMA_SIGNS | {AYAH_END}
+    # marks typed after an ayah sign (۝۰ۥ) belong to nothing
+    allmarks = ''.join(MARKS | {SMALL_WAW, SMALL_YEH, INV_DAMMA, SUB_ALIF, ALT_SUKUN, SMALL_MADDA})
+    text = re.sub(AYAH_END + '[' + re.escape(allmarks) + ']+', AYAH_END, text)
     text = ''.join(' ' + c + ' ' if c in signs else c for c in text)
     # a mark cut off from its word by a space (رَحِيْمٍ ۭ, لَهٗ ۥ) goes back on it
     marks = ''.join(MARKS | {SMALL_WAW, SMALL_YEH, INV_DAMMA, SUB_ALIF, ALT_SUKUN, SMALL_MADDA})
     text = re.sub('\\s+([' + re.escape(marks) + ']+)(?=[\\s.,،]|$)', '\\1', text)
+    # ... also when it got glued onto the front of the next word (ۡوَ)
+    text = re.sub('(\\S)\\s+([' + re.escape(marks) + ']+)(?=[\u0621-\u064a])', '\\1\\2 ', text)
     # the vocative يٰ written onto its noun (يٰنَارُ) is its own word, YAA NAARO
     text = re.sub('(^|\\s)يٰ(?=[\u0621-\u064a])', '\\1يَا ', text)
     return text
 
 
+def cons(w):
+    """Consonant skeleton, the same for Indo-Pak and Uthmani spelling."""
+    w = skel(w.replace('ٱ', 'ا'))
+    return re.sub('[اأإآىيوؤئءة]', '', w.replace('ة', 'ه'))
+
+
+_AYAH_ENDS = None
+
+
+def ayah_ends():
+    """{(last words..., first word of next ayah)} for every ayah, by skeleton."""
+    global _AYAH_ENDS
+    if _AYAH_ENDS is None:
+        from common import tanzil
+        t = tanzil()
+        _AYAH_ENDS = set()
+        for (su, a), txt in t.items():
+            nxt = t.get((su, a + 1))
+            if not nxt:
+                continue
+            w = [cons(x) for x in txt.split() if cons(x)]
+            n = [cons(x) for x in nxt.split() if cons(x)]
+            if len(w) >= 2 and n:
+                _AYAH_ENDS.add(tuple(w[-2:]) + (n[0],))
+    return _AYAH_ENDS
+
+
+_ENDS3 = None
+
+
+def ends_long():
+    """The last five words of every ayah (all of a four-word one), the
+    Bismillah aside: enough to know a verse has ended whatever follows."""
+    global _ENDS3
+    if _ENDS3 is None:
+        from common import tanzil
+        _ENDS3 = set()
+        for (su, a), txt in tanzil().items():
+            w = [cons(x) for x in txt.split() if cons(x)]
+            if len(w) >= 4 and (su, a) != (1, 1):
+                _ENDS3.add(tuple(w[-5:]))
+    return _ENDS3
+
+
+def mark_ayah_ends(toks):
+    """Pause at the end of a quoted verse whose ayah sign was left out."""
+    ends = ayah_ends()
+    sk = [cons(t) for t in toks]
+    # word positions that have letters (a separate وَ has no skeleton left)
+    real = [j for j, x in enumerate(sk) if x]
+    seq = [sk[j] for j in real]
+    after = set()
+    for n, j in enumerate(real):
+        if n + 1 >= len(real):
+            break
+        t = toks[j]
+        if any(t.endswith(p) for p, _ in PUNCT) or \
+                any(x in PAUSE_SIGNS | COMMA_SIGNS | {AYAH_END} for x in toks[j + 1:real[n + 1]]):
+            continue
+        if any(n >= k - 1 and tuple(seq[n - k + 1:n + 1]) in ends_long() for k in (5, 4)) or \
+                (n >= 1 and len(seq[n + 1]) >= 2 and tuple(seq[n - 1:n + 2]) in ends):
+            after.add(j)
+    # a Bismillah that opens a quoted surah stands on its own: ... AL-HAKEEM.
+    # BISMIL LAAHIR RAHMAANIR RAHEEM. QUL ...
+    bism = tuple(cons(x) for x in 'بسم الله الرحمن الرحيم'.split())
+    for n in range(3, len(real) - 1):
+        if tuple(seq[n - 3:n + 1]) == bism and seq[n + 1] in surah_openings():
+            after.add(real[n])
+            if n >= 4:
+                after.add(real[n - 4])
+    out = []
+    for j, t in enumerate(toks):
+        out.append(t)
+        if j in after and not any(t.endswith(p) for p, _ in PUNCT) and \
+                not (j + 1 < len(toks) and toks[j + 1] in PAUSE_SIGNS | COMMA_SIGNS | {AYAH_END}):
+            out.append(AYAH_END)
+    return out
+
+
+_OPENINGS = None
+
+
+def surah_openings():
+    global _OPENINGS
+    if _OPENINGS is None:
+        from common import tanzil
+        _OPENINGS = {w[0] for (su, a), txt in tanzil().items() if a == 1 and su != 1
+                     for w in [[cons(x) for x in txt.split() if cons(x)]] if w and len(w[0]) >= 2}
+    return _OPENINGS
+
+
 def tokenize(text):
     """-> list of sentences, each (words, closing punctuation, indices of
     words followed by a comma without a pause)."""
-    toks = normalise(text).split()
+    toks = mark_ayah_ends(normalise(text).split())
     sents = []
     cur = []
     commas = set()
@@ -312,6 +427,14 @@ def tokenize(text):
                 punct = rep
                 t = t[:-len(p)]
                 break
+        sk = skel(t)
+        if t and sk in MUQ_LETTERS and not any(m in t for m in VOWELS | TANWEEN):
+            # الٓمّٓ is spelled by name (ALIF LAAAM MEEM), as its own sentence
+            if cur:
+                sents.append((cur, '', commas))
+                cur, commas = [], set()
+            sents.append(([MUQ + t], punct or '', set()))
+            continue
         if t:
             cur.append(t)
         if punct and cur:
@@ -326,7 +449,9 @@ def tokenize(text):
 
 def link(words):
     """Across-word assimilation the Indo-Pak spelling shows (or needs)."""
-    words = list(words)
+    # وَّ after a vowel (التَّقْوٰى وَّ) is a plain WA; after a tanween the engine
+    # makes the idgham (KARBINW WA) without the shadda
+    words = [re.sub('^و([\u064e\u0651]+)', 'وَ', w) if skel(w) == 'و' else w for w in words]
     for i in range(len(words) - 1):
         a, b = words[i], words[i + 1].replace(ALT_SUKUN, SUKUN)
         first = clusters(b)[0] if b else None
@@ -354,6 +479,9 @@ def link(words):
 def transliterate(text):
     out = []
     for words, punct, commas in tokenize(text):
+        if words[0].startswith(MUQ):
+            out.append(MUQ_LETTERS[skel(words[0][1:])] + (punct or '.'))
+            continue
         lw = link(words)
         ws = [analyse(w, i == 0, lw[i - 1] if i else '') for i, w in enumerate(lw)]
         for i, w in enumerate(ws):
