@@ -89,9 +89,12 @@ prayer in Ramazan).
   Asbahtu Allahumma` - and anything without such a name by what it is -
   `Forgiveness for Believers ×25`, `Ghusl & Grooming`.
 - **Changing tab order or count** (adding, removing, splitting, merging
-  tabs) shifts every `RetiredZikrRedirect(uid, tabIndex: n)` into that
-  entry - `grep "RetiredZikrRedirect('<uid>'" lib/data/retired_zikr_redirects.dart`
-  and update each `tabIndex` so it still lands on the same text.
+  tabs) shifts every `RetiredZikrRedirect(uid, tabIndex: n)` or
+  `tabs: [...]` into that entry - `grep "RetiredZikrRedirect('<uid>'"
+  lib/data/retired_zikr_redirects.dart` and update each so it still lands
+  on the same text - and every `"tabs"` of an alias of it
+  (`grep '|<uid>"' assets/zikr.json`). Links shared as `?tab=N` move too;
+  there is nothing to update for those.
 - A tab opens with an instruction line only when it has something of its
   own to say (a count, a time, a condition). Context the title or the whole
   entry already gives - "after every obligatory prayer in Ramazan" - is
@@ -118,6 +121,17 @@ prayer in Ramazan).
   `"<uid>|<targetUid>"` in `assets/zikr.json` with the **same title and the
   same slug** as the target (CLAUDE.md, slug-collision note). Never copy
   the content file.
+- A named dua that is also one tab (or a run of tabs) of a compilation can
+  be an alias of just those tabs: give its `assets/zikr.json` entry
+  `"tabs": [3]`, numbered from 1 as the reader shows them - the number a
+  `?tab=3` link to that tab carries. It then shows only those tabs, under
+  its own title, so it needs a **title and slug of its own**. Lint checks
+  the numbers (`ALIAS_TABS`). A retired uid whose text is a run of tabs
+  does the same with `RetiredZikrRedirect('<target>', tabs: [2, 3])`
+  (`tabs[]` indexes, like `tabIndex`).
+- A link to one tab of an entry is `/zikr/<slug>?tab=N`, N counted from 1
+  as the reader shows the tabs; the reader's Share button and the web
+  address bar write it for whichever tab is open.
 - To merge or remove an entry, retire it (see 6) - never just delete the
   uid.
 - Uids and slugs are never changed (favorites, bookmarks and shared links

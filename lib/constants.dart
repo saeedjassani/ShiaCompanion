@@ -428,7 +428,14 @@ List<PrayerNotificationScheduleEntry> buildPrayerNotificationEntriesForDay({
 Map items = {};
 Map<String, double> itemOrder = {};
 Map<String, dynamic> itemMetadata = {};
-// Flips to true once `items`/`itemOrder`/`itemMetadata` reflect a completed
+
+/// Alias key (`"<uid>|<targetUid>"`) -> the tabs of its target it shows, for
+/// an alias that stands for only part of its target: its `assets/zikr.json`
+/// entry's `"tabs"`, numbered as the reader numbers them, from 1 (and as a
+/// `?tab=` link names them). An alias missing here shows all of its target.
+/// See [shownZikrTabs].
+Map<String, List<int>> itemTabs = {};
+// Flips to true once `items`/`itemOrder`/`itemMetadata`/`itemTabs` reflect a completed
 // load attempt (success or failure) from assets/zikr.json, so UI that reads
 // those maps (e.g. TodaysRecitationPage) can wait for them instead of
 // racing a still-empty index on a slow first launch.

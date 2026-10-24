@@ -233,6 +233,7 @@ class _MyHomePageState extends State<MyHomePage>
         resolvedItem,
         source: source,
         initialVerse: verse,
+        initialTab: zikrDeepLinkTab(target),
       );
       pushRootPageRoute(route) ?? pushPageRoute(context, route);
     });

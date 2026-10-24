@@ -12,9 +12,11 @@
 /// otherwise fail, and opens [targetUid] - landing on tab index [tabIndex]
 /// of it (into its `tabs` array, not counting the main `data` slot) when
 /// the retired uid's content now lives in one tab specifically rather than
-/// covering the whole entry.
+/// covering the whole entry. When its content is a run of the target's tabs
+/// instead, [tabs] shows just those, and the rest of the target is hidden.
 class RetiredZikrRedirect {
-  const RetiredZikrRedirect(this.targetUid, {this.tabIndex});
+  const RetiredZikrRedirect(this.targetUid, {this.tabIndex, this.tabs})
+      : assert(tabIndex == null || tabs == null);
 
   /// The uid whose content now covers what this retired uid used to.
   final String targetUid;
@@ -22,6 +24,10 @@ class RetiredZikrRedirect {
   /// Index into the target's `tabs` array to land on, or null to land on
   /// the target's main `data` (tab index 0 in the reader's own numbering).
   final int? tabIndex;
+
+  /// Indexes into the target's `tabs` array - numbered as [tabIndex] is - of
+  /// the only tabs to show, or null to show the whole target.
+  final List<int>? tabs;
 }
 
 /// D11 duplicated D12 word-for-word (D12 now carries the fuller ending).
@@ -150,10 +156,9 @@ const Map<String, RetiredZikrRedirect> retiredZikrRedirects = {
   /// verbatim I24's tabs[2] ("Fear of House Collapse") *and* tabs[3]
   /// ("Fear of Thieves") concatenated - the sibling entries I24 tabs[0] and
   /// tabs[1] were already retired above as I25/I26; E50 is the same
-  /// pattern for the other two tabs, just missed at the time. This map only
-  /// supports one target tab, so this redirect lands on tabs[2]; tabs[3]
-  /// ("Fear of Thieves") is one swipe away from there in the reader.
-  'E50': RetiredZikrRedirect('I24', tabIndex: 2),
+  /// pattern for the other two tabs, just missed at the time. It spans two
+  /// tabs, so rather than landing on one it shows those two alone.
+  'E50': RetiredZikrRedirect('I24', tabs: [2, 3]),
 
   /// G20 was restored standalone ("Restore a third low-hanging-fruit
   /// batch...", commit cd2b3c6) without noticing that 'G20|N3' already
