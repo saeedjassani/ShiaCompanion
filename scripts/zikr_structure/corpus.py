@@ -95,11 +95,15 @@ class Part:
         return [(i, l) for i, l in enumerate(self.lines) if self.kind[i] == 'note']
 
     def note_runs(self):
-        """Runs of consecutive standalone lines (blank lines don't break a run)."""
+        """Runs of consecutive standalone lines (blank lines don't break a run;
+        a `## ` heading starts a new one, as the reader draws it)."""
         runs, cur = [], []
         for i, l in enumerate(self.lines):
             k = self.kind[i]
-            if k == 'note':
+            if k == 'note' and l.startswith('## ') and cur:
+                runs.append(cur)
+                cur = [l]
+            elif k == 'note':
                 cur.append(l)
             elif k != 'blank' and cur:
                 runs.append(cur)

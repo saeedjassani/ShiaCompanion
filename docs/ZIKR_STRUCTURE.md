@@ -26,6 +26,8 @@ is the working procedure for applying them batch by batch.
 - `merits` opens in a sheet from the Merits button above the first part. It
   is never in the way of someone who recites the zikr every day.
 - Markdown links `[text](uid)` work in the body and in merits.
+- A standalone line starting `## ` is a section heading (see "Headings"
+  below).
 
 ## The rules
 
@@ -96,11 +98,29 @@ prayer in Ramazan).
   own to say (a count, a time, a condition). Context the title or the whole
   entry already gives - "after every obligatory prayer in Ramazan" - is
   said once, in the first part, not repeated at the top of every tab.
-- Do not split one continuous dua into tabs; scrolling is fine.
+- Do not split one continuous dua into tabs; scrolling is fine. If it is
+  long and has named sections, mark them as headings instead (below).
 - **Merits are never a tab.** A tab called "Merits of ..." moves to
   `merits`.
 - Short acts (a one-line tasbeeh, a surah link) can share one part as
   consecutive steps instead of each getting a tab.
+
+### Headings
+
+A long part with named sections - Jawshan Kabir's 100 sections, the 30
+night prayers of Ramazan - marks each one with a heading line:
+
+```
+## Section 1: For Success in Difficult Works
+```
+
+- The reader draws it as a heading (centred, in the accent) and lists every
+  heading of the open part in the Sections menu in its top bar, which
+  scrolls to the one picked. The `## ` itself is never shown.
+- Short: at most 60 characters (lint's `HEADING`), English, naming the
+  section. It is translated like any other standalone line.
+- Only for sections someone would jump between. A part with three steps
+  needs no headings; separate acts are tabs (rule 4), not headings.
 
 ### 5. One text lives in one place
 
