@@ -3192,7 +3192,6 @@
     "a:ولويواخذاللهالناسبماكسبواماتركعل"
   ],
   "A4": [
-    "e:itismentionedinmisbahofkafamifro",
     "a:اللهلاالهالاهوالحيالقيوملاتاخذهس",
     "a:لااكراهفيالدينقدتبينالرشدمنالغيف",
     "a:اللهوليالذينامنوايخرجهممنالظلمتا"
@@ -22923,6 +22922,19 @@
     "a:منالاولينوالاخرين",
     "a:والحقهمبدركالجحيم"
   ],
+  "G64": [
+    "a:السلامعليكياسيدالساجدين",
+    "a:السلامعليكيازينالعابدين",
+    "a:السلامعليكياحليفالحسرات",
+    "a:السلامعليكياذالثفنات",
+    "a:السلامعليكياصاحبالعبرات",
+    "a:السلامعليكيااسيرالكربات",
+    "a:السلامعليكيادماللعباي",
+    "a:السلامعليكيابنخامساهلالكساي",
+    "a:السلامعليكيابنسيدالشهداي",
+    "a:السلامعليكياعمادالاتقياي",
+    "a:السلامعليكورحمهاللهوبركاته"
+  ],
   "G7": [
     "e:imamjafarsadiqassaidwhenyouwantt",
     "a:سلاماللهوسلامملايكتهالمقربينوانب",
@@ -23729,12 +23741,6 @@
     "e:itisthenobligatoryuponthebathert",
     "e:howeveritisrecommendedtoperforma"
   ],
-  "I13": [
-    "e:throughavalidchainofauthorityima",
-    "e:accordingtoanothervalidlyreporte",
-    "e:theholyprophetsisreportedtohaves",
-    "e:accordingtoanothertraditionwhoev"
-  ],
   "I14": [
     "e:fourwordssubhanallah30",
     "e:eachoftheseisrecitedaftertheobli",
@@ -24096,10 +24102,6 @@
     "e:recite100timeseveryday",
     "a:سبحاناللهوالحمدللهولاالهالااللهو"
   ],
-  "I3": [
-    "e:beforetheritualablutionwudubrush",
-    "e:ifamiswakisnotavailableitissuffi"
-  ],
   "I31": [
     "e:imamalsadiqaisalsoreportedtohave",
     "a:بسماللهوباللهمحمدرسولاللهولاحولو",
@@ -24216,6 +24218,8 @@
     "a:ياظاهراموجوداوياباطناغيرمفقودارد"
   ],
   "I4": [
+    "e:beforetheritualablutionwudubrush",
+    "e:ifamiswakisnotavailableitissuffi",
     "e:atperformingtheritualablutioniti",
     "a:الحمدللهالذيجعلالماطهورا",
     "a:ولميجعلهنجسا",
@@ -24653,17 +24657,6 @@
     "a:بسماللهالرحمنالرحيمبسماللهانياعو",
     "a:سترتبينيوبينكبسترالنبوهالذياستتر",
     "a:اللهملايغلبجهلهاناتكانيستفزنيويس"
-  ],
-  "I8": [
-    "e:allamahalmajlisimayallahhavemerc",
-    "e:asisinferredfromtheexpressionits",
-    "e:itisfavorablethatapostprayerutte",
-    "e:althoughsomescholarshavedecidedt",
-    "e:theinfallibleimamsasarereportedt",
-    "e:actuallytheobligatoryprayersaret",
-    "e:theyalsoraisetherankserasethepun",
-    "e:inviewofallthatiamencouragedtome",
-    "e:postprayerutterancesareoftwocate"
   ],
   "I80": [
     "e:thisevilrepellingprayerisascribe",
@@ -25868,10 +25861,6 @@
   ],
   "T2": [
     "e:onthe12thofrabialawwalofferatwou"
-  ],
-  "V1": [
-    "e:itispropertovisitladyfatimahalza",
-    "e:onthefifteenthofjumadaalulaah36i"
   ],
   "W1": [
     "e:onthisdayholdconsolationceremoni",

@@ -205,7 +205,10 @@
   },
   "A4": {
     "title": "Ayat al-Kursi",
-    "slug": "ayat-al-kursi"
+    "slug": "ayat-al-kursi",
+    "slugAliases": [
+      "merits-of-reciting-ayah-kursi-after-every-namaz"
+    ]
   },
   "A40": {
     "title": "36: Ya-Sin يس",
@@ -1139,7 +1142,10 @@
   },
   "D1": {
     "title": "General Taqibaat",
-    "slug": "general-ta-qeebaat"
+    "slug": "general-ta-qeebaat",
+    "slugAliases": [
+      "etiquettes-of-taaqeebaat"
+    ]
   },
   "D10": {
     "title": "Taqibaat of Namaz-e-Isha",
@@ -2175,8 +2181,13 @@
     "slug": "ziyaarat-e-janab-e-faatemah-zahra-s-a",
     "day": [
       "05-13",
+      "05-14",
+      "05-15",
       "06-03",
       "06-20"
+    ],
+    "slugAliases": [
+      "13th-14th-and-15th-of-jumadi-al-ula"
     ]
   },
   "G53": {
@@ -2547,10 +2558,6 @@
     "title": "The Ritual Bathing (Ghusl) of the Deceased",
     "slug": "the-ritual-bathing-ghusl-of-the-deceased"
   },
-  "I13": {
-    "title": "Merits of Reciting Ayat al-Kursi after Every Namaz",
-    "slug": "merits-of-reciting-ayah-kursi-after-every-namaz"
-  },
   "I14": {
     "title": "General Taqibaat - 2",
     "slug": "general-ta-qeebaat-10-15"
@@ -2599,10 +2606,6 @@
     "title": "Letter of Yusha, the Son of Nun",
     "slug": "letter-of-yusha-the-son-of-nun"
   },
-  "I3": {
-    "title": "Cleansing the Teeth",
-    "slug": "cleansing-the-teeth"
-  },
   "I31": {
     "title": "Recitations for Fending Off Evil Self Inspirations",
     "slug": "recitations-for-fending-off-evil-self-inspirations"
@@ -2644,7 +2647,10 @@
   },
   "I4": {
     "title": "The Ritual Ablution (Wudu)",
-    "slug": "ritual-ablution-wuzu"
+    "slug": "ritual-ablution-wuzu",
+    "slugAliases": [
+      "cleansing-the-teeth"
+    ]
   },
   "I41": {
     "title": "Taweez against Mouth Ache",
@@ -2769,10 +2775,6 @@
   "I78": {
     "title": "Pocket Taweez",
     "slug": "pocket-taweez"
-  },
-  "I8": {
-    "title": "Etiquettes of Taqibaat",
-    "slug": "etiquettes-of-taaqeebaat"
   },
   "I80": {
     "title": "Hirz of Imam al-Jawad (a.s.)",
@@ -3081,15 +3083,6 @@
   "TR~D1": {
     "title": "Taqibaat of Namaz",
     "slug": "taqeebaat-e-namaz"
-  },
-  "V1": {
-    "title": "13th, 14th and 15th of Jumada al-Awwal",
-    "slug": "13th-14th-and-15th-of-jumadi-al-ula",
-    "day": [
-      "05-13",
-      "05-14",
-      "05-15"
-    ]
   },
   "W1": {
     "title": "3rd Jumada al-Akhirah (Martyrdom of Lady Fatimah al-Zahra (s.a.))",

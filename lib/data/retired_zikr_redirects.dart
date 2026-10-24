@@ -370,4 +370,24 @@ const Map<String, RetiredZikrRedirect> retiredZikrRedirects = {
   /// Mu'in al-Du'afa...") went with it. Their slugs are G76's slugAliases.
   'G8': RetiredZikrRedirect('G76', tabIndex: 0),
   'G9': RetiredZikrRedirect('G76', tabIndex: 1),
+
+  /// V1 (13th-15th Jumada al-Awwal) only said to visit Lady Fatimah (s.a.) on
+  /// those days, with nothing of its own to recite (rule 6). G52 carries her
+  /// ziyarat and now shows on all three days; the note is in its merits, and
+  /// the 15th's history in G64's.
+  'V1': RetiredZikrRedirect('G52'),
+
+  /// I13 only held narrations on reciting Ayat al-Kursi after every prayer,
+  /// with nothing of its own to recite (rule 6); they are now A4's merits.
+  'I13': RetiredZikrRedirect('A4'),
+
+  /// I3 (Cleansing the Teeth) was one step, brushing with a miswak before wudu;
+  /// it is now the first step of I4 (The Ritual Ablution), its reward in I4's
+  /// merits.
+  'I3': RetiredZikrRedirect('I4'),
+
+  /// I8 (Etiquettes of Taqibaat) was Allamah al-Majlisi's introduction to
+  /// taqibaat, with nothing to recite; it is now in D1's (General Taqibaat)
+  /// merits.
+  'I8': RetiredZikrRedirect('D1'),
 };
