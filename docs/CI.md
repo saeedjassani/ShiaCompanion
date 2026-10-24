@@ -8,7 +8,7 @@
 | `web-preview.yml` | push to `master`, every PR, manual | Deploys a Firebase preview channel. Never touches production. |
 | `web-release.yml` | push to `master` that changes the version in `pubspec.yaml`, manual | The only workflow that writes to the live site |
 | `smoke-test.yml` | push to `master` that bumps the version in `pubspec.yaml`, manual | Runs the automated smoke crawler integration test on both an iOS Simulator and an Android emulator |
-| `internal-testing.yml` | manual only | Builds any branch, commit or PR and uploads it to TestFlight and/or the Play internal testing track. Never submits anything for review. |
+| `internal-testing.yml` | manual only | Builds any branch, commit or PR and uploads it to TestFlight and/or the Play internal testing track, or the Wear OS app to Play's Wear OS internal track. Never submits anything for review. |
 | `wear.yml` | PRs and pushes touching the Wear OS app, manual | Tests, lint, screenshots and an unsigned release build of `android/wear`. Uploads nothing; see `docs/WEAR_OS.md` |
 | `rules-deployed.yml` | push to `master`, PRs touching the rules, daily, manual | Fails when the live Firestore rules differ from `firestore.rules`. Read-only, never deploys. |
 
@@ -363,7 +363,9 @@ rather than behind `continue-on-error`. Pin `runs-on` to the last known good
 `internal-testing.yml` puts a build of any branch, commit or pull request on
 TestFlight and the Google Play internal testing track without merging it
 first: **Actions → Internal testing → Run workflow**, with the branch name or
-PR number in *ref* and *platforms* set to both, ios or android. It only
+PR number in *ref* and *platforms* set to both, ios or android. `wear`
+uploads the Wear OS app instead, to Play's `wear:internal` track; it only
+works once Wear OS is a form factor in Play Console (docs/WEAR_OS.md). It only
 uploads. Testers you have added can install the build, and store users never
 see it unless that build is later promoted or submitted for review by hand.
 
@@ -383,7 +385,7 @@ macOS minutes.
 ### One-time setup
 
 Add these as secrets of the `Prod` environment (Settings → Environments →
-Prod → Environment secrets). Only the two upload jobs name that environment,
+Prod → Environment secrets). Only the upload jobs name that environment,
 so no other workflow, including CI on pull requests, can read them. A
 platform's job stops at its first step, naming whatever is missing.
 

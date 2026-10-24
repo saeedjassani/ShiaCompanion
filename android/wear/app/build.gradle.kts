@@ -12,7 +12,10 @@ plugins {
 //
 // The version *code* is offset: Play keys version codes by package, across
 // every form factor, so the watch build can never reuse one the phone has
-// used. See "Version codes" in docs/WEAR_OS.md before the first upload.
+// used. The upload job passes the exact code and name it picked from Play
+// (-PwearVersionCode, -PwearVersionName; see
+// android/scripts/next_play_version_code.sh and "Version codes" in
+// docs/WEAR_OS.md).
 val pubspecVersion: Pair<String, Int> = run {
     val line = rootDir.resolve("../../pubspec.yaml").readLines()
         .first { it.startsWith("version:") }
@@ -42,8 +45,9 @@ android {
         // Wear OS 3, the oldest version Play still accepts new apps for.
         minSdk = 30
         targetSdk = 36
-        versionCode = pubspecVersion.second + wearVersionCodeOffset
-        versionName = pubspecVersion.first
+        versionCode = (findProperty("wearVersionCode") as String?)?.toInt()
+            ?: (pubspecVersion.second + wearVersionCodeOffset)
+        versionName = findProperty("wearVersionName") as String? ?: pubspecVersion.first
     }
 
     signingConfigs {

@@ -181,9 +181,10 @@
 - **Wear OS app: merged, not shipped.** `android/wear` is a standalone
   Gradle build (Compose for Wear OS: prayer times, calendar, tasbeeh, a tile,
   complications) fed from the phone over the Data Layer by `WearSync`, which
-  stays dormant until a watch has the app. Before shipping: the device checks
-  and the Play steps (Wear OS form factor, version codes vs
-  `internal-testing.yml`, an upload job) in `docs/WEAR_OS.md`. Its UI strings
+  stays dormant until a watch has the app. `internal-testing.yml` with
+  *platforms* `wear` uploads it to Play's `wear:internal` track, in its own
+  version-code range (100000+). Before shipping: the device checks and the
+  Play Console steps in `docs/WEAR_OS.md`. Its UI strings
   live in `android/wear/app/src/main/res/values*/strings.xml` - keep all five
   languages in step there.
 

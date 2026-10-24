@@ -29,8 +29,9 @@ Arabic and Gujarati - keep the five in step when adding one.
 Material 3, Tiles, Complications), **not a module of the phone app's
 `android/` build**. Flutter runs `assembleRelease`/`bundleRelease` across every
 project in `android/settings.gradle`, so including it there would build and
-sign the watch app on every phone build. Kept apart, `flutter build`, `ci.yml`
-and `internal-testing.yml` cannot pick it up.
+sign the watch app on every phone build. Kept apart, `flutter build` and
+`ci.yml` cannot pick it up, and `internal-testing.yml` builds it only when
+run with *platforms* set to `wear` (never as part of `both` or `android`).
 
 It shares the phone app's package name (`com.developer110.shiacompanion`,
 `.debug` for debug builds on both), version (read from `pubspec.yaml`) and
@@ -113,23 +114,36 @@ Things a screenshot cannot show:
 2. **Play Console, once:** Setup -> Advanced settings -> Form factors -> add
    **Wear OS**. That creates Wear OS tracks next to the phone's; a Wear OS
    build only ever goes to those.
-3. **Version codes.** Play keys version codes by package, across form
-   factors, so the watch build can never reuse one the phone used. The watch
-   build adds `100000` to `pubspec.yaml`'s build number
-   (`wearVersionCodeOffset` in `app/build.gradle.kts`). `internal-testing.yml`
-   picks the phone's next code as "the highest on any track, plus one", which
-   would then jump to the watch's 100000-range: before the first watch
-   upload, make it read only the phone tracks, or pick a different scheme.
-4. **An upload workflow.** Mirror the Android job of `internal-testing.yml`
-   for `cd android/wear && ./gradlew :app:bundleRelease`, uploading to the Wear
-   OS internal-testing track (`--track wear:internal`). Same key and
-   `key.properties` as the phone job.
+3. **Run the upload:** Actions -> Internal testing -> Run workflow with
+   *platforms* `wear`. It tests, builds a signed bundle with the phone's
+   upload key, and uploads it to the `wear:internal` track. Add testers who
+   own Wear OS watches to that track in Play Console; they install from the
+   Play Store on the watch.
+4. **Check the version codes** in the run's log the first time (below).
 5. **Store listing:** Wear OS screenshots (from the artifact, or the
    emulator), and the Wear OS quality checklist (dark, round-friendly, works
    offline, tile and complication previews). The tile's picker preview
    (`res/drawable/tile_preview.xml`) is still the Maghrib glyph; replace it
    with a screenshot of the tile from a device.
 6. Promote from the Wear OS internal track when ready.
+
+### Version codes
+
+Play keys version codes by package, across every track and form factor, and
+the phone and watch apps share one package. Each keeps to its own range and
+only looks at its own tracks (`android/scripts/next_play_version_code.sh`,
+used by both upload jobs):
+
+| App | Range | Next code |
+| --- | --- | --- |
+| Phone | `pubspec.yaml`'s build number and up (137, 138, ...) | One above the highest on the phone's tracks (everything not `wear:*`) |
+| Watch | 100000 + `pubspec.yaml`'s build number and up | One above the highest on the `wear:*` tracks |
+
+Before this, the phone job took the highest code on *any* track, so the first
+watch upload would have dragged the phone's numbering into the 100000s. The
+phone job now fails rather than step into the watch's range. A local build
+with no override uses 100000 + the pubspec build number
+(`wearVersionCodeOffset` in `app/build.gradle.kts`).
 
 The phone side needs no release step: it ships dormant in every phone build
 from this change on, and starts syncing the moment a watch has the app.
