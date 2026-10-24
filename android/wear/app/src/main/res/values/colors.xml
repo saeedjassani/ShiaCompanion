@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- The prayer card's dark palette (docs/DESIGN_SPEC.md); the watch is always dark. -->
+    <color name="background">#FF000000</color>
+</resources>

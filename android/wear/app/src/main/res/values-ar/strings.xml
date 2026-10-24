@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="up_next">التالي</string>
+    <string name="up_next_on">التالي · %1$s</string>
+    <string name="refresh">تحديث</string>
+    <string name="sync_now">مزامنة الآن</string>
+    <string name="synced_ago">تمت المزامنة %1$s</string>
+
+    <string name="waiting_for_phone_title">بانتظار الهاتف</string>
+    <string name="waiting_for_phone_message">افتح Shia Companion على هاتفك لإرسال أوقات الصلاة إلى ساعتك.</string>
+    <string name="location_needed_title">يلزم الموقع</string>
+    <string name="location_needed_message">عيّن موقعك في Shia Companion على هاتفك، ثم زامن من جديد.</string>
+    <string name="phone_app_missing">ثبّت Shia Companion على هاتفك لمزامنة أوقات الصلاة.</string>
+    <string name="phone_unreachable">تعذّر الوصول إلى هاتفك. تأكد أنه قريب ومتصل.</string>
+
+    <string name="calendar">التقويم</string>
+    <string name="islamic_calendar">التقويم الإسلامي</string>
+    <string name="upcoming">القادمة</string>
+    <string name="upcoming_events">المناسبات القادمة</string>
+    <string name="calendar_not_synced">افتح Shia Companion على هاتفك لمزامنة التقويم.</string>
+    <string name="calendar_next_event">التالية: %1$s</string>
+    <string name="hijri_year">%1$d هـ</string>
+    <string name="today">اليوم</string>
+    <string name="tomorrow">غدًا</string>
+    <plurals name="in_days">
+        <item quantity="zero">بعد %d يوم</item>
+        <item quantity="one">بعد يوم واحد</item>
+        <item quantity="two">بعد يومين</item>
+        <item quantity="few">بعد %d أيام</item>
+        <item quantity="many">بعد %d يومًا</item>
+        <item quantity="other">بعد %d يوم</item>
+    </plurals>
+    <string name="event_kind_when">%1$s · %2$s</string>
+
+    <string name="tasbeeh">تسبيح</string>
+    <string name="tasbeeh_counter">عدّاد التسبيح</string>
+    <string name="no_target">بدون حد</string>
+    <string name="target_progress">%1$d / %2$d</string>
+    <string name="lap">×%1$d</string>
+    <string name="tasbeeh_hint">اضغط أو أدِر</string>
+    <string name="add_one">زائد واحد</string>
+    <string name="minus_one">ناقص واحد</string>
+    <string name="reset">إعادة الضبط</string>
+    <string name="reset_question">البدء من جديد من ٠؟</string>
+    <string name="change_target">تغيير الهدف</string>
+
+    <string name="tile_prayer_label">أوقات الصلاة</string>
+    <string name="tile_prayer_description">الصلاة التالية والأوقات بعدها.</string>
+    <string name="complication_next_prayer">الصلاة التالية</string>
+    <string name="complication_hijri_date">التاريخ الهجري</string>
+    <string name="complication_tasbeeh">عدد التسبيح</string>
+    <string name="tile_open_phone">افتح Shia Companion على هاتفك</string>
+</resources>

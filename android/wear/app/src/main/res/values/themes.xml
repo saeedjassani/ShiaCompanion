@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.ShiaCompanion" parent="@android:style/Theme.DeviceDefault">
+        <item name="android:windowBackground">@color/background</item>
+    </style>
+    <style name="Theme.ShiaCompanion.Starting" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">@color/background</item>
+        <item name="windowSplashScreenAnimatedIcon">@mipmap/ic_launcher</item>
+        <item name="postSplashScreenTheme">@style/Theme.ShiaCompanion</item>
+    </style>
+</resources>

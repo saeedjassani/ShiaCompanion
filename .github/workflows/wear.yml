@@ -1,0 +1,82 @@
+name: Wear OS
+
+# The Wear OS app (android/wear) is its own Gradle build, kept out of the
+# phone app's so nothing in ci.yml or internal-testing.yml can build, sign or
+# upload it. This checks it on its own: tests, lint, screenshots of every
+# screen, and a release build. It uploads nothing to any store. See
+# docs/WEAR_OS.md.
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - 'android/wear/**'
+      - 'android/app/src/main/kotlin/com/developer110/shiacompanion/wear/**'
+      - 'pubspec.yaml'
+      - '.github/workflows/wear.yml'
+  pull_request:
+    paths:
+      - 'android/wear/**'
+      - 'android/app/src/main/kotlin/com/developer110/shiacompanion/wear/**'
+      - 'pubspec.yaml'
+      - '.github/workflows/wear.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: wear-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  wear:
+    name: Test and build the Wear OS app
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: android/wear
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - uses: gradle/actions/setup-gradle@v4
+
+      # Unit tests, then the screenshot tests again in record mode so the
+      # pictures land in build/outputs/roborazzi for the artifact below.
+      - name: Unit tests and screenshots
+        run: ./gradlew :app:testDebugUnitTest :app:recordRoborazziDebug --console=plain
+
+      - name: Lint
+        run: ./gradlew :app:lintDebug --console=plain
+
+      # Unsigned: there is no key here, and nothing is uploaded. Built to
+      # prove R8 and resource shrinking leave a working app.
+      - name: Release build
+        run: ./gradlew :app:assembleRelease --console=plain
+
+      - name: Upload screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: wear-screenshots
+          path: android/wear/app/build/outputs/roborazzi
+          if-no-files-found: ignore
+          retention-days: 14
+
+      - name: Upload reports
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: wear-reports
+          path: android/wear/app/build/reports
+          retention-days: 7
+
+      - name: Report APK size
+        run: |
+          apk=app/build/outputs/apk/release/app-release-unsigned.apk
+          bytes=$(stat -c%s "$apk")
+          printf '### Wear OS release APK\n\n**%s** (%s bytes), unsigned and not uploaded anywhere.\n\nScreenshots of every screen are in the `wear-screenshots` artifact.\n' \
+            "$(numfmt --to=iec --suffix=B "$bytes")" "$bytes" >> "$GITHUB_STEP_SUMMARY"
