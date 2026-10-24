@@ -241,6 +241,83 @@ User-Agent; cloud sessions could not reach them.
 The published page pairs each Arabic passage with exactly one Persian line,
 matching the app's segments; 414 segments.
 
+### valasr.app — E144, G6, E18 (2026-10)
+
+Ostad Hossein Ansarian's published *Mafatih al-Jinan* translation on valasr.app
+was used to fill Persian translations for these three zikrs. Where published
+sentences spanned adjacent template segments, they were divided cleanly by meaning
+at the Arabic phrase boundaries without altering or composing any words.
+
+| uid | Zikr | Source | Segments |
+| --- | --- | --- | --- |
+| E144 | Salawat of Abul Hasan al-Zarrab al-Isfahani | https://valasr.app/library/mafatih/صلوات-ابوالحسن-ضراب-اصفهانی | 168 of 170 + merits |
+| G6 | Ziyarat Warith | https://valasr.app/library/mafatih/زیارت-هفتم-زیارت-وارث (tabs 1-3); tab 4 (Hazrat Abbas) from https://valasr.app/library/mafatih/زیارت-امام-حسینع-در-شبهای-قدر | 80 of 80 |
+| E18 | Dua Ahad | https://valasr.app/library/mafatih/دعای-عهد | 38 of 42 + merits |
+
+- **E144 (Salawat Abul Hasan al-Zarrab al-Isfahani):** 166 verse segments
+  were filled from Ostad Hossein Ansarian's published Mafatih translation on valasr.app.
+  Segments 0 and 169 (introductory and concluding instructions) were preserved verbatim
+  from the shipped file. The published introductory narration provided the full merits
+  text. Segments 122 (`وَبَلِّغْهُ اَفْضَلَ مَا اَمَّلَهٗ`) and 166 (`وَبَلِّغْهُمْ اَقْصٰى آمَالِهِمْ`)
+  are left blank (deleted): in Ansarian's Persian, the adverbial/prepositional complements
+  (`در دنیا و آخرت` in 123; `دینی و دنیوی و آخرتی‌شان` in 167) precede the governing verb
+  (`برسان`), preventing contiguous, ordered partitioning without dropping or reordering words.
+  Segments 132–133 (`وَلَا بَاطِلَ عِنْدَهٗ` / `وَلَا بِدْعَةَ لَدَيْهِ`) partition the published
+  line `و باطل و بدعتی همراه آن نماند` into contiguous slices `و باطل` and `و بدعتی همراه آن نماند`.
+  Recension-variant mappings: seg 14 (`وَاَفْلِحْ حُجَّتَهٗ` maps to published line with `وَأَفْلِجْ`);
+  seg 16 (`وَاَضِءْ نُوْرَهٗ` maps to published line with `وَأَضِئْ`). Segment 96 follows the
+  published line ending at `پیوسته` (omitting composed `و خوشایند`); seg 158 uses verbatim published
+  `و دستاویز` (omitting composed `محکم`); seg 161 uses verbatim start `و بر ولیت`; seg 168 uses
+  verbatim published `زیرا تو بر هر کاری توانایی.`. 168/170 segments translated (2 blank segments).
+- **G6 (Ziyarat Warith):** 76 verse segments were filled from published Mafatih al-Jinan
+  on valasr.app. Tabs 1–3 (Imام Husain, Ali Akbar, Shuhada) are from the Ziyarat Warith
+  chapter; tab 4 (Hazrat Abbas) is the short ziyarat from the Qadr nights chapter (matching
+  the same structure used in Urdu G6). Tab labels 0, 47, 57, and 70 were preserved verbatim
+  from the shipped file. G6 has no merits note in the English source, so merits remains absent.
+  Recension-variant mappings and verbatim alignment:
+  - Tab 1: Seg 7 (`اَلسَّلَامُ عَلَيْكَ يَا وَارِثَ عَلِىٍّ اَمِيْرِ الْمُؤْمِنِيْنَ وَلِىِّ اللهِ`)
+    maps to published line `سلام بر تو ای وارث امیرمؤمنان ولی خدا،` (published Arabic recension
+    reads `السَّلامُ عَلَيْكَ يَا وارِثَ أَمِيرِ الْمُؤْمِنِينَ عَلَيْهِ السَّلاٰمُ`). Segments 7-8
+    and 9-10 cleanly partition blocks 31 and 32 into verbatim contiguous slices. Seg 11 takes the
+    verbatim first slice of block 33. Segments 14-15 map to block 34 (`الصَّلوٰةَ` vs `الصَّلاةَ`),
+    partitioned cleanly.
+  - Segments 33-34 use verbatim published `ریشه تقوا و نشانه‌های هدایت` and `و دستاویز محکم و حجّت بر اهل دنیا هستند،`
+    (restoring published `ریشه` and `دستاویز`). Segments 35-36 partition block 42 into `و گواه می‌گیرم خدا و فرشتگان`
+    and `و پیامبران و رسولانش را`. Segments 38-40 take verbatim published slices `و بر یقین به بازگشت شمایم،`,
+    `براساس قوانین دینم`, and `و پایان‌های عملم`. Seg 41 takes verbatim `و دلم تسلیم دل شما`.
+    Segments 43-44 take `درود خدا بر شما و بر ارواح` and `و اجساد و پیکرهایتان`. Segments 45-46 take
+    `و بر حاضر و غایب` and `و آشکار و باطنتان.`.
+  - Tab 2 (Ali Akbar): Segments 48-49 and 50-51 partition blocks 62 and 63. Seg 52 takes verbatim
+    published `سلام بر تو ای شهید،` (omitting composed `و فرزند شهید`).
+  - Tab 3 (Shuhada): Segments 58-59 and 63-64 follow verbatim published lines (mapping slight
+    orthographic differences in `أَوِدَّاءَهُ` and `نِساءِ`).
+  - Tab 4 (Abbas): Seg 71 takes verbatim opening `سلام بر تو ای فرزند امیرمؤمنان،`; Seg 76 takes
+    verbatim remainder `تا آن‌که مرگ به سویت آمد`; Seg 79 takes verbatim published `و به هلاکت‌گاه دوزخ واردتان کند.`
+    (matching published `واردتان` character-for-character). 80/80 segments translated (0 blank segments).
+- **E18 (Dua Ahad):** 37 verse segments were filled from the published Mafatih al-Jinan on valasr.app.
+  Segment 40 (instruction to strike thigh 3 times) was preserved verbatim from the shipped file.
+  The published introductory narration provided the merits text.
+  - Seg 0 (Bismillah): The valasr Dua Ahad page has no basmala block; uses the exact published Ansarian
+    basmala line from valasr (cf. E144 seg 1): «به نام خدا که رحمتش بسیار و مهربانی‌اش همیشگی است».
+  - Seg 4: takes verbatim published slice `و پروردگار فرشتگان مقرّب و پیامبران و رسولان.` from block 2
+    (mapping recension-variant space in `وَ الْمُرْسَلِينَ`).
+  - Segments 5-6 and 7-8 cleanly partition blocks 3 and 4: seg 6 takes the remainder of block 3
+    (`و فرمانروایی دیرینه‌ات، ای زنده و پا برجای دائم،`); seg 7 takes the opening of block 4
+    (`از تو می‌خواهم به حق نامت که به آن آسمان‌ها و زمین‌ها روشن شد`).
+  - Segments 16 and 17 take verbatim published blocks 10 and 11: seg 16 takes full block 10
+    (`خدایا در صبح این روز و تا زندگی کنم از روزهایم، برای آن حضرت بر عهده‌ام، عهد و پیمان و بیعت تجدید می‌کنم`);
+    seg 17 takes full block 11 (`که از آن‌، رو نگردانم و هیچ‌گاه دست برندارم.`).
+  - Seg 25 takes the verbatim second slice of block 16 (`و با نگاهی از من به او، دیده‌ام را سرمه بنه`).
+  - Segments 28, 29, 30, 31 left blank (deleted): The template's Arabic verse cuts cross-cut
+    published Mafatih blocks 18–22; in Persian, the Quran quotation (30:41) and surrounding invocations
+    invert verb-object order (`ظَهَرَ الْفَسَادُ` rendered at the end of the Persian clause; `فَأَظْهِرِ`
+    at the end of block 20), preventing any contiguous ordered partitioning without splicing across
+    blocks or dropping words from the middle. Left blank rather than composed or spliced across blocks.
+  - Segments 35 and 36 cleanly partition block 25 into contiguous, ordered, non-overlapping slices:
+    seg 35 takes `خدایا پیامبرت محمّد (درود خدا بر او و خاندانش) را به دیدار او`; seg 36 takes
+    `و کسانی که بر پایه دعوتش از او پیروی کردند شاد کن و پس از او به درماندگی ما رحم فرما،`.
+  38/42 segments translated (4 blank segments).
+
 ## Gujarati
 
 | uid | Zikr | Deck | Segments |
