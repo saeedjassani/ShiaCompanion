@@ -82,6 +82,7 @@ MAX_NOTE = 400        # one standalone line in the body
 MAX_INTRO = 600       # standalone text before the first Arabic line of part 1
 MAX_RUN = 1500        # consecutive standalone text anywhere in the body
 MAX_LABEL = 40
+MAX_HEADING = 60      # a `## ` section heading, listed in the reader's Sections menu
 
 Finding = collections.namedtuple('Finding', 'uid severity code where detail')
 
@@ -96,10 +97,23 @@ def _link_context(index):
     return _LINK_CONTEXT[id(index)]
 
 
+# Entries the owner has reviewed and kept as they are: their `review`
+# findings are settled, so they no longer go on the review list. Errors
+# still report. Add a uid here only on the owner's say-so, with the date.
+OWNER_KEPT = {
+    'AA1': '2026-10-24: the sermon is the entry; the advice after it went to merits',
+    'AG2': "2026-10-24: 'On the Journey' is a list of short instructions",
+    'E149': '2026-10-24: keep the narration as its own entry',
+    'F4': '2026-10-24: keep as one part',
+}
+
+
 def lint_entry(uid, entry, index, redirects, live):
     out = []
 
     def add(sev, code, where, detail):
+        if sev == 'review' and uid in OWNER_KEPT:
+            return
         out.append(Finding(uid, sev, code, where, detail))
 
     if index.get(uid, {}).get('title') not in (None, entry.get('title')):
@@ -132,6 +146,13 @@ def lint_entry(uid, entry, index, redirects, live):
             any_arabic = True
         for i, line in part.notes():
             body_text.append(line)
+            if line.startswith('## '):
+                heading = line[3:].strip()
+                if not heading:
+                    add('error', 'HEADING', f'{where} line {i + 1}', 'empty heading')
+                elif len(heading) > MAX_HEADING:
+                    add('error', 'HEADING', f'{where} line {i + 1}',
+                        f'{len(heading)} chars - too long for the Sections menu: {heading[:70]}')
             if ORDINAL.match(line):
                 add('error', 'ORDINAL', f'{where} line {i + 1}', line[:90])
             shown = LINK.sub(r'\1', line)

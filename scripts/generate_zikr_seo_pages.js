@@ -96,8 +96,11 @@ function normalizeWhitespace(value) {
   return `${value ?? ''}`.replace(/\s+/g, ' ').trim();
 }
 
+// Mirrors ZikrContentParser.stripHeadingMarker too: a `## ` section heading
+// is read without its marker.
 function stripInlineMarkers(value) {
   return `${value ?? ''}`
+    .replace(/^\s*##\s+/, '')
     .replace(/--/g, ' ')
     .replace(/\t+/g, ' ')
     .trim();

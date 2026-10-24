@@ -57,6 +57,7 @@ import 'zikr_form_helpers.dart';
 import 'zikr_content_parser.dart';
 import 'zikr_content_viewer.dart';
 import 'zikr_reading_stats.dart';
+import 'zikr_sections.dart';
 import 'zikr_share_image.dart';
 import '../../services/zikr_translations.dart';
 import '../../l10n/l10n.dart';
@@ -347,6 +348,9 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
   /// controls take the action capsule's place, as the player does, and the
   /// chrome holds still - see [_handleAutoScrollChanged].
   final ZikrAutoScrollController _autoScroll = ZikrAutoScrollController();
+
+  /// The open part's section headings, for the Sections menu.
+  final ZikrSectionsController _sections = ZikrSectionsController();
   bool _autoScrollWasActive = false;
 
   /// Which surah this is, or null when the zikr is not one of the 114. Null is
@@ -1061,6 +1065,7 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
     _readingProgress.dispose();
     _autoScroll.removeListener(_handleAutoScrollChanged);
     _autoScroll.dispose();
+    _sections.dispose();
     syncZikrWakelockPreference(owner: this, isActive: false);
     // After _maybeRecordCompletion above, so a completion recorded on the way
     // out is already pending when leaving the reader puts it to the user.
@@ -2467,7 +2472,55 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
   /// kIsWeb (flutter_local_notifications has no web target), so a reminder
   /// set there would silently never fire. Settings hides its whole "Zikr
   /// Reminders" entry point on web for the same reason.
-  Widget? _buildTopBarAction(BuildContext context) {
+  /// The top bar's actions: Sections, on a part with headings, ahead of
+  /// [_buildPrimaryTopBarAction].
+  Widget _buildTopBarAction(BuildContext context) {
+    final primary = _buildPrimaryTopBarAction(context);
+    return ListenableBuilder(
+      listenable: _sections,
+      builder: (context, _) {
+        if (_sections.sections.isEmpty) {
+          return primary ?? const SizedBox(width: 44);
+        }
+        return Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            RoundIconButton(
+              label: context.l10n.zikrSections,
+              icon: OutlineIcon(OutlineGlyph.lines,
+                  size: 20, color: ShiaColors.of(context).accent),
+              onPressed: () => unawaited(_openSectionsSheet()),
+            ),
+            if (primary != null) ...[const SizedBox(width: 6), primary],
+          ],
+        );
+      },
+    );
+  }
+
+  /// Lists the open part's headings, the one being read ticked, and scrolls
+  /// to the one picked.
+  Future<void> _openSectionsSheet() async {
+    final sections = _sections.sections;
+    if (sections.isEmpty) return;
+    final tabIndex = _clampedSelectedTabIndex(_buildVisibleTabContents());
+    final current =
+        zikrSectionAt(sections, _currentTabTopLineIndexes[tabIndex]);
+    final picked = await showChoiceSheet<int>(
+      context,
+      title: context.l10n.zikrSections,
+      choices: [
+        for (final section in sections)
+          Choice(section.lineIndex, section.label),
+      ],
+      current: current?.lineIndex ?? -1,
+      revealCurrent: true,
+    );
+    if (picked == null || !mounted) return;
+    await _sections.jumpTo(picked);
+  }
+
+  Widget? _buildPrimaryTopBarAction(BuildContext context) {
     if (kIsWeb) {
       final favorite = _favoriteData;
       return favorite == null
@@ -2617,6 +2670,7 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
                                 child: ZikrContentViewerWidget(
                                   translation: _translation,
                                   autoScroll: _autoScroll,
+                                  sections: _sections,
                                   tabContents: tabContents,
                                   selectedTabIndex: selectedTabIndex,
                                   onTabChanged: (index) {
