@@ -193,6 +193,32 @@ to preserve exact verse correspondence:
 Heading and instructional lines (e.g. in Dua Simat and Dua Nudba) were translated
 into standard Persian corresponding to the original *Mafatih* directives.
 
+### valasr.app — Persian Mafatih (2026-10)
+
+valasr.app's Mafatih library pairs each Arabic passage with exactly one Persian
+line of the published *Mafatih al-Jinan* translation — the same Ansarian text as
+hawzah.net's serialized Mafatih (collection 79461). Where one published line
+covers two of our segments it was divided by meaning at the Arabic phrase
+boundary.
+
+| uid | Zikr | Source | Segments |
+| --- | --- | --- | --- |
+| G1 | Ziyarat Aal-e-Yasin | https://valasr.app/library/mafatih/زیارت-ال-یاسینیس-امام-زمان | 159 |
+| Y4 | Munajat Shabaniyah | hawzah.net Mafatih (collection 79461, item 11183) | 140 |
+| E8 | Dua Alqama | valasr.app/library/mafatih (دعای علقمه); cross-checked at https://hawzah.net/fa/pray/View/79461/7195/دعاى_علقمه_بعد_از_نماز_زیارت_عاشوراء | 185 of 186 |
+
+- **G1:** valasr's page repeats one salutation in its Persian (the
+  «سلام بر تو وقتی که می‌خوانی و بیان می‌کنی» line appears again at the head of
+  the نماز/قنوت passage); we follow the Arabic — segment 24 carries only the
+  نماز/قنوت line. valasr prints no separate Persian for segment 151
+  (صَلَّى اللّٰهُ عَلَيْهِ وَآلِهِ) and its Arabic omits the
+  وَاجْعَلْنِي اللّٰهُمَّ مِنْ أَنْصَارِهِ passage; segments 151–153 follow the
+  same published translation as printed in other editions of this dua.
+- **E8:** segment 87 (وَمُغِيثٌ لَامُغِيثَ سِوَاكَ) is left untranslated: the
+  published Persian gives the کافی/مفرّج/مغیث/جار sequence three clauses for
+  its four Arabic phrases, with no clause of its own for مغیث. Left blank
+  rather than composed.
+
 ### Ziyarat Jamia Saghira (erfan.ir)
 
 | uid | Zikr | Source |
@@ -205,6 +231,15 @@ across segments 10-20 by meaning. A4 reuses the Persian Quran (see Urdu).
 erfan.ir's per-dua pages (`erfan.ir/mafatih<N>/...`, indexed from
 `erfan.ir/farsi/mafatih`) load from a local machine with a browser
 User-Agent; cloud sessions could not reach them.
+
+### Ziyarat Jamia Kabira (valasr.app)
+
+| uid | Zikr | Source |
+| --- | --- | --- |
+| G13 | Ziyarat Jamia Kabira | https://valasr.app/library/mafatih/زیارت-جامعه-کبیره (published Persian Mafatih al-Jinan translation) |
+
+The published page pairs each Arabic passage with exactly one Persian line,
+matching the app's segments; 414 segments.
 
 ### Dua Abu Hamza Thumali (valasr.app / erfan.ir)
 
@@ -225,6 +260,8 @@ All 648 segments filled from Ostad Hossein Ansarian's published *Mafatih al-Jina
   - Seg 496: end of CID 209 + start of CID 210
   - Seg 524: end of CID 222 + start of CID 223
   - Seg 604: end of CID 257 + start of CID 258
+- Rework (2026-10-23): clusters 250–254, 326–386 and 615–619 realigned to the segment anchors, seg 248 restored to the published wording, and reworded segments restored to the published Ansarian text throughout (valasr.app primary).
+- Per-anchor audit (2026-10-23): every segment was mechanically mapped, in order, to the valasr block containing its Arabic anchor (block sequence monotonic — no block skipped, reused, or out of order). Of the 645 filled segments, 642 are verbatim substrings of their own anchor's block (including the 8 recombinations above and 31 segments whose app-side Arabic anchor differs from valasr's Arabic only in hamza-seat or defective spelling). Exceptions: seg 188 follows the erfan/hawzah spelling آرزوی (valasr prints آروزی); seg 295 keeps آقای (valasr's page drops the initial alef); seg 641 renders the app's Arabic anchor یا من یقبل الیسیر, where valasr's Arabic reads یا من یفک الأسیر — its second clause is verbatim from valasr.
 
 ## Gujarati
 
