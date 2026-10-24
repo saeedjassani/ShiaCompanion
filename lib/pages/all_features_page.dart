@@ -33,7 +33,9 @@ class _AllFeaturesPageState extends State<AllFeaturesPage> {
     final colors = ShiaColors.of(context);
 
     return ListenableBuilder(
-      listenable: HomeShortcutsStore.instance,
+      // adminState too: the admin tools join the list when the claim lands,
+      // which can be after this page has opened.
+      listenable: Listenable.merge([HomeShortcutsStore.instance, adminState]),
       builder: (context, _) {
         final onHome = {
           for (final item in homeShortcutMenuItems(

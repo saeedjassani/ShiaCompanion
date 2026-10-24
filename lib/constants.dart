@@ -40,8 +40,9 @@ User? user;
 
 /// Whether the signed-in user holds the admin claim, as something to listen
 /// to. The claim is read a few seconds into start-up (SessionRefreshService),
-/// after the tab shell is already up, so the shell listens to this to swap
-/// its Quran tab over to the dark-launched Quran screen when the claim lands.
+/// after Home is already up, and nothing waits for it: what it changes
+/// listens to this instead - the tab shell's Quran tab, Home's Shortcuts and
+/// All features (the admin tools) - and updates when the claim lands.
 final ValueNotifier<bool> adminState = ValueNotifier(false);
 
 bool get isUserAdmin => adminState.value;
