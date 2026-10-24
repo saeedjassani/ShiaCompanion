@@ -178,6 +178,16 @@
   - The same site's "દુઆએ નુદબા", "દુઆ-એ-ઈફ્તેતાહ" and "ઝિયારતે આશુરા અને
     તેના ફાયદા" are single-dua books worth checking for Gujarati too.
 
+- **Wear OS app: merged, not shipped.** `android/wear` is a standalone
+  Gradle build (Compose for Wear OS: prayer times, calendar, tasbeeh, a tile,
+  complications) fed from the phone over the Data Layer by `WearSync`, which
+  stays dormant until a watch has the app. `internal-testing.yml` with
+  *platforms* `wear` uploads it to Play's `wear:internal` track, in its own
+  version-code range (100000+). Before shipping: the device checks and the
+  Play Console steps in `docs/WEAR_OS.md`. Its UI strings
+  live in `android/wear/app/src/main/res/values*/strings.xml` - keep all five
+  languages in step there.
+
 ## Translations
 
 The app is set up for Urdu, Persian, Arabic and Gujarati; see

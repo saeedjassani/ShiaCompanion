@@ -1,3 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- @array/android_wear_capabilities is read by Play services, never by our
+     code, so the shrinker can't see it's used; without it the Wear OS app
+     would think the phone app is missing (docs/WEAR_OS.md). -->
 <resources xmlns:tools="http://schemas.android.com/tools"
-    tools:keep="@drawable/*,@raw/*" />
+    tools:keep="@drawable/*,@raw/*,@array/android_wear_capabilities" />

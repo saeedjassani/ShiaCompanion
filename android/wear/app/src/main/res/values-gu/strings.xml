@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="up_next">હવે પછી</string>
+    <string name="up_next_on">હવે પછી · %1$s</string>
+    <string name="refresh">તાજું કરો</string>
+    <string name="sync_now">હમણાં સિંક કરો</string>
+    <string name="synced_ago">સિંક થયું %1$s</string>
+
+    <string name="waiting_for_phone_title">ફોનની રાહ જોવાય છે</string>
+    <string name="waiting_for_phone_message">નમાઝના સમય ઘડિયાળ પર મોકલવા તમારા ફોન પર Shia Companion ખોલો.</string>
+    <string name="location_needed_title">સ્થાન જરૂરી છે</string>
+    <string name="location_needed_message">તમારા ફોન પર Shia Companionમાં તમારું સ્થાન સેટ કરો, પછી ફરી સિંક કરો.</string>
+    <string name="phone_app_missing">નમાઝના સમય સિંક કરવા તમારા ફોન પર Shia Companion ઇન્સ્ટોલ કરો.</string>
+    <string name="phone_unreachable">ફોન સુધી પહોંચી શકાયું નહીં. ફોન નજીક અને જોડાયેલો છે તેની ખાતરી કરો.</string>
+
+    <string name="calendar">કેલેન્ડર</string>
+    <string name="islamic_calendar">ઇસ્લામી કેલેન્ડર</string>
+    <string name="upcoming">આવનારા</string>
+    <string name="upcoming_events">આવનારા પ્રસંગો</string>
+    <string name="calendar_not_synced">કેલેન્ડર સિંક કરવા તમારા ફોન પર Shia Companion ખોલો.</string>
+    <string name="calendar_next_event">આગળ: %1$s</string>
+    <string name="hijri_year">%1$d હિ.</string>
+    <string name="today">આજે</string>
+    <string name="tomorrow">આવતીકાલે</string>
+    <plurals name="in_days">
+        <item quantity="one">%d દિવસમાં</item>
+        <item quantity="other">%d દિવસમાં</item>
+    </plurals>
+    <string name="event_kind_when">%1$s · %2$s</string>
+
+    <string name="tasbeeh">તસ્બીહ</string>
+    <string name="tasbeeh_counter">તસ્બીહ કાઉન્ટર</string>
+    <string name="no_target">કોઈ મર્યાદા નહીં</string>
+    <string name="target_progress">%1$d / %2$d</string>
+    <string name="lap">×%1$d</string>
+    <string name="tasbeeh_hint">ટૅપ કરો અથવા ફેરવો</string>
+    <string name="add_one">એક વધારો</string>
+    <string name="minus_one">એક ઓછું</string>
+    <string name="reset">રીસેટ</string>
+    <string name="reset_question">ફરી ૦થી શરૂ કરીએ?</string>
+    <string name="change_target">લક્ષ્ય બદલો</string>
+
+    <string name="tile_prayer_label">નમાઝના સમય</string>
+    <string name="tile_prayer_description">આગલી નમાઝ અને તે પછીના સમય.</string>
+    <string name="complication_next_prayer">આગલી નમાઝ</string>
+    <string name="complication_hijri_date">હિજરી તારીખ</string>
+    <string name="complication_tasbeeh">તસ્બીહની ગણતરી</string>
+    <string name="tile_open_phone">તમારા ફોન પર Shia Companion ખોલો</string>
+</resources>

@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <uses-feature android:name="android.hardware.type.watch" />
+    <!-- Counting taps and milestones. -->
+    <uses-permission android:name="android.permission.VIBRATE" />
+
+    <application
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.ShiaCompanion">
+
+        <!-- Not standalone: prayer times, the location and the calendar all
+             come from the phone app, so the watch app is only useful beside it. -->
+        <meta-data
+            android:name="com.google.android.wearable.standalone"
+            android:value="false" />
+
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:launchMode="singleTop"
+            android:taskAffinity=""
+            android:theme="@style/Theme.ShiaCompanion.Starting">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <!-- The phone's snapshot, delivered with the app closed. -->
+        <service
+            android:name=".data.SnapshotListenerService"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="com.google.android.gms.wearable.DATA_CHANGED" />
+                <data
+                    android:host="*"
+                    android:pathPrefix="/shia_companion/snapshot"
+                    android:scheme="wear" />
+            </intent-filter>
+        </service>
+
+        <service
+            android:name=".tile.PrayerTileService"
+            android:description="@string/tile_prayer_description"
+            android:exported="true"
+            android:icon="@drawable/ic_prayer_maghrib"
+            android:label="@string/tile_prayer_label"
+            android:permission="com.google.android.wearable.permission.BIND_TILE_PROVIDER">
+            <intent-filter>
+                <action android:name="androidx.wear.tiles.action.BIND_TILE_PROVIDER" />
+            </intent-filter>
+            <meta-data
+                android:name="androidx.wear.tiles.PREVIEW"
+                android:resource="@drawable/tile_preview" />
+        </service>
+
+        <service
+            android:name=".complication.NextPrayerComplicationService"
+            android:exported="true"
+            android:icon="@drawable/ic_prayer_maghrib"
+            android:label="@string/complication_next_prayer"
+            android:permission="com.google.android.wearable.permission.BIND_COMPLICATION_PROVIDER">
+            <intent-filter>
+                <action android:name="android.support.wearable.complications.ACTION_COMPLICATION_UPDATE_REQUEST" />
+            </intent-filter>
+            <meta-data
+                android:name="android.support.wearable.complications.SUPPORTED_TYPES"
+                android:value="SHORT_TEXT,LONG_TEXT" />
+            <!-- The timeline moves on at each prayer by itself; this is only a
+                 safety net. Fresh syncs push an update the moment they land. -->
+            <meta-data
+                android:name="android.support.wearable.complications.UPDATE_PERIOD_SECONDS"
+                android:value="3600" />
+        </service>
+
+        <service
+            android:name=".complication.HijriDateComplicationService"
+            android:exported="true"
+            android:icon="@drawable/ic_calendar"
+            android:label="@string/complication_hijri_date"
+            android:permission="com.google.android.wearable.permission.BIND_COMPLICATION_PROVIDER">
+            <intent-filter>
+                <action android:name="android.support.wearable.complications.ACTION_COMPLICATION_UPDATE_REQUEST" />
+            </intent-filter>
+            <meta-data
+                android:name="android.support.wearable.complications.SUPPORTED_TYPES"
+                android:value="SHORT_TEXT,LONG_TEXT" />
+            <meta-data
+                android:name="android.support.wearable.complications.UPDATE_PERIOD_SECONDS"
+                android:value="3600" />
+        </service>
+
+        <service
+            android:name=".complication.TasbeehComplicationService"
+            android:exported="true"
+            android:icon="@drawable/ic_tasbeeh"
+            android:label="@string/complication_tasbeeh"
+            android:permission="com.google.android.wearable.permission.BIND_COMPLICATION_PROVIDER">
+            <intent-filter>
+                <action android:name="android.support.wearable.complications.ACTION_COMPLICATION_UPDATE_REQUEST" />
+            </intent-filter>
+            <meta-data
+                android:name="android.support.wearable.complications.SUPPORTED_TYPES"
+                android:value="SHORT_TEXT,RANGED_VALUE" />
+            <!-- Only changes when someone counts, and counting pushes its own update. -->
+            <meta-data
+                android:name="android.support.wearable.complications.UPDATE_PERIOD_SECONDS"
+                android:value="0" />
+        </service>
+    </application>
+</manifest>

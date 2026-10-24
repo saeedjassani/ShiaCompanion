@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="up_next">وقت بعدی</string>
+    <string name="up_next_on">وقت بعدی · %1$s</string>
+    <string name="refresh">به‌روزرسانی</string>
+    <string name="sync_now">همگام‌سازی</string>
+    <string name="synced_ago">همگام‌شده %1$s</string>
+
+    <string name="waiting_for_phone_title">در انتظار گوشی</string>
+    <string name="waiting_for_phone_message">برای فرستادن اوقات شرعی به ساعت، Shia Companion را روی گوشی باز کنید.</string>
+    <string name="location_needed_title">موقعیت مکانی لازم است</string>
+    <string name="location_needed_message">موقعیت خود را در Shia Companion روی گوشی تعیین کنید، سپس دوباره همگام‌سازی کنید.</string>
+    <string name="phone_app_missing">برای همگام‌سازی اوقات شرعی، Shia Companion را روی گوشی نصب کنید.</string>
+    <string name="phone_unreachable">به گوشی دسترسی نیست. مطمئن شوید گوشی نزدیک و متصل است.</string>
+
+    <string name="calendar">تقویم</string>
+    <string name="islamic_calendar">تقویم اسلامی</string>
+    <string name="upcoming">پیش رو</string>
+    <string name="upcoming_events">مناسبت‌های پیش رو</string>
+    <string name="calendar_not_synced">برای همگام‌سازی تقویم، Shia Companion را روی گوشی باز کنید.</string>
+    <string name="calendar_next_event">بعدی: %1$s</string>
+    <string name="hijri_year">%1$d ق</string>
+    <string name="today">امروز</string>
+    <string name="tomorrow">فردا</string>
+    <plurals name="in_days">
+        <item quantity="one">%d روز دیگر</item>
+        <item quantity="other">%d روز دیگر</item>
+    </plurals>
+    <string name="event_kind_when">%1$s · %2$s</string>
+
+    <string name="tasbeeh">تسبیح</string>
+    <string name="tasbeeh_counter">شمارندهٔ تسبیح</string>
+    <string name="no_target">بدون محدودیت</string>
+    <string name="target_progress">%1$d / %2$d</string>
+    <string name="lap">×%1$d</string>
+    <string name="tasbeeh_hint">ضربه بزنید یا بچرخانید</string>
+    <string name="add_one">یکی بیشتر</string>
+    <string name="minus_one">یکی کمتر</string>
+    <string name="reset">صفر کردن</string>
+    <string name="reset_question">دوباره از صفر شروع شود؟</string>
+    <string name="change_target">تغییر هدف</string>
+
+    <string name="tile_prayer_label">اوقات شرعی</string>
+    <string name="tile_prayer_description">نماز بعدی و اوقات پس از آن.</string>
+    <string name="complication_next_prayer">نماز بعدی</string>
+    <string name="complication_hijri_date">تاریخ قمری</string>
+    <string name="complication_tasbeeh">شمار تسبیح</string>
+    <string name="tile_open_phone">Shia Companion را روی گوشی باز کنید</string>
+</resources>
