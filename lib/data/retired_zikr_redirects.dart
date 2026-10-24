@@ -219,13 +219,13 @@ const Map<String, RetiredZikrRedirect> retiredZikrRedirects = {
   /// "All Forms" compilation (AG8, AK5, AI3) or a weekday entry's tab.
   ///
   /// R2/R3 ("The First Night/Day Of Muharram") are R1's main data and first
-  /// tab. R8 ("Forgeries of the Enemies of Imam Husayn") is R7's first tab;
-  /// its trailing "Day of Ashura" section is R7's second tab, one swipe on.
+  /// tab. R8 ("Forgeries of the Enemies of Imam Husayn") was R7's first tab
+  /// until the owner review moved that history into R7's merits; it opens R7.
   /// R13 (Safwan's discourse on the merit of Ziyarat Ashura) is in G4's
   /// merits.
   'R2': RetiredZikrRedirect('R1'),
   'R3': RetiredZikrRedirect('R1', tabIndex: 0),
-  'R8': RetiredZikrRedirect('R7', tabIndex: 0),
+  'R8': RetiredZikrRedirect('R7'),
   'R13': RetiredZikrRedirect('G4'),
 
   /// AC9 ("The 8th Day Of Zilhajj" - the Tarwiyah Day) is a paragraph of
