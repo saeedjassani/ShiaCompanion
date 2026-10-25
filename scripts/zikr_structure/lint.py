@@ -274,6 +274,36 @@ def lint_index(index, redirects, live):
             if tab >= n_tabs:
                 out.append(Finding(uid, 'error', 'REDIRECT_TAB', 'retired_zikr_redirects.dart',
                                    f'{uid} -> {target} tabIndex {tab}, but {target} has {n_tabs} tabs'))
+    full = corpus.load_redirects_full()
+    for uid, tabs in corpus.load_redirect_shown_tabs().items():
+        target = full[uid][0]
+        try:
+            n_tabs = len([t for t in (corpus.load_entry(target).get('tabs') or []) if t.strip()])
+        except FileNotFoundError:
+            n_tabs = 0
+        bad = [i for i in tabs if i >= n_tabs]
+        if not tabs or bad or not corpus.load_entry(target).get('data', '').strip():
+            out.append(Finding(uid, 'error', 'REDIRECT_TAB', 'retired_zikr_redirects.dart',
+                               f'{uid} -> {target} tabs {tabs}, but {target} has {n_tabs} tabs'
+                               ' (and needs non-empty data: tabs[i] is the reader\'s tab i + 1)'))
+    for key, meta in index.items():
+        if 'tabs' not in meta:
+            continue
+        # An alias standing for some of its target's tabs: numbered from 1, as
+        # the reader shows them (and as a `?tab=` link names them).
+        alias, _, target = key.partition('|')
+        tabs = meta['tabs']
+        try:
+            n_parts = len(corpus.parts_of(corpus.load_entry(target))) if target else 0
+        except FileNotFoundError:
+            n_parts = 0
+        if (not target or not isinstance(tabs, list) or not tabs
+                or not all(isinstance(n, int) and 1 <= n <= n_parts for n in tabs)):
+            out.append(Finding(alias, 'error', 'ALIAS_TABS', 'zikr.json',
+                               f'{key}: tabs {tabs!r} must name tabs 1-{n_parts} of an alias target'))
+        elif meta.get('slug') and meta.get('slug') == (index.get(target) or {}).get('slug'):
+            out.append(Finding(alias, 'error', 'ALIAS_TABS', 'zikr.json',
+                               f'{key} shows only some of {target} but shares its slug'))
     for uid, target in redirects.items():
         if target not in live:
             out.append(Finding(uid, 'error', 'REDIRECT_TARGET', 'retired_zikr_redirects.dart',

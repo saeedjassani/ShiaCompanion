@@ -53,6 +53,16 @@ def load_redirects_full():
     return out
 
 
+def load_redirect_shown_tabs():
+    """Retired uid -> the indexes into its target's `tabs` it shows alone
+    (`RetiredZikrRedirect('I24', tabs: [2, 3])`)."""
+    with open(REDIRECTS, encoding='utf-8') as f:
+        src = f.read()
+    return {uid: [int(n) for n in re.findall(r'\d+', tabs)]
+            for uid, tabs in re.findall(
+                r"'([^']+)':\s*RetiredZikrRedirect\(\s*'[^']+',\s*tabs:\s*\[([^\]]*)\]", src)}
+
+
 def parts_of(entry):
     """[data, *tabs], as the reader shows them (empty data dropped)."""
     parts = []

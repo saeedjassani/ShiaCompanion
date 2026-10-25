@@ -18,6 +18,7 @@ class UidTitleData {
   // All UID must end with and integer which is used for sorting.
   // ~ in UID indicates that it is a List of Items
   // | in UID indicates that it is a duplicate Items. It's Data will be ignore and the data of the item followed by | will be processed
+  // (only some of its tabs, when its zikr.json entry names `tabs` - see shownZikrTabs)
   String getUId() {
     return uid;
   }

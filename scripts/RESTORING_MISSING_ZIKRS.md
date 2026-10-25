@@ -532,7 +532,7 @@ carries duplicates too. It found six more, all retired via
 already worked:
 
 - **AH10 → AH5**, **I12 → I9** (tab 1), **E49 → I14** (tab 1), **E47 → I14**
-  (tab 1), **E50 → I24** (tab 2, also covers tab 3 - see the code comment)
+  (tab 1), **E50 → I24** (tabs 2 and 3, shown alone - see the code comment)
   are the same reworded/verbatim-contained pattern as I10/I18/E99/E40
   above, just found in older, previously-live content instead of this
   pass's new restorations. I12 and E47 in particular trace back to an
