@@ -22,6 +22,7 @@ import 'package:shia_companion/services/zikr_bookmark_store.dart';
 import 'package:shia_companion/services/zikr_bookmarks_manager.dart';
 import 'package:shia_companion/services/zikr_counter_session.dart';
 import 'package:shia_companion/models/recitation_tracker_state.dart';
+import 'package:shia_companion/data/quran_sajdah_verses.dart';
 import 'package:shia_companion/models/saved_verse.dart';
 import 'package:shia_companion/services/recitation_tracker_manager.dart';
 import 'package:shia_companion/services/saved_verses_manager.dart';
@@ -920,6 +921,8 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
                 ),
               // The reader's own note, read here and changed from the row
               // below.
+              if (request.sajdahVerse case final sajdah?)
+                _SajdahMenuCard(sajdah: sajdah),
               if (userNote != null)
                 Container(
                   margin: const EdgeInsets.only(top: 10),
@@ -2997,5 +3000,132 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
     _applyFocusModePreference();
     setState(() {});
     unawaited(_reloadQuranScriptIfStale());
+  }
+}
+
+
+/// A card shown in the per-ayah menu when tapping a Sajdah verse, presenting
+/// the Fiqh-e-Jafria ruling and the authentic Shia prostration supplication.
+class _SajdahMenuCard extends StatelessWidget {
+  const _SajdahMenuCard({required this.sajdah});
+
+  final QuranSajdahVerse sajdah;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = ShiaColors.of(context);
+    final isWajib = sajdah.isWajib;
+
+    return Container(
+      margin: const EdgeInsets.only(top: 8, bottom: 4),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: isWajib ? colors.tintedNotice : colors.well,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: isWajib ? colors.accent : colors.line,
+          width: isWajib ? 1.4 : 1.0,
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            children: [
+              Text(
+                '۩',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: isWajib ? colors.accent : colors.textMuted,
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  sajdah.title(),
+                  style: ShiaText.caption.copyWith(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 13,
+                    color: isWajib ? colors.accent : colors.text,
+                  ),
+                ),
+              ),
+              if (isWajib)
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                  decoration: BoxDecoration(
+                    color: colors.accent,
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                  child: Text(
+                    'واجب',
+                    style: TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.bold,
+                      color: colors.onAccent,
+                    ),
+                  ),
+                ),
+            ],
+          ),
+          const SizedBox(height: 6),
+          Text(
+            sajdah.ruling(),
+            style: ShiaText.caption.copyWith(
+              fontSize: 12.5,
+              height: 1.35,
+              color: colors.textMuted,
+            ),
+          ),
+          const SizedBox(height: 10),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+            decoration: BoxDecoration(
+              color: colors.surface.withValues(alpha: 0.8),
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: colors.line.withValues(alpha: 0.6)),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Text(
+                  sajdah.duaHeading(),
+                  style: ShiaText.caption.copyWith(
+                    fontWeight: FontWeight.w600,
+                    color: colors.accent,
+                    fontSize: 11.5,
+                  ),
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  QuranSajdahVerse.duaArabic,
+                  textAlign: TextAlign.center,
+                  textDirection: TextDirection.rtl,
+                  style: TextStyle(
+                    fontFamily: arabicFont,
+                    fontSize: 18,
+                    fontWeight: FontWeight.w600,
+                    color: colors.text,
+                    height: 1.6,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  sajdah.duaTranslation(),
+                  textAlign: TextAlign.center,
+                  style: ShiaText.caption.copyWith(
+                    fontSize: 12,
+                    fontStyle: FontStyle.italic,
+                    color: colors.translation,
+                    height: 1.35,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }
