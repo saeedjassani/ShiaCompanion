@@ -318,6 +318,55 @@ at the Arabic phrase boundaries without altering or composing any words.
     `و کسانی که بر پایه دعوتش از او پیروی کردند شاد کن و پس از او به درماندگی ما رحم فرما،`.
   38/42 segments translated (4 blank segments).
 
+### erfan.ir — AH2, AL5 (2026-10-25)
+
+Ostad Hossein Ansarian's published *Mafatih al-Jinan* translation on erfan.ir
+(cross-checked against valasr.app) was used to fill Persian translations for these two
+Kazimayn and Samarra ziyaraat. Per-anchor audit 2026-10-25: every filled segment is a
+verbatim substring of the erfan.ir published Persian block containing that segment's
+Arabic anchor (AH2 190/190, AL5 149/149; block order monotonic within each tab). Where published blocks spanned adjacent template segments,
+they were divided cleanly by meaning at the Arabic phrase boundaries into verbatim
+substrings without altering or composing any words.
+
+| uid | Zikr | Source | Segments |
+| --- | --- | --- | --- |
+| AH2 | Ziyarat of Imam Musa al-Kazim (a.s.) — Kazimayn | https://erfan.ir/mafatih282 (cross-checked at https://valasr.app/library/mafatih/زیارت-مخصوص-امام-موسی-کاظمع) | 195 of 201 |
+| AL5 | Ziyarat of Imam Ali al-Naqi al-Hadi (a.s.) — Samarra | https://erfan.ir/mafatih303 and https://erfan.ir/mafatih674 (cross-checked at https://valasr.app/library/mafatih/زیارت-مخصوص-امام-هادی and https://valasr.app/library/mafatih/صلوات-بر-علی-بن-محمدعلیهالسلام) | 157 of 158 |
+
+- **AH2 (Ziyarat of Imam Musa al-Kazim):** 190 verse segments (95 segments each across
+  Tab 1 and Tab 2) were filled from Ostad Hossein Ansarian's published Mafatih al-Jinan
+  translation on erfan.ir (`mafatih282`). Segments 0, 1, 100, 101, and 200
+  (headings and instruction lines) were preserved verbatim from the shipped file.
+  Tab 2 (segments 101–200) contains the exact same Arabic verses as Tab 1 (segments 0–100),
+  so segments 102–199 match segments 2–99 verbatim.
+  Segments left blank:
+  - Segments 21–22 and 121–122 (`اَلسَّلاَمُ عَلَيْكَ يَا مَوْلاَيَ مُوسَىٰ بْنَ جَعْفَرٍ` /
+    `وَرَحْمَةُ ٱللَّهِ وَبَرَكَاتُهُ`) are left blank: in Ansarian's published Persian
+    the salutation and benediction are merged and inverted
+    («سلام و رحمت و برکات خدا بر تو ای مولای من موسی بن جعفر»), with the benediction preceding
+    the vocative name, preventing contiguous ordered partitioning without reordering or
+    swapping phrases.
+  - Segments 99 and 199 (`وَرَحْمَةُ ٱللَّهِ وَبَرَكَاتُهُ`) are left blank: in published
+    Ansarian combines the terminal benediction into the opening salutation
+    («پس درود و رحمت و برکات خدا بر تو و پدران و اجداد و فرزندان و شیعیان و دوستدارانت باد.»),
+    leaving four Arabic segments with only three published Persian clauses and no distinct
+    clause of its own for segment 99/199.
+  - Recension-variant alignment: segment 87 restores the published Ansarian reading «گواهی می‌دهم...»
+    as printed on erfan.ir (the valasr.app digitization drops the initial letter «گ»).
+  - 195/201 segments translated (6 segments left blank: 21, 22, 99, 121, 122, 199).
+- **AL5 (Ziyarat of Imam Ali al-Naqi al-Hadi):** 149 verse segments were filled from
+  published Mafatih al-Jinan on erfan.ir: segments 4–136 from `mafatih303`, and
+  segments 138–157 from `mafatih674`. Segments 0, 1, 2, 3, 20, 22, 90,
+  and 137 (tab labels, headings, and instruction lines) were preserved verbatim from the
+  shipped file.
+  Segments left blank:
+  - Segment 21 (`اَللّٰهُ اكْبَرُ`) is left blank: in the published source,
+    the Takbir recitation is embedded within untranslated instructional prose
+    («...و صد مرتبه «اللّٰهُ أَکْبَرُ» بگو و بخوان:») without a dedicated Persian translation.
+  - Multi-segment published blocks were divided cleanly at anchor boundaries into contiguous
+    ordered substrings.
+  - 157/158 segments translated (1 segment left blank: 21).
+
 ## Gujarati
 
 | uid | Zikr | Deck | Segments |
