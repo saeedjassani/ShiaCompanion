@@ -1061,6 +1061,8 @@
   "playlistNotDownloaded": "ڈاؤن لوڈ نہیں · آن لائن چلے گا",
   "playlistMoveUp": "اوپر لے جائیں",
   "playlistMoveDown": "نیچے لے جائیں",
+  "playlistEdit": "پلے لسٹ میں ترمیم کریں",
+  "playlistRemoveFrom": "{title} کو پلے لسٹ سے ہٹائیں",
   "playlistOpenPlaylist": "پلے لسٹ کھولیں",
   "playlistShowControls": "مزید کنٹرول دکھائیں",
   "playlistHideControls": "کم کنٹرول دکھائیں",

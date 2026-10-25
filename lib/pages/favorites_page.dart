@@ -126,38 +126,20 @@ class _FavoritesPageState extends State<FavoritesPage> {
       );
     }
 
-    final colors = ShiaColors.of(context);
-    return DecoratedSliver(
-      decoration: BoxDecoration(
-        color: colors.surface,
-        border: Border.all(color: colors.line),
-        borderRadius: BorderRadius.circular(SliverCardList.radius),
-      ),
-      sliver: SliverPadding(
-        padding: const EdgeInsets.all(1),
-        sliver: SliverReorderableList(
-          itemCount: favorites.length,
-          onReorderItem: _onReorder,
-          proxyDecorator: (child, index, animation) => Material(
-            color: colors.surface,
-            elevation: 6,
-            shadowColor: colors.glassShadow,
-            borderRadius: BorderRadius.circular(12),
-            child: child,
-          ),
-          itemBuilder: (context, index) {
-            final item = favorites[index];
-            return _FavoriteRow(
-              key: ValueKey(item.favoriteKey),
-              item: item,
-              index: index,
-              first: index == 0,
-              last: index == favorites.length - 1,
-              editing: editing,
-            );
-          },
-        ),
-      ),
+    return SliverReorderableCardList(
+      itemCount: favorites.length,
+      onReorder: _onReorder,
+      itemBuilder: (context, index) {
+        final item = favorites[index];
+        return _FavoriteRow(
+          key: ValueKey(item.favoriteKey),
+          item: item,
+          index: index,
+          first: index == 0,
+          last: index == favorites.length - 1,
+          editing: editing,
+        );
+      },
     );
   }
 
@@ -216,7 +198,7 @@ class _FavoriteRow extends StatelessWidget {
       last: last,
       title: textWithArabicRuns(title),
       leading: editing
-          ? _RemoveButton(
+          ? RowRemoveButton(
               label: context.l10n.favoritesRemove(item.displayTitle),
               onPressed: () => FavoritesManager.instance.toggleFavorite(item),
             )
@@ -242,45 +224,6 @@ class _FavoriteRow extends StatelessWidget {
           ? null
           : () => handleUniversalDataClick(context, item,
               source: ZikrOpenSource.favorites),
-    );
-  }
-}
-
-/// The round red minus that removes a favourite while editing.
-class _RemoveButton extends StatelessWidget {
-  const _RemoveButton({required this.label, required this.onPressed});
-
-  final String label;
-  final VoidCallback onPressed;
-
-  @override
-  Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-    return Semantics(
-      container: true,
-      button: true,
-      label: label,
-      excludeSemantics: true,
-      onTap: onPressed,
-      child: InkResponse(
-        onTap: onPressed,
-        radius: 22,
-        child: SizedBox(
-          width: 28,
-          height: 44,
-          child: Center(
-            child: Container(
-              width: 24,
-              height: 24,
-              alignment: Alignment.center,
-              decoration:
-                  BoxDecoration(color: scheme.error, shape: BoxShape.circle),
-              child: OutlineIcon(OutlineGlyph.minus,
-                  size: 16, color: scheme.onError, strokeWidth: 2.6),
-            ),
-          ),
-        ),
-      ),
     );
   }
 }

@@ -1061,6 +1061,8 @@
   "playlistNotDownloaded": "لم يتم تنزيله · يُشغَّل عبر الإنترنت",
   "playlistMoveUp": "نقل إلى الأعلى",
   "playlistMoveDown": "نقل إلى الأسفل",
+  "playlistEdit": "تعديل قائمة التشغيل",
+  "playlistRemoveFrom": "إزالة {title} من قائمة التشغيل",
   "playlistOpenPlaylist": "فتح قائمة التشغيل",
   "playlistShowControls": "إظهار المزيد من عناصر التحكم",
   "playlistHideControls": "إظهار عناصر تحكم أقل",
