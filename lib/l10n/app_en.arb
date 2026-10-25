@@ -3318,6 +3318,14 @@
   "playlistNotDownloaded": "Not downloaded · plays online",
   "playlistMoveUp": "Move up",
   "playlistMoveDown": "Move down",
+  "playlistReorder": "Reorder {title}",
+  "@playlistReorder": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
   "playlistOpenPlaylist": "Open playlist",
   "playlistShowControls": "Show more controls",
   "playlistHideControls": "Show fewer controls",

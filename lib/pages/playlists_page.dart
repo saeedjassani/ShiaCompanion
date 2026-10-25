@@ -788,14 +788,36 @@ class _PlaylistDetailPageState extends State<PlaylistDetailPage> {
                         body: l10n.playlistEmpty,
                       ),
                     )
-                  : SliverCardList(
-                      itemCount: playlist.zikrUids.length,
-                      itemBuilder: (context, index) => _buildRow(
-                        context,
-                        playlist,
-                        index,
-                        playing: playlist.zikrUids[index] == playingUid,
-                        showDownload: showDownload,
+                  : DecoratedSliver(
+                      decoration: BoxDecoration(
+                        color: colors.surface,
+                        border: Border.all(color: colors.line),
+                        borderRadius:
+                            BorderRadius.circular(SliverCardList.radius),
+                      ),
+                      sliver: SliverPadding(
+                        // Inside the 1 px line, so rows never paint over it.
+                        padding: const EdgeInsets.all(1),
+                        sliver: SliverReorderableList(
+                          itemCount: playlist.zikrUids.length,
+                          onReorderItem: (oldIndex, newIndex) =>
+                              store.move(playlist.id, oldIndex, newIndex),
+                          proxyDecorator: (child, index, animation) =>
+                              Material(
+                            color: colors.surface,
+                            elevation: 6,
+                            shadowColor: colors.glassShadow,
+                            borderRadius: BorderRadius.circular(12),
+                            child: child,
+                          ),
+                          itemBuilder: (context, index) => _buildRow(
+                            context,
+                            playlist,
+                            index,
+                            playing: playlist.zikrUids[index] == playingUid,
+                            showDownload: showDownload,
+                          ),
+                        ),
                       ),
                     ),
             ),
@@ -861,8 +883,13 @@ class _PlaylistDetailPageState extends State<PlaylistDetailPage> {
       if (status != null) status,
     ].join(' · ');
     final title = single ?? _zikrTitle(uid);
+    // A zikr can sit in a playlist twice; the key tells the two apart so
+    // the reorderable list keeps each row's identity straight.
+    final occurrence =
+        playlist.zikrUids.take(index).where((u) => u == uid).length;
 
     return CardListRow(
+      key: ValueKey('${playlist.id}/$uid/$occurrence'),
       first: index == 0,
       last: index == playlist.zikrUids.length - 1,
       minHeight: 60,
@@ -890,56 +917,66 @@ class _PlaylistDetailPageState extends State<PlaylistDetailPage> {
                       ? TextStyle(color: colors.danger)
                       : null,
                 ),
-      trailing: Builder(
-        builder: (anchor) => MoreButton(
-          label: l10n.playlistMoreFor(title),
-          onPressed: () async {
-            final value = await showMenuAt<String>(anchor, [
-              PopupMenuItem(value: 'open', child: Text(l10n.playlistOpenText)),
-              if (available.length > 1)
+      trailing: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Builder(
+          builder: (anchor) => MoreButton(
+            label: l10n.playlistMoreFor(title),
+            onPressed: () async {
+              final value = await showMenuAt<String>(anchor, [
+                PopupMenuItem(value: 'open', child: Text(l10n.playlistOpenText)),
+                if (available.length > 1)
+                  PopupMenuItem(
+                      value: 'recordings',
+                      child: Text(l10n.playlistChooseRecordings)),
+                if (showDownload && tracks.isNotEmpty)
+                  switch (downloadState) {
+                    AudioDownloadState.downloading => PopupMenuItem(
+                        value: 'stop-download',
+                        child: Text(l10n.audioStopDownloading)),
+                    AudioDownloadState.done => PopupMenuItem(
+                        value: 'remove-download',
+                        child: Text(l10n.audioRemoveDownload)),
+                    _ => PopupMenuItem(
+                        value: 'download', child: Text(l10n.audioDownload)),
+                  },
                 PopupMenuItem(
-                    value: 'recordings',
-                    child: Text(l10n.playlistChooseRecordings)),
-              if (showDownload && tracks.isNotEmpty)
-                switch (downloadState) {
-                  AudioDownloadState.downloading => PopupMenuItem(
-                      value: 'stop-download',
-                      child: Text(l10n.audioStopDownloading)),
-                  AudioDownloadState.done => PopupMenuItem(
-                      value: 'remove-download',
-                      child: Text(l10n.audioRemoveDownload)),
-                  _ => PopupMenuItem(
-                      value: 'download', child: Text(l10n.audioDownload)),
-                },
-              if (index > 0)
-                PopupMenuItem(value: 'up', child: Text(l10n.playlistMoveUp)),
-              if (index < playlist.zikrUids.length - 1)
-                PopupMenuItem(
-                    value: 'down', child: Text(l10n.playlistMoveDown)),
-              PopupMenuItem(
-                  value: 'remove', child: Text(l10n.playlistRemoveZikr)),
-            ]);
-            if (!context.mounted) return;
-            switch (value) {
-              case 'open':
-                _openZikr(context, uid);
-              case 'recordings':
-                await _chooseRecordings(context, playlist, uid, available);
-              case 'remove':
-                await store.removeAt(playlist.id, index);
-              case 'up':
-                await store.move(playlist.id, index, index - 1);
-              case 'down':
-                await store.move(playlist.id, index, index + 1);
-              case 'download':
-                await startAudioDownload(context, tracks, label: title);
-              case 'stop-download':
-                downloads.cancel(tracks);
-              case 'remove-download':
-                await confirmRemoveAudioDownload(context, tracks, label: title);
-            }
-          },
-        ),
+                    value: 'remove', child: Text(l10n.playlistRemoveZikr)),
+              ]);
+              if (!context.mounted) return;
+              switch (value) {
+                case 'open':
+                  _openZikr(context, uid);
+                case 'recordings':
+                  await _chooseRecordings(context, playlist, uid, available);
+                case 'remove':
+                  await store.removeAt(playlist.id, index);
+                case 'download':
+                  await startAudioDownload(context, tracks, label: title);
+                case 'stop-download':
+                  downloads.cancel(tracks);
+                case 'remove-download':
+                  await confirmRemoveAudioDownload(context, tracks, label: title);
+              }
+            },
+          ),
+          ),
+          ReorderableDragStartListener(
+            index: index,
+            child: Semantics(
+              container: true,
+              label: l10n.playlistReorder(title),
+              child: SizedBox.square(
+                dimension: 44,
+                child: Center(
+                  child: OutlineIcon(OutlineGlyph.dragHandle,
+                      color: colors.chevron),
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
       onTap: () => _startPlaylist(context, playlist, startZikrIndex: index),
     );
