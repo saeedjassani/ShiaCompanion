@@ -150,6 +150,36 @@ article citing Kamal al-Din vol. 2 p. 351
 (https://ur.hawzahnews.com/news/410402), divided at our segment breaks;
 segment 0 is the Mafatih's Bismillah.
 
+### Seasonal small gaps — W1, W3 (2026-10-25)
+
+| uid | Zikr | Source | Segments |
+| --- | --- | --- | --- |
+| W1 | 3rd Jumada II aamal | *Mafatih al-Jinan wa Baqiyat al-Salihat* (Urdu), alhassanain.org book 193, p. 42 (chapter 10: aamal of Rabi II, Jumada I and Jumada II); mirrored at sayyid-shouhadaa-center.com | segment 3 (4 of 4) |
+| W3 | Aamal in Jumada al-Akhirah | same, p. 42 | segments 6, 8, 10, 12 (14 of 14) |
+
+The printed Urdu Mafatih interleaves the Arabic and the Urdu mid-sentence,
+so each segment is assembled from the book's Urdu pieces in order (a
+documented join; punctuation normalised). The book prints its honorifics
+as ligature glyphs; they are written (ص)/(ع) here, as elsewhere in this
+file. W1 segment 3's Arabic spans the ziyarat of Lady Fatimah (sa) and the
+closing salawat; the book's Urdu for both parts is joined in order. W3
+segment 12's Urdu is split by the Arabic line break in the book and is
+joined in order.
+
+- **G64 Ziyarat of Imam Zayn al-Abidin (as):** this salam set is not
+  printed in the Urdu Mafatih — its Jumada I chapter (book 193, p. 39)
+  only directs the reader to recite the Imams' ziyarat at Baqi, and the
+  Baqi ziyarat the Mafatih prints is the joint ziyarat of the four Imams,
+  a different text. The set is published in Arabic and English only
+  (duas.org, *Sha'ban Amaal* booklet). No published Urdu translation
+  found; all 11 segments left blank.
+- **G81 Ziyarat of Lady Umm al-Baneen (sa):** this short ziyarat (source:
+  ziaraat.org; duas.org "First Ziyarat") is not in *Mafatih al-Jinan*.
+  Urdu publications quote its Arabic without a translation, and the
+  widely translated ziyaratnameh (beginning أَشهَدُ أَن لا إلهَ إلا الله)
+  is a different, longer text. No published Urdu translation of this text
+  found; all 8 segments left blank and no file created.
+
 ### The Quran translation, reused
 
 - **A4 Ayat al-Kursi** (ur, fa, gu): segments 1-3 are 2:255-257, copied from
@@ -386,6 +416,32 @@ at the Arabic phrase boundaries without altering or composing any words.
 - **E37:** Dua Sanamay Quraish is not part of Sheikh Abbas Qomi's *Mafatih al-Jinan*, and no published translation exists on valasr.app or backstops (hawzah.net collection 79461, mafatih.anhar.ir, ghbook.ir book 19344, erfan.ir). Per binding instruction, all 63 missing segments (1–60, 62–64) are left blank. Existing segment 61 ("سپس چهار مرتبه بگو:") is preserved as-is.
 - **E141:** Istighfar before Sleep (Istighfar-e-Maujiz-e-Aasaa) is from al-Kaf'ami's *al-Balad al-Amin* and *Bihar al-Anwar*, and is not part of *Mafatih al-Jinan*. No published translation exists on valasr.app or backstops. Per binding instruction, all 34 missing segments (2–32, 35–37) are left blank. Existing segments 0, 1, 33, 34 are preserved as-is.
 
+### Seasonal small gaps — W1, W3, G64, G81 (2026-10-25)
+
+| uid | Zikr | Source | Segments |
+| --- | --- | --- | --- |
+| W1 | 3rd Jumada II aamal | erfan.ir, *Kulliyat Mafatih al-Jinan* (Ansarian), chapter اعمال ماه جمادی الآخر (mafatih180); cross-checked against hawzah.net collection 79461, اعمال روز سوم جمادى الآخر (6996) | segment 3 (4 of 4) |
+| W3 | Aamal in Jumada al-Akhirah | same chapter (erfan.ir mafatih180; hawzah.net 79461) | segments 6, 8, 10, 12 (14 of 14) |
+
+W1 segment 3's Arabic is a single segment spanning two consecutive
+published blocks — the ziyarat salams and the closing salawat — and the
+two Ansarian blocks are joined in order. W3's four segments are the
+chapter's dhikr lines, each printed with its own translation directly
+under its Arabic.
+
+- **G64 Ziyarat of Imam Zayn al-Abidin (as):** this salam set is not in
+  *Mafatih al-Jinan* — the Persian Mafatih's ziyarat listings (hawzah.net
+  collection 79461; erfan.ir) carry the joint Tuesday/Baqi ziyarat of the
+  Imams, a different text. The set is published in Arabic and English
+  only (duas.org, *Sha'ban Amaal* booklet; ABNA English). No published
+  Persian translation found; all 11 segments left blank.
+- **G81 Ziyarat of Lady Umm al-Baneen (sa):** this short ziyarat (source:
+  ziaraat.org; duas.org "First Ziyarat") is not in *Mafatih al-Jinan*;
+  Persian and Urdu publications carry the longer ziyaratnameh (a
+  different text) or quote this one's Arabic without a translation. No
+  published Persian translation found; all 8 segments left blank and no
+  file created.
+
 ## Gujarati
 
 | uid | Zikr | Deck | Segments |
@@ -545,3 +601,18 @@ Other Gujarati books in the listing, by number:
 
 Its Dua category has no Gujarati Dua Tawassul, and the catalog has no Dua
 Alqama.
+
+
+### Seasonal small gaps (2026-10-25)
+
+- **W1 segment 3; W3 segments 6, 8, 10, 12:** no Gujarati text of the
+  Jumada II aamal could be verified in the sources this project uses.
+  mafatihuljinan.org carries dated Gujarati aamal pages, but the text of
+  these chapters could not be retrieved for verification in this pass,
+  and Jafri Library's *Muntakhab Mafateeh* is Urdu in Gujarati script
+  (see "Not to use" above), not a Gujarati translation. Left blank.
+- **G64 Ziyarat of Imam Zayn al-Abidin (as) (11 segments) and G81
+  Ziyarat of Lady Umm al-Baneen (sa) (8 segments):** neither text is in
+  *Mafatih al-Jinan*, and no published Gujarati translation was found in
+  mafatihuljinan.org or the Jafri Library books used by this project.
+  Left blank; no G81 Gujarati file created.
