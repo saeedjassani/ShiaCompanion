@@ -318,6 +318,22 @@ at the Arabic phrase boundaries without altering or composing any words.
     `و کسانی که بر پایه دعوتش از او پیروی کردند شاد کن و پس از او به درماندگی ما رحم فرما،`.
   38/42 segments translated (4 blank segments).
 
+### Batch E37, H17, E141, Q3, E16 (2026-10)
+
+| uid | Zikr | Source | Segments |
+| --- | --- | --- | --- |
+| Q3 | Ziyarat on Thursday (Imam Hasan al-Askari) | https://valasr.app/library/mafatih/زیارت-روز-پنجشنبه-امام-حسن-عسکری-ع | all 13 (12 filled + existing 0) |
+| H17 | Munajat of Amir al-Mu'minin (Masjid Kufa) | https://valasr.app/library/mafatih/مناجات-حضرت-امیرالمومنین-2 | all 69 (68 filled + existing 0) |
+| E16 | Dua during Occultation (short version) | https://erfan.ir/mafatih569/دعای-اللهم-عرفنی-نفسک-برای-زمان-غیبت-کلیات-مفاتیح-الجنان-با-ترجمه-استاد-حسین-انصاریان (Ansarian translation, Kulliyat Mafatih al-Jinan; cross-checked with opening of Friday occultation prayer at https://valasr.app/library/mafatih/دعایی-بسیار-با-عظمت-که-در-عصر-غیبت-باید-خواند) | all 10 (9 filled + existing 0) |
+| E37 | Dua Sanamay Quraish | Not in Mafatih al-Jinan (source: al-Kaf'ami Misbah, Bihar al-Anwar 85:240); not found in published Mafatih al-Jinan translations (valasr.app, hawzah.net, mafatih.anhar.ir, ghbook.ir book 19344, erfan.ir) | 1 of 64 (63 missing left blank) |
+| E141 | Istighfar before Sleep (Istighfar-e-Maujiz-e-Aasaa) | Not in Mafatih al-Jinan (source: al-Kaf'ami al-Balad al-Amin, Bihar al-Anwar); not found in published Mafatih al-Jinan translations (valasr.app, hawzah.net, mafatih.anhar.ir, ghbook.ir book 19344, erfan.ir) | 4 of 38 (34 missing left blank) |
+
+- **Q3:** Published on valasr.app under زیارت روز پنجشنبه امام حسن عسکری (ع) (Ansarian translation). The 6 published translation blocks were cleanly partitioned at Arabic phrase boundaries across the 12 Arabic segments (1/2, 3/4/5, 6, 7, 8/9/10, 11/12). Segment 0 ("امام حسن عسکری (ع)") is preserved as-is.
+- **H17:** Published on valasr.app under مناجات حضرت امیرالمومنین (مناجات مسجد کوفه) in 33 translation blocks (Ansarian translation). Segments 1–18 cleanly partition the 8 Quranic verses at the Arabic phrase boundaries (1/2, 3/4, 5/6, 7/8, 9/10, 11/12, 13/14, 15–18). Segments 19–64 correspond to the 23 pairs, each cleanly split into the statement (مولایم ای مولای من...) and question (آیا رحم می‌کند...). Segments 65–68 partition the closing duas (65/66 and 67/68). Segment 0 ("مناجات امام علی (ع)") is preserved as-is.
+- **E16:** Published on erfan.ir under item mafatih569 («دعای اللهم عرفنی نفسک برای زمان غیبت» از کلیات مفاتیح الجنان با ترجمه استاد حسین انصاریان). The 3 published translation blocks were cleanly partitioned across segments 1–3, 4–6, and 7–9. Segment 0 (the introductory narration note) is preserved as-is.
+- **E37:** Dua Sanamay Quraish is not part of Sheikh Abbas Qomi's *Mafatih al-Jinan*, and no published translation exists on valasr.app or backstops (hawzah.net collection 79461, mafatih.anhar.ir, ghbook.ir book 19344, erfan.ir). Per binding instruction, all 63 missing segments (1–60, 62–64) are left blank. Existing segment 61 ("سپس چهار مرتبه بگو:") is preserved as-is.
+- **E141:** Istighfar before Sleep (Istighfar-e-Maujiz-e-Aasaa) is from al-Kaf'ami's *al-Balad al-Amin* and *Bihar al-Anwar*, and is not part of *Mafatih al-Jinan*. No published translation exists on valasr.app or backstops. Per binding instruction, all 34 missing segments (2–32, 35–37) are left blank. Existing segments 0, 1, 33, 34 are preserved as-is.
+
 ## Gujarati
 
 | uid | Zikr | Deck | Segments |
