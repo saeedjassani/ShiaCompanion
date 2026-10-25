@@ -1,22 +1,39 @@
 """House-style transliteration for vocalised du'a Arabic.
 
-Produces the ALL-CAPS style the restored zikrs use (F13-F25, E128-E136):
-long vowels AA/EE/OO and short A/I/U; ' for hamza and 'ayn (A'LAA, NA'BUDU,
-AS'ALUKA); ث ذ ش خ غ as TH DH SH KH GH and ص ض ط ظ as S D T Z; the article
-and hamzat al-wasl run on from the previous word (MINAL KHAASIREEN,
-FIZ ZULUMAAT, ALLADHIS TAJABTA); Allah is glued (ILLALLAAHU, A'BDILLAAH,
-WALLAAHU); WA is written as its own word (WA RUSULIK); FA/BI/LI take a
-hyphen before a hamza (FA-INNA, BI-ANNAKA, LI-AADAMA); the pronoun -hu/-hi
-is long after a short vowel (LAHOO, BIHEE); and the last word of the line is
-pausal (KULLAH, ABADAA, RAHEEM, -AH for ta marbuta, -AAT for plurals).
+The house style is the one the app's Quran and most of its hand-made dua
+transliteration use (see scripts/quran_transliteration/README.md, which
+this follows for duas):
 
-It is a drafting aid, not an oracle. Splitting a leading و into WA is a
-heuristic (WAW_STEMS lists words whose و is a root letter), and Arabic that
-is under-vowelled in the source comes out wrong. Read every line it
-produces against the Arabic before it ships.
+- Short vowels: fatha A; kasra I in a closed syllable, E in an open one
+  (BISMIL, MIN / MENAL, ELAYKA); damma U closed, O open (KUNTO, QUWWATA /
+  ASH-HADO, MOHAMMAD). Before an unvowelled ه ح ع ء the syllable counts as
+  open (MOHTADEEN, NE’MATIN).
+- Long vowels AA EE OO; alif + hamza in one word AAA (RAJAAA-EE, TASHAAA-O).
+  The pronoun's silah is HU / HI (LAHU, BEHI), never HOO / HEE.
+- 'ayn is ’ after its vowel (A’LAA, NE’MATEKA, YAZ-O’FO, AD-O’OKA); hamza
+  between vowels is a hyphen (SHAY-IN, AS-ALOKA), with sukun an A (YAAWEE).
+- ث س ص are S, ذ ز ض ظ are Z, ت ط T, ح ه H.
+- Across words: sun letters and idgham are doubled across the space (INNAL
+  LAZEENA, MIR RAHMATEKA, AHADAM MIN), into و / ي as NW WA / N-Y YA
+  (MOHAMMADINW WA, GHAAYATUN-Y YAA); iqlab is M (MIM BAYNE). A long vowel
+  before hamzat al-wasl is shortened (FIL ARZE), a final consonant takes a
+  helping vowel (MENAL, MANIS TARHAMA), tanween a kasra (KHAYRANIL).
+- Allah: ILLAL LAAHO, BISMIL LAAHE, WAL LAAHO; glued after bi / li
+  (BILLAAHE, LILLAAHE).
+- WA is its own word. bi / li take a hyphen before a noun or verb
+  (BE-RAHMATEKA, LE-GHAYREKA, BIL-A’AFEYATE) and stay glued to pronouns and
+  particles (BEKA, BEHIM, LEMAA); fa takes one before a hamza (FA-INNA).
+- The reading pauses at the end of the line and at every full stop or comma:
+  the last short vowel and -un / -in drop, -an is AA, ة is H (KHULFAA,
+  RABBIL A’ALAMEEN, RAHMAH).
+
+It is a drafting aid, not an oracle. Splitting off WA / BI / LI is a
+heuristic (WAW_STEMS, ROOT_START list the words whose first letter is a root
+letter), and Arabic that is under-vowelled or mistyped comes out wrong, so
+read every line it produces against the Arabic before it ships.
 
     python3 scripts/zikr_arabic/translit.py "اَللّٰهُمَّ صَلِّ عَلٰى مُحَمَّدٍ"
-    python3 scripts/zikr_arabic/translit.py --check [-v]   # vs hand-written F16-F25
+    python3 scripts/zikr_arabic/translit.py --check [-v] [-d]   # vs the app's hand-made lines
 """
 import json
 import re
@@ -26,12 +43,15 @@ FATHA, DAMMA, KASRA, SUKUN, SHADDA = 'َ', 'ُ', 'ِ', 'ْ', 'ّ'
 FATHATAN, DAMMATAN, KASRATAN = 'ً', 'ٌ', 'ٍ'
 DAGGER = 'ٰ'
 VOWELS = {FATHA: 'A', DAMMA: 'U', KASRA: 'I', 'ٗ': 'U', 'ٖ': 'I'}
-SILAH_MARKS = {'ٗ': 'OO', 'ٖ': 'EE'}
+SILAH_MARKS = {'ٗ': 'u', 'ٖ': 'i'}   # lower case: always U / I, never O / E
 TANWEEN = {FATHATAN: 'AN', DAMMATAN: 'UN', KASRATAN: 'IN'}
 TM = 'Ŧ'   # placeholder for ta marbuta: H at a pause, T otherwise
+# Internal phoneme string: hamza is ', 'ayn is ` (AYN0 when it opens a word,
+# written after its vowel there: A^LAA), silah vowels are u / i.
+AYN0 = '^'
 CONS = {'ب': 'B', 'ت': 'T', 'ث': 'TH', 'ج': 'J', 'ح': 'H', 'خ': 'KH', 'د': 'D', 'ذ': 'DH',
-        'ر': 'R', 'ز': 'Z', 'س': 'S', 'ش': 'SH', 'ص': 'S', 'ض': 'D', 'ط': 'T', 'ظ': 'Z',
-        'ع': "'", 'غ': 'GH', 'ف': 'F', 'ق': 'Q', 'ك': 'K', 'ک': 'K', 'ل': 'L', 'م': 'M',
+        'ر': 'R', 'ز': 'Z', 'س': 'S', 'ش': 'SH', 'ص': 'S', 'ض': 'Z', 'ط': 'T', 'ظ': 'Z',
+        'ع': '`', 'غ': 'GH', 'ف': 'F', 'ق': 'Q', 'ك': 'K', 'ک': 'K', 'ل': 'L', 'م': 'M',
         'ن': 'N', 'ه': 'H', 'ہ': 'H', 'ھ': 'H', 'و': 'W', 'ي': 'Y', 'ی': 'Y', 'ء': "'",
         'أ': "'", 'إ': "'", 'ؤ': "'", 'ئ': "'", 'ة': TM, 'ۃ': TM}
 HAMZA_SEATS = set('أإءؤئ')
@@ -45,6 +65,10 @@ WAW_STEMS = ('صو', 'لي', 'حي', 'صي', 'زي', 'قع', 'ضع', 'صف', 'ر
              'لد', 'قت', 'رق', 'زن', 'جل', 'هن', 'طن', 'ثق')
 
 
+# Persian / Urdu letter forms the app's Arabic uses
+_LETTER = {'ی': 'ي', 'ک': 'ك', 'ہ': 'ه', 'ھ': 'ه', 'ۃ': 'ة'}
+
+
 def clusters(word):
     out = []
     for ch in word.replace('ٱ', 'ا').replace('ﭐ', 'ا'):
@@ -55,7 +79,22 @@ def clusters(word):
                 out[-1][1].append(ch)
             continue
         if 'ء' <= ch <= 'ۿ':
-            out.append([ch, []])
+            out.append([_LETTER.get(ch, ch), []])
+    # ى after a kasra is a yaa (فِىْ); a bare final ی after a fatha is an alif maqsura (عَلٰی)
+    for i in range(1, len(out)):
+        if out[i][0] == 'ى' and KASRA in out[i - 1][1]:
+            out[i][0] = 'ي'
+        elif out[i][0] == 'ي' and not out[i][1] and DAGGER in out[i - 1][1]:
+            out[i][0] = 'ى'                     # عَلٰي
+        elif out[i][0] == 'ي' and i == len(out) - 1 and not out[i][1] and word.rstrip()[-1:] == 'ی' \
+                and (FATHA in out[i - 1][1] or DAGGER in out[i - 1][1]):
+            out[i][0] = 'ى'
+    # a fatha written on the alif of لاَ belongs to the letter before it
+    for i in range(1, len(out)):
+        if out[i][0] == 'ا' and out[i][1] and set(out[i][1]) <= {FATHA, SHADDA} and FATHA in out[i][1] \
+                and not vowel(out[i - 1][1]) and SUKUN not in out[i - 1][1]:
+            out[i - 1][1] += out[i][1]          # اِلاَّ -> اِلَّا
+            out[i][1] = []
     return out
 
 
@@ -99,11 +138,11 @@ def phonemes(cl):
                 out += ("'" if out else '') + (v or '') + (tan or '')
             elif out.endswith('AA') or out.endswith('OO') or out.endswith('EE'):
                 pass
-            elif out.endswith("'") and len(out) == 2:
+            elif out.endswith(AYN0) and len(out) == 2:
                 out += 'A'                             # initial 'ayn + alif: A'ABID
             elif out.endswith('A'):
                 out += 'A'
-            elif out.endswith('AN') or (out.endswith('U') and last):
+            elif out.endswith('AN') or (out.endswith('U') and last) or (out.endswith('AW') and last):
                 pass                                   # -an + silent alif; waw al-jama'a
             elif prev_bare or (out and out[-1] not in 'AIU'):
                 out += 'AA'                            # under-vowelled source: لا -> LAA
@@ -114,7 +153,7 @@ def phonemes(cl):
             out += 'WW' if SHADDA in mk else 'W'       # كُفُواً، عُلُوّاً
             continue
         if ch in 'وي' and not v and not tan and SHADDA not in mk and DAGGER not in mk:
-            if re.fullmatch(r"[AIU]'", out) and {'I': 'ي', 'U': 'و'}.get(out[0]) == ch:
+            if re.fullmatch(r"[AIU]" + AYN0, out) and {'I': 'ي', 'U': 'و'}.get(out[0]) == ch:
                 out += {'I': 'EE', 'U': 'OO'}[out[0]]       # initial 'ayn + long vowel: I'EESAA
                 prev_bare = False
                 continue
@@ -141,7 +180,7 @@ def phonemes(cl):
             # word-initial hamza is silent; word-initial 'ayn is written vowel-first (A'LAA)
             if not v and not tan:
                 v = {'إ': 'I', 'أ': 'A'}.get(ch, '')
-            out += (v or (tan or '')) + ("'" if ch == 'ع' else '')
+            out += (v or (tan or '')) + (AYN0 if ch == 'ع' else '')
             if DAGGER in mk:
                 out += 'A'
             prev_bare = False
@@ -165,6 +204,14 @@ def phonemes(cl):
         if any(m in SILAH_MARKS for m in mk) and ch in 'هہ':
             out = out[:-1] + SILAH_MARKS[next(m for m in mk if m in SILAH_MARKS)]
     return out
+
+
+# what bi- / li- stay glued to
+GLUED = {'هم', 'هما', 'هن', 'كم', 'كما', 'كن', 'نا', 'ما', 'من', 'ذلك', 'ذا', 'هذا', 'هذه', 'ها', 'هو', 'هي',
+         'ي', 'ك', 'ه', 'اي', 'ني'}
+# words whose بِ / لِ is a root letter, not the preposition (by the letters after it)
+ROOT_START = {'ب': ('لاد', 'حار', 'ساط', 'طان', 'ضاع', 'دع', 'كر', 'شر', 'ئس', 'نت', 'رك', 'لى'),
+              'ل': ('سان', 'باس', 'قاء', 'قا', 'واء', 'حي', 'ين')}
 
 
 class Word:
@@ -202,7 +249,7 @@ class Word:
             return
         # prefix + article: وَالْ بِالْ فَالْ كَالْ ; لِلْ
         if len(cl) > 3 and cl[0][0] in 'وفبك' and cl[1][0] == 'ا' and not vowel(cl[1][1]) and cl[2][0] == 'ل' \
-                and not vowel(cl[2][1]):
+                and (not vowel(cl[2][1]) or SHADDA in cl[2][1]):
             self.prefix = {'و': 'WA', 'ف': 'FA', 'ب': 'BI', 'ك': 'KA'}[cl[0][0]]
             cl = cl[1:]
         elif len(cl) > 2 and cl[0][0] == 'ل' and cl[1][0] == 'ل' and vowel(cl[0][1]) == 'I' \
@@ -235,6 +282,13 @@ class Word:
                 and (cl[1][0] in HAMZA_SEATS or cl[1][0] == 'آ' or (cl[1][0] == 'ا' and (vowel(cl[1][1]) or DAGGER in cl[1][1]))
                      or (cl[1][0] == 'ع' and cl[0][0] in 'بل' and vowel(cl[0][1]) == 'I' and vowel(cl[1][1]))):
             self.inner = {'ف': 'FA', 'ب': 'BI', 'ل': 'LI', 'ك': 'KA'}[cl[0][0]] + '-'
+            cl = cl[1:]
+        # bi- / li- before a noun or verb take a hyphen (BE-RAHMATEKA, LE-GHAYREKA);
+        # before a pronoun or particle they stay glued on (BEKA, BEHIM, LEMAA)
+        elif len(cl) > 2 and cl[0][0] in 'بل' and vowel(cl[0][1]) == 'I' and SHADDA not in cl[0][1] \
+                and (vowel(cl[1][1]) or SHADDA in cl[1][1] or tanween(cl[1][1])) \
+                and skeleton(cl[1:]) not in GLUED and not skeleton(cl[1:]).startswith(ROOT_START[cl[0][0]]):
+            self.inner = {'ب': 'BI', 'ل': 'LI'}[cl[0][0]] + '-'
             cl = cl[1:]
         if cl and SUKUN in cl[0][1] and not self.prefix and len(cl) > 1:
             self.kind = 'glue'                 # بْنِ / بْنَ: alif elided, reads on from the previous word
@@ -287,24 +341,19 @@ def pausal(s):
         return s[:-2] + 'AA'
     if re.search(r'[^AIU](IN|UN)$', s) or s.endswith("'IN") or s.endswith("'UN"):
         return s[:-2]
-    if re.search(r'(HOO|HEE)$', s):
-        return s[:-2]
-    if re.search(r'[AIU]$', s) and not re.search(r'(AA|EE|OO)$', s):
+    if re.search(r'H[ui]$', s):
         return s[:-1]
+    if re.search(r'[AIU]$', s) and not re.search(r'(AA|EE|OO)$', s):
+        s = s[:-1]
+    if re.search(r'([^AIUWY`\'])\1$', s):
+        s = s[:-1]                      # a doubled letter is single at a pause: TOHIB, HAQ
     return s
 
 
-def silah(s, next_runs_on):
-    if next_runs_on:
-        return s
-    if re.search(r'[AIU]H[UI]$', s) and not re.search(r'(AA|EE|OO)H[UI]$', s):
-        return s[:-1] + ('OO' if s.endswith('U') else 'EE')
-    return s
-
-
-MUQATTAAT = {'عسق': "A'YN SEEN QAAAF", 'كهيعص': "KAAAF HAA YAA A'YN SAAAD", 'يس': 'YAA SEEN', 'طه': 'TAA HAA', 'حم': 'HAA MEEM',
-             'الم': 'ALIF LAAAM MEEM', 'المص': 'ALIF LAAAM MEEM SAAAD', 'الر': 'ALIF LAAAM RAA',
-             'طس': 'TAA SEEN', 'طسم': 'TAA SEEN MEEM', 'ص': 'SAAAD', 'ق': 'QAAAF', 'ن': 'NOON'}
+# spelled as the Quran transliteration does (scripts/quran_transliteration/translit.py)
+MUQATTAAT = {'عسق': 'A’YN SEEEN QAAAF', 'كهيعص': 'KAAAF HAA YAA A’YN SAAAD', 'يس': 'YAA SEEEN', 'طه': 'TAA HAA',
+             'حم': 'HAA MEEM', 'الم': 'ALIF LAAAM MEEM', 'المص': 'ALIF LAAAM MEEM SAAAD', 'الر': 'ALIF LAAAM RAA',
+             'طس': 'TAA SEEEN', 'طسم': 'TAA SIM MEEM', 'ص': 'SAAAD', 'ق': 'QAAAF', 'ن': 'NOOON'}
 
 
 def _muqattaat(word):
@@ -314,24 +363,24 @@ def _muqattaat(word):
         pre, sk = 'WA ', sk[1:]
     rest = word[2:] if pre else word
     if sk in MUQATTAAT and ('\u0653' in word or 'ٰ' in word or not re.search('[\u064b-\u0652]', rest)):
-        return pre + MUQATTAAT[sk]
+        return '{' + pre + MUQATTAAT[sk] + '}'    # braces: copied through render() as is
     return None
 
 
-def transliterate(line, pause=True):
+def _internal(line, pause=True):
     special = {i: _muqattaat(t) for i, t in enumerate(line.split())}
     if any(special.values()):
         parts, buf = [], []
         for i, t in enumerate(line.split()):
             if special[i]:
                 if buf:
-                    parts.append(transliterate(' '.join(buf), pause=False))
+                    parts.append(_internal(' '.join(buf), pause=False))
                     buf = []
                 parts.append(special[i])
             else:
                 buf.append(t)
         if buf:
-            parts.append(transliterate(' '.join(buf), pause))
+            parts.append(_internal(' '.join(buf), pause))
         return ' '.join(parts)
     words = [Word(t) for t in line.split()]
     words = [w for w in words if w.cl]
@@ -342,7 +391,14 @@ def transliterate(line, pause=True):
         """Previous token flows into a hamzat al-wasl: shorten a long vowel, or
         give tanween its helping kasra (MUHAMMADINIS SAADIQ)."""
         prev = toks[-1]
-        prev = prev + 'I' if tanw[-1] else shorten(silah(prev, True))
+        if tanw[-1]:
+            prev += 'I'
+        elif re.search(r"[^AEIOUiu' -]$", prev) and not prev.endswith(AYN0):
+            # a final consonant takes a helping vowel: MENAL, ALAYKOMUS, MANIS
+            prev += 'A' if prev.endswith('MIN') and len(prev.split()[-1]) == 3 else \
+                'U' if re.search(r'(HUM|KUM|TUM)$', prev) else 'I'
+        else:
+            prev = shorten(prev)
         toks[-1] = prev + extra
         tanw[-1] = False
 
@@ -350,14 +406,14 @@ def transliterate(line, pause=True):
         b = w.body() if w.kind != 'allah' else ''
         if w.kind == 'allah':
             body = 'LLAAH' + w.allah_tail
-            if w.prefix == 'WA':
-                toks.append('WA' + body)
-            elif w.prefix == 'FA':
-                toks.append('FA' + body)
+            if w.prefix in ('WA', 'FA'):
+                toks.append(w.prefix + 'L ' + body[1:])     # WAL LAAHO
             elif w.prefix in ('BI', 'LI'):
-                toks.append(w.prefix[0] + 'I' + body)
+                toks.append(w.prefix[0] + 'I' + body)        # BILLAAHE, LILLAAHE
             elif toks and not w.quta:
-                run_on(body)
+                run_on('L')                                  # ILLAL LAAHO, BISMIL LAAHE
+                toks.append(body[1:])
+                tanw.append(False)
                 continue
             else:
                 toks.append('A' + body)
@@ -367,7 +423,8 @@ def transliterate(line, pause=True):
             c = head(b) if w.sun else 'L'
             rest = b[len(c):] if w.sun else b
             if w.prefix:
-                toks.append(w.prefix + c + ' ' + rest)
+                sep = '-' if w.prefix.split()[-1] in ('BI', 'LI', 'KA') else ' '
+                toks.append(w.prefix + c + sep + rest)     # WAL MULKO, BIL-A’AFEYATE
             elif toks:
                 run_on(c)
                 toks.append(rest)
@@ -389,8 +446,8 @@ def transliterate(line, pause=True):
                 continue
             c = head(b)
             rest = b[len(c):]
-            if re.match(r"'[AIU]", rest) and not w.prefix:
-                rest = rest[1] + "'" + rest[2:]
+            if re.match(r"`[AIU]", rest) and not w.prefix:
+                rest = rest[1] + AYN0 + rest[2:]
             if w.prefix:
                 toks.append(w.prefix + c + rest)
             elif toks:
@@ -401,11 +458,16 @@ def transliterate(line, pause=True):
             tanw.append(w.tanween_end)
             continue
         # tanween assimilates into a following ر ل م ن (AHADIM MIN, GHAFOORUR RAHEEM)
-        if toks and (tanw[-1] or re.search(r'[AIU]N$', toks[-1])) and w.idgham and not w.prefix and head(b) in ('R', 'L', 'M', 'N'):
+        # (always, marked or not: the Arabic here often leaves the idgham shadda off)
+        if toks and (tanw[-1] or re.search(r'[AIU]N$', toks[-1])) and not w.prefix and head(b) in ('R', 'L', 'M', 'N'):
             c = head(b)
             toks[-1] = toks[-1][:-1] + c
             if b.startswith(c + c):
                 b = b[1:]
+        # ... and runs nasalised into a following و / ي (MOHAMMADINW WA, RAJAAA-IN-Y YAAWEE)
+        elif toks and (tanw[-1] or re.search(r'[AIU]N$', toks[-1])) \
+                and (w.prefix[:2] == 'WA' or (not w.prefix and head(b) in ('W', 'Y'))):
+            toks[-1] += 'W' if w.prefix == 'WA' or head(b) == 'W' else '-Y'
         if w.prefix:
             if w.sep == '':
                 toks.append(w.prefix + b)
@@ -416,25 +478,179 @@ def transliterate(line, pause=True):
         else:
             toks.append(b)
         tanw.append(w.tanween_end)
-    out = [silah(t, False) if i < len(toks) - 1 else t for i, t in enumerate(toks)]
+    out = list(toks)
     if out and pause:
         out[-1] = pausal(out[-1])
     return ' '.join(t for t in out if t).replace(TM, 'T')
 
 
+_UNIT = re.compile(r"\{[^}]*\}|AA|EE|OO|SH|KH|GH|TH|DH|[A-Zui'`^ \-]|.")
+_VOW = {'A', 'I', 'U', 'AA', 'EE', 'OO', 'u', 'i'}
+_GUTTURAL = {'H', "'", '`'}        # a short vowel before one of these with sukun stays open (MOHTADEEN)
+_SHOW = {'TH': 'S', 'DH': 'Z'}
+
+
+def render(internal):
+    """Internal phoneme string -> house style (see the module docstring)."""
+    u = _UNIT.findall(internal)
+    # phones: the sounds in order, with the glottal stop a word-initial vowel
+    # starts with, and a vowel-first word-initial 'ayn (A^) put back as ` + A
+    ph = []                            # (unit index, phone)
+    for k, x in enumerate(u):
+        if x in (' ', '-') or x.startswith('{'):
+            continue
+        start = k == 0 or u[k - 1] in (' ', '-') or u[k - 1].startswith('{')
+        if x in _VOW and start:
+            ph.append((k, '`' if k + 1 < len(u) and u[k + 1] == AYN0 else "'"))
+        if x == AYN0:
+            continue
+        ph.append((k, x))
+    where = {k: n for n, (k, _) in enumerate(ph)}
+
+    def closed(k):
+        n = where[k] + 1
+        if n >= len(ph):
+            return False                # a short vowel at the very end (no pause)
+        c1 = ph[n][1]
+        if c1 in _VOW:
+            return False
+        c2 = ph[n + 1][1] if n + 1 < len(ph) else None
+        if c1 in _GUTTURAL and c2 != c1:
+            return False
+        return c2 is None or c2 not in _VOW
+
+    out = []
+    for k, x in enumerate(u):
+        nx = u[k + 1] if k + 1 < len(u) else ''
+        last = ''.join(out)
+        tok = last.rsplit(' ', 1)[-1]
+        if x.startswith('{'):
+            out.append(x[1:-1])
+        elif x == AYN0:
+            continue
+        elif x in _VOW:
+            if x == 'AA' and nx == "'":
+                v = 'AAA'                      # alif + hamza in one word: RAJAAA-EE
+            elif x == 'I':
+                v = 'I' if closed(k) else 'E'
+            elif x == 'U':
+                v = 'U' if closed(k) else 'O'
+            else:
+                v = x.upper()
+            if nx == AYN0:
+                v = v[0] + '’' + v[1:]         # A’LAA, A’AFENEE, I’NDAKA
+            out.append(v)
+        elif x == "'":
+            if nx in _VOW:
+                if tok and not tok.endswith('-'):
+                    out.append('-')            # SHAY-IN, AS-ALOKA
+            elif nx and nx not in (' ', '-'):
+                out.append('A')                # hamza with sukun: YAAWEE, MOAMENEENA
+        elif x == '`':
+            if nx in _VOW:
+                v = nx.upper() if nx not in ('I', 'U') else ('I' if closed(k + 1) else 'E') if nx == 'I' \
+                    else ('U' if closed(k + 1) else 'O')
+                if nx in ('u', 'i'):
+                    v = nx.upper()
+                out.append(('-' if tok and not tok.endswith('-') else '') + v[0] + '’' + v[1:])
+                u[k + 1] = ''                  # vowel written
+            elif re.fullmatch(r'-?[AEIOU]', tok):
+                out.append('-' + tok[-1] + '’')   # أَعْ: A-A’TENEE
+            else:
+                out.append('’')
+        elif x == '':
+            continue
+        else:
+            out.append(_SHOW.get(x, x))
+    text = ''.join(out)
+    # iqlab: an unvowelled nun before ب is M (MIM BAYNE, JAMBEYAL)
+    text = re.sub(r'N(?=[ -]?B)', 'M', text)
+    return re.sub(r' +', ' ', text).strip()
+
+
+_STOP = re.compile(r'\s*([.،,؛;:!?؟۔]+)\s*')
+
+
+ABBREV = {'ص': '(S)', 'ع': '(A)', 'س': '(S)', 'عج': '(A.T.F.S.)', 'رض': '(R)'}
+
+
+def transliterate(text, pause=True):
+    """House-style transliteration of a line of vocalised Arabic. The reading
+    pauses (drops the last vowel) at the end and at every full stop or comma;
+    a bracketed honorific such as (ص) is copied as (S)."""
+    if '(' in text:
+        bits = re.split(r'\(([^()]*)\)', text)
+        out = []
+        for n, bit in enumerate(bits):
+            key = re.sub('[^\u0621-\u064a]', '', bit)
+            if n % 2:
+                out.append(ABBREV.get(key) or '(' + transliterate(bit, pause) + ')')
+            elif bit.strip():
+                out.append(transliterate(bit, pause and n + 1 >= len(bits)))   # no pause before (S)
+        return ' '.join(out).replace(' ,', ',').replace(' .', '.')
+    parts = _STOP.split(text.strip())
+    out = ''
+    for n in range(0, len(parts), 2):
+        seg = parts[n].strip()
+        punct = parts[n + 1] if n + 1 < len(parts) else ''
+        if seg:
+            last = n + 1 >= len(parts) or not ''.join(parts[n + 2:]).strip()
+            r = render(_internal(seg, pause=pause or not last))
+            out += (' ' if out else '') + r
+        if punct:
+            out += {'،': ',', '؛': ';', '؟': '?', '۔': '.'}.get(punct[0], punct[0])
+    return out
+
+
+def corpus():
+    """(uid, Arabic, transliteration) for the hand-made house-style lines in
+    assets/zikr (duas, not the Quran): an Arabic line whose next line is an
+    ALL-CAPS line written with ’ and none of the old I-style spellings."""
+    import os
+    root = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..', 'assets', 'zikr')
+    for u in sorted(os.listdir(root)):
+        if u.startswith('A'):
+            continue
+        d = json.load(open(os.path.join(root, u)))
+        texts = [d.get('data') or ''] + [t.get('data') or '' for t in d.get('tabs') or [] if isinstance(t, dict)]
+        for tx in texts:
+            L = tx.split('\n')
+            for i in range(len(L) - 1):
+                t = L[i + 1].strip()
+                if re.search('[\u0621-\u064a]', L[i]) and re.fullmatch(r"[A-Z’\- ,.!?;:]{12,}", t) \
+                        and not re.search(r"\b(MINAL|ILAYKA|ILAAHA|LILLAAHI|BISMILLAAHI)\b", t):
+                    yield u, L[i], t
+
+
 def check():
-    tot = same = 0
-    for u in 'F16 F17 F18 F19 F20 F21 F22 F23 F24 F25'.split():
-        L = json.load(open(f'assets/zikr/{u}'))['data'].split('\n')
-        for i in range(len(L) - 1):
-            if re.search('[؀-ۿ]', L[i]) and re.fullmatch(r"[A-Z' \-,.!?()]+", L[i + 1].strip() or '#'):
-                tot += 1
-                got = transliterate(L[i])
-                if got == L[i + 1].strip():
-                    same += 1
-                elif '-v' in sys.argv:
-                    print(f'{u}: {L[i]}\n   want {L[i + 1]}\n   got  {got}')
-    print(f'{same}/{tot} identical')
+    """Word agreement with the hand-made lines (hyphen vs space ignored)."""
+    import difflib
+    from collections import Counter
+    tot = same = lines = exact = 0
+    diffs = Counter()
+    for u, ar, want in corpus():
+        got = transliterate(ar)
+        alt = transliterate(ar, pause=False)    # hand-made lines often run on past the line end
+        norm = lambda x: re.sub(r'[.,!?;:]', '', x).replace('-', ' ').split()
+        a, b = norm(want), norm(got)
+        if norm(alt)[-1:] == a[-1:]:
+            got, b = alt, norm(alt)
+        sm = difflib.SequenceMatcher(a=a, b=b, autojunk=False)
+        m = sum(bl.size for bl in sm.get_matching_blocks())
+        tot += len(a)
+        same += m
+        lines += 1
+        exact += a == b
+        for op, i1, i2, j1, j2 in sm.get_opcodes():
+            if op == 'replace' and i2 - i1 == j2 - j1:
+                for x, y in zip(a[i1:i2], b[j1:j2]):
+                    diffs[(x, y)] += 1
+        if '-v' in sys.argv and a != b:
+            print(f'{u}: {ar}\n   want {want}\n   got  {got}')
+    print(f'{same}/{tot} words ({100 * same / max(tot, 1):.1f}%), {exact}/{lines} lines identical')
+    if '-d' in sys.argv:
+        for (x, y), c in diffs.most_common(60):
+            print(f'{c:5d}  {x:20s} {y}')
 
 
 if __name__ == '__main__':

@@ -91,6 +91,13 @@ ships, set its uids' `kind` to `restored`/`retired` there and recount
   before `translit.py` existed and differ from it in places
   (`ALLADHEES TAJABTA` vs the rule's `ALLADHIS TAJABTA`, mid-line pausal
   endings); regenerating them with the tool would make them consistent.
+- **The restored entries' transliteration is in the wrong style.** Until
+  2026-10-25 `translit.py` wrote an I-style (`ILAYKA`, `MINAL`, `'` for
+  'ayn, `ALLADHEE`) that only F13-F25, E128-E136 and the other entries
+  restored since 2026-10-03 use. The house style - the app's Quran and most
+  of its duas - is `ELAYKA`, `MENAL`, `A’LAA`, `LAZEE`; the tool now writes
+  that (see its docstring). Regenerate those entries' transliteration lines
+  with it and read them against the Arabic.
 - F17: duas.org says Imam Husayn's prayer repeats al-Fatihah and al-Tawhid
   fifty times per unit; our history and the Arabic wikishia summary say
   twenty-five, which is what ships.

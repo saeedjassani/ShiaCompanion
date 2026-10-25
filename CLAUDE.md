@@ -212,6 +212,15 @@ content of a translated zikr (one with a file under `assets/zikr_i18n/`),
 run `python3 scripts/zikr_i18n/zikr_i18n.py rebase` and commit what it
 renumbers; `test/zikr_translations_test.dart` fails until you do.
 
+## Transliteration house style
+
+All-caps, the style of the app's Quran and most of its duas: `ELAYKA`,
+`MENAL`, `ASH-HADO`, `A’LAA` (’ for 'ayn), `LAZEE`, `MOHAMMADINW WA`,
+`BE-RAHMATEKA`, `RAJAAA-EE`. `scripts/zikr_arabic/translit.py` drafts it
+from vocalised Arabic (its docstring has the rules; `--check` scores it
+against the app's hand-made lines); read every line it writes against the
+Arabic. The `ILAYKA` / `MINAL` / `'` style is not the house style.
+
 ## Zikr title conventions
 
 Titles (`assets/zikr.json` *and* the matching `assets/zikr/<uid>` file's
