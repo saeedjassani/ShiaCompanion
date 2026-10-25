@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -22,6 +23,16 @@ Future<void> _freshStore([Map<String, Object> values = const {}]) async {
   });
   await SP.init();
   ZikrPlaylistStore.instance.resetForTest();
+}
+
+/// Moves [drag] [distance] px down a few px at a time, as a finger does -
+/// a reorderable list follows the moves, not just where the drag ends.
+Future<void> _dragDown(
+    WidgetTester tester, TestGesture drag, double distance) async {
+  for (var moved = 0.0; moved < distance; moved += 10) {
+    await drag.moveBy(const Offset(0, 10));
+    await tester.pump(const Duration(milliseconds: 16));
+  }
 }
 
 void main() {
@@ -478,6 +489,55 @@ void main() {
       final ahad = tester.getTopLeft(find.text('Dua e Ahad'));
       final ashura = tester.getTopLeft(find.text('Ziyarat Ashura'));
       expect(ahad.dy, lessThan(ashura.dy));
+    });
+
+    testWidgets('a long press drags a zikr to a new place', (tester) async {
+      final store = ZikrPlaylistStore.instance;
+      final playlist = await store.create('Morning', zikrUids: ['E18', 'G4']);
+      await tester.pumpWidget(
+          MaterialApp(home: PlaylistDetailPage(playlistId: playlist.id)));
+
+      final drag =
+          await tester.startGesture(tester.getCenter(find.text('Dua e Ahad')));
+      await tester.pump(kLongPressTimeout + const Duration(milliseconds: 50));
+      await _dragDown(tester, drag, 90);
+      await drag.up();
+      await tester.pumpAndSettle();
+
+      expect(store.byId(playlist.id)!.zikrUids, ['G4', 'E18']);
+    });
+
+    testWidgets('editing drags by the handle and removes with the minus',
+        (tester) async {
+      final store = ZikrPlaylistStore.instance;
+      final playlist =
+          await store.create('Morning', zikrUids: ['E18', 'G4', 'E31']);
+      await tester.pumpWidget(
+          MaterialApp(home: PlaylistDetailPage(playlistId: playlist.id)));
+
+      await tester.tap(find.text('Edit'));
+      await tester.pump();
+      expect(find.text('Done'), findsOneWidget);
+      expect(find.bySemanticsLabel('More for Dua e Ahad'), findsNothing,
+          reason: 'the drag handle takes the place of the menu');
+
+      // Straight away by the handle - no long press.
+      final handle = find.descendant(
+        of: find.ancestor(
+            of: find.text('Dua e Ahad'),
+            matching: find.byType(ReorderableDelayedDragStartListener)),
+        matching: find.byType(ReorderableDragStartListener),
+      );
+      final drag = await tester.startGesture(tester.getCenter(handle));
+      await _dragDown(tester, drag, 50);
+      await drag.up();
+      await tester.pumpAndSettle();
+      expect(store.byId(playlist.id)!.zikrUids, ['G4', 'E18', 'E31']);
+
+      await tester
+          .tap(find.bySemanticsLabel('Remove Ziyarat Ashura from playlist'));
+      await tester.pump();
+      expect(store.byId(playlist.id)!.zikrUids, ['E18', 'E31']);
     });
   });
 }

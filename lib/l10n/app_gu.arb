@@ -1061,6 +1061,8 @@
   "playlistNotDownloaded": "ડાઉનલોડ નથી થયું · ઓનલાઇન ચાલે છે",
   "playlistMoveUp": "ઉપર ખસેડો",
   "playlistMoveDown": "નીચે ખસેડો",
+  "playlistEdit": "પ્લેલિસ્ટ સંપાદિત કરો",
+  "playlistRemoveFrom": "{title} પ્લેલિસ્ટમાંથી દૂર કરો",
   "playlistOpenPlaylist": "પ્લેલિસ્ટ ખોલો",
   "playlistShowControls": "વધુ નિયંત્રણો બતાવો",
   "playlistHideControls": "ઓછાં નિયંત્રણો બતાવો",
