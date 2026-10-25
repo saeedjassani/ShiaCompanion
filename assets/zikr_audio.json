@@ -923,6 +923,13 @@
       "reciter": "Abather Alhalwachi"
     }
   ],
+  "D2": [
+    {
+      "file": "dua_after_fajr_ali_alizadeh_96k.mp3",
+      "label": "Dua to be Recited after Namaz-e-Fajr",
+      "reciter": "Ali Alizadeh"
+    }
+  ],
   "D3": [
     {
       "file": "taqibaat_fajr_abather_96k.mp3",
@@ -962,6 +969,13 @@
     {
       "file": "e1_isteghatha.mp3",
       "label": "Isteghasa (seeking aid) - Imam Mahdi (atfs)"
+    }
+  ],
+  "E5": [
+    {
+      "file": "dua_al_hujjah_samira_arbid_96k.mp3",
+      "label": "Dua al-Hujjah اِلٰهِيْ بِحَقِّ مَنْ نَاجَاكَ",
+      "reciter": "Samira Arbid"
     }
   ],
   "E11": [
@@ -1069,6 +1083,13 @@
     {
       "file": "dua_alqamah_96k.mp3",
       "label": "Dua Alqama (Safwan)"
+    }
+  ],
+  "E37": [
+    {
+      "file": "dua_sanamay_quraish_mohsen_farahmand_96k.mp3",
+      "label": "Dua Sanamay Quraish",
+      "reciter": "Mohsen Farahmand"
     }
   ],
   "F11": [
