@@ -585,3 +585,33 @@ Other Gujarati books in the listing, by number:
 
 Its Dua category has no Gujarati Dua Tawassul, and the catalog has no Dua
 Alqama.
+
+### Jannat ni Chaavio (web.hajinaji.com) — G52 attempted, not usable (2026-10-25)
+
+- **G52:** The only Ziyarat of Lady Fatimah (sa) in Haji Naji Memorial
+  Trust's *Jannat ni Chaavio* (compiled by Maulana Rizwan Ali Palsaniya;
+  genuine Gujarati *Mafatih al-Jinan*) is the weekly chapter «રવિવારના
+  દિવસે ઝિયારતે બીબી ફાતેમા ઝહરા સ.» (Sunday Ziyarat, in the topic
+  «અઠવાડીયાની 14 માસૂમીન (અ.) ની ઝીયારતો»). The book's full chapter list
+  (63 chapters, checked on the web.hajinaji.com overview page,
+  2026-10-25) contains no tomb ziyarat and no shahadat/wiladat chapter
+  for her — no fuller version exists in this book.
+  The Sunday chapter is a shorter, divergent recension of the app's
+  *Mafatih* text. Its two Arabic blocks were mapped against all 64 app
+  anchors (folded-text matching): only anchors 1 and 4 occur verbatim.
+  Anchor 3 (قَبْلَ اَنْ يَخْلُقَكِ) is absent; anchor 2 is printed without
+  اللّٰهُ; anchors 5, 6, 7, 8, 9 and 10 are reworded or fused (6 and 8
+  merge as صَابِرٌ عَلَىٰ مَا أَتَىٰ بِهِ أَبُوكِ وَوَصِيُّهُ); anchor 11 is
+  replaced by لِتُسَرَّ نَفْسِىْ; the chapter closes with فَاشْهَدِىْ اَنِّىْ
+  ظَاهِرٌ بِوِلَايَتِكِ, which has no app anchor; anchors 12-63 have no
+  counterpart in the chapter at all.
+  The Gujarati also fails the split/partition gate: anchors 1 and 2 are
+  rendered as one fused relative clause («જેમનું ઈમ્તેહાન ખુદાએ લીધું»)
+  with no clause boundary between them, so no verbatim split exists; and
+  with anchors 1-2 unassignable, the block's translation cannot be
+  jointly partitioned in order — anchor 4's clause («તો તે ઈમ્તેહાનમાં
+  તમને સબર કરવાવાળા જોયા») cannot be taken alone without orphaning the
+  text before it. **Result: 0 segments filled; Gujarati G52 stays at
+  3/64 (existing 0, 12, 63).** Do not re-extract this chapter for G52.
+  The remaining segments need the mafatihuljinan.org Gujarati *Mafatih*
+  page (post 2285), whose body is JS-rendered and still unextracted.
