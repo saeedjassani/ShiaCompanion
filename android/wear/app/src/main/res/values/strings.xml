@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The watch app's own wording. Prayer names, times, hijri months and event
+     names arrive from the phone already in the phone's language, so only the
+     screens' chrome lives here. Keep values-ur, values-fa, values-ar and
+     values-gu in step (see docs/WEAR_OS.md). -->
+<resources>
+    <string name="app_name" translatable="false">Shia Companion</string>
+
+    <string name="up_next">Up Next</string>
+    <string name="up_next_on">Up Next · %1$s</string>
+    <string name="refresh">Refresh</string>
+    <string name="sync_now">Sync now</string>
+    <string name="synced_ago">Synced %1$s</string>
+
+    <string name="waiting_for_phone_title">Waiting for phone</string>
+    <string name="waiting_for_phone_message">Open Shia Companion on your phone to send prayer times to your watch.</string>
+    <string name="location_needed_title">Location needed</string>
+    <string name="location_needed_message">Set your location in Shia Companion on your phone, then sync again.</string>
+    <string name="phone_app_missing">Install Shia Companion on your phone to sync prayer times.</string>
+    <string name="phone_unreachable">Couldn\'t reach your phone. Make sure it\'s nearby and connected.</string>
+
+    <string name="calendar">Calendar</string>
+    <string name="islamic_calendar">Islamic Calendar</string>
+    <string name="upcoming">Upcoming</string>
+    <string name="upcoming_events">Upcoming events</string>
+    <string name="calendar_not_synced">Open Shia Companion on your phone to sync the calendar.</string>
+    <string name="calendar_next_event">Next: %1$s</string>
+    <string name="hijri_year">%1$d AH</string>
+    <string name="today">Today</string>
+    <string name="tomorrow">Tomorrow</string>
+    <plurals name="in_days">
+        <item quantity="one">In %d day</item>
+        <item quantity="other">In %d days</item>
+    </plurals>
+    <!-- "Birth · Tomorrow": what happened, then when. -->
+    <string name="event_kind_when">%1$s · %2$s</string>
+
+    <string name="tasbeeh">Tasbeeh</string>
+    <string name="tasbeeh_counter">Tasbeeh Counter</string>
+    <string name="no_target">No limit</string>
+    <string name="target_progress">%1$d / %2$d</string>
+    <string name="lap">×%1$d</string>
+    <string name="tasbeeh_hint">Tap or turn</string>
+    <string name="add_one">Add one</string>
+    <string name="minus_one">Minus one</string>
+    <string name="reset">Reset</string>
+    <string name="reset_question">Start again from 0?</string>
+    <string name="change_target">Change target</string>
+
+    <string name="tile_prayer_label">Prayer Times</string>
+    <string name="tile_prayer_description">The next prayer and the times after it.</string>
+    <string name="complication_next_prayer">Next prayer</string>
+    <string name="complication_hijri_date">Hijri date</string>
+    <string name="complication_tasbeeh">Tasbeeh count</string>
+    <string name="tile_open_phone">Open Shia Companion on your phone</string>
+</resources>

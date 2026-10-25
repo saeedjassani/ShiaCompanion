@@ -73,6 +73,16 @@ Future<QuranScript?> loadQuranScript(AssetBundle bundle, {String? font}) async {
   return null;
 }
 
+/// Starts loading the current [arabicFont]'s script, so the first surah opened
+/// finds it parsed rather than waiting on it.
+///
+/// Safe to call repeatedly: each script is loaded once per process. A failure
+/// here is silent - [loadQuranScript] already falls back to the corpus text,
+/// and the real call reports it.
+void prewarmQuranScript(AssetBundle bundle) {
+  loadQuranScript(bundle).ignore();
+}
+
 /// [document] as the reader should show it in the current [arabicFont]:
 /// untouched unless [uid] is a surah.
 Future<Map<String, dynamic>> applyQuranScript(

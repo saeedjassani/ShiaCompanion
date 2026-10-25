@@ -26,6 +26,8 @@ is the working procedure for applying them batch by batch.
 - `merits` opens in a sheet from the Merits button above the first part. It
   is never in the way of someone who recites the zikr every day.
 - Markdown links `[text](uid)` work in the body and in merits.
+- A standalone line starting `## ` is a section heading (see "Headings"
+  below).
 
 ## The rules
 
@@ -89,18 +91,39 @@ prayer in Ramazan).
   Asbahtu Allahumma` - and anything without such a name by what it is -
   `Forgiveness for Believers ×25`, `Ghusl & Grooming`.
 - **Changing tab order or count** (adding, removing, splitting, merging
-  tabs) shifts every `RetiredZikrRedirect(uid, tabIndex: n)` into that
-  entry - `grep "RetiredZikrRedirect('<uid>'" lib/data/retired_zikr_redirects.dart`
-  and update each `tabIndex` so it still lands on the same text.
+  tabs) shifts every `RetiredZikrRedirect(uid, tabIndex: n)` or
+  `tabs: [...]` into that entry - `grep "RetiredZikrRedirect('<uid>'"
+  lib/data/retired_zikr_redirects.dart` and update each so it still lands
+  on the same text - and every `"tabs"` of an alias of it
+  (`grep '|<uid>"' assets/zikr.json`). Links shared as `?tab=N` move too;
+  there is nothing to update for those.
 - A tab opens with an instruction line only when it has something of its
   own to say (a count, a time, a condition). Context the title or the whole
   entry already gives - "after every obligatory prayer in Ramazan" - is
   said once, in the first part, not repeated at the top of every tab.
-- Do not split one continuous dua into tabs; scrolling is fine.
+- Do not split one continuous dua into tabs; scrolling is fine. If it is
+  long and has named sections, mark them as headings instead (below).
 - **Merits are never a tab.** A tab called "Merits of ..." moves to
   `merits`.
 - Short acts (a one-line tasbeeh, a surah link) can share one part as
   consecutive steps instead of each getting a tab.
+
+### Headings
+
+A long part with named sections - Jawshan Kabir's 100 sections, the 30
+night prayers of Ramazan - marks each one with a heading line:
+
+```
+## Section 1: For Success in Difficult Works
+```
+
+- The reader draws it as a heading (centred, in the accent) and lists every
+  heading of the open part in the Sections menu in its top bar, which
+  scrolls to the one picked. The `## ` itself is never shown.
+- Short: at most 60 characters (lint's `HEADING`), English, naming the
+  section. It is translated like any other standalone line.
+- Only for sections someone would jump between. A part with three steps
+  needs no headings; separate acts are tabs (rule 4), not headings.
 
 ### 5. One text lives in one place
 
@@ -118,6 +141,17 @@ prayer in Ramazan).
   `"<uid>|<targetUid>"` in `assets/zikr.json` with the **same title and the
   same slug** as the target (CLAUDE.md, slug-collision note). Never copy
   the content file.
+- A named dua that is also one tab (or a run of tabs) of a compilation can
+  be an alias of just those tabs: give its `assets/zikr.json` entry
+  `"tabs": [3]`, numbered from 1 as the reader shows them - the number a
+  `?tab=3` link to that tab carries. It then shows only those tabs, under
+  its own title, so it needs a **title and slug of its own**. Lint checks
+  the numbers (`ALIAS_TABS`). A retired uid whose text is a run of tabs
+  does the same with `RetiredZikrRedirect('<target>', tabs: [2, 3])`
+  (`tabs[]` indexes, like `tabIndex`).
+- A link to one tab of an entry is `/zikr/<slug>?tab=N`, N counted from 1
+  as the reader shows the tabs; the reader's Share button and the web
+  address bar write it for whichever tab is open.
 - To merge or remove an entry, retire it (see 6) - never just delete the
   uid.
 - Uids and slugs are never changed (favorites, bookmarks and shared links

@@ -50,6 +50,11 @@ class ParsedZikrContent {
   final Set<int> transliCodes;
   final Set<int> translaCodes;
 
+  /// The section headings: standalone lines written `## Text` in the corpus
+  /// (see [ZikrContentParser.headingMarker]), stored in [lines] without the
+  /// marker.
+  final Set<int> headingLines;
+
   /// The triplet each member line belongs to, keyed by every one of its
   /// member indexes so a lookup works from the Arabic line, its
   /// transliteration or its translation alike. Lines that stand on their own
@@ -83,6 +88,7 @@ class ParsedZikrContent {
     required this.arabicCodes,
     required this.transliCodes,
     required this.translaCodes,
+    this.headingLines = const {},
     this.groupForLine = const {},
     this.segments = const [],
     this.translatedLines = const {},
@@ -140,6 +146,7 @@ class ParsedZikrContent {
       arabicCodes: arabicCodes,
       transliCodes: transliCodes,
       translaCodes: translaCodes,
+      headingLines: headingLines,
       groupForLine: groupForLine,
       segments: segments,
       translatedLines: translated,
@@ -150,6 +157,17 @@ class ParsedZikrContent {
 }
 
 class ZikrContentParser {
+  /// What opens a section heading in a zikr's text: `## Section 1: ...`. A
+  /// heading is drawn as one, listed in the reader's Sections menu, and shown
+  /// without the marker everywhere. docs/ZIKR_STRUCTURE.md, "Headings".
+  static const headingMarker = '## ';
+
+  /// [line] without its [headingMarker], if it has one.
+  static String stripHeadingMarker(String line) =>
+      line.startsWith(headingMarker)
+          ? line.substring(headingMarker.length).trimLeft()
+          : line;
+
   static ParsedZikrContent parseContent(
     String content, {
     required bool hideHeaderLine,
@@ -159,10 +177,15 @@ class ZikrContentParser {
       split.removeAt(0);
     }
     final arabicCodes = <int>{};
+    final headingLines = <int>{};
 
     for (int i = 0, n = split.length; i < n; i++) {
       split[i] = split[i].trim();
       if (split[i].isEmpty) continue;
+      if (split[i].startsWith(headingMarker)) {
+        split[i] = stripHeadingMarker(split[i]);
+        if (split[i].isNotEmpty && !isArabic(split[i])) headingLines.add(i);
+      }
       if (isArabic(split[i])) {
         arabicCodes.add(i);
       }
@@ -224,6 +247,7 @@ class ZikrContentParser {
       arabicCodes: arabicCodes,
       transliCodes: transliCodes,
       translaCodes: translaCodes,
+      headingLines: headingLines,
       groupForLine: groupForLine,
       segments: segments,
     );
@@ -345,6 +369,7 @@ class ZikrContentParser {
   static final RegExp _markdownLinkPattern = RegExp(r'\[([^\]]+)\]\(([^)]+)\)');
 
   static List<ZikrLineSegment> parseLineSegments(String line) {
+    line = stripHeadingMarker(line);
     final segments = <ZikrLineSegment>[];
     var currentIndex = 0;
     for (final match in _markdownLinkPattern.allMatches(line)) {

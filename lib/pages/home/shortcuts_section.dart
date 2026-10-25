@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
+import '../../constants.dart' show adminState;
 import '../../l10n/l10n.dart';
 import '../../navigation/home_menu.dart';
 import '../../services/analytics_service.dart';
@@ -29,7 +30,9 @@ class ShortcutsSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListenableBuilder(
-      listenable: HomeShortcutsStore.instance,
+      // adminState too: the admin tools are shortcuts only once the claim,
+      // read after start-up, has landed.
+      listenable: Listenable.merge([HomeShortcutsStore.instance, adminState]),
       builder: (context, _) {
         final showAll = homeShowsAllFeatures(context);
         final ids =
@@ -257,7 +260,19 @@ class _ShortcutsEditorSheetState extends State<ShortcutsEditorSheet> {
   }
 
   Future<void> _done() async {
-    final ids = [for (final item in _onHome) item.analyticsId];
+    // Shortcuts this screen cannot show - an admin tool before the claim has
+    // landed, an Android-only one on the web - are kept after the ones
+    // picked here, rather than lost (on every device) to an edit made
+    // without them.
+    final offered = {
+      for (final item in shortcutCandidateMenuItems) item.analyticsId,
+    };
+    final ids = [
+      for (final item in _onHome) item.analyticsId,
+      for (final id
+          in HomeShortcutsStore.instance.idsFor(wide: isHomeWide(context)))
+        if (!offered.contains(id)) id,
+    ];
     await HomeShortcutsStore.instance.save(ids);
     unawaited(AnalyticsService.feature(
       'home_shortcuts_changed',

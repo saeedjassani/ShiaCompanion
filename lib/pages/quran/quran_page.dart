@@ -13,6 +13,7 @@ import '../../models/saved_verse.dart';
 import '../../utils/deep_links.dart';
 import '../../utils/quran_index.dart';
 import '../../utils/shared_preferences.dart';
+import '../../utils/quran_script.dart';
 import '../../utils/quran_text_index.dart';
 import '../../utils/web_route_sync.dart';
 import '../../theme/shia_colors.dart';
@@ -66,19 +67,26 @@ class _QuranPageState extends State<QuranPage>
     unawaited(VerseNotesManager.instance.loadNotes());
   }
 
-  /// Starts building the verse text index while the surah list is being read.
+  /// Starts loading the Quran script, and for admins the verse text index,
+  /// while the surah list is being read.
   ///
-  /// Only for admins, since that is who can reach context.l10n.listenTitle - nobody
-  /// else should pay 114 document reads for a button they cannot see. Doing it
-  /// here rather than on the tap moves the wait off the path between tapping the
-  /// microphone and the microphone actually listening, which matters most on web
-  /// where every document is a separate request.
+  /// The script is what every surah is drawn in, so the first one opened from
+  /// here no longer waits on it being parsed.
+  ///
+  /// The index is only for admins, since that is who can reach
+  /// context.l10n.listenTitle - nobody else should pay 114 document reads for a
+  /// button they cannot see. Doing it here rather than on the tap moves the wait
+  /// off the path between tapping the microphone and the microphone actually
+  /// listening, which matters most on web where every document is a separate
+  /// request.
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    if (_prewarmed || !isUserAdmin) return;
+    if (_prewarmed) return;
     _prewarmed = true;
-    prewarmQuranTextIndex(DefaultAssetBundle.of(context));
+    final bundle = DefaultAssetBundle.of(context);
+    prewarmQuranScript(bundle);
+    if (isUserAdmin) prewarmQuranTextIndex(bundle);
   }
 
   Future<void> _open(VerseKey verse,

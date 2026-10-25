@@ -71,11 +71,11 @@ class UthmaniQuran {
 
   static Future<UthmaniQuran>? _cached;
 
-  /// Loads and parses the text once per process.
+  /// Loads the text once per process and parses it off the UI thread.
   static Future<UthmaniQuran> load(AssetBundle bundle) {
     return _cached ??= bundle
         .loadString(uthmaniAsset)
-        .then(parse)
+        .then((raw) => compute(parse, raw))
         .catchError((Object error) {
       _cached = null;
       throw error;

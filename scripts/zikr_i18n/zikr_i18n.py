@@ -111,11 +111,20 @@ def _has_transliteration(arabic_indexes):
     return two <= three
 
 
+HEADING_MARKER = '## '
+
+
+def strip_heading_marker(line):
+    """ZikrContentParser.stripHeadingMarker: a `## ` section heading is read
+    without its marker."""
+    return line[len(HEADING_MARKER):].lstrip() if line.startswith(HEADING_MARKER) else line
+
+
 def parse_segments(content, hide_header_line):
     """ZikrContentParser.parseContent(...).segments, as dicts:
     {'kind': 'verse', 'arabic', 'english' (None without a translation line)}
     or {'kind': 'line', 'text'}."""
-    lines = [line.strip() for line in content.split('\n')]
+    lines = [strip_heading_marker(line.strip()) for line in content.split('\n')]
     if hide_header_line and lines:
         lines = lines[1:]
     arabic = {i for i, line in enumerate(lines) if line and is_arabic(line)}

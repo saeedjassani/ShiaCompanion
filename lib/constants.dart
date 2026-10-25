@@ -40,8 +40,9 @@ User? user;
 
 /// Whether the signed-in user holds the admin claim, as something to listen
 /// to. The claim is read a few seconds into start-up (SessionRefreshService),
-/// after the tab shell is already up, so the shell listens to this to swap
-/// its Quran tab over to the dark-launched Quran screen when the claim lands.
+/// after Home is already up, and nothing waits for it: what it changes
+/// listens to this instead - the tab shell's Quran tab, Home's Shortcuts and
+/// All features (the admin tools) - and updates when the claim lands.
 final ValueNotifier<bool> adminState = ValueNotifier(false);
 
 bool get isUserAdmin => adminState.value;
@@ -427,7 +428,14 @@ List<PrayerNotificationScheduleEntry> buildPrayerNotificationEntriesForDay({
 Map items = {};
 Map<String, double> itemOrder = {};
 Map<String, dynamic> itemMetadata = {};
-// Flips to true once `items`/`itemOrder`/`itemMetadata` reflect a completed
+
+/// Alias key (`"<uid>|<targetUid>"`) -> the tabs of its target it shows, for
+/// an alias that stands for only part of its target: its `assets/zikr.json`
+/// entry's `"tabs"`, numbered as the reader numbers them, from 1 (and as a
+/// `?tab=` link names them). An alias missing here shows all of its target.
+/// See [shownZikrTabs].
+Map<String, List<int>> itemTabs = {};
+// Flips to true once `items`/`itemOrder`/`itemMetadata`/`itemTabs` reflect a completed
 // load attempt (success or failure) from assets/zikr.json, so UI that reads
 // those maps (e.g. TodaysRecitationPage) can wait for them instead of
 // racing a still-empty index on a slow first launch.
@@ -1544,45 +1552,49 @@ AzaanOption azaanOptionForPreview({String? azaanId, String? prayerName}) {
   return getSelectedAzaan();
 }
 
-/// Fires a sample notification.
+/// Plays a sample of a prayer sound, in the app.
 ///
 /// [prayerName] makes it preview what that prayer will actually sound like —
 /// its own override, or the default it is following. Without it the test could
 /// only ever play the global sound, which is the one thing a user who has just
 /// set a per-prayer sound is not trying to check.
-Future<void> testNotification(
+///
+/// Takbir, Full Azan and Custom Audio play straight through
+/// AzanPlaybackService rather than as a test notification's sound. That used
+/// to be scheduled two seconds out, and on Android without exact alarms an
+/// inexact two-second alarm can arrive minutes late - so tapping Preview on
+/// Takbir Only played nothing. Only System Default, whose sound is whatever
+/// the device plays for a notification, still posts one.
+Future<void> previewPrayerSound(
     FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin,
     {String? azaanId,
     String? prayerName}) async {
-  await initializeNotificationTimeZone();
   final azaan = azaanOptionForPreview(azaanId: azaanId, prayerName: prayerName);
+  final playbackName = prayerName ?? 'Prayer';
 
-  final platformChannelSpecifics =
-      await prayerNotificationDetails(azaan, prayerName: prayerName);
-
-  // Full Azan and Custom Audio no longer carry their own notification sound
-  // (see _androidPrayerNotificationDetails) - without this, testing either
-  // choice would fire a silent notification and the person trying it would
-  // hear nothing at all.
-  if (azaan.id == AzaanOptions.azaan.id || azaan.id == AzaanOptions.custom.id) {
-    unawaited(AzanPlaybackService.playNow(
-      prayerName: prayerName ?? 'Prayer',
-      customFilePath: azaan.id == AzaanOptions.custom.id
-          ? _customAudioPathForPlayback(prayerName)
-          : null,
-    ));
+  switch (azaan.id) {
+    case 'silent':
+      return;
+    case 'takbir':
+      await AzanPlaybackService.playTakbir(prayerName: playbackName);
+      return;
+    case 'azaan':
+    case 'custom':
+      await AzanPlaybackService.playNow(
+        prayerName: playbackName,
+        customFilePath: azaan.id == AzaanOptions.custom.id
+            ? _customAudioPathForPlayback(prayerName)
+            : null,
+      );
+      return;
   }
 
-  // Schedule for 2 seconds in the future to ensure it fires
-  await flutterLocalNotificationsPlugin.zonedSchedule(
+  await flutterLocalNotificationsPlugin.show(
       id: 999,
-      scheduledDate: tz.TZDateTime.now(tz.local).add(Duration(seconds: 2)),
-      notificationDetails: platformChannelSpecifics,
-      androidScheduleMode: canScheduleExactPrayerNotifications
-          ? AndroidScheduleMode.exactAllowWhileIdle
-          : AndroidScheduleMode.inexactAllowWhileIdle,
       title: L10n.current.notificationTestTitle,
-      body: L10n.current.notificationTestBody);
+      body: L10n.current.notificationTestBody,
+      notificationDetails:
+          await prayerNotificationDetails(azaan, prayerName: prayerName));
 }
 
 /// The one spelling every per-prayer preference key is built from.

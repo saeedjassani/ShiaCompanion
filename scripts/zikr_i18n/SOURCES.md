@@ -169,6 +169,56 @@ segment 0 is the Mafatih's Bismillah.
 
 ## Persian
 
+### erfan.ir — AH2, AL5 (2026-10-25)
+
+Ostad Hossein Ansarian's published *Mafatih al-Jinan* translation on erfan.ir
+(cross-checked against valasr.app) was used to fill Persian translations for these two
+Kazimayn and Samarra ziyaraat. Per-anchor audit 2026-10-25: every filled segment is a
+verbatim substring of the erfan.ir published Persian block containing that segment's
+Arabic anchor (AH2 190/190, AL5 149/149; block order monotonic within each tab). Where published blocks spanned adjacent template segments,
+they were divided cleanly by meaning at the Arabic phrase boundaries into verbatim
+substrings without altering or composing any words.
+
+| uid | Zikr | Source | Segments |
+| --- | --- | --- | --- |
+| AH2 | Ziyarat of Imam Musa al-Kazim (a.s.) — Kazimayn | https://erfan.ir/mafatih282 (cross-checked at https://valasr.app/library/mafatih/زیارت-مخصوص-امام-موسی-کاظمع) | 195 of 201 |
+| AL5 | Ziyarat of Imam Ali al-Naqi al-Hadi (a.s.) — Samarra | https://erfan.ir/mafatih303 and https://erfan.ir/mafatih674 (cross-checked at https://valasr.app/library/mafatih/زیارت-مخصوص-امام-هادی and https://valasr.app/library/mafatih/صلوات-بر-علی-بن-محمدعلیهالسلام) | 157 of 158 |
+
+- **AH2 (Ziyarat of Imam Musa al-Kazim):** 190 verse segments (95 segments each across
+  Tab 1 and Tab 2) were filled from Ostad Hossein Ansarian's published Mafatih al-Jinan
+  translation on erfan.ir (`mafatih282`). Segments 0, 1, 100, 101, and 200
+  (headings and instruction lines) were preserved verbatim from the shipped file.
+  Tab 2 (segments 101–200) contains the exact same Arabic verses as Tab 1 (segments 0–100),
+  so segments 102–199 match segments 2–99 verbatim.
+  Segments left blank:
+  - Segments 21–22 and 121–122 (`اَلسَّلاَمُ عَلَيْكَ يَا مَوْلاَيَ مُوسَىٰ بْنَ جَعْفَرٍ` /
+    `وَرَحْمَةُ ٱللَّهِ وَبَرَكَاتُهُ`) are left blank: in Ansarian's published Persian
+    the salutation and benediction are merged and inverted
+    («سلام و رحمت و برکات خدا بر تو ای مولای من موسی بن جعفر»), with the benediction preceding
+    the vocative name, preventing contiguous ordered partitioning without reordering or
+    swapping phrases.
+  - Segments 99 and 199 (`وَرَحْمَةُ ٱللَّهِ وَبَرَكَاتُهُ`) are left blank: in published
+    Ansarian combines the terminal benediction into the opening salutation
+    («پس درود و رحمت و برکات خدا بر تو و پدران و اجداد و فرزندان و شیعیان و دوستدارانت باد.»),
+    leaving four Arabic segments with only three published Persian clauses and no distinct
+    clause of its own for segment 99/199.
+  - Recension-variant alignment: segment 87 restores the published Ansarian reading «گواهی می‌دهم...»
+    as printed on erfan.ir (the valasr.app digitization drops the initial letter «گ»).
+  - 195/201 segments translated (6 segments left blank: 21, 22, 99, 121, 122, 199).
+- **AL5 (Ziyarat of Imam Ali al-Naqi al-Hadi):** 149 verse segments were filled from
+  published Mafatih al-Jinan on erfan.ir: segments 4–136 from `mafatih303`, and
+  segments 138–157 from `mafatih674`. Segments 0, 1, 2, 3, 20, 22, 90,
+  and 137 (tab labels, headings, and instruction lines) were preserved verbatim from the
+  shipped file.
+  Segments left blank:
+  - Segment 21 (`اَللّٰهُ اكْبَرُ`) is left blank: in the published source,
+    the Takbir recitation is embedded within untranslated instructional prose
+    («...و صد مرتبه «اللّٰهُ أَکْبَرُ» بگو و بخوان:») without a dedicated Persian translation.
+  - Multi-segment published blocks were divided cleanly at anchor boundaries into contiguous
+    ordered substrings.
+  - 157/158 segments translated (1 segment left blank: 21).
+
+
 ### Dua Abu Hamza Thumali (valasr.app / erfan.ir)
 
 | uid | Zikr | Source | Segments |
@@ -190,7 +240,6 @@ All 648 segments filled from Ostad Hossein Ansarian's published *Mafatih al-Jina
   - Seg 604: end of CID 257 + start of CID 258
 - Rework (2026-10-23): clusters 250–254, 326–386 and 615–619 realigned to the segment anchors, seg 248 restored to the published wording, and reworded segments restored to the published Ansarian text throughout (valasr.app primary).
 - Per-anchor audit (2026-10-23): every segment was mechanically mapped, in order, to the valasr block containing its Arabic anchor (block sequence monotonic — no block skipped, reused, or out of order). Of the 645 filled segments, 642 are verbatim substrings of their own anchor's block (including the 8 recombinations above and 31 segments whose app-side Arabic anchor differs from valasr's Arabic only in hamza-seat or defective spelling). Exceptions: seg 188 follows the erfan/hawzah spelling آرزوی (valasr prints آروزی); seg 295 keeps آقای (valasr's page drops the initial alef); seg 641 renders the app's Arabic anchor یا من یقبل الیسیر, where valasr's Arabic reads یا من یفک الأسیر — its second clause is verbatim from valasr.
-
 
 ### Mafatih al-Jinan (Sheikh Abbas Qomi, Hossein Ansarian)
 
@@ -229,7 +278,9 @@ boundary.
 | G1 | Ziyarat Aal-e-Yasin | https://valasr.app/library/mafatih/زیارت-ال-یاسینیس-امام-زمان | 159 |
 | Y4 | Munajat Shabaniyah | hawzah.net Mafatih (collection 79461, item 11183) | 140 |
 | E8 | Dua Alqama | valasr.app/library/mafatih (دعای علقمه); cross-checked at https://hawzah.net/fa/pray/View/79461/7195/دعاى_علقمه_بعد_از_نماز_زیارت_عاشوراء | 185 of 186 |
+| E27 | Dua Mashlool | https://valasr.app/library/mafatih/دعای-مشلول; cross-checked at https://erfan.ir/mafatih44/دعای-مشلول-کلیات-مفاتیح-الجنان-با-ترجمه-استاد-حسین-انصاریان | 257 + merits |
 
+- **E27:** valasr.app's published Persian pairs with Arabic blocks (85 blocks for 257 segments); clauses were mapped verbatim to segments 0–256 at the Arabic phrase boundaries. Published Persian merits text from block 0 of valasr.app (cross-checked with erfan.ir) was populated into `merits`. Per-anchor audit corrections and documented exceptions: segments 4, 28, 96, 115, 119, 120, 135, 199 and 220 take the exact wording of their own valasr block (an earlier draft carried cross-zikr template wording for the same Arabic phrases); segments 102–103 are a documented verbatim split of the single published phrase «ای برآورنده خواسته‌ها و نیازها،» (valasr block 30; identical merged phrasing in erfan.ir and hawzah.net 79461/6420) at the الطلبات/الحاجات anchor boundary; segment 94's Arabic (يَا ذَا الْعِزَّةِ وَالسُّلْطَانِ) is absent from valasr's Arabic blocks but its Persian «ای دارای توانمندی و سلطنت،» is verbatim in the erfan.ir/hawzah.net rendering of the same published translation; segments 1 and 3 (standalone basmala) keep the corpus-standard published basmala «به نام خداوند بخشنده بخشایشگر» — valasr merges the basmala into block 1 under a different rendering; segment 255 keeps «ستایش» where the valasr/hawzah digitization prints the non-word «ستایس» — the segment is byte-identical to E28's already-shipped closing segment for this same Arabic line, and the same published translation prints «ستایش ویژه» for this phrase elsewhere in Mafatih (cf. E31/G4 in this repo).
 - **G1:** valasr's page repeats one salutation in its Persian (the
   «سلام بر تو وقتی که می‌خوانی و بیان می‌کنی» line appears again at the head of
   the نماز/قنوت passage); we follow the Arabic — segment 24 carries only the
@@ -340,6 +391,22 @@ at the Arabic phrase boundaries without altering or composing any words.
     seg 35 takes `خدایا پیامبرت محمّد (درود خدا بر او و خاندانش) را به دیدار او`; seg 36 takes
     `و کسانی که بر پایه دعوتش از او پیروی کردند شاد کن و پس از او به درماندگی ما رحم فرما،`.
   38/42 segments translated (4 blank segments).
+
+### Batch E37, H17, E141, Q3, E16 (2026-10)
+
+| uid | Zikr | Source | Segments |
+| --- | --- | --- | --- |
+| Q3 | Ziyarat on Thursday (Imam Hasan al-Askari) | https://valasr.app/library/mafatih/زیارت-روز-پنجشنبه-امام-حسن-عسکری-ع | all 13 (12 filled + existing 0) |
+| H17 | Munajat of Amir al-Mu'minin (Masjid Kufa) | https://valasr.app/library/mafatih/مناجات-حضرت-امیرالمومنین-2 | all 69 (68 filled + existing 0) |
+| E16 | Dua during Occultation (short version) | https://erfan.ir/mafatih569/دعای-اللهم-عرفنی-نفسک-برای-زمان-غیبت-کلیات-مفاتیح-الجنان-با-ترجمه-استاد-حسین-انصاریان (Ansarian translation, Kulliyat Mafatih al-Jinan; cross-checked with opening of Friday occultation prayer at https://valasr.app/library/mafatih/دعایی-بسیار-با-عظمت-که-در-عصر-غیبت-باید-خواند) | all 10 (9 filled + existing 0) |
+| E37 | Dua Sanamay Quraish | Not in Mafatih al-Jinan (source: al-Kaf'ami Misbah, Bihar al-Anwar 85:240); not found in published Mafatih al-Jinan translations (valasr.app, hawzah.net, mafatih.anhar.ir, ghbook.ir book 19344, erfan.ir) | 1 of 64 (63 missing left blank) |
+| E141 | Istighfar before Sleep (Istighfar-e-Maujiz-e-Aasaa) | Not in Mafatih al-Jinan (source: al-Kaf'ami al-Balad al-Amin, Bihar al-Anwar); not found in published Mafatih al-Jinan translations (valasr.app, hawzah.net, mafatih.anhar.ir, ghbook.ir book 19344, erfan.ir) | 4 of 38 (34 missing left blank) |
+
+- **Q3:** Published on valasr.app under زیارت روز پنجشنبه امام حسن عسکری (ع) (Ansarian translation). The 6 published translation blocks were cleanly partitioned at Arabic phrase boundaries across the 12 Arabic segments (1/2, 3/4/5, 6, 7, 8/9/10, 11/12). Segment 0 ("امام حسن عسکری (ع)") is preserved as-is.
+- **H17:** Published on valasr.app under مناجات حضرت امیرالمومنین (مناجات مسجد کوفه) in 33 translation blocks (Ansarian translation). Segments 1–18 cleanly partition the 8 Quranic verses at the Arabic phrase boundaries (1/2, 3/4, 5/6, 7/8, 9/10, 11/12, 13/14, 15–18). Segments 19–64 correspond to the 23 pairs, each cleanly split into the statement (مولایم ای مولای من...) and question (آیا رحم می‌کند...). Segments 65–68 partition the closing duas (65/66 and 67/68). Segment 0 ("مناجات امام علی (ع)") is preserved as-is.
+- **E16:** Published on erfan.ir under item mafatih569 («دعای اللهم عرفنی نفسک برای زمان غیبت» از کلیات مفاتیح الجنان با ترجمه استاد حسین انصاریان). The 3 published translation blocks were cleanly partitioned across segments 1–3, 4–6, and 7–9. Segment 0 (the introductory narration note) is preserved as-is.
+- **E37:** Dua Sanamay Quraish is not part of Sheikh Abbas Qomi's *Mafatih al-Jinan*, and no published translation exists on valasr.app or backstops (hawzah.net collection 79461, mafatih.anhar.ir, ghbook.ir book 19344, erfan.ir). Per binding instruction, all 63 missing segments (1–60, 62–64) are left blank. Existing segment 61 ("سپس چهار مرتبه بگو:") is preserved as-is.
+- **E141:** Istighfar before Sleep (Istighfar-e-Maujiz-e-Aasaa) is from al-Kaf'ami's *al-Balad al-Amin* and *Bihar al-Anwar*, and is not part of *Mafatih al-Jinan*. No published translation exists on valasr.app or backstops. Per binding instruction, all 34 missing segments (2–32, 35–37) are left blank. Existing segments 0, 1, 33, 34 are preserved as-is.
 
 ## Gujarati
 

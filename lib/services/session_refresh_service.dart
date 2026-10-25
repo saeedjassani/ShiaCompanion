@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
@@ -11,6 +12,7 @@ class SessionRefreshService {
   const SessionRefreshService._();
 
   static Future<void> refreshSessionState() async {
+    await restoreSignedInUser();
     user = FirebaseAuth.instance.currentUser;
     // Settled once, at the end, rather than reset to false up front: the tab
     // shell listens to it, and a false between here and the claim read would
@@ -38,6 +40,30 @@ class SessionRefreshService {
       }
       isUserAdmin = admin;
       unawaited(_refreshAdminClaim(user!));
+    }
+  }
+
+  /// Resolves once Firebase Auth knows who is signed in, so
+  /// `FirebaseAuth.instance.currentUser` can be trusted.
+  ///
+  /// On a phone that is already true when Firebase starts. The web restores
+  /// the session from browser storage after start-up, and until it has,
+  /// `currentUser` is null - an admin read as signed out there lost the
+  /// admin tools, and their synced data loaded as a guest's. Waited for once;
+  /// later calls return at once.
+  static Future<void> restoreSignedInUser() => _authRestore ??= _restore();
+
+  static Future<void>? _authRestore;
+
+  static Future<void> _restore() async {
+    if (Firebase.apps.isEmpty) return;
+    try {
+      await FirebaseAuth.instance
+          .authStateChanges()
+          .first
+          .timeout(const Duration(seconds: 5));
+    } catch (error) {
+      debugPrint('Auth state not restored, going on without it: $error');
     }
   }
 
@@ -78,6 +104,7 @@ class SessionRefreshService {
       items = {};
       itemOrder = {};
       itemMetadata = {};
+      itemTabs = {};
       clearLocalSlugMaps();
       decoded.forEach((key, value) {
         if (value is Map) {
@@ -89,6 +116,11 @@ class SessionRefreshService {
           final day = value['day'];
           if (day != null) {
             itemMetadata[key] = {'day': day};
+          }
+          final tabs = value['tabs'];
+          if (tabs is List && key.toString().contains('|')) {
+            final numbers = tabs.whereType<num>().map((n) => n.toInt());
+            if (numbers.isNotEmpty) itemTabs[key] = numbers.toList();
           }
           setLocalSlugData(
             key.toString(),

@@ -96,8 +96,11 @@ function normalizeWhitespace(value) {
   return `${value ?? ''}`.replace(/\s+/g, ' ').trim();
 }
 
+// Mirrors ZikrContentParser.stripHeadingMarker too: a `## ` section heading
+// is read without its marker.
 function stripInlineMarkers(value) {
   return `${value ?? ''}`
+    .replace(/^\s*##\s+/, '')
     .replace(/--/g, ' ')
     .replace(/\t+/g, ' ')
     .trim();
@@ -152,14 +155,41 @@ function contentPathFor(uid) {
   return path.join(ZIKR_CONTENT_DIR, uid);
 }
 
-function loadContent(uid) {
+function loadContent(uid, entry) {
   const contentUid = contentUidFor(uid);
   if (!contentUid) return null;
 
   const filePath = contentPathFor(contentUid);
   if (!fs.existsSync(filePath)) return null;
 
-  return readJson(filePath);
+  return shownTabsOf(readJson(filePath), uid.includes('|') ? entry?.tabs : null);
+}
+
+// An alias whose zikr.json entry names `tabs` stands for only those tabs of
+// its target - numbered from 1, as the app's reader shows them (and as a
+// `?tab=` link names them; see shownZikrTabs in the app). Its page shows them
+// alone, as the app does.
+function shownTabsOf(content, tabs) {
+  if (!Array.isArray(tabs) || tabs.length === 0) return content;
+
+  // The tabs the reader shows: buildVisibleZikrTabContents in the app.
+  const extraTabs = (content.tabs ?? []).map((tab) => `${tab ?? ''}`);
+  const data = `${content.data ?? ''}`;
+  const visible = [
+    ...(data.trim() || extraTabs.every((tab) => !tab.trim()) ? [data] : []),
+    ...extraTabs.filter((tab) => tab.trim()),
+  ];
+  const shown = [...new Set(tabs)]
+    .filter((n) => Number.isInteger(n) && n >= 1 && n <= visible.length)
+    .map((n) => visible[n - 1]);
+  if (shown.length === 0) return content;
+  // A lone tab has no tab strip to carry its label (its first line), so the
+  // app drops that line - shownZikrTabContents.
+  if (shown.length === 1 && visible.length > 1) {
+    return {...content, data: shown[0].split('\n').slice(1).join('\n'), tabs: []};
+  }
+
+  return {...content, data: shown[0], tabs: shown.slice(1)};
 }
 
 function linesFromText(value) {
@@ -566,7 +596,7 @@ function loadSurahs(index, uidOffset) {
   for (let number = 1; number <= 114; number++) {
     const uid = `A${number + uidOffset}`;
     const entry = index[uid];
-    const content = loadContent(uid);
+    const content = loadContent(uid, entry);
     if (!entry?.slug || !content) {
       throw new Error(`Surah ${number} (${uid}) has no slug or no document`);
     }
@@ -995,7 +1025,7 @@ function main() {
 
   for (const [uid, entry] of Object.entries(index)) {
     if (!entry?.slug) continue;
-    const content = loadContent(uid);
+    const content = loadContent(uid, entry);
     if (!content) {
       // List headers (`~` uids) have a slug the app opens as a list but no
       // text of their own. Hosting no longer rewrites unknown /zikr/<slug>
@@ -1018,7 +1048,8 @@ function main() {
       // conflict. Keep whichever claimed the slug first; skip the other,
       // but carry over its slugAliases: the canonical usually holds them, and
       // Hosting 404s any /zikr/<slug> without a page of its own.
-      if (contentUidFor(uid) === contentUidFor(existingUid)) {
+      if (contentUidFor(uid) === contentUidFor(existingUid) &&
+          !index[uid].tabs && !index[existingUid].tabs) {
         const kept = pages.find((page) => page.slug === slug);
         for (const alias of Array.isArray(entry.slugAliases) ? entry.slugAliases.map(safeSlug) : []) {
           if (!kept.aliases.includes(alias)) kept.aliases.push(alias);

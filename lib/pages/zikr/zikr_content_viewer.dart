@@ -21,6 +21,7 @@ import '../../widgets/reader_top_bar.dart';
 import '../../widgets/zikr_auto_scroll.dart';
 import 'zikr_content_parser.dart';
 import 'zikr_reading_stats.dart';
+import 'zikr_sections.dart';
 import '../../l10n/l10n.dart';
 import '../../widgets/responsive_content.dart' show MouseDragScroll;
 
@@ -245,10 +246,13 @@ List<_ReadingListItem> _buildReadingListItems(ParsedZikrContent content) {
 
   // A hidden English line is left out of a run - it stays an item of its
   // own, which draws nothing.
+  // A heading is an item of its own too, drawn as one rather than as part of
+  // the ruled block of notes under it.
   bool isStandalone(int i) =>
       !content.arabicCodes.contains(i) &&
       !content.transliCodes.contains(i) &&
       !content.translaCodes.contains(i) &&
+      !content.headingLines.contains(i) &&
       !content.isHiddenEnglish(i);
 
   var i = 0;
@@ -586,6 +590,10 @@ class ZikrContentViewerWidget extends StatefulWidget {
   /// leaves the text where the reader puts it.
   final ZikrAutoScrollController? autoScroll;
 
+  /// Told the open part's section headings, and how to scroll to one - the
+  /// page's Sections menu. Null when there is no such menu.
+  final ZikrSectionsController? sections;
+
   const ZikrContentViewerWidget({
     Key? key,
     required this.tabContents,
@@ -616,6 +624,7 @@ class ZikrContentViewerWidget extends StatefulWidget {
     this.tabStripFooter,
     this.translation,
     this.autoScroll,
+    this.sections,
   }) : super(key: key);
 
   @override
@@ -829,6 +838,7 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget>
     _autoScrollTicker = createTicker(_handleAutoScrollTick);
     widget.autoScroll?.addListener(_syncAutoScrollTicker);
     _syncAutoScrollTicker();
+    widget.sections?.attach(_jumpToSection);
   }
 
   @override
@@ -839,6 +849,38 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget>
       widget.autoScroll?.addListener(_syncAutoScrollTicker);
       _syncAutoScrollTicker();
     }
+    if (oldWidget.sections != widget.sections) {
+      oldWidget.sections?.detach(_jumpToSection);
+      widget.sections?.attach(_jumpToSection);
+    }
+  }
+
+  /// Brings the heading on [lineIndex] of the open part to the top of the
+  /// view - a pick from the page's Sections menu.
+  Future<void> _jumpToSection(int lineIndex) async {
+    final tabIndex = _selectedTabIndex;
+    if (tabIndex >= _tabScrollControllers.length) return;
+    final controller = _tabScrollControllers[tabIndex];
+    // [_scrollToLine] leaves a target at the very top of the list where it
+    // is, as a bookmark restore on opening wants; from partway down the
+    // text the first heading has to be scrolled back to.
+    if (controller.hasClients) {
+      controller.jumpTo(controller.position.minScrollExtent);
+    }
+    await _scrollToLine(tabIndex, lineIndex);
+  }
+
+  /// Tells [ZikrContentViewerWidget.sections] the headings of the part on
+  /// screen, once this frame is done - it rebuilds the page around it.
+  void _publishSections(ParsedZikrContent content) {
+    final controller = widget.sections;
+    if (controller == null) return;
+    final sections = zikrSectionsOf(content);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted && identical(widget.sections, controller)) {
+        controller.setSections(sections);
+      }
+    });
   }
 
   void _syncAutoScrollTicker() {
@@ -890,6 +932,7 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget>
   @override
   void dispose() {
     widget.autoScroll?.removeListener(_syncAutoScrollTicker);
+    widget.sections?.detach(_jumpToSection);
     _autoScrollTicker.dispose();
     _bookmarkAutoScrollTimer?.cancel();
     _pageController.dispose();
@@ -2168,6 +2211,7 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget>
     _restoreInitialBookmarkIfNeeded(tabIndex, controller);
     if (tabIndex == _selectedTabIndex) {
       _scheduleScrollPositionReport(tabIndex);
+      _publishSections(parsedContent);
     }
     final bookmarkedRange = tabIndex == widget.initialBookmarkTabIndex
         ? bookmarkedLineRange(
@@ -2557,12 +2601,40 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget>
           : Container();
     }
 
+    if (parsedContent.headingLines.contains(contentIndex)) {
+      return _buildHeading(shown, direction);
+    }
+
     // A standalone line that isn't part of an Arabic/transliteration/
     // translation triplet is narration, personal commentary, a heading, or a
     // source citation.
     return _footnoteBox(
       Text.rich(_buildTextSpanForLine(shown, const TextStyle())),
       textDirection: direction,
+    );
+  }
+
+  /// A section heading (`## ` in the corpus): centred over the text it heads,
+  /// in the accent, and listed in the page's Sections menu.
+  Widget _buildHeading(String text, TextDirection direction) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 22, bottom: 6),
+      child: Semantics(
+        header: true,
+        child: Text.rich(
+          _buildTextSpanForLine(
+            text,
+            TextStyle(
+              fontSize: englishFontSize + 2,
+              height: 1.3,
+              fontWeight: FontWeight.w700,
+              color: ShiaColors.of(context).accent,
+            ),
+          ),
+          textAlign: TextAlign.center,
+          textDirection: direction,
+        ),
+      ),
     );
   }
 

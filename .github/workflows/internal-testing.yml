@@ -4,6 +4,11 @@ name: Internal testing
 # tag, commit or pull request and uploads it to TestFlight and/or the Google
 # Play internal testing track. Neither goes through review or reaches store
 # users unless that build is later promoted by hand. Setup is in docs/CI.md.
+#
+# "wear" uploads the Wear OS app (android/wear) on its own, to Play's Wear OS
+# internal testing track - never as part of "both" or "android". That track
+# exists only once Wear OS is added as a form factor in Play Console; see
+# "Shipping it" in docs/WEAR_OS.md.
 on:
   workflow_dispatch:
     inputs:
@@ -12,12 +17,13 @@ on:
         required: false
         default: ''
       platforms:
-        description: Where to upload
+        description: Where to upload (both = iOS and the Android phone app; wear = the Wear OS app only)
         type: choice
         options:
           - both
           - ios
           - android
+          - wear
         default: both
       version:
         description: Version to upload as (blank = pubspec.yaml's). On iOS it must be above the version live on the App Store.
@@ -79,7 +85,7 @@ jobs:
   ios:
     name: Build and upload to TestFlight
     needs: prepare
-    if: inputs.platforms != 'android'
+    if: inputs.platforms == 'both' || inputs.platforms == 'ios'
     # The signing and store secrets live in this environment, so only these
     # two jobs can read them.
     environment: Prod
@@ -198,7 +204,7 @@ jobs:
   android:
     name: Build and upload to Play internal testing
     needs: prepare
-    if: inputs.platforms != 'ios'
+    if: inputs.platforms == 'both' || inputs.platforms == 'android'
     environment: Prod
     runs-on: ubuntu-latest
     timeout-minutes: 45
@@ -247,16 +253,15 @@ jobs:
       - name: Install Codemagic CLI tools
         run: pip install codemagic-cli-tools
 
-      # The highest version code on any track, plus one. Play rejects a
-      # version code it has seen before, whatever the track.
+      # The highest version code on the phone's tracks, plus one. Play
+      # rejects a version code it has seen before on any track, so the watch
+      # app keeps to its own range (100000 and up) and is left out here.
       - name: Pick version code
         run: |
           set -euo pipefail
-          latest=$(google-play get-latest-build-number --package-name "$PACKAGE_NAME")
-          build=$(( ${latest:-0} + 1 ))
-          (( build > PUBSPEC_BUILD )) || build=$PUBSPEC_BUILD
+          build=$(android/scripts/next_play_version_code.sh phone "$PUBSPEC_BUILD")
           echo "APP_BUILD_NUMBER=$build" >> "$GITHUB_ENV"
-          echo "Uploading $APP_VERSION ($build); latest version code on Play is ${latest:-none}."
+          echo "Uploading $APP_VERSION ($build)."
 
       # android/app/build.gradle signs release builds with android/key.properties
       # when it exists; the keystore itself stays outside the checkout.
@@ -292,4 +297,101 @@ jobs:
             echo
             echo "Built from \`$REF\` at $(git rev-parse --short HEAD). Internal testers" \
               "get it as an update from the Play Store, usually within minutes."
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  wear:
+    name: Build and upload the Wear OS app to Play internal testing
+    needs: prepare
+    if: inputs.platforms == 'wear'
+    environment: Prod
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      GOOGLE_PLAY_SERVICE_ACCOUNT_CREDENTIALS: ${{ secrets.GOOGLE_PLAY_SERVICE_ACCOUNT_CREDENTIALS }}
+      ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+      ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+      ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+      ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+      PACKAGE_NAME: com.developer110.shiacompanion
+      APP_VERSION: ${{ needs.prepare.outputs.version }}
+      PUBSPEC_BUILD: ${{ needs.prepare.outputs.pubspec_build }}
+    steps:
+      - name: Check secrets
+        run: |
+          missing=""
+          for name in GOOGLE_PLAY_SERVICE_ACCOUNT_CREDENTIALS ANDROID_KEYSTORE_BASE64 \
+                      ANDROID_KEYSTORE_PASSWORD ANDROID_KEY_ALIAS ANDROID_KEY_PASSWORD; do
+            [ -n "${!name}" ] || missing="$missing $name"
+          done
+          if [ -n "$missing" ]; then
+            echo "::error::Missing secrets in the Prod environment:$missing. See \"Uploading test builds\" in docs/CI.md."
+            exit 1
+          fi
+
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ needs.prepare.outputs.sha }}
+
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - uses: gradle/actions/setup-gradle@v4
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+
+      - name: Install Codemagic CLI tools
+        run: pip install codemagic-cli-tools
+
+      # The watch's own range (100000 + the pubspec build number and up), from
+      # the wear:* tracks only, so it can never collide with a phone upload.
+      - name: Pick version code
+        run: |
+          set -euo pipefail
+          build=$(android/scripts/next_play_version_code.sh wear "$PUBSPEC_BUILD")
+          echo "APP_BUILD_NUMBER=$build" >> "$GITHUB_ENV"
+          echo "Uploading the Wear OS app as $APP_VERSION ($build)."
+
+      # The phone app's upload key. The Data Layer only connects the phone
+      # and watch apps when both are signed by the same key.
+      - name: Set up upload key
+        run: |
+          set -euo pipefail
+          echo "$ANDROID_KEYSTORE_BASE64" | base64 --decode > "$RUNNER_TEMP/upload-keystore.jks"
+          {
+            echo "storeFile=$RUNNER_TEMP/upload-keystore.jks"
+            echo "storePassword=$ANDROID_KEYSTORE_PASSWORD"
+            echo "keyAlias=$ANDROID_KEY_ALIAS"
+            echo "keyPassword=$ANDROID_KEY_PASSWORD"
+          } > android/key.properties
+
+      # Tests first: an upload of a build whose tests fail would be wasted.
+      - name: Test and build app bundle
+        working-directory: android/wear
+        run: |
+          ./gradlew :app:testDebugUnitTest :app:bundleRelease --console=plain \
+            -PwearVersionCode="$APP_BUILD_NUMBER" \
+            -PwearVersionName="$APP_VERSION"
+
+      - name: Upload to Play's Wear OS internal testing
+        run: |
+          if ! google-play bundles publish \
+              --bundle android/wear/app/build/outputs/bundle/release/app-release.aab \
+              --track wear:internal; then
+            echo "::error::Upload failed. If Play says the track wear:internal does not exist, add Wear OS as a form factor in Play Console first (\"Shipping it\" in docs/WEAR_OS.md)."
+            exit 1
+          fi
+
+      - name: Summary
+        env:
+          REF: ${{ inputs.ref || github.ref_name }}
+        run: |
+          {
+            echo "### Uploaded the Wear OS app $APP_VERSION ($APP_BUILD_NUMBER) to Play's Wear OS internal testing"
+            echo
+            echo "Built from \`$REF\` at $(git rev-parse --short HEAD). Internal testers" \
+              "with a Wear OS watch get it from the Play Store on the watch."
           } >> "$GITHUB_STEP_SUMMARY"

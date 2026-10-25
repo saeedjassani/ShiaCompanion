@@ -7,22 +7,15 @@ import 'package:provider/provider.dart';
 
 import '../constants.dart';
 import '../l10n/l10n.dart';
-import '../services/activity_stats_store.dart';
 import '../services/analytics_service.dart';
 import '../services/audio_download_store.dart';
 import '../services/content_request_service.dart';
-import '../services/favorites_manager.dart';
 import '../services/home_screen_widget_service.dart';
 import '../services/location_service.dart';
-import '../services/prayer_preferences_sync_service.dart';
 import '../services/preferences_sync_service.dart';
-import '../services/qaza_tracker_manager.dart';
 import '../services/rating_prompt_service.dart';
-import '../services/recitation_tracker_manager.dart';
-import '../services/saved_verses_manager.dart';
 import '../services/session_refresh_service.dart';
-import '../services/verse_notes_manager.dart';
-import '../services/zikr_bookmarks_manager.dart';
+import '../services/synced_data.dart';
 import '../theme/shia_colors.dart';
 import '../utils/app_text_scale.dart';
 import '../utils/external_launch.dart';
@@ -80,18 +73,7 @@ class _SettingsPageState extends State<SettingsPage> {
 
   Future<void> _refreshAfterAuthChange() async {
     await SessionRefreshService.refreshSessionState();
-    await FavoritesManager.instance.loadFavorites(force: true);
-    await QazaTrackerManager.instance.loadQaza(force: true);
-    await RecitationTrackerManager.instance.loadRecitations(force: true);
-    await SavedVersesManager.instance.loadSavedVerses(force: true);
-    await ZikrBookmarksManager.instance.loadBookmarks(force: true);
-    await VerseNotesManager.instance.loadNotes(force: true);
-    await PreferencesSyncService.instance.pullOrSeed();
-    await PrayerPreferencesSyncService.instance.pullOrSeed();
-    // Not awaited: stats are already correct on this device, and a Firestore
-    // write only completes once the server acknowledges it - on a slow
-    // connection that would hold up this screen for nothing.
-    unawaited(ActivityStatsStore.instance.pullAndMerge());
+    await SyncedData.pullAll(force: true);
     await HomeScreenWidgetService.instance.publishAll();
     if (!mounted) return;
     setState(() {});

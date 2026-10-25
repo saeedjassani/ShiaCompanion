@@ -10,6 +10,7 @@ import android.os.Bundle
 import android.util.Log
 import androidx.glance.appwidget.updateAll
 import com.developer110.shiacompanion.azan.AzanChannel
+import com.developer110.shiacompanion.wear.WearSync
 import com.developer110.shiacompanion.widgets.DailyPrayerTimesWidget
 import com.developer110.shiacompanion.widgets.FavoritesWidget
 import com.developer110.shiacompanion.widgets.IslamicCalendarWidget
@@ -156,6 +157,9 @@ class MainActivity: AudioServiceActivity() {
                             scheduleNextPrayerWidgetRefresh(applicationContext)
                             scheduleNextRecitationWidgetRefresh(applicationContext)
                             scheduleNextCalendarWidgetRefresh(applicationContext)
+                            // Every widget refresh carries the snapshot the
+                            // watch shows too; a no-op without a watch app.
+                            WearSync.pushSoon(applicationContext)
                             result.success(null)
                         } catch (error: Exception) {
                             result.error(
