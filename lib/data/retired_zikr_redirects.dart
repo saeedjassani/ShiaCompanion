@@ -177,9 +177,11 @@ const Map<String, RetiredZikrRedirect> retiredZikrRedirects = {
   /// pointing to the last night of Shaban / first night of Ramadan dua (AA20).
   'Y12': RetiredZikrRedirect('AA20'),
 
-  /// G24 ("Story of Sayyid Al Rashti") is the narrative regarding the virtues
-  /// and recitation of the comprehensive form of Ziyarah (G30).
-  'G24': RetiredZikrRedirect('G30'),
+  /// G24 ("Story of Sayyid Al Rashti") is al-Nuri's story of al-Rashti, lost
+  /// on the hajj road, being told by the Imam of the Age to recite Ziyarat
+  /// Jamia Kabira and Ziyarat Ashura; Mafatih places it after Jamia Kabira
+  /// (G13).
+  'G24': RetiredZikrRedirect('G13'),
 
   /// I86 ("Ten duas for fufillment of petitions (requests)") contains only
   /// the introductory hadith narrative without the 10 duas.
@@ -189,9 +191,9 @@ const Map<String, RetiredZikrRedirect> retiredZikrRedirects = {
   /// Ashura (G4).
   'R11': RetiredZikrRedirect('G4'),
 
-  /// R14 ("More Confirmations") is the narrative of Sayyid Ahmad al-Rashti
-  /// regarding the Comprehensive Ziyarah (G30).
-  'R14': RetiredZikrRedirect('G30'),
+  /// R14 ("More Confirmations") is al-Nuri's commentary on the merits of
+  /// Ziyarat Ashura (G4), drawn from the same al-Rashti story.
+  'R14': RetiredZikrRedirect('G4'),
 
   /// F1 ("Merits of Namaz e Shab") is the merits/preamble to Namaz e Shab (F2).
   'F1': RetiredZikrRedirect('F2'),
