@@ -1552,45 +1552,49 @@ AzaanOption azaanOptionForPreview({String? azaanId, String? prayerName}) {
   return getSelectedAzaan();
 }
 
-/// Fires a sample notification.
+/// Plays a sample of a prayer sound, in the app.
 ///
 /// [prayerName] makes it preview what that prayer will actually sound like —
 /// its own override, or the default it is following. Without it the test could
 /// only ever play the global sound, which is the one thing a user who has just
 /// set a per-prayer sound is not trying to check.
-Future<void> testNotification(
+///
+/// Takbir, Full Azan and Custom Audio play straight through
+/// AzanPlaybackService rather than as a test notification's sound. That used
+/// to be scheduled two seconds out, and on Android without exact alarms an
+/// inexact two-second alarm can arrive minutes late - so tapping Preview on
+/// Takbir Only played nothing. Only System Default, whose sound is whatever
+/// the device plays for a notification, still posts one.
+Future<void> previewPrayerSound(
     FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin,
     {String? azaanId,
     String? prayerName}) async {
-  await initializeNotificationTimeZone();
   final azaan = azaanOptionForPreview(azaanId: azaanId, prayerName: prayerName);
+  final playbackName = prayerName ?? 'Prayer';
 
-  final platformChannelSpecifics =
-      await prayerNotificationDetails(azaan, prayerName: prayerName);
-
-  // Full Azan and Custom Audio no longer carry their own notification sound
-  // (see _androidPrayerNotificationDetails) - without this, testing either
-  // choice would fire a silent notification and the person trying it would
-  // hear nothing at all.
-  if (azaan.id == AzaanOptions.azaan.id || azaan.id == AzaanOptions.custom.id) {
-    unawaited(AzanPlaybackService.playNow(
-      prayerName: prayerName ?? 'Prayer',
-      customFilePath: azaan.id == AzaanOptions.custom.id
-          ? _customAudioPathForPlayback(prayerName)
-          : null,
-    ));
+  switch (azaan.id) {
+    case 'silent':
+      return;
+    case 'takbir':
+      await AzanPlaybackService.playTakbir(prayerName: playbackName);
+      return;
+    case 'azaan':
+    case 'custom':
+      await AzanPlaybackService.playNow(
+        prayerName: playbackName,
+        customFilePath: azaan.id == AzaanOptions.custom.id
+            ? _customAudioPathForPlayback(prayerName)
+            : null,
+      );
+      return;
   }
 
-  // Schedule for 2 seconds in the future to ensure it fires
-  await flutterLocalNotificationsPlugin.zonedSchedule(
+  await flutterLocalNotificationsPlugin.show(
       id: 999,
-      scheduledDate: tz.TZDateTime.now(tz.local).add(Duration(seconds: 2)),
-      notificationDetails: platformChannelSpecifics,
-      androidScheduleMode: canScheduleExactPrayerNotifications
-          ? AndroidScheduleMode.exactAllowWhileIdle
-          : AndroidScheduleMode.inexactAllowWhileIdle,
       title: L10n.current.notificationTestTitle,
-      body: L10n.current.notificationTestBody);
+      body: L10n.current.notificationTestBody,
+      notificationDetails:
+          await prayerNotificationDetails(azaan, prayerName: prayerName));
 }
 
 /// The one spelling every per-prayer preference key is built from.
