@@ -261,9 +261,10 @@ def lint_index(index, redirects, live):
         except FileNotFoundError:
             n_tabs = 0
         bad = [i for i in tabs if i >= n_tabs]
-        if not tabs or bad:
+        if not tabs or bad or not corpus.load_entry(target).get('data', '').strip():
             out.append(Finding(uid, 'error', 'REDIRECT_TAB', 'retired_zikr_redirects.dart',
-                               f'{uid} -> {target} tabs {tabs}, but {target} has {n_tabs} tabs'))
+                               f'{uid} -> {target} tabs {tabs}, but {target} has {n_tabs} tabs'
+                               ' (and needs non-empty data: tabs[i] is the reader\'s tab i + 1)'))
     for key, meta in index.items():
         if 'tabs' not in meta:
             continue
@@ -279,7 +280,7 @@ def lint_index(index, redirects, live):
                 or not all(isinstance(n, int) and 1 <= n <= n_parts for n in tabs)):
             out.append(Finding(alias, 'error', 'ALIAS_TABS', 'zikr.json',
                                f'{key}: tabs {tabs!r} must name tabs 1-{n_parts} of an alias target'))
-        elif meta.get('slug') == (index.get(target) or {}).get('slug'):
+        elif meta.get('slug') and meta.get('slug') == (index.get(target) or {}).get('slug'):
             out.append(Finding(alias, 'error', 'ALIAS_TABS', 'zikr.json',
                                f'{key} shows only some of {target} but shares its slug'))
     for uid, target in redirects.items():

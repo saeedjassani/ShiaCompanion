@@ -1687,9 +1687,20 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
     setState(() {
       _didFailToLoadZikrData = false;
       zikrData = data;
+      final tabContents = _buildVisibleTabContents();
+      final tabCount = tabContents.length;
+      // A bookmark on a tab this page no longer has - saved before the
+      // content's tabs changed, or before it showed only some of them -
+      // opens at the start rather than on whichever tab is last.
+      final bookmarkTab = _savedBookmark?.tabIndex;
+      if (widget.initialTab == null &&
+          bookmarkTab != null &&
+          bookmarkTab == _selectedZikrTabIndex &&
+          bookmarkTab >= tabCount) {
+        _selectedZikrTabIndex = 0;
+      }
       // A link may have named a tab past the last.
-      _selectedZikrTabIndex =
-          _clampedSelectedTabIndex(_buildVisibleTabContents());
+      _selectedZikrTabIndex = _clampedSelectedTabIndex(tabContents);
     });
     _scheduleCurrentWebRouteSync(replace: true);
   }

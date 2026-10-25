@@ -158,6 +158,11 @@ void main() {
         final document = json.decode(
             File('assets/zikr/${redirect.targetUid}').readAsStringSync());
         final tabs = (document['tabs'] as List?) ?? const [];
+        if (redirect.tabIndex != null || redirect.tabs != null) {
+          // `tabs[i]` is the reader's tab i + 1 only while `data` shows.
+          expect('${document['data'] ?? ''}'.trim(), isNotEmpty,
+              reason: '${entry.key}: ${redirect.targetUid} has no data');
+        }
         for (final i in [
           if (redirect.tabIndex != null) redirect.tabIndex!,
           ...?redirect.tabs,
