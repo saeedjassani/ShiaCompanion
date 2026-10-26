@@ -553,8 +553,8 @@ Ziyarat Ashura; they now land on G13 and G4.
 
 **For a reviewer:** English written fresh because the source had none - all
 of E102's duas and much of E112 (the source's `english` field is empty).
-E146's fourth dua keeps the source's مِنْ كُلِّ شَرٍّ; the Urdu Mafatih (al-Kulayni's
-narration) reads سُوْءٍ, which is what shipped before - an owner's call.
+E146's fourth dua reads مِنْ كُلِّ سُوْٓءٍ as the Urdu Mafatih (al-Kulayni's
+narration) has it; our source has شَرٍّ (owner's call, 2026-10-26).
 F15 says al-Tawhid 50 times in each unit (the source English says "the
 first unit"; wikishia and the previous file say each). The new instruction
 lines of AA18, AA31, E146 and F15 have no Urdu/Persian/Arabic/Gujarati yet
