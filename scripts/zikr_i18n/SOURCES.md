@@ -505,6 +505,64 @@ at the Arabic phrase boundaries without altering or composing any words.
 - **E37:** Dua Sanamay Quraish is not part of Sheikh Abbas Qomi's *Mafatih al-Jinan*, and no published translation exists on valasr.app or backstops (hawzah.net collection 79461, mafatih.anhar.ir, ghbook.ir book 19344, erfan.ir). Per binding instruction, all 63 missing segments (1–60, 62–64) are left blank. Existing segment 61 ("سپس چهار مرتبه بگو:") is preserved as-is.
 - **E141:** Istighfar before Sleep (Istighfar-e-Maujiz-e-Aasaa) is from al-Kaf'ami's *al-Balad al-Amin* and *Bihar al-Anwar*, and is not part of *Mafatih al-Jinan*. No published translation exists on valasr.app or backstops. Per binding instruction, all 34 missing segments (2–32, 35–37) are left blank. Existing segments 0, 1, 33, 34 are preserved as-is.
 
+### erfan.ir — AH5, AL6 (2026-10-26)
+
+Ostad Hossein Ansarian's published *Mafatih al-Jinan* translation on erfan.ir
+(cross-checked against valasr.app library chapters) was used to fill Persian
+translations for the Kazimayn and Samarra ziyaraat of Imam al-Jawad and Imam al-Askari.
+Every filled segment is a verbatim substring of the published Persian translation of
+its own Arabic segment. Multi-segment sentences were partitioned cleanly at Arabic phrase
+boundaries without altering or composing any words.
+
+| uid | Zikr | Source | Segments |
+| --- | --- | --- | --- |
+| AH5 | Ziyarat of Imam Muhammad al-Jawad (a.s.) — Kazimayn | https://erfan.ir/mafatih282, https://erfan.ir/mafatih284, https://erfan.ir/mafatih999, https://erfan.ir/mafatih673 (cross-checked at https://valasr.app/library/mafatih/زیارت-مخصوص-امام-جواد, https://valasr.app/library/mafatih/زیارتى-دیگر-حضرت-امام-محمدتقیع, https://valasr.app/library/mafatih/صلوات-بر-محمد-بن-علیعلیهالسلام-2) | 231 of 254 (23 blank: 38 and 169–190) |
+| AL6 | Ziyarat of Imam Hasan al-Askari (a.s.) — Samarra | https://erfan.ir/mafatih304, https://erfan.ir/mafatih38, https://erfan.ir/mafatih675 (cross-checked at https://valasr.app/library/mafatih/زیارت-مخصوص-امام-حسن-عسکریع, https://valasr.app/library/mafatih/زیارت-روز-پنجشنبه-امام-حسن-عسکری-ع, https://valasr.app/library/mafatih/صلوات-بر-حسن-بن-علیعلیهالسلام) | 242 of 244 (237 filled + 5 shipped; 225–226 blank, see below) |
+
+- **AH5 (Ziyarat of Imam Muhammad al-Jawad):**
+  - Segments 0, 1, 17, 24, 37, 39, 60, 63, 66, 70, 72, 107, 143, 145, 167, 168,
+    191, 192, 193, 253 (20 headings and instruction lines) were preserved verbatim
+    from the shipped file.
+  - Entrance recitation and steps (segments 2–16, 18–23) and Izn Dukhool questions
+    (segments 25–36) were filled from erfan.ir `mafatih282`.
+  - Segment 38 (`ٱللَّهُ اكْبَرُ`) is left blank: in published Ansarian the Takbir
+    recitation is embedded in instructional prose (««چهار مرتبه» بگو: «اللّٰه أکْبَرُ»»)
+    without a dedicated Persian translation (following the AL5 segment 21 precedent).
+  - First Ziyarah (segments 40–59), prostrations (segments 61–62, 64–65, 67–69, 71),
+    Ibn Tawus ziyarat (segments 73–106), Salawat (segments 108–142), segment 144,
+    and Shaykh al-Saduq ziyarat (segments 146–166) were filled from erfan.ir `mafatih284`
+    (cross-checked with valasr.app library chapters).
+  - Segments 169–190 (Tab 0: Ziyarat from Baqiyat al-Salihat, `اَلسَّلاَمُ عَلَىٰ ٱلْبَابِ ٱلأَقْصَدِ...`):
+    Not present in the published Ansarian *Mafatih al-Jinan* translation on erfan.ir
+    or valasr.app. Left blank (22 segments) per binding published-source instructions.
+  - Dua After Ziyarat (segments 194–252, `اَللَّهُمَّ أَنْتَ ٱلرَّبُّ وَأَنَا ٱلْمَرْبُوبُ...`):
+    Filled from erfan.ir `mafatih999` (linked directly from `mafatih284`).
+  - 231/254 segments translated (23 segments left blank: 38 and 169–190).
+  - Per-anchor audit corrections (Pip, 2026-10-26): izn-dukhool segments
+    31, 32, 34, 35 spacing/wording aligned to erfan's exact printed list
+    (e.g. 34 «ای مولایم ای ابا الحسن»), and segments 46, 86, 89, 106, 124
+    punctuation/wording aligned to the exact published substrings.
+
+- **AL6 (Ziyarat of Imam Hasan al-Askari):**
+  - Segments 0, 85, 100, 101, 229 (5 headings and instruction lines) were preserved
+    verbatim from the shipped file.
+  - Ziyarat Makhsoos (segments 1–84) and Dua After Ziyarat (segments 102–228) were
+    filled from erfan.ir `mafatih304` (cross-checked with valasr.app `زیارت-مخصوص-امام-حسن-عسکریع`).
+  - Thursday Ziyarat (segments 86–99) was filled from erfan.ir `mafatih38`
+    (cross-checked with valasr.app `زیارت-روز-پنجشنبه-امام-حسن-عسکری-ع`).
+  - Salawat Upon Imam al-Askari (segments 230–243) was filled from erfan.ir `mafatih675`
+    (cross-checked with valasr.app `صلوات-بر-حسن-بن-علیعلیهالسلام`).
+  - 242/244 segments translated. Segments 225–226 are blank: the published
+    translation merges both anchors (رَبَّنَا آتِنَا فِي الدُّنْيَا حَسَنَةً /
+    وَفِي الْآخِرَةِ حَسَنَةً) into one sentence («پروردگارا در دنیا و آخرت،
+    به ما حسنه عطا کن») that cannot be split verbatim in anchor order.
+  - Segment 47 is a verbatim partition of the published merged list
+    («و مرا از یاران و پیروان و شیعیان و دوستان حق قرار دهد» across
+    segments 47–49, with حق carried in segment 49).
+  - Documented departure (1): segment 171 reads «به پیشوایمان» where
+    erfan.ir prints «به پیشوای ایمان» — the Arabic anchor is
+    بِإِمَامِنَا ("by our Imam"), so the printed form is a web typo and
+    the corrected reading is kept with this evidence.
 ### Seasonal small gaps — W1, W3, G64, G81 (2026-10-25)
 
 | uid | Zikr | Source | Segments |
