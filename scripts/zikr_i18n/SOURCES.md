@@ -56,6 +56,7 @@ where a deck has no Urdu, or repeats the next slide's Urdu:
 | --- | --- | --- |
 | E18 | Dua Ahad | https://mafatih.duas.co/dua-ehed (cross-checked against https://ur.wikishia.net/view/دعائے_عہد) |
 | E1 | Dua Istighatha | https://mafatih.duas.co/istighasa-qayim |
+| E6 | Dua al-Mahdi (a.t.f.s.) | https://mafatih.duas.co/dua-faraj-hujjat2 |
 | E4 | Dua Adeela | https://mafatih.duas.co/dua-adeela |
 | G3 | Ziyarat Arbaeen | https://mafatih.duas.co/ziarat-arbaeen (verses and merits) |
 | G6 | Ziyarat Warith | https://mafatih.duas.co/ziarat-warisa (tabs 1-3); tab 4, al-Abbas, is the short ziyarat inside https://mafatih.duas.co/ziarat-qadr |
@@ -248,28 +249,6 @@ substrings without altering or composing any words.
     ordered substrings.
   - 157/158 segments translated (1 segment left blank: 21).
 
-
-### Dua Abu Hamza Thumali (valasr.app / erfan.ir)
-
-| uid | Zikr | Source | Segments |
-| --- | --- | --- | --- |
-| AA12 | Dua Abu Hamza Thumali (دعای ابوحمزه ثمالی) | https://valasr.app/library/mafatih/%D8%AF%D8%B9%D8%A7%DB%8C-%D8%A7%D8%A8%D9%88-%D8%AD%D9%85%D8%B2%D9%87-%D8%AB%D9%85%D8%A7%D9%84%DB%8C (Ostad Hossein Ansarian's canonical translation of *Mafatih al-Jinan*; backstops: hawzah.net collection 79461 page 6624, erfan.ir/mafatih116/) | all 648 (0–647) |
-
-All 648 segments filled from Ostad Hossein Ansarian's published *Mafatih al-Jinan* translation:
-- Segments 0 and 11 preserved verbatim from existing shipped file.
-- Segment 1: standard Bismillah ("به نام خداوند بخشنده مهربان").
-- Segments 2–10 and 12–647: mapped 1-to-1 against the 274 sequential Arabic/Persian paired blocks of Valasr. Where a published block spanned multiple template segments, the published Persian sentence was divided by meaning at Arabic clause/phrase boundaries matching our segmentation.
-- Boundary combinations: 8 segments spanned across two consecutive Valasr blocks and were cleanly recombined to match our template segment boundaries:
-  - Seg 9: end of CID 4 + start of CID 5
-  - Seg 69: end of CID 28 + start of CID 29
-  - Seg 186: end of CID 74 + start of CID 75
-  - Seg 265: end of CID 108 + start of CID 109
-  - Seg 340: end of CID 140 + start of CID 141
-  - Seg 496: end of CID 209 + start of CID 210
-  - Seg 524: end of CID 222 + start of CID 223
-  - Seg 604: end of CID 257 + start of CID 258
-- Rework (2026-10-23): clusters 250–254, 326–386 and 615–619 realigned to the segment anchors, seg 248 restored to the published wording, and reworded segments restored to the published Ansarian text throughout (valasr.app primary).
-- Per-anchor audit (2026-10-23): every segment was mechanically mapped, in order, to the valasr block containing its Arabic anchor (block sequence monotonic — no block skipped, reused, or out of order). Of the 645 filled segments, 642 are verbatim substrings of their own anchor's block (including the 8 recombinations above and 31 segments whose app-side Arabic anchor differs from valasr's Arabic only in hamza-seat or defective spelling). Exceptions: seg 188 follows the erfan/hawzah spelling آرزوی (valasr prints آروزی); seg 295 keeps آقای (valasr's page drops the initial alef); seg 641 renders the app's Arabic anchor یا من یقبل الیسیر, where valasr's Arabic reads یا من یفک الأسیر — its second clause is verbatim from valasr.
 
 ### Mafatih al-Jinan (Sheikh Abbas Qomi, Hossein Ansarian)
 
@@ -465,6 +444,19 @@ at the Arabic phrase boundaries without altering or composing any words.
 | E31 | Dua Kumayl | https://www.duas.org/ppt/Dua_Kumayl_5languages.pptx | all 271 |
 | G13 | Ziyarat Jamia Kabira | https://www.duas.org/ppt/Ziyarat-jamia-kabira-eng-urdu-hindi-guj.pptx | 0-98 of 414 |
 | G1 | Ziyarat Aal-e-Yasin | Jafri Library book 6687 (Hadi Library / Haji Naji) | all 159 |
+| E24 | Dua Tawassul | https://mafatihuljinan.org/daily-dua-gujarati/duatawassul/ (read via its archived capture; the live site was in maintenance) | all 88 |
+
+**Dua Tawassul.** The page prints the dua as 48 timed Arabic /
+transliteration / Gujarati blocks. The app's 88 segments were mapped
+onto those blocks in order; where one block carries two or three
+segments its Gujarati is split at the exact clause boundary. Repeated
+refrain segments (يا حجة الله على خلقه يا سيدنا ومولانا) take only the
+vocative printed in their own block; the vocative's continuation is
+printed at the head of the next block and belongs to that block's
+segment. Segments 81 and 83 each span two blocks and join the two
+printed halves. Segment 78 (the "state your need" instruction) was
+already in the app and is unchanged. Zero-width joiners in the page
+text are dropped, as in every other Gujarati file.
 
 Both decks set their Gujarati in the legacy LMG-Arun font.
 `lmg_arun.py rows` decodes it into rows for `deck_source.py align`; the
