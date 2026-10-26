@@ -16,6 +16,7 @@ import '../services/preferences_sync_service.dart';
 import '../services/rating_prompt_service.dart';
 import '../services/session_refresh_service.dart';
 import '../services/synced_data.dart';
+import '../services/whats_new_service.dart';
 import '../theme/shia_colors.dart';
 import '../utils/app_text_scale.dart';
 import '../utils/external_launch.dart';
@@ -42,6 +43,7 @@ import 'city_picker.dart';
 import 'downloaded_audio_page.dart';
 import 'prayer_notifications_page.dart';
 import 'scheduled_notifications_page.dart';
+import 'whats_new_page.dart';
 import 'zikr_reminders_page.dart';
 import '../widgets/app_toast.dart';
 
@@ -356,6 +358,19 @@ class _SettingsPageState extends State<SettingsPage> {
                       title: l10n.settingsGithub,
                       onTap: _openGithub,
                     ),
+                    // The notes are about the app, so the site has none.
+                    if (!kIsWeb && WhatsNewService.entries().isNotEmpty)
+                      _SettingsRow(
+                        icon: _RowTile(
+                          child: Icon(Icons.auto_awesome_outlined,
+                              size: 18, color: ShiaColors.of(context).onAccent),
+                        ),
+                        title: l10n.whatsNewTitle,
+                        valueListenable: WhatsNewService.hasUnread,
+                        badgeBuilder: () => WhatsNewService.hasUnread.value,
+                        onTap: () =>
+                            pushPageRoute(context, const WhatsNewPage()),
+                      ),
                     _SettingsRow(
                       icon: const _RowGlyph(OutlineGlyph.info),
                       title: l10n.settingsAboutUs,
@@ -785,6 +800,7 @@ class _SettingsRow extends StatelessWidget {
     this.busy = false,
     this.valueListenable,
     this.valueBuilder,
+    this.badgeBuilder,
   });
 
   final Widget icon;
@@ -801,6 +817,10 @@ class _SettingsRow extends StatelessWidget {
   final Listenable? valueListenable;
   final String? Function()? valueBuilder;
 
+  /// Whether the row has something new behind it: an accent dot before the
+  /// chevron, read out as "New". Rebuilt with [valueListenable] too.
+  final bool Function()? badgeBuilder;
+
   @override
   Widget build(BuildContext context) {
     final valueListenable = this.valueListenable;
@@ -814,10 +834,12 @@ class _SettingsRow extends StatelessWidget {
   Widget _row(BuildContext context, String? value) {
     final colors = ShiaColors.of(context);
     final valueStyle = ShiaText.body.copyWith(color: colors.textMuted);
+    final badge = badgeBuilder?.call() ?? false;
 
     return MergeSemantics(
       child: Semantics(
         button: true,
+        value: badge ? context.l10n.whatsNewUnread : null,
         child: InkWell(
           onTap: onTap,
           child: ConstrainedBox(
@@ -902,6 +924,17 @@ class _SettingsRow extends StatelessWidget {
                       );
                     }),
                   ),
+                  if (badge) ...[
+                    const SizedBox(width: 8),
+                    Container(
+                      width: 8,
+                      height: 8,
+                      decoration: BoxDecoration(
+                        color: colors.accent,
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                  ],
                   const SizedBox(width: 6),
                   SizedBox.square(
                     dimension: 16,

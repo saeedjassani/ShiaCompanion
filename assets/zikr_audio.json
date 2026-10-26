@@ -1137,6 +1137,12 @@
       "reciter": "Ali Fani"
     }
   ],
+  "G52": [
+    {
+      "file": "ziyarat_fatimah_zahra_96k.mp3",
+      "label": "Ziyarat of Lady Fatimah al-Zahra (s.a.)"
+    }
+  ],
   "G54": [
     {
       "file": "g54_dua-after-ziyarat-warith.mp3",
@@ -1155,10 +1161,24 @@
       "label": "Ziyarat of Imam Husain(as) on the Day of Arafah"
     }
   ],
+  "G81": [
+    {
+      "file": "ziyarat_umm_al_baneen_abather_96k.mp3",
+      "label": "Ziyarat of Lady Umm al-Baneen (s.a.)",
+      "reciter": "Abather Alhalwachi"
+    }
+  ],
   "G83": [
     {
       "file": "ziyarat_ashura_ghair_maroofah_96k.mp3",
       "label": "Ghair Maroof - Ziyarat Ashura"
+    }
+  ],
+  "H17": [
+    {
+      "file": "munajat_imam_ali_murtada_quraish_96k.mp3",
+      "label": "The Whispered Prayer (Munajat) of Amir al-Mu'minin (a.s.)",
+      "reciter": "Murtada Quraish"
     }
   ],
   "J3": [

@@ -335,6 +335,9 @@ void main() {
       expect(reports.last.fromUserScroll, isTrue);
       // Still inside the one paragraph, but well past its opening verse.
       expect(reports.last.verse.ayah!, greaterThan(1));
+      // And the verses below it on screen count as read too.
+      expect(reports.last.lastVisibleVerse.ayah!,
+          greaterThan(reports.last.verse.ayah!));
     });
 
     testWidgets('a bookmark comes back to its verse, not its old offset',
