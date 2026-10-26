@@ -17,13 +17,14 @@ on:
         required: false
         default: ''
       platforms:
-        description: Where to upload (both = iOS and the Android phone app; wear = the Wear OS app only)
+        description: Where to upload (all = iOS, Android phone and Wear OS; both = iOS and the Android phone app; wear = the Wear OS app only)
         type: choice
         options:
           - both
           - ios
           - android
           - wear
+          - all
         default: both
       version:
         description: Version to upload as (blank = pubspec.yaml's). On iOS it must be above the version live on the App Store.
@@ -85,7 +86,7 @@ jobs:
   ios:
     name: Build and upload to TestFlight
     needs: prepare
-    if: inputs.platforms == 'both' || inputs.platforms == 'ios'
+    if: inputs.platforms == 'both' || inputs.platforms == 'ios' || inputs.platforms == 'all'
     # The signing and store secrets live in this environment, so only these
     # two jobs can read them.
     environment: Prod
@@ -204,7 +205,7 @@ jobs:
   android:
     name: Build and upload to Play internal testing
     needs: prepare
-    if: inputs.platforms == 'both' || inputs.platforms == 'android'
+    if: inputs.platforms == 'both' || inputs.platforms == 'android' || inputs.platforms == 'all'
     environment: Prod
     runs-on: ubuntu-latest
     timeout-minutes: 45
@@ -268,7 +269,7 @@ jobs:
       - name: Set up upload key
         run: |
           set -euo pipefail
-          echo "$ANDROID_KEYSTORE_BASE64" | base64 --decode > "$RUNNER_TEMP/upload-keystore.jks"
+          echo "$ANDROID_KEYSTORE_BASE64" | tr -d '[:space:]' | base64 --decode > "$RUNNER_TEMP/upload-keystore.jks"
           {
             echo "storeFile=$RUNNER_TEMP/upload-keystore.jks"
             echo "storePassword=$ANDROID_KEYSTORE_PASSWORD"
@@ -302,7 +303,7 @@ jobs:
   wear:
     name: Build and upload the Wear OS app to Play internal testing
     needs: prepare
-    if: inputs.platforms == 'wear'
+    if: inputs.platforms == 'wear' || inputs.platforms == 'all'
     environment: Prod
     runs-on: ubuntu-latest
     timeout-minutes: 30
@@ -360,7 +361,7 @@ jobs:
       - name: Set up upload key
         run: |
           set -euo pipefail
-          echo "$ANDROID_KEYSTORE_BASE64" | base64 --decode > "$RUNNER_TEMP/upload-keystore.jks"
+          echo "$ANDROID_KEYSTORE_BASE64" | tr -d '[:space:]' | base64 --decode > "$RUNNER_TEMP/upload-keystore.jks"
           {
             echo "storeFile=$RUNNER_TEMP/upload-keystore.jks"
             echo "storePassword=$ANDROID_KEYSTORE_PASSWORD"
