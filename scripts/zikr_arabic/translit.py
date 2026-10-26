@@ -121,6 +121,8 @@ def phonemes(cl):
         v, tan = vowel(mk), tanween(mk)
         last = i == len(cl) - 1
         if ch == 'و' and silent_waw and i == 1:
+            if out.endswith('U'):
+                out = out[:-1] + 'OO'           # اُولٰٓئِكَ: OOLAAA-EKA
             continue
         if ch == 'آ':
             out += 'A' if out.endswith('A') and not out.endswith('AA') else (("'" if out else '') + 'AA')
@@ -180,7 +182,7 @@ def phonemes(cl):
             # word-initial hamza is silent; word-initial 'ayn is written vowel-first (A'LAA)
             if not v and not tan:
                 v = {'إ': 'I', 'أ': 'A'}.get(ch, '')
-            out += (v or (tan or '')) + (AYN0 if ch == 'ع' else '')
+            out += (v or (tan or '')) + (('`' if not (v or tan) else AYN0) if ch == 'ع' else '')
             if DAGGER in mk:
                 out += 'A'
             prev_bare = False
@@ -301,6 +303,7 @@ class Word:
                 and cl[1][0] == 'ل' and not vowel(cl[1][1]) and (SUKUN in cl[1][1] or SHADDA in cl[2][1]):
             self.kind = 'article'              # utterance-initial اَلسَّلَامُ / اَلْحَمْدُ
             self.sun = SHADDA in cl[2][1] and cl[2][0] in SUN
+            self.whole = cl                    # mid-line it is a word of its own: اَلْجَأْتُ
             cl = cl[2:]
         elif cl and cl[0][0] == 'ا' and not vowel(cl[0][1]) and not tanween(cl[0][1]) and DAGGER not in cl[0][1] and len(cl) > 1:
             if cl[1][0] == 'ل' and len(cl) > 2 and SHADDA in cl[1][1]:
@@ -328,7 +331,7 @@ def shorten(s):
 
 
 def head(s):
-    m = re.match(r"(TH|DH|SH|KH|GH|[A-Z'])", s)
+    m = re.match(r"(TH|DH|SH|KH|GH|[A-Z'`])", s)
     return m.group(1) if m else ''
 
 
@@ -424,6 +427,10 @@ def _internal(line, pause=True):
                 toks.append('A' + body)
             tanw.append(False)
             continue
+        if w.kind == 'article' and toks and not w.prefix and hasattr(w, 'whole'):
+            toks.append(phonemes(w.whole))
+            tanw.append(w.tanween_end)
+            continue
         if w.kind == 'article':
             c = head(b) if w.sun else 'L'
             rest = b[len(c):] if w.sun else b
@@ -459,7 +466,7 @@ def _internal(line, pause=True):
                 run_on(c)
                 toks.append(rest)
             else:
-                toks.append('I' + c + rest)
+                toks.append('I' + (AYN0 if c == '`' else c) + rest)     # E’TASAMTO
             tanw.append(w.tanween_end)
             continue
         # tanween assimilates into a following ر ل م ن (AHADIM MIN, GHAFOORUR RAHEEM)
@@ -553,6 +560,8 @@ def render(internal):
                 out.append('A')                # hamza with sukun: YAAWEE, MOAMENEENA
         elif x == '`':
             if nx in _VOW:
+                if nx == 'AA' and k + 2 < len(u) and u[k + 2] == "'":
+                    nx = 'AAA'                 # DO-A’AAA-E
                 v = nx.upper() if nx not in ('I', 'U') else ('I' if closed(k + 1) else 'E') if nx == 'I' \
                     else ('U' if closed(k + 1) else 'O')
                 if nx in ('u', 'i'):
