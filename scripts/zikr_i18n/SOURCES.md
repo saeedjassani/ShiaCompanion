@@ -496,6 +496,70 @@ at the Arabic phrase boundaries without altering or composing any words.
   with U+0626 ئ where the app anchor normalizes the hamza letter away.
   Existing segments 0, 12, 63 and the merits text are preserved as-is.
 
+### erfan.ir — E4, AH9 (2026-10-26)
+
+Ostad Hossein Ansarian's published *Mafatih al-Jinan* translation on erfan.ir
+was used to fill Persian translations for Dua Adeela (E4) and the
+common ziyarat of Imam al-Kazim and Imam al-Jawad (AH9). Every filled segment is
+an exact verbatim substring of the published translation of its own Arabic block.
+Where published sentences spanned adjacent template segments, they were divided
+cleanly by meaning at the Arabic phrase boundaries into contiguous, non-overlapping
+slices without altering or composing any words. Per-anchor audit (2026-10-26):
+E4 120/120 new segments verified as an ordered contiguous partition of the
+erfan.ir Persian stream (117 strict own-block; segments 38, 60, 93 located by
+their Persian at the exact monotonic slot in their own block — their Arabic
+anchors differ from erfan's printed Arabic in spelling/word-order/recension as
+noted below); AH9 38/38 strict own-block and ordered-partition verified.
+Only split-boundary punctuation gaps (single «،») remain in the E4 partition,
+plus the documented 250-character gap for blank segments 1–5.
+
+| uid | Zikr | Source | Segments |
+| --- | --- | --- | --- |
+| E4 | Dua Adeela | https://erfan.ir/mafatih47 (Ansarian Mafatih; the valasr.app دعای-عدیله chapter ships Arabic-only contents — 51 Arabic / 3 Persian items — so erfan.ir is the operative Persian source, as with AH2/AL5) | 120 of 126 |
+| AH9 | Ziyarat Common to Imam al-Kazim & Imam al-Jawad (a.s.) — Kazimayn | https://erfan.ir/mafatih285 | 50 of 94 |
+
+- **E4 (Dua Adeela):** 120 verse segments were filled from Ostad Hossein Ansarian's
+  published *Mafatih al-Jinan* translation on erfan.ir (`mafatih47`, 12 published
+  blocks). The published translation blocks were cleanly partitioned
+  into consecutive verbatim substrings matching the fine-grained app anchors.
+  Audit notes: segment 38's anchor spells مَنجىٰ where erfan prints مَنْجٰا;
+  segment 60's anchor orders اِلَيْهِ بِقَوْلِهٖ where erfan prints بِقَوْلِهِ... إِلَيْهِ;
+  segment 93's anchor adds مُنْكَرٍ وَنَكِيرٍ فِي where erfan prints مُساءَلَةَ الْقَبْرِ
+  alone, and erfan's Persian itself shares one «حق است» across segments 93–94
+  («و سؤال قبر و برانگیخته شدن حق است»), so segment 93 ships «و سؤال قبر» exactly
+  as published. Segment 82 restores the published leading «و» («و گواهی می‌دهم که
+  گفتار آنان حجّت») dropped in the initial draft.
+  Segments left blank:
+  - Segments 1–5 (`شَهِدَ اللَّهُ اَنَّهٗ لَا اِلٰهَ اِلَّا هُوَ` through `اِنَّ الدِّينَ عِنْدَ اللَّهِ الاِسْلَامُ`)
+    are left blank: in Ansarian's published Persian, the Quran 3:18–19 quotation places
+    the adverbial hal clause «درحالی که... قائم به عدالت است» (segment 3) directly after the subject
+    and prior to the governing verb «گواهی می دهد» (segment 1), and merges the second
+    «لا اله الا هو» into segment 2, preventing contiguous, ordered partitioning without
+    reordering or swapping phrases.
+  - Segment 123 (`وَعِنْدَ مُسَاءَلَةِ مُنْكَرٍ وَنَكِيرٍ`) is left blank: this clause
+    is absent from the published *Mafatih al-Jinan* editions (erfan.ir and
+    hawzah.net), which conclude directly with «فَرُدَّهُ عَلَىَّ وَقْتَ حُضُورِ مَوْتِى، بِرَحْمَتِكَ يَا أَرْحَمَ الرَّاحِمِينَ».
+  - Segment 0 takes the published opening basmala «به نام خدا که رحمتش بسیار و مهربانی‌اش همیشگی است؛».
+  - Segment 125 takes the published closing supplication «خدایا من از عدیله به هنگام مرگ به تو پناه می‌آورم.» from the final erfan.ir block.
+  - 120/126 segments translated (6 segments left blank: 1, 2, 3, 4, 5, 123).
+
+- **AH9 (Ziyarat Common to Imam al-Kazim & Imam al-Jawad — Kazimayn):** 38 verse
+  segments were filled from Ostad Hossein Ansarian's published *Mafatih al-Jinan* translation
+  on erfan.ir (`mafatih285`).
+  The 12 pre-existing segments (22, 30, 31, 32, 42, 43, 47, 89, 90, 91, 92, 93), comprising
+  all chapter headings and instructional directives, were preserved byte-for-byte from the
+  shipped file.
+  - Segments 0–21 (22 segments) and 23–29 (7 segments) cleanly partition the two parts of
+    Passage B (بخش دوم: زیارتی است که به قرائتش، آن دو امام زیارت می‌شوند) into contiguous verbatim
+    slices matching the app anchors.
+  - Segments 33–41 (9 segments) cleanly partition Passage A (بخش اوّل: آنکه برای هر کدام جداگانه باید خواند)
+    into contiguous verbatim slices.
+  - Segments 44–46 (3 segments) and 48–88 (41 segments) are left blank: this extended common
+    farewell (wida) text does not appear in published *Mafatih al-Jinan* editions for Kazimayn
+    (which only include the individual wida from Tahdhib, `mafatih971`). In accordance with the
+    verbatim published-source mandate, no translation was invented or composed.
+  - 50/94 segments translated (44 segments left blank: 44–46, 48–88).
+
 ## Gujarati
 
 | uid | Zikr | Deck | Segments |
