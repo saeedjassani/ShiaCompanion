@@ -211,6 +211,43 @@ Published Urdu *Mafatih al-Jinan* (Sheikh Abbas Qummi, translated by Allama Riaz
   with U+06CC ی where the app anchor normalizes the hamza letter away.
   Existing segments 0, 12, 63 and the merits text are preserved as-is.
 
+### duas.org / ur.wikishia.net Urdu — G11 (2026-10-26)
+
+| uid | Zikr | Source | Segments |
+| --- | --- | --- | --- |
+| G11 | Ziyarat Nahiya (Ziyarat al-Nahiya al-Muqaddasa) | https://www.duas.org/ppt/Ziyarat-Nahiya_Ara_Eng_Urdu_Transliteration.pptx (cross-checked against https://ur.wikishia.net/view/زیارت_ناحیہ_مقدسہ) | 380/493 (362 filled + 18 preserved) |
+
+- **G11:** Ziyarat al-Nahiya al-Muqaddasa (the ziyarat of Imam Husayn (as)
+  attributed to Imam al-Mahdi (atfs)). The primary source `mafatih.duas.co`
+  lacks Ziyarat Nahiya (verified across its 697-page sitemap and search index;
+  Sheikh Abbas Qummi's standard *Mafatih al-Jinan* does not contain this
+  ziyarat). The text was sourced from the published bilingual/trilingual Urdu
+  presentation on `duas.org` (`Ziyarat-Nahiya_Ara_Eng_Urdu_Transliteration.pptx`,
+  211 slides covering segments 1 to 368) and cross-checked against the published
+  Urdu text on `ur.wikishia.net/view/زیارت_ناحیہ_مقدسہ`.
+  - **Segments 1–368 (Ziyarat proper):** All 368 segments were filled verbatim
+    from the 211 published deck slides. Multi-anchor slides were partitioned
+    into contiguous verbatim substrings matching each anchor boundary;
+    concatenating the split slices reproduces the published Urdu slide verbatim
+    (modulo whitespace).
+  - **Preserved anchors (18 segments):** Preserved byte-for-byte from existing
+    master/template translations:
+    - Opening heading: 0 ("زیارت")
+    - Text anchors: 269 ("تو رحمت فرما محمد (ص) و آلِ محمد (ص) پر"), 270 ("مجھے ان کے گروہ میں محشور فرما"), 289 ("ہم چاہتے ہیں کہ رحمت فرما محمد (ص) و آلِ محمد (ص) پر"), 295 ("اور میرے لئے آئندہ نسلوں میں سچی زبان اور ذکر خیر قرار دے"), 302 ("اپنی رحمت سے اے سب سے زیادہ رحم کرنے والے۔"), 368 ("اپنی رحمت سے اے سب سے زیادہ رحم کرنے والے۔")
+    - Post-ziyarat ritual headings and instructions: 369 ("نماز زیارت اور دعائے قنوت"), 370, 487, 489, 490, 492
+    - Post-ziyarat prayer anchors: 388, 425, 426, 432, 481
+  - **Segments 207/208 (auditor correction, 2026-10-26):** slide 126 of the
+    deck prints its two Urdu phrases in the opposite order to its Arabic
+    (swords phrase first, horses phrase second). The two segments were
+    assigned by meaning so each matches its own Arabic anchor; each is a
+    verbatim substring of that slide's published Urdu.
+  - **Unfilled segments (113 segments):** Segments 371–387, 389–424, 427–431,
+    433–480, 482–486, 488, 491 (all within the post-ziyarat two-rak'ah prayer
+    and Qunoot supplication) were left blank (`""`) per prompt guidelines
+    because no published Urdu translation exists in *Mafatih al-Jinan*,
+    `mafatih.duas.co`, `duas.org`, or `ur.wikishia.net`. No machine translation
+    or original composition was used.
+
 ### Turned down
 
 - **duas.org's Ziyarat Jamia Kabira and Dua Alqama decks**: their Urdu is
