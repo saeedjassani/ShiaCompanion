@@ -240,7 +240,10 @@ object AzanSchedule {
         }
         val show = launchAppIntent(context)
         var failed = 0
-        for (alarm in alarms) {
+        // Soonest first: if Android runs out of room, it's the Azans days
+        // away that go unarmed, and rearm() at a later launch catches them up.
+        val soonestFirst = alarms.sortedBy { it.fireAtMillis }
+        for ((index, alarm) in soonestFirst.withIndex()) {
             try {
                 alarmManager.setAlarmClock(
                     AlarmManager.AlarmClockInfo(alarm.fireAtMillis, show),
@@ -249,6 +252,16 @@ object AzanSchedule {
             } catch (e: SecurityException) {
                 failed++
                 if (failed == 1) AzanLog.error(TAG, "Could not arm Azan alarm ${alarm.id}", e)
+            } catch (e: IllegalStateException) {
+                // Android allows an app 500 pending alarms, and the prayer
+                // notifications and zikr reminders hold theirs too; every
+                // further one would fail the same way. Throwing would fail the
+                // whole replace instead, and Dart would rebuild every
+                // notification at each launch only to fail again.
+                val unarmed = soonestFirst.size - index
+                failed += unarmed
+                AzanLog.error(TAG, "Alarm limit reached; $unarmed Azan alarm(s) left unarmed", e)
+                break
             }
         }
         Log.i(TAG, "Armed ${alarms.size - failed} Azan alarm(s)")
