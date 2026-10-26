@@ -6,6 +6,7 @@ import '../../constants.dart';
 import '../../l10n/hijri_l10n.dart';
 import '../../l10n/l10n.dart';
 import '../../services/location_service.dart';
+import '../../services/whats_new_service.dart';
 import '../../theme/shia_colors.dart';
 import '../../utils/islamic_day.dart';
 import '../../widgets/location_status_line.dart';
@@ -145,7 +146,8 @@ class _HomeHeaderState extends State<HomeHeader> {
   }
 }
 
-/// The round profile button that opens Settings and sign-in.
+/// The round profile button that opens Settings and sign-in, with a dot
+/// while there are release notes not yet opened.
 class _ProfileButton extends StatelessWidget {
   const _ProfileButton({required this.onTap});
 
@@ -154,31 +156,57 @@ class _ProfileButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = ShiaColors.of(context);
-    return Padding(
-      padding: const EdgeInsets.only(top: 6),
-      child: Tooltip(
-        message: context.l10n.homeSettingsAndAccount,
-        child: Semantics(
-          button: true,
-          label: context.l10n.homeSettingsAndAccount,
-          excludeSemantics: true,
-          onTap: onTap,
-          child: Material(
-            color: colors.surface,
-            shape: CircleBorder(side: BorderSide(color: colors.line)),
-            clipBehavior: Clip.antiAlias,
-            child: InkWell(
-              onTap: onTap,
-              child: SizedBox.square(
-                dimension: 44,
-                child: Center(
-                  child: OutlineIcon(
-                    OutlineGlyph.profile,
-                    size: 22,
-                    color: colors.accent,
+    return ValueListenableBuilder<bool>(
+      valueListenable: WhatsNewService.hasUnread,
+      builder: (context, unread, _) => Padding(
+        padding: const EdgeInsets.only(top: 6),
+        child: Tooltip(
+          message: context.l10n.homeSettingsAndAccount,
+          child: Semantics(
+            button: true,
+            label: context.l10n.homeSettingsAndAccount,
+            value: unread ? context.l10n.whatsNewUnread : null,
+            excludeSemantics: true,
+            onTap: onTap,
+            child: Stack(
+              clipBehavior: Clip.none,
+              children: [
+                Material(
+                  color: colors.surface,
+                  shape: CircleBorder(side: BorderSide(color: colors.line)),
+                  clipBehavior: Clip.antiAlias,
+                  child: InkWell(
+                    onTap: onTap,
+                    child: SizedBox.square(
+                      dimension: 44,
+                      child: Center(
+                        child: OutlineIcon(
+                          OutlineGlyph.profile,
+                          size: 22,
+                          color: colors.accent,
+                        ),
+                      ),
+                    ),
                   ),
                 ),
-              ),
+                // Release notes not yet opened (Settings › What's new).
+                if (unread)
+                  PositionedDirectional(
+                    top: 1,
+                    end: 1,
+                    child: IgnorePointer(
+                      child: Container(
+                        width: 11,
+                        height: 11,
+                        decoration: BoxDecoration(
+                          color: colors.accent,
+                          shape: BoxShape.circle,
+                          border: Border.all(color: colors.ground, width: 2),
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
             ),
           ),
         ),
