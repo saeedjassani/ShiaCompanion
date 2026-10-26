@@ -491,6 +491,15 @@ Not to use: the Haji Naji Trust's "Mukhtasar Mafatih al-Jinan" PDF
 (Tohafa-e-Saiyada). Its translations are Urdu written in Gujarati script,
 not Gujarati.
 
+Not to use, for the same reason: "Muntakhab Mafateehul Jinan" (Jafri 5859,
+Allama Haji Naji, 2,077 pp). Its "Gujarati" column is likewise Urdu
+written in Gujarati script throughout (checked on page renders of the
+Thursday supplication, Dua Simat and Dua Ihtijab sections, 2026-10). So
+Q1 (Thursday supplication), E26 (Dua Simat) and E154 (Dua Ihtijab) stay
+untranslated in Gujarati until a genuine Gujarati source turns up. The
+Salawat of Abul Hasan al-Zarrab (E144) is not in the book at all, and no
+other Gujarati source for it is known.
+
 ### Jafri Library (jafrilibrary.com)
 
 Jafri Library hosts Gujarati booklets of the Haji Naji Trust and
@@ -508,6 +517,8 @@ but not from curl or a cloud session.
 | E37 | Dua Sanamay Quraish | 118431 *Dua E Sanam E Quraish* (Allama Haji Naji; *Tohfa-e-Mahdi* pp. 226-229) | all 64 |
 | H17 | Munajat of Amir al-Mu'minin | 6678 *Munajaat E Ali* (typeset by Maulana Rizwanali Palsaniya) | all 69 |
 | G1 | Ziyarat Aal-e-Yasin | 6687 *Ziarat E Ale Yasin* (Hadi Library / Haji Naji), 36 pp | all 159 |
+| E18 | Dua Ahad | 118429 *Dua E Ahad* (Allama Haji Naji), 25 pp | 41 of 42 (40 already in the app) |
+| Q3 | Thursday ziyarat (Imam Hasan al-Askari) | 6693 *Weekly Ziarat* (Haji Naji), p. 16 | 12 of 13 (0 already in the app) |
 
 These were asked for by readers (2026-10). Unlike the Mukhtasar Mafatih
 above, they are real Gujarati. None of the PDFs' Gujarati copies out as
@@ -523,6 +534,12 @@ Unicode:
 - **118431** is in Shree-Lipi, which `gu_pdf.py` does not decode. It was
   transcribed by hand from the page images (220 dpi), and every word was
   checked against the PDF's raw Shree-Lipi keys. No word was unclear.
+- **118429** uses the same LMG-Arun layout (LMG ArunA and InvGuj);
+  `gu_pdf.py legacy` decodes it, and InvGuj holds the translation. The
+  decoded wording was checked against the page images, which fixed a
+  handful of decoder slips (long ઈ in થઈ and ફેલાઈ, and કાઢજે, which the
+  decoder splits).
+- **6693** was read from the page images (Thursday section, p. 16).
 
 Each zikr was then aligned to our segments by reading our Arabic, and every
 segment was checked by hand, as with the Urdu decks. Throughout, honorifics
@@ -531,6 +548,27 @@ against the page images, and Quran citations and intention lines ("હું ...
 પઢું છું કુર્બતન એલલ્લાહ") were dropped. None of the five books gives merits
 for these zikrs.
 
+- **E18 Dua Ahad.** Book 118429 prints each Arabic phrase with its
+  Gujarati gloss; the segments tile the book's gloss passage end to end,
+  in order, with nothing skipped. Quote marks are the book's own ('…'
+  round a quoted epithet, "…" round the Quran verse in 28/29, where the
+  cut falls inside the quote). Three splits sit next to the anchor
+  boundary because the book's word order fuses clauses: 16 keeps
+  "મારી ગરદન ઉપર રહેલ વાયદા-કરાર" and 17 opens with the book's "અને
+  બયઅતને" (the shipped Urdu splits the same way); 21 keeps the book's
+  relative clause whole, so it also carries "નિશ્ચિત મુકર્રર કરી છે"
+  (حتما مقضيا, the head of our 22); 28/29 splits the Quran quote after
+  "સમુદ્રમાં", as the Urdu does. Segment 40 (the thigh-striking
+  instruction) was already in the app from another source and is
+  unchanged; the book's own wording for it differs. The book prints a
+  merits hadith (p. 3); our E18 has no merits field filled, and none was
+  taken.
+- **Q3 Thursday ziyarat.** Book 6693, p. 16 (Imam Hasan al-Askari). The
+  page's eight Gujarati lines tile segments 1-12 exactly. The book
+  prints a doubled comma in segment 2, written once here, and bare
+  "અ.સ." honorifics, written in our (અ.સ.) style. The book gives no
+  Gujarati for its Basmala or closing salawat, and Q3 has no segments
+  for them.
 - **E14 Hadith al-Kisa.**
   - The booklet's chain starts at Fatimah. Segments 1-4 add Jabir and
     "daughter of the Messenger" in its wording.
