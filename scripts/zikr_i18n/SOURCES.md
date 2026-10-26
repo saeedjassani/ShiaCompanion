@@ -159,6 +159,26 @@ segment 0 is the Mafatih's Bismillah.
   introduction. The Quran quotes in it (2:186, 3:191, 27:62) are copied from
   the Urdu Quran; everything else is our own wording.
 
+### mafatih.net Urdu Mafatih — G52 (2026-10-25)
+
+| uid | Zikr | Source | Segments |
+| --- | --- | --- | --- |
+| G52 | Ziyarat of Lady Fatimah al-Zahra (sa) | https://mafatih.net/?p=2985 (Urdu *Mafatih al-Jinan*) | all 64 (61 filled + existing 0, 12, 63) |
+
+- **G52:** Published on mafatih.net under زیارتِ حضرت فاطمہ زہراءؑ (Urdu Mafatih
+  al-Jinan). The 25 published translation blocks were partitioned into
+  consecutive verbatim slices across the 61 Arabic segments; every slice is an
+  exact substring of its block and the slices jointly reproduce each block
+  word-for-word (100% per-anchor audit: anchors verified in order against each
+  block's Arabic; monotonic, no drift). Two published word-order interleaves
+  are documented rather than silently reordered: in block 5–8 the Urdu renders
+  the salawat (segment 7's Arabic) at the end of the sentence, so the
+  consecutive partition places the wasi clause slice on 7 and the salawat slice
+  on 8; blocks 19–21 and 22–24 are single-phrase renderings split mid-phrase
+  (20/21, 23/24). Segment 56's Arabic (مُتَبَرِّئٌ) is spelled by mafatih.net
+  with U+06CC ی where the app anchor normalizes the hamza letter away.
+  Existing segments 0, 12, 63 and the merits text are preserved as-is.
+
 ### Turned down
 
 - **duas.org's Ziyarat Jamia Kabira and Dua Alqama decks**: their Urdu is
@@ -386,6 +406,26 @@ at the Arabic phrase boundaries without altering or composing any words.
 - **E37:** Dua Sanamay Quraish is not part of Sheikh Abbas Qomi's *Mafatih al-Jinan*, and no published translation exists on valasr.app or backstops (hawzah.net collection 79461, mafatih.anhar.ir, ghbook.ir book 19344, erfan.ir). Per binding instruction, all 63 missing segments (1–60, 62–64) are left blank. Existing segment 61 ("سپس چهار مرتبه بگو:") is preserved as-is.
 - **E141:** Istighfar before Sleep (Istighfar-e-Maujiz-e-Aasaa) is from al-Kaf'ami's *al-Balad al-Amin* and *Bihar al-Anwar*, and is not part of *Mafatih al-Jinan*. No published translation exists on valasr.app or backstops. Per binding instruction, all 34 missing segments (2–32, 35–37) are left blank. Existing segments 0, 1, 33, 34 are preserved as-is.
 
+### valasr.app — G52 (2026-10-25)
+
+| uid | Zikr | Source | Segments |
+| --- | --- | --- | --- |
+| G52 | Ziyarat of Lady Fatimah al-Zahra (sa) | https://valasr.app/library/mafatih/زیارت-حضرت-فاطمهع (Ansarian translation; cross-checked against hawzah.net/fa/pray/View/79461/7040) | all 64 (61 filled + existing 0, 12, 63) |
+
+- **G52:** Published on valasr.app under زیارت حضرت فاطمه(ع) (Ansarian
+  translation). The 24 published translation blocks were partitioned into
+  consecutive verbatim slices across the 61 Arabic segments; every slice is an
+  exact substring of its block and the slices jointly reproduce each block
+  word-for-word (100% per-anchor audit: anchors verified in order against each
+  block's Arabic; monotonic, no drift). One published word-order interleave is
+  documented rather than silently reordered: segments 37–39 are rendered by
+  valasr (and hawzah) as a single Persian sentence whose order interleaves
+  anchors 37 and 38 («سلام و رحمت و برکات خدا بر تو ای فاطمه دختر رسول خدا»), so
+  the consecutive partition places the salutation-and-mercy slice on 37 and the
+  vocative slice on 38. Segment 56's Arabic (مُتَبَرِّئٌ) is spelled by valasr
+  with U+0626 ئ where the app anchor normalizes the hamza letter away.
+  Existing segments 0, 12, 63 and the merits text are preserved as-is.
+
 ## Gujarati
 
 | uid | Zikr | Deck | Segments |
@@ -545,3 +585,33 @@ Other Gujarati books in the listing, by number:
 
 Its Dua category has no Gujarati Dua Tawassul, and the catalog has no Dua
 Alqama.
+
+### Jannat ni Chaavio (web.hajinaji.com) — G52 attempted, not usable (2026-10-25)
+
+- **G52:** The only Ziyarat of Lady Fatimah (sa) in Haji Naji Memorial
+  Trust's *Jannat ni Chaavio* (compiled by Maulana Rizwan Ali Palsaniya;
+  genuine Gujarati *Mafatih al-Jinan*) is the weekly chapter «રવિવારના
+  દિવસે ઝિયારતે બીબી ફાતેમા ઝહરા સ.» (Sunday Ziyarat, in the topic
+  «અઠવાડીયાની 14 માસૂમીન (અ.) ની ઝીયારતો»). The book's full chapter list
+  (63 chapters, checked on the web.hajinaji.com overview page,
+  2026-10-25) contains no tomb ziyarat and no shahadat/wiladat chapter
+  for her — no fuller version exists in this book.
+  The Sunday chapter is a shorter, divergent recension of the app's
+  *Mafatih* text. Its two Arabic blocks were mapped against all 64 app
+  anchors (folded-text matching): only anchors 1 and 4 occur verbatim.
+  Anchor 3 (قَبْلَ اَنْ يَخْلُقَكِ) is absent; anchor 2 is printed without
+  اللّٰهُ; anchors 5, 6, 7, 8, 9 and 10 are reworded or fused (6 and 8
+  merge as صَابِرٌ عَلَىٰ مَا أَتَىٰ بِهِ أَبُوكِ وَوَصِيُّهُ); anchor 11 is
+  replaced by لِتُسَرَّ نَفْسِىْ; the chapter closes with فَاشْهَدِىْ اَنِّىْ
+  ظَاهِرٌ بِوِلَايَتِكِ, which has no app anchor; anchors 12-63 have no
+  counterpart in the chapter at all.
+  The Gujarati also fails the split/partition gate: anchors 1 and 2 are
+  rendered as one fused relative clause («જેમનું ઈમ્તેહાન ખુદાએ લીધું»)
+  with no clause boundary between them, so no verbatim split exists; and
+  with anchors 1-2 unassignable, the block's translation cannot be
+  jointly partitioned in order — anchor 4's clause («તો તે ઈમ્તેહાનમાં
+  તમને સબર કરવાવાળા જોયા») cannot be taken alone without orphaning the
+  text before it. **Result: 0 segments filled; Gujarati G52 stays at
+  3/64 (existing 0, 12, 63).** Do not re-extract this chapter for G52.
+  The remaining segments need the mafatihuljinan.org Gujarati *Mafatih*
+  page (post 2285), whose body is JS-rendered and still unextracted.
