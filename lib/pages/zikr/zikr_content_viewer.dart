@@ -37,11 +37,18 @@ class QuranReadingPosition {
     required this.verse,
     required this.text,
     required this.fromUserScroll,
-  });
+    VerseKey? lastVisibleVerse,
+  }) : lastVisibleVerse = lastVisibleVerse ?? verse;
 
   /// The surah as well as the ayah: a juz runs across surahs, so an ayah
   /// number on its own does not say where the reader is.
   final VerseKey verse;
+
+  /// The last verse wholly on screen, below [verse] - how far down the view
+  /// the reader can have read. Someone reads a screenful and then scrolls,
+  /// or closes the reader, so the place they reached is here, not at the
+  /// top; it is [verse] itself when nothing below it is whole.
+  final VerseKey lastVisibleVerse;
 
   /// The verse as shown, so saving it from the action bar can keep an excerpt
   /// without the reader having opened the per-verse menu first.
@@ -680,6 +687,7 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget>
   int? _landingTabIndex;
   bool _verseReportScheduled = false;
   VerseKey? _reportedVerse;
+  VerseKey? _reportedLastVisibleVerse;
   late int _selectedTabIndex;
   late final int? _initialBookmarkTabIndex;
   late final double? _initialBookmarkScrollOffset;
@@ -1185,10 +1193,16 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget>
     if (spanIndex == null) return;
 
     final verse = ayahIndex.verseAtSpanIndex(spanIndex);
-    if (verse == null || verse == _reportedVerse) return;
+    if (verse == null) return;
+    final lastSpanIndex = _lastWholeSpanIndex(tabIndex, controller, spanIndex);
+    final lastVisible = ayahIndex.verseAtSpanIndex(lastSpanIndex) ?? verse;
+    if (verse == _reportedVerse && lastVisible == _reportedLastVisibleVerse) {
+      return;
+    }
 
     final parsed = _contentCaches[tabIndex]?.parsed;
     _reportedVerse = verse;
+    _reportedLastVisibleVerse = lastVisible;
     callback(
       QuranReadingPosition(
         verse: verse,
@@ -1196,8 +1210,52 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget>
             ? ''
             : _ayahPlainText(parsed, ayahIndex.spans[spanIndex]),
         fromUserScroll: _sawUserScrollInput,
+        lastVisibleVerse: lastVisible,
       ),
     );
+  }
+
+  /// The last ayah span wholly on screen in tab [tabIndex], never above
+  /// [topSpanIndex] - see [QuranReadingPosition.lastVisibleVerse].
+  ///
+  /// Read at the bottom edge of what shows, above the reading chrome laid
+  /// over the foot of the list. The verse that edge cuts through has not been
+  /// read to its end, so it is the one before; past the last verse - the
+  /// footer, or the list's own end - every verse is on screen.
+  int _lastWholeSpanIndex(
+    int tabIndex,
+    ScrollController controller,
+    int topSpanIndex,
+  ) {
+    final ayahIndex = _ayahIndexFor(tabIndex);
+    if (ayahIndex == null || !controller.hasClients) return topSpanIndex;
+    final lastSpanIndex = ayahIndex.spans.length - 1;
+    final position = controller.position;
+    final bottom = _itemAtScrollOffset(
+      tabIndex,
+      position.pixels + position.viewportDimension - widget.listPadding.bottom,
+    );
+
+    int cut;
+    final paragraphs = _tabQuranParagraphs[tabIndex];
+    if (bottom == null) {
+      cut = lastSpanIndex + 1;
+    } else if (paragraphs == null) {
+      cut = bottom.itemIndex;
+    } else if (bottom.itemIndex >= paragraphs.items.length) {
+      cut = lastSpanIndex + 1;
+    } else {
+      final paragraph = paragraphs.items[bottom.itemIndex];
+      final k = _memberInFlowAt(bottom.box, paragraph, bottom.depth);
+      cut = k == null ? paragraph.firstSpanIndex : paragraph.spanIndexes[k];
+    }
+
+    // Back past anything that is not a verse - a heading between surahs.
+    var index = math.min(cut - 1, lastSpanIndex);
+    while (index > topSpanIndex && ayahIndex.verseAtSpanIndex(index) == null) {
+      index--;
+    }
+    return math.max(index, topSpanIndex);
   }
 
   /// A little air above a verse scrolled to, so it does not sit flush against
