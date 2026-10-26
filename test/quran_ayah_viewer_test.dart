@@ -561,6 +561,56 @@ void main() {
       expect(reports.last.verse.ayah!, greaterThan(1));
     });
 
+    testWidgets('reports how far down the screen the reader can have read',
+        (tester) async {
+      // Resuming used to land on the verse that had been at the top, sending
+      // someone who had read to the bottom of the screen back up it.
+      final reports = <QuranReadingPosition>[];
+      await _pump(
+        tester,
+        content: _surahContent(ayahs: 40),
+        surahNumber: 1,
+        onAyahPosition: reports.add,
+      );
+
+      await tester.drag(find.byType(ListView), const Offset(0, -600));
+      await tester.pumpAndSettle();
+
+      final report = reports.last;
+      final last = report.lastVisibleVerse.ayah!;
+      expect(last, greaterThan(report.verse.ayah!));
+      final screenBottom = tester.getRect(find.byType(ListView)).bottom;
+      expect(
+        tester.getRect(find.text('Translation of ayah $last')).bottom,
+        lessThanOrEqualTo(screenBottom),
+        reason: 'the last verse reported is wholly on screen',
+      );
+      final next = find.text('Translation of ayah ${last + 1}');
+      if (next.evaluate().isNotEmpty) {
+        expect(tester.getRect(next).bottom, greaterThan(screenBottom),
+            reason: 'the verse the bottom edge cuts has not been read');
+      }
+    });
+
+    testWidgets('at the end of the surah every verse has been on screen',
+        (tester) async {
+      final reports = <QuranReadingPosition>[];
+      await _pump(
+        tester,
+        content: _surahContent(ayahs: 40),
+        surahNumber: 1,
+        onAyahPosition: reports.add,
+      );
+
+      await _scrollTo(tester, find.text('Translation of ayah 40'));
+      for (var i = 0; i < 3; i++) {
+        await tester.drag(find.byType(ListView), const Offset(0, -250));
+        await tester.pumpAndSettle();
+      }
+
+      expect(reports.last.lastVisibleVerse, const VerseKey(1, 40));
+    });
+
     testWidgets('a lookup that turns into reading becomes the position',
         (tester) async {
       final reports = <QuranReadingPosition>[];
