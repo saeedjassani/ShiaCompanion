@@ -22,7 +22,6 @@ import 'package:shia_companion/services/zikr_bookmark_store.dart';
 import 'package:shia_companion/services/zikr_bookmarks_manager.dart';
 import 'package:shia_companion/services/zikr_counter_session.dart';
 import 'package:shia_companion/models/recitation_tracker_state.dart';
-import 'package:shia_companion/data/quran_sajdah_verses.dart';
 import 'package:shia_companion/models/saved_verse.dart';
 import 'package:shia_companion/services/recitation_tracker_manager.dart';
 import 'package:shia_companion/services/saved_verses_manager.dart';
