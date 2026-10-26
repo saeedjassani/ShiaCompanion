@@ -3059,7 +3059,7 @@ class _SajdahMenuCard extends StatelessWidget {
                     borderRadius: BorderRadius.circular(6),
                   ),
                   child: Text(
-                    'واجب',
+                    sajdah.wajibPill(),
                     style: TextStyle(
                       fontSize: 11,
                       fontWeight: FontWeight.bold,

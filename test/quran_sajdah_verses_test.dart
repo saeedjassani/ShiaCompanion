@@ -51,13 +51,17 @@ void main() {
       }
     });
 
-    test('all 5 supported languages provide localized titles and rulings', () {
+    test('all 5 supported languages provide localized titles, badges and rulings', () {
       final languages = ['en', 'ur', 'fa', 'ar', 'gu'];
 
       for (final sajdah in quranSajdahVerses.values) {
         for (final lang in languages) {
           expect(sajdah.title(lang).trim(), isNotEmpty,
               reason: 'title in $lang should not be empty');
+          expect(sajdah.badgeLabel(lang).trim(), isNotEmpty,
+              reason: 'badgeLabel in $lang should not be empty');
+          expect(sajdah.wajibPill(lang).trim(), isNotEmpty,
+              reason: 'wajibPill in $lang should not be empty');
           expect(sajdah.ruling(lang).trim(), isNotEmpty,
               reason: 'ruling in $lang should not be empty');
           expect(sajdah.duaHeading(lang).trim(), isNotEmpty,
@@ -65,7 +69,23 @@ void main() {
           expect(sajdah.duaTranslation(lang).trim(), isNotEmpty,
               reason: 'duaTranslation in $lang should not be empty');
         }
+
+        // Verify that badge labels and titles differ per language
+        expect(sajdah.badgeLabel('en'), isNot(equals(sajdah.badgeLabel('ur'))));
+        expect(sajdah.badgeLabel('en'), isNot(equals(sajdah.badgeLabel('gu'))));
+        expect(sajdah.title('en'), isNot(equals(sajdah.title('ur'))));
+        expect(sajdah.ruling('en'), isNot(equals(sajdah.ruling('ur'))));
       }
+
+      for (final lang in languages) {
+        expect(azaimSurahBadgeLabel(lang).trim(), isNotEmpty);
+      }
+    });
+
+    test('Arabic dua translation provides an explanatory gloss, not verbatim duplication', () {
+      final sajdah = quranSajdahVerses.values.first;
+      expect(sajdah.duaTranslation('ar'), isNot(equals(QuranSajdahVerse.duaArabic)));
+      expect(sajdah.duaTranslation('ar').contains('خضعتُ'), isTrue);
     });
 
     test('Arabic dua is non-empty and authentic', () {

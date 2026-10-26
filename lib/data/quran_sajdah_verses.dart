@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import '../l10n/l10n.dart';
 import '../utils/quran_index.dart';
 
@@ -40,6 +39,18 @@ class QuranSajdahVerse {
     return isWajib ? texts.titleWajib : texts.titleMustahabb;
   }
 
+  String badgeLabel([String? languageCode]) {
+    final lang = languageCode ?? L10n.current.localeName;
+    final texts = _translations[lang] ?? _translations['en']!;
+    return isWajib ? texts.badgeWajib : texts.badgeMustahabb;
+  }
+
+  String wajibPill([String? languageCode]) {
+    final lang = languageCode ?? L10n.current.localeName;
+    final texts = _translations[lang] ?? _translations['en']!;
+    return texts.wajibPill;
+  }
+
   String ruling([String? languageCode]) {
     final lang = languageCode ?? L10n.current.localeName;
     final texts = _translations[lang] ?? _translations['en']!;
@@ -63,6 +74,9 @@ class _SajdahTexts {
   const _SajdahTexts({
     required this.titleWajib,
     required this.titleMustahabb,
+    required this.badgeWajib,
+    required this.badgeMustahabb,
+    required this.wajibPill,
     required this.rulingWajib,
     required this.rulingMustahabb,
     required this.duaHeading,
@@ -71,6 +85,9 @@ class _SajdahTexts {
 
   final String titleWajib;
   final String titleMustahabb;
+  final String badgeWajib;
+  final String badgeMustahabb;
+  final String wajibPill;
   final String rulingWajib;
   final String rulingMustahabb;
   final String duaHeading;
@@ -81,6 +98,9 @@ const Map<String, _SajdahTexts> _translations = {
   'en': _SajdahTexts(
     titleWajib: 'Obligatory Prostration (Wajib Sajdah)',
     titleMustahabb: 'Recommended Prostration (Mustahabb Sajdah)',
+    badgeWajib: 'Wajib Sajdah',
+    badgeMustahabb: 'Mustahabb Sajdah',
+    wajibPill: 'WAJIB',
     rulingWajib:
         'Performing prostration (sajdah) is obligatory upon reciting or hearing this verse. (Reciting this surah in obligatory prayers is not permitted in Fiqh-e-Jafria).',
     rulingMustahabb:
@@ -92,6 +112,9 @@ const Map<String, _SajdahTexts> _translations = {
   'ur': _SajdahTexts(
     titleWajib: 'سجدۂ واجبہ (فقہ جعفریہ)',
     titleMustahabb: 'سجدۂ مستحب (فقہ جعفریہ)',
+    badgeWajib: 'سجدۂ واجبہ',
+    badgeMustahabb: 'سجدۂ مستحب',
+    wajibPill: 'واجب',
     rulingWajib:
         'اس آیت کی تلاوت کرنے یا سننے پر فوراً سجدہ کرنا واجب ہے۔ (فقہ جعفریہ کے مطابق واجب نماز میں اس سورہ کی تلاوت جائز نہیں ہے)۔',
     rulingMustahabb:
@@ -103,6 +126,9 @@ const Map<String, _SajdahTexts> _translations = {
   'fa': _SajdahTexts(
     titleWajib: 'سجده واجب (فقه جعفری)',
     titleMustahabb: 'سجده مستحب (فقه جعفری)',
+    badgeWajib: 'سجده واجب',
+    badgeMustahabb: 'سجده مستحب',
+    wajibPill: 'واجب',
     rulingWajib:
         'با خواندن یا شنیدن این آیه، سجده کردن فوراً واجب می‌شود. (قرائت این سوره در نمازهای واجب جایز نیست).',
     rulingMustahabb:
@@ -114,17 +140,23 @@ const Map<String, _SajdahTexts> _translations = {
   'ar': _SajdahTexts(
     titleWajib: 'سجدة واجبة (الفقه الجعفري)',
     titleMustahabb: 'سجدة مستحبة (الفقه الجعفري)',
+    badgeWajib: 'سجدة واجبة',
+    badgeMustahabb: 'سجدة مستحبة',
+    wajibPill: 'واجب',
     rulingWajib:
         'السجود واجب فوراً عند قراءة هذه الآية أو استماعها. (لا تجوز قراءة هذه السورة في الصلاة الواجبة).',
     rulingMustahabb:
         'السجود عند هذه الآية مستحب في الفقه الجعفري وليس واجباً.',
     duaHeading: 'دعاء سجود التلاوة المستحب:',
     duaTranslation:
-        'سَجَدْتُ لَكَ يَا رَبِّ تَعَبُّداً وَرِقّاً، لاَ مُسْتَنْكِفاً وَلاَ مُسْتَكْبِراً، بَلْ أَنَا عَبْدٌ ذَلِيْلٌ خَائِفٌ مُسْتَجِيْرٌ.',
+        'أي خضعتُ لك يا ربّ خضوع عبودية ورقّ، لا استنكافاً ولا تكبّراً، بل أنا عبد ذليل خائف مستجير بحماك.',
   ),
   'gu': _SajdahTexts(
     titleWajib: 'વાજિબ સજદો (ફિકહ-એ-જાફરિયા)',
     titleMustahabb: 'મુસ્તહબ સજદો (ફિકહ-એ-જાફરિયા)',
+    badgeWajib: 'વાજિબ સજદો',
+    badgeMustahabb: 'મુસ્તહબ સજદો',
+    wajibPill: 'વાજિબ',
     rulingWajib:
         'આ આયતની તિલાવત કરવા કે સાંભળવા પર તરત જ સજદો કરવો વાજિબ છે. (વાજિબ નમાઝમાં આ સૂરહની તિલાવત કરવી જાયઝ નથી).',
     rulingMustahabb:
@@ -163,6 +195,13 @@ const Set<int> azaimSurahNumbers = {32, 41, 53, 96};
 
 /// Whether surah [surah] is one of the 4 Surahs of Aza'im (with a Wajib Sajdah).
 bool isAzaimSurah(int surah) => azaimSurahNumbers.contains(surah);
+
+/// Returns the localized label for an Aza'im Surah (e.g. for surah list subtitle).
+String azaimSurahBadgeLabel([String? languageCode]) {
+  final lang = languageCode ?? L10n.current.localeName;
+  final texts = _translations[lang] ?? _translations['en']!;
+  return texts.badgeWajib;
+}
 
 /// Returns the Sajdah information for [verse], or null if it is not a Sajdah verse.
 QuranSajdahVerse? sajdahVerseFor(VerseKey verse) => quranSajdahVerses[verse];

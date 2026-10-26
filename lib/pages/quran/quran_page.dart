@@ -562,7 +562,7 @@ class _SurahList extends StatelessWidget {
           title: Text(surah.displayName),
           subtitle: Text(
             isAzaimSurah(surah.number)
-                ? '${context.l10n.quranVerseCount(surah.ayahCount)} • ۩ سجدۂ واجبہ'
+                ? '${context.l10n.quranVerseCount(surah.ayahCount)} • ۩ ${azaimSurahBadgeLabel(context.l10n.localeName)}'
                 : context.l10n.quranVerseCount(surah.ayahCount),
           ),
           trailing: Row(

@@ -3348,7 +3348,7 @@ class _AyahBlock extends StatelessWidget {
               child: Row(
                 children: [
                   if (sajdahVerse != null) ...[
-                    _SajdahBadge(isWajib: sajdahVerse!.isWajib),
+                    _SajdahBadge(sajdahVerse: sajdahVerse!),
                     const SizedBox(width: 6),
                   ],
                   if (isBookmarked) ...[
@@ -3624,13 +3624,14 @@ class _RuledArabicParagraph extends StatelessWidget {
 
 /// Small badge marking a Sajdah verse above its content.
 class _SajdahBadge extends StatelessWidget {
-  const _SajdahBadge({required this.isWajib});
+  const _SajdahBadge({required this.sajdahVerse});
 
-  final bool isWajib;
+  final QuranSajdahVerse sajdahVerse;
 
   @override
   Widget build(BuildContext context) {
     final colors = ShiaColors.of(context);
+    final isWajib = sajdahVerse.isWajib;
     final accent = isWajib ? colors.accent : colors.textMuted;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
@@ -3657,7 +3658,7 @@ class _SajdahBadge extends StatelessWidget {
           ),
           const SizedBox(width: 4),
           Text(
-            isWajib ? 'سجدۂ واجبہ' : 'سجدۂ مستحب',
+            sajdahVerse.badgeLabel(),
             style: TextStyle(
               fontSize: 10,
               fontWeight: FontWeight.bold,
@@ -3729,7 +3730,7 @@ class _SajdahInstructionBox extends StatelessWidget {
                     borderRadius: BorderRadius.circular(6),
                   ),
                   child: Text(
-                    'واجب',
+                    sajdahVerse.wajibPill(),
                     style: TextStyle(
                       fontSize: 11,
                       fontWeight: FontWeight.bold,
