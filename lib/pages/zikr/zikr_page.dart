@@ -382,9 +382,11 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
   /// Verses the reader has written a note on, marked the same way.
   Set<VerseKey> _notedVerses = const {};
 
-  /// The last verse reported as being read, so a debounced save has something
-  /// to write and repeat reports of the same verse cost nothing.
+  /// The last verses reported as being read - the top of the view and the
+  /// last one wholly on screen - so repeat reports of the same place cost
+  /// nothing.
   VerseKey? _pendingProgressVerse;
+  VerseKey? _pendingLastVisibleVerse;
   Timer? _progressSaveTimer;
 
   /// The lowest and highest ayah reached by genuine reading this visit, per
@@ -568,14 +570,40 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
   /// dropped here: a lookup should never cost someone the place they had
   /// reached. Scrolling on from there does count, which is what makes a lookup
   /// that turns into real reading become the new place on its own.
+  ///
+  /// The range runs down to the last verse wholly on screen, not just the one
+  /// at the top: the reader reads a screenful before scrolling on, so a place
+  /// kept at the top verse sent them back to the top of the page they had
+  /// already finished.
   void _handleAyahPositionChanged(QuranReadingPosition position) {
     if (!position.fromUserScroll) return;
-    final ayah = position.verse.ayah;
+    final top = position.verse;
+    final ayah = top.ayah;
     if (ayah == null) return;
-    if (position.verse == _pendingProgressVerse) return;
+    final last = position.lastVisibleVerse;
+    if (top == _pendingProgressVerse && last == _pendingLastVisibleVerse) {
+      return;
+    }
 
-    _pendingProgressVerse = position.verse;
-    _extendRecitedRange(position.verse.surah, ayah, ayah);
+    _pendingProgressVerse = top;
+    _pendingLastVisibleVerse = last;
+    final lastAyah = last.ayah;
+    if (lastAyah == null || last.surah == top.surah) {
+      _extendRecitedRange(top.surah, ayah, math.max(ayah, lastAyah ?? ayah));
+    } else {
+      // A juz crossing into the next surah on screen: the top surah was read
+      // to its end, any short one wholly between, and the last from its
+      // start.
+      final info = surahInfoFor(top.surah);
+      _extendRecitedRange(
+          top.surah, ayah, math.max(ayah, info?.ayahCount ?? ayah));
+      for (var surah = top.surah + 1; surah < last.surah; surah++) {
+        final count = surahInfoFor(surah)?.ayahCount;
+        if (count != null) _extendRecitedRange(surah, 1, count);
+      }
+      _extendRecitedRange(
+          last.surah, _firstAyahInDocument(last.surah), lastAyah);
+    }
     // Reading on past the end marker's gate - scrolling counts as reading.
     _maybeMarkQuranEndReached();
   }
@@ -2456,10 +2484,17 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
             onPressed: () => Navigator.of(dialogContext).pop(),
             child: Text(context.l10n.commonCancel),
           ),
-          FilledButton(
-            onPressed: () =>
-                Navigator.of(dialogContext).pop(noteController.text.trim()),
-            child: Text(context.l10n.commonSubmit),
+          // With nothing selected and no note there is nothing for an admin
+          // to act on, so Submit waits for one or the other.
+          ValueListenableBuilder<TextEditingValue>(
+            valueListenable: noteController,
+            builder: (_, value, __) => FilledButton(
+              onPressed: selection.isEmpty && value.text.trim().isEmpty
+                  ? null
+                  : () => Navigator.of(dialogContext)
+                      .pop(noteController.text.trim()),
+              child: Text(context.l10n.commonSubmit),
+            ),
           ),
         ],
       ),

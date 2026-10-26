@@ -1208,7 +1208,7 @@
     "slug": "dua-of-imam-husayn-a-on-the-day-of-ashura"
   },
   "E102": {
-    "title": "Dua of a Mother for Her Ailing Child",
+    "title": "Duas & Aamal for Healing the Sick",
     "slug": "dua-of-mother-for-her-child-who-is-ailing"
   },
   "E103": {
@@ -2442,6 +2442,7 @@
   "H17": {
     "title": "The Whispered Prayer (Munajat) of Amir al-Mu'minin (a.s.)",
     "slug": "the-whispered-prayer-munajaat-of-ameerul-momeneen-a",
+    "day": "07-*",
     "slugAliases": [
       "the-whispered-prayer-munajaat-of-ameerul-momeneen-a-2"
     ]

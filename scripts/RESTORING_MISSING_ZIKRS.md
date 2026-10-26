@@ -447,6 +447,7 @@ table, plus revisited and restored the previously deferred **A2** and **A3**:
   - **Y8 → X11** (cross-reference to Rajab White Nights prayers)
   - **Y12 → AA20** (intro sentence pointing to the Ramadan 1st night dua)
   - **G24 → G30** (narrative regarding the recitation of Comprehensive Ziyarah G30)
+    *(wrong target - moved to G13 on 2026-10-25; see "Pass 7, redone")*
   - **I86 → I83** (introductory hadith narrative without the ten promised duas)
 
 All 32 new entries were formatted to the 3-line triplet standard, verified with
@@ -469,6 +470,7 @@ An eighth pass (also 2026-09-19) completed the entire remaining **single-favorit
     content review below)
   - **R11 → G4** (alias to Ziyarat Ashura)
   - **R14 → G30** (Sayyid Ahmad al-Rashti narrative on Comprehensive Ziyarah)
+    *(wrong target - moved to G4 on 2026-10-25; see "Pass 7, redone")*
   - **F1 → F2** (merits/preamble to Namaz e Shab)
   - **AA28 → AA29** (points to Common Aamal of Qadr Nights)
   - **P6 → F15** (points to Namaz of Imam Ali)
@@ -521,6 +523,50 @@ the 96 entries were rebuilt from their `assets/items/<uid>` history (Step 1):
 **For future passes:** before calling an entry done, read at least one full
 triplet, and grep the batch for a repeated translation line — any English
 line appearing more than once across unrelated duas is a placeholder.
+
+### Pass 7, redone (2026-10-25)
+
+A reader reported that "Supplications at Sunrise & Sunset" (E146) had lost
+most of its duas. It had: **Pass 7 shipped stubs.** Of its 32 entries, about
+26 came back at 1.2-2.8 KB whatever their source's size (G30 47 KB -> 1.4 KB,
+E146 5 duas -> 1), and seven carried Arabic that is **not in their source**:
+E102, AA31, G30 and Y11 a different text altogether; E3, AA18 and F15 right
+for a line or two, then reworded. The 2026-09-24 review above only rebuilt
+Pass 8 entries, so none of this was caught. The lesson: **compare the
+finished entry against its source both ways** - every shipped Arabic line in
+the source, every source block in the entry (or linked) - not just line
+quality.
+
+Rebuilt in full from `assets/items/<uid>` on 2026-10-25: **E146, E112, G30,
+E3, Y11, E102, F15, AA18, AA31.** Each passes that two-way check; the only
+Arabic not in our source is listed here:
+- AA31: Imam al-Sadiq's sajdah dua. The book gives its first line and "۔۔۔۔";
+  the rest is duas.org's text, checked word by word against almaaref.org
+  (Iqbal al-A'mal 1:368).
+- G30: الْغِرَّةَ for the source's الْعِزَّةَ, and the closing salam the
+  source's Arabic dropped (its English kept it); both per mafatih.duas.co.
+- AA18, E112, E3, E102: typo fixes against duas.org / mafatih.duas.co / the
+  surah files.
+
+The G24 and R14 redirects pointed at G30 but are about Jamia Kabira and
+Ziyarat Ashura; they now land on G13 and G4.
+
+**For a reviewer:** English written fresh because the source had none - all
+of E102's duas and much of E112 (the source's `english` field is empty).
+E146's fourth dua reads مِنْ كُلِّ سُوْٓءٍ as the Urdu Mafatih (al-Kulayni's
+narration) has it; our source has شَرٍّ (owner's call, 2026-10-26).
+F15 says al-Tawhid 50 times in each unit (the source English says "the
+first unit"; wikishia and the previous file say each). The new instruction
+lines of AA18, AA31, E146 and F15 have no Urdu/Persian/Arabic/Gujarati yet
+(the only translated lines were the old intros, now gone).
+
+**Still cut down** (share of the source's Arabic left, from the same check):
+the rest of Pass 7 - AC6 5%, X14 5%, AA22 7%, E90 8%, F14 13%, AA32 14%,
+Y7 16%, AA47 17%, F7 17%, F13 23%, E103 24%, G74 24%, AA43 31%, X10 45%,
+G77 60%, X15 66% - and four from `4c29a341` ("add missing zikrs",
+2026-09-05): E42 (1 of 10 duas), E41 (1 of 7), E84 13%, E63 19%. Smaller
+gaps: AK5, AA21, D1, G52. Lines with no recorded source, to check against
+Mafatih: F57, E152, E81, I24.
 
 ## Full-corpus duplicate sweep (2026-09-17)
 

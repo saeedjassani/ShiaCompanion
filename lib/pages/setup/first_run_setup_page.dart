@@ -1462,59 +1462,14 @@ class _ThemeStepState extends State<_ThemeStep> {
           runSpacing: 10,
           children: [
             for (final choice in AppPalette.values)
-              _PaletteDot(
+              PaletteDot(
                 palette: choice,
                 selected: choice == palette,
-                onTap: () => choosePalette(context, choice),
+                onTap: () => choosePalette(context, choice, source: 'setup'),
               ),
           ],
         ),
       ],
-    );
-  }
-}
-
-/// One of the theme step's colors: its swatch, ringed in the accent while
-/// it is the one chosen.
-class _PaletteDot extends StatelessWidget {
-  const _PaletteDot({
-    required this.palette,
-    required this.selected,
-    required this.onTap,
-  });
-
-  final AppPalette palette;
-  final bool selected;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = ShiaColors.of(context);
-    return Semantics(
-      button: true,
-      selected: selected,
-      label: palette.label(context.l10n),
-      child: Tooltip(
-        message: palette.label(context.l10n),
-        excludeFromSemantics: true,
-        child: InkWell(
-          onTap: onTap,
-          customBorder: const CircleBorder(),
-          child: Container(
-            width: 48,
-            height: 48,
-            padding: const EdgeInsets.all(4),
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              border: Border.all(
-                color: selected ? colors.accent : Colors.transparent,
-                width: 2.4,
-              ),
-            ),
-            child: PaletteSwatch(palette),
-          ),
-        ),
-      ),
     );
   }
 }
