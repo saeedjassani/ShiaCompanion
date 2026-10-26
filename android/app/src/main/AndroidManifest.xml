@@ -163,6 +163,17 @@
         <receiver
             android:name="dev.fluttercommunity.plus.androidalarmmanager.AlarmBroadcastReceiver"
             android:exported="false"/>
+        <!-- An update can strand a placed widget on the launcher's
+             "Problem loading widget" placeholder (its last views can point
+             at layouts the new build removed); re-render them all from the
+             new code as soon as the update lands. See WidgetRefresh.kt. -->
+        <receiver
+            android:name="com.developer110.shiacompanion.widgets.PackageReplacedWidgetRefreshReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+            </intent-filter>
+        </receiver>
         <receiver
             android:name="com.developer110.shiacompanion.widgets.FavoritesWidgetReceiver"
             android:label="@string/widget_favorites_name"
