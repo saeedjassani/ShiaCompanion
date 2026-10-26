@@ -63,6 +63,7 @@ where a deck has no Urdu, or repeats the next slide's Urdu:
 | Y4 | Munajat Shabaniyah | https://mafatih.duas.co/shaban-munajat |
 | E8 | Dua Alqama | https://mafatih.duas.co/dua-alqama |
 | E10 | Dua Asharat | https://mafatih.duas.co/dua-asharat |
+| H17 | Munajat Amir al-Mu'minin (Masjid Kufa) | https://mafatih.duas.co/munajat-kufa |
 
 The Urdu Mafatih al-Jinan of Sheikh Abbas Qummi, translated by Allama Riaz
 Husain Najafi, Allama Syed Niaz Husain Naqvi and Maulana Muhammad Ali Fazil
@@ -116,6 +117,15 @@ the source:
 - **All four:** dropped و's were restored, and ؑ/ؐ written (ع)/(ص), and (س) for Lady Fatimah, as
   in the other files.
 
+- **H17 Munajat Amir al-Mu'minin (Masjid Kufa):**
+  - Aligned to our segments through the Arabic; 69/69 segments.
+  - The book prints the verses of Surah Abasa (80:34-37) and Surah
+    Ma'arij (70:11-13) in six short lines where our text has four
+    segments, so its lines 15 and 18 are each split across two of our
+    segments (13/14 and 15/16) at the Arabic clause boundary; every word
+    is the book's own.
+  - Our Arabic spells اَسْئَلُكَ with ئ where the book prints اَسْاَلُكَ
+    with أ — the same text, a hamza seat only.
 - **G1 Ziyarat Aal-e-Yasin:**
   - 0: `سَلَامٌ عَلٰى آلِ يٰسٓ` translated directly as "سلام ہو آلِ یٰس (ع) پر" (source used "اولاد پیغمبرؐ").
   - 9-10: Slide 6 spans both segments (`اَلسَّلَامُ عَلَیْكَ یَا تَالِیَ كِتَابِ ﷲِ` / `وَتَرْجُمَانَہٗ`), divided cleanly.
