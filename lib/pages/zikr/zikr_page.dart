@@ -2456,10 +2456,17 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
             onPressed: () => Navigator.of(dialogContext).pop(),
             child: Text(context.l10n.commonCancel),
           ),
-          FilledButton(
-            onPressed: () =>
-                Navigator.of(dialogContext).pop(noteController.text.trim()),
-            child: Text(context.l10n.commonSubmit),
+          // With nothing selected and no note there is nothing for an admin
+          // to act on, so Submit waits for one or the other.
+          ValueListenableBuilder<TextEditingValue>(
+            valueListenable: noteController,
+            builder: (_, value, __) => FilledButton(
+              onPressed: selection.isEmpty && value.text.trim().isEmpty
+                  ? null
+                  : () => Navigator.of(dialogContext)
+                      .pop(noteController.text.trim()),
+              child: Text(context.l10n.commonSubmit),
+            ),
           ),
         ],
       ),
