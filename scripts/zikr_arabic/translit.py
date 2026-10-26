@@ -210,8 +210,8 @@ def phonemes(cl):
 GLUED = {'هم', 'هما', 'هن', 'كم', 'كما', 'كن', 'نا', 'ما', 'من', 'ذلك', 'ذا', 'هذا', 'هذه', 'ها', 'هو', 'هي',
          'ي', 'ك', 'ه', 'اي', 'ني'}
 # words whose بِ / لِ is a root letter, not the preposition (by the letters after it)
-ROOT_START = {'ب': ('لاد', 'حار', 'ساط', 'طان', 'ضاع', 'دع', 'كر', 'شر', 'ئس', 'نت', 'رك', 'لى'),
-              'ل': ('سان', 'باس', 'قاء', 'قا', 'واء', 'حي', 'ين')}
+ROOT_START = {'ب': ('لاد', 'حار', 'ساط', 'طان', 'ضاع', 'ئس', 'لى'),
+              'ل': ('سان', 'باس', 'قاء', 'قا', 'واء', 'ين')}
 
 
 class Word:
@@ -332,7 +332,7 @@ def head(s):
     return m.group(1) if m else ''
 
 
-def pausal(s):
+def _pausal(s):
     if s.endswith(TM + 'AN') or re.search(TM + '(IN|UN|A|I|U)$', s):
         return re.sub(TM + '(AN|IN|UN|A|I|U)$', 'H', s)
     if s.endswith(TM):
@@ -344,8 +344,13 @@ def pausal(s):
     if re.search(r'H[ui]$', s):
         return s[:-1]
     if re.search(r'[AIU]$', s) and not re.search(r'(AA|EE|OO)$', s):
-        s = s[:-1]
-    if re.search(r'([^AIUWY`\'])\1$', s):
+        return s[:-1]
+    return s
+
+
+def pausal(s):
+    s = _pausal(s)
+    if re.search(r'([^AEIOUWY`\'])\1$', s):
         s = s[:-1]                      # a doubled letter is single at a pause: TOHIB, HAQ
     return s
 
@@ -554,8 +559,8 @@ def render(internal):
                     v = nx.upper()
                 out.append(('-' if tok and not tok.endswith('-') else '') + v[0] + '’' + v[1:])
                 u[k + 1] = ''                  # vowel written
-            elif re.fullmatch(r'-?[AEIOU]', tok):
-                out.append('-' + tok[-1] + '’')   # أَعْ: A-A’TENEE
+            elif re.search(r'(^|-)[AEIOU]$', tok):
+                out.append('-' + tok[-1] + '’')   # أَعْ: A-A’TENEE, FA-A-A’TENEE
             else:
                 out.append('’')
         elif x == '':
