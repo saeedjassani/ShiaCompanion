@@ -1967,6 +1967,10 @@
   "@whatsNew139PrayerWidget": {
     "description": "Release note on the What's new page, Android only: the home screen widget."
   },
+  "whatsNew139WidgetFix": "Home screen widgets that showed 'Problem loading widget' now load as they should.",
+  "@whatsNew139WidgetFix": {
+    "description": "Release note on the What's new page, Android only: widget load fix."
+  },
   "pickerChooseZikr": "Choose a zikr",
   "pickerSearchZikrHint": "Search zikr, dua, ziyarat...",
   "todaysNone": "No recitations configured.",

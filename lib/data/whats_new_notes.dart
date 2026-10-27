@@ -69,6 +69,7 @@ final List<WhatsNewEntry> whatsNewNotes = <WhatsNewEntry>[
     ],
     androidBullets: [
       (l10n) => l10n.whatsNew139PrayerWidget,
+      (l10n) => l10n.whatsNew139WidgetFix,
     ],
   ),
 ];
