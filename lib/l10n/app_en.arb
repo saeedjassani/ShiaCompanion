@@ -1939,32 +1939,32 @@
   "@homeColorCardBody": {
     "description": "Under homeColorCardTitle, above the eight color swatches."
   },
-  "whatsNew138Colors": "Choose one of eight colors for the app in Settings. Your home screen widgets follow it too.",
-  "@whatsNew138Colors": {
+  "whatsNew139Colors": "Choose one of eight colors for the app in Settings. Your home screen widgets follow it too.",
+  "@whatsNew139Colors": {
     "description": "Release note on the What's new page."
   },
-  "whatsNew138Sections": "Long duas such as Jawshan Kabir have a Sections menu at the top, to jump straight to any part.",
-  "@whatsNew138Sections": {
+  "whatsNew139Sections": "Long duas such as Jawshan Kabir have a Sections menu at the top, to jump straight to any part.",
+  "@whatsNew139Sections": {
     "description": "Release note on the What's new page. 'Sections' is the reader's menu (zikrSections); use the same word."
   },
-  "whatsNew138Playlists": "Drag the recitations in a playlist to put them in the order you like.",
-  "@whatsNew138Playlists": {
+  "whatsNew139Playlists": "Drag the recitations in a playlist to put them in the order you like.",
+  "@whatsNew139Playlists": {
     "description": "Release note on the What's new page."
   },
-  "whatsNew138SoundPreview": "Hear a prayer's notification sound in the app before you choose it.",
-  "@whatsNew138SoundPreview": {
+  "whatsNew139SoundPreview": "Hear a prayer's notification sound in the app before you choose it.",
+  "@whatsNew139SoundPreview": {
     "description": "Release note on the What's new page."
   },
-  "whatsNew138Library": "Kamil al-Ziyarat is now in the Library.",
-  "@whatsNew138Library": {
+  "whatsNew139Library": "Kamil al-Ziyarat is now in the Library.",
+  "@whatsNew139Library": {
     "description": "Release note on the What's new page. Kamil al-Ziyarat is Ibn Qulawayh's book."
   },
-  "whatsNew138Content": "Recitations for more duas and ziyarats, and more of them translated into Urdu, Persian and Gujarati.",
-  "@whatsNew138Content": {
+  "whatsNew139Content": "Recitations for more duas and ziyarats, and more of them translated into Urdu, Persian and Gujarati.",
+  "@whatsNew139Content": {
     "description": "Release note on the What's new page."
   },
-  "whatsNew138PrayerWidget": "The Prayer Times widget now shows the Hijri date, your location and today's event.",
-  "@whatsNew138PrayerWidget": {
+  "whatsNew139PrayerWidget": "The Prayer Times widget now shows the Hijri date, your location and today's event.",
+  "@whatsNew139PrayerWidget": {
     "description": "Release note on the What's new page, Android only: the home screen widget."
   },
   "pickerChooseZikr": "Choose a zikr",
