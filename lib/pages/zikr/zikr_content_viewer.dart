@@ -3375,8 +3375,6 @@ class _AyahBlock extends StatelessWidget {
               ),
             ),
           ...children,
-          if (sajdahVerse != null)
-            SajdahInstructionCard(sajdahVerse: sajdahVerse!),
           Divider(
             height: 20,
             color: ShiaColors.of(context).readerDivider,
@@ -3672,7 +3670,7 @@ class _SajdahBadge extends StatelessWidget {
 }
 
 /// The prostration instruction, Fiqh-e-Jafria ruling and Shia supplication box
-/// rendered directly beneath a Sajdah verse.
+/// rendered in the per-ayah sheet when tapping a Sajdah verse.
 class SajdahInstructionCard extends StatelessWidget {
   const SajdahInstructionCard({
     super.key,
