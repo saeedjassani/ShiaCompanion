@@ -227,6 +227,9 @@
         <receiver
             android:name="com.developer110.shiacompanion.widgets.CalendarWidgetRefreshReceiver"
             android:exported="false" />
+        <receiver
+            android:name="com.developer110.shiacompanion.widgets.WidgetRedrawReceiver"
+            android:exported="false" />
         <!-- The Wear OS app (android/wear) asking for prayer times, or
              appearing on a paired watch. Inert until that app is published:
              only the Shia Companion watch app can send either event. -->
