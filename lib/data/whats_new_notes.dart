@@ -57,18 +57,18 @@ class WhatsNewEntry {
 /// release should need to touch.
 final List<WhatsNewEntry> whatsNewNotes = <WhatsNewEntry>[
   WhatsNewEntry(
-    buildNumber: 138,
-    versionName: '4.0.3',
+    buildNumber: 139,
+    versionName: '4.1.0',
     bullets: [
-      (l10n) => l10n.whatsNew138Colors,
-      (l10n) => l10n.whatsNew138Sections,
-      (l10n) => l10n.whatsNew138Playlists,
-      (l10n) => l10n.whatsNew138SoundPreview,
-      (l10n) => l10n.whatsNew138Library,
-      (l10n) => l10n.whatsNew138Content,
+      (l10n) => l10n.whatsNew139Colors,
+      (l10n) => l10n.whatsNew139Sections,
+      (l10n) => l10n.whatsNew139Playlists,
+      (l10n) => l10n.whatsNew139SoundPreview,
+      (l10n) => l10n.whatsNew139Library,
+      (l10n) => l10n.whatsNew139Content,
     ],
     androidBullets: [
-      (l10n) => l10n.whatsNew138PrayerWidget,
+      (l10n) => l10n.whatsNew139PrayerWidget,
     ],
   ),
 ];
