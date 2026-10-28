@@ -302,6 +302,31 @@ void main() {
       });
     }
 
+    // The bug these guard: the list kept its pixel offset, or its item
+    // index, while the text under it changed height - or, out of paragraph
+    // mode, changed from one paragraph per passage to one item per verse -
+    // so the reader was thrown dozens of verses away.
+    for (final turnOn in [true, false]) {
+      testWidgets(
+          'stays on its verse when translation is turned '
+          '${turnOn ? 'on' : 'off'}', (tester) async {
+        showTranslation = !turnOn;
+        final positions = <ZikrContentScrollPosition>[];
+        Future<void> open() => _pump(
+              tester,
+              content: _surahContent(ayahs: 80, rukuAfter: {40}),
+              initialVerse: const VerseKey(1, 60),
+              onScrollPosition: positions.add,
+            );
+        await open();
+        expect(positions.last.lineIndex, 3 * 60 - 2);
+
+        showTranslation = turnOn;
+        await open();
+        expect(positions.last.lineIndex, 3 * 60 - 2);
+      });
+    }
+
     testWidgets('opens at a requested verse inside the surah', (tester) async {
       await _pump(
         tester,

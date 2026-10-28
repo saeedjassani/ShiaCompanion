@@ -682,6 +682,10 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget>
 
   bool _didScrollToInitialVerse = false;
 
+  /// The reading settings the open part was last laid out with - see
+  /// [_keepPlaceAcrossLayoutChange].
+  Object? _layoutSettings;
+
   /// The tab being scrolled to where it opens - a linked verse or a
   /// bookmarked line - kept invisible until it lands. See [_hideWhileLanding].
   int? _landingTabIndex;
@@ -876,6 +880,44 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget>
       controller.jumpTo(controller.position.minScrollExtent);
     }
     await _scrollToLine(tabIndex, lineIndex);
+  }
+
+  /// Keeps the verse at the top of the view there when a reading setting
+  /// changes the height of the text - translation or transliteration turned
+  /// on or off, the Arabic flowed as a paragraph, a font or its size.
+  ///
+  /// The list otherwise holds its scroll offset in pixels, and with every
+  /// verse above growing or shrinking, the same offset lands dozens of verses
+  /// away. Runs at the top of build, while the list is still laid out the old
+  /// way, so the line read off it is the one the reader was on.
+  void _keepPlaceAcrossLayoutChange() {
+    final settings = (
+      translationShown,
+      transliterationShown,
+      showArabicAsParagraph,
+      arabicFont,
+      arabicFontSize,
+      englishFontSize,
+      ZikrTranslations.instance.language.code,
+    );
+    final previous = _layoutSettings;
+    _layoutSettings = settings;
+    if (previous == null || previous == settings) return;
+
+    final tabIndex = _selectedTabIndex;
+    if (tabIndex >= _tabScrollControllers.length) return;
+    final controller = _tabScrollControllers[tabIndex];
+    // Still at the top, the top is where it stays.
+    if (!controller.hasClients ||
+        controller.position.pixels <=
+            controller.position.minScrollExtent + _scrollToVerseMargin) {
+      return;
+    }
+    final line = _topLineIndex(tabIndex, controller);
+    if (line == null) return;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) unawaited(_scrollToLine(tabIndex, line));
+    });
   }
 
   /// Tells [ZikrContentViewerWidget.sections] the headings of the part on
@@ -3076,6 +3118,7 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget>
   Widget build(BuildContext context) {
     final showTabHeaders = _showTabHeaders;
     _syncTabState(widget.tabContents.length);
+    _keepPlaceAcrossLayoutChange();
 
     final pages = PageView.builder(
       controller: _pageController,
