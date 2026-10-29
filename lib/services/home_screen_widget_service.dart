@@ -9,6 +9,7 @@ import 'package:shia_companion/constants.dart';
 import 'package:shia_companion/data/uid_title_data.dart';
 import 'package:shia_companion/data/universal_data.dart';
 import 'package:shia_companion/services/analytics_service.dart';
+import 'package:shia_companion/services/zikr_audio_index.dart';
 import 'package:shia_companion/theme/app_palette.dart';
 import 'package:shia_companion/utils/calendar_events.dart';
 import 'package:shia_companion/utils/deep_links.dart';
@@ -40,6 +41,10 @@ class HomeScreenWidgetService {
     listWidgetItemCount,
     (index) => 'sc_favorites_url_${index + 1}',
   );
+  static final List<String> favoritePlayUrlKeys = List.generate(
+    listWidgetItemCount,
+    (index) => 'sc_favorites_play_${index + 1}',
+  );
   static const String favoriteItem1Key = 'sc_favorites_item_1';
   static const String favoriteItem2Key = 'sc_favorites_item_2';
   static const String favoriteItem3Key = 'sc_favorites_item_3';
@@ -57,6 +62,10 @@ class HomeScreenWidgetService {
     listWidgetItemCount,
     (index) => 'sc_recitation_url_${index + 1}',
   );
+  static final List<String> recitationPlayUrlKeys = List.generate(
+    listWidgetItemCount,
+    (index) => 'sc_recitation_play_${index + 1}',
+  );
   static const String recitationItem1Key = 'sc_recitation_item_1';
   static const String recitationItem2Key = 'sc_recitation_item_2';
   static const String recitationItem3Key = 'sc_recitation_item_3';
@@ -64,6 +73,9 @@ class HomeScreenWidgetService {
   static const String recitationUrl2Key = 'sc_recitation_url_2';
   static const String recitationUrl3Key = 'sc_recitation_url_3';
   static const String recitationScheduleKey = 'sc_recitation_schedule';
+
+  /// What a screen reader says for a list widget's play button.
+  static const String playLabelKey = 'sc_widget_play_label';
 
   static const String prayerTitleKey = 'sc_prayer_title';
   static const String prayerNameKey = 'sc_prayer_name';
@@ -125,6 +137,7 @@ class HomeScreenWidgetService {
     if (!_isSupported) return;
 
     await _loadCalendarEvents();
+    await ZikrAudioIndex.instance.load();
     await _saveAndRefresh(buildWidgetSnapshot());
   }
 
@@ -147,12 +160,14 @@ class HomeScreenWidgetService {
   Future<void> publishFavorites() async {
     if (!_isSupported) return;
 
+    await ZikrAudioIndex.instance.load();
     await _saveAndRefresh(buildFavoritesSnapshot());
   }
 
   Future<void> publishTodaysRecitations() async {
     if (!_isSupported) return;
 
+    await ZikrAudioIndex.instance.load();
     await _saveAndRefresh(buildTodaysRecitationsSnapshot());
   }
 
@@ -281,6 +296,7 @@ class HomeScreenWidgetService {
     final snapshot = <String, String>{
       favoritesTitleKey: L10n.current.widgetFavorites,
       favoritesSubtitleKey: '',
+      playLabelKey: L10n.current.audioPlayRecitation,
     };
 
     for (var index = 0; index < favoriteItemKeys.length; index++) {
@@ -288,6 +304,12 @@ class HomeScreenWidgetService {
       snapshot[favoriteItemKeys[index]] = _widgetTitleForUniversalData(item) ??
           (index == 0 ? L10n.current.widgetNoFavorites : '');
       snapshot[favoriteUrlKeys[index]] = _widgetUrlForUniversalData(item);
+      snapshot[favoritePlayUrlKeys[index]] = item?.type == zikrDeepLinkType
+          ? _widgetPlayUrl(
+              item!.canonicalUid,
+              ZikrOpenSource.homeWidgetFavorites,
+            )
+          : '';
     }
 
     return snapshot;
@@ -299,6 +321,7 @@ class HomeScreenWidgetService {
     final snapshot = <String, String>{
       recitationTitleKey: L10n.current.widgetTodaysRecitations,
       recitationSubtitleKey: '',
+      playLabelKey: L10n.current.audioPlayRecitation,
       recitationScheduleKey: jsonEncode(_buildRecitationSchedule(today)),
     };
 
@@ -307,6 +330,8 @@ class HomeScreenWidgetService {
       snapshot[recitationItemKeys[index]] = _widgetTitleForRecitation(item) ??
           (index == 0 ? L10n.current.widgetOpenAppToRefresh : '');
       snapshot[recitationUrlKeys[index]] = _widgetUrlForRecitation(item);
+      snapshot[recitationPlayUrlKeys[index]] =
+          _widgetPlayUrlForRecitation(item);
     }
 
     return snapshot;
@@ -325,6 +350,7 @@ class HomeScreenWidgetService {
             .map((item) => {
                   'title': _widgetTitleForRecitation(item) ?? '',
                   'url': _widgetUrlForRecitation(item),
+                  'play': _widgetPlayUrlForRecitation(item),
                 })
             .where((item) => (item['title'] ?? '').isNotEmpty)
             .toList(),
@@ -635,6 +661,25 @@ class HomeScreenWidgetService {
     return _withWidgetSource(
       buildZikrDeepLinkUrl(uid: uid, slug: itemSlugs[uid]),
       ZikrOpenSource.homeWidgetRecitation,
+    );
+  }
+
+  String _widgetPlayUrlForRecitation(UidTitleData? item) {
+    if (item == null || item.getUId().contains('~')) return '';
+    return _widgetPlayUrl(
+      item.getFirstUId(),
+      ZikrOpenSource.homeWidgetRecitation,
+    );
+  }
+
+  /// The link a list widget's play button opens - the zikr, starting its
+  /// recitation (see [playDeepLinkType]) - or '' for a zikr with no
+  /// recording, whose row then has no button.
+  String _widgetPlayUrl(String uid, String source) {
+    if (ZikrAudioIndex.instance.tracksFor(uid).isEmpty) return '';
+    return _withWidgetSource(
+      buildPlayDeepLinkUrl(uid: uid, slug: itemSlugs[uid]),
+      source,
     );
   }
 
