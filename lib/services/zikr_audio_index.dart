@@ -8,8 +8,8 @@ import '../models/zikr_audio_track.dart';
 /// Every zikr's recordings, from assets/zikr_audio.json - the one place audio
 /// is listed. Content files hold only text.
 ///
-/// Loaded on first use (a zikr page or the playlists screen), never at
-/// startup, and kept for the life of the process. Even with a recording for
+/// Loaded on first use (a zikr page, the playlists screen, or the home-screen
+/// widgets, which show a play button only on zikrs with a recording), and kept for the life of the process. Even with a recording for
 /// every surah and zikr the file is a couple of hundred KB and decodes in
 /// milliseconds.
 class ZikrAudioIndex {
