@@ -16,6 +16,7 @@ public final class SmartActionsBridge: NSObject {
     private var channel: FlutterMethodChannel?
     private var isDartReady = false
     private var readyWaiters: [UUID: CheckedContinuation<Bool, Never>] = [:]
+    private var pendingCall: (method: String, arguments: [String: Any], at: Date)?
 
     @objc(configureWithMessenger:)
     public static func configure(messenger: FlutterBinaryMessenger) {
@@ -44,6 +45,7 @@ public final class SmartActionsBridge: NSObject {
             readyWaiters.removeAll()
             waiters.values.forEach { $0.resume(returning: true) }
             result(nil)
+            runPendingCall()
         case "updateCatalog":
             SmartActionsCatalog.save(
                 playlists: arguments["playlists"] as? String,
@@ -80,6 +82,23 @@ public final class SmartActionsBridge: NSObject {
             DispatchQueue.main.asyncAfter(deadline: .now() + seconds) { [weak self] in
                 self?.readyWaiters.removeValue(forKey: id)?.resume(returning: false)
             }
+        }
+    }
+
+    /// Has Dart carry out `method` as soon as it says it is ready: what a play
+    /// intent leaves behind when the app has to open first. Only the latest
+    /// is kept, and only for a minute - a play the reader asked for long ago
+    /// should not start by surprise.
+    func runWhenReady(_ method: String, _ arguments: [String: Any]) {
+        pendingCall = (method, arguments, Date())
+    }
+
+    private func runPendingCall() {
+        guard let call = pendingCall else { return }
+        pendingCall = nil
+        guard Date().timeIntervalSince(call.at) < 60 else { return }
+        if #available(iOS 17.0, *) {
+            Task { @MainActor in try? await self.run(call.method, call.arguments) }
         }
     }
 

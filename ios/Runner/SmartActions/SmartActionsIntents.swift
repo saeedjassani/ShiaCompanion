@@ -61,7 +61,7 @@ struct PlayRecitationIntent: AudioPlaybackIntent, ForegroundContinuableIntent {
 
 /// Starts playback through Dart. When Dart isn't running - iOS launched the
 /// app in the background just for this, and Flutter only starts with the
-/// app's window - the app opens and playback starts once Dart is up.
+/// app's window - the app opens, and the bridge plays once Dart is up.
 @available(iOS 17.0, *)
 @MainActor
 private func startPlayback<Intent: ForegroundContinuableIntent>(
@@ -74,13 +74,11 @@ private func startPlayback<Intent: ForegroundContinuableIntent>(
         try await bridge.run(method, arguments)
         return
     }
+    bridge.runWhenReady(method, arguments)
     throw intent.needsToContinueInForegroundError(
         "Shia Companion needs to open to start playing.",
         alwaysConfirm: false
-    ) {
-        guard await bridge.waitUntilReady(timeout: 20) else { return }
-        try? await bridge.run(method, arguments)
-    }
+    )
 }
 
 @available(iOS 17.0, *)
