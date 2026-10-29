@@ -34,6 +34,11 @@
 		B91D4DB57CBE1E93D905366C /* PrayerDataStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = A798C59F54A09C6B1B342036 /* PrayerDataStore.swift */; };
 		F3E38B7EFCE659EF42B85BE1 /* ShiaCompanionWidgets.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = EBE703D67FF6B51A56C822DE /* ShiaCompanionWidgets.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		FE0ED4277430F6C4CED71A8E /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 65C7A955437D95BF9AFF00F5 /* WidgetKit.framework */; };
+		965E9ABE3AA6F75C43CDF4C9 /* SmartActionsBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74871C4579C86E957CB4CB1B /* SmartActionsBridge.swift */; };
+		EF777AB625C663A36BF8535F /* SmartActionsCatalog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 135BEFF0D4D68023C783B5D6 /* SmartActionsCatalog.swift */; };
+		27D4E531184ABAC6A85AFDCE /* SmartActionsEntities.swift in Sources */ = {isa = PBXBuildFile; fileRef = D6FE9EA1E8583BD235DAF1A2 /* SmartActionsEntities.swift */; };
+		9599E1BF46106BF57DDF35DD /* SmartActionsIntents.swift in Sources */ = {isa = PBXBuildFile; fileRef = D1A8F09F0582445F48DDE5C3 /* SmartActionsIntents.swift */; };
+		866A3E27BD075766113A62C1 /* ShiaCompanionShortcuts.swift in Sources */ = {isa = PBXBuildFile; fileRef = 049FBE291357EC64E43E6536 /* ShiaCompanionShortcuts.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -151,6 +156,11 @@
 		CBAF09A77DAE20CED36768B6 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/WatchOS.platform/Developer/SDKs/WatchOS26.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
 		EBE703D67FF6B51A56C822DE /* ShiaCompanionWidgets.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = ShiaCompanionWidgets.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		EBF36F8DEAAA8A5CFA3CED5E /* Pods_Runner.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Runner.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		74871C4579C86E957CB4CB1B /* SmartActionsBridge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SmartActionsBridge.swift; sourceTree = "<group>"; };
+		135BEFF0D4D68023C783B5D6 /* SmartActionsCatalog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SmartActionsCatalog.swift; sourceTree = "<group>"; };
+		D6FE9EA1E8583BD235DAF1A2 /* SmartActionsEntities.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SmartActionsEntities.swift; sourceTree = "<group>"; };
+		D1A8F09F0582445F48DDE5C3 /* SmartActionsIntents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SmartActionsIntents.swift; sourceTree = "<group>"; };
+		049FBE291357EC64E43E6536 /* ShiaCompanionShortcuts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShiaCompanionShortcuts.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -268,6 +278,7 @@
 				9052139A252E516B00BAF811 /* GoogleService-Info.plist */,
 				7AFFD8ED1D35381100E5BB4D /* AppDelegate.h */,
 				7AFFD8EE1D35381100E5BB4D /* AppDelegate.m */,
+				BB48CC435D95DBDB061B5A66 /* SmartActions */,
 				97C146FA1CF9000F007C117D /* Main.storyboard */,
 				97C146FD1CF9000F007C117D /* Assets.xcassets */,
 				97C146FF1CF9000F007C117D /* LaunchScreen.storyboard */,
@@ -325,6 +336,18 @@
 				65C7A955437D95BF9AFF00F5 /* WidgetKit.framework */,
 			);
 			name = watchOS;
+			sourceTree = "<group>";
+		};
+		BB48CC435D95DBDB061B5A66 /* SmartActions */ = {
+			isa = PBXGroup;
+			children = (
+				74871C4579C86E957CB4CB1B /* SmartActionsBridge.swift */,
+				135BEFF0D4D68023C783B5D6 /* SmartActionsCatalog.swift */,
+				D6FE9EA1E8583BD235DAF1A2 /* SmartActionsEntities.swift */,
+				D1A8F09F0582445F48DDE5C3 /* SmartActionsIntents.swift */,
+				049FBE291357EC64E43E6536 /* ShiaCompanionShortcuts.swift */,
+			);
+			path = SmartActions;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -687,6 +710,11 @@
 			buildActionMask = 2147483647;
 			files = (
 				978B8F6F1D3862AE00F588F7 /* AppDelegate.m in Sources */,
+				965E9ABE3AA6F75C43CDF4C9 /* SmartActionsBridge.swift in Sources */,
+				EF777AB625C663A36BF8535F /* SmartActionsCatalog.swift in Sources */,
+				27D4E531184ABAC6A85AFDCE /* SmartActionsEntities.swift in Sources */,
+				9599E1BF46106BF57DDF35DD /* SmartActionsIntents.swift in Sources */,
+				866A3E27BD075766113A62C1 /* ShiaCompanionShortcuts.swift in Sources */,
 				97C146F31CF9000F007C117D /* main.m in Sources */,
 				1498D2341E8E89220040F4C2 /* GeneratedPluginRegistrant.m in Sources */,
 			);

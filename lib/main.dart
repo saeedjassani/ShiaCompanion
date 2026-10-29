@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
@@ -39,6 +41,7 @@ import 'l10n/l10n.dart';
 import 'navigation/app_shell.dart';
 import 'navigation/keyboard_shortcuts.dart';
 import 'pages/widget_preview_page.dart';
+import 'services/smart_actions_service.dart';
 import 'utils/deep_links.dart';
 import 'widgets/app_toast.dart';
 import 'widgets/audio_download_button.dart';
@@ -152,6 +155,10 @@ void main() async {
   // doesn't open in the system font and then change. The web downloads it,
   // so there the first frame doesn't wait.
   if (urduFont != null && !kIsWeb) await urduFont;
+
+  // Siri and the Shortcuts app on iOS: an intent that launched the app is
+  // waiting to hear Dart can take it.
+  unawaited(SmartActionsService.instance.start());
 
   runApp(MyApp(showFirstRunSetup: showFirstRunSetup));
 }

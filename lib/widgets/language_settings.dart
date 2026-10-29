@@ -8,6 +8,7 @@ import '../l10n/app_language.dart';
 import '../l10n/l10n.dart';
 import '../services/analytics_service.dart';
 import '../services/home_screen_widget_service.dart';
+import '../services/smart_actions_service.dart';
 import '../services/zikr_reminder_service.dart';
 import '../theme/shia_colors.dart';
 import '../utils/language_provider.dart';
@@ -70,6 +71,8 @@ Future<void> pickAppLanguage(BuildContext context,
     unawaited(setUpNotifications());
     unawaited(ZikrReminderService.instance.rescheduleAll());
   }
+  // The playlist names Siri and Shortcuts show come from the app language.
+  SmartActionsService.instance.syncCatalog();
   unawaited(AnalyticsService.feature(
     'app_language_changed',
     label: 'App language changed',

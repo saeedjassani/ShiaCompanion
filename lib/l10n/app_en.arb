@@ -3367,6 +3367,19 @@
     }
   },
   "playlistOpenPlaylist": "Open playlist",
+  "playlistCopyPlayLink": "Copy play link",
+  "@playlistCopyPlayLink": {
+    "description": "Playlist menu item: copies a shiacompanion.app/playlist link that opens and plays the playlist, for the Shortcuts app, Android routines or an NFC tag."
+  },
+  "playlistPlayLinkCopied": "Link copied. Opening it plays this playlist.",
+  "smartActionsPlaylistMissing": "That playlist is no longer on this device.",
+  "@smartActionsPlaylistMissing": {
+    "description": "Said by Siri, or shown by the Shortcuts app, when asked to play a playlist that has since been deleted."
+  },
+  "smartActionsZikrMissing": "That dua has no recording to play.",
+  "@smartActionsZikrMissing": {
+    "description": "Said by Siri, or shown by the Shortcuts app, when asked to play a dua that has no recitation."
+  },
   "playlistShowControls": "Show more controls",
   "playlistHideControls": "Show fewer controls",
   "playlistEmptyTitle": "Nothing in this playlist yet",

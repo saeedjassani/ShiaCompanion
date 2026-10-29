@@ -1,6 +1,8 @@
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/semantics.dart';
+import 'package:flutter/services.dart';
 
 import '../constants.dart';
 import '../data/uid_title_data.dart';
@@ -11,9 +13,11 @@ import '../services/zikr_translations.dart';
 import '../services/audio_download_store.dart';
 import '../services/favorites_manager.dart';
 import '../services/playlist_audio_service.dart';
+import '../services/smart_actions_service.dart';
 import '../services/zikr_audio_index.dart';
 import '../services/zikr_playlist_store.dart';
 import '../theme/shia_colors.dart';
+import '../utils/deep_links.dart';
 import '../widgets/arabic_runs.dart';
 import '../widgets/audio_download_button.dart';
 import '../widgets/choice_sheet.dart';
@@ -110,15 +114,9 @@ Future<void> _startPlaylist(
 }) async {
   final result = await PlaylistAudioService.instance
       .play(playlist, startZikrIndex: startZikrIndex);
-  final message = switch (result) {
-    PlaylistStartResult.started => null,
-    PlaylistStartResult.startedDownloadedOnly =>
-      context.l10n.playlistOfflinePartial,
-    PlaylistStartResult.nothingToPlay => context.l10n.playlistNothingToPlay,
-    PlaylistStartResult.offlineNothingDownloaded =>
-      context.l10n.playlistOfflineNothingDownloaded,
-    PlaylistStartResult.failed => context.l10n.playlistStartFailed,
-  };
+  if (result.isStarted)
+    SmartActionsService.instance.donatePlaylist(playlist.id);
+  final message = result.message;
   if (message == null) return;
   showToast(message);
 }
@@ -666,6 +664,10 @@ class _PlaylistDetailPageState extends State<PlaylistDetailPage> {
     final l10n = anchor.l10n;
     final value = await showMenuAt<String>(anchor, [
       PopupMenuItem(value: 'rename', child: Text(l10n.commonRename)),
+      // Not on the web: there a play link only opens the playlist.
+      if (!kIsWeb)
+        PopupMenuItem(
+            value: 'copy-link', child: Text(l10n.playlistCopyPlayLink)),
       if (AudioDownloadStore.instance.anyDownloaded(allTracks))
         PopupMenuItem(
             value: 'remove-downloads',
@@ -679,6 +681,10 @@ class _PlaylistDetailPageState extends State<PlaylistDetailPage> {
     switch (value) {
       case 'rename':
         await _rename(context, playlist);
+      case 'copy-link':
+        await Clipboard.setData(
+            ClipboardData(text: buildPlaylistDeepLinkUrl(playlist.id)));
+        showToast(l10n.playlistPlayLinkCopied);
       case 'delete':
         await _delete(context, playlist);
       case 'remove-downloads':

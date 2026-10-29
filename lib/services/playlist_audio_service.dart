@@ -5,6 +5,7 @@ import 'package:just_audio/just_audio.dart';
 import 'package:just_audio_background/just_audio_background.dart';
 
 import '../constants.dart' show items;
+import '../l10n/l10n.dart';
 import '../models/zikr_audio_track.dart';
 import '../models/zikr_playlist.dart';
 import '../utils/network_utils.dart';
@@ -50,6 +51,19 @@ enum PlaylistStartResult {
   failed;
 
   bool get isStarted => this == started || this == startedDownloadedOnly;
+
+  /// What to tell the reader about this start, or null when there is nothing
+  /// to say because it simply started.
+  String? get message {
+    final strings = L10n.current;
+    return switch (this) {
+      started => null,
+      startedDownloadedOnly => strings.playlistOfflinePartial,
+      nothingToPlay => strings.playlistNothingToPlay,
+      offlineNothingDownloaded => strings.playlistOfflineNothingDownloaded,
+      failed => strings.playlistStartFailed,
+    };
+  }
 }
 
 /// Plays a [ZikrPlaylist] as one continuous background audio queue - every
@@ -88,8 +102,21 @@ class PlaylistAudioService extends ChangeNotifier {
     super.notifyListeners();
   }
 
+  /// Prefix of the id [playZikr] gives the one-zikr queue it plays, which is
+  /// not one of the reader's playlists.
+  static const String singleZikrIdPrefix = 'zikr:';
+
   AudioPlayer? get player => _player;
   ZikrPlaylist? get playlist => _playlist;
+
+  /// The zikr playing on its own, by [playZikr], rather than in a playlist -
+  /// so "Open playlist" opens that zikr instead.
+  String? get singleZikrUid {
+    final id = _playlist?.id;
+    if (id == null || !id.startsWith(singleZikrIdPrefix)) return null;
+    return id.substring(singleZikrIdPrefix.length);
+  }
+
   List<PlaylistQueueEntry> get queue => _queue;
   bool get isActive => _player != null;
   bool get isStarting => _isStarting;
@@ -260,6 +287,18 @@ class PlaylistAudioService extends ChangeNotifier {
       _isStarting = false;
       notifyListeners();
     }
+  }
+
+  /// Plays zikr [uid]'s recitation on its own, through the same background
+  /// queue as a playlist: a play link, Siri or a shortcut asks for one dua,
+  /// and it should keep going on the lock screen like any playlist does.
+  Future<PlaylistStartResult> playZikr(String uid) {
+    return play(ZikrPlaylist(
+      id: '$singleZikrIdPrefix$uid',
+      name: _indexTitle(uid),
+      zikrUids: [uid],
+      updatedAt: DateTime.now().toUtc(),
+    ));
   }
 
   /// Records which zikr a playlist is actually playing, the first time each

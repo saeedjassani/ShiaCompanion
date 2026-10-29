@@ -24,9 +24,13 @@ import 'package:shia_companion/services/deep_link_resolver.dart';
 import 'package:shia_companion/services/home_screen_widget_service.dart';
 import 'package:shia_companion/services/library_service.dart';
 import 'package:shia_companion/pages/library_page.dart';
+import 'package:shia_companion/pages/playlists_page.dart';
+import 'package:shia_companion/services/playlist_audio_service.dart';
+import 'package:shia_companion/services/zikr_playlist_store.dart';
 import 'package:shia_companion/services/location_service.dart';
 import 'package:shia_companion/services/rating_prompt_service.dart';
 import 'package:shia_companion/services/session_refresh_service.dart';
+import 'package:shia_companion/services/smart_actions_service.dart';
 import 'package:shia_companion/services/synced_data.dart';
 import 'package:shia_companion/services/zikr_reminder_service.dart';
 import 'package:shia_companion/utils/deep_links.dart';
@@ -47,6 +51,7 @@ import 'package:shia_companion/pages/home/home_section.dart';
 import 'package:shia_companion/pages/home/shortcuts_section.dart';
 import 'package:shia_companion/pages/home/today_section.dart';
 import 'package:shia_companion/theme/shia_colors.dart';
+import 'package:shia_companion/widgets/app_toast.dart';
 import 'package:shia_companion/widgets/balanced_columns.dart';
 import 'package:shia_companion/widgets/glass_surface.dart';
 import 'package:shia_companion/widgets/responsive_content.dart';
@@ -127,6 +132,10 @@ class _MyHomePageState extends State<MyHomePage>
     _linkSubscription = _appLinks.uriLinkStream.listen((uri) {
       _queueDeepLink(parseDeepLinkUri(uri));
     });
+
+    // An "Open Dua" shortcut, or a dua picked from Spotlight, on iOS.
+    SmartActionsService.instance.linkHandler =
+        (uri) => _queueDeepLink(parseDeepLinkUri(uri));
   }
 
   Future<void> _setupAndroidWidgetLinks() async {
@@ -209,12 +218,17 @@ class _MyHomePageState extends State<MyHomePage>
       return;
     }
 
+    if (target.type == playlistDeepLinkType) {
+      _resolvePlaylistDeepLink(target);
+      return;
+    }
+
     if (target.segments.isEmpty) {
       _openDeepLinkNotFound(target.key);
       return;
     }
 
-    if (target.type != zikrDeepLinkType) {
+    if (target.type != zikrDeepLinkType && target.type != playDeepLinkType) {
       _openDeepLinkNotFound(target.key);
       return;
     }
@@ -224,6 +238,11 @@ class _MyHomePageState extends State<MyHomePage>
     if (resolvedItem == null) {
       _openDeepLinkNotFound(target.segments.join('/'));
       return;
+    }
+
+    if (target.type == playDeepLinkType) {
+      _startLinkedPlayback(() =>
+          PlaylistAudioService.instance.playZikr(resolvedItem.getFirstUId()));
     }
 
     final verse = zikrLinkVerse(target, resolvedItem);
@@ -241,6 +260,33 @@ class _MyHomePageState extends State<MyHomePage>
       );
       pushRootPageRoute(route) ?? pushPageRoute(context, route);
     });
+  }
+
+  /// Opens a `/playlist/<id>` link's playlist and starts it.
+  void _resolvePlaylistDeepLink(DeepLinkTarget target) {
+    final id = target.segments.isEmpty ? null : target.segments.first;
+    final playlist = id == null ? null : ZikrPlaylistStore.instance.byId(id);
+    if (playlist == null) {
+      _openDeepLinkNotFound(target.key);
+      return;
+    }
+    _startLinkedPlayback(() => PlaylistAudioService.instance.play(playlist));
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      final route = PlaylistDetailPage(playlistId: playlist.id);
+      pushRootPageRoute(route) ?? pushPageRoute(context, route);
+    });
+  }
+
+  /// Starts the recitation a play link asked for. Not on the web, where a
+  /// browser refuses to start audio nobody tapped for: there the link only
+  /// opens the page, whose Play button is one tap away.
+  void _startLinkedPlayback(Future<PlaylistStartResult> Function() start) {
+    if (kIsWeb) return;
+    unawaited(start().then((result) {
+      final message = result.message;
+      if (message != null) showToast(message);
+    }));
   }
 
   Future<void> _resolveQuranDeepLink(DeepLinkTarget target) async {
@@ -735,6 +781,7 @@ class _MyHomePageState extends State<MyHomePage>
     WidgetsBinding.instance.removeObserver(this);
     routeObserver.unsubscribe(this);
     _linkSubscription?.cancel();
+    SmartActionsService.instance.linkHandler = null;
     _widgetLinkChannel?.setMethodCallHandler(null);
     super.dispose();
   }
