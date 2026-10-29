@@ -12,6 +12,7 @@ import '../services/zikr_translations.dart';
 import '../services/audio_download_store.dart';
 import '../services/favorites_manager.dart';
 import '../services/playlist_audio_service.dart';
+import '../services/smart_actions_service.dart';
 import '../services/zikr_audio_index.dart';
 import '../services/zikr_playlist_store.dart';
 import '../theme/shia_colors.dart';
@@ -112,6 +113,8 @@ Future<void> _startPlaylist(
 }) async {
   final result = await PlaylistAudioService.instance
       .play(playlist, startZikrIndex: startZikrIndex);
+  if (result.isStarted)
+    SmartActionsService.instance.donatePlaylist(playlist.id);
   final message = result.message;
   if (message == null) return;
   showToast(message);

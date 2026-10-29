@@ -1063,6 +1063,8 @@
   "playlistOpenPlaylist": "باز کردن فهرست پخش",
   "playlistCopyPlayLink": "کپی پیوند پخش",
   "playlistPlayLinkCopied": "پیوند کپی شد. باز کردن آن این فهرست پخش را اجرا می‌کند.",
+  "smartActionsPlaylistMissing": "این فهرست پخش دیگر در این دستگاه نیست.",
+  "smartActionsZikrMissing": "این دعا صوتی برای پخش ندارد.",
   "playlistShowControls": "نمایش کنترل‌های بیشتر",
   "playlistHideControls": "نمایش کنترل‌های کمتر",
   "playlistEmptyTitle": "این فهرست پخش هنوز خالی است",

@@ -30,6 +30,7 @@ import 'package:shia_companion/services/zikr_playlist_store.dart';
 import 'package:shia_companion/services/location_service.dart';
 import 'package:shia_companion/services/rating_prompt_service.dart';
 import 'package:shia_companion/services/session_refresh_service.dart';
+import 'package:shia_companion/services/smart_actions_service.dart';
 import 'package:shia_companion/services/synced_data.dart';
 import 'package:shia_companion/services/whats_new_service.dart';
 import 'package:shia_companion/services/zikr_reminder_service.dart';
@@ -127,6 +128,10 @@ class _MyHomePageState extends State<MyHomePage>
     _linkSubscription = _appLinks.uriLinkStream.listen((uri) {
       _queueDeepLink(parseDeepLinkUri(uri));
     });
+
+    // An "Open Dua" shortcut, or a dua picked from Spotlight, on iOS.
+    SmartActionsService.instance.linkHandler =
+        (uri) => _queueDeepLink(parseDeepLinkUri(uri));
   }
 
   Future<void> _setupAndroidWidgetLinks() async {
@@ -765,6 +770,7 @@ class _MyHomePageState extends State<MyHomePage>
     WidgetsBinding.instance.removeObserver(this);
     routeObserver.unsubscribe(this);
     _linkSubscription?.cancel();
+    SmartActionsService.instance.linkHandler = null;
     _widgetLinkChannel?.setMethodCallHandler(null);
     super.dispose();
   }

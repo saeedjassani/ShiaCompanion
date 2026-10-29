@@ -1063,6 +1063,8 @@
   "playlistOpenPlaylist": "پلے لسٹ کھولیں",
   "playlistCopyPlayLink": "پلے لنک کاپی کریں",
   "playlistPlayLinkCopied": "لنک کاپی ہو گیا۔ اسے کھولنے سے یہ پلے لسٹ چلے گی۔",
+  "smartActionsPlaylistMissing": "یہ پلے لسٹ اب اس آلے پر نہیں ہے۔",
+  "smartActionsZikrMissing": "اس دعا کی چلانے کے لیے کوئی ریکارڈنگ نہیں ہے۔",
   "playlistShowControls": "مزید کنٹرول دکھائیں",
   "playlistHideControls": "کم کنٹرول دکھائیں",
   "playlistEmptyTitle": "اس پلے لسٹ میں ابھی کچھ نہیں",

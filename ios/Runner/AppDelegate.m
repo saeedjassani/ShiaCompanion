@@ -1,5 +1,6 @@
 #include "AppDelegate.h"
 #include "GeneratedPluginRegistrant.h"
+#import "Runner-Swift.h"
 @import CoreLocation;
 @import WatchConnectivity;
 
@@ -139,6 +140,8 @@ static double SCNormalizeDegrees(double degrees) {
   [self configureProximitySensorChannelsWithMessenger:engineBridge.applicationRegistrar.messenger];
   [self configureCompassHeadingChannelWithMessenger:engineBridge.applicationRegistrar.messenger];
   [self configureFileBackupChannelWithMessenger:engineBridge.applicationRegistrar.messenger];
+  // Siri, Shortcuts and Spotlight (ios/Runner/SmartActions).
+  [SCSmartActions configureWithMessenger:engineBridge.applicationRegistrar.messenger];
 }
 
 /// Recitations saved for offline listening can always be downloaded again, so
