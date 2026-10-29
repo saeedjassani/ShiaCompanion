@@ -7,6 +7,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:just_audio_background/just_audio_background.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../l10n/l10n.dart';
 import 'exclusive_audio.dart';
@@ -149,6 +150,28 @@ class AzanPlaybackService {
     }
     await _startPlayback(prayerName, customFilePath: customFilePath);
   }
+
+  /// Plays the Takbir Only clip - the same recording the Takbir notification
+  /// carries - through the same player as [playNow], for the sound picker's
+  /// preview. Both players take a file, so the bundled clip is copied out of
+  /// the app's assets first.
+  static Future<void> playTakbir({required String prayerName}) async {
+    String? path;
+    try {
+      // Rewritten every time (it's small), so a copy left by an older
+      // build can't go on playing a recording that has since been replaced.
+      final file = File('${(await getTemporaryDirectory()).path}/takbir.mp3');
+      final data = await rootBundle.load(_takbirAsset);
+      await file.writeAsBytes(data.buffer.asUint8List(), flush: true);
+      path = file.path;
+    } catch (e) {
+      debugPrint('Could not prepare the Takbir sample: $e');
+      return;
+    }
+    await playNow(prayerName: prayerName, customFilePath: path);
+  }
+
+  static const String _takbirAsset = 'assets/sounds/takbir.mp3';
 
   static Future<void> _stopNative() => _invoke('stop');
 

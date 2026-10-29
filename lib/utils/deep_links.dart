@@ -10,13 +10,20 @@ class DeepLinkTarget {
   /// which case the caller falls back to its own default source.
   final String? source;
 
+  /// The tab a zikr link opens at, as the link writes it: `?tab=3` is the
+  /// third tab the reader shows. Null when the link names none, or for any
+  /// other kind of link. See [zikrDeepLinkTab].
+  final int? tab;
+
   const DeepLinkTarget({
     required this.type,
     required this.segments,
     this.source,
+    this.tab,
   });
 
-  String get key => '$type/${segments.join('/')}';
+  String get key =>
+      '$type/${segments.join('/')}${tab == null ? '' : '?tab=$tab'}';
 }
 
 const int zikrDeepLinkType = 0;
@@ -84,22 +91,33 @@ String buildDeepLinkPath({
   return '/$type/$encodedSegments';
 }
 
+/// The link to zikr [uid], opening at the reader's tab [tabIndex] (0 = the
+/// first) when it is past the first: `/zikr/<slug>?tab=3` for the third.
 String buildZikrDeepLinkPath({
   required String uid,
   String? slug,
+  int? tabIndex,
 }) {
   // A juz is not a corpus document: its uid (`JUZ3`) is only what the reader
   // keys its state by, has no slug, and as `/0/JUZ3` would resolve to nothing.
   final juz = juzOfQuranUid(uid);
   if (juz != null) return buildQuranJuzDeepLinkPath(juz);
 
+  final tabQuery = tabIndex != null && tabIndex > 0
+      ? '?$zikrTabQueryParameter=${tabIndex + 1}'
+      : '';
+
   final normalizedSlug = slug?.trim();
   if (normalizedSlug != null && normalizedSlug.isNotEmpty) {
-    return '/zikr/${Uri.encodeComponent(normalizedSlug)}';
+    return '/zikr/${Uri.encodeComponent(normalizedSlug)}$tabQuery';
   }
 
-  return buildDeepLinkPath(type: zikrDeepLinkType, segments: [uid]);
+  return '${buildDeepLinkPath(type: zikrDeepLinkType, segments: [uid])}'
+      '$tabQuery';
 }
+
+/// The query parameter a zikr link names its tab with.
+const String zikrTabQueryParameter = 'tab';
 
 String buildLibraryDeepLinkPath({
   required String bookSlug,
@@ -156,6 +174,7 @@ DeepLinkTarget? parseDeepLinkUri(Uri uri) {
       type: type,
       segments: segments.sublist(1),
       source: source,
+      tab: type == zikrDeepLinkType ? _extractTab(uri) : null,
     );
   }
 
@@ -165,6 +184,7 @@ DeepLinkTarget? parseDeepLinkUri(Uri uri) {
       segments[1],
       segments.length == 3 ? segments[2] : null,
       source,
+      _extractTab(uri),
     );
   }
 
@@ -217,6 +237,7 @@ DeepLinkTarget? parseDeepLinkUri(Uri uri) {
       type: zikrDeepLinkType,
       segments: segments,
       source: source,
+      tab: _extractTab(uri),
     );
   }
 
@@ -245,7 +266,12 @@ DeepLinkTarget? parseLaunchRouteName(String? name) {
   return target;
 }
 
-String? extractZikrLinkSegment(String href) {
+String? extractZikrLinkSegment(String href) =>
+    _firstZikrSegment(extractZikrLinkTarget(href));
+
+/// The zikr a link inside zikr text points at - with the tab it names, if
+/// any - or null when it points anywhere else.
+DeepLinkTarget? extractZikrLinkTarget(String href) {
   final trimmed = href.trim();
   if (trimmed.isEmpty) return null;
 
@@ -253,22 +279,29 @@ String? extractZikrLinkSegment(String href) {
   if (uri == null) return null;
 
   if (!uri.hasScheme) {
-    return _firstZikrSegment(parseDeepLinkUri(uri));
+    return _zikrOnly(parseDeepLinkUri(uri));
   }
 
-  final appTarget = _isAppDeepLinkHost(uri.host) ? parseDeepLinkUri(uri) : null;
-  final appSegment = _firstZikrSegment(appTarget);
-  if (appSegment != null) {
-    return appSegment;
+  final appTarget =
+      _zikrOnly(_isAppDeepLinkHost(uri.host) ? parseDeepLinkUri(uri) : null);
+  if (appTarget != null) {
+    return appTarget;
   }
 
   final pathSegments = uri.pathSegments.where((s) => s.isNotEmpty).toList();
   if (pathSegments.length == 2 && pathSegments.first == 'zikr') {
-    return pathSegments[1];
+    return DeepLinkTarget(
+      type: zikrDeepLinkType,
+      segments: [pathSegments[1]],
+      tab: _extractTab(uri),
+    );
   }
 
   return null;
 }
+
+DeepLinkTarget? _zikrOnly(DeepLinkTarget? target) =>
+    _firstZikrSegment(target) == null ? null : target;
 
 /// A zikr link, with the ayah it names when it names one.
 ///
@@ -283,6 +316,7 @@ DeepLinkTarget? _zikrTarget(
   String slugSegment,
   String? ayahSegment,
   String? source,
+  int? tab,
 ) {
   var slug = slugSegment;
   var ayah = ayahSegment;
@@ -302,6 +336,7 @@ DeepLinkTarget? _zikrTarget(
     type: zikrDeepLinkType,
     segments: [slug, if (ayah != null) ayah],
     source: source,
+    tab: tab,
   );
 }
 
@@ -313,6 +348,17 @@ int? zikrDeepLinkAyah(DeepLinkTarget target) {
   }
   final ayah = int.tryParse(target.segments[1]);
   return ayah != null && ayah > 0 ? ayah : null;
+}
+
+/// The tab a zikr link opens at, as a position among the tabs the reader
+/// shows (0 = the first), or null when it names none or is not a zikr link.
+///
+/// Out of range is not decided here - a link naming a tab past the last opens
+/// at the last, the way an ayah past a surah's end clamps.
+int? zikrDeepLinkTab(DeepLinkTarget target) {
+  if (target.type != zikrDeepLinkType) return null;
+  final tab = target.tab;
+  return tab == null ? null : tab - 1;
 }
 
 /// Reads the part of a Quran link after `/quran`.
@@ -420,6 +466,17 @@ String? _extractSource(Uri uri) {
   return (source == null || source.isEmpty) ? null : source;
 }
 
+/// The `tab` query parameter, read the way [_extractSource] reads `src`.
+/// Anything but a tab number from 1 up is ignored rather than breaking the
+/// link: the zikr still opens, at its first tab.
+int? _extractTab(Uri uri) {
+  final pathUri = _fragmentPathUri(uri) ?? uri;
+  final raw = pathUri.queryParameters[zikrTabQueryParameter]?.trim() ?? '';
+  if (!_isNumber(raw)) return null;
+  final tab = int.parse(raw);
+  return tab > 0 ? tab : null;
+}
+
 Uri? _fragmentPathUri(Uri uri) {
   if (uri.fragment.isEmpty) return null;
 
@@ -445,10 +502,12 @@ String buildDeepLinkUrl({
 String buildZikrDeepLinkUrl({
   required String uid,
   String? slug,
+  int? tabIndex,
 }) {
   return '$appWebOrigin${buildZikrDeepLinkPath(
     uid: uid,
     slug: slug,
+    tabIndex: tabIndex,
   )}';
 }
 

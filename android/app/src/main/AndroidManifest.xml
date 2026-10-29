@@ -227,5 +227,29 @@
         <receiver
             android:name="com.developer110.shiacompanion.widgets.CalendarWidgetRefreshReceiver"
             android:exported="false" />
+        <receiver
+            android:name="com.developer110.shiacompanion.widgets.WidgetRedrawReceiver"
+            android:exported="false" />
+        <!-- The Wear OS app (android/wear) asking for prayer times, or
+             appearing on a paired watch. Inert until that app is published:
+             only the Shia Companion watch app can send either event. -->
+        <service
+            android:name="com.developer110.shiacompanion.wear.PhoneWearListenerService"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="com.google.android.gms.wearable.MESSAGE_RECEIVED" />
+                <data
+                    android:host="*"
+                    android:pathPrefix="/shia_companion/request_snapshot"
+                    android:scheme="wear" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="com.google.android.gms.wearable.CAPABILITY_CHANGED" />
+                <data
+                    android:host="*"
+                    android:pathPrefix="/shia_companion_wear_app"
+                    android:scheme="wear" />
+            </intent-filter>
+        </service>
     </application>
 </manifest>

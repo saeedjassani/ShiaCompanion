@@ -57,7 +57,9 @@ import 'zikr_form_helpers.dart';
 import 'zikr_content_parser.dart';
 import 'zikr_content_viewer.dart';
 import 'zikr_reading_stats.dart';
+import 'zikr_sections.dart';
 import 'zikr_share_image.dart';
+import 'zikr_tab_selection.dart';
 import '../../services/zikr_translations.dart';
 import '../../l10n/l10n.dart';
 import '../../widgets/app_toast.dart';
@@ -200,6 +202,11 @@ class ZikrPage extends StatefulWidget {
   /// on its own would be ambiguous within one.
   final VerseKey? initialVerse;
 
+  /// The tab to open at, as a position among the tabs this page shows (0 =
+  /// the first), when the reader arrived from a link naming one (`?tab=`).
+  /// Past the last tab it opens at the last.
+  final int? initialTab;
+
   /// A juz to read instead of a single document.
   ///
   /// A juz is not a document in the corpus - it is several surahs stitched
@@ -224,6 +231,7 @@ class ZikrPage extends StatefulWidget {
     this.item, {
     this.source = ZikrOpenSource.unknown,
     this.initialVerse,
+    this.initialTab,
     this.portion,
     this.recitationLabel,
     this.returnBrowserUri,
@@ -240,13 +248,24 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
   int _selectedZikrTabIndex = 0;
   Map<String, dynamic>? zikrData;
 
-  /// This zikr in the reader's translation language, or null in English or
-  /// when none of it has been translated - see [ZikrTranslations].
-  ZikrDocumentTranslation? _translation;
+  /// The content file's translation in the reader's translation language, or
+  /// null in English or when none of it has been translated - see
+  /// [ZikrTranslations]. Numbered over all of the file's tabs; what this page
+  /// reads is [_translation].
+  ZikrDocumentTranslation? _documentTranslation;
 
-  /// The translation language [_translation] was last looked up in, so a
-  /// null [_translation] can be told apart from one still loading.
+  /// The translation language [_documentTranslation] was last looked up in,
+  /// so a null one can be told apart from one still loading.
   String? _translationCheckedIn;
+
+  /// The only tabs of its content this page shows, when it stands for part of
+  /// it - see [shownZikrTabs]. Null to show them all.
+  late final List<int>? _requestedTabs =
+      widget.portion == null ? shownZikrTabs(widget.item.uid) : null;
+
+  ZikrDocumentTranslation? _shownTabsTranslationSource;
+  Map<String, dynamic>? _shownTabsTranslationData;
+  ZikrDocumentTranslation? _shownTabsTranslation;
   PageRoute? _pageRoute;
   Uri? _previousBrowserUri;
   ZikrBookmark? _savedBookmark;
@@ -347,6 +366,9 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
   /// controls take the action capsule's place, as the player does, and the
   /// chrome holds still - see [_handleAutoScrollChanged].
   final ZikrAutoScrollController _autoScroll = ZikrAutoScrollController();
+
+  /// The open part's section headings, for the Sections menu.
+  final ZikrSectionsController _sections = ZikrSectionsController();
   bool _autoScrollWasActive = false;
 
   /// Which surah this is, or null when the zikr is not one of the 114. Null is
@@ -360,9 +382,11 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
   /// Verses the reader has written a note on, marked the same way.
   Set<VerseKey> _notedVerses = const {};
 
-  /// The last verse reported as being read, so a debounced save has something
-  /// to write and repeat reports of the same verse cost nothing.
+  /// The last verses reported as being read - the top of the view and the
+  /// last one wholly on screen - so repeat reports of the same place cost
+  /// nothing.
   VerseKey? _pendingProgressVerse;
+  VerseKey? _pendingLastVisibleVerse;
   Timer? _progressSaveTimer;
 
   /// The lowest and highest ayah reached by genuine reading this visit, per
@@ -399,6 +423,10 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
     _showCounter = ValueNotifier(counterState.isVisible);
     _counterCount = ValueNotifier(counterState.count);
     _loadSavedBookmark();
+    // A link naming a tab outranks the bookmark's: the bookmark is still
+    // drawn, and still restored once its own tab is opened.
+    final initialTab = widget.initialTab;
+    if (initialTab != null) _selectedZikrTabIndex = math.max(0, initialTab);
     if (widget.portion == null && !_isQuran) {
       // Bookmarks sync, so one can be moved on another device while this
       // page is open, and the marker follows it.
@@ -542,14 +570,40 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
   /// dropped here: a lookup should never cost someone the place they had
   /// reached. Scrolling on from there does count, which is what makes a lookup
   /// that turns into real reading become the new place on its own.
+  ///
+  /// The range runs down to the last verse wholly on screen, not just the one
+  /// at the top: the reader reads a screenful before scrolling on, so a place
+  /// kept at the top verse sent them back to the top of the page they had
+  /// already finished.
   void _handleAyahPositionChanged(QuranReadingPosition position) {
     if (!position.fromUserScroll) return;
-    final ayah = position.verse.ayah;
+    final top = position.verse;
+    final ayah = top.ayah;
     if (ayah == null) return;
-    if (position.verse == _pendingProgressVerse) return;
+    final last = position.lastVisibleVerse;
+    if (top == _pendingProgressVerse && last == _pendingLastVisibleVerse) {
+      return;
+    }
 
-    _pendingProgressVerse = position.verse;
-    _extendRecitedRange(position.verse.surah, ayah, ayah);
+    _pendingProgressVerse = top;
+    _pendingLastVisibleVerse = last;
+    final lastAyah = last.ayah;
+    if (lastAyah == null || last.surah == top.surah) {
+      _extendRecitedRange(top.surah, ayah, math.max(ayah, lastAyah ?? ayah));
+    } else {
+      // A juz crossing into the next surah on screen: the top surah was read
+      // to its end, any short one wholly between, and the last from its
+      // start.
+      final info = surahInfoFor(top.surah);
+      _extendRecitedRange(
+          top.surah, ayah, math.max(ayah, info?.ayahCount ?? ayah));
+      for (var surah = top.surah + 1; surah < last.surah; surah++) {
+        final count = surahInfoFor(surah)?.ayahCount;
+        if (count != null) _extendRecitedRange(surah, 1, count);
+      }
+      _extendRecitedRange(
+          last.surah, _firstAyahInDocument(last.surah), lastAyah);
+    }
     // Reading on past the end marker's gate - scrolling counts as reading.
     _maybeMarkQuranEndReached();
   }
@@ -1061,6 +1115,7 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
     _readingProgress.dispose();
     _autoScroll.removeListener(_handleAutoScrollChanged);
     _autoScroll.dispose();
+    _sections.dispose();
     syncZikrWakelockPreference(owner: this, isActive: false);
     // After _maybeRecordCompletion above, so a completion recorded on the way
     // out is already pending when leaving the reader puts it to the user.
@@ -1081,7 +1136,12 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
     }
   }
 
-  String get _bookmarkUid => widget.item.getFirstUId();
+  /// What this page's bookmark - and reminder - is stored under: the content
+  /// it opens, shared by every alias of it, unless the page shows only some
+  /// of that content's tabs. Then its tab numbers are not the content's own,
+  /// so it keeps a bookmark of its own, under its full uid.
+  String get _bookmarkUid =>
+      _requestedTabs != null ? widget.item.uid : widget.item.getFirstUId();
 
   /// The verse to open at, once for this page.
   ///
@@ -1488,7 +1548,17 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
     return buildZikrDeepLinkPath(
       uid: widget.item.uid,
       slug: dataSlug.isNotEmpty ? dataSlug : cachedSlug,
+      tabIndex: _linkTabIndex(),
     );
+  }
+
+  /// The tab a link to this page names: the open one, so the address bar and
+  /// a share land where the reader is. Before the content loads, the tab the
+  /// page was asked to open at.
+  int _linkTabIndex() {
+    if (zikrData == null) return _selectedZikrTabIndex;
+    final tabContents = _buildVisibleTabContents();
+    return tabContents.length > 1 ? _clampedSelectedTabIndex(tabContents) : 0;
   }
 
   String? _currentShareSlug() {
@@ -1605,7 +1675,7 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
     // Rebuilt even when the document is unchanged: the title comes from the
     // language's index, which may have changed on its own.
     setState(() {
-      _translation = translation;
+      _documentTranslation = translation;
       _translationCheckedIn = language;
     });
   }
@@ -1650,6 +1720,20 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
     setState(() {
       _didFailToLoadZikrData = false;
       zikrData = data;
+      final tabContents = _buildVisibleTabContents();
+      final tabCount = tabContents.length;
+      // A bookmark on a tab this page no longer has - saved before the
+      // content's tabs changed, or before it showed only some of them -
+      // opens at the start rather than on whichever tab is last.
+      final bookmarkTab = _savedBookmark?.tabIndex;
+      if (widget.initialTab == null &&
+          bookmarkTab != null &&
+          bookmarkTab == _selectedZikrTabIndex &&
+          bookmarkTab >= tabCount) {
+        _selectedZikrTabIndex = 0;
+      }
+      // A link may have named a tab past the last.
+      _selectedZikrTabIndex = _clampedSelectedTabIndex(tabContents);
     });
     _scheduleCurrentWebRouteSync(replace: true);
   }
@@ -1680,10 +1764,10 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
       final document = await applyQuranScript(
           assetUid, Map<String, dynamic>.from(decoded), bundle);
       if (!mounted) return true;
-      _applyZikrData(document);
-      if (redirect?.tabIndex != null) {
+      if (redirect?.tabIndex != null && widget.initialTab == null) {
         _selectedZikrTabIndex = redirect!.tabIndex! + 1;
       }
+      _applyZikrData(document);
       return true;
     } catch (e) {
       debugPrint('Error loading zikr from assets: $e');
@@ -1736,6 +1820,11 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
   /// so a bookmark or correction names the zikr the same way whatever
   /// language it was made in.
   String _englishTitle() {
+    // Showing only some of its content's tabs, the content file's title -
+    // the whole compilation's - is not what this page is.
+    if (_requestedTabs != null && widget.item.title.trim().isNotEmpty) {
+      return widget.item.title;
+    }
     final savedTitle = zikrData?['title']?.toString().trim() ?? '';
     return savedTitle.isNotEmpty ? savedTitle : widget.item.title;
   }
@@ -1798,7 +1887,16 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
     );
   }
 
+  /// The tabs this page shows: all of its content's, or the ones it stands
+  /// for (see [_shownTabs]).
   List<String> _buildVisibleTabContents() {
+    final allTabs = _allTabContents();
+    final shown = _shownTabs(allTabs);
+    return shown == null ? allTabs : shownZikrTabContents(allTabs, shown);
+  }
+
+  /// Every tab of the content file, as the reader would show it whole.
+  List<String> _allTabContents() {
     final primary = zikrData?['data']?.toString() ?? '';
     final rawTabs = zikrData?['tabs'];
     final extraTabs = rawTabs is List
@@ -1809,6 +1907,28 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
       primary: primary,
       extraTabs: extraTabs,
     );
+  }
+
+  /// Which of [allTabs] this page shows, or null for all of them.
+  List<int>? _shownTabs(List<String> allTabs) =>
+      effectiveShownZikrTabs(_requestedTabs, allTabs.length);
+
+  /// This zikr in the reader's translation language, numbered over the tabs
+  /// this page shows - see [translationForShownZikrTabs].
+  ZikrDocumentTranslation? get _translation {
+    final translation = _documentTranslation;
+    if (translation == null || _requestedTabs == null) return translation;
+    if (!identical(translation, _shownTabsTranslationSource) ||
+        !identical(zikrData, _shownTabsTranslationData)) {
+      final allTabs = _allTabContents();
+      final shown = _shownTabs(allTabs);
+      _shownTabsTranslationSource = translation;
+      _shownTabsTranslationData = zikrData;
+      _shownTabsTranslation = shown == null
+          ? translation
+          : translationForShownZikrTabs(translation, allTabs, shown);
+    }
+    return _shownTabsTranslation;
   }
 
   int _clampedSelectedTabIndex(List<String> tabContents) {
@@ -1883,6 +2003,7 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
     final deepLink = buildZikrDeepLinkUrl(
       uid: widget.item.uid,
       slug: _currentShareSlug(),
+      tabIndex: _linkTabIndex(),
     );
     final sharePositionOrigin = Rect.fromLTWH(
       MediaQuery.of(context).size.width / 2,
@@ -2209,15 +2330,12 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
     return null;
   }
 
-  String? _findInternalUid(String href) {
-    final segment = extractZikrLinkSegment(href);
-    return segment == null ? null : _lookupInternalItemUid(segment);
-  }
-
   Future<void> _handleZikrLinkTap(String href) async {
     if (href.trim().isEmpty) return;
 
-    final internalUid = _findInternalUid(href);
+    final target = extractZikrLinkTarget(href);
+    final internalUid =
+        target == null ? null : _lookupInternalItemUid(target.segments.first);
     if (internalUid != null) {
       final title = items[internalUid]?.toString() ?? internalUid;
       await pushPageRoute(
@@ -2225,6 +2343,7 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
         ZikrPage(
           UidTitleData(internalUid, title),
           source: ZikrOpenSource.zikrLink,
+          initialTab: zikrDeepLinkTab(target!),
         ),
       );
       return;
@@ -2365,10 +2484,17 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
             onPressed: () => Navigator.of(dialogContext).pop(),
             child: Text(context.l10n.commonCancel),
           ),
-          FilledButton(
-            onPressed: () =>
-                Navigator.of(dialogContext).pop(noteController.text.trim()),
-            child: Text(context.l10n.commonSubmit),
+          // With nothing selected and no note there is nothing for an admin
+          // to act on, so Submit waits for one or the other.
+          ValueListenableBuilder<TextEditingValue>(
+            valueListenable: noteController,
+            builder: (_, value, __) => FilledButton(
+              onPressed: selection.isEmpty && value.text.trim().isEmpty
+                  ? null
+                  : () => Navigator.of(dialogContext)
+                      .pop(noteController.text.trim()),
+              child: Text(context.l10n.commonSubmit),
+            ),
           ),
         ],
       ),
@@ -2467,7 +2593,55 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
   /// kIsWeb (flutter_local_notifications has no web target), so a reminder
   /// set there would silently never fire. Settings hides its whole "Zikr
   /// Reminders" entry point on web for the same reason.
-  Widget? _buildTopBarAction(BuildContext context) {
+  /// The top bar's actions: Sections, on a part with headings, ahead of
+  /// [_buildPrimaryTopBarAction].
+  Widget _buildTopBarAction(BuildContext context) {
+    final primary = _buildPrimaryTopBarAction(context);
+    return ListenableBuilder(
+      listenable: _sections,
+      builder: (context, _) {
+        if (_sections.sections.isEmpty) {
+          return primary ?? const SizedBox(width: 44);
+        }
+        return Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            RoundIconButton(
+              label: context.l10n.zikrSections,
+              icon: OutlineIcon(OutlineGlyph.lines,
+                  size: 20, color: ShiaColors.of(context).accent),
+              onPressed: () => unawaited(_openSectionsSheet()),
+            ),
+            if (primary != null) ...[const SizedBox(width: 6), primary],
+          ],
+        );
+      },
+    );
+  }
+
+  /// Lists the open part's headings, the one being read ticked, and scrolls
+  /// to the one picked.
+  Future<void> _openSectionsSheet() async {
+    final sections = _sections.sections;
+    if (sections.isEmpty) return;
+    final tabIndex = _clampedSelectedTabIndex(_buildVisibleTabContents());
+    final current =
+        zikrSectionAt(sections, _currentTabTopLineIndexes[tabIndex]);
+    final picked = await showChoiceSheet<int>(
+      context,
+      title: context.l10n.zikrSections,
+      choices: [
+        for (final section in sections)
+          Choice(section.lineIndex, section.label),
+      ],
+      current: current?.lineIndex ?? -1,
+      revealCurrent: true,
+    );
+    if (picked == null || !mounted) return;
+    await _sections.jumpTo(picked);
+  }
+
+  Widget? _buildPrimaryTopBarAction(BuildContext context) {
     if (kIsWeb) {
       final favorite = _favoriteData;
       return favorite == null
@@ -2617,6 +2791,7 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
                                 child: ZikrContentViewerWidget(
                                   translation: _translation,
                                   autoScroll: _autoScroll,
+                                  sections: _sections,
                                   tabContents: tabContents,
                                   selectedTabIndex: selectedTabIndex,
                                   onTabChanged: (index) {
@@ -2630,6 +2805,7 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
                                     setState(() {
                                       _selectedZikrTabIndex = index;
                                     });
+                                    _scheduleCurrentWebRouteSync(replace: true);
                                     _updateReadingProgress();
                                     _maybeRecordCompletion();
                                   },

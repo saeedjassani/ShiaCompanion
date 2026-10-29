@@ -544,4 +544,69 @@ void main() {
     expect(playlist, 'https://shiacompanion.app/playlist/my%20list');
     expect(parseDeepLinkUri(Uri.parse(playlist))?.segments, ['my list']);
   });
+
+  group('a zikr link naming a tab', () {
+    DeepLinkTarget? parse(String path) =>
+        parseDeepLinkUri(Uri.parse('https://shiacompanion.app$path'));
+
+    test('reads ?tab= as the reader numbers tabs, from 1', () {
+      final target = parse('/zikr/etiquettes-of-bedtime?tab=3')!;
+
+      expect(target.segments, ['etiquettes-of-bedtime']);
+      expect(target.tab, 3);
+      expect(zikrDeepLinkTab(target), 2);
+    });
+
+    test('works on every zikr link shape', () {
+      expect(zikrDeepLinkTab(parse('/0/I24?tab=2')!), 1);
+      expect(zikrDeepLinkTab(parse('/ziyarat-e-ashura?tab=2')!), 1);
+      expect(zikrDeepLinkTab(parse('/#/zikr/dua-kumayl?tab=2&src=x')!), 1);
+      expect(zikrDeepLinkTab(parse('/zikr/2-al-baqarah/255?tab=2')!), 1);
+    });
+
+    test('a malformed tab is ignored, not a broken link', () {
+      for (final tab in ['0', '-1', 'two', '', '1234']) {
+        final target = parse('/zikr/dua-kumayl?tab=$tab');
+        expect(target, isNotNull, reason: tab);
+        expect(zikrDeepLinkTab(target!), isNull, reason: tab);
+      }
+    });
+
+    test('names no tab without one, and never off a zikr', () {
+      expect(zikrDeepLinkTab(parse('/zikr/dua-kumayl')!), isNull);
+      expect(parse('/quran/2?tab=2')!.tab, isNull);
+    });
+
+    test('the same zikr at another tab is another link', () {
+      expect(parse('/zikr/dua-kumayl?tab=2')!.key,
+          isNot(parse('/zikr/dua-kumayl')!.key));
+    });
+
+    test('built links name the tab only past the first', () {
+      expect(buildZikrDeepLinkPath(uid: 'I24', slug: 'bedtime', tabIndex: 2),
+          '/zikr/bedtime?tab=3');
+      expect(buildZikrDeepLinkPath(uid: 'I24', slug: 'bedtime', tabIndex: 0),
+          '/zikr/bedtime');
+      expect(buildZikrDeepLinkPath(uid: 'I24', tabIndex: 1), '/0/I24?tab=2');
+      expect(buildZikrDeepLinkUrl(uid: 'I24', slug: 'bedtime', tabIndex: 4),
+          'https://shiacompanion.app/zikr/bedtime?tab=5');
+    });
+
+    test('a built link reads back to the same tab', () {
+      final path =
+          buildZikrDeepLinkPath(uid: 'I24', slug: 'bedtime', tabIndex: 3);
+      expect(zikrDeepLinkTab(parse(path)!), 3);
+    });
+
+    test('links inside zikr text carry their tab', () {
+      expect(zikrDeepLinkTab(extractZikrLinkTarget('/zikr/bedtime?tab=4')!), 3);
+      expect(
+          zikrDeepLinkTab(extractZikrLinkTarget(
+              'https://shiacompanion.app/zikr/bedtime?tab=2')!),
+          1);
+      expect(extractZikrLinkSegment('/zikr/bedtime?tab=4'), 'bedtime');
+      expect(extractZikrLinkTarget('https://example.com/articles/1'), isNull);
+      expect(extractZikrLinkTarget('/quran/2/255'), isNull);
+    });
+  });
 }

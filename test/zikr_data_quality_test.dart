@@ -147,6 +147,32 @@ void main() {
     );
   });
 
+  test('no zikr has a blank line', () {
+    // A real bug: G52 (Ziyarat of Lady Fatimah al-Zahra) had a blank line
+    // between two verses, which the reader drew as an empty ruled note; in
+    // G6, E26 and others a blank before a note became an empty paragraph at
+    // the top of its block.
+    final offenders = <String>[];
+    for (final file in Directory('assets/zikr').listSync().whereType<File>()) {
+      final tabs = _tabsOf(file);
+      for (var t = 0; t < tabs.length; t++) {
+        final lines = tabs[t].split('\n');
+        for (var i = 0; i < lines.length; i++) {
+          if (lines[i].trim().isEmpty) {
+            offenders.add('${file.uri.pathSegments.last} tab ${t + 1} '
+                'line $i');
+          }
+        }
+      }
+    }
+    expect(
+      offenders,
+      isEmpty,
+      reason: 'Remove these blank lines; the reader draws each as an empty '
+          'note:\n${offenders.join('\n')}',
+    );
+  });
+
   test('only the known duas are read as having no transliteration', () {
     // The reader infers each tab's layout from the spacing of its Arabic
     // lines (see ZikrContentParser) rather than a stored field. These are the

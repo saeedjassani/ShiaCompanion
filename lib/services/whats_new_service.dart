@@ -1,81 +1,89 @@
-import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:flutter/foundation.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
 import '../data/whats_new_notes.dart';
 import '../utils/shared_preferences.dart';
-import 'azaan_opt_in_service.dart';
 
-/// Tracks which update a person has already been told about, and decides
-/// whether this launch owes them a "what's new" dialog.
+/// Tracks which release notes a person has already opened, for the What's
+/// new page and the dot that points to it (Home's profile button, the
+/// Settings row).
 ///
 /// Meant to be reused release after release without changing this file: to
 /// announce something new, add one [WhatsNewEntry] to [whatsNewNotes] in
 /// lib/data/whats_new_notes.dart, keyed to the build number that ships it.
-/// [pending] then returns every entry newer than what this install has
-/// already seen (covering someone who skipped several versions), and
-/// [markSeen] records that they have now been shown up to the current build.
+/// [hasUnread] then turns on for every install that last opened the page
+/// before that build, and [markSeen] - opening the page - turns it off.
 ///
-/// Deliberately silent for a brand new install: nobody who has never used the
-/// old behavior needs it explained to them, and a dialog piling on top of
-/// first-run setup would be one too many. [priorInstallMarkerKeys] — the same signal
-/// [AzaanOptInService.adoptChoiceFromExistingInstall] already uses to tell a
-/// genuinely new install apart from one that merely predates a given
-/// preference — is what keeps it that way.
+/// A brand new install starts caught up: nobody who has never used the old
+/// app needs its changes pointed out. Nothing on the web either: these notes
+/// describe the app, and the site keeps its quiet first load.
 class WhatsNewService {
   const WhatsNewService._();
 
-  /// Public because FirstRunSetup reads it as a sign that this install has
-  /// already run an earlier build.
+  /// The build whose notes this install has seen. Public because
+  /// FirstRunSetup reads it as a sign that this install has already run an
+  /// earlier build.
   static const String lastSeenBuildKey = 'whats_new_last_seen_build';
 
-  static Future<int> _currentBuildNumber() async {
-    final info = await PackageInfo.fromPlatform();
-    return int.tryParse(info.buildNumber) ?? 0;
-  }
+  /// Whether there are notes this install hasn't opened yet.
+  static final ValueNotifier<bool> hasUnread = ValueNotifier(false);
 
-  /// The notes this launch should show, oldest first — empty when there is
-  /// nothing new, this is a fresh install, or the install is already caught
-  /// up. Call [markSeen] once this launch regardless of what comes back:
-  /// that is what actually advances the "last seen" mark, for a fresh
-  /// install as much as one that was just shown something.
+  static int _currentBuild = 0;
+
+  /// Sets the baseline on the first launch that has none - the current
+  /// build for a [freshInstall], nothing seen for an older one - and works
+  /// out [hasUnread]. Call once, after FirstRunSetup.resolveOnLaunch.
   ///
-  /// Always empty on the web: these notes describe app behavior (notification
-  /// sounds, Azan playback, reminders) that the website does not have.
-  /// [isWeb] exists only so tests can exercise that.
-  static Future<List<WhatsNewEntry>> pending({bool isWeb = kIsWeb}) async {
-    if (isWeb || !SP.isInitialized) return const [];
+  /// [isWeb] exists only so tests can exercise the web.
+  static Future<void> resolveOnLaunch({
+    required bool freshInstall,
+    bool isWeb = kIsWeb,
+  }) async {
+    if (isWeb || !SP.isInitialized) return;
+    final info = await PackageInfo.fromPlatform();
+    _currentBuild = int.tryParse(info.buildNumber) ?? 0;
+    if (_currentBuild <= 0) return;
 
-    final currentBuild = await _currentBuildNumber();
-    if (currentBuild <= 0) return const [];
-
-    final lastSeenBuild = SP.prefs.getInt(lastSeenBuildKey);
-    if (lastSeenBuild == null) {
-      final isExistingInstall =
-          AzaanOptInService.priorInstallMarkerKeys.any(SP.prefs.containsKey);
-      if (!isExistingInstall) return const [];
-      // An existing install that predates this tracking has "seen" nothing,
-      // so every note up to the current build is new to it.
-      return whatsNewNotes
-          .where((entry) => entry.buildNumber <= currentBuild)
-          .toList(growable: false);
+    if (!SP.prefs.containsKey(lastSeenBuildKey)) {
+      await SP.prefs.setInt(lastSeenBuildKey, freshInstall ? _currentBuild : 0);
     }
-
-    if (lastSeenBuild >= currentBuild) return const [];
-    return whatsNewNotes
-        .where((entry) =>
-            entry.buildNumber > lastSeenBuild &&
-            entry.buildNumber <= currentBuild)
-        .toList(growable: false);
+    hasUnread.value = unseenBuilds().isNotEmpty;
   }
 
-  /// Records this install as caught up to the current build. Call once per
-  /// launch, right after [pending] — unconditionally, so a fresh install
-  /// establishes its baseline silently instead of being shown every note
-  /// that ever shipped the day it finally updates again.
+  /// Every entry this build has shipped that has something to say on
+  /// [platform], newest first. Empty before [resolveOnLaunch], and on the
+  /// web.
+  static List<WhatsNewEntry> entries({TargetPlatform? platform}) {
+    final target = platform ?? defaultTargetPlatform;
+    return [
+      for (final entry in whatsNewNotes.reversed)
+        if (entry.buildNumber <= _currentBuild &&
+            entry.bulletsFor(target).isNotEmpty)
+          entry,
+    ];
+  }
+
+  /// The builds among [entries] that came after the notes this install last
+  /// opened.
+  static Set<int> unseenBuilds({TargetPlatform? platform}) {
+    final lastSeen = SP.isInitialized
+        ? SP.prefs.getInt(lastSeenBuildKey) ?? _currentBuild
+        : _currentBuild;
+    return {
+      for (final entry in entries(platform: platform))
+        if (entry.buildNumber > lastSeen) entry.buildNumber,
+    };
+  }
+
+  /// Records this install as caught up to the current build: the What's new
+  /// page has been opened.
   static Future<void> markSeen() async {
-    if (!SP.isInitialized) return;
-    final currentBuild = await _currentBuildNumber();
-    if (currentBuild <= 0) return;
-    await SP.prefs.setInt(lastSeenBuildKey, currentBuild);
+    hasUnread.value = false;
+    if (!SP.isInitialized || _currentBuild <= 0) return;
+    await SP.prefs.setInt(lastSeenBuildKey, _currentBuild);
   }
+
+  /// Lets tests set the running build without PackageInfo.
+  @visibleForTesting
+  static set debugCurrentBuild(int build) => _currentBuild = build;
 }

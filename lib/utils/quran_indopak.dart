@@ -75,11 +75,11 @@ class IndoPakQuran {
 
   static Future<IndoPakQuran>? _cached;
 
-  /// Loads and parses the text once per process.
+  /// Loads the text once per process and parses it off the UI thread.
   static Future<IndoPakQuran> load(AssetBundle bundle) {
     return _cached ??= bundle
         .loadString(indoPakAsset)
-        .then(parse)
+        .then((raw) => compute(parse, raw))
         .catchError((Object error) {
       _cached = null;
       throw error;

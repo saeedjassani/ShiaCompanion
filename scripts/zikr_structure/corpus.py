@@ -53,6 +53,16 @@ def load_redirects_full():
     return out
 
 
+def load_redirect_shown_tabs():
+    """Retired uid -> the indexes into its target's `tabs` it shows alone
+    (`RetiredZikrRedirect('I24', tabs: [2, 3])`)."""
+    with open(REDIRECTS, encoding='utf-8') as f:
+        src = f.read()
+    return {uid: [int(n) for n in re.findall(r'\d+', tabs)]
+            for uid, tabs in re.findall(
+                r"'([^']+)':\s*RetiredZikrRedirect\(\s*'[^']+',\s*tabs:\s*\[([^\]]*)\]", src)}
+
+
 def parts_of(entry):
     """[data, *tabs], as the reader shows them (empty data dropped)."""
     parts = []
@@ -95,11 +105,15 @@ class Part:
         return [(i, l) for i, l in enumerate(self.lines) if self.kind[i] == 'note']
 
     def note_runs(self):
-        """Runs of consecutive standalone lines (blank lines don't break a run)."""
+        """Runs of consecutive standalone lines (blank lines don't break a run;
+        a `## ` heading starts a new one, as the reader draws it)."""
         runs, cur = [], []
         for i, l in enumerate(self.lines):
             k = self.kind[i]
-            if k == 'note':
+            if k == 'note' and l.startswith('## ') and cur:
+                runs.append(cur)
+                cur = [l]
+            elif k == 'note':
                 cur.append(l)
             elif k != 'blank' and cur:
                 runs.append(cur)

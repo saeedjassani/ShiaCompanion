@@ -86,6 +86,7 @@ class _DeepLinkLaunchPageState extends State<DeepLinkLaunchPage> {
                 item,
                 source: widget.target.source ?? ZikrOpenSource.deepLink,
                 initialVerse: zikrLinkVerse(widget.target, item),
+                initialTab: zikrDeepLinkTab(widget.target),
               );
       default:
         return null;

@@ -3,6 +3,7 @@ import 'dart:ui' as ui;
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../l10n/l10n.dart';
 import '../services/playlist_audio_service.dart';
@@ -887,6 +888,111 @@ class _CardListCell extends InheritedWidget {
       firstLine != oldWidget.firstLine ||
       lastLine != oldWidget.lastLine ||
       startColumn != oldWidget.startColumn;
+}
+
+/// A [SliverCardList] whose rows can be dragged into a new order, like a
+/// music app's queue: a row lifts off the card with a shadow and a tap of
+/// haptics, and settles back when dropped. Wrap each row's handle in a
+/// [ReorderableDragStartListener] (or the whole row in a
+/// [ReorderableDelayedDragStartListener], to pick it up on a long press),
+/// and key every row.
+///
+/// Always one column: a row moving between two columns would be hard to
+/// follow.
+class SliverReorderableCardList extends StatelessWidget {
+  const SliverReorderableCardList({
+    super.key,
+    required this.itemCount,
+    required this.itemBuilder,
+    required this.onReorder,
+  });
+
+  final int itemCount;
+  final IndexedWidgetBuilder itemBuilder;
+
+  /// [newIndex] is already adjusted for the removal (onReorderItem).
+  final void Function(int oldIndex, int newIndex) onReorder;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = ShiaColors.of(context);
+    return DecoratedSliver(
+      decoration: BoxDecoration(
+        color: colors.surface,
+        border: Border.all(color: colors.line),
+        borderRadius: BorderRadius.circular(SliverCardList.radius),
+      ),
+      sliver: SliverPadding(
+        padding: const EdgeInsets.all(1),
+        sliver: SliverReorderableList(
+          itemCount: itemCount,
+          itemBuilder: itemBuilder,
+          onReorderItem: onReorder,
+          onReorderStart: (_) => HapticFeedback.mediumImpact(),
+          onReorderEnd: (_) => HapticFeedback.selectionClick(),
+          proxyDecorator: (child, index, animation) => AnimatedBuilder(
+            animation: animation,
+            child: child,
+            builder: (context, child) {
+              final lift = Curves.easeOut.transform(animation.value);
+              return Transform.scale(
+                scale: 1 + 0.02 * lift,
+                child: Material(
+                  color: colors.surface,
+                  elevation: 8 * lift,
+                  shadowColor: colors.glassShadow,
+                  borderRadius: BorderRadius.circular(12),
+                  clipBehavior: Clip.antiAlias,
+                  child: child,
+                ),
+              );
+            },
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// The round red minus that takes a row out of a list being edited.
+class RowRemoveButton extends StatelessWidget {
+  const RowRemoveButton(
+      {super.key, required this.label, required this.onPressed});
+
+  /// What it removes, read out: "Remove Dua Kumayl from favorites".
+  final String label;
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return Semantics(
+      container: true,
+      button: true,
+      label: label,
+      excludeSemantics: true,
+      onTap: onPressed,
+      child: InkResponse(
+        onTap: onPressed,
+        radius: 22,
+        child: SizedBox(
+          width: 28,
+          height: 44,
+          child: Center(
+            child: Container(
+              width: 24,
+              height: 24,
+              alignment: Alignment.center,
+              decoration:
+                  BoxDecoration(color: scheme.error, shape: BoxShape.circle),
+              child: OutlineIcon(OutlineGlyph.minus,
+                  size: 16, color: scheme.onError, strokeWidth: 2.6),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 }
 
 /// [SliverCardList]'s box twin, for a short list inside other content.

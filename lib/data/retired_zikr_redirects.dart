@@ -12,9 +12,11 @@
 /// otherwise fail, and opens [targetUid] - landing on tab index [tabIndex]
 /// of it (into its `tabs` array, not counting the main `data` slot) when
 /// the retired uid's content now lives in one tab specifically rather than
-/// covering the whole entry.
+/// covering the whole entry. When its content is a run of the target's tabs
+/// instead, [tabs] shows just those, and the rest of the target is hidden.
 class RetiredZikrRedirect {
-  const RetiredZikrRedirect(this.targetUid, {this.tabIndex});
+  const RetiredZikrRedirect(this.targetUid, {this.tabIndex, this.tabs})
+      : assert(tabIndex == null || tabs == null);
 
   /// The uid whose content now covers what this retired uid used to.
   final String targetUid;
@@ -22,6 +24,10 @@ class RetiredZikrRedirect {
   /// Index into the target's `tabs` array to land on, or null to land on
   /// the target's main `data` (tab index 0 in the reader's own numbering).
   final int? tabIndex;
+
+  /// Indexes into the target's `tabs` array - numbered as [tabIndex] is - of
+  /// the only tabs to show, or null to show the whole target.
+  final List<int>? tabs;
 }
 
 /// D11 duplicated D12 word-for-word (D12 now carries the fuller ending).
@@ -150,10 +156,9 @@ const Map<String, RetiredZikrRedirect> retiredZikrRedirects = {
   /// verbatim I24's tabs[2] ("Fear of House Collapse") *and* tabs[3]
   /// ("Fear of Thieves") concatenated - the sibling entries I24 tabs[0] and
   /// tabs[1] were already retired above as I25/I26; E50 is the same
-  /// pattern for the other two tabs, just missed at the time. This map only
-  /// supports one target tab, so this redirect lands on tabs[2]; tabs[3]
-  /// ("Fear of Thieves") is one swipe away from there in the reader.
-  'E50': RetiredZikrRedirect('I24', tabIndex: 2),
+  /// pattern for the other two tabs, just missed at the time. It spans two
+  /// tabs, so rather than landing on one it shows those two alone.
+  'E50': RetiredZikrRedirect('I24', tabs: [2, 3]),
 
   /// G20 was restored standalone ("Restore a third low-hanging-fruit
   /// batch...", commit cd2b3c6) without noticing that 'G20|N3' already
@@ -177,9 +182,11 @@ const Map<String, RetiredZikrRedirect> retiredZikrRedirects = {
   /// pointing to the last night of Shaban / first night of Ramadan dua (AA20).
   'Y12': RetiredZikrRedirect('AA20'),
 
-  /// G24 ("Story of Sayyid Al Rashti") is the narrative regarding the virtues
-  /// and recitation of the comprehensive form of Ziyarah (G30).
-  'G24': RetiredZikrRedirect('G30'),
+  /// G24 ("Story of Sayyid Al Rashti") is al-Nuri's story of al-Rashti, lost
+  /// on the hajj road, being told by the Imam of the Age to recite Ziyarat
+  /// Jamia Kabira and Ziyarat Ashura; Mafatih places it after Jamia Kabira
+  /// (G13).
+  'G24': RetiredZikrRedirect('G13'),
 
   /// I86 ("Ten duas for fufillment of petitions (requests)") contains only
   /// the introductory hadith narrative without the 10 duas.
@@ -189,9 +196,9 @@ const Map<String, RetiredZikrRedirect> retiredZikrRedirects = {
   /// Ashura (G4).
   'R11': RetiredZikrRedirect('G4'),
 
-  /// R14 ("More Confirmations") is the narrative of Sayyid Ahmad al-Rashti
-  /// regarding the Comprehensive Ziyarah (G30).
-  'R14': RetiredZikrRedirect('G30'),
+  /// R14 ("More Confirmations") is al-Nuri's commentary on the merits of
+  /// Ziyarat Ashura (G4), drawn from the same al-Rashti story.
+  'R14': RetiredZikrRedirect('G4'),
 
   /// F1 ("Merits of Namaz e Shab") is the merits/preamble to Namaz e Shab (F2).
   'F1': RetiredZikrRedirect('F2'),
@@ -219,13 +226,13 @@ const Map<String, RetiredZikrRedirect> retiredZikrRedirects = {
   /// "All Forms" compilation (AG8, AK5, AI3) or a weekday entry's tab.
   ///
   /// R2/R3 ("The First Night/Day Of Muharram") are R1's main data and first
-  /// tab. R8 ("Forgeries of the Enemies of Imam Husayn") is R7's first tab;
-  /// its trailing "Day of Ashura" section is R7's second tab, one swipe on.
+  /// tab. R8 ("Forgeries of the Enemies of Imam Husayn") was R7's first tab
+  /// until the owner review moved that history into R7's merits; it opens R7.
   /// R13 (Safwan's discourse on the merit of Ziyarat Ashura) is in G4's
   /// merits.
   'R2': RetiredZikrRedirect('R1'),
   'R3': RetiredZikrRedirect('R1', tabIndex: 0),
-  'R8': RetiredZikrRedirect('R7', tabIndex: 0),
+  'R8': RetiredZikrRedirect('R7'),
   'R13': RetiredZikrRedirect('G4'),
 
   /// AC9 ("The 8th Day Of Zilhajj" - the Tarwiyah Day) is a paragraph of
@@ -370,4 +377,24 @@ const Map<String, RetiredZikrRedirect> retiredZikrRedirects = {
   /// Mu'in al-Du'afa...") went with it. Their slugs are G76's slugAliases.
   'G8': RetiredZikrRedirect('G76', tabIndex: 0),
   'G9': RetiredZikrRedirect('G76', tabIndex: 1),
+
+  /// V1 (13th-15th Jumada al-Awwal) only said to visit Lady Fatimah (s.a.) on
+  /// those days, with nothing of its own to recite (rule 6). G52 carries her
+  /// ziyarat and now shows on all three days; the note is in its merits, and
+  /// the 15th's history in G64's.
+  'V1': RetiredZikrRedirect('G52'),
+
+  /// I13 only held narrations on reciting Ayat al-Kursi after every prayer,
+  /// with nothing of its own to recite (rule 6); they are now A4's merits.
+  'I13': RetiredZikrRedirect('A4'),
+
+  /// I3 (Cleansing the Teeth) was one step, brushing with a miswak before wudu;
+  /// it is now the first step of I4 (The Ritual Ablution), its reward in I4's
+  /// merits.
+  'I3': RetiredZikrRedirect('I4'),
+
+  /// I8 (Etiquettes of Taqibaat) was Allamah al-Majlisi's introduction to
+  /// taqibaat, with nothing to recite; it is now in D1's (General Taqibaat)
+  /// merits.
+  'I8': RetiredZikrRedirect('D1'),
 };

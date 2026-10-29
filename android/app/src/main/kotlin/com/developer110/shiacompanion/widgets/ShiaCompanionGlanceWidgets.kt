@@ -2,6 +2,7 @@ package com.developer110.shiacompanion.widgets
 
 import android.app.AlarmManager
 import android.app.PendingIntent
+import android.appwidget.AppWidgetManager
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -60,6 +61,7 @@ import androidx.compose.ui.unit.sp
 import androidx.glance.unit.ColorProvider
 import com.developer110.shiacompanion.R
 import com.developer110.shia_companion.MainActivity
+import com.google.firebase.crashlytics.FirebaseCrashlytics
 import java.util.Calendar
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -74,6 +76,11 @@ private const val ACTION_REFRESH_RECITATION_WIDGET =
     "com.developer110.shiacompanion.widgets.REFRESH_RECITATION_WIDGET"
 private const val ACTION_REFRESH_CALENDAR_WIDGET =
     "com.developer110.shiacompanion.widgets.REFRESH_CALENDAR_WIDGET"
+private const val ACTION_REDRAW_WIDGETS =
+    "com.developer110.shiacompanion.widgets.REDRAW_WIDGETS"
+// Long enough for the launcher to have sized a new widget and settled after
+// an update; short enough that a broken one is fixed while it's being looked at.
+private const val REDRAW_DELAY_MILLIS = 10_000L
 
 private const val KEY_FAVORITES_TITLE = "sc_favorites_title"
 private val favoriteItemKeys = (1..12).map { "sc_favorites_item_$it" }
@@ -201,9 +208,55 @@ private fun RemoteViews.setPaletteTextColor(context: Context, viewId: Int, color
     }
 }
 
-class FavoritesWidget : GlanceAppWidget() {
+/**
+ * Glance shows its "Can't show content" layout when a widget's composition
+ * throws, and only logs why. Send it to Crashlytics so a broken widget on
+ * someone's phone comes with its stack trace.
+ */
+abstract class ShiaCompanionGlanceWidget : GlanceAppWidget() {
     override val sizeMode: SizeMode = SizeMode.Exact
 
+    override fun onCompositionError(
+        context: Context,
+        glanceId: GlanceId,
+        appWidgetId: Int,
+        throwable: Throwable
+    ) {
+        try {
+            FirebaseCrashlytics.getInstance().recordException(throwable)
+        } catch (_: Exception) {
+            // Reporting must never stand in the way of the error layout.
+        }
+        super.onCompositionError(context, glanceId, appWidgetId, throwable)
+    }
+}
+
+/**
+ * Asks for a second render of every widget [REDRAW_DELAY_MILLIS] after the
+ * system's update broadcast, which comes when a widget is placed, after the
+ * app is updated and after a reboot.
+ *
+ * A launcher that fails to show a widget's views keeps its "Can't load
+ * widget" placeholder until the next update, and these widgets otherwise
+ * wait for the next prayer, midnight or the app being opened. A newly placed
+ * 4.0.3 Prayer Times widget did this once, right after the update, and came
+ * up fine when re-added; the views themselves apply cleanly at every size,
+ * so the redraw is that second attempt without the user having to make it.
+ * It renders through updateAll, which doesn't come back through onUpdate, so
+ * it never arms another.
+ */
+abstract class ShiaCompanionWidgetReceiver : GlanceAppWidgetReceiver() {
+    override fun onUpdate(
+        context: Context,
+        appWidgetManager: AppWidgetManager,
+        appWidgetIds: IntArray
+    ) {
+        super.onUpdate(context, appWidgetManager, appWidgetIds)
+        scheduleWidgetRedraw(context.applicationContext)
+    }
+}
+
+class FavoritesWidget : ShiaCompanionGlanceWidget() {
     override suspend fun provideGlance(context: Context, id: GlanceId) {
         provideContent {
             WidgetListContent(
@@ -217,13 +270,11 @@ class FavoritesWidget : GlanceAppWidget() {
     }
 }
 
-class FavoritesWidgetReceiver : GlanceAppWidgetReceiver() {
+class FavoritesWidgetReceiver : ShiaCompanionWidgetReceiver() {
     override val glanceAppWidget: GlanceAppWidget = FavoritesWidget()
 }
 
-class TodaysRecitationWidget : GlanceAppWidget() {
-    override val sizeMode: SizeMode = SizeMode.Exact
-
+class TodaysRecitationWidget : ShiaCompanionGlanceWidget() {
     override suspend fun provideGlance(context: Context, id: GlanceId) {
         provideContent {
             WidgetListContent(
@@ -238,13 +289,11 @@ class TodaysRecitationWidget : GlanceAppWidget() {
     }
 }
 
-class TodaysRecitationWidgetReceiver : GlanceAppWidgetReceiver() {
+class TodaysRecitationWidgetReceiver : ShiaCompanionWidgetReceiver() {
     override val glanceAppWidget: GlanceAppWidget = TodaysRecitationWidget()
 }
 
-class UpcomingPrayerWidget : GlanceAppWidget() {
-    override val sizeMode: SizeMode = SizeMode.Exact
-
+class UpcomingPrayerWidget : ShiaCompanionGlanceWidget() {
     override suspend fun provideGlance(context: Context, id: GlanceId) {
         provideContent {
             PrayerWidgetContent()
@@ -252,13 +301,11 @@ class UpcomingPrayerWidget : GlanceAppWidget() {
     }
 }
 
-class UpcomingPrayerWidgetReceiver : GlanceAppWidgetReceiver() {
+class UpcomingPrayerWidgetReceiver : ShiaCompanionWidgetReceiver() {
     override val glanceAppWidget: GlanceAppWidget = UpcomingPrayerWidget()
 }
 
-class DailyPrayerTimesWidget : GlanceAppWidget() {
-    override val sizeMode: SizeMode = SizeMode.Exact
-
+class DailyPrayerTimesWidget : ShiaCompanionGlanceWidget() {
     override suspend fun provideGlance(context: Context, id: GlanceId) {
         // The tall size shows today's dates and event, which turn over at
         // midnight; see IslamicCalendarWidget for why this runs every render.
@@ -269,13 +316,11 @@ class DailyPrayerTimesWidget : GlanceAppWidget() {
     }
 }
 
-class DailyPrayerTimesWidgetReceiver : GlanceAppWidgetReceiver() {
+class DailyPrayerTimesWidgetReceiver : ShiaCompanionWidgetReceiver() {
     override val glanceAppWidget: GlanceAppWidget = DailyPrayerTimesWidget()
 }
 
-class IslamicCalendarWidget : GlanceAppWidget() {
-    override val sizeMode: SizeMode = SizeMode.Exact
-
+class IslamicCalendarWidget : ShiaCompanionGlanceWidget() {
     override suspend fun provideGlance(context: Context, id: GlanceId) {
         // Re-armed on every render, not only when the app publishes: a reboot
         // drops alarms, and the launcher's own periodic update then puts the
@@ -287,7 +332,7 @@ class IslamicCalendarWidget : GlanceAppWidget() {
     }
 }
 
-class IslamicCalendarWidgetReceiver : GlanceAppWidgetReceiver() {
+class IslamicCalendarWidgetReceiver : ShiaCompanionWidgetReceiver() {
     override val glanceAppWidget: GlanceAppWidget = IslamicCalendarWidget()
 }
 
@@ -311,6 +356,20 @@ class PrayerWidgetRefreshReceiver : BroadcastReceiver() {
             UpcomingPrayerWidget().updateAll(context.applicationContext)
             DailyPrayerTimesWidget().updateAll(context.applicationContext)
             scheduleNextPrayerWidgetRefresh(context.applicationContext)
+        }
+    }
+}
+
+class WidgetRedrawReceiver : BroadcastReceiver() {
+    override fun onReceive(context: Context, intent: Intent) {
+        if (intent.action != ACTION_REDRAW_WIDGETS) return
+
+        CoroutineScope(Dispatchers.Main).launch {
+            FavoritesWidget().updateAll(context.applicationContext)
+            TodaysRecitationWidget().updateAll(context.applicationContext)
+            DailyPrayerTimesWidget().updateAll(context.applicationContext)
+            UpcomingPrayerWidget().updateAll(context.applicationContext)
+            IslamicCalendarWidget().updateAll(context.applicationContext)
         }
     }
 }
@@ -1235,6 +1294,24 @@ fun scheduleNextCalendarWidgetRefresh(context: Context) {
     } catch (_: SecurityException) {
         alarmManager.set(AlarmManager.RTC_WAKEUP, triggerAt, pendingIntent)
     }
+}
+
+/**
+ * One inexact alarm for [WidgetRedrawReceiver]; asking again before it fires
+ * moves it, so the five receivers' updates after an app update share one.
+ */
+fun scheduleWidgetRedraw(context: Context) {
+    val intent = Intent(context, WidgetRedrawReceiver::class.java).apply {
+        action = ACTION_REDRAW_WIDGETS
+    }
+    val flags = PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+    val pendingIntent = PendingIntent.getBroadcast(context, 3, intent, flags)
+    val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+    alarmManager.set(
+        AlarmManager.ELAPSED_REALTIME,
+        SystemClock.elapsedRealtime() + REDRAW_DELAY_MILLIS,
+        pendingIntent
+    )
 }
 
 /**

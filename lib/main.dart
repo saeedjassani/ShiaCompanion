@@ -13,11 +13,13 @@ import 'package:provider/provider.dart';
 import 'package:shia_companion/firebase_options.dart';
 import 'package:shia_companion/pages/deep_link_launch_page.dart';
 import 'package:shia_companion/pages/delete_account_page.dart';
+import 'package:shia_companion/pages/home/color_card.dart';
 import 'package:shia_companion/pages/setup/first_run_setup_page.dart';
 import 'package:shia_companion/services/audio_download_store.dart';
 import 'package:shia_companion/services/account_service.dart';
 import 'package:shia_companion/services/azan_playback_service.dart';
 import 'package:shia_companion/services/first_run_setup.dart';
+import 'package:shia_companion/services/whats_new_service.dart';
 import 'package:shia_companion/services/session_refresh_service.dart';
 import 'package:shia_companion/utils/app_text_scale.dart';
 import 'package:shia_companion/utils/language_provider.dart';
@@ -143,7 +145,11 @@ void main() async {
   final showFirstRunSetup = await FirstRunSetup.resolveOnLaunch();
   if (FirstRunSetup.freshInstallThisLaunch) {
     await AccountService.signOutLeftoverFromEarlierInstall();
+    // Setup's theme step offers the colors; Home's card is for updates.
+    await HomeColorCard.markDismissed();
   }
+  await WhatsNewService.resolveOnLaunch(
+      freshInstall: FirstRunSetup.freshInstallThisLaunch);
   await zikrIndex;
   // A local asset, so on a device it is quick enough to wait for, and Urdu
   // doesn't open in the system font and then change. The web downloads it,

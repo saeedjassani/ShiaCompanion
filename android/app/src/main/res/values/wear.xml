@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Lets the Wear OS app (android/wear) tell "phone app not installed"
+         from "phone out of reach". Kept from the shrinker by raw/keep.xml. -->
+    <string-array name="android_wear_capabilities" translatable="false">
+        <item>shia_companion_phone_app</item>
+    </string-array>
+</resources>

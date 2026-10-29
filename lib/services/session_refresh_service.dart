@@ -104,6 +104,7 @@ class SessionRefreshService {
       items = {};
       itemOrder = {};
       itemMetadata = {};
+      itemTabs = {};
       clearLocalSlugMaps();
       decoded.forEach((key, value) {
         if (value is Map) {
@@ -115,6 +116,11 @@ class SessionRefreshService {
           final day = value['day'];
           if (day != null) {
             itemMetadata[key] = {'day': day};
+          }
+          final tabs = value['tabs'];
+          if (tabs is List && key.toString().contains('|')) {
+            final numbers = tabs.whereType<num>().map((n) => n.toInt());
+            if (numbers.isNotEmpty) itemTabs[key] = numbers.toList();
           }
           setLocalSlugData(
             key.toString(),

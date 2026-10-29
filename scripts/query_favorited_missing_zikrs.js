@@ -87,11 +87,13 @@ function loadRetiredRedirects() {
     'utf8'
   );
   const redirects = {};
-  const re = /'([^']+)':\s*RetiredZikrRedirect\('([^']+)'(?:,\s*tabIndex:\s*(\d+))?\)/g;
+  // `tabIndex: n` lands on one tab; `tabs: [a, b]` shows only those tabs.
+  const re = /'([^']+)':\s*RetiredZikrRedirect\('([^']+)'(?:,\s*(?:tabIndex:\s*(\d+)|tabs:\s*\[([^\]]*)\]))?\)/g;
   let m;
   while ((m = re.exec(src))) {
-    const [, uid, targetUid, tabIndex] = m;
-    redirects[uid] = tabIndex !== undefined ? `${targetUid}[${tabIndex}]` : targetUid;
+    const [, uid, targetUid, tabIndex, tabs] = m;
+    const tab = tabIndex ?? tabs?.replace(/\s+/g, '');
+    redirects[uid] = tab !== undefined ? `${targetUid}[${tab}]` : targetUid;
   }
   return redirects;
 }

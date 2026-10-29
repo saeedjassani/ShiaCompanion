@@ -763,6 +763,7 @@
   "quranLinkCopied": "Link copied",
   "quranShareVerse": "Share verse",
   "zikrMerits": "Merits",
+  "zikrSections": "Sections",
   "zikrReportThanks": "Thanks - we'll take a look.",
   "zikrReportFailed": "Could not send the report. Please try again.",
   "zikrSuggestCorrection": "Suggest a correction",
@@ -1926,7 +1927,46 @@
   "linkNotFoundBody": "We couldn't find this content.",
   "linkNotFoundGoHome": "Go Home",
   "whatsNewTitle": "What's new",
-  "whatsNewGotIt": "Got it",
+  "whatsNewUnread": "New",
+  "@whatsNewUnread": {
+    "description": "Marks something new: read out after the What's new row and Home's profile button while there are release notes not yet opened, and shown in capitals over Home's color card."
+  },
+  "homeColorCardTitle": "Choose your color",
+  "@homeColorCardTitle": {
+    "description": "Heading of the card on Home that offers the new Color setting to people who updated the app."
+  },
+  "homeColorCardBody": "Draw the app, and its home screen widgets, in one of eight colors. You can change it anytime in Settings.",
+  "@homeColorCardBody": {
+    "description": "Under homeColorCardTitle, above the eight color swatches."
+  },
+  "whatsNew139Colors": "Choose one of eight colors for the app in Settings. Your home screen widgets follow it too.",
+  "@whatsNew139Colors": {
+    "description": "Release note on the What's new page."
+  },
+  "whatsNew139Sections": "Long duas such as Jawshan Kabir have a Sections menu at the top, to jump straight to any part.",
+  "@whatsNew139Sections": {
+    "description": "Release note on the What's new page. 'Sections' is the reader's menu (zikrSections); use the same word."
+  },
+  "whatsNew139Playlists": "Drag the recitations in a playlist to put them in the order you like.",
+  "@whatsNew139Playlists": {
+    "description": "Release note on the What's new page."
+  },
+  "whatsNew139SoundPreview": "Hear a prayer's notification sound in the app before you choose it.",
+  "@whatsNew139SoundPreview": {
+    "description": "Release note on the What's new page."
+  },
+  "whatsNew139Library": "Kamil al-Ziyarat is now in the Library.",
+  "@whatsNew139Library": {
+    "description": "Release note on the What's new page. Kamil al-Ziyarat is Ibn Qulawayh's book."
+  },
+  "whatsNew139Content": "Recitations for more duas and ziyarats, and more of them translated into Urdu, Persian and Gujarati.",
+  "@whatsNew139Content": {
+    "description": "Release note on the What's new page."
+  },
+  "whatsNew139PrayerWidget": "The Prayer Times widget now shows the Hijri date, your location and today's event.",
+  "@whatsNew139PrayerWidget": {
+    "description": "Release note on the What's new page, Android only: the home screen widget."
+  },
   "pickerChooseZikr": "Choose a zikr",
   "pickerSearchZikrHint": "Search zikr, dua, ziyarat...",
   "todaysNone": "No recitations configured.",
@@ -3317,6 +3357,15 @@
   "playlistNotDownloaded": "Not downloaded · plays online",
   "playlistMoveUp": "Move up",
   "playlistMoveDown": "Move down",
+  "playlistEdit": "Edit playlist",
+  "playlistRemoveFrom": "Remove {title} from playlist",
+  "@playlistRemoveFrom": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
   "playlistOpenPlaylist": "Open playlist",
   "playlistCopyPlayLink": "Copy play link",
   "@playlistCopyPlayLink": {

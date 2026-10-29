@@ -199,19 +199,31 @@ class Choice<T> {
 
 /// Asks for one of [choices] in a [showRevampSheet], the [current] one
 /// ticked; choosing closes the sheet. Resolves to the choice, or null when
-/// the sheet is dismissed.
+/// the sheet is dismissed. [revealCurrent] scrolls a long list to the
+/// current choice as it opens.
 Future<T?> showChoiceSheet<T>(
   BuildContext context, {
   required String title,
   String? body,
   required List<Choice<T>> choices,
   required T current,
+  bool revealCurrent = false,
 }) {
+  final currentKey = revealCurrent ? GlobalKey() : null;
+  var revealed = false;
   return showRevampSheet<T>(
     context,
     title: title,
     builder: (context) {
       final colors = ShiaColors.of(context);
+      if (currentKey != null && !revealed) {
+        revealed = true;
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          final target = currentKey.currentContext;
+          if (target == null || !target.mounted) return;
+          Scrollable.ensureVisible(target, alignment: 0.4);
+        });
+      }
       return Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -229,6 +241,7 @@ Future<T?> showChoiceSheet<T>(
             children: [
               for (final (i, choice) in choices.indexed)
                 MergeSemantics(
+                  key: choice.value == current ? currentKey : null,
                   child: Semantics(
                     selected: choice.value == current,
                     child: CardListRow(

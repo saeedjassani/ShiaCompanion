@@ -21,6 +21,7 @@ import '../../widgets/reader_top_bar.dart';
 import '../../widgets/zikr_auto_scroll.dart';
 import 'zikr_content_parser.dart';
 import 'zikr_reading_stats.dart';
+import 'zikr_sections.dart';
 import '../../l10n/l10n.dart';
 import '../../widgets/responsive_content.dart' show MouseDragScroll;
 
@@ -36,11 +37,18 @@ class QuranReadingPosition {
     required this.verse,
     required this.text,
     required this.fromUserScroll,
-  });
+    VerseKey? lastVisibleVerse,
+  }) : lastVisibleVerse = lastVisibleVerse ?? verse;
 
   /// The surah as well as the ayah: a juz runs across surahs, so an ayah
   /// number on its own does not say where the reader is.
   final VerseKey verse;
+
+  /// The last verse wholly on screen, below [verse] - how far down the view
+  /// the reader can have read. Someone reads a screenful and then scrolls,
+  /// or closes the reader, so the place they reached is here, not at the
+  /// top; it is [verse] itself when nothing below it is whole.
+  final VerseKey lastVisibleVerse;
 
   /// The verse as shown, so saving it from the action bar can keep an excerpt
   /// without the reader having opened the per-verse menu first.
@@ -245,10 +253,13 @@ List<_ReadingListItem> _buildReadingListItems(ParsedZikrContent content) {
 
   // A hidden English line is left out of a run - it stays an item of its
   // own, which draws nothing.
+  // A heading is an item of its own too, drawn as one rather than as part of
+  // the ruled block of notes under it.
   bool isStandalone(int i) =>
       !content.arabicCodes.contains(i) &&
       !content.transliCodes.contains(i) &&
       !content.translaCodes.contains(i) &&
+      !content.headingLines.contains(i) &&
       !content.isHiddenEnglish(i);
 
   var i = 0;
@@ -586,6 +597,10 @@ class ZikrContentViewerWidget extends StatefulWidget {
   /// leaves the text where the reader puts it.
   final ZikrAutoScrollController? autoScroll;
 
+  /// Told the open part's section headings, and how to scroll to one - the
+  /// page's Sections menu. Null when there is no such menu.
+  final ZikrSectionsController? sections;
+
   const ZikrContentViewerWidget({
     Key? key,
     required this.tabContents,
@@ -616,6 +631,7 @@ class ZikrContentViewerWidget extends StatefulWidget {
     this.tabStripFooter,
     this.translation,
     this.autoScroll,
+    this.sections,
   }) : super(key: key);
 
   @override
@@ -666,11 +682,16 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget>
 
   bool _didScrollToInitialVerse = false;
 
+  /// The reading settings the open part was last laid out with - see
+  /// [_keepPlaceAcrossLayoutChange].
+  Object? _layoutSettings;
+
   /// The tab being scrolled to where it opens - a linked verse or a
   /// bookmarked line - kept invisible until it lands. See [_hideWhileLanding].
   int? _landingTabIndex;
   bool _verseReportScheduled = false;
   VerseKey? _reportedVerse;
+  VerseKey? _reportedLastVisibleVerse;
   late int _selectedTabIndex;
   late final int? _initialBookmarkTabIndex;
   late final double? _initialBookmarkScrollOffset;
@@ -829,6 +850,7 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget>
     _autoScrollTicker = createTicker(_handleAutoScrollTick);
     widget.autoScroll?.addListener(_syncAutoScrollTicker);
     _syncAutoScrollTicker();
+    widget.sections?.attach(_jumpToSection);
   }
 
   @override
@@ -839,6 +861,76 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget>
       widget.autoScroll?.addListener(_syncAutoScrollTicker);
       _syncAutoScrollTicker();
     }
+    if (oldWidget.sections != widget.sections) {
+      oldWidget.sections?.detach(_jumpToSection);
+      widget.sections?.attach(_jumpToSection);
+    }
+  }
+
+  /// Brings the heading on [lineIndex] of the open part to the top of the
+  /// view - a pick from the page's Sections menu.
+  Future<void> _jumpToSection(int lineIndex) async {
+    final tabIndex = _selectedTabIndex;
+    if (tabIndex >= _tabScrollControllers.length) return;
+    final controller = _tabScrollControllers[tabIndex];
+    // [_scrollToLine] leaves a target at the very top of the list where it
+    // is, as a bookmark restore on opening wants; from partway down the
+    // text the first heading has to be scrolled back to.
+    if (controller.hasClients) {
+      controller.jumpTo(controller.position.minScrollExtent);
+    }
+    await _scrollToLine(tabIndex, lineIndex);
+  }
+
+  /// Keeps the verse at the top of the view there when a reading setting
+  /// changes the height of the text - translation or transliteration turned
+  /// on or off, the Arabic flowed as a paragraph, a font or its size.
+  ///
+  /// The list otherwise holds its scroll offset in pixels, and with every
+  /// verse above growing or shrinking, the same offset lands dozens of verses
+  /// away. Runs at the top of build, while the list is still laid out the old
+  /// way, so the line read off it is the one the reader was on.
+  void _keepPlaceAcrossLayoutChange() {
+    final settings = (
+      translationShown,
+      transliterationShown,
+      showArabicAsParagraph,
+      arabicFont,
+      arabicFontSize,
+      englishFontSize,
+      ZikrTranslations.instance.language.code,
+    );
+    final previous = _layoutSettings;
+    _layoutSettings = settings;
+    if (previous == null || previous == settings) return;
+
+    final tabIndex = _selectedTabIndex;
+    if (tabIndex >= _tabScrollControllers.length) return;
+    final controller = _tabScrollControllers[tabIndex];
+    // Still at the top, the top is where it stays.
+    if (!controller.hasClients ||
+        controller.position.pixels <=
+            controller.position.minScrollExtent + _scrollToVerseMargin) {
+      return;
+    }
+    final line = _topLineIndex(tabIndex, controller);
+    if (line == null) return;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) unawaited(_scrollToLine(tabIndex, line));
+    });
+  }
+
+  /// Tells [ZikrContentViewerWidget.sections] the headings of the part on
+  /// screen, once this frame is done - it rebuilds the page around it.
+  void _publishSections(ParsedZikrContent content) {
+    final controller = widget.sections;
+    if (controller == null) return;
+    final sections = zikrSectionsOf(content);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted && identical(widget.sections, controller)) {
+        controller.setSections(sections);
+      }
+    });
   }
 
   void _syncAutoScrollTicker() {
@@ -890,6 +982,7 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget>
   @override
   void dispose() {
     widget.autoScroll?.removeListener(_syncAutoScrollTicker);
+    widget.sections?.detach(_jumpToSection);
     _autoScrollTicker.dispose();
     _bookmarkAutoScrollTimer?.cancel();
     _pageController.dispose();
@@ -1142,10 +1235,16 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget>
     if (spanIndex == null) return;
 
     final verse = ayahIndex.verseAtSpanIndex(spanIndex);
-    if (verse == null || verse == _reportedVerse) return;
+    if (verse == null) return;
+    final lastSpanIndex = _lastWholeSpanIndex(tabIndex, controller, spanIndex);
+    final lastVisible = ayahIndex.verseAtSpanIndex(lastSpanIndex) ?? verse;
+    if (verse == _reportedVerse && lastVisible == _reportedLastVisibleVerse) {
+      return;
+    }
 
     final parsed = _contentCaches[tabIndex]?.parsed;
     _reportedVerse = verse;
+    _reportedLastVisibleVerse = lastVisible;
     callback(
       QuranReadingPosition(
         verse: verse,
@@ -1153,8 +1252,52 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget>
             ? ''
             : _ayahPlainText(parsed, ayahIndex.spans[spanIndex]),
         fromUserScroll: _sawUserScrollInput,
+        lastVisibleVerse: lastVisible,
       ),
     );
+  }
+
+  /// The last ayah span wholly on screen in tab [tabIndex], never above
+  /// [topSpanIndex] - see [QuranReadingPosition.lastVisibleVerse].
+  ///
+  /// Read at the bottom edge of what shows, above the reading chrome laid
+  /// over the foot of the list. The verse that edge cuts through has not been
+  /// read to its end, so it is the one before; past the last verse - the
+  /// footer, or the list's own end - every verse is on screen.
+  int _lastWholeSpanIndex(
+    int tabIndex,
+    ScrollController controller,
+    int topSpanIndex,
+  ) {
+    final ayahIndex = _ayahIndexFor(tabIndex);
+    if (ayahIndex == null || !controller.hasClients) return topSpanIndex;
+    final lastSpanIndex = ayahIndex.spans.length - 1;
+    final position = controller.position;
+    final bottom = _itemAtScrollOffset(
+      tabIndex,
+      position.pixels + position.viewportDimension - widget.listPadding.bottom,
+    );
+
+    int cut;
+    final paragraphs = _tabQuranParagraphs[tabIndex];
+    if (bottom == null) {
+      cut = lastSpanIndex + 1;
+    } else if (paragraphs == null) {
+      cut = bottom.itemIndex;
+    } else if (bottom.itemIndex >= paragraphs.items.length) {
+      cut = lastSpanIndex + 1;
+    } else {
+      final paragraph = paragraphs.items[bottom.itemIndex];
+      final k = _memberInFlowAt(bottom.box, paragraph, bottom.depth);
+      cut = k == null ? paragraph.firstSpanIndex : paragraph.spanIndexes[k];
+    }
+
+    // Back past anything that is not a verse - a heading between surahs.
+    var index = math.min(cut - 1, lastSpanIndex);
+    while (index > topSpanIndex && ayahIndex.verseAtSpanIndex(index) == null) {
+      index--;
+    }
+    return math.max(index, topSpanIndex);
   }
 
   /// A little air above a verse scrolled to, so it does not sit flush against
@@ -2168,6 +2311,7 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget>
     _restoreInitialBookmarkIfNeeded(tabIndex, controller);
     if (tabIndex == _selectedTabIndex) {
       _scheduleScrollPositionReport(tabIndex);
+      _publishSections(parsedContent);
     }
     final bookmarkedRange = tabIndex == widget.initialBookmarkTabIndex
         ? bookmarkedLineRange(
@@ -2557,12 +2701,40 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget>
           : Container();
     }
 
+    if (parsedContent.headingLines.contains(contentIndex)) {
+      return _buildHeading(shown, direction);
+    }
+
     // A standalone line that isn't part of an Arabic/transliteration/
     // translation triplet is narration, personal commentary, a heading, or a
     // source citation.
     return _footnoteBox(
       Text.rich(_buildTextSpanForLine(shown, const TextStyle())),
       textDirection: direction,
+    );
+  }
+
+  /// A section heading (`## ` in the corpus): centred over the text it heads,
+  /// in the accent, and listed in the page's Sections menu.
+  Widget _buildHeading(String text, TextDirection direction) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 22, bottom: 6),
+      child: Semantics(
+        header: true,
+        child: Text.rich(
+          _buildTextSpanForLine(
+            text,
+            TextStyle(
+              fontSize: englishFontSize + 2,
+              height: 1.3,
+              fontWeight: FontWeight.w700,
+              color: ShiaColors.of(context).accent,
+            ),
+          ),
+          textAlign: TextAlign.center,
+          textDirection: direction,
+        ),
+      ),
     );
   }
 
@@ -2946,6 +3118,7 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget>
   Widget build(BuildContext context) {
     final showTabHeaders = _showTabHeaders;
     _syncTabState(widget.tabContents.length);
+    _keepPlaceAcrossLayoutChange();
 
     final pages = PageView.builder(
       controller: _pageController,
