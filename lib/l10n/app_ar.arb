@@ -1061,6 +1061,8 @@
   "playlistMoveUp": "نقل إلى الأعلى",
   "playlistMoveDown": "نقل إلى الأسفل",
   "playlistOpenPlaylist": "فتح قائمة التشغيل",
+  "playlistCopyPlayLink": "نسخ رابط التشغيل",
+  "playlistPlayLinkCopied": "تم نسخ الرابط. فتحه يشغّل قائمة التشغيل هذه.",
   "playlistShowControls": "إظهار المزيد من عناصر التحكم",
   "playlistHideControls": "إظهار عناصر تحكم أقل",
   "playlistEmptyTitle": "لا يوجد شيء في قائمة التشغيل هذه بعد",

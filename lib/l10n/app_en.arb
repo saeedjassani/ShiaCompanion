@@ -3318,6 +3318,11 @@
   "playlistMoveUp": "Move up",
   "playlistMoveDown": "Move down",
   "playlistOpenPlaylist": "Open playlist",
+  "playlistCopyPlayLink": "Copy play link",
+  "@playlistCopyPlayLink": {
+    "description": "Playlist menu item: copies a shiacompanion.app/playlist link that opens and plays the playlist, for the Shortcuts app, Android routines or an NFC tag."
+  },
+  "playlistPlayLinkCopied": "Link copied. Opening it plays this playlist.",
   "playlistShowControls": "Show more controls",
   "playlistHideControls": "Show fewer controls",
   "playlistEmptyTitle": "Nothing in this playlist yet",

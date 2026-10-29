@@ -50,6 +50,22 @@ const int calendarDeepLinkType = 3;
 
 const String calendarDeepLinkPath = '/calendar';
 
+/// Play links: `/play/<zikr slug or uid>` opens a zikr and starts its
+/// recitation. Segments are `[slug]`. Made for the places that can only open
+/// a URL - the Shortcuts app, Android routines, an NFC tag - so they can start
+/// a dua rather than only show it.
+const int playDeepLinkType = 4;
+
+const String playDeepLinkPath = '/play';
+
+/// Playlist links: `/playlist/<id>` opens one of the reader's playlists and
+/// starts it. Segments are `[id]`. Playlists live on the device, so a link to
+/// one the reader made only works on that device; the starter playlists
+/// (`default-thursday` and the rest) have the same id everywhere.
+const int playlistDeepLinkType = 5;
+
+const String playlistDeepLinkPath = '/playlist';
+
 /// Set when the web launch URL generated its own route, so the home page knows
 /// not to open the same link a second time.
 ///
@@ -107,6 +123,18 @@ String buildQuranDeepLinkPath({required int surah, int? ayah}) {
 
 String buildQuranJuzDeepLinkPath(int juz) => '/quran/$quranJuzSegment/$juz';
 
+/// The play link for a zikr: by slug when it has one, by uid otherwise.
+String buildPlayDeepLinkPath({required String uid, String? slug}) {
+  final normalizedSlug = slug?.trim();
+  final segment = normalizedSlug != null && normalizedSlug.isNotEmpty
+      ? normalizedSlug
+      : uid;
+  return '$playDeepLinkPath/${Uri.encodeComponent(segment)}';
+}
+
+String buildPlaylistDeepLinkPath(String playlistId) =>
+    '$playlistDeepLinkPath/${Uri.encodeComponent(playlistId)}';
+
 bool isReservedNonZikrRouteName(String? routeName) {
   if (routeName == null || routeName.isEmpty) return false;
   final uri = Uri.tryParse(routeName);
@@ -148,6 +176,24 @@ DeepLinkTarget? parseDeepLinkUri(Uri uri) {
     return DeepLinkTarget(
       type: calendarDeepLinkType,
       segments: const [],
+      source: source,
+    );
+  }
+
+  if (segments.first == 'play') {
+    if (segments.length != 2) return null;
+    return DeepLinkTarget(
+      type: playDeepLinkType,
+      segments: [segments[1]],
+      source: source,
+    );
+  }
+
+  if (segments.first == 'playlist') {
+    if (segments.length != 2) return null;
+    return DeepLinkTarget(
+      type: playlistDeepLinkType,
+      segments: [segments[1]],
       source: source,
     );
   }
@@ -328,6 +374,8 @@ const Set<String> _reservedNonZikrPaths = {
   'callback',
   'calendar-prayer-times',
   'delete-account',
+  'play',
+  'playlist',
   'quran',
   'widget-preview',
 };
@@ -416,6 +464,14 @@ String buildLibraryDeepLinkUrl({
 
 String buildCalendarDeepLinkUrl() {
   return '$appWebOrigin$calendarDeepLinkPath';
+}
+
+String buildPlayDeepLinkUrl({required String uid, String? slug}) {
+  return '$appWebOrigin${buildPlayDeepLinkPath(uid: uid, slug: slug)}';
+}
+
+String buildPlaylistDeepLinkUrl(String playlistId) {
+  return '$appWebOrigin${buildPlaylistDeepLinkPath(playlistId)}';
 }
 
 String buildQuranDeepLinkUrl({required int surah, int? ayah}) {

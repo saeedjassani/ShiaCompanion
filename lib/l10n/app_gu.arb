@@ -1061,6 +1061,8 @@
   "playlistMoveUp": "ઉપર ખસેડો",
   "playlistMoveDown": "નીચે ખસેડો",
   "playlistOpenPlaylist": "પ્લેલિસ્ટ ખોલો",
+  "playlistCopyPlayLink": "પ્લે લિંક કોપી કરો",
+  "playlistPlayLinkCopied": "લિંક કોપી થઈ. તેને ખોલવાથી આ પ્લેલિસ્ટ ચાલશે.",
   "playlistShowControls": "વધુ નિયંત્રણો બતાવો",
   "playlistHideControls": "ઓછાં નિયંત્રણો બતાવો",
   "playlistEmptyTitle": "આ પ્લેલિસ્ટમાં હજી કંઈ નથી",

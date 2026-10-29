@@ -1061,6 +1061,8 @@
   "playlistMoveUp": "انتقال به بالا",
   "playlistMoveDown": "انتقال به پایین",
   "playlistOpenPlaylist": "باز کردن فهرست پخش",
+  "playlistCopyPlayLink": "کپی پیوند پخش",
+  "playlistPlayLinkCopied": "پیوند کپی شد. باز کردن آن این فهرست پخش را اجرا می‌کند.",
   "playlistShowControls": "نمایش کنترل‌های بیشتر",
   "playlistHideControls": "نمایش کنترل‌های کمتر",
   "playlistEmptyTitle": "این فهرست پخش هنوز خالی است",

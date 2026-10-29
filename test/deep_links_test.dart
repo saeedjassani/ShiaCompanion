@@ -499,4 +499,49 @@ void main() {
       );
     });
   });
+
+  test('parseDeepLinkUri reads play links for a zikr', () {
+    final target = parseDeepLinkUri(
+      Uri.parse('https://shiacompanion.app/play/dua-kumayl?src=shortcut'),
+    );
+
+    expect(target?.type, playDeepLinkType);
+    expect(target?.segments, ['dua-kumayl']);
+    expect(target?.source, 'shortcut');
+  });
+
+  test('parseDeepLinkUri reads playlist links', () {
+    final target = parseDeepLinkUri(
+      Uri.parse('https://shiacompanion.app/playlist/default-thursday'),
+    );
+
+    expect(target?.type, playlistDeepLinkType);
+    expect(target?.segments, ['default-thursday']);
+  });
+
+  test('parseDeepLinkUri rejects play and playlist links without one id', () {
+    for (final link in [
+      '/play',
+      '/playlist',
+      '/play/dua-kumayl/extra',
+      '/playlist/a/b',
+    ]) {
+      expect(parseDeepLinkUri(Uri.parse(link)), isNull, reason: link);
+    }
+  });
+
+  test('play and playlist links are not web launch routes', () {
+    expect(parseLaunchRouteName('/play/dua-kumayl'), isNull);
+    expect(parseLaunchRouteName('/playlist/default-thursday'), isNull);
+  });
+
+  test('play and playlist link builders round-trip through the parser', () {
+    final play = buildPlayDeepLinkUrl(uid: 'E31', slug: 'dua-kumayl');
+    expect(play, 'https://shiacompanion.app/play/dua-kumayl');
+    expect(buildPlayDeepLinkPath(uid: 'E31'), '/play/E31');
+
+    final playlist = buildPlaylistDeepLinkUrl('my list');
+    expect(playlist, 'https://shiacompanion.app/playlist/my%20list');
+    expect(parseDeepLinkUri(Uri.parse(playlist))?.segments, ['my list']);
+  });
 }

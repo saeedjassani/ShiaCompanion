@@ -1061,6 +1061,8 @@
   "playlistMoveUp": "اوپر لے جائیں",
   "playlistMoveDown": "نیچے لے جائیں",
   "playlistOpenPlaylist": "پلے لسٹ کھولیں",
+  "playlistCopyPlayLink": "پلے لنک کاپی کریں",
+  "playlistPlayLinkCopied": "لنک کاپی ہو گیا۔ اسے کھولنے سے یہ پلے لسٹ چلے گی۔",
   "playlistShowControls": "مزید کنٹرول دکھائیں",
   "playlistHideControls": "کم کنٹرول دکھائیں",
   "playlistEmptyTitle": "اس پلے لسٹ میں ابھی کچھ نہیں",
