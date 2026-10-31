@@ -781,7 +781,11 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget>
     final group = content.groupContaining(lineIndex);
     if (group == null) return null;
     for (var i = group.start; i < group.end; i++) {
+      // A line can be coded both ways: a bare Bismillah above verse 1 claims
+      // verse 1's transliteration as its own translation. The reader draws it
+      // as transliteration, so it is not the translation to open.
       if (content.translaCodes.contains(i) &&
+          !content.transliCodes.contains(i) &&
           !content.isHiddenEnglish(i) &&
           content.displayLine(i).trim().isNotEmpty) {
         return i;
