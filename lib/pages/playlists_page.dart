@@ -1060,6 +1060,35 @@ Set<String> _aamaalPrefixes() {
   return found;
 }
 
+/// Stands in for the Quran section's own row among the picker's uids.
+const String _quranSectionRow = '~quran-section';
+
+/// Whether [uid] is from the Quran: a surah (`A5` is Al-Fatihah) or a
+/// passage of one (`A4`, Ayat al-Kursi).
+bool _isQuran(String uid) =>
+    _contentUid(uid).replaceAll(RegExp('[0-9].*'), '') == 'A';
+
+/// Passages of a surah, filed right after it: Ayat al-Kursi is 2:255.
+const Map<String, int> _quranPassageSurah = {'A4': 2};
+
+/// The surah number a Quran entry is ordered by - the leading `N:` of a
+/// surah's title ("36: Ya-Sin") - with a passage just after its surah.
+(int, int) _quranOrder(String uid) {
+  final passageOf = _quranPassageSurah[_contentUid(uid)];
+  if (passageOf != null) return (passageOf, 1);
+  final match =
+      RegExp(r'^\s*(\d+)\s*:').firstMatch(items[uid]?.toString() ?? '');
+  return (match == null ? 1 << 20 : int.parse(match.group(1)!), 0);
+}
+
+int _compareQuranOrder(String a, String b) {
+  final (surahA, passageA) = _quranOrder(a);
+  final (surahB, passageB) = _quranOrder(b);
+  if (surahA != surahB) return surahA.compareTo(surahB);
+  if (passageA != passageB) return passageA.compareTo(passageB);
+  return a.compareTo(b);
+}
+
 /// Every zikr that has a recording, to tick into a playlist, narrowed by
 /// the find field at the bottom.
 class AddRecitationsPage extends StatefulWidget {
@@ -1074,6 +1103,48 @@ class AddRecitationsPage extends StatefulWidget {
 class _AddRecitationsPageState extends State<AddRecitationsPage> {
   final TextEditingController _find = TextEditingController();
   bool _audioReady = ZikrAudioIndex.instance.isLoaded;
+
+  /// Whether the Quran section is open; it starts closed.
+  bool _quranOpen = false;
+
+  /// The Quran section's own row: tapping it opens or closes the surahs
+  /// under it. It has no tick - ticking every surah at once is never wanted.
+  Widget _buildQuranSectionRow(
+    BuildContext context,
+    ZikrPlaylist playlist,
+    List<String> surahs, {
+    required bool open,
+    required bool first,
+    required bool last,
+  }) {
+    final l10n = context.l10n;
+    final inPlaylist = surahs.where(playlist.zikrUids.contains).length;
+    final count = l10n.listCountSurahs(surahs.length);
+    return Semantics(
+      expanded: open,
+      child: CardListRow(
+        first: first,
+        last: last && !open,
+        title: Text(l10n.quranTitle),
+        subtitle: Text(inPlaylist == 0
+            ? count
+            : '$count · ${l10n.playlistSectionAdded(inPlaylist)}'),
+        trailing: AnimatedRotation(
+          turns: open ? 0.5 : 0,
+          duration: const Duration(milliseconds: 200),
+          child: OutlineIcon(
+            OutlineGlyph.chevronDown,
+            size: 18,
+            color: ShiaColors.of(context).chevron,
+          ),
+        ),
+        // While finding, the section stays open so the matches show.
+        onTap: _find.text.trim().isEmpty
+            ? () => setState(() => _quranOpen = !_quranOpen)
+            : null,
+      ),
+    );
+  }
 
   @override
   void initState() {
@@ -1133,7 +1204,22 @@ class _AddRecitationsPageState extends State<AddRecitationsPage> {
         : aamaal.contains(uid.replaceAll(RegExp('[0-9].*'), ''))
             ? 2
             : 1;
-    final uids = ZikrAudioIndex.instance.uids.toList()
+    bool matches(String uid) {
+      if (query.isEmpty) return true;
+      if (_zikrTitle(uid).toLowerCase().contains(query)) return true;
+      // Recording labels name what they are ("Dua after Ziyarat Warith"),
+      // so they are worth finding by too.
+      return ZikrAudioIndex.instance.tracksFor(uid).any((track) =>
+          (track.displayLabel ?? track.label)?.toLowerCase().contains(query) ??
+          false);
+    }
+
+    final all = ZikrAudioIndex.instance.uids;
+    // The surahs (over a hundred of them) go in one Quran section, in mushaf
+    // order, so they don't bury the duas and ziyarat.
+    final surahs = all.where(_isQuran).where(matches).toList()
+      ..sort(_compareQuranOrder);
+    final others = all.where((uid) => !_isQuran(uid)).where(matches).toList()
       ..sort((a, b) {
         final byRank = rank(a).compareTo(rank(b));
         if (byRank != 0) return byRank;
@@ -1141,18 +1227,16 @@ class _AddRecitationsPageState extends State<AddRecitationsPage> {
             .toLowerCase()
             .compareTo(_zikrTitle(b).toLowerCase());
       });
-    final visible = query.isEmpty
-        ? uids
-        : uids.where((uid) {
-            if (_zikrTitle(uid).toLowerCase().contains(query)) return true;
-            // Recording labels name what they are ("Dua after Ziyarat
-            // Warith"), so they are worth finding by too.
-            return ZikrAudioIndex.instance.tracksFor(uid).any((track) =>
-                (track.displayLabel ?? track.label)
-                    ?.toLowerCase()
-                    .contains(query) ??
-                false);
-          }).toList();
+    // While finding, matching surahs show without opening the section.
+    final quranOpen = _quranOpen || query.isNotEmpty;
+    // The section sits after the reader's favorites, before everything else.
+    final favoriteCount = others.takeWhile((uid) => rank(uid) == 0).length;
+    final visible = <String>[
+      ...others.take(favoriteCount),
+      if (surahs.isNotEmpty) _quranSectionRow,
+      if (quranOpen) ...surahs,
+      ...others.skip(favoriteCount),
+    ];
 
     return ListenableBuilder(
       listenable: store,
@@ -1176,12 +1260,22 @@ class _AddRecitationsPageState extends State<AddRecitationsPage> {
                       )
                     : SliverCardList(
                         itemCount: visible.length,
-                        itemBuilder: (context, index) => _buildPickRow(
-                          playlist,
-                          visible[index],
-                          first: index == 0,
-                          last: index == visible.length - 1,
-                        ),
+                        itemBuilder: (context, index) => visible[index] ==
+                                _quranSectionRow
+                            ? _buildQuranSectionRow(
+                                context,
+                                playlist,
+                                surahs,
+                                open: quranOpen,
+                                first: index == 0,
+                                last: index == visible.length - 1,
+                              )
+                            : _buildPickRow(
+                                playlist,
+                                visible[index],
+                                first: index == 0,
+                                last: index == visible.length - 1,
+                              ),
                       ),
               ),
           ],
@@ -1247,10 +1341,16 @@ Widget _buildPickRow(
                 : null),
         title: textWithArabicRuns(_zikrTitle(uid)),
         subtitle: Text(L10n.current.audioRecordingsCount(available.length)),
-        // Ticking a partly-chosen zikr fills in the rest; ticking a full
-        // one takes it out.
-        onTap: () => setChosen(
-            chosen.length == available.length ? {} : allFiles.toSet()),
+        // Ticking a zikr that isn't in yet adds its first recording - the
+        // one a playlist plays by default (Hadith al-Kisa shouldn't play
+        // twice over); the rows underneath pick others. Ticking a
+        // partly-chosen zikr fills in the rest; ticking a full one takes
+        // it out.
+        onTap: () => setChosen(chosen.isEmpty
+            ? {allFiles.first}
+            : chosen.length == available.length
+                ? {}
+                : allFiles.toSet()),
       ),
       for (var i = 0; i < available.length; i++)
         Padding(

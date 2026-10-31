@@ -980,8 +980,8 @@ class _RowLetters extends StatelessWidget {
   final String letters;
   final double fontSize;
 
-  /// Drawn in Qalam: the Arabic font row's "ع". Text size's letters are the
-  /// app language's own ("اب" in Urdu) and stay in the app's font.
+  /// Drawn in Qalam: the Arabic font row's "ع". Text size's "Aa" stays in
+  /// the app's font.
   final bool inArabicFont;
 
   @override

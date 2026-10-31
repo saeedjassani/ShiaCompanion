@@ -115,6 +115,25 @@ class _FirstRunSetupPageState extends State<FirstRunSetupPage> {
       ];
   bool _finishing = false;
 
+  /// Whether the Arabic font is the reader's own: picked in the font step, or
+  /// saved by an earlier launch. Until then it only follows the app language.
+  bool _fontChosen = false;
+  String? _languageCode;
+
+  /// Arabic as the app language starts the font step on Scheherazade; moving
+  /// away again puts the usual default back. A font the reader picked stays.
+  void _followLanguageForFont(String code) {
+    if (code == _languageCode) return;
+    final wasArabic = _languageCode == arabicLanguageCode;
+    _languageCode = code;
+    if (_fontChosen) return;
+    if (code == arabicLanguageCode) {
+      arabicFont = 'Scheherazade';
+    } else if (wasArabic) {
+      arabicFont = FontPreferences.defaultFont;
+    }
+  }
+
   @override
   void initState() {
     super.initState();
@@ -132,7 +151,11 @@ class _FirstRunSetupPageState extends State<FirstRunSetupPage> {
     city ??= SP.prefs.getString('city');
     LocationService.instance.restore();
     arabicFontSize = SP.prefs.getDouble('ara_font_size') ?? arabicFontSize;
-    arabicFont = await FontPreferences.getSelectedFont() ?? arabicFont;
+    final saved = await FontPreferences.getSelectedFont();
+    if (saved != null) {
+      arabicFont = saved;
+      _fontChosen = true;
+    }
     if (mounted) setState(() {});
   }
 
@@ -152,6 +175,10 @@ class _FirstRunSetupPageState extends State<FirstRunSetupPage> {
   Future<void> _finish({required bool skipped}) async {
     if (_finishing) return;
     _finishing = true;
+    // An Arabic reader who left the font on its Arabic default keeps it.
+    if (!_fontChosen && _languageCode == arabicLanguageCode) {
+      await FontPreferences.setSelectedFont(arabicFont);
+    }
     // Azan stays off unless the Azan step turned it on; recording that as
     // the answer is what keeps the question from coming back. Without a
     // location the step was never shown, so the question is left for when
@@ -180,6 +207,9 @@ class _FirstRunSetupPageState extends State<FirstRunSetupPage> {
     final colors = ShiaColors.of(context);
     final reduceMotion = MediaQuery.disableAnimationsOf(context);
 
+    final language = context.watch<LanguageProvider?>()?.appLanguage.code;
+    if (language != null) _followLanguageForFont(language);
+
     final steps = _steps;
     final Widget page = _step == 0
         ? _WelcomeStep(
@@ -193,7 +223,8 @@ class _FirstRunSetupPageState extends State<FirstRunSetupPage> {
             child: switch (steps[_step - 1]) {
               _Setup.location => _LocationStep(onNext: _next),
               _Setup.azan => _AzanStep(onNext: _next),
-              _Setup.font => _FontStep(onNext: _next),
+              _Setup.font => _FontStep(
+                  onNext: _next, onChosen: () => _fontChosen = true),
               _Setup.theme => _ThemeStep(onNext: _next),
               _Setup.backup =>
                 _BackupStep(signIn: widget.signIn, onNext: _next),
@@ -1171,9 +1202,12 @@ class _PrayerSwitchRow extends StatelessWidget {
 }
 
 class _FontStep extends StatefulWidget {
-  const _FontStep({required this.onNext});
+  const _FontStep({required this.onNext, required this.onChosen});
 
   final VoidCallback onNext;
+
+  /// Called when the reader taps a font, even the one already shown.
+  final VoidCallback onChosen;
 
   /// The mockup's sample: the opening of Dua Kumayl.
   static const String sample =
@@ -1185,7 +1219,11 @@ class _FontStep extends StatefulWidget {
 
 class _FontStepState extends State<_FontStep> {
   Future<void> _choose(String font) async {
-    if (font == arabicFont) return;
+    widget.onChosen();
+    // A preselected font is not saved yet; tapping it is what saves it.
+    if (font == arabicFont && await FontPreferences.getSelectedFont() == font) {
+      return;
+    }
     await saveArabicFontChoice(font);
     if (mounted) setState(() {});
   }

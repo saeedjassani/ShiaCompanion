@@ -237,6 +237,18 @@ void main() {
       expect(SP.prefs.getString(ThemeModeProvider.prefsKey), 'dark');
     });
 
+    testWidgets('Arabic as the app language starts the font on Scheherazade',
+        (tester) async {
+      await _prefs({
+        FirstRunSetup.stateKey: FirstRunSetup.pending,
+        LanguageProvider.appLanguagePrefsKey: 'ar',
+      });
+      await pumpSetup(tester);
+      expect(arabicFont, 'Scheherazade');
+      // Only a default: nothing is saved until the reader chooses or finishes.
+      expect(SP.prefs.containsKey('arabic_font'), isFalse);
+    });
+
     testWidgets('Skip setup on a step ends setup, keeping what was chosen',
         (tester) async {
       await pumpSetup(tester);
