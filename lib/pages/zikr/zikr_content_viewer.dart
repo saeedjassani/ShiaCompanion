@@ -65,8 +65,8 @@ class AyahActionRequest {
     required this.lineIndex,
     this.aliNote,
     this.mahdiNote,
-    this.onToggleTranslationPeek,
-    this.translationPeeked = false,
+    this.translation,
+    this.translationDirection,
   });
 
   /// Which verse was tapped, surah included - in a juz the surah is not the
@@ -89,15 +89,14 @@ class AyahActionRequest {
   /// [mahdiRelatedNoteFor].
   final String? mahdiNote;
 
-  /// Shows this verse's translation, or hides it again, while translation is
-  /// switched off for the reader as a whole. Null when there is nothing to
-  /// peek at - translation is on already, or the reader's language has no
-  /// translation of this verse - and the menu then has no such entry.
-  final VoidCallback? onToggleTranslationPeek;
+  /// The verse's translation in the reader's language, for the per-verse
+  /// menu to show, while translation is switched off for the reader as a
+  /// whole. Null when translation is on already (it is under the verse), or
+  /// the reader's language has no translation of this verse.
+  final String? translation;
 
-  /// Whether the verse's translation is open right now, which says whether
-  /// [onToggleTranslationPeek] shows it or hides it.
-  final bool translationPeeked;
+  /// Which way [translation] reads - Urdu and Persian right to left.
+  final TextDirection? translationDirection;
 }
 
 class ZikrContentScrollPosition {
@@ -3015,13 +3014,7 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget>
     final span = ayahIndex.spans[spanIndex];
     final lines = <Widget>[
       for (var i = span.start; i < span.end; i++)
-        _buildLine(
-          parsedContent,
-          i,
-          arabicStyle,
-          transliStyle,
-          tabIndex: tabIndex,
-        ),
+        _buildLine(parsedContent, i, arabicStyle, transliStyle),
     ];
 
     final verse = span.verse;
@@ -3043,9 +3036,9 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget>
 
   /// Opens the per-verse menu for [span], when the page offers one.
   ///
-  /// A tap on a verse is already this menu, so opening a verse's translation
-  /// while translation is off is an entry in it (see
-  /// [AyahActionRequest.onToggleTranslationPeek]) rather than a gesture.
+  /// A tap on a verse is already this menu, so while translation is off the
+  /// menu is where the verse's translation is shown (see
+  /// [AyahActionRequest.translation]).
   void _requestAyahAction(
     int tabIndex,
     ParsedZikrContent parsedContent,
@@ -3054,6 +3047,7 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget>
     final verse = span.verse;
     final onAction = widget.onAyahAction;
     if (verse == null || onAction == null) return;
+    final translationLine = _peekTranslationLine(parsedContent, span.start);
     onAction(
       AyahActionRequest(
         verse: verse,
@@ -3061,10 +3055,16 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget>
         lineIndex: span.start,
         aliNote: aliRelatedNoteFor(verse),
         mahdiNote: mahdiRelatedNoteFor(verse),
-        onToggleTranslationPeek: _canPeek(parsedContent, span.start)
-            ? () => _togglePeek(tabIndex, parsedContent, span.start)
-            : null,
-        translationPeeked: _isPeeked(tabIndex, parsedContent, span.start),
+        // Plain text: any link markup in the line is dropped.
+        translation: translationLine == null
+            ? null
+            : _buildTextSpanForLine(
+                parsedContent.displayLine(translationLine).trim(),
+                const TextStyle(),
+              ).toPlainText(),
+        translationDirection: translationLine == null
+            ? null
+            : parsedContent.directionOf(translationLine),
       ),
     );
   }
@@ -3179,58 +3179,11 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget>
           if (first.startsSurah != null)
             _SurahHeading(surah: first.startsSurah!),
           ruled,
-          _peekedTranslations(tabIndex, parsedContent, spans),
           Divider(
             height: 20,
             color: ShiaColors.of(context).readerDivider,
           ),
         ],
-      ),
-    );
-  }
-
-  /// The translations the reader has opened (see [_peekedVerses]) of the
-  /// verses in a paragraph, under it - a flowing paragraph has no room
-  /// between its verses - each headed by its verse number, and drawn as a
-  /// translation line always is.
-  Widget _peekedTranslations(
-    int tabIndex,
-    ParsedZikrContent parsedContent,
-    List<AyahSpan> spans,
-  ) {
-    final colors = ShiaColors.of(context);
-    final peeked = <Widget>[
-      for (final span in spans)
-        if (span.ayah != null &&
-            _isPeeked(tabIndex, parsedContent, span.start) &&
-            _peekTranslationLine(parsedContent, span.start) != null)
-          Padding(
-            padding: const EdgeInsets.only(top: 8),
-            child: Column(
-              children: [
-                Text(
-                  localizeDigits('${span.ayah}', context.l10n),
-                  style: TextStyle(
-                    fontSize: englishFontSize - 2,
-                    color: colors.textMuted,
-                  ),
-                ),
-                _translationLine(
-                  parsedContent,
-                  _peekTranslationLine(parsedContent, span.start)!,
-                ),
-              ],
-            ),
-          ),
-    ];
-    return AnimatedSize(
-      duration: const Duration(milliseconds: 180),
-      curve: Curves.easeOut,
-      alignment: Alignment.topCenter,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: peeked,
       ),
     );
   }

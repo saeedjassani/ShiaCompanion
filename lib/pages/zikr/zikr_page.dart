@@ -934,6 +934,25 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
                   style: ShiaText.sectionTitle.copyWith(color: colors.text),
                 ),
               ),
+              // With translation switched off, the verse's translation is
+              // read here rather than opened under the verse. A long one
+              // (2:282) scrolls, so the actions below stay on screen.
+              if (request.translation case final translation?)
+                Padding(
+                  padding: const EdgeInsets.only(top: 6),
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(
+                      maxHeight: MediaQuery.sizeOf(sheetContext).height * 0.35,
+                    ),
+                    child: SingleChildScrollView(
+                      child: Text(
+                        translation,
+                        textDirection: request.translationDirection,
+                        style: ShiaText.body.copyWith(color: colors.text),
+                      ),
+                    ),
+                  ),
+                ),
               // In paragraph mode there is no per-verse seal to long-press,
               // so the menu is where a verse's Imam Ali (as) or Imam
               // al-Mahdi (atfs) note is shown.
@@ -988,17 +1007,6 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
                     excerpt: _excerptOf(text),
                   )),
                 ),
-                // Only while translation is off and this verse has one in
-                // the reader's language; the verse itself opens or closes.
-                if (request.onToggleTranslationPeek case final toggle?)
-                  action(
-                    sheetContext,
-                    glyph: OutlineGlyph.eye,
-                    label: request.translationPeeked
-                        ? context.l10n.quranHideTranslation
-                        : context.l10n.quranShowTranslation,
-                    onTap: toggle,
-                  ),
                 action(
                   sheetContext,
                   glyph: OutlineGlyph.copy,

@@ -280,8 +280,7 @@ void main() {
       ],
     ].join('\n');
 
-    testWidgets('offers to open the verse from its menu, and to close it',
-        (tester) async {
+    testWidgets('hands the verse menu its translation to show', (tester) async {
       AyahActionRequest? request;
       await _pump(
         tester,
@@ -289,26 +288,17 @@ void main() {
         surahNumber: 1,
         onAyahAction: (value) => request = value,
       );
-      expect(_text('Translation of ayah 2'), findsNothing);
 
       await tester.tap(_arabic('اَلْحَمْدُ').at(1));
       await tester.pumpAndSettle();
       expect(request!.verse.ayah, 2);
-      expect(request!.translationPeeked, isFalse);
-      request!.onToggleTranslationPeek!();
-      await tester.pumpAndSettle();
-      expect(_text('Translation of ayah 2'), findsOneWidget);
-      expect(_text('Translation of ayah 1'), findsNothing);
-
-      await tester.tap(_arabic('اَلْحَمْدُ').at(1));
-      await tester.pumpAndSettle();
-      expect(request!.translationPeeked, isTrue);
-      request!.onToggleTranslationPeek!();
-      await tester.pumpAndSettle();
+      expect(request!.translation, 'Translation of ayah 2');
+      expect(request!.translationDirection, TextDirection.ltr);
+      // Nothing opens under the verse: the menu shows it.
       expect(_text('Translation of ayah 2'), findsNothing);
     });
 
-    testWidgets('offers nothing while translation is on', (tester) async {
+    testWidgets('hands it none while translation is on', (tester) async {
       showTranslation = true;
       AyahActionRequest? request;
       await _pump(
@@ -321,11 +311,10 @@ void main() {
       await tester.tap(_text('Translation of ayah 2'));
       await tester.pumpAndSettle();
 
-      expect(request!.onToggleTranslationPeek, isNull);
+      expect(request!.translation, isNull);
     });
 
-    testWidgets('shows an opened verse under the paragraph in paragraph mode',
-        (tester) async {
+    testWidgets('hands it the tapped verse in paragraph mode', (tester) async {
       showArabicAsParagraph = true;
       AyahActionRequest? request;
       await _pump(
@@ -341,12 +330,8 @@ void main() {
       await tester.pumpAndSettle();
       expect(request, isNotNull);
       expect(request!.verse.ayah, 1);
-
-      request!.onToggleTranslationPeek!();
-      await tester.pumpAndSettle();
-
-      expect(_text('Translation of ayah 1'), findsOneWidget);
-      expect(_text('Translation of ayah 2'), findsNothing);
+      expect(request!.translation, 'Translation of ayah 1');
+      expect(_text('Translation of ayah 1'), findsNothing);
     });
   });
 }
