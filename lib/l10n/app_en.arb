@@ -67,7 +67,7 @@
   "settingsSectionAppearance": "Appearance",
   "textSizeGlyph": "Aa",
   "@textSizeGlyph": {
-    "description": "Drawn as the icon of the text-size settings and of the reader's Text button: a capital and a small letter in English. Use one or two letters of your own alphabet so the icon reads in your script (e.g. Arabic: أب). Not a word."
+    "description": "Drawn as the icon of the text-size settings and of the reader's Text button: a capital and a small letter. Keep it \"Aa\" in every language: it is the familiar text-size mark, and letters of another script (Urdu: اب) read as a word."
   },
   "textSizeLetter": "A",
   "@textSizeLetter": {
@@ -762,6 +762,8 @@
   "quranCopyLink": "Copy link",
   "quranLinkCopied": "Link copied",
   "quranShareVerse": "Share verse",
+  "quranShowTranslation": "Show translation",
+  "quranHideTranslation": "Hide translation",
   "zikrMerits": "Merits",
   "zikrSections": "Sections",
   "zikrReportThanks": "Thanks - we'll take a look.",
@@ -3318,6 +3320,16 @@
   },
   "playlistDownloadedCount": "{count} downloaded",
   "@playlistDownloadedCount": {
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "playlistSectionAdded": "{count} added",
+  "@playlistSectionAdded": {
+    "description": "Subtitle on a collapsed section of the Add zikr picker (the Quran): how many of its items are in the playlist.",
     "placeholders": {
       "count": {
         "type": "int",

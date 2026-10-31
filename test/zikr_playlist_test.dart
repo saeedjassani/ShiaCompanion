@@ -450,6 +450,82 @@ void main() {
           reason: 'unticking the last recording takes the zikr out');
     });
 
+    testWidgets(
+        'the picker names each recording\'s reciter, and its title '
+        'ticks them all', (tester) async {
+      items = {...items, 'E14': 'Hadith al-Kisa'};
+      ZikrAudioIndex.instance.setForTest(ZikrAudioIndex.parse({
+        'E14': [
+          {'file': 'kisa.mp3', 'label': 'Hadith Kisa', 'reciter': 'Ali Fani'},
+          {
+            'file': 'kisa-wasi.mp3',
+            'label': 'Hadith Kisa',
+            'reciter': 'Muhammad Wasi',
+          },
+        ],
+      }));
+      final store = ZikrPlaylistStore.instance;
+      final playlist = await store.create('Morning');
+      await tester.pumpWidget(
+          MaterialApp(home: AddRecitationsPage(playlistId: playlist.id)));
+
+      expect(find.text('Ali Fani'), findsOneWidget);
+      expect(find.text('Muhammad Wasi'), findsOneWidget);
+
+      await tester.tap(find.text('Hadith al-Kisa'));
+      await tester.pump();
+      final available = ZikrAudioIndex.instance.tracksFor('E14');
+      List<String> chosen() => [
+            for (final track
+                in store.byId(playlist.id)!.tracksFor('E14', available))
+              track.file,
+          ];
+      expect(chosen(), ['kisa.mp3', 'kisa-wasi.mp3']);
+
+      await tester.tap(find.text('Ali Fani'));
+      await tester.pump();
+      expect(chosen(), ['kisa-wasi.mp3'],
+          reason: 'a reciter\'s row unticks just that recording');
+    });
+
+    testWidgets('the picker keeps surahs in one Quran section, in order',
+        (tester) async {
+      items = {
+        ...items,
+        'A40': '36: Ya-Sin يس',
+        'A5': '1: Al-Fatihah الفاتحة',
+        'A4': 'Ayat al-Kursi',
+        'A6': '2: Al-Baqarah البقرة',
+      };
+      ZikrAudioIndex.instance.setForTest(ZikrAudioIndex.parse({
+        for (final uid in ['E18', 'A40', 'A5', 'A4', 'A6'])
+          uid: [
+            {'file': '$uid.mp3'},
+          ],
+      }));
+      final store = ZikrPlaylistStore.instance;
+      final playlist = await store.create('Morning');
+      await tester.pumpWidget(
+          MaterialApp(home: AddRecitationsPage(playlistId: playlist.id)));
+
+      expect(find.text('Quran'), findsOneWidget);
+      expect(find.text('Dua e Ahad'), findsOneWidget);
+      expect(find.textContaining('Ya-Sin'), findsNothing,
+          reason: 'the section starts closed');
+
+      await tester.tap(find.text('Quran'));
+      await tester.pumpAndSettle();
+      double top(String text) =>
+          tester.getTopLeft(find.textContaining(text)).dy;
+      expect(top('Al-Fatihah'), lessThan(top('Al-Baqarah')));
+      expect(top('Al-Baqarah'), lessThan(top('Ayat al-Kursi')));
+      expect(top('Ayat al-Kursi'), lessThan(top('Ya-Sin')));
+
+      await tester.tap(find.textContaining('Ya-Sin'));
+      await tester.pump();
+      expect(store.byId(playlist.id)!.zikrUids, ['A40']);
+    });
+
     testWidgets('a zikr playing one of several recordings goes by its label',
         (tester) async {
       items = {...items, 'G1': 'Ziyarat Aal e Yasin'};

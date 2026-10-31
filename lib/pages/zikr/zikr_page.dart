@@ -988,6 +988,17 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
                     excerpt: _excerptOf(text),
                   )),
                 ),
+                // Only while translation is off and this verse has one in
+                // the reader's language; the verse itself opens or closes.
+                if (request.onToggleTranslationPeek case final toggle?)
+                  action(
+                    sheetContext,
+                    glyph: OutlineGlyph.eye,
+                    label: request.translationPeeked
+                        ? context.l10n.quranHideTranslation
+                        : context.l10n.quranShowTranslation,
+                    onTap: toggle,
+                  ),
                 action(
                   sheetContext,
                   glyph: OutlineGlyph.copy,
