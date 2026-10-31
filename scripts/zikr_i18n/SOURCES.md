@@ -926,3 +926,35 @@ Alqama.
   3/64 (existing 0, 12, 63).** Do not re-extract this chapter for G52.
   The remaining segments need the mafatihuljinan.org Gujarati *Mafatih*
   page (post 2285), whose body is JS-rendered and still unextracted.
+
+## Negative findings — Oct 31, 2026 wave (do not re-research before Dec 1)
+
+- **A3 Urdu — Dua Khatm al-Quran (6 segs): NO PUBLISHED URDU SOURCE FOUND.**
+  Searched mafatih.duas.co, mafatih.net, and general web (Oct 31, 2026).
+  This text («اَللّٰهُمَّ رَبَّنَا يَا رَبَّنَا تَقَبَّلْ مِنَّا... وَ اكْتُبِ الصِّحَّةَ
+  وَ السَّلَامَةَ...») is a South-Asian majlis composition, not in *Mafatih*;
+  search hits were only Sahifa Sajjadiya dua 42 and generic khatm duas.
+  No published Urdu translation exists. Awaiting Dec 1 MT gate or his call.
+
+- **E154 Gujarati — Dua Ihtijab (41 segs): SOURCE UNVERIFIABLE, segments discarded.**
+  An agy run filled 18/41 segments (Oct 31) from an unidentified source
+  (likely Jafri Library book 122350 «દોઆ એ હોજોબ», whose PDF text could not
+  be extracted — site is a JS SPA, download endpoints 403/404). Per the
+  binding gate, unverified text cannot ship: all 18 segments were discarded,
+  branch reset. *Jannat ni Chaavio*'s chapter list (enumerated Oct 31) has no
+  Dua Ihtijab chapter. Do not re-attempt without a verifiable published source.
+
+- **D12 Urdu — Dua after Namaz for Seeking Sustenance (10 segs, 7 blank):
+  PUBLISHED SOURCE NOT LOCATED.** The dua («اَللّٰھُمَّ یَا سَبَبَ مَنْ لَا
+  سَبَبَ لَهٗ...») is in *Mafatih* ta'qibat; mafatih.duas.co sections checked
+  (taqibat-after-salam, taqibat-common-contd, duas-hajaat-2, duas-wusat-rizq)
+  do not contain it, and it is not indexed on the web with an Urdu
+  translation. Existing app segments 0/4/9 stand. Revisit with site search
+  or a full-book PDF.
+
+- **E16 Gujarati — Dua during the Occultation (10 segs, 9 blank): NOT IN
+  JANNAT NI CHAAVIO.** Full chapter list of *Jannat ni Chaavio*
+  (web.hajinaji.com, enumerated Oct 31, 2026) contains no occultation-dua
+  chapter and no chapter for the Zurarah narration («اللهم عرفني نفسك...»).
+  Do not re-attempt from this book. Alternative published Gujarati sources
+  need his authorization (standing rule: Jannat ni Chaavio first).
