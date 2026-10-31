@@ -24,6 +24,7 @@ import 'go_to_verse_sheet.dart';
 import 'listen_and_follow_sheet.dart';
 import 'quran_collections_tab.dart';
 import 'quran_navigation.dart';
+import '../../data/quran_sajdah_verses.dart';
 import 'recent_recitations_page.dart';
 import 'recitation_track_sheet.dart';
 import '../../l10n/l10n.dart';
@@ -559,7 +560,11 @@ class _SurahList extends StatelessWidget {
           minHeight: 60,
           leading: NumberWell(surah.number),
           title: Text(surah.displayName),
-          subtitle: Text(context.l10n.quranVerseCount(surah.ayahCount)),
+          subtitle: Text(
+            isAzaimSurah(surah.number)
+                ? '${context.l10n.quranVerseCount(surah.ayahCount)} • ۩ ${azaimSurahBadgeLabel(context.l10n.localeName)}'
+                : context.l10n.quranVerseCount(surah.ayahCount),
+          ),
           trailing: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
