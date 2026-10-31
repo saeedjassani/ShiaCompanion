@@ -56,7 +56,7 @@ where a deck has no Urdu, or repeats the next slide's Urdu:
 | --- | --- | --- |
 | E18 | Dua Ahad | https://mafatih.duas.co/dua-ehed (cross-checked against https://ur.wikishia.net/view/دعائے_عہد) |
 | E1 | Dua Istighatha | https://mafatih.duas.co/istighasa-qayim |
-| E6 | Dua al-Mahdi (a.t.f.s.) | https://mafatih.duas.co/dua-faraj-hujjat2 |
+| E6 | Dua al-Mahdi (a.t.f.s.) | https://mafatih.duas.co/dua-faraj-hujjat2 (segs 0, 2–30); seg 1 (Basmala) has no Urdu block on the E6 page, so it uses the translator's rendering of the identical Basmala Arabic as printed in the same published book on https://mafatih.duas.co/dua-adeela (also merged in-app as E4 Urdu seg 0) — documented cross-page sourcing, flagged for reviewer |
 | E4 | Dua Adeela | https://mafatih.duas.co/dua-adeela |
 | G3 | Ziyarat Arbaeen | https://mafatih.duas.co/ziarat-arbaeen (verses and merits) |
 | G6 | Ziyarat Warith | https://mafatih.duas.co/ziarat-warisa (tabs 1-3); tab 4, al-Abbas, is the short ziyarat inside https://mafatih.duas.co/ziarat-qadr |
