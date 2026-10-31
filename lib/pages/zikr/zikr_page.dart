@@ -918,10 +918,10 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
                         .copyWith(fontSize: 14, color: colors.textMuted),
                   ),
                 ),
-              // The reader's own note, read here and changed from the row
-              // below.
               if (request.sajdahVerse case final sajdah?)
                 SajdahInstructionCard(sajdahVerse: sajdah),
+              // The reader's own note, read here and changed from the row
+              // below.
               if (userNote != null)
                 Container(
                   margin: const EdgeInsets.only(top: 10),

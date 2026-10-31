@@ -28,46 +28,25 @@ class QuranSajdahVerse {
   /// the 11 verses where prostration is Mustahabb.
   final bool isWajib;
 
-  /// Authentic supplication recited in Sajdah-e-Tilawat narrated in Shia
-  /// tradition (Mafatih al-Jinan & Taudhih al-Masa'il).
+  /// Supplication recommended in sajdah al-tilawa (Sistani, al-Ta'liqa
+  /// 'ala al-Urwa al-Wuthqa, sajdah chapter, ruling 18).
   static const String duaArabic =
-      'سَجَدْتُ لَكَ يَا رَبِّ تَعَبُّداً وَرِقّاً، لاَ مُسْتَنْكِفاً وَلاَ مُسْتَكْبِراً، بَلْ أَنَا عَبْدٌ ذَلِيْلٌ خَائِفٌ مُسْتَجِيْرٌ';
+      'لاَ إِلَهَ إِلَّا اللَّهُ حَقّاً حَقّاً، لاَ إِلَهَ إِلَّا اللَّهُ إِيْمَاناً وَتَصْدِيْقاً، لاَ إِلَهَ إِلَّا اللَّهُ عُبُوْدِيَّةً وَرِقّاً، سَجَدْتُ لَكَ يَا رَبِّ تَعَبُّداً وَرِقّاً، لاَ مُسْتَنْكِفاً وَلاَ مُسْتَكْبِراً، بَلْ أَنَا عَبْدٌ ذَلِيْلٌ ضَعِيْفٌ خَائِفٌ مُسْتَجِيْرٌ';
 
-  String title([String? languageCode]) {
-    final lang = languageCode ?? L10n.current.localeName;
-    final texts = _translations[lang] ?? _translations['en']!;
-    return isWajib ? texts.titleWajib : texts.titleMustahabb;
-  }
+  String title([String? languageCode]) =>
+      isWajib ? _texts(languageCode).titleWajib : _texts(languageCode).titleMustahabb;
 
-  String badgeLabel([String? languageCode]) {
-    final lang = languageCode ?? L10n.current.localeName;
-    final texts = _translations[lang] ?? _translations['en']!;
-    return isWajib ? texts.badgeWajib : texts.badgeMustahabb;
-  }
+  String badgeLabel([String? languageCode]) =>
+      isWajib ? _texts(languageCode).badgeWajib : _texts(languageCode).badgeMustahabb;
 
-  String wajibPill([String? languageCode]) {
-    final lang = languageCode ?? L10n.current.localeName;
-    final texts = _translations[lang] ?? _translations['en']!;
-    return texts.wajibPill;
-  }
+  String wajibPill([String? languageCode]) => _texts(languageCode).wajibPill;
 
-  String ruling([String? languageCode]) {
-    final lang = languageCode ?? L10n.current.localeName;
-    final texts = _translations[lang] ?? _translations['en']!;
-    return isWajib ? texts.rulingWajib : texts.rulingMustahabb;
-  }
+  String ruling([String? languageCode]) =>
+      isWajib ? _texts(languageCode).rulingWajib : _texts(languageCode).rulingMustahabb;
 
-  String duaHeading([String? languageCode]) {
-    final lang = languageCode ?? L10n.current.localeName;
-    final texts = _translations[lang] ?? _translations['en']!;
-    return texts.duaHeading;
-  }
+  String duaHeading([String? languageCode]) => _texts(languageCode).duaHeading;
 
-  String duaTranslation([String? languageCode]) {
-    final lang = languageCode ?? L10n.current.localeName;
-    final texts = _translations[lang] ?? _translations['en']!;
-    return texts.duaTranslation;
-  }
+  String duaTranslation([String? languageCode]) => _texts(languageCode).duaTranslation;
 }
 
 class _SajdahTexts {
@@ -94,6 +73,12 @@ class _SajdahTexts {
   final String duaTranslation;
 }
 
+_SajdahTexts _texts(String? languageCode) {
+  final lang =
+      (languageCode ?? L10n.current.localeName).split(RegExp('[_-]')).first;
+  return _translations[lang] ?? _translations['en']!;
+}
+
 const Map<String, _SajdahTexts> _translations = {
   'en': _SajdahTexts(
     titleWajib: 'Obligatory Prostration (Wajib Sajdah)',
@@ -107,7 +92,7 @@ const Map<String, _SajdahTexts> _translations = {
         'According to Fiqh-e-Jafria, prostration upon this verse is recommended (mustahabb), not obligatory.',
     duaHeading: 'Recommended Supplication in Sajdah:',
     duaTranslation:
-        'O Lord, I have prostrated to You in servitude and obedience, not out of pride or arrogance, but rather as a humble, fearful servant seeking refuge with You.',
+        'There is no god but Allah, truly and truly! There is no god but Allah, in faith and belief! There is no god but Allah, in servitude and bondage! I have prostrated to You, my Lord, in devotion and servitude, neither disdaining nor proud; rather I am a humble, weak, fearful servant seeking refuge.',
   ),
   'ur': _SajdahTexts(
     titleWajib: 'سجدۂ واجبہ (فقہ جعفریہ)',
@@ -121,7 +106,7 @@ const Map<String, _SajdahTexts> _translations = {
         'فقہ جعفریہ کے مطابق اس آیت پر سجدہ کرنا مستحب ہے، واجب نہیں ہے۔',
     duaHeading: 'سجدۂ تلاوت کی مسنون دعا:',
     duaTranslation:
-        'اے میرے پروردگار! میں نے تیری بندگی اور اطاعت میں سجدہ کیا، نہ تکبر کرتے ہوئے اور نہ سرکشی کرتے ہوئے، بلکہ میں ایک عاجز، خوفزدہ اور پناہ کا طلبگار بندہ ہوں۔',
+        'اللہ کے سوا کوئی معبود نہیں، حق ہے حق۔ اللہ کے سوا کوئی معبود نہیں، ایمان اور تصدیق کے ساتھ۔ اللہ کے سوا کوئی معبود نہیں، بندگی اور غلامی کے ساتھ۔ اے پروردگار! میں نے بندگی اور غلامی کے طور پر تجھے سجدہ کیا، نہ عار سمجھتے ہوئے اور نہ تکبر کرتے ہوئے، بلکہ میں ایک حقیر، کمزور، خوفزدہ اور پناہ کا طلبگار بندہ ہوں۔',
   ),
   'fa': _SajdahTexts(
     titleWajib: 'سجده واجب (فقه جعفری)',
@@ -135,7 +120,7 @@ const Map<String, _SajdahTexts> _translations = {
         'بر اساس فقه جعفری، سجده بر این آیه مستحب است، نه واجب.',
     duaHeading: 'دعای مستحب سجده تلاوت:',
     duaTranslation:
-        'پروردگارا! در بندگی و عبودیت برای تو سجده کردم، نه از روی کبر و نه سرکشی، بلکه من بنده‌ای خوار، ترسان و پناه‌جوی درگاه توأم.',
+        'معبودی جز خدا نیست، به حق و راستی. معبودی جز خدا نیست، از روی ایمان و تصدیق. معبودی جز خدا نیست، از روی بندگی و عبودیت. پروردگارا! از روی بندگی و عبودیت برایت سجده کردم، نه از سر ننگ و نه از روی تکبر؛ بلکه من بنده‌ای خوار، ناتوان، ترسان و پناه‌جویم.',
   ),
   'ar': _SajdahTexts(
     titleWajib: 'سجدة واجبة (الفقه الجعفري)',
@@ -148,8 +133,7 @@ const Map<String, _SajdahTexts> _translations = {
     rulingMustahabb:
         'السجود عند هذه الآية مستحب في الفقه الجعفري وليس واجباً.',
     duaHeading: 'دعاء سجود التلاوة المستحب:',
-    duaTranslation:
-        'أي خضعتُ لك يا ربّ خضوع عبودية ورقّ، لا استنكافاً ولا تكبّراً، بل أنا عبد ذليل خائف مستجير بحماك.',
+    duaTranslation: '',
   ),
   'gu': _SajdahTexts(
     titleWajib: 'વાજિબ સજદો (ફિકહ-એ-જાફરિયા)',
@@ -163,7 +147,7 @@ const Map<String, _SajdahTexts> _translations = {
         'ફિકહ-એ-જાફરિયા મુજબ આ આયત પર સજદો કરવો મુસ્તહબ છે, વાજિબ નથી.',
     duaHeading: 'સજદા-એ-તિલાવતની દુઆ:',
     duaTranslation:
-        'હે પાલનહાર! મેં તારી બંદગી અને ગુલામીમાં સજદો કર્યો, ઘમંડ કે અભિમાનથી નહીં, પરંતુ હું એક લાચાર, ભયભીત અને શરણું શોધનારો બંદો છું.',
+        'અલ્લાહ સિવાય કોઈ માબૂદ નથી, આ હક છે, આ હક છે. અલ્લાહ સિવાય કોઈ માબૂદ નથી, ઈમાન અને તસ્દીક સાથે. અલ્લાહ સિવાય કોઈ માબૂદ નથી, બંદગી અને ગુલામી સાથે. હે પરવરદિગાર! મેં બંદગી અને ગુલામી રૂપે તને સજદો કર્યો, ન તો શરમ સમજીને અને ન તો ઘમંડથી, બલ્કે હું એક હકીર, કમજોર, ડરતો અને પનાહ માંગનારો બંદો છું.',
   ),
 };
 
@@ -191,17 +175,17 @@ final Map<VerseKey, QuranSajdahVerse> quranSajdahVerses = {
 };
 
 /// The 4 Surahs of Aza'im containing Wajib Sajdah verses.
-const Set<int> azaimSurahNumbers = {32, 41, 53, 96};
+final Set<int> azaimSurahNumbers = quranSajdahVerses.entries
+    .where((e) => e.value.isWajib)
+    .map((e) => e.key.surah)
+    .toSet();
 
 /// Whether surah [surah] is one of the 4 Surahs of Aza'im (with a Wajib Sajdah).
 bool isAzaimSurah(int surah) => azaimSurahNumbers.contains(surah);
 
 /// Returns the localized label for an Aza'im Surah (e.g. for surah list subtitle).
-String azaimSurahBadgeLabel([String? languageCode]) {
-  final lang = languageCode ?? L10n.current.localeName;
-  final texts = _translations[lang] ?? _translations['en']!;
-  return texts.badgeWajib;
-}
+String azaimSurahBadgeLabel([String? languageCode]) =>
+    _texts(languageCode).badgeWajib;
 
 /// Returns the Sajdah information for [verse], or null if it is not a Sajdah verse.
 QuranSajdahVerse? sajdahVerseFor(VerseKey verse) => quranSajdahVerses[verse];

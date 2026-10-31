@@ -66,8 +66,10 @@ void main() {
               reason: 'ruling in $lang should not be empty');
           expect(sajdah.duaHeading(lang).trim(), isNotEmpty,
               reason: 'duaHeading in $lang should not be empty');
-          expect(sajdah.duaTranslation(lang).trim(), isNotEmpty,
-              reason: 'duaTranslation in $lang should not be empty');
+          if (lang != 'ar') {
+            expect(sajdah.duaTranslation(lang).trim(), isNotEmpty,
+                reason: 'duaTranslation in $lang should not be empty');
+          }
         }
 
         // Verify that badge labels and titles differ per language
@@ -82,15 +84,21 @@ void main() {
       }
     });
 
-    test('Arabic dua translation provides an explanatory gloss, not verbatim duplication', () {
+    test('Arabic dua translation is empty so only the Arabic dua is shown', () {
       final sajdah = quranSajdahVerses.values.first;
-      expect(sajdah.duaTranslation('ar'), isNot(equals(QuranSajdahVerse.duaArabic)));
-      expect(sajdah.duaTranslation('ar').contains('خضعتُ'), isTrue);
+      expect(sajdah.duaTranslation('ar'), isEmpty);
     });
 
     test('Arabic dua is non-empty and authentic', () {
       expect(QuranSajdahVerse.duaArabic.trim(), isNotEmpty);
-      expect(QuranSajdahVerse.duaArabic.startsWith('سَجَدْتُ'), isTrue);
+      expect(QuranSajdahVerse.duaArabic.startsWith('لاَ إِلَهَ إِلَّا اللَّهُ'), isTrue);
+      expect(QuranSajdahVerse.duaArabic.contains('ضَعِيْفٌ'), isTrue);
+    });
+
+    test('falls back to language prefix for region-suffixed locales', () {
+      final sajdah = quranSajdahVerses.values.first;
+      expect(sajdah.badgeLabel('en_US'), equals(sajdah.badgeLabel('en')));
+      expect(sajdah.badgeLabel('ur_PK'), equals(sajdah.badgeLabel('ur')));
     });
 
     test('looks up a sajdah verse correctly', () {

@@ -3782,17 +3782,19 @@ class SajdahInstructionCard extends StatelessWidget {
                     height: 1.6,
                   ),
                 ),
-                const SizedBox(height: 4),
-                Text(
-                  duaTranslation,
-                  textAlign: TextAlign.center,
-                  style: ShiaText.caption.copyWith(
-                    fontSize: 12,
-                    fontStyle: FontStyle.italic,
-                    color: colors.translation,
-                    height: 1.35,
+                if (duaTranslation.isNotEmpty) ...[
+                  const SizedBox(height: 4),
+                  Text(
+                    duaTranslation,
+                    textAlign: TextAlign.center,
+                    style: ShiaText.caption.copyWith(
+                      fontSize: 12,
+                      fontStyle: FontStyle.italic,
+                      color: colors.translation,
+                      height: 1.35,
+                    ),
                   ),
-                ),
+                ],
               ],
             ),
           ),
