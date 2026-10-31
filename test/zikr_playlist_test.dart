@@ -450,13 +450,18 @@ void main() {
           reason: 'unticking the last recording takes the zikr out');
     });
 
-    testWidgets('ticking a zikr with several recordings adds only its first',
-        (tester) async {
+    testWidgets(
+        'the picker names each recording\'s reciter, and its title '
+        'ticks them all', (tester) async {
       items = {...items, 'E14': 'Hadith al-Kisa'};
       ZikrAudioIndex.instance.setForTest(ZikrAudioIndex.parse({
         'E14': [
-          {'file': 'kisa.mp3', 'reciter': 'Ali Fani'},
-          {'file': 'kisa-wasi.mp3', 'reciter': 'Muhammad Wasi'},
+          {'file': 'kisa.mp3', 'label': 'Hadith Kisa', 'reciter': 'Ali Fani'},
+          {
+            'file': 'kisa-wasi.mp3',
+            'label': 'Hadith Kisa',
+            'reciter': 'Muhammad Wasi',
+          },
         ],
       }));
       final store = ZikrPlaylistStore.instance;
@@ -464,18 +469,23 @@ void main() {
       await tester.pumpWidget(
           MaterialApp(home: AddRecitationsPage(playlistId: playlist.id)));
 
+      expect(find.text('Ali Fani'), findsOneWidget);
+      expect(find.text('Muhammad Wasi'), findsOneWidget);
+
       await tester.tap(find.text('Hadith al-Kisa'));
       await tester.pump();
       final available = ZikrAudioIndex.instance.tracksFor('E14');
-      expect(store.byId(playlist.id)!.zikrUids, ['E14']);
-      expect(
-          [
+      List<String> chosen() => [
             for (final track
                 in store.byId(playlist.id)!.tracksFor('E14', available))
               track.file,
-          ],
-          ['kisa.mp3'],
-          reason: 'one recitation of Kisa, not both back to back');
+          ];
+      expect(chosen(), ['kisa.mp3', 'kisa-wasi.mp3']);
+
+      await tester.tap(find.text('Ali Fani'));
+      await tester.pump();
+      expect(chosen(), ['kisa-wasi.mp3'],
+          reason: 'a reciter\'s row unticks just that recording');
     });
 
     testWidgets('the picker keeps surahs in one Quran section, in order',

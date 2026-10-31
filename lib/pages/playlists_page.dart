@@ -130,6 +130,13 @@ List<ZikrAudioTrack> _tracksOf(ZikrPlaylist playlist) => [
 String _trackLabel(ZikrAudioTrack track, int index) =>
     track.displayLabel ?? L10n.current.audioRecordingNumber(index + 1);
 
+/// [track]'s reciter in the reader's zikr language, or null when it has none
+/// or that language has no spelling of the name yet.
+String? _reciterLabel(ZikrAudioTrack track) {
+  final name = track.reciter;
+  return name == null ? null : ZikrTranslations.instance.reciterName(name);
+}
+
 /// Lets the reader pick which of [uid]'s recordings [playlist] plays - at
 /// least one, since a zikr with none picked would silently drop out.
 Future<void> _chooseRecordings(
@@ -173,9 +180,9 @@ Future<void> _chooseRecordings(
                       first: i == 0,
                       last: i == available.length - 1,
                       title: Text(_trackLabel(available[i], i)),
-                      subtitle: available[i].reciter == null
+                      subtitle: _reciterLabel(available[i]) == null
                           ? null
-                          : Text(available[i].reciter!),
+                          : Text(_reciterLabel(available[i])!),
                       trailing: Checkbox(
                         value: on,
                         activeColor: colors.accent,
@@ -1260,22 +1267,22 @@ class _AddRecitationsPageState extends State<AddRecitationsPage> {
                       )
                     : SliverCardList(
                         itemCount: visible.length,
-                        itemBuilder: (context, index) => visible[index] ==
-                                _quranSectionRow
-                            ? _buildQuranSectionRow(
-                                context,
-                                playlist,
-                                surahs,
-                                open: quranOpen,
-                                first: index == 0,
-                                last: index == visible.length - 1,
-                              )
-                            : _buildPickRow(
-                                playlist,
-                                visible[index],
-                                first: index == 0,
-                                last: index == visible.length - 1,
-                              ),
+                        itemBuilder: (context, index) =>
+                            visible[index] == _quranSectionRow
+                                ? _buildQuranSectionRow(
+                                    context,
+                                    playlist,
+                                    surahs,
+                                    open: quranOpen,
+                                    first: index == 0,
+                                    last: index == visible.length - 1,
+                                  )
+                                : _buildPickRow(
+                                    playlist,
+                                    visible[index],
+                                    first: index == 0,
+                                    last: index == visible.length - 1,
+                                  ),
                       ),
               ),
           ],
@@ -1341,16 +1348,10 @@ Widget _buildPickRow(
                 : null),
         title: textWithArabicRuns(_zikrTitle(uid)),
         subtitle: Text(L10n.current.audioRecordingsCount(available.length)),
-        // Ticking a zikr that isn't in yet adds its first recording - the
-        // one a playlist plays by default (Hadith al-Kisa shouldn't play
-        // twice over); the rows underneath pick others. Ticking a
-        // partly-chosen zikr fills in the rest; ticking a full one takes
-        // it out.
-        onTap: () => setChosen(chosen.isEmpty
-            ? {allFiles.first}
-            : chosen.length == available.length
-                ? {}
-                : allFiles.toSet()),
+        // Ticking a partly-chosen zikr fills in the rest; ticking a full
+        // one takes it out.
+        onTap: () => setChosen(
+            chosen.length == available.length ? {} : allFiles.toSet()),
       ),
       for (var i = 0; i < available.length; i++)
         Padding(
@@ -1361,6 +1362,11 @@ Widget _buildPickRow(
             leading: _Tick(chosen.contains(available[i].file)),
             title: Text(_trackLabel(available[i], i)),
             titleStyle: ShiaText.secondary,
+            // Recordings of one text can differ only by who recites it
+            // (Hadith al-Kisa), so the reciter is how the reader picks.
+            subtitle: _reciterLabel(available[i]) == null
+                ? null
+                : Text(_reciterLabel(available[i])!),
             onTap: () => setChosen(chosen.contains(available[i].file)
                 ? ({...chosen}..remove(available[i].file))
                 : {...chosen, available[i].file}),
