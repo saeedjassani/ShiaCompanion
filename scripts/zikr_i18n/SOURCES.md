@@ -56,7 +56,7 @@ where a deck has no Urdu, or repeats the next slide's Urdu:
 | --- | --- | --- |
 | E18 | Dua Ahad | https://mafatih.duas.co/dua-ehed (cross-checked against https://ur.wikishia.net/view/دعائے_عہد) |
 | E1 | Dua Istighatha | https://mafatih.duas.co/istighasa-qayim |
-| E6 | Dua al-Mahdi (a.t.f.s.) | https://mafatih.duas.co/dua-faraj-hujjat2 (segs 0, 2–30); seg 1 (Basmala) has no Urdu block on the E6 page, so it uses the translator's rendering of the identical Basmala Arabic as printed in the same published book on https://mafatih.duas.co/dua-adeela (also merged in-app as E4 Urdu seg 0) — documented cross-page sourcing, flagged for reviewer |
+| E6 | Dua al-Mahdi (a.t.f.s.) | https://mafatih.duas.co/dua-faraj-hujjat2 |
 | E4 | Dua Adeela | https://mafatih.duas.co/dua-adeela |
 | G3 | Ziyarat Arbaeen | https://mafatih.duas.co/ziarat-arbaeen (verses and merits) |
 | G6 | Ziyarat Warith | https://mafatih.duas.co/ziarat-warisa (tabs 1-3); tab 4, al-Abbas, is the short ziyarat inside https://mafatih.duas.co/ziarat-qadr |
@@ -926,3 +926,19 @@ Alqama.
   3/64 (existing 0, 12, 63).** Do not re-extract this chapter for G52.
   The remaining segments need the mafatihuljinan.org Gujarati *Mafatih*
   page (post 2285), whose body is JS-rendered and still unextracted.
+
+### Jannat ni Chaavio (web.hajinaji.com) — Q1 Thursday Supplication (2026-10-31)
+
+- **Q1 Supplication of Thursday (25 of 26 segments filled):**
+  - **Source:** *Jannat ni Chaavio* (જન્નતની ચાવીઓ, Gujarati translation of *Mafatih al-Jinan*), compiled by Maulana Rizwan Ali Palsaniya, published by Haji Naji Memorial Trust, Bhavnagar; hosted on `web.hajinaji.com` (book `alFYUkZPQ01hbDV3ZWZHVnU4VWFuUT09`, topic «અઠવાડીયાના સાત દિવસ પઢવાની દુઆઓ» `VHlVd1Z0K1N4UVFKZjZuSFZiREVIQT09`, chapter «ગુરૂવારના દિવસે પઢવાની દુઆ» `eHkxSjBwd1ljVWVVYSs4VXZ6VUJjQT09`).
+  - **Coverage:** 25/26 filled (segments 1–25).
+  - **Blank anchor:** Anchor 0 (Basmala) is left blank (`""`) because the source prints the Arabic Basmala with no Gujarati translation paragraph for this supplication.
+  - **Documented splits:**
+    The published translation is arranged into 6 paragraphs corresponding to the Arabic sentences; each paragraph is partitioned verbatim across its segment anchors:
+    - **1–3** (Block 1): split across 1 (opening praise and removal of night), 2 (daylight and vision), and 3 (clothing in light and blessing).
+    - **4–7** (Block 2): split across 4 (petition for longevity), 5 (salawat upon the Prophet and his Household), 6 (adverbial clause of time and petition against affliction), and 7 (clause of means: committing unlawful deeds and sins, followed by the concluding verb).
+    - **8–9** (Block 3): split across 8 (bestowal of good) and 9 (protection from evil).
+    - **10–14** (Block 4): split across 10 (tawassul via Islam), 11 (reliance upon the Quran), 12 (intercession through the Prophet), 13 (fulfillment of needs), and 14 (concluding vocative «અય રહેમ કરનારાઓમાં સૌથી વધારે રહેમ કરનાર.»).
+    - **15–19** (Block 5): split across 15 (petition for five blessings on Thursday), 16/17 (split of the fused coordinate clause «કે જે તારા કરમ» and «અને તારી નેઅમતો સિવાય બીજું કોઈ નથી આપી શકતું,» between anchors 16 and 17), 18 (health for obedience), and 19 (worship deserving abundant reward).
+    - **20–25** (Block 6): split across 20 (plenty in lawful provision), 21 (security in fear), 22 (fortress against worries and sorrows), 23 (salawat), 24 (intercession on the Day of Resurrection), and 25 (final seal: «તું તમામ રહેમ કરનારાઓમાં સૌથી વધારે રહેમ કરનાર છે.»).
+
