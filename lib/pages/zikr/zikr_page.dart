@@ -946,6 +946,8 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
                         .copyWith(fontSize: 14, color: colors.textMuted),
                   ),
                 ),
+              if (request.sajdahVerse case final sajdah?)
+                SajdahInstructionCard(sajdahVerse: sajdah),
               // The reader's own note, read here and changed from the row
               // below.
               if (userNote != null)
