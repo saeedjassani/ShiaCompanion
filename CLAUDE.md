@@ -36,7 +36,9 @@
   - owner decisions, reviewer items, translations to redo, smaller gaps - is
   under "Resume here: what's left after Pass 7, redone" in
   `scripts/RESTORING_MISSING_ZIKRS.md`. Check any restored entry with
-  `python3 -I scripts/zikr_arabic/source_check.py . <uids>` before shipping it.
+  `python3 -I scripts/zikr_arabic/source_check.py . <uids>` before shipping it;
+  `test/zikr_source_check_test.dart` fails on anything new it flags until
+  you accept it with `source_check.py . baseline` (see "The check" there).
 
 - **Zikr translations: Urdu has the first famous duas; Persian and
   Gujarati have none yet.** See `scripts/zikr_i18n/SOURCES.md` for what is
