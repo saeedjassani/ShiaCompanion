@@ -241,8 +241,6 @@ class _ContinueReadingCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     final colors = ShiaColors.of(context);
-    final pageCount = progress.pageCount <= 0 ? 1 : progress.pageCount;
-    final page = progress.pageIndex.clamp(0, pageCount - 1) + 1;
     final title = progress.bookTitle.trim().isNotEmpty
         ? progress.bookTitle
         : progress.chapterTitle;
@@ -288,22 +286,26 @@ class _ContinueReadingCard extends StatelessWidget {
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      l10n.libraryChapterPage(
-                          progress.chapterTitle, page, pageCount),
+                      progress.hasPage
+                          ? l10n.libraryChapterPage(progress.chapterTitle,
+                              progress.displayPage, progress.pageCount)
+                          : progress.chapterTitle,
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                       style: ShiaText.caption.copyWith(color: colors.textMuted),
                     ),
-                    const SizedBox(height: 8),
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(2),
-                      child: LinearProgressIndicator(
-                        value: page / pageCount,
-                        minHeight: 4,
-                        color: colors.accent,
-                        backgroundColor: colors.divider,
+                    if (progress.hasPage) ...[
+                      const SizedBox(height: 8),
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(2),
+                        child: LinearProgressIndicator(
+                          value: progress.displayPage / progress.pageCount,
+                          minHeight: 4,
+                          color: colors.accent,
+                          backgroundColor: colors.divider,
+                        ),
                       ),
-                    ),
+                    ],
                   ],
                 ),
               ),
@@ -384,7 +386,7 @@ Future<void> resumeLibraryReading(
         chapters: chapters,
         chapterIndex: chapterIndex,
         bookSlug: progress.bookSlug,
-        initialPageIndex: progress.pageIndex,
+        initialBlockIndex: progress.blockIndex,
       ),
     ),
   );

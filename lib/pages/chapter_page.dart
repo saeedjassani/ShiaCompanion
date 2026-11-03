@@ -32,7 +32,9 @@ class ChapterPage extends StatefulWidget {
   final String? bookSlug;
   final List<UidTitleData> chapters;
   final int chapterIndex;
-  final int initialPageIndex;
+
+  /// The block to open the chapter at (see [LibraryProgress.blockIndex]).
+  final int initialBlockIndex;
 
   /// A text size to open at instead of the app's English size, for tests.
   /// The reader otherwise always follows the app's setting, so a book reads
@@ -46,7 +48,7 @@ class ChapterPage extends StatefulWidget {
     this.bookSlug,
     this.chapters = const [],
     this.chapterIndex = -1,
-    this.initialPageIndex = 0,
+    this.initialBlockIndex = 0,
     this.initialFontSize,
   });
 
@@ -150,7 +152,7 @@ class _ChapterPageState extends State<ChapterPage>
     _slug = widget.slug;
     _title = widget.title;
     _chapterIndex = widget.chapterIndex;
-    _savedBlockIndex = widget.initialPageIndex;
+    _savedBlockIndex = widget.initialBlockIndex;
     _chapterFuture = LibraryService.loadChapterMarkdown(_slug);
     _checkSaved();
     _activeReadingTime.start();
@@ -347,7 +349,7 @@ class _ChapterPageState extends State<ChapterPage>
 
   int _blockIndexForPage(ReaderPagination pagination, int page) {
     if (page < 0 || page >= pagination.pageCount) return _savedBlockIndex;
-    return pagination.pages[page].firstBlock;
+    return pagination.pages[page].anchorBlock;
   }
 
   /// Throws the current pages away and lays the chapter out again, keeping the
@@ -380,7 +382,12 @@ class _ChapterPageState extends State<ChapterPage>
     final chapterSlug = _chapterSlug;
     if (chapterSlug == null || chapterSlug.isEmpty) return;
 
-    final pageCount = _pagination?.pageCount ?? 1;
+    // Until the chapter has been laid out there is no page to record, and
+    // whatever was saved before - the place this chapter was opened at, or
+    // the end of the chapter just paged out of - is still where the reader is.
+    final pagination = _pagination;
+    if (!_paginationReady || pagination == null || pagination.isEmpty) return;
+
     LibraryProgressStore.instance.save(
       LibraryProgress(
         bookSlug: bookSlug,
@@ -388,8 +395,9 @@ class _ChapterPageState extends State<ChapterPage>
         chapterSlug: chapterSlug,
         chapterTitle: _title,
         chapterIndex: _chapterIndex,
-        pageIndex: _savedBlockIndex,
-        pageCount: pageCount,
+        pageIndex: _currentPageIndex.clamp(0, pagination.pageCount - 1),
+        pageCount: pagination.pageCount,
+        blockIndex: _savedBlockIndex,
         fontSize: _readerFontSize,
         updatedAt: DateTime.now(),
       ),

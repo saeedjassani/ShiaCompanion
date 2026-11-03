@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -27,6 +29,9 @@ void main() {
         chapterIndex: chapterIndex,
         pageIndex: 3,
         pageCount: 9,
+        // A different number from the page, so a test that shows the block
+        // where a page belongs fails.
+        blockIndex: 41,
         fontSize: 18,
         updatedAt: DateTime(2026, 10, 1),
       );
@@ -96,6 +101,57 @@ void main() {
       expect(find.text('Continue reading'), findsNothing);
       expect(LibraryProgressStore.instance.readAll(), isEmpty);
     });
+
+    testWidgets('an entry saved before pages were stored shows no page',
+        (tester) async {
+      // Version 1 kept the block under `pageIndex`; showing it as a page
+      // gave "page 42 of 9".
+      await SP.prefs.setString(
+        'library_recent_reads_v1',
+        jsonEncode([
+          {
+            'version': 1,
+            'bookSlug': 'man-and-his-destiny',
+            'bookTitle': 'Man and His Destiny',
+            'chapterSlug': 'part-2',
+            'chapterTitle': 'Part 2: Evil Effects',
+            'chapterIndex': 3,
+            'pageIndex': 41,
+            'pageCount': 9,
+            'fontSize': 18,
+            'updatedAt': '2026-10-01T00:00:00.000Z',
+          }
+        ]),
+      );
+      await pumpPushed(tester, LibraryPage());
+
+      expect(find.text('Part 2: Evil Effects'), findsOneWidget);
+      expect(find.textContaining('page'), findsNothing);
+      expect(find.byType(LinearProgressIndicator), findsNothing);
+    });
+  });
+
+  group('LibraryProgress', () {
+    test('keeps the page and the block apart', () {
+      final read = LibraryProgress.fromJson(progress().toJson());
+      expect(read.pageIndex, 3);
+      expect(read.pageCount, 9);
+      expect(read.blockIndex, 41);
+      expect(read.hasPage, isTrue);
+      expect(read.displayPage, 4);
+    });
+
+    test('reads a version 1 entry as a block with no page', () {
+      final read = LibraryProgress.fromJson({
+        'version': 1,
+        'bookSlug': 'b',
+        'chapterSlug': 'c',
+        'pageIndex': 41,
+        'pageCount': 9,
+      });
+      expect(read.blockIndex, 41);
+      expect(read.hasPage, isFalse);
+    });
   });
 
   group('ChapterListPage', () {
@@ -138,6 +194,19 @@ void main() {
           const ChapterListPage('man-and-his-destiny', 'Man and His Destiny'));
 
       expect(find.text('Continue · chapter 4, page 4'), findsOneWidget);
+    });
+
+    testWidgets('a progress entry with no page leaves the page out',
+        (tester) async {
+      await LibraryProgressStore.instance.save(LibraryProgress.fromJson({
+        ...progress().toJson()..remove('blockIndex'),
+        'version': 1,
+      }));
+      await pumpPushed(tester,
+          const ChapterListPage('man-and-his-destiny', 'Man and His Destiny'));
+
+      expect(find.text('Continue reading'), findsOneWidget);
+      expect(find.textContaining('page'), findsNothing);
     });
   });
 }

@@ -58,7 +58,8 @@ class ReaderPage {
     required this.firstBlock,
     required this.lastBlock,
     required this.contentOffset,
-  });
+    int? anchorBlock,
+  }) : anchorBlock = anchorBlock ?? firstBlock;
 
   /// The y of the chapter column this page starts at.
   final double top;
@@ -72,6 +73,15 @@ class ReaderPage {
   /// text is never re-cut, so it can never re-wrap.
   final int firstBlock;
   final int lastBlock;
+
+  /// The block that marks this page as a reading position: the first block
+  /// that starts on it, or [firstBlock] when the page is all one block
+  /// carried over from the page before.
+  ///
+  /// [firstBlock] alone won't do: when it began on the previous page,
+  /// [ReaderPagination.pageForBlock] finds that page instead, so a reader who
+  /// left off here would resume one page back.
+  final int anchorBlock;
 
   /// How far the block column has to be shifted up so that [top] sits at the
   /// top of the page.
@@ -247,9 +257,13 @@ ReaderPage _pageFor(ReaderColumnGeometry geometry, double top, double bottom) {
   }
 
   var lastBlock = firstBlock;
+  int? anchorBlock;
   for (var i = firstBlock; i < geometry.blockTops.length; i++) {
     if (geometry.blockTops[i] >= bottom - _epsilon) break;
     lastBlock = i;
+    if (anchorBlock == null && geometry.blockTops[i] >= top - _epsilon) {
+      anchorBlock = i;
+    }
   }
 
   return ReaderPage(
@@ -257,6 +271,7 @@ ReaderPage _pageFor(ReaderColumnGeometry geometry, double top, double bottom) {
     bottom: bottom,
     firstBlock: firstBlock,
     lastBlock: lastBlock,
+    anchorBlock: anchorBlock,
     contentOffset: top - geometry.blockTops[firstBlock],
   );
 }
