@@ -2555,27 +2555,31 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
     );
   }
 
-  /// What the top bar's sub-line says: which part of a multi-part zikr is
-  /// open ("Part 3 of 4"), or how far through a zikr or surah the reader is
-  /// ("12% read" - before they start, how long it takes).
+  /// What the top bar's sub-line says: how far through a zikr or surah the
+  /// reader is ("12% read" - before they start, how long it takes), led on a
+  /// multi-part zikr by which part is open ("Part 3 of 4 · 12% read"). The
+  /// progress is the open part's, like the line under the part chips.
   Widget _buildSubtitle({
     required int tabCount,
     required int selectedTabIndex,
     required String readingTimeLabel,
   }) {
     final l10n = context.l10n;
-    if (tabCount > 1) {
-      return Text(l10n.readerPartOf(selectedTabIndex + 1, tabCount));
-    }
+    final part =
+        tabCount > 1 ? l10n.readerPartOf(selectedTabIndex + 1, tabCount) : null;
     return ValueListenableBuilder<double>(
       valueListenable: _readingProgress,
       builder: (context, progress, _) {
+        final String status;
         if (_completedTabs.contains(selectedTabIndex)) {
-          return Text(l10n.zikrProgressCompleted);
+          status = l10n.zikrProgressCompleted;
+        } else {
+          final percent = (progress.clamp(0.0, 1.0) * 100).floor();
+          status =
+              percent == 0 ? readingTimeLabel : l10n.readerPercentRead(percent);
         }
-        final percent = (progress.clamp(0.0, 1.0) * 100).floor();
-        return Text(
-            percent == 0 ? readingTimeLabel : l10n.readerPercentRead(percent));
+        if (part == null) return Text(status);
+        return Text('$part · $status');
       },
     );
   }
