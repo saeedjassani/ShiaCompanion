@@ -276,4 +276,27 @@ ihram is invalid and everything that follows is built on nothing.
       }, timeout: const Timeout(Duration(minutes: 2)));
     }
   }
+
+  test('a page is remembered by the block that starts on it', () {
+    // Three blocks of 20px lines: 0-100, 100-400, 400-500. At a 350px page
+    // the second block runs from page 0 onto page 1, and the third starts on
+    // page 1.
+    final geometry = ReaderColumnGeometry(
+      columnHeight: 500,
+      blockTops: const [0, 100, 400],
+      blockHeights: const [100, 300, 100],
+      lines: [
+        for (var y = 0.0; y < 500; y += 20) ReaderLineBox(y, y + 20),
+      ],
+    );
+    final pagination = paginateColumn(geometry, pageHeight: 350);
+
+    expect(pagination.pageCount, 2);
+    final second = pagination.pages[1];
+    expect(second.firstBlock, 1);
+    expect(second.anchorBlock, 2);
+    // Resuming at the block must land back on this page, not the one before.
+    expect(pagination.pageForBlock(second.anchorBlock), 1);
+    expect(pagination.pageForBlock(pagination.pages[0].anchorBlock), 0);
+  });
 }
