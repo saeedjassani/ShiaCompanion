@@ -27,6 +27,29 @@ end
 
 require File.expand_path(File.join('packages', 'flutter_tools', 'bin', 'podhelper'), flutter_root)
 
+# firebase_analytics pins the FirebaseAnalytics pod to exactly the Firebase SDK
+# version firebase_core names. Firebase iOS 12.19.3 (the eMudhra certificate
+# fix) republished only Firebase, FirebaseCore and FirebaseFirestore(Internal),
+# so "FirebaseAnalytics = 12.19.3" names a pod that does not exist and
+# `pod install` fails. Accept any patch of that minor release instead
+# ("~> 12.19.0"), as the Firebase umbrella pod itself does for every pod it
+# did not republish. Only an exact X.Y.Z pin on that one plugin is touched;
+# drop this once a firebase_analytics release no longer needs it (pod install
+# then resolves the same with or without it).
+module RelaxFirebaseAnalyticsPin
+  def dependency(*args)
+    name, *requirements = args
+    if self.name == 'firebase_analytics' &&
+       name.to_s.split('/').first == 'FirebaseAnalytics' &&
+       requirements.length == 1 &&
+       (match = requirements.first.to_s.strip.match(/\A=?\s*(\d+)\.(\d+)\.\d+\z/))
+      args = [name, "~> #{match[1]}.#{match[2]}.0"]
+    end
+    super(*args)
+  end
+end
+Pod::Specification.prepend(RelaxFirebaseAnalyticsPin)
+
 flutter_ios_podfile_setup
 
 target 'Runner' do

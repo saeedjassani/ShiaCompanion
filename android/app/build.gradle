@@ -136,7 +136,7 @@ dependencies {
     implementation 'androidx.core:core-ktx:1.13.1'
     // Native Azan playback reports what kept an Azan from playing. Same BoM
     // firebase_core resolves (its FirebaseSDKVersion), so no second version.
-    implementation platform('com.google.firebase:firebase-bom:34.19.0')
+    implementation platform('com.google.firebase:firebase-bom:35.1.0')
     implementation 'com.google.firebase:firebase-crashlytics'
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.10.2'
     // Sends prayer times to the Wear OS app (android/wear); see WearSync.
