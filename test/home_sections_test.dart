@@ -207,6 +207,7 @@ void main() {
       chapterIndex: 0,
       pageIndex: 0,
       pageCount: 3,
+      blockIndex: 0,
       fontSize: 18,
       updatedAt: DateTime(2026, 10, 1),
     );

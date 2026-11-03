@@ -198,7 +198,7 @@ class _ChapterListPageState extends State<ChapterListPage> with RouteAware {
   Future<void> _openChapter(
     List<UidTitleData> chapters,
     int chapterIndex, {
-    int pageIndex = 0,
+    int blockIndex = 0,
   }) async {
     final chapter = chapters[chapterIndex];
     await Navigator.push(
@@ -211,7 +211,7 @@ class _ChapterListPageState extends State<ChapterListPage> with RouteAware {
           chapters: chapters,
           chapterIndex: chapterIndex,
           bookSlug: widget.slug,
-          initialPageIndex: pageIndex,
+          initialBlockIndex: blockIndex,
         ),
       ),
     );
@@ -295,13 +295,15 @@ class _ChapterListPageState extends State<ChapterListPage> with RouteAware {
                     PageButton(
                       filled: true,
                       glyph: OutlineGlyph.play,
-                      label: current != null && progress != null
-                          ? l10n.libraryContinueAt(
-                              current + 1, progress.pageIndex + 1)
-                          : l10n.libraryStartReading,
+                      label: current == null || progress == null
+                          ? l10n.libraryStartReading
+                          : progress.hasPage
+                              ? l10n.libraryContinueAt(
+                                  current + 1, progress.displayPage)
+                              : l10n.libraryContinueReading,
                       onPressed: () => current != null && progress != null
                           ? _openChapter(chapters, current,
-                              pageIndex: progress.pageIndex)
+                              blockIndex: progress.blockIndex)
                           : _openChapter(chapters, 0),
                     ),
                     const SizedBox(height: 8),
@@ -329,9 +331,6 @@ class _ChapterListPageState extends State<ChapterListPage> with RouteAware {
                 itemCount: chapters.length,
                 itemBuilder: (context, index) {
                   final reading = index == current && progress != null;
-                  final pageCount = progress == null || progress.pageCount <= 0
-                      ? 1
-                      : progress.pageCount;
                   return CardListRow(
                     first: index == 0,
                     last: index == chapters.length - 1,
@@ -340,11 +339,10 @@ class _ChapterListPageState extends State<ChapterListPage> with RouteAware {
                     titleStyle: ShiaText.body.copyWith(
                         fontWeight:
                             reading ? FontWeight.w600 : FontWeight.w400),
-                    subtitle: reading
+                    subtitle: reading && progress.hasPage
                         ? Text(
                             l10n.libraryReadingAt(
-                                progress.pageIndex.clamp(0, pageCount - 1) + 1,
-                                pageCount),
+                                progress.displayPage, progress.pageCount),
                             style: ShiaText.caption.copyWith(
                                 color: colors.accent,
                                 fontWeight: FontWeight.w600),
@@ -358,7 +356,7 @@ class _ChapterListPageState extends State<ChapterListPage> with RouteAware {
                     ),
                     onTap: reading
                         ? () => _openChapter(chapters, index,
-                            pageIndex: progress.pageIndex)
+                            blockIndex: progress.blockIndex)
                         : () => _openChapter(chapters, index),
                   );
                 },

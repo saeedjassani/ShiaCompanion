@@ -13,17 +13,26 @@ class LibraryProgress {
     required this.chapterIndex,
     required this.pageIndex,
     required this.pageCount,
+    required this.blockIndex,
     required this.fontSize,
     required this.updatedAt,
     this.version = LibraryProgressStore.schemaVersion,
   });
 
   factory LibraryProgress.fromJson(Map<String, dynamic> json) {
+    int? readInt(String key) => json[key] is int
+        ? json[key] as int
+        : int.tryParse(json[key]?.toString() ?? '');
+
+    // Version 1 stored the block the reader was on under `pageIndex`, and no
+    // page at all. That block is still the right place to resume, but the
+    // page it fell on is unknown until the chapter is read again.
+    final storedPage = readInt('pageIndex') ?? 0;
+    final blockIndex = readInt('blockIndex');
+    final isLegacy = blockIndex == null;
+
     return LibraryProgress(
-      version: json['version'] is int
-          ? json['version'] as int
-          : int.tryParse(json['version']?.toString() ?? '') ??
-              LibraryProgressStore.schemaVersion,
+      version: readInt('version') ?? LibraryProgressStore.schemaVersion,
       bookSlug: json['bookSlug']?.toString() ?? '',
       bookTitle: json['bookTitle']?.toString() ?? '',
       chapterSlug: json['chapterSlug']?.toString() ?? '',
@@ -31,12 +40,9 @@ class LibraryProgress {
       chapterIndex: json['chapterIndex'] is int
           ? json['chapterIndex'] as int
           : int.tryParse(json['chapterIndex']?.toString() ?? '') ?? -1,
-      pageIndex: json['pageIndex'] is int
-          ? json['pageIndex'] as int
-          : int.tryParse(json['pageIndex']?.toString() ?? '') ?? 0,
-      pageCount: json['pageCount'] is int
-          ? json['pageCount'] as int
-          : int.tryParse(json['pageCount']?.toString() ?? '') ?? 1,
+      pageIndex: isLegacy ? -1 : storedPage,
+      pageCount: readInt('pageCount') ?? 1,
+      blockIndex: isLegacy ? storedPage : blockIndex,
       fontSize: json['fontSize'] is num
           ? (json['fontSize'] as num).toDouble()
           : double.tryParse(json['fontSize']?.toString() ?? '') ?? 18,
@@ -51,10 +57,25 @@ class LibraryProgress {
   final String chapterSlug;
   final String chapterTitle;
   final int chapterIndex;
+
+  /// The page of the chapter the reader was on, counted from 0, out of
+  /// [pageCount] - both as laid out at the time, for showing "page 4 of 9".
+  /// -1 when it isn't known; see [hasPage].
   final int pageIndex;
   final int pageCount;
+
+  /// The block (paragraph, heading...) at the top of that page. This, not
+  /// [pageIndex], is where reading resumes: pages move with the font and
+  /// screen size, the block doesn't.
+  final int blockIndex;
   final double fontSize;
   final DateTime updatedAt;
+
+  /// Whether [pageIndex] and [pageCount] can be shown.
+  bool get hasPage => pageIndex >= 0 && pageCount > 0;
+
+  /// The 1-based page to show, kept within [pageCount].
+  int get displayPage => pageIndex.clamp(0, pageCount - 1) + 1;
 
   Map<String, dynamic> toJson() {
     return {
@@ -66,6 +87,7 @@ class LibraryProgress {
       'chapterIndex': chapterIndex,
       'pageIndex': pageIndex,
       'pageCount': pageCount,
+      'blockIndex': blockIndex,
       'fontSize': fontSize,
       'updatedAt': updatedAt.toUtc().toIso8601String(),
     };
@@ -78,7 +100,7 @@ class LibraryProgressStore {
   LibraryProgressStore._();
 
   static final LibraryProgressStore instance = LibraryProgressStore._();
-  static const int schemaVersion = 1;
+  static const int schemaVersion = 2;
 
   /// How many books to keep progress for. Kept small so "Continue Reading"
   /// stays a quick-resume shortcut rather than growing into a full history.
