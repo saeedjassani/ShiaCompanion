@@ -16,8 +16,8 @@ real, correctly-formatted content — not just a title.
 **Done:** every favorited missing uid (the eight passes below). Of the 209
 *unfavorited* missing uids listed in
 [unfavorited_missing_zikrs.json](unfavorited_missing_zikrs.json), 7 are
-old menu nodes (skip), 43 are retired as duplicates, 22 are restored
-(F16-F65, E131-E136, P1). **137 remain** (80 with Arabic, 57 prose-only),
+old menu nodes (skip), 44 are retired as duplicates, 22 are restored
+(F16-F65, E131-E136, P1). **136 remain** (79 with Arabic, 57 prose-only),
 each still marked `has-arabic`/`prose-only` in that JSON. When a batch
 ships, set its uids' `kind` to `restored`/`retired` there and recount
 `counts`.
@@ -31,7 +31,7 @@ ships, set its uids' `kind` to `restored`/`retired` there and recount
 2. **Calendar pages** - Ramadan nights `AA24 AA36 AA41 AA42 AA44 AA45`
    (AA36-AA44 share a closing with the live AA33/AA35/AA37/AA38 - that is
    authentic, not a duplicate), `AC8`, Shawwal `AD1 AD5`, Safar `S2 S3 S4
-   S6 S8`, Rabi `T1 T3 U1`, Rajab `X9 X12 X16 X17 X18`. Give each a `day`
+   S6 S8`, Rabi `T1 T3 U1`, Rajab `X12 X16 X17 X18` (`X9` is retired to G74). Give each a `day`
    pattern in `assets/zikr.json` (see `lib/utils/lunar_date_matcher.dart`;
    only canonical uids carry `day`).
 3. **Odds and ends** - `E98`, `E145`, `B1 B2 B5`, `G25 G27 G28 G31 G32`;
@@ -573,7 +573,8 @@ Arabic from outside our own source (the book abbreviated it or our item
 lacked it): G74's Ali al-Akbar and martyrs' sections from `assets/items/X9`
 (same rite); AA22's Sahifa 44 (Arabic Wikisource), Sha'ban dua and Ibn
 Tawus's "lengthy" Iqbal dua (duas.org - identified by its opening words and
-duas.org's label, **please confirm**); AA43's Sahifa 45 (Wikisource).
+duas.org's label, **please confirm**); AA43's Sahifa 45 (Wikisource). Sahifa
+44 and 45 have since moved to their own entries, AA48 and AA49.
 
 **The check.** `python3 -I scripts/zikr_arabic/source_check.py . <uids>`
 compares an entry with its source both ways. Run it on every restored
@@ -595,20 +596,23 @@ accepted.
 
 ## Resume here: what's left after Pass 7, redone
 
-**Owner decisions** (agents proposed, nobody acted):
-- AC6 "Salat of وَ وَاعَدْنَا" is the whole first-ten-days-of-Dhul-Hijjah
-  chapter and has the same five acts as AC5 - retire AC6 into AC5?
-- X10 covers the 1st, 15th and last of Rajab - retitle "Namaz-e-Salman (1st,
-  15th & Last of Rajab)"?
-- X9 (1st of Rajab ziyarat, still missing) is G74's rite - add `X9 -> G74`
-  to `retired_zikr_redirects.dart`?
-- Titles narrower than their chapter: E42 ("Selected Supplications of the
-  Imams (a.s.)"?), E84 ("Five Duas for Sustenance"?), E63 ("Recommended
-  Daily Recitations"?), E103 ("Duas in Prostration (Sajdah)"?). Retitle =
-  `assets/zikr.json` + the file + the four `assets/zikr_i18n/*/index.json`;
-  never the slug.
-- Sahifa 44 and 45 now live inside AA22/AA43 - give them their own entries
-  and link instead?
+**Owner decisions** (made 2026-11-03):
+- AC6 "Salat of وَ وَاعَدْنَا" stays its own entry: the owner split it from
+  AC5 on purpose, because people look for the Wa Wa'adna prayer by name.
+  Still open: AC6 repeats all four of AC5's tabs, not just the prayer (tabs
+  2-4 word for word, tab 1 in a newer layout).
+- Retitled (slugs unchanged, all four `index.json` titles redone): X10
+  "Namaz-e-Salman (1st, 15th & Last of Rajab)", E42 "Selected Supplications
+  of the Imams (a.s.)", E84 "Five Duas for Sustenance", E63 "Recommended
+  Daily Recitations", E103 "Duas in Prostration (Sajdah)".
+- X9 -> G74 in `retired_zikr_redirects.dart`. Checked first: all four of
+  X9's Arabic blocks are in G74 letter for letter (normalized), G74 has no
+  Arabic X9 lacks, and G74's merits carry X9's narrations and days.
+- Sahifa 44 and 45 are their own entries, AA48 and AA49 (Arabic Wikisource
+  text, moved unchanged from AA22's and AA43's tabs, which now link to
+  them). They have no translations yet.
+- AA22's Iqbal dua (now tab 5, Allahumma Inna Hadha Shahru Ramadan): the
+  owner isn't sure either. Still to confirm against Iqbal al-A'mal.
 
 **For a reviewer** (Arabic is source-checked; these are not):
 - English written fresh (sources had none): E102; most of E112; E90, E103,

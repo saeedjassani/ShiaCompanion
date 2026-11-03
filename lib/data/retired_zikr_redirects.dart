@@ -397,4 +397,12 @@ const Map<String, RetiredZikrRedirect> retiredZikrRedirects = {
   /// taqibaat, with nothing to recite; it is now in D1's (General Taqibaat)
   /// merits.
   'I8': RetiredZikrRedirect('D1'),
+
+  /// X9 (Ziyarah of Imam Husayn on the 1st of Rajab) was never restored: G74
+  /// is the same rite. All four of X9's Arabic blocks are in G74 letter for
+  /// letter (the Imam's ziyarat in its first tab, Ali al-Akbar's two in its
+  /// second, the martyrs' in its third), G74 has no Arabic X9 lacks, and its
+  /// merits carry X9's narrations and its 1st/15th of Rajab and 15th of
+  /// Sha'ban.
+  'X9': RetiredZikrRedirect('G74'),
 };

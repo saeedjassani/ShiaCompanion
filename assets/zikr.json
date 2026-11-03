@@ -667,6 +667,19 @@
       "N09-30"
     ]
   },
+  "AA48": {
+    "title": "Dua No. 44 of Sahifa al-Kamila (Welcoming Ramazan)",
+    "slug": "dua-no-44-of-saheefah-al-kaamelah",
+    "day": "N09-01"
+  },
+  "AA49": {
+    "title": "Dua No. 45 of Sahifa al-Kamila (Farewell to Ramazan)",
+    "slug": "dua-no-45-of-saheefah-al-kaamelah",
+    "day": [
+      "N09-29",
+      "N09-30"
+    ]
+  },
   "AA5": {
     "title": "Duas after Every Obligatory Prayer",
     "slug": "duas-after-every-obligatory-prayers",
@@ -1212,7 +1225,7 @@
     "slug": "dua-of-mother-for-her-child-who-is-ailing"
   },
   "E103": {
-    "title": "Dua of the Prostration of Thanksgiving",
+    "title": "Duas in Prostration (Sajdah)",
     "slug": "dua-of-prostration-of-thanksgiving"
   },
   "E104": {
@@ -1585,7 +1598,7 @@
     "slug": "dua-for-fending-off-distress-grief-and-fear"
   },
   "E42": {
-    "title": "Dua for Fulfillment of Wishes",
+    "title": "Selected Supplications of the Imams (a.s.)",
     "slug": "dua-for-fulfillment-of-wishes"
   },
   "E43": {
@@ -1654,7 +1667,7 @@
     "slug": "dua-for-safety-from-illness-and-ailments"
   },
   "E63": {
-    "title": "Dua for Seeking Forgiveness Which Leads to More Knowledge & More Fortune",
+    "title": "Recommended Daily Recitations",
     "slug": "dua-for-seeking-forgiveness-which-leads-to-more-knowledge-more-fortune"
   },
   "E64": {
@@ -1748,7 +1761,7 @@
     "slug": "another-dua-for-ailing-diseases"
   },
   "E84": {
-    "title": "A Famous Dua for Sustenance",
+    "title": "Five Duas for Sustenance",
     "slug": "a-famous-dua-for-sustenance"
   },
   "E85": {
@@ -3106,7 +3119,7 @@
     "day": "07-*"
   },
   "X10": {
-    "title": "Fifteenth of Rajab (Namaz-e-Salman)",
+    "title": "Namaz-e-Salman (1st, 15th & Last of Rajab)",
     "slug": "d-fifteenth-of-rajab-namaz-e-salman",
     "day": [
       "07-01",

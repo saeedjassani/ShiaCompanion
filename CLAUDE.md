@@ -23,7 +23,7 @@
 
 ## TODO / follow-ups
 
-- **Missing-zikr restoration is mid-way.** 137 unfavorited uids are still
+- **Missing-zikr restoration is mid-way.** 136 unfavorited uids are still
   missing from the corpus. Before resuming, read the "Resume here" section at
   the top of `scripts/RESTORING_MISSING_ZIKRS.md`: next batches (taweez and
   funeral rites `I40`-`I126`, then calendar pages, then ziyarat last and

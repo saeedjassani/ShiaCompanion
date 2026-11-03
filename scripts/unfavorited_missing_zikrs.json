@@ -4,9 +4,9 @@
  "counts": {
   "total": 209,
   "menuCategory": 7,
-  "retired": 43,
+  "retired": 44,
   "restored": 22,
-  "toRestoreHasArabic": 80,
+  "toRestoreHasArabic": 79,
   "toRestoreProseOnly": 57
  },
  "uids": [
@@ -1306,8 +1306,9 @@
   {
    "uid": "X9",
    "title": "Ziyarah of Imam Husayn (a) on The 1st of Rajab",
-   "kind": "has-arabic",
-   "itemsBytes": 16515
+   "kind": "retired",
+   "itemsBytes": 16515,
+   "retiredTo": "G74"
   },
   {
    "uid": "X12",
