@@ -10,6 +10,7 @@ import android.os.Bundle
 import android.util.Log
 import androidx.glance.appwidget.updateAll
 import com.developer110.shiacompanion.azan.AzanChannel
+import com.developer110.shiacompanion.smartactions.SmartActions
 import com.developer110.shiacompanion.wear.WearSync
 import com.developer110.shiacompanion.widgets.DailyPrayerTimesWidget
 import com.developer110.shiacompanion.widgets.FavoritesWidget
@@ -63,6 +64,8 @@ class MainActivity: AudioServiceActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         pendingWidgetUrl = consumeWidgetUrl(intent)
+        // A Google Assistant request or a pinned playlist shortcut.
+        SmartActions.take(intent, isRedelivery = savedInstanceState != null)
         super.onCreate(savedInstanceState)
     }
 
@@ -93,6 +96,7 @@ class MainActivity: AudioServiceActivity() {
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         setIntent(intent)
+        SmartActions.take(intent, isRedelivery = false)
         val widgetUrl = consumeWidgetUrl(intent)
         if (widgetUrl.isNullOrBlank()) return
 
@@ -177,6 +181,8 @@ class MainActivity: AudioServiceActivity() {
         configureProximitySensorChannels(flutterEngine)
         // Native Azan playback and its schedule (see AzanPlayerService).
         AzanChannel.attach(this, flutterEngine.dartExecutor.binaryMessenger)
+        // App Actions and pinned shortcuts (see res/xml/shortcuts.xml).
+        SmartActions.attach(this, flutterEngine.dartExecutor.binaryMessenger)
     }
 
     private fun configureProximitySensorChannels(flutterEngine: FlutterEngine) {

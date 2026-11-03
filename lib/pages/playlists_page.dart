@@ -114,8 +114,7 @@ Future<void> _startPlaylist(
 }) async {
   final result = await PlaylistAudioService.instance
       .play(playlist, startZikrIndex: startZikrIndex);
-  if (result.isStarted)
-    SmartActionsService.instance.donatePlaylist(playlist.id);
+  if (result.isStarted) SmartActionsService.instance.donatePlaylist(playlist);
   final message = result.message;
   if (message == null) return;
   showToast(message);
@@ -669,12 +668,16 @@ class _PlaylistDetailPageState extends State<PlaylistDetailPage> {
     List<ZikrAudioTrack> allTracks,
   ) async {
     final l10n = anchor.l10n;
+    final canPin = await SmartActionsService.instance.canPinShortcuts();
+    if (!anchor.mounted) return;
     final value = await showMenuAt<String>(anchor, [
       PopupMenuItem(value: 'rename', child: Text(l10n.commonRename)),
       // Not on the web: there a play link only opens the playlist.
       if (!kIsWeb)
         PopupMenuItem(
             value: 'copy-link', child: Text(l10n.playlistCopyPlayLink)),
+      if (canPin)
+        PopupMenuItem(value: 'pin', child: Text(l10n.playlistAddToHomeScreen)),
       if (AudioDownloadStore.instance.anyDownloaded(allTracks))
         PopupMenuItem(
             value: 'remove-downloads',
@@ -692,6 +695,8 @@ class _PlaylistDetailPageState extends State<PlaylistDetailPage> {
         await Clipboard.setData(
             ClipboardData(text: buildPlaylistDeepLinkUrl(playlist.id)));
         showToast(l10n.playlistPlayLinkCopied);
+      case 'pin':
+        await SmartActionsService.instance.pinPlaylist(playlist);
       case 'delete':
         await _delete(context, playlist);
       case 'remove-downloads':

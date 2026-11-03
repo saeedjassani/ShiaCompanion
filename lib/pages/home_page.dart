@@ -26,6 +26,7 @@ import 'package:shia_companion/services/home_screen_widget_service.dart';
 import 'package:shia_companion/services/library_service.dart';
 import 'package:shia_companion/pages/library_page.dart';
 import 'package:shia_companion/pages/playlists_page.dart';
+import 'package:shia_companion/pages/search_page.dart';
 import 'package:shia_companion/services/playlist_audio_service.dart';
 import 'package:shia_companion/services/zikr_playlist_store.dart';
 import 'package:shia_companion/services/location_service.dart';
@@ -140,9 +141,9 @@ class _MyHomePageState extends State<MyHomePage>
       _queueDeepLink(parseDeepLinkUri(uri));
     });
 
-    // An "Open Dua" shortcut, or a dua picked from Spotlight, on iOS.
-    SmartActionsService.instance.linkHandler =
-        (uri) => _queueDeepLink(parseDeepLinkUri(uri));
+    // An "Open Dua" shortcut, or a dua picked from Spotlight, on iOS; a
+    // Google Assistant request or a pinned playlist shortcut on Android.
+    SmartActionsService.instance.navigator = _openSmartActionTarget;
 
     // The actions under the app icon (a long press on it). Started here
     // rather than in main(): on Android the tap that launched the app can
@@ -220,6 +221,21 @@ class _MyHomePageState extends State<MyHomePage>
     } finally {
       bookmarks.removeListener(listener);
       recitations.removeListener(listener);
+    }
+  }
+
+  void _openSmartActionTarget(SmartActionTarget target) {
+    switch (target) {
+      case SmartActionLink(:final link):
+        _queueDeepLink(parseDeepLinkUri(link));
+      case SmartActionFeature(:final item):
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted) _openHomeMenuItem(item);
+        });
+      case SmartActionSearch(:final query):
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted) unawaited(openAppSearch(context, query: query));
+        });
     }
   }
 
@@ -867,7 +883,7 @@ class _MyHomePageState extends State<MyHomePage>
     WidgetsBinding.instance.removeObserver(this);
     routeObserver.unsubscribe(this);
     _linkSubscription?.cancel();
-    SmartActionsService.instance.linkHandler = null;
+    SmartActionsService.instance.navigator = null;
     AppShortcutsService.instance.handler = null;
     _widgetLinkChannel?.setMethodCallHandler(null);
     super.dispose();
@@ -898,6 +914,7 @@ class _MyHomePageState extends State<MyHomePage>
         unawaited(handleNotificationThatOpenedApp());
       }
       unawaited(_takePendingWidgetUrl());
+      unawaited(SmartActionsService.instance.takePendingActions());
       _refreshLocationOnResume();
     } else if (state == AppLifecycleState.paused ||
         state == AppLifecycleState.hidden) {

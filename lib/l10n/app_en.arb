@@ -3382,13 +3382,17 @@
     "description": "Playlist menu item: copies a shiacompanion.app/playlist link that opens and plays the playlist, for the Shortcuts app, Android routines or an NFC tag."
   },
   "playlistPlayLinkCopied": "Link copied. Opening it plays this playlist.",
+  "playlistAddToHomeScreen": "Add to Home screen",
+  "@playlistAddToHomeScreen": {
+    "description": "Playlist menu item, Android only: asks the launcher to put a shortcut on the home screen that plays the playlist."
+  },
   "smartActionsPlaylistMissing": "That playlist is no longer on this device.",
   "@smartActionsPlaylistMissing": {
-    "description": "Said by Siri, or shown by the Shortcuts app, when asked to play a playlist that has since been deleted."
+    "description": "Said by Siri, or shown by the Shortcuts app, when asked to play a playlist that has since been deleted. On Android, shown as a toast when Google Assistant is asked to play a playlist there is none of by that name."
   },
   "smartActionsZikrMissing": "That dua has no recording to play.",
   "@smartActionsZikrMissing": {
-    "description": "Said by Siri, or shown by the Shortcuts app, when asked to play a dua that has no recitation."
+    "description": "Said by Siri, or shown by the Shortcuts app, when asked to play a dua that has no recitation. On Android, shown as a toast when Google Assistant asks for one; the dua opens instead."
   },
   "playlistShowControls": "Show more controls",
   "playlistHideControls": "Show fewer controls",
