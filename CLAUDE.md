@@ -193,6 +193,41 @@
   live in `android/wear/app/src/main/res/values*/strings.xml` - keep all five
   languages in step there.
 
+- **Move iOS to Swift Package Manager before the next Firebase update.**
+  Firebase has deprecated CocoaPods: no new Firebase iOS versions go to
+  CocoaPods trunk after October 2026, and `pubspec.yaml` still sets
+  `enable-swift-package-manager: false`. The eMudhra fix (PR #410) already
+  showed the gap: Firebase iOS 12.19.3 reached trunk only as `Firebase`,
+  `FirebaseCore` and `FirebaseFirestore(Internal)`. The next Firebase security
+  fix may not reach CocoaPods at all. To switch:
+  - turn the flag on;
+  - check that every iOS plugin supports SPM, including the app's own targets
+    (widgets, watch app, watch widgets);
+  - keep `geolocator_apple`'s `BYPASS_PERMISSION_LOCATION_ALWAYS` define from
+    the Podfile's `post_install`;
+  - make sure Crashlytics' dSYM upload still runs.
+
+  It needs a Mac or CI's `iOS build` to verify; a cloud session can only
+  resolve pods, not build.
+
+- **Drop the `firebase_analytics` pin workaround once FlutterFire fixes it.**
+  `RelaxFirebaseAnalyticsPin` in `ios/Podfile` exists because
+  `firebase_analytics` 13.0.1 pins `FirebaseAnalytics` to exactly
+  firebase_core's SDK version (12.19.3), which was never published; the
+  Podfile relaxes it to `~> 12.19.0`. When a newer `firebase_analytics` is
+  out, upgrade, delete the block and run `pod install`. If it resolves, the
+  workaround can go. Moving to SPM (above) retires it too. A cloud session
+  can run `pod install` on Linux:
+  - `gem install cocoapods json` (json 3.x, so plugin checksums match a
+    Mac's);
+  - `apt-get install rsync`;
+  - run it with `LANG=C.UTF-8 RUBYOPT=-EUTF-8 pod install --allow-root`;
+  - create empty `ios/` and `ios-release/` `Flutter.xcframework` dirs under
+    `/opt/flutter/bin/cache/artifacts/engine/` for Flutter's post-install
+    hook, and remove them afterwards;
+  - commit only `Podfile.lock`, never the Linux-rewritten
+    `project.pbxproj`.
+
 ## Translations
 
 The app is set up for Urdu, Persian, Arabic and Gujarati; see
