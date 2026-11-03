@@ -1,4 +1,5 @@
 import AppIntents
+import CoreSpotlight
 import Flutter
 import Foundation
 
@@ -53,9 +54,7 @@ public final class SmartActionsBridge: NSObject {
                 // Siri learns the playlist and dua names its phrases accept.
                 ShiaCompanionShortcuts.updateAppShortcutParameters()
             }
-            if #available(iOS 18.0, *) {
-                Task { await SmartActionsSpotlight.indexIfChanged() }
-            }
+            Task { await SmartActionsSpotlight.indexIfChanged() }
             result(nil)
         case "donatePlaylist":
             if #available(iOS 17.0, *),
@@ -68,6 +67,27 @@ public final class SmartActionsBridge: NSObject {
         default:
             result(FlutterMethodNotImplemented)
         }
+    }
+
+    /// Opens the dua behind a tapped Spotlight result. Called by the scene
+    /// delegate (`SCSceneDelegate` in AppDelegate.m) both when the tap
+    /// launched the app and when it was already running; false for any other
+    /// user activity, which Flutter then handles as before.
+    @objc(continueUserActivity:)
+    public static func continueUserActivity(_ activity: NSUserActivity) -> Bool {
+        guard activity.activityType == CSSearchableItemActionType else { return false }
+        // A result for a zikr no longer in the catalog just opens the app.
+        guard let zikr = SmartActionsSpotlight.zikr(for: activity) else { return true }
+        Task { @MainActor in await SmartActionsBridge.shared.openLink(zikr.link) }
+        return true
+    }
+
+    /// Has Dart open `link` once it is up: a tap that launched the app comes
+    /// in before Flutter has started.
+    @MainActor
+    private func openLink(_ link: String) async {
+        guard await waitUntilReady(timeout: 30), let channel else { return }
+        channel.invokeMethod("openLink", arguments: ["url": link])
     }
 
     /// Whether Dart is ready, waiting up to `seconds` for it to say so.

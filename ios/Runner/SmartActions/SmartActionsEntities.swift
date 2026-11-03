@@ -118,7 +118,7 @@ struct RecitationEntityQuery: EntityStringQuery {
 }
 
 /// Any zikr, recitation or not, by its `zikr.json` key: what "Open Dua"
-/// and Spotlight open.
+/// opens.
 @available(iOS 17.0, *)
 struct ZikrEntity: AppEntity {
     static var typeDisplayRepresentation: TypeDisplayRepresentation = "Dua"
@@ -167,42 +167,66 @@ struct ZikrEntityQuery: EntityStringQuery {
 }
 
 /// Spotlight: typing "Kumayl" on the home screen finds the dua, and tapping
-/// it runs `OpenZikrIntent`.
-@available(iOS 18.0, *)
-extension ZikrEntity: IndexedEntity {
-    var attributeSet: CSSearchableItemAttributeSet {
-        let attributes = CSSearchableItemAttributeSet(contentType: UTType.text)
-        attributes.title = name
-        attributes.displayName = name
-        attributes.contentDescription = subtitle
-        attributes.keywords = keywords
-        return attributes
-    }
-}
-
-@available(iOS 18.0, *)
+/// it opens it (`SmartActionsBridge.continueUserActivity`).
+///
+/// Plain Core Spotlight items, not app entities (`IndexedEntity`): those
+/// need iOS 18, and a tap on one reached the app as a search-result user
+/// activity that nothing handled, so it only opened Home. These work on
+/// every iOS the app runs on, and each item's identifier is the zikr's
+/// `zikr.json` key, which the tap hands back.
 enum SmartActionsSpotlight {
     /// Digest of the zikr catalog last indexed, so an unchanged one - every
     /// launch but those after an update or a language change - costs nothing.
     private static let indexedDigestKey = "sc_smart_spotlight_digest"
+    /// Part of the digest, so a change to how items are built re-indexes an
+    /// unchanged catalog too. Bump it with any such change.
+    private static let indexFormat = "searchable-items-1"
+    private static let domainIdentifier = "zikr"
 
     static func indexIfChanged() async {
         guard let raw = SmartActionsCatalog.rawZikrs else { return }
-        let digest = SHA256.hash(data: Data(raw.utf8))
+        let digest = SHA256.hash(data: Data((indexFormat + raw).utf8))
             .map { String(format: "%02x", $0) }
             .joined()
         if UserDefaults.standard.string(forKey: indexedDigestKey) == digest { return }
 
-        let entities = SmartActionsCatalog.zikrs().map(ZikrEntity.init)
+        let items = SmartActionsCatalog.zikrs().map(searchableItem)
         do {
             let index = CSSearchableIndex.default()
             // Starts over, so a zikr since removed or retitled leaves nothing
-            // stale behind. The app indexes nothing else.
+            // stale behind - nor the app entities an earlier build indexed.
+            // The app indexes nothing else.
             try await index.deleteAllSearchableItems()
-            try await index.indexAppEntities(entities)
+            try await index.indexSearchableItems(items)
             UserDefaults.standard.set(digest, forKey: indexedDigestKey)
         } catch {
             NSLog("Spotlight indexing failed: \(error)")
         }
+    }
+
+    private static func searchableItem(_ zikr: CatalogZikr) -> CSSearchableItem {
+        let attributes = CSSearchableItemAttributeSet(contentType: UTType.text)
+        attributes.title = zikr.name
+        attributes.displayName = zikr.name
+        // The title in the reader's zikr language, which can be searched too.
+        attributes.contentDescription = zikr.subtitle
+        attributes.keywords = zikr.keywords + [zikr.subtitle].compactMap { $0 }
+        let item = CSSearchableItem(
+            uniqueIdentifier: zikr.id,
+            domainIdentifier: domainIdentifier,
+            attributeSet: attributes
+        )
+        // Items otherwise expire after a month, and an unchanged catalog is
+        // never indexed again.
+        item.expirationDate = .distantFuture
+        return item
+    }
+
+    /// The zikr a tapped Spotlight result stands for, if it is one of ours.
+    static func zikr(for activity: NSUserActivity) -> CatalogZikr? {
+        guard activity.activityType == CSSearchableItemActionType,
+              let id = activity.userInfo?[CSSearchableItemActivityIdentifier] as? String
+        else { return nil }
+        return SmartActionsCatalog.zikrs().first { $0.id == id }
     }
 }
