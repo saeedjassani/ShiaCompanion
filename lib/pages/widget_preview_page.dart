@@ -6,7 +6,6 @@ import 'package:flutter/services.dart';
 import 'package:shia_companion/constants.dart';
 import 'package:shia_companion/data/universal_data.dart';
 import 'package:shia_companion/services/home_screen_widget_service.dart';
-import 'package:shia_companion/services/zikr_audio_index.dart';
 import 'package:shia_companion/utils/shared_preferences.dart';
 import 'package:shia_companion/widgets/prayer_glyph.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -39,7 +38,6 @@ class _WidgetPreviewPageState extends State<WidgetPreviewPage> {
         .take(3)
         .map((entry) => UniversalData(entry.key.toString(), entry.value, 0))
         .toList();
-    await ZikrAudioIndex.instance.load();
     city ??= 'Karbala';
     lat ??= 32.616;
     long ??= 44.032;
@@ -111,7 +109,6 @@ class _WidgetPreviewPageState extends State<WidgetPreviewPage> {
                         data,
                         HomeScreenWidgetService.favoriteItemKeys,
                         HomeScreenWidgetService.favoriteUrlKeys,
-                        HomeScreenWidgetService.favoritePlayUrlKeys,
                       ),
                     ],
                   ),
@@ -125,7 +122,6 @@ class _WidgetPreviewPageState extends State<WidgetPreviewPage> {
                         data,
                         HomeScreenWidgetService.recitationItemKeys,
                         HomeScreenWidgetService.recitationUrlKeys,
-                        HomeScreenWidgetService.recitationPlayUrlKeys,
                       ),
                     ],
                   ),
@@ -186,15 +182,10 @@ List<_PreviewItem> _itemsFromSnapshot(
   Map<String, String> data,
   List<String> titleKeys,
   List<String> urlKeys,
-  List<String> playUrlKeys,
 ) {
   return [
     for (var index = 0; index < titleKeys.length; index++)
-      _PreviewItem(
-        data[titleKeys[index]] ?? '',
-        data[urlKeys[index]] ?? '',
-        data[playUrlKeys[index]] ?? '',
-      ),
+      _PreviewItem(data[titleKeys[index]] ?? '', data[urlKeys[index]] ?? ''),
   ];
 }
 
@@ -249,11 +240,10 @@ class _ScheduledPreviewPrayer {
 }
 
 class _PreviewItem {
-  const _PreviewItem(this.title, this.url, this.playUrl);
+  const _PreviewItem(this.title, this.url);
 
   final String title;
   final String url;
-  final String playUrl;
 }
 
 class _ListWidgetPreview extends StatelessWidget {
@@ -327,26 +317,6 @@ class _ListWidgetPreview extends StatelessWidget {
                           size: 14,
                           color: palette.secondaryText,
                         ),
-                      if (item.playUrl.isNotEmpty) ...[
-                        const SizedBox(width: 6),
-                        InkWell(
-                          customBorder: const CircleBorder(),
-                          onTap: () => launchUrl(Uri.parse(item.playUrl)),
-                          child: Container(
-                            width: 26,
-                            height: 26,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: palette.iconBackground,
-                            ),
-                            child: Icon(
-                              Icons.play_arrow_rounded,
-                              size: 16,
-                              color: palette.accentText,
-                            ),
-                          ),
-                        ),
-                      ],
                     ],
                   ),
                 ),
