@@ -599,8 +599,10 @@ accepted.
 **Owner decisions** (made 2026-11-03):
 - AC6 "Salat of وَ وَاعَدْنَا" stays its own entry: the owner split it from
   AC5 on purpose, because people look for the Wa Wa'adna prayer by name.
-  Still open: AC6 repeats all four of AC5's tabs, not just the prayer (tabs
-  2-4 word for word, tab 1 in a newer layout).
+  It had repeated all four of AC5's tabs; now it is the prayer alone (plus
+  a link to AC5 for the other acts), and AC5's first tab links to it
+  instead of carrying an older copy. AC5's body already had every note
+  AC6's merits dropped.
 - Retitled (slugs unchanged, all four `index.json` titles redone): X10
   "Namaz-e-Salman (1st, 15th & Last of Rajab)", E42 "Selected Supplications
   of the Imams (a.s.)", E84 "Five Duas for Sustenance", E63 "Recommended
