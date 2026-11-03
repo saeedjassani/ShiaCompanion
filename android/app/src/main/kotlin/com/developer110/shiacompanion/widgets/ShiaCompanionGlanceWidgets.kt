@@ -85,14 +85,11 @@ private const val REDRAW_DELAY_MILLIS = 10_000L
 private const val KEY_FAVORITES_TITLE = "sc_favorites_title"
 private val favoriteItemKeys = (1..12).map { "sc_favorites_item_$it" }
 private val favoriteUrlKeys = (1..12).map { "sc_favorites_url_$it" }
-private val favoritePlayUrlKeys = (1..12).map { "sc_favorites_play_$it" }
 
 private const val KEY_RECITATION_TITLE = "sc_recitation_title"
 private val recitationItemKeys = (1..12).map { "sc_recitation_item_$it" }
 private val recitationUrlKeys = (1..12).map { "sc_recitation_url_$it" }
-private val recitationPlayUrlKeys = (1..12).map { "sc_recitation_play_$it" }
 private const val KEY_RECITATION_SCHEDULE = "sc_recitation_schedule"
-private const val KEY_PLAY_LABEL = "sc_widget_play_label"
 
 private const val KEY_PRAYER_TITLE = "sc_prayer_title"
 private const val KEY_PRAYER_NAME = "sc_prayer_name"
@@ -267,7 +264,6 @@ class FavoritesWidget : ShiaCompanionGlanceWidget() {
                 titleFallback = "Favorites",
                 itemKeys = favoriteItemKeys,
                 itemUrlKeys = favoriteUrlKeys,
-                itemPlayUrlKeys = favoritePlayUrlKeys,
                 firstItemFallback = "No favorites yet"
             )
         }
@@ -286,7 +282,6 @@ class TodaysRecitationWidget : ShiaCompanionGlanceWidget() {
                 titleFallback = "Today's Recitations",
                 itemKeys = recitationItemKeys,
                 itemUrlKeys = recitationUrlKeys,
-                itemPlayUrlKeys = recitationPlayUrlKeys,
                 firstItemFallback = "Open app to refresh",
                 scheduleKey = KEY_RECITATION_SCHEDULE
             )
@@ -397,7 +392,6 @@ private fun WidgetListContent(
     titleFallback: String,
     itemKeys: List<String>,
     itemUrlKeys: List<String>,
-    itemPlayUrlKeys: List<String>,
     firstItemFallback: String,
     scheduleKey: String? = null
 ) {
@@ -410,13 +404,10 @@ private fun WidgetListContent(
         } else {
             WidgetItem(
                 title = title,
-                url = data.text(itemUrlKeys[index], ""),
-                playUrl = data.text(itemPlayUrlKeys[index], "")
+                url = data.text(itemUrlKeys[index], "")
             )
         }
     }
-
-    val playLabel = data.text(KEY_PLAY_LABEL, "Play recitation")
 
     WidgetSurface(clickable = false) {
         Text(
@@ -459,52 +450,14 @@ private fun WidgetListContent(
                     .takeIf { it.isNotBlank() }
                     ?.let { actionStartActivity(context.openUrlIntent(it)) }
                     ?: actionRunCallback<NoOpWidgetAction>()
-                Row(
-                    modifier = GlanceModifier.fillMaxWidth().height(28.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    // The title's Box, not its Text, takes the tap, so the
-                    // row's full height opens the zikr.
-                    Box(
-                        modifier = GlanceModifier.defaultWeight().fillMaxHeight().clickable(action),
-                        contentAlignment = Alignment.CenterStart
-                    ) {
-                        Text(
-                            text = if (item.url.isNotBlank()) "${item.title}  ›" else item.title,
-                            style = TextStyle(color = bodyTextColor, fontSize = 12.sp),
-                            maxLines = 1
-                        )
-                    }
-                    if (item.playUrl.isNotBlank()) {
-                        Spacer(GlanceModifier.width(6.dp))
-                        PlayButton(
-                            url = item.playUrl,
-                            contentDescription = "$playLabel, ${item.title}"
-                        )
-                    }
-                }
+                Text(
+                    text = if (item.url.isNotBlank()) "${item.title}  ›" else item.title,
+                    modifier = GlanceModifier.clickable(action).fillMaxWidth().height(26.dp),
+                    style = TextStyle(color = bodyTextColor, fontSize = 12.sp),
+                    maxLines = 1
+                )
             }
         }
-    }
-}
-
-/** A list row's play button: opens the zikr and starts its recitation. */
-@Composable
-private fun PlayButton(url: String, contentDescription: String) {
-    val context = LocalContext.current
-    Box(
-        modifier = GlanceModifier
-            .size(26.dp)
-            .accentWash(R.drawable.widget_icon_badge, R.drawable.widget_icon_badge_mask)
-            .clickable(actionStartActivity(context.openUrlIntent(url))),
-        contentAlignment = Alignment.Center
-    ) {
-        Image(
-            provider = ImageProvider(R.drawable.ic_widget_play),
-            contentDescription = contentDescription,
-            modifier = GlanceModifier.size(14.dp),
-            colorFilter = ColorFilter.tint(accentColor)
-        )
     }
 }
 
@@ -1378,9 +1331,7 @@ class NoOpWidgetAction : ActionCallback {
 private data class WidgetItem(
     val title: String,
     val url: String,
-    val time: String = "",
-    /** Opens the zikr and starts its recitation; blank when it has none. */
-    val playUrl: String = ""
+    val time: String = ""
 )
 
 private data class WidgetListScheduleEntry(
@@ -1423,8 +1374,7 @@ private fun parseWidgetListSchedule(rawSchedule: String?): List<WidgetListSchedu
                 WidgetItem(
                     title = rawItem.optString("title", "").trim(),
                     url = rawItem.optString("url", "").trim(),
-                    time = rawItem.optString("time", "").trim(),
-                    playUrl = rawItem.optString("play", "").trim()
+                    time = rawItem.optString("time", "").trim()
                 )
             }.filter { it.title.isNotBlank() }
 

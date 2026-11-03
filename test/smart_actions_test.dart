@@ -188,7 +188,7 @@ void main() {
     });
   });
 
-  group('Android shortcuts', () {
+  group('pinned playlist shortcut', () {
     test('a playlist shortcut plays the playlist', () {
       final shortcut = SmartActionsService.playlistShortcut(ZikrPlaylist(
         id: 'p1',
@@ -202,33 +202,6 @@ void main() {
         'label': 'Mine',
         'link': 'https://shiacompanion.app/playlist/p1',
       });
-    });
-
-    test('a zikr shortcut is labelled and keyed as the catalog has it', () {
-      const titles = {
-        'E31': 'Dua Kumayl دعاء كميل',
-        'AC4|E31': 'Dua Kumayl دعاء كميل',
-        'AC5|E31': 'Dua Kumayl (Night of 15th Shaban)',
-        'AA~Z8': 'Mahe Ramazan',
-      };
-      Map<String, String>? shortcut(String uid) =>
-          SmartActionsService.zikrShortcut(
-            uid,
-            titles: titles,
-            displayTitle: (uid, title) => title,
-            slugFor: (uid) => uid == 'E31' ? 'dua-kumayl' : null,
-          );
-
-      expect(shortcut('E31'), {
-        'id': 'zikr:E31',
-        'kind': 'zikr',
-        'label': 'Dua Kumayl',
-        'link': 'https://shiacompanion.app/zikr/dua-kumayl',
-      });
-      // An alias repeating its canonical's title is the canonical.
-      expect(shortcut('AC4|E31')!['id'], 'zikr:E31');
-      expect(shortcut('AC5|E31')!['id'], 'zikr:AC5|E31');
-      expect(shortcut('AA~Z8'), isNull);
     });
   });
 }

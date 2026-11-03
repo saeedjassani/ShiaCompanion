@@ -1331,5 +1331,7 @@
   "playlistDefaultRamazanNights": "ليالي شهر رمضان",
   "playlistDefaultRamazanSuhoor": "أسحار شهر رمضان",
   "playlistDefaultShaban": "شعبان",
-  "accountNotSignedIn": "لم تسجّل الدخول."
+  "accountNotSignedIn": "لم تسجّل الدخول.",
+  "appShortcutContinueReading": "متابعة القراءة",
+  "appShortcutContinueItem": "متابعة {title}"
 }

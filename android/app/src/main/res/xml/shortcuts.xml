@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Launcher shortcuts and Google Assistant's App Actions: Android's side
-     of what Siri, Shortcuts and Spotlight do on iOS.
+<!-- Google Assistant's App Actions: Android's side of what Siri does on
+     iOS.
 
      Every intent here goes to MainActivity with one of SmartActions.kt's
      actions, which hands it to Dart (lib/services/smart_actions_service.dart)
-     to match the words against the app's features, duas and playlists. The
-     shortcuts SmartActions.kt adds itself - playlists played, duas opened -
-     are not here.
+     to match the words against the app's features, duas and playlists.
+
+     No <shortcut>s: the actions under the app icon are AppShortcutsService's
+     (quick_actions), which owns the dynamic shortcuts.
 
      android:targetPackage is the release application id. A debug build's
      is different, so src/debug/res/xml/shortcuts.xml is this file with the
@@ -84,35 +85,4 @@
                 android:mimeType="https://schema.org/Text" />
         </intent>
     </capability>
-
-    <!-- Long-press the app icon. Kept to two, so the duas and playlists
-         the reader uses (SmartActions.kt) still fit beside them. -->
-    <shortcut
-        android:shortcutId="search"
-        android:enabled="true"
-        android:icon="@drawable/ic_shortcut_search"
-        android:shortcutShortLabel="@string/shortcut_search"
-        android:shortcutLongLabel="@string/shortcut_search">
-        <intent
-            android:action="com.developer110.shiacompanion.action.SEARCH"
-            android:targetPackage="com.developer110.shiacompanion"
-            android:targetClass="com.developer110.shia_companion.MainActivity" />
-    </shortcut>
-
-    <shortcut
-        android:shortcutId="prayer_times"
-        android:enabled="true"
-        android:icon="@drawable/ic_shortcut_prayer_times"
-        android:shortcutShortLabel="@string/shortcut_prayer_times"
-        android:shortcutLongLabel="@string/shortcut_prayer_times">
-        <intent
-            android:action="com.developer110.shiacompanion.action.OPEN"
-            android:targetPackage="com.developer110.shiacompanion"
-            android:targetClass="com.developer110.shia_companion.MainActivity">
-            <!-- A home menu item's analyticsId. -->
-            <extra
-                android:name="name"
-                android:value="calendar_prayer_times" />
-        </intent>
-    </shortcut>
 </shortcuts>

@@ -439,6 +439,10 @@ class ZikrOpenSource {
   /// resumed there counts as [quranResume], as from the Quran screen.)
   static const String homeContinue = 'home_continue';
 
+  /// Resumed at its bookmark from the "Continue reading" action under the
+  /// app icon (a long press on it; see AppShortcutsService).
+  static const String appShortcut = 'app_shortcut';
+
   /// Tapped in the Today section on Home. Apart from [todaysRecitation] so
   /// the section can be weighed against the full page it leads to.
   static const String homeToday = 'home_today';

@@ -168,16 +168,17 @@
   - The same site's "દુઆએ નુદબા", "દુઆ-એ-ઈફ્તેતાહ" and "ઝિયારતે આશુરા અને
     તેના ફાયદા" are single-dua books worth checking for Gujarati too.
 
-- **Android smart actions: untested on a device.** The Android side of
-  Siri/Shortcuts/Spotlight (`SmartActions.kt`, `res/xml/shortcuts.xml`,
-  `SmartActionsService` in Dart) only compiles and unit-tests here. Check on
-  a phone: long-press the icon (Search, Prayer Times, then the playlists
-  played and duas opened), launcher search for a dua opened before, and a
-  playlist's "Add to Home screen". The App Actions (open a feature, search,
-  play/open a dua or playlist by name) need the App Actions Test Tool in
-  Android Studio, then a Play Console upload for Assistant to pick them up;
-  whether Gemini honours them as Assistant did is not known. A debug build
-  has its own `src/debug/res/xml/shortcuts.xml` (its package differs) -
+- **Android smart actions: untested on a device.** Google Assistant's App
+  Actions (`res/xml/shortcuts.xml`, `SmartActions.kt`, `SmartActionsService`
+  in Dart: open a feature, search, play/open a dua or playlist by name) and
+  a playlist's "Add to Home screen" only compile and unit-test here. Pinning
+  can be checked on any phone; the App Actions need the App Actions Test
+  Tool in Android Studio, then a Play Console upload for Assistant to pick
+  them up, and whether Gemini honours them as Assistant did is not known.
+  `shortcuts.xml` has no `<shortcut>`s on purpose: the actions under the app
+  icon are `AppShortcutsService`'s (quick_actions), whose
+  `setDynamicShortcuts` replaces every dynamic shortcut. A debug build has
+  its own `src/debug/res/xml/shortcuts.xml` (its package differs) -
   `test/android_shortcuts_test.dart` keeps it in step.
 
 - **Wear OS app: merged, not shipped.** `android/wear` is a standalone

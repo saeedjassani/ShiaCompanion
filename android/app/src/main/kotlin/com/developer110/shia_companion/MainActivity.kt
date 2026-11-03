@@ -64,7 +64,7 @@ class MainActivity: AudioServiceActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         pendingWidgetUrl = consumeWidgetUrl(intent)
-        // A launcher shortcut or a Google Assistant request.
+        // A Google Assistant request or a pinned playlist shortcut.
         SmartActions.take(intent, isRedelivery = savedInstanceState != null)
         super.onCreate(savedInstanceState)
     }
@@ -181,7 +181,7 @@ class MainActivity: AudioServiceActivity() {
         configureProximitySensorChannels(flutterEngine)
         // Native Azan playback and its schedule (see AzanPlayerService).
         AzanChannel.attach(this, flutterEngine.dartExecutor.binaryMessenger)
-        // Launcher shortcuts and App Actions (see res/xml/shortcuts.xml).
+        // App Actions and pinned shortcuts (see res/xml/shortcuts.xml).
         SmartActions.attach(this, flutterEngine.dartExecutor.binaryMessenger)
     }
 

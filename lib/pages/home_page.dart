@@ -18,6 +18,7 @@ import 'package:shia_companion/pages/zikr/zikr_page.dart';
 import 'package:shia_companion/utils/quran_index.dart';
 import 'package:shia_companion/utils/quran_portion.dart';
 import 'package:shia_companion/services/activity_stats_store.dart';
+import 'package:shia_companion/services/app_shortcuts_service.dart';
 import 'package:shia_companion/services/azaan_opt_in_service.dart';
 import 'package:shia_companion/services/azan_playback_service.dart';
 import 'package:shia_companion/services/deep_link_resolver.dart';
@@ -30,9 +31,11 @@ import 'package:shia_companion/services/playlist_audio_service.dart';
 import 'package:shia_companion/services/zikr_playlist_store.dart';
 import 'package:shia_companion/services/location_service.dart';
 import 'package:shia_companion/services/rating_prompt_service.dart';
+import 'package:shia_companion/services/recitation_tracker_manager.dart';
 import 'package:shia_companion/services/session_refresh_service.dart';
 import 'package:shia_companion/services/smart_actions_service.dart';
 import 'package:shia_companion/services/synced_data.dart';
+import 'package:shia_companion/services/zikr_bookmarks_manager.dart';
 import 'package:shia_companion/services/zikr_reminder_service.dart';
 import 'package:shia_companion/utils/deep_links.dart';
 import 'package:shia_companion/utils/font_preferences.dart';
@@ -91,6 +94,10 @@ class _MyHomePageState extends State<MyHomePage>
   StreamSubscription<Uri>? _linkSubscription;
   MethodChannel? _widgetLinkChannel;
   DeepLinkTarget? _pendingDeepLink;
+
+  /// A shortcut under the app icon that was tapped before the zikr index
+  /// was ready; opened once it is.
+  AppShortcut? _pendingShortcut;
   bool _itemsLoaded = false;
   String? _lastDeepLinkKey;
   DateTime? _lastDeepLinkAt;
@@ -135,8 +142,86 @@ class _MyHomePageState extends State<MyHomePage>
     });
 
     // An "Open Dua" shortcut, or a dua picked from Spotlight, on iOS; a
-    // launcher shortcut or a Google Assistant request on Android.
+    // Google Assistant request or a pinned playlist shortcut on Android.
     SmartActionsService.instance.navigator = _openSmartActionTarget;
+
+    // The actions under the app icon (a long press on it). Started here
+    // rather than in main(): on Android the tap that launched the app can
+    // only be read once the activity is attached.
+    AppShortcutsService.instance.handler = _queueShortcut;
+    unawaited(AppShortcutsService.instance.start());
+  }
+
+  void _queueShortcut(AppShortcut shortcut) {
+    _pendingShortcut = shortcut;
+    _resolvePendingShortcut();
+  }
+
+  Future<void> _resolvePendingShortcut() async {
+    final shortcut = _pendingShortcut;
+    if (!_itemsLoaded || shortcut == null || !mounted) return;
+    _pendingShortcut = null;
+
+    AnalyticsService.feature(
+      'app_shortcut_${shortcut.id}',
+      label: 'App icon shortcut: ${shortcut.id}',
+    );
+
+    if (shortcut == AppShortcut.continueReading) {
+      await _openContinueShortcut();
+      return;
+    }
+
+    final item = switch (shortcut) {
+      AppShortcut.favorites => favoritesMenuItem,
+      AppShortcut.playlists => playlistsMenuItem,
+      AppShortcut.tasbeeh => getHomeMenuItem('Tasbeeh Counter'),
+      AppShortcut.qibla => getHomeMenuItem('Qibla Finder'),
+      AppShortcut.continueReading => null,
+    };
+    if (item == null) return;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      final page = item.buildPage();
+      pushRootPageRoute(page) ?? pushPageRoute(context, page);
+    });
+  }
+
+  /// Opens what Home's first Continue card would. On a cold start the
+  /// bookmarks and Quran tracks may still be loading, so it waits for them
+  /// (for a while) before deciding; with nothing to continue, Home stays.
+  Future<void> _openContinueShortcut() async {
+    await _waitForReadingProgress();
+    if (!mounted) return;
+    final entry = AppShortcutsService.currentContinueEntry();
+    if (entry == null) return;
+    final navigatorContext = appNavigatorKey.currentContext ?? context;
+    await openContinueEntry(
+      navigatorContext,
+      entry,
+      bookmarkSource: ZikrOpenSource.appShortcut,
+    );
+  }
+
+  Future<void> _waitForReadingProgress() async {
+    final bookmarks = ZikrBookmarksManager.instance;
+    final recitations = RecitationTrackerManager.instance;
+    bool loaded() => bookmarks.hasLoaded && recitations.hasLoaded;
+    if (loaded()) return;
+
+    final done = Completer<void>();
+    void listener() {
+      if (loaded() && !done.isCompleted) done.complete();
+    }
+
+    bookmarks.addListener(listener);
+    recitations.addListener(listener);
+    try {
+      await done.future.timeout(const Duration(seconds: 8), onTimeout: () {});
+    } finally {
+      bookmarks.removeListener(listener);
+      recitations.removeListener(listener);
+    }
   }
 
   void _openSmartActionTarget(SmartActionTarget target) {
@@ -638,6 +723,7 @@ class _MyHomePageState extends State<MyHomePage>
     await SessionRefreshService.loadItemsFromAssets();
     _itemsLoaded = true;
     _resolvePendingDeepLink();
+    unawaited(_resolvePendingShortcut());
 
     // Who is signed in, before anything reads their data: at once on a
     // phone, a moment later on the web.
@@ -798,6 +884,7 @@ class _MyHomePageState extends State<MyHomePage>
     routeObserver.unsubscribe(this);
     _linkSubscription?.cancel();
     SmartActionsService.instance.navigator = null;
+    AppShortcutsService.instance.handler = null;
     _widgetLinkChannel?.setMethodCallHandler(null);
     super.dispose();
   }

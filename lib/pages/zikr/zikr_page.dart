@@ -44,7 +44,6 @@ import '../../widgets/zikr_auto_scroll.dart';
 import '../../widgets/zikr_reading_preferences.dart';
 import '../../widgets/favorite_icon.dart';
 import '../../services/playlist_audio_service.dart';
-import '../../services/smart_actions_service.dart';
 import '../../widgets/now_playing_capsule.dart';
 import '../../widgets/outline_icon.dart';
 import '../../widgets/page_chrome.dart';
@@ -428,10 +427,6 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
     // drawn, and still restored once its own tab is opened.
     final initialTab = widget.initialTab;
     if (initialTab != null) _selectedZikrTabIndex = math.max(0, initialTab);
-    // Android learns the duas this reader returns to, as launcher shortcuts.
-    if (widget.portion == null) {
-      SmartActionsService.instance.donateZikr(widget.item.uid);
-    }
     if (widget.portion == null && !_isQuran) {
       // Bookmarks sync, so one can be moved on another device while this
       // page is open, and the marker follows it.

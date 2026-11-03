@@ -4355,5 +4355,19 @@
   "accountNotSignedIn": "You are not signed in.",
   "@accountNotSignedIn": {
     "description": "Shown when deleting an account while no one is signed in."
+  },
+  "appShortcutContinueReading": "Continue reading",
+  "@appShortcutContinueReading": {
+    "description": "iOS: the app icon's long-press action that reopens what Home's first Continue card shows; the item's title is its subtitle."
+  },
+  "appShortcutContinueItem": "Continue {title}",
+  "@appShortcutContinueItem": {
+    "description": "Android: the app icon's long-press shortcut that reopens what Home's first Continue card shows. Keep it short - launchers show about 25 characters.",
+    "placeholders": {
+      "title": {
+        "type": "String",
+        "example": "Dua Kumayl"
+      }
+    }
   }
 }

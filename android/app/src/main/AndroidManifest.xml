@@ -82,8 +82,7 @@
                 android:name="io.flutter.embedding.android.NormalTheme"
                 android:resource="@style/NormalTheme"
                 />
-            <!-- Launcher shortcuts and Google Assistant's App Actions
-                 (SmartActions.kt). -->
+            <!-- Google Assistant's App Actions (SmartActions.kt). -->
             <meta-data
                 android:name="android.app.shortcuts"
                 android:resource="@xml/shortcuts" />

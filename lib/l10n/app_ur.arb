@@ -1331,5 +1331,7 @@
   "playlistDefaultRamazanNights": "ماہِ رمضان کی راتیں",
   "playlistDefaultRamazanSuhoor": "ماہِ رمضان کی سحری",
   "playlistDefaultShaban": "شعبان",
-  "accountNotSignedIn": "آپ سائن ان نہیں ہیں۔"
+  "accountNotSignedIn": "آپ سائن ان نہیں ہیں۔",
+  "appShortcutContinueReading": "پڑھنا جاری رکھیں",
+  "appShortcutContinueItem": "{title} جاری رکھیں"
 }

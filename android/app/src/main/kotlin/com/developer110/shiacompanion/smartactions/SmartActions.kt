@@ -18,25 +18,25 @@ import kotlinx.coroutines.launch
 import org.json.JSONArray
 
 /**
- * The Android end of `lib/services/smart_actions_service.dart`: launcher
- * shortcuts and Google Assistant's App Actions, what Siri, Shortcuts and
- * Spotlight are on iOS (`ios/Runner/SmartActions`).
+ * The Android end of `lib/services/smart_actions_service.dart`: Google
+ * Assistant's App Actions, what Siri and Shortcuts are on iOS
+ * (`ios/Runner/SmartActions`), and playlists pinned to the home screen.
  *
  * Two directions:
  *
- * - **In**: a static shortcut (`res/xml/shortcuts.xml`), a shortcut this
- *   file made, or an App Action launches [MainActivity] with one of the
- *   `ACTION_*` actions below. [take] turns it into a call for Dart and holds
- *   it until Dart asks (`takeActions`). Dart asks rather than being told:
- *   audio_service keeps the engine - and Dart - alive across activities, so
- *   whether Dart is listening is not something this side can know. It is
- *   nudged with `actionsPending` in case it is.
- * - **Out**: Dart donates the playlists the reader plays and the duas they
- *   open, which become dynamic shortcuts (long-press the app icon, or type
- *   in the launcher's search), asks to pin a playlist to the home screen,
- *   and sends the catalog of playlists and duas, from which existing
- *   shortcuts are relabelled (a new app language) or retired (a deleted
- *   playlist).
+ * - **In**: an App Action (`res/xml/shortcuts.xml`) or a pinned playlist
+ *   launches [MainActivity] with one of the `ACTION_*` actions below.
+ *   [take] turns it into a call for Dart and holds it until Dart asks
+ *   (`takeActions`). Dart asks rather than being told: audio_service keeps
+ *   the engine - and Dart - alive across activities, so whether Dart is
+ *   listening is not something this side can know. It is nudged with
+ *   `actionsPending` in case it is.
+ * - **Out**: Dart asks to pin a playlist to the home screen, and sends the
+ *   catalog of playlists, from which pinned ones are relabelled (a new app
+ *   language, a rename) or disabled (a deleted playlist).
+ *
+ * It makes no dynamic shortcuts: those are the actions under the app icon,
+ * which AppShortcutsService (quick_actions) replaces wholesale.
  */
 object SmartActions {
     private const val TAG = "SmartActions"
@@ -54,7 +54,6 @@ object SmartActions {
     private const val EXTRA_URL = "url"
 
     private const val KIND_PLAYLIST = "playlist"
-    private const val KIND_ZIKR = "zikr"
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
     private val pending = mutableListOf<Map<String, Any?>>()
@@ -115,18 +114,7 @@ object SmartActions {
             }
             "updateCatalog" -> {
                 val playlists = call.argument<String>("playlists")
-                val zikrs = call.argument<String>("zikrs")
-                scope.launch { refreshShortcuts(context, playlists, zikrs) }
-                result.success(null)
-            }
-            "donateShortcut" -> {
-                val shortcut = shortcutFrom(context, call)
-                if (shortcut != null) {
-                    scope.launch {
-                        runCatching { ShortcutManagerCompat.pushDynamicShortcut(context, shortcut) }
-                            .onFailure { Log.w(TAG, "Couldn't add a shortcut", it) }
-                    }
-                }
+                if (playlists != null) scope.launch { refreshPinned(context, playlists) }
                 result.success(null)
             }
             "canPinShortcuts" ->
@@ -151,48 +139,34 @@ object SmartActions {
         val id = call.argument<String>("id")?.takeIf { it.isNotBlank() } ?: return null
         val label = call.argument<String>("label")?.takeIf { it.isNotBlank() } ?: return null
         val link = call.argument<String>("link")?.takeIf { it.isNotBlank() } ?: return null
-        val icon = when (call.argument<String>("kind")) {
-            KIND_PLAYLIST -> R.drawable.ic_shortcut_playlist
-            else -> R.drawable.ic_shortcut_zikr
-        }
         return ShortcutInfoCompat.Builder(context, id)
             .setShortLabel(label)
             .setLongLabel(label)
-            .setIcon(IconCompat.createWithResource(context, icon))
+            // The Playlists action's icon under the app icon.
+            .setIcon(IconCompat.createWithResource(context, R.drawable.ic_shortcut_playlists))
             .setIntent(
                 Intent(context, MainActivity::class.java)
                     .setAction(ACTION_OPEN_LINK)
                     .putExtra(EXTRA_URL, link)
             )
-            // Lets the launcher's search and the system's suggestions keep it.
-            .setLongLived(true)
             .build()
     }
 
     /**
-     * Brings the shortcuts already made in line with the catalog: retitled
-     * in the app's language as it is now, and the ones for a playlist since
-     * deleted (or a dua since retired) taken away - or, pinned, disabled.
+     * Brings the playlists pinned to the home screen in line with the
+     * catalog: retitled in the app's language as it is now, or renamed, and
+     * disabled - greyed out where they sit - once deleted.
      */
-    private fun refreshShortcuts(context: Context, playlists: String?, zikrs: String?) {
-        val labels = HashMap<String, String>()
-        playlists?.let { labels.putAll(catalogLabels(it, KIND_PLAYLIST)) }
-        zikrs?.let { labels.putAll(catalogLabels(it, KIND_ZIKR)) }
-
+    private fun refreshPinned(context: Context, playlists: String) {
+        val labels = catalogLabels(playlists, KIND_PLAYLIST)
         try {
-            val existing = ShortcutManagerCompat.getShortcuts(
+            val pinned = ShortcutManagerCompat.getShortcuts(
                 context,
-                ShortcutManagerCompat.FLAG_MATCH_DYNAMIC or ShortcutManagerCompat.FLAG_MATCH_PINNED
-            )
+                ShortcutManagerCompat.FLAG_MATCH_PINNED
+            ).filter { it.id.startsWith("$KIND_PLAYLIST:") && it.isEnabled }
             val gone = mutableListOf<String>()
             val retitled = mutableListOf<ShortcutInfoCompat>()
-            for (shortcut in existing) {
-                val kind = shortcut.id.substringBefore(':', "")
-                // Only what this catalog covers: a playlist update says
-                // nothing about duas, and a static shortcut is neither.
-                if (kind == KIND_PLAYLIST && playlists == null) continue
-                if (kind == KIND_ZIKR && zikrs == null) continue
-                if (kind != KIND_PLAYLIST && kind != KIND_ZIKR) continue
+            for (shortcut in pinned) {
                 val label = labels[shortcut.id]
                 when {
                     label == null -> gone += shortcut.id
@@ -203,18 +177,17 @@ object SmartActions {
                             .build()
                 }
             }
-            // Out of the launcher's list and search; a pinned one stays on
-            // the home screen, greyed out.
             if (gone.isNotEmpty()) ShortcutManagerCompat.disableShortcuts(context, gone, null)
             if (retitled.isNotEmpty()) ShortcutManagerCompat.updateShortcuts(context, retitled)
         } catch (error: Exception) {
-            Log.w(TAG, "Couldn't refresh shortcuts", error)
+            Log.w(TAG, "Couldn't refresh pinned shortcuts", error)
         }
     }
 
     /**
-     * Shortcut id to label, from one half of the catalog Dart sends: the
-     * title the reader sees (`subtitle`) when it has one, else `name`.
+     * Shortcut id to label, from the playlists half of the catalog Dart
+     * sends: the name the reader sees (`subtitle`) when it has one, else
+     * `name`.
      */
     private fun catalogLabels(json: String, kind: String): Map<String, String> {
         val labels = HashMap<String, String>()

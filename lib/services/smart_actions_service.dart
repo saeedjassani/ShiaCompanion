@@ -49,15 +49,15 @@ final class SmartActionSearch extends SmartActionTarget {
 ///
 /// - **iOS**: Siri, the Shortcuts app and Spotlight - the App Intents in
 ///   `ios/Runner/SmartActions/`.
-/// - **Android**: launcher shortcuts (static ones, the playlists and duas
-///   the reader uses, and ones pinned to the home screen) and Google
-///   Assistant's App Actions - `android/app/src/main/res/xml/shortcuts.xml`
-///   and `SmartActions.kt`.
+/// - **Android**: Google Assistant's App Actions
+///   (`android/app/src/main/res/xml/shortcuts.xml`, `SmartActions.kt`), and
+///   playlists pinned to the home screen. The actions under the app icon
+///   are `AppShortcutsService`'s, on both.
 ///
 /// Two jobs. It keeps the native side's catalog current - the reader's
 /// playlists and every zikr, with which ones have a recitation - since
 /// Shortcuts and Siri ask what "Thursday Night" or "Dua Kumayl" means
-/// without starting Dart, and Android relabels its shortcuts from it. And it
+/// without starting Dart, and Android relabels pinned playlists from it. And it
 /// carries out what an intent asks for: play a playlist or a dua, or open a
 /// zikr, through the same player and links the app's own screens use. On
 /// Android an action comes as the words someone said ("play Kumail"), which
@@ -121,7 +121,7 @@ class SmartActionsService {
     }
   }
 
-  /// Carries out the shortcut taps and Assistant requests Android has
+  /// Carries out the Assistant requests and pinned-shortcut taps Android has
   /// been holding (`SmartActions.kt`). Android keeps them until asked rather
   /// than calling in: the activity they launch can come and go while the
   /// engine - and this isolate - lives on (audio_service keeps it), so
@@ -161,27 +161,13 @@ class SmartActionsService {
     _catalogTimer = Timer(const Duration(milliseconds: 500), _sendCatalog);
   }
 
-  /// Tells the system the reader just played [playlist] from the app, so it
-  /// can learn the habit and suggest it - "Thursday Night" on a Thursday
-  /// evening. Siri on iOS; on Android a launcher shortcut that plays it,
-  /// which launcher search finds too.
+  /// Tells Siri the reader just played [playlist] from the app, so it can
+  /// learn the habit and suggest it - "Thursday Night" on a Thursday
+  /// evening. iOS only: on Android the actions under the app icon are
+  /// AppShortcutsService's.
   void donatePlaylist(ZikrPlaylist playlist) {
-    if (!_started) return;
-    if (_isAndroid) {
-      unawaited(_invoke('donateShortcut', playlistShortcut(playlist)));
-    } else {
-      unawaited(_invoke('donatePlaylist', {'id': playlist.id}));
-    }
-  }
-
-  /// Tells Android the reader just opened the zikr [uid]: the duas someone
-  /// keeps coming back to become launcher shortcuts, and turn up in the
-  /// launcher's search - what Spotlight does on iOS, for the duas they read.
-  void donateZikr(String uid) {
-    if (!_started || !_isAndroid) return;
-    final shortcut = zikrShortcut(uid);
-    if (shortcut == null) return;
-    unawaited(_invoke('donateShortcut', shortcut));
+    if (!_started || _isAndroid) return;
+    unawaited(_invoke('donatePlaylist', {'id': playlist.id}));
   }
 
   /// Whether this device can put a shortcut on the home screen - Android
@@ -212,8 +198,8 @@ class SmartActionsService {
     }
   }
 
-  /// The Android shortcut that plays [playlist]. Its id is the one
-  /// `SmartActions.kt` relabels and retires from the catalog by.
+  /// The Android shortcut that plays [playlist], to pin to the home
+  /// screen. `SmartActions.kt` relabels and retires pinned ones by its id.
   @visibleForTesting
   static Map<String, String> playlistShortcut(ZikrPlaylist playlist) => {
         'id': 'playlist:${playlist.id}',
@@ -221,35 +207,6 @@ class SmartActionsService {
         'label': playlist.displayName,
         'link': buildPlaylistDeepLinkUrl(playlist.id),
       };
-
-  /// The Android shortcut that opens the zikr [uid], labelled as the
-  /// catalog labels it, or null for one the catalog leaves out. An alias
-  /// that only repeats its canonical's title is the canonical's shortcut.
-  @visibleForTesting
-  static Map<String, String>? zikrShortcut(
-    String uid, {
-    Map<Object?, Object?>? titles,
-    String Function(String uid, String title) displayTitle = zikrDisplayTitle,
-    String? Function(String uid)? slugFor,
-  }) {
-    final allTitles = titles ?? items;
-    final title = allTitles[uid]?.toString() ?? '';
-    if (uid.contains('~') || title.trim().isEmpty) return null;
-    final contentUid = uid.split('|').last;
-    final id = contentUid != uid && allTitles[contentUid]?.toString() == title
-        ? contentUid
-        : uid;
-    final shown = displayTitle(id, title);
-    final label = shown != title ? shown : spokenZikrName(contentUid, title);
-    if (label.trim().isEmpty) return null;
-    return {
-      'id': 'zikr:$id',
-      'kind': 'zikr',
-      'label': label,
-      'link': buildZikrDeepLinkUrl(
-          uid: id, slug: (slugFor ?? (uid) => itemSlugs[uid])(id)),
-    };
-  }
 
   Future<void> _sendCatalog() async {
     if (!zikrIndexReady.value) return;
