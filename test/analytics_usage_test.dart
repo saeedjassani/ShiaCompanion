@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shia_companion/pages/admin/usage_dashboard_page.dart';
+import 'package:shia_companion/services/app_shortcuts_service.dart';
 import 'package:shia_companion/services/analytics_service.dart';
 
 import 'ui/firebase_test_doubles.dart';
@@ -33,7 +34,7 @@ void main() {
   });
 
   group('new feature_use keys match what database.rules.json accepts', () {
-    const newKeys = [
+    final newKeys = [
       'account_signed_in',
       'library_shared',
       'zikr_keep_awake_toggled',
@@ -62,6 +63,8 @@ void main() {
       'zikr_source_${ZikrOpenSource.homeContinue}',
       'feedback_email_opened',
       'first_run_setup',
+      'zikr_source_${ZikrOpenSource.appShortcut}',
+      for (final shortcut in AppShortcut.values) 'app_shortcut_${shortcut.id}',
     ];
 
     for (final key in newKeys) {
@@ -170,7 +173,9 @@ void main() {
           'zikr': {'G1': 2},
           'feature': {'zikr_source_list': 2, 'search': 1},
         },
-      }, ['2026-10-19']);
+      }, [
+        '2026-10-19'
+      ]);
       expect(result.trend['2026-10-19'], 3);
       expect(result.metricTrend['feature']?['2026-10-19'], 1);
       expect(result.metricTrend.containsKey(zikrSourceMetric), isFalse);
@@ -454,8 +459,7 @@ void main() {
         'home_menu_all_features': FeatureGroup.findingContent,
         'app_text_scale_changed': FeatureGroup.personalizationAndAccount,
         'app_language_changed': FeatureGroup.personalizationAndAccount,
-        'translation_language_changed':
-            FeatureGroup.personalizationAndAccount,
+        'translation_language_changed': FeatureGroup.personalizationAndAccount,
         // Feedback & ratings
         'rating_prompt': FeatureGroup.feedbackAndRatings,
         'rating_prompt_feedback': FeatureGroup.feedbackAndRatings,

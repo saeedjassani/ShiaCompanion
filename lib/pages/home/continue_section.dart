@@ -76,8 +76,8 @@ class ContinueEntry {
 
 /// Up to three cards, newest first: the most recent Quran track, zikr
 /// bookmark and library book - one of each, so a busy week in one never
-/// pushes the other two off Home.
-@visibleForTesting
+/// pushes the other two off Home. The first is also what the app icon's
+/// "Continue reading" shortcut opens (AppShortcutsService).
 List<ContinueEntry> continueEntries({
   required RecitationTrackerState recitations,
   required Iterable<ZikrBookmark> bookmarks,
@@ -159,6 +159,39 @@ List<ContinueEntry> continueEntries({
   return entries.take(3).toList(growable: false);
 }
 
+/// Opens what [entry] continues: the Quran at the track's verse, the zikr at
+/// its bookmark, or the library book at its chapter. Shared by the Continue
+/// cards and the app icon's "Continue reading" shortcut; [bookmarkSource]
+/// tells their bookmark opens apart. (A Quran track resumed from either
+/// counts as [ZikrOpenSource.quranResume], as from the Quran screen.)
+Future<void> openContinueEntry(
+  BuildContext context,
+  ContinueEntry entry, {
+  String bookmarkSource = ZikrOpenSource.homeContinue,
+}) async {
+  switch (entry.kind) {
+    case ContinueKind.quran:
+      await openQuranVerse(
+        context,
+        entry.verse!,
+        source: ZikrOpenSource.quranResume,
+        recitationLabel: entry.recitationLabel,
+      );
+    case ContinueKind.bookmark:
+      final bookmark = entry.bookmark!;
+      // The reader resumes at the bookmark on its own (ZikrPage reads it).
+      await pushPageRoute(
+        context,
+        ZikrPage(
+          UidTitleData(bookmark.uid, entry.title),
+          source: bookmarkSource,
+        ),
+      );
+    case ContinueKind.library:
+      await resumeLibraryReading(context, entry.library!);
+  }
+}
+
 /// "Continue": pick up the latest Quran track, bookmark or book. Hidden when
 /// there is nothing to continue.
 class ContinueSection extends StatelessWidget {
@@ -177,29 +210,8 @@ class ContinueSection extends StatelessWidget {
   /// of being padded by the page.
   final double horizontalPadding;
 
-  Future<void> _open(BuildContext context, ContinueEntry entry) async {
-    switch (entry.kind) {
-      case ContinueKind.quran:
-        await openQuranVerse(
-          context,
-          entry.verse!,
-          source: ZikrOpenSource.quranResume,
-          recitationLabel: entry.recitationLabel,
-        );
-      case ContinueKind.bookmark:
-        final bookmark = entry.bookmark!;
-        // The reader resumes at the bookmark on its own (ZikrPage reads it).
-        await pushPageRoute(
-          context,
-          ZikrPage(
-            UidTitleData(bookmark.uid, entry.title),
-            source: ZikrOpenSource.homeContinue,
-          ),
-        );
-      case ContinueKind.library:
-        await resumeLibraryReading(context, entry.library!);
-    }
-  }
+  Future<void> _open(BuildContext context, ContinueEntry entry) =>
+      openContinueEntry(context, entry);
 
   @override
   Widget build(BuildContext context) {
