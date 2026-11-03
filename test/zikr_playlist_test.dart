@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -22,6 +23,16 @@ Future<void> _freshStore([Map<String, Object> values = const {}]) async {
   });
   await SP.init();
   ZikrPlaylistStore.instance.resetForTest();
+}
+
+/// Moves [drag] [distance] px down a few px at a time, as a finger does -
+/// a reorderable list follows the moves, not just where the drag ends.
+Future<void> _dragDown(
+    WidgetTester tester, TestGesture drag, double distance) async {
+  for (var moved = 0.0; moved < distance; moved += 10) {
+    await drag.moveBy(const Offset(0, 10));
+    await tester.pump(const Duration(milliseconds: 16));
+  }
 }
 
 void main() {
@@ -439,6 +450,82 @@ void main() {
           reason: 'unticking the last recording takes the zikr out');
     });
 
+    testWidgets(
+        'the picker names each recording\'s reciter, and its title '
+        'ticks them all', (tester) async {
+      items = {...items, 'E14': 'Hadith al-Kisa'};
+      ZikrAudioIndex.instance.setForTest(ZikrAudioIndex.parse({
+        'E14': [
+          {'file': 'kisa.mp3', 'label': 'Hadith Kisa', 'reciter': 'Ali Fani'},
+          {
+            'file': 'kisa-wasi.mp3',
+            'label': 'Hadith Kisa',
+            'reciter': 'Muhammad Wasi',
+          },
+        ],
+      }));
+      final store = ZikrPlaylistStore.instance;
+      final playlist = await store.create('Morning');
+      await tester.pumpWidget(
+          MaterialApp(home: AddRecitationsPage(playlistId: playlist.id)));
+
+      expect(find.text('Ali Fani'), findsOneWidget);
+      expect(find.text('Muhammad Wasi'), findsOneWidget);
+
+      await tester.tap(find.text('Hadith al-Kisa'));
+      await tester.pump();
+      final available = ZikrAudioIndex.instance.tracksFor('E14');
+      List<String> chosen() => [
+            for (final track
+                in store.byId(playlist.id)!.tracksFor('E14', available))
+              track.file,
+          ];
+      expect(chosen(), ['kisa.mp3', 'kisa-wasi.mp3']);
+
+      await tester.tap(find.text('Ali Fani'));
+      await tester.pump();
+      expect(chosen(), ['kisa-wasi.mp3'],
+          reason: 'a reciter\'s row unticks just that recording');
+    });
+
+    testWidgets('the picker keeps surahs in one Quran section, in order',
+        (tester) async {
+      items = {
+        ...items,
+        'A40': '36: Ya-Sin يس',
+        'A5': '1: Al-Fatihah الفاتحة',
+        'A4': 'Ayat al-Kursi',
+        'A6': '2: Al-Baqarah البقرة',
+      };
+      ZikrAudioIndex.instance.setForTest(ZikrAudioIndex.parse({
+        for (final uid in ['E18', 'A40', 'A5', 'A4', 'A6'])
+          uid: [
+            {'file': '$uid.mp3'},
+          ],
+      }));
+      final store = ZikrPlaylistStore.instance;
+      final playlist = await store.create('Morning');
+      await tester.pumpWidget(
+          MaterialApp(home: AddRecitationsPage(playlistId: playlist.id)));
+
+      expect(find.text('Quran'), findsOneWidget);
+      expect(find.text('Dua e Ahad'), findsOneWidget);
+      expect(find.textContaining('Ya-Sin'), findsNothing,
+          reason: 'the section starts closed');
+
+      await tester.tap(find.text('Quran'));
+      await tester.pumpAndSettle();
+      double top(String text) =>
+          tester.getTopLeft(find.textContaining(text)).dy;
+      expect(top('Al-Fatihah'), lessThan(top('Al-Baqarah')));
+      expect(top('Al-Baqarah'), lessThan(top('Ayat al-Kursi')));
+      expect(top('Ayat al-Kursi'), lessThan(top('Ya-Sin')));
+
+      await tester.tap(find.textContaining('Ya-Sin'));
+      await tester.pump();
+      expect(store.byId(playlist.id)!.zikrUids, ['A40']);
+    });
+
     testWidgets('a zikr playing one of several recordings goes by its label',
         (tester) async {
       items = {...items, 'G1': 'Ziyarat Aal e Yasin'};
@@ -478,6 +565,55 @@ void main() {
       final ahad = tester.getTopLeft(find.text('Dua e Ahad'));
       final ashura = tester.getTopLeft(find.text('Ziyarat Ashura'));
       expect(ahad.dy, lessThan(ashura.dy));
+    });
+
+    testWidgets('a long press drags a zikr to a new place', (tester) async {
+      final store = ZikrPlaylistStore.instance;
+      final playlist = await store.create('Morning', zikrUids: ['E18', 'G4']);
+      await tester.pumpWidget(
+          MaterialApp(home: PlaylistDetailPage(playlistId: playlist.id)));
+
+      final drag =
+          await tester.startGesture(tester.getCenter(find.text('Dua e Ahad')));
+      await tester.pump(kLongPressTimeout + const Duration(milliseconds: 50));
+      await _dragDown(tester, drag, 90);
+      await drag.up();
+      await tester.pumpAndSettle();
+
+      expect(store.byId(playlist.id)!.zikrUids, ['G4', 'E18']);
+    });
+
+    testWidgets('editing drags by the handle and removes with the minus',
+        (tester) async {
+      final store = ZikrPlaylistStore.instance;
+      final playlist =
+          await store.create('Morning', zikrUids: ['E18', 'G4', 'E31']);
+      await tester.pumpWidget(
+          MaterialApp(home: PlaylistDetailPage(playlistId: playlist.id)));
+
+      await tester.tap(find.text('Edit'));
+      await tester.pump();
+      expect(find.text('Done'), findsOneWidget);
+      expect(find.bySemanticsLabel('More for Dua e Ahad'), findsNothing,
+          reason: 'the drag handle takes the place of the menu');
+
+      // Straight away by the handle - no long press.
+      final handle = find.descendant(
+        of: find.ancestor(
+            of: find.text('Dua e Ahad'),
+            matching: find.byType(ReorderableDelayedDragStartListener)),
+        matching: find.byType(ReorderableDragStartListener),
+      );
+      final drag = await tester.startGesture(tester.getCenter(handle));
+      await _dragDown(tester, drag, 50);
+      await drag.up();
+      await tester.pumpAndSettle();
+      expect(store.byId(playlist.id)!.zikrUids, ['G4', 'E18', 'E31']);
+
+      await tester
+          .tap(find.bySemanticsLabel('Remove Ziyarat Ashura from playlist'));
+      await tester.pump();
+      expect(store.byId(playlist.id)!.zikrUids, ['E18', 'E31']);
     });
   });
 }

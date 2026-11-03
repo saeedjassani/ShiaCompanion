@@ -275,9 +275,10 @@ void main() {
       expect(rows.map((row) => row.key), ['G2']);
     });
 
-    test('drops playlist plays so the ranking is opens only', () {
+    test('drops recitation plays so the ranking is opens only', () {
       final rows = splitZikrCompletions(const [
         UsageRow(key: 'G1~playlist', label: 'Dua Kumayl', count: 50),
+        UsageRow(key: 'G3~audio', label: 'Dua Tawassul', count: 40),
         UsageRow(key: 'G2', label: 'Ziyarat Ashura', count: 5),
       ]);
 
@@ -285,9 +286,9 @@ void main() {
     });
   });
 
-  group('zikrPlaylistRows', () {
+  group('zikrPlayRows', () {
     test('keeps only playlist plays, keyed by bare uid, in rank order', () {
-      final rows = zikrPlaylistRows(const [
+      final rows = zikrPlayRows(const [
         UsageRow(key: 'G1~playlist', label: 'Dua Kumayl', count: 50),
         UsageRow(key: 'G2', label: 'Ziyarat Ashura', count: 20),
         UsageRow(key: 'G2~done', label: 'Ziyarat Ashura (completed)', count: 9),
@@ -296,18 +297,33 @@ void main() {
 
       expect(rows.map((row) => row.key), ['G1', 'G2']);
       expect(rows.map((row) => row.count), [50, 3]);
+      expect(rows.map((row) => row.note), [null, null]);
+    });
+
+    test('adds plays on the zikr page to its playlist plays', () {
+      final rows = zikrPlayRows(const [
+        UsageRow(key: 'G2~playlist', label: 'Ziyarat Ashura', count: 30),
+        UsageRow(key: 'G1~audio', label: 'Dua Kumayl', count: 25),
+        UsageRow(key: 'G1~playlist', label: 'Dua Kumayl', count: 10),
+        UsageRow(key: 'G1', label: 'Dua Kumayl', count: 90),
+      ]);
+
+      expect(rows.map((row) => row.key), ['G1', 'G2']);
+      expect(rows.map((row) => row.count), [35, 30]);
+      expect(rows.first.note, '10 in playlists · 25 on its page');
+      expect(rows.last.note, isNull);
     });
 
     test('previous counts are keyed the same way and exclude opens', () {
       expect(
-        zikrPlaylistPreviousByKey(const {
-          'zikr': {'G1': 4, 'G1~playlist': 7, 'G1~done': 2},
+        zikrPlayPreviousByKey(const {
+          'zikr': {'G1': 4, 'G1~playlist': 7, 'G1~audio': 5, 'G1~done': 2},
         }),
-        {'G1': 7},
+        {'G1': 12},
       );
       expect(
         zikrPreviousByKey(const {
-          'zikr': {'G1': 4, 'G1~playlist': 7, 'G1~done': 2},
+          'zikr': {'G1': 4, 'G1~playlist': 7, 'G1~audio': 5, 'G1~done': 2},
         }),
         {'G1': 4},
       );
@@ -492,11 +508,16 @@ void main() {
   });
 
   group('previousTotalsFrom', () {
-    test(
-        'sums opens, drops completions and playlist plays, and counts distinct zikrs',
+    test('sums opens, drops completions and plays, and counts distinct zikrs',
         () {
       final totals = previousTotalsFrom({
-        'zikr': {'G1': 10, 'G1~done': 3, 'G1~playlist': 8, 'G2': 5},
+        'zikr': {
+          'G1': 10,
+          'G1~done': 3,
+          'G1~playlist': 8,
+          'G1~audio': 6,
+          'G2': 5,
+        },
         'feature': {'search': 4, 'zikr_shared': 2},
       });
 

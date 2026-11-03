@@ -4,9 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:just_audio/just_audio.dart';
 
-import '../constants.dart' show appNavigatorKey;
+import '../constants.dart' show appNavigatorKey, items;
+import '../data/uid_title_data.dart';
 import '../l10n/l10n.dart';
 import '../pages/playlists_page.dart';
+import '../pages/zikr/zikr_page.dart';
+import '../services/analytics_service.dart';
 import '../services/playlist_audio_service.dart';
 import '../theme/shia_colors.dart';
 import 'glass_surface.dart';
@@ -239,13 +242,21 @@ class _NowPlayingCapsuleState extends State<NowPlayingCapsule> {
   }
 
   Future<void> _openPlaylist() async {
-    final id = PlaylistAudioService.instance.playlist?.id;
+    final audio = PlaylistAudioService.instance;
+    final id = audio.playlist?.id;
     final navigator = appNavigatorKey.currentState;
     if (id == null || navigator == null) return;
     _expanded = false;
     _entry.markNeedsBuild();
+    // A dua started on its own (a play link, Siri) has no playlist page.
+    final zikrUid = audio.singleZikrUid;
     await navigator.push(MaterialPageRoute(
-      builder: (_) => PlaylistDetailPage(playlistId: id),
+      builder: (_) => zikrUid == null
+          ? PlaylistDetailPage(playlistId: id)
+          : ZikrPage(
+              UidTitleData(zikrUid, items[zikrUid]?.toString() ?? zikrUid),
+              source: ZikrOpenSource.playlist,
+            ),
     ));
   }
 
@@ -446,7 +457,9 @@ class _CapsuleBody extends StatelessWidget {
                 icon: OutlineIcon(OutlineGlyph.playlist,
                     size: 18, color: colors.accent),
                 label: Text(
-                  l10n.playlistOpenPlaylist,
+                  audio.singleZikrUid == null
+                      ? l10n.playlistOpenPlaylist
+                      : l10n.playlistOpenText,
                   style: ShiaText.caption.copyWith(
                     color: colors.accent,
                     fontWeight: FontWeight.w600,

@@ -1,5 +1,8 @@
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/semantics.dart';
+import 'package:flutter/services.dart';
 
 import '../constants.dart';
 import '../data/uid_title_data.dart';
@@ -10,9 +13,11 @@ import '../services/zikr_translations.dart';
 import '../services/audio_download_store.dart';
 import '../services/favorites_manager.dart';
 import '../services/playlist_audio_service.dart';
+import '../services/smart_actions_service.dart';
 import '../services/zikr_audio_index.dart';
 import '../services/zikr_playlist_store.dart';
 import '../theme/shia_colors.dart';
+import '../utils/deep_links.dart';
 import '../widgets/arabic_runs.dart';
 import '../widgets/audio_download_button.dart';
 import '../widgets/choice_sheet.dart';
@@ -109,15 +114,9 @@ Future<void> _startPlaylist(
 }) async {
   final result = await PlaylistAudioService.instance
       .play(playlist, startZikrIndex: startZikrIndex);
-  final message = switch (result) {
-    PlaylistStartResult.started => null,
-    PlaylistStartResult.startedDownloadedOnly =>
-      context.l10n.playlistOfflinePartial,
-    PlaylistStartResult.nothingToPlay => context.l10n.playlistNothingToPlay,
-    PlaylistStartResult.offlineNothingDownloaded =>
-      context.l10n.playlistOfflineNothingDownloaded,
-    PlaylistStartResult.failed => context.l10n.playlistStartFailed,
-  };
+  if (result.isStarted)
+    SmartActionsService.instance.donatePlaylist(playlist.id);
+  final message = result.message;
   if (message == null) return;
   showToast(message);
 }
@@ -130,6 +129,13 @@ List<ZikrAudioTrack> _tracksOf(ZikrPlaylist playlist) => [
 
 String _trackLabel(ZikrAudioTrack track, int index) =>
     track.displayLabel ?? L10n.current.audioRecordingNumber(index + 1);
+
+/// [track]'s reciter in the reader's zikr language, or null when it has none
+/// or that language has no spelling of the name yet.
+String? _reciterLabel(ZikrAudioTrack track) {
+  final name = track.reciter;
+  return name == null ? null : ZikrTranslations.instance.reciterName(name);
+}
 
 /// Lets the reader pick which of [uid]'s recordings [playlist] plays - at
 /// least one, since a zikr with none picked would silently drop out.
@@ -174,9 +180,9 @@ Future<void> _chooseRecordings(
                       first: i == 0,
                       last: i == available.length - 1,
                       title: Text(_trackLabel(available[i], i)),
-                      subtitle: available[i].reciter == null
+                      subtitle: _reciterLabel(available[i]) == null
                           ? null
-                          : Text(available[i].reciter!),
+                          : Text(_reciterLabel(available[i])!),
                       trailing: Checkbox(
                         value: on,
                         activeColor: colors.accent,
@@ -583,6 +589,11 @@ class _PlaylistDetailPageState extends State<PlaylistDetailPage> {
   // index - loaded here rather than waiting for the first Play.
   bool _audioReady = ZikrAudioIndex.instance.isLoaded;
 
+  // Editing swaps each row's number for a remove button and its ⋯ for a
+  // drag handle, as music apps do. Rows can be dragged by a long press
+  // either way.
+  bool _editing = false;
+
   String get playlistId => widget.playlistId;
 
   @override
@@ -660,6 +671,10 @@ class _PlaylistDetailPageState extends State<PlaylistDetailPage> {
     final l10n = anchor.l10n;
     final value = await showMenuAt<String>(anchor, [
       PopupMenuItem(value: 'rename', child: Text(l10n.commonRename)),
+      // Not on the web: there a play link only opens the playlist.
+      if (!kIsWeb)
+        PopupMenuItem(
+            value: 'copy-link', child: Text(l10n.playlistCopyPlayLink)),
       if (AudioDownloadStore.instance.anyDownloaded(allTracks))
         PopupMenuItem(
             value: 'remove-downloads',
@@ -673,6 +688,10 @@ class _PlaylistDetailPageState extends State<PlaylistDetailPage> {
     switch (value) {
       case 'rename':
         await _rename(context, playlist);
+      case 'copy-link':
+        await Clipboard.setData(
+            ClipboardData(text: buildPlaylistDeepLinkUrl(playlist.id)));
+        showToast(l10n.playlistPlayLinkCopied);
       case 'delete':
         await _delete(context, playlist);
       case 'remove-downloads':
@@ -725,6 +744,8 @@ class _PlaylistDetailPageState extends State<PlaylistDetailPage> {
                     uid, ZikrAudioIndex.instance.tracksFor(uid))))
                 .length;
         final count = _countLabel(playlist.zikrUids.length);
+        // Nothing to edit once the last one is removed.
+        final editing = _editing && playlist.zikrUids.isNotEmpty;
 
         return LargeTitlePage(
           title: playlist.displayName,
@@ -732,6 +753,12 @@ class _PlaylistDetailPageState extends State<PlaylistDetailPage> {
               ? '$count · ${l10n.playlistDownloadedCount(downloadedCount)}'
               : count,
           actions: [
+            if (playlist.zikrUids.isNotEmpty)
+              PageTextAction(
+                label: editing ? l10n.commonDone : l10n.commonEdit,
+                semanticsLabel: editing ? null : l10n.playlistEdit,
+                onPressed: () => setState(() => _editing = !editing),
+              ),
             Builder(
               builder: (anchor) => RoundIconButton(
                 label: l10n.playlistOptions,
@@ -788,14 +815,17 @@ class _PlaylistDetailPageState extends State<PlaylistDetailPage> {
                         body: l10n.playlistEmpty,
                       ),
                     )
-                  : SliverCardList(
+                  : SliverReorderableCardList(
                       itemCount: playlist.zikrUids.length,
+                      onReorder: (oldIndex, newIndex) =>
+                          store.move(playlist.id, oldIndex, newIndex),
                       itemBuilder: (context, index) => _buildRow(
                         context,
                         playlist,
                         index,
                         playing: playlist.zikrUids[index] == playingUid,
                         showDownload: showDownload,
+                        editing: editing,
                       ),
                     ),
             ),
@@ -822,6 +852,7 @@ class _PlaylistDetailPageState extends State<PlaylistDetailPage> {
     int index, {
     required bool playing,
     required bool showDownload,
+    required bool editing,
   }) {
     final l10n = context.l10n;
     final colors = ShiaColors.of(context);
@@ -861,22 +892,28 @@ class _PlaylistDetailPageState extends State<PlaylistDetailPage> {
       if (status != null) status,
     ].join(' · ');
     final title = single ?? _zikrTitle(uid);
+    final last = index == playlist.zikrUids.length - 1;
 
-    return CardListRow(
+    final row = CardListRow(
       first: index == 0,
-      last: index == playlist.zikrUids.length - 1,
+      last: last,
       minHeight: 60,
-      leading: playing
-          ? Container(
-              width: 32,
-              height: 32,
-              alignment: Alignment.center,
-              decoration:
-                  BoxDecoration(color: colors.accent, shape: BoxShape.circle),
-              child: OutlineIcon(OutlineGlyph.speaker,
-                  size: 18, color: colors.onAccent),
+      leading: editing
+          ? RowRemoveButton(
+              label: l10n.playlistRemoveFrom(title),
+              onPressed: () => store.removeAt(playlist.id, index),
             )
-          : NumberWell(index + 1, size: 32),
+          : playing
+              ? Container(
+                  width: 32,
+                  height: 32,
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                      color: colors.accent, shape: BoxShape.circle),
+                  child: OutlineIcon(OutlineGlyph.speaker,
+                      size: 18, color: colors.onAccent),
+                )
+              : NumberWell(index + 1, size: 32),
       title: Text(title),
       titleStyle: ShiaText.body
           .copyWith(fontWeight: playing ? FontWeight.w600 : FontWeight.w400),
@@ -890,58 +927,86 @@ class _PlaylistDetailPageState extends State<PlaylistDetailPage> {
                       ? TextStyle(color: colors.danger)
                       : null,
                 ),
-      trailing: Builder(
-        builder: (anchor) => MoreButton(
-          label: l10n.playlistMoreFor(title),
-          onPressed: () async {
-            final value = await showMenuAt<String>(anchor, [
-              PopupMenuItem(value: 'open', child: Text(l10n.playlistOpenText)),
-              if (available.length > 1)
-                PopupMenuItem(
-                    value: 'recordings',
-                    child: Text(l10n.playlistChooseRecordings)),
-              if (showDownload && tracks.isNotEmpty)
-                switch (downloadState) {
-                  AudioDownloadState.downloading => PopupMenuItem(
-                      value: 'stop-download',
-                      child: Text(l10n.audioStopDownloading)),
-                  AudioDownloadState.done => PopupMenuItem(
-                      value: 'remove-download',
-                      child: Text(l10n.audioRemoveDownload)),
-                  _ => PopupMenuItem(
-                      value: 'download', child: Text(l10n.audioDownload)),
+      trailing: editing
+          ? ReorderableDragStartListener(
+              index: index,
+              // The row's Move up / Move down actions stand in for it.
+              child: ExcludeSemantics(
+                child: SizedBox.square(
+                  dimension: 44,
+                  child: Center(
+                    child: OutlineIcon(OutlineGlyph.dragHandle,
+                        color: colors.chevron),
+                  ),
+                ),
+              ),
+            )
+          : Builder(
+              builder: (anchor) => MoreButton(
+                label: l10n.playlistMoreFor(title),
+                onPressed: () async {
+                  final value = await showMenuAt<String>(anchor, [
+                    PopupMenuItem(
+                        value: 'open', child: Text(l10n.playlistOpenText)),
+                    if (available.length > 1)
+                      PopupMenuItem(
+                          value: 'recordings',
+                          child: Text(l10n.playlistChooseRecordings)),
+                    if (showDownload && tracks.isNotEmpty)
+                      switch (downloadState) {
+                        AudioDownloadState.downloading => PopupMenuItem(
+                            value: 'stop-download',
+                            child: Text(l10n.audioStopDownloading)),
+                        AudioDownloadState.done => PopupMenuItem(
+                            value: 'remove-download',
+                            child: Text(l10n.audioRemoveDownload)),
+                        _ => PopupMenuItem(
+                            value: 'download', child: Text(l10n.audioDownload)),
+                      },
+                    PopupMenuItem(
+                        value: 'remove', child: Text(l10n.playlistRemoveZikr)),
+                  ]);
+                  if (!context.mounted) return;
+                  switch (value) {
+                    case 'open':
+                      _openZikr(context, uid);
+                    case 'recordings':
+                      await _chooseRecordings(
+                          context, playlist, uid, available);
+                    case 'remove':
+                      await store.removeAt(playlist.id, index);
+                    case 'download':
+                      await startAudioDownload(context, tracks, label: title);
+                    case 'stop-download':
+                      downloads.cancel(tracks);
+                    case 'remove-download':
+                      await confirmRemoveAudioDownload(context, tracks,
+                          label: title);
+                  }
                 },
-              if (index > 0)
-                PopupMenuItem(value: 'up', child: Text(l10n.playlistMoveUp)),
-              if (index < playlist.zikrUids.length - 1)
-                PopupMenuItem(
-                    value: 'down', child: Text(l10n.playlistMoveDown)),
-              PopupMenuItem(
-                  value: 'remove', child: Text(l10n.playlistRemoveZikr)),
-            ]);
-            if (!context.mounted) return;
-            switch (value) {
-              case 'open':
-                _openZikr(context, uid);
-              case 'recordings':
-                await _chooseRecordings(context, playlist, uid, available);
-              case 'remove':
-                await store.removeAt(playlist.id, index);
-              case 'up':
-                await store.move(playlist.id, index, index - 1);
-              case 'down':
-                await store.move(playlist.id, index, index + 1);
-              case 'download':
-                await startAudioDownload(context, tracks, label: title);
-              case 'stop-download':
-                downloads.cancel(tracks);
-              case 'remove-download':
-                await confirmRemoveAudioDownload(context, tracks, label: title);
-            }
-          },
-        ),
+              ),
+            ),
+      onTap: editing
+          ? null
+          : () => _startPlaylist(context, playlist, startZikrIndex: index),
+    );
+
+    // A long press picks the row up to drag it, editing or not; a screen
+    // reader moves it with the actions instead.
+    return ReorderableDelayedDragStartListener(
+      key: ValueKey(uid),
+      index: index,
+      child: Semantics(
+        customSemanticsActions: {
+          if (index > 0)
+            CustomSemanticsAction(label: l10n.playlistMoveUp): () =>
+                store.move(playlist.id, index, index - 1),
+          if (!last)
+            CustomSemanticsAction(label: l10n.playlistMoveDown): () =>
+                store.move(playlist.id, index, index + 1),
+        },
+        child: row,
       ),
-      onTap: () => _startPlaylist(context, playlist, startZikrIndex: index),
     );
   }
 }
@@ -1002,6 +1067,35 @@ Set<String> _aamaalPrefixes() {
   return found;
 }
 
+/// Stands in for the Quran section's own row among the picker's uids.
+const String _quranSectionRow = '~quran-section';
+
+/// Whether [uid] is from the Quran: a surah (`A5` is Al-Fatihah) or a
+/// passage of one (`A4`, Ayat al-Kursi).
+bool _isQuran(String uid) =>
+    _contentUid(uid).replaceAll(RegExp('[0-9].*'), '') == 'A';
+
+/// Passages of a surah, filed right after it: Ayat al-Kursi is 2:255.
+const Map<String, int> _quranPassageSurah = {'A4': 2};
+
+/// The surah number a Quran entry is ordered by - the leading `N:` of a
+/// surah's title ("36: Ya-Sin") - with a passage just after its surah.
+(int, int) _quranOrder(String uid) {
+  final passageOf = _quranPassageSurah[_contentUid(uid)];
+  if (passageOf != null) return (passageOf, 1);
+  final match =
+      RegExp(r'^\s*(\d+)\s*:').firstMatch(items[uid]?.toString() ?? '');
+  return (match == null ? 1 << 20 : int.parse(match.group(1)!), 0);
+}
+
+int _compareQuranOrder(String a, String b) {
+  final (surahA, passageA) = _quranOrder(a);
+  final (surahB, passageB) = _quranOrder(b);
+  if (surahA != surahB) return surahA.compareTo(surahB);
+  if (passageA != passageB) return passageA.compareTo(passageB);
+  return a.compareTo(b);
+}
+
 /// Every zikr that has a recording, to tick into a playlist, narrowed by
 /// the find field at the bottom.
 class AddRecitationsPage extends StatefulWidget {
@@ -1016,6 +1110,48 @@ class AddRecitationsPage extends StatefulWidget {
 class _AddRecitationsPageState extends State<AddRecitationsPage> {
   final TextEditingController _find = TextEditingController();
   bool _audioReady = ZikrAudioIndex.instance.isLoaded;
+
+  /// Whether the Quran section is open; it starts closed.
+  bool _quranOpen = false;
+
+  /// The Quran section's own row: tapping it opens or closes the surahs
+  /// under it. It has no tick - ticking every surah at once is never wanted.
+  Widget _buildQuranSectionRow(
+    BuildContext context,
+    ZikrPlaylist playlist,
+    List<String> surahs, {
+    required bool open,
+    required bool first,
+    required bool last,
+  }) {
+    final l10n = context.l10n;
+    final inPlaylist = surahs.where(playlist.zikrUids.contains).length;
+    final count = l10n.listCountSurahs(surahs.length);
+    return Semantics(
+      expanded: open,
+      child: CardListRow(
+        first: first,
+        last: last && !open,
+        title: Text(l10n.quranTitle),
+        subtitle: Text(inPlaylist == 0
+            ? count
+            : '$count · ${l10n.playlistSectionAdded(inPlaylist)}'),
+        trailing: AnimatedRotation(
+          turns: open ? 0.5 : 0,
+          duration: const Duration(milliseconds: 200),
+          child: OutlineIcon(
+            OutlineGlyph.chevronDown,
+            size: 18,
+            color: ShiaColors.of(context).chevron,
+          ),
+        ),
+        // While finding, the section stays open so the matches show.
+        onTap: _find.text.trim().isEmpty
+            ? () => setState(() => _quranOpen = !_quranOpen)
+            : null,
+      ),
+    );
+  }
 
   @override
   void initState() {
@@ -1075,7 +1211,22 @@ class _AddRecitationsPageState extends State<AddRecitationsPage> {
         : aamaal.contains(uid.replaceAll(RegExp('[0-9].*'), ''))
             ? 2
             : 1;
-    final uids = ZikrAudioIndex.instance.uids.toList()
+    bool matches(String uid) {
+      if (query.isEmpty) return true;
+      if (_zikrTitle(uid).toLowerCase().contains(query)) return true;
+      // Recording labels name what they are ("Dua after Ziyarat Warith"),
+      // so they are worth finding by too.
+      return ZikrAudioIndex.instance.tracksFor(uid).any((track) =>
+          (track.displayLabel ?? track.label)?.toLowerCase().contains(query) ??
+          false);
+    }
+
+    final all = ZikrAudioIndex.instance.uids;
+    // The surahs (over a hundred of them) go in one Quran section, in mushaf
+    // order, so they don't bury the duas and ziyarat.
+    final surahs = all.where(_isQuran).where(matches).toList()
+      ..sort(_compareQuranOrder);
+    final others = all.where((uid) => !_isQuran(uid)).where(matches).toList()
       ..sort((a, b) {
         final byRank = rank(a).compareTo(rank(b));
         if (byRank != 0) return byRank;
@@ -1083,18 +1234,16 @@ class _AddRecitationsPageState extends State<AddRecitationsPage> {
             .toLowerCase()
             .compareTo(_zikrTitle(b).toLowerCase());
       });
-    final visible = query.isEmpty
-        ? uids
-        : uids.where((uid) {
-            if (_zikrTitle(uid).toLowerCase().contains(query)) return true;
-            // Recording labels name what they are ("Dua after Ziyarat
-            // Warith"), so they are worth finding by too.
-            return ZikrAudioIndex.instance.tracksFor(uid).any((track) =>
-                (track.displayLabel ?? track.label)
-                    ?.toLowerCase()
-                    .contains(query) ??
-                false);
-          }).toList();
+    // While finding, matching surahs show without opening the section.
+    final quranOpen = _quranOpen || query.isNotEmpty;
+    // The section sits after the reader's favorites, before everything else.
+    final favoriteCount = others.takeWhile((uid) => rank(uid) == 0).length;
+    final visible = <String>[
+      ...others.take(favoriteCount),
+      if (surahs.isNotEmpty) _quranSectionRow,
+      if (quranOpen) ...surahs,
+      ...others.skip(favoriteCount),
+    ];
 
     return ListenableBuilder(
       listenable: store,
@@ -1118,12 +1267,22 @@ class _AddRecitationsPageState extends State<AddRecitationsPage> {
                       )
                     : SliverCardList(
                         itemCount: visible.length,
-                        itemBuilder: (context, index) => _buildPickRow(
-                          playlist,
-                          visible[index],
-                          first: index == 0,
-                          last: index == visible.length - 1,
-                        ),
+                        itemBuilder: (context, index) =>
+                            visible[index] == _quranSectionRow
+                                ? _buildQuranSectionRow(
+                                    context,
+                                    playlist,
+                                    surahs,
+                                    open: quranOpen,
+                                    first: index == 0,
+                                    last: index == visible.length - 1,
+                                  )
+                                : _buildPickRow(
+                                    playlist,
+                                    visible[index],
+                                    first: index == 0,
+                                    last: index == visible.length - 1,
+                                  ),
                       ),
               ),
           ],
@@ -1203,6 +1362,11 @@ Widget _buildPickRow(
             leading: _Tick(chosen.contains(available[i].file)),
             title: Text(_trackLabel(available[i], i)),
             titleStyle: ShiaText.secondary,
+            // Recordings of one text can differ only by who recites it
+            // (Hadith al-Kisa), so the reciter is how the reader picks.
+            subtitle: _reciterLabel(available[i]) == null
+                ? null
+                : Text(_reciterLabel(available[i])!),
             onTap: () => setChosen(chosen.contains(available[i].file)
                 ? ({...chosen}..remove(available[i].file))
                 : {...chosen, available[i].file}),

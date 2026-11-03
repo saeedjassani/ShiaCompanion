@@ -367,14 +367,31 @@ its azan as on. Replaces the location explainer and azan dialogs; the OS prompts
 only follow an explicit tap. No setup checklist on Home. Fresh installs on
 Android and iOS only: an install that has run an earlier build skips it,
 and the web keeps its quiet first load. The "What's new" dialog for
-existing users is retired.
+existing users is retired; see "What's new" below.
+
+### What's new
+No dialog. Release notes live on a page, Settings › What's new (Support
+group, above About; not on the web), newest release first under "Version
+x.y.z", a "New" pill on the releases that came out since the page was last
+opened. Until it is opened, a small accent dot sits on Home's profile button
+and on the Settings row. A fresh install starts caught up. The notes are
+`whatsNewNotes` (`lib/data/whats_new_notes.dart`), each point an ARB key
+(`whatsNew<build><Topic>`) in every language; a release that changes nothing
+a person would notice adds none.
+
+A feature worth showing more than telling gets its own card on Home for
+people who updated, one at a time. The first is Color: under the prayer card,
+"New · Choose your color" with all eight swatches (one tap applies) and ✕.
+Not on a fresh install (setup's theme step asked) or the web; gone from the
+next launch once a color is picked, and for good once dismissed.
 
 ### Settings
 Sign-in card first (signed out: what's at stake + Google/Apple buttons;
 signed in: name, email, "Backed up · 2 minutes ago", opens Account with Log
-out / Delete account). Then Appearance (Theme, Arabic font with sample,
-Text size), Prayer times (Location, Azan, Adjust Hijri date, Prayer times
-shown), Notifications, Reading, Offline audio, Support.
+out / Delete account). Then Appearance (Theme, Color, Arabic font with
+sample, Text size), Prayer times (Location, Azan, Adjust Hijri date, Prayer
+times shown), Notifications, Reading, Offline audio, Support (... What's
+new, About).
 
 **Account** (`R3-Account`): name, email and provider, "Backed up · 2
 minutes ago", what the backup holds with counts (favorites, bookmarks, Quran

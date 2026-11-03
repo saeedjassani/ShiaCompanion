@@ -38,11 +38,18 @@ class QuranReadingPosition {
     required this.verse,
     required this.text,
     required this.fromUserScroll,
-  });
+    VerseKey? lastVisibleVerse,
+  }) : lastVisibleVerse = lastVisibleVerse ?? verse;
 
   /// The surah as well as the ayah: a juz runs across surahs, so an ayah
   /// number on its own does not say where the reader is.
   final VerseKey verse;
+
+  /// The last verse wholly on screen, below [verse] - how far down the view
+  /// the reader can have read. Someone reads a screenful and then scrolls,
+  /// or closes the reader, so the place they reached is here, not at the
+  /// top; it is [verse] itself when nothing below it is whole.
+  final VerseKey lastVisibleVerse;
 
   /// The verse as shown, so saving it from the action bar can keep an excerpt
   /// without the reader having opened the per-verse menu first.
@@ -60,6 +67,8 @@ class AyahActionRequest {
     this.aliNote,
     this.mahdiNote,
     this.sajdahVerse,
+    this.onToggleTranslationPeek,
+    this.translationPeeked = false,
   });
 
   /// Which verse was tapped, surah included - in a juz the surah is not the
@@ -85,6 +94,16 @@ class AyahActionRequest {
   /// The Sajdah (prostration) ruling and supplication if this verse is a
   /// Sajdah verse in the Holy Quran.
   final QuranSajdahVerse? sajdahVerse;
+
+  /// Shows this verse's translation, or hides it again, while translation is
+  /// switched off for the reader as a whole. Null when there is nothing to
+  /// peek at - translation is on already, or the reader's language has no
+  /// translation of this verse - and the menu then has no such entry.
+  final VoidCallback? onToggleTranslationPeek;
+
+  /// Whether the verse's translation is open right now, which says whether
+  /// [onToggleTranslationPeek] shows it or hides it.
+  final bool translationPeeked;
 }
 
 class ZikrContentScrollPosition {
@@ -246,7 +265,15 @@ class _ReadingListItem {
 /// [isArabicOnlyReadingView] this is one item per line except for a run of
 /// standalone lines, which always collapses into one item regardless of
 /// view mode. See [_ReadingListItem].
-List<_ReadingListItem> _buildReadingListItems(ParsedZikrContent content) {
+///
+/// [isPeeked] says whether the verse whose Arabic is on a line has had its
+/// translation tapped open. Such a verse leaves the flowing paragraph and
+/// stands as its own lines, so its translation can sit under it.
+List<_ReadingListItem> _buildReadingListItems(
+  ParsedZikrContent content, {
+  bool Function(int arabicLine)? isPeeked,
+}) {
+  bool peeked(int line) => isPeeked != null && isPeeked(line);
   final total = content.lines.length;
   final items = <_ReadingListItem>[];
 
@@ -275,7 +302,9 @@ List<_ReadingListItem> _buildReadingListItems(ParsedZikrContent content) {
       continue;
     }
 
-    if (isArabicOnlyReadingView && content.arabicCodes.contains(i)) {
+    if (isArabicOnlyReadingView &&
+        content.arabicCodes.contains(i) &&
+        !peeked(i)) {
       // A Bismillah opening a paragraph stands on a line of its own, the way
       // a surah's does ([_buildArabicParagraphItem] centres it). Only at the
       // start: inside a run it can be part of the sentence - Dua Mashlool
@@ -295,6 +324,7 @@ List<_ReadingListItem> _buildReadingListItems(ParsedZikrContent content) {
       var j = i + 1;
       while (j < total) {
         if (content.arabicCodes.contains(j)) {
+          if (peeked(j)) break;
           verses.add(j);
           j++;
         } else if (content.transliCodes.contains(j) ||
@@ -681,11 +711,16 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget>
 
   bool _didScrollToInitialVerse = false;
 
+  /// The reading settings the open part was last laid out with - see
+  /// [_keepPlaceAcrossLayoutChange].
+  Object? _layoutSettings;
+
   /// The tab being scrolled to where it opens - a linked verse or a
   /// bookmarked line - kept invisible until it lands. See [_hideWhileLanding].
   int? _landingTabIndex;
   bool _verseReportScheduled = false;
   VerseKey? _reportedVerse;
+  VerseKey? _reportedLastVisibleVerse;
   late int _selectedTabIndex;
   late final int? _initialBookmarkTabIndex;
   late final double? _initialBookmarkScrollOffset;
@@ -728,6 +763,75 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget>
 
   /// Tabs with a position report already queued for the end of the frame.
   final Set<int> _pendingPositionReports = {};
+
+  /// The verses whose translation the reader has tapped open while
+  /// translation is switched off, as (tab, line of the verse's Arabic).
+  /// In memory only: it empties when translation or the translation language
+  /// changes (see [_keepPlaceAcrossLayoutChange]) and goes with the page.
+  final Set<(int, int)> _peekedVerses = {};
+  (bool, String)? _peekScope;
+
+  /// Whether line [lineIndex] belongs to a verse the reader could open the
+  /// translation of: translation is off, the reader's language is not Arabic
+  /// (which has nothing to translate into), and this verse has a translation
+  /// line that would actually be shown. Outside English, a verse nobody has
+  /// translated has nothing to show and so nothing to open - English never
+  /// stands in for it.
+  bool _canPeek(ParsedZikrContent content, int lineIndex) =>
+      _peekTranslationLine(content, lineIndex) != null;
+
+  /// The translation line of the verse [lineIndex] belongs to, when
+  /// [_canPeek] says there is one.
+  int? _peekTranslationLine(ParsedZikrContent content, int lineIndex) {
+    if (translationShown || ZikrTranslations.instance.isArabic) return null;
+    final group = content.groupContaining(lineIndex);
+    if (group == null) return null;
+    for (var i = group.start; i < group.end; i++) {
+      // A line can be coded both ways: a bare Bismillah above verse 1 claims
+      // verse 1's transliteration as its own translation. The reader draws it
+      // as transliteration, so it is not the translation to open.
+      if (content.translaCodes.contains(i) &&
+          !content.transliCodes.contains(i) &&
+          !content.isHiddenEnglish(i) &&
+          content.displayLine(i).trim().isNotEmpty) {
+        return i;
+      }
+    }
+    return null;
+  }
+
+  /// Whether the verse [lineIndex] belongs to has its translation tapped open.
+  bool _isPeeked(int tabIndex, ParsedZikrContent content, int lineIndex) {
+    final group = content.groupContaining(lineIndex);
+    return group != null && _peekedVerses.contains((tabIndex, group.start));
+  }
+
+  /// Opens the translation of the verse [lineIndex] belongs to, or closes it
+  /// again. A verse with nothing to show is left alone.
+  void _togglePeek(int tabIndex, ParsedZikrContent content, int lineIndex) {
+    if (!_canPeek(content, lineIndex)) return;
+    final key = (tabIndex, content.groupContaining(lineIndex)!.start);
+    setState(() {
+      if (!_peekedVerses.remove(key)) _peekedVerses.add(key);
+    });
+  }
+
+  /// Makes a tap on [child], one line of a verse, open or close that verse's
+  /// translation - when the verse has one to open. A plain [GestureDetector]
+  /// with only a tap: a long press still selects text as it always did.
+  Widget _withPeekTap(
+    int tabIndex,
+    ParsedZikrContent content,
+    int lineIndex,
+    Widget child,
+  ) {
+    if (!_canPeek(content, lineIndex)) return child;
+    return GestureDetector(
+      behavior: HitTestBehavior.translucent,
+      onTap: () => _togglePeek(tabIndex, content, lineIndex),
+      child: child,
+    );
+  }
 
   TextSpan _buildTextSpanForLine(String rawLine, TextStyle baseStyle) {
     return buildZikrTextSpanWithLinks(
@@ -820,13 +924,35 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget>
     final isBismillah = item.lineIndexes.length == 1 &&
         ZikrContentParser.isBismillah(parsedContent.lines[item.firstLineIndex]);
 
+    Widget paragraph = _RuledArabicParagraph(
+      textKey: flow.textKey,
+      span: TextSpan(style: paragraphStyle, children: spans),
+      textAlign: isBismillah ? TextAlign.center : TextAlign.justify,
+    );
+
+    // With translation off, a tap on a verse opens its translation under it
+    // (see [_peekedVerses]). The verse is found from where the tap lands in
+    // the laid-out text, as the Quran reader does in paragraph mode.
+    if (item.lineIndexes.any((line) => _canPeek(parsedContent, line))) {
+      paragraph = GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTapUp: (details) {
+          final text = flow.laidOutText;
+          if (text == null) return;
+          final position = text.getPositionForOffset(
+            text.globalToLocal(details.globalPosition),
+          );
+          final member = flow.memberAtTextOffset(position.offset);
+          if (member >= item.lineIndexes.length) return;
+          _togglePeek(tabIndex, parsedContent, item.lineIndexes[member]);
+        },
+        child: paragraph,
+      );
+    }
+
     return Padding(
       padding: const EdgeInsets.only(top: 12.0, bottom: 4.0),
-      child: _RuledArabicParagraph(
-        textKey: flow.textKey,
-        span: TextSpan(style: paragraphStyle, children: spans),
-        textAlign: isBismillah ? TextAlign.center : TextAlign.justify,
-      ),
+      child: paragraph,
     );
   }
 
@@ -874,6 +1000,55 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget>
       controller.jumpTo(controller.position.minScrollExtent);
     }
     await _scrollToLine(tabIndex, lineIndex);
+  }
+
+  /// Keeps the verse at the top of the view there when a reading setting
+  /// changes the height of the text - translation or transliteration turned
+  /// on or off, the Arabic flowed as a paragraph, a font or its size.
+  ///
+  /// The list otherwise holds its scroll offset in pixels, and with every
+  /// verse above growing or shrinking, the same offset lands dozens of verses
+  /// away. Runs at the top of build, while the list is still laid out the old
+  /// way, so the line read off it is the one the reader was on.
+  void _keepPlaceAcrossLayoutChange() {
+    // A peeked translation belongs to the settings it was opened under:
+    // turning translation on or off, or changing its language, starts every
+    // verse afresh.
+    final peekScope = (
+      translationShown,
+      ZikrTranslations.instance.language.code,
+    );
+    if (_peekScope != peekScope) {
+      _peekScope = peekScope;
+      _peekedVerses.clear();
+    }
+
+    final settings = (
+      translationShown,
+      transliterationShown,
+      showArabicAsParagraph,
+      arabicFont,
+      arabicFontSize,
+      englishFontSize,
+      ZikrTranslations.instance.language.code,
+    );
+    final previous = _layoutSettings;
+    _layoutSettings = settings;
+    if (previous == null || previous == settings) return;
+    final tabIndex = _selectedTabIndex;
+    if (tabIndex >= _tabScrollControllers.length) return;
+    final controller = _tabScrollControllers[tabIndex];
+    // Still at the top, the top is where it stays.
+    if (!controller.hasClients ||
+        controller.position.pixels <=
+            controller.position.minScrollExtent + _scrollToVerseMargin) {
+      return;
+    }
+    final line = _topLineIndex(tabIndex, controller);
+    if (line == null) return;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) unawaited(_scrollToLine(tabIndex, line));
+    });
   }
 
   /// Tells [ZikrContentViewerWidget.sections] the headings of the part on
@@ -1191,10 +1366,16 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget>
     if (spanIndex == null) return;
 
     final verse = ayahIndex.verseAtSpanIndex(spanIndex);
-    if (verse == null || verse == _reportedVerse) return;
+    if (verse == null) return;
+    final lastSpanIndex = _lastWholeSpanIndex(tabIndex, controller, spanIndex);
+    final lastVisible = ayahIndex.verseAtSpanIndex(lastSpanIndex) ?? verse;
+    if (verse == _reportedVerse && lastVisible == _reportedLastVisibleVerse) {
+      return;
+    }
 
     final parsed = _contentCaches[tabIndex]?.parsed;
     _reportedVerse = verse;
+    _reportedLastVisibleVerse = lastVisible;
     callback(
       QuranReadingPosition(
         verse: verse,
@@ -1202,8 +1383,52 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget>
             ? ''
             : _ayahPlainText(parsed, ayahIndex.spans[spanIndex]),
         fromUserScroll: _sawUserScrollInput,
+        lastVisibleVerse: lastVisible,
       ),
     );
+  }
+
+  /// The last ayah span wholly on screen in tab [tabIndex], never above
+  /// [topSpanIndex] - see [QuranReadingPosition.lastVisibleVerse].
+  ///
+  /// Read at the bottom edge of what shows, above the reading chrome laid
+  /// over the foot of the list. The verse that edge cuts through has not been
+  /// read to its end, so it is the one before; past the last verse - the
+  /// footer, or the list's own end - every verse is on screen.
+  int _lastWholeSpanIndex(
+    int tabIndex,
+    ScrollController controller,
+    int topSpanIndex,
+  ) {
+    final ayahIndex = _ayahIndexFor(tabIndex);
+    if (ayahIndex == null || !controller.hasClients) return topSpanIndex;
+    final lastSpanIndex = ayahIndex.spans.length - 1;
+    final position = controller.position;
+    final bottom = _itemAtScrollOffset(
+      tabIndex,
+      position.pixels + position.viewportDimension - widget.listPadding.bottom,
+    );
+
+    int cut;
+    final paragraphs = _tabQuranParagraphs[tabIndex];
+    if (bottom == null) {
+      cut = lastSpanIndex + 1;
+    } else if (paragraphs == null) {
+      cut = bottom.itemIndex;
+    } else if (bottom.itemIndex >= paragraphs.items.length) {
+      cut = lastSpanIndex + 1;
+    } else {
+      final paragraph = paragraphs.items[bottom.itemIndex];
+      final k = _memberInFlowAt(bottom.box, paragraph, bottom.depth);
+      cut = k == null ? paragraph.firstSpanIndex : paragraph.spanIndexes[k];
+    }
+
+    // Back past anything that is not a verse - a heading between surahs.
+    var index = math.min(cut - 1, lastSpanIndex);
+    while (index > topSpanIndex && ayahIndex.verseAtSpanIndex(index) == null) {
+      index--;
+    }
+    return math.max(index, topSpanIndex);
   }
 
   /// A little air above a verse scrolled to, so it does not sit flush against
@@ -2245,7 +2470,10 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget>
         ? cache.quranParagraphs
         : null;
     final readingItems = ayahIndex == null
-        ? _buildReadingListItems(parsedContent)
+        ? _buildReadingListItems(
+            parsedContent,
+            isPeeked: (line) => _isPeeked(tabIndex, parsedContent, line),
+          )
         : const <_ReadingListItem>[];
     if (ayahIndex == null) {
       _tabReadingListItems[tabIndex] = readingItems;
@@ -2403,6 +2631,7 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget>
                       // in ayah mode - centred, unnumbered, untappable.
                       if (first.ayah == null) {
                         return _buildAyahBlock(
+                          tabIndex: tabIndex,
                           ayahIndex: ayahIndex,
                           spanIndex: paragraph.firstSpanIndex,
                           parsedContent: parsedContent,
@@ -2412,6 +2641,7 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget>
                         );
                       }
                       return _buildQuranParagraphItem(
+                        tabIndex: tabIndex,
                         paragraph: paragraph,
                         ayahIndex: ayahIndex,
                         parsedContent: parsedContent,
@@ -2423,6 +2653,7 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget>
                     if (ayahIndex != null) {
                       final contentIndex = index - leadingItems;
                       return _buildAyahBlock(
+                        tabIndex: tabIndex,
                         ayahIndex: ayahIndex,
                         spanIndex: contentIndex,
                         parsedContent: parsedContent,
@@ -2442,7 +2673,9 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget>
 
                     if (isArabicOnlyReadingView &&
                         parsedContent.arabicCodes
-                            .contains(item.firstLineIndex)) {
+                            .contains(item.firstLineIndex) &&
+                        !_isPeeked(
+                            tabIndex, parsedContent, item.firstLineIndex)) {
                       return _withParagraphDivider(
                         _withBookmarkDropPreview(
                           _buildArabicParagraphItem(
@@ -2476,22 +2709,36 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget>
 
                     // Every non-paragraph item covers exactly one content line.
                     final contentIndex = item.firstLineIndex;
-                    final line = _buildLine(
+                    final line = _withPeekTap(
+                      tabIndex,
                       parsedContent,
                       contentIndex,
-                      arabicStyle,
-                      transliStyle,
+                      _buildLine(
+                        parsedContent,
+                        contentIndex,
+                        arabicStyle,
+                        transliStyle,
+                        tabIndex: tabIndex,
+                      ),
                     );
+
+                    // A translation line tapped open draws although
+                    // translation is off, so it takes the bookmark tint too.
+                    final drawn =
+                        isZikrLineVisible(parsedContent, contentIndex) ||
+                            (parsedContent.translaCodes.contains(contentIndex) &&
+                                _canPeek(parsedContent, contentIndex) &&
+                                _isPeeked(
+                                    tabIndex, parsedContent, contentIndex));
 
                     final Widget content;
                     if (bookmarkedRange == null ||
                         bookmarkLabelLine == null ||
                         !bookmarkedRange.contains(contentIndex) ||
-                        !isZikrLineVisible(parsedContent, contentIndex)) {
+                        !drawn) {
                       content = _withBookmarkDropPreview(
                         line,
-                        isTarget: isDropTarget &&
-                            isZikrLineVisible(parsedContent, contentIndex),
+                        isTarget: isDropTarget && drawn,
                       );
                     } else {
                       content = _BookmarkedLine(
@@ -2551,12 +2798,16 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget>
   /// Shared by both rendering paths so an ayah block and a plain line list draw
   /// identical text - the ayah path only changes how lines are grouped, never
   /// how any one of them looks.
+  ///
+  /// [tabIndex], when given, lets a translation line the reader has tapped
+  /// open (see [_peekedVerses]) show although translation is off.
   Widget _buildLine(
     ParsedZikrContent parsedContent,
     int contentIndex,
     TextStyle arabicStyle,
-    TextStyle transliStyle,
-  ) {
+    TextStyle transliStyle, {
+    int? tabIndex,
+  }) {
     final str = parsedContent.lines[contentIndex].trim();
 
     if (parsedContent.arabicCodes.contains(contentIndex)) {
@@ -2589,22 +2840,21 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget>
     final direction = parsedContent.directionOf(contentIndex);
 
     if (parsedContent.translaCodes.contains(contentIndex)) {
-      return translationShown
-          ? Padding(
-              padding: const EdgeInsets.only(bottom: 4.0),
-              child: Text.rich(
-                _buildTextSpanForLine(
-                  shown,
-                  TextStyle(
-                    fontSize: englishFontSize,
-                    color: ShiaColors.of(context).translation,
-                  ),
-                ),
-                textAlign: TextAlign.center,
-                textDirection: direction,
-              ),
-            )
-          : Container();
+      if (translationShown) {
+        return _translationLine(parsedContent, contentIndex);
+      }
+      // Translation is off, but the line is still there to be tapped open.
+      if (tabIndex != null && _canPeek(parsedContent, contentIndex)) {
+        return AnimatedSize(
+          duration: const Duration(milliseconds: 180),
+          curve: Curves.easeOut,
+          alignment: Alignment.topCenter,
+          child: _isPeeked(tabIndex, parsedContent, contentIndex)
+              ? _translationLine(parsedContent, contentIndex)
+              : const SizedBox.shrink(),
+        );
+      }
+      return Container();
     }
 
     if (parsedContent.headingLines.contains(contentIndex)) {
@@ -2617,6 +2867,25 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget>
     return _footnoteBox(
       Text.rich(_buildTextSpanForLine(shown, const TextStyle())),
       textDirection: direction,
+    );
+  }
+
+  /// A verse's translation line, as the reader draws it - when translation is
+  /// on, and when one verse's translation has been tapped open.
+  Widget _translationLine(ParsedZikrContent parsedContent, int contentIndex) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 4.0),
+      child: Text.rich(
+        _buildTextSpanForLine(
+          parsedContent.displayLine(contentIndex).trim(),
+          TextStyle(
+            fontSize: englishFontSize,
+            color: ShiaColors.of(context).translation,
+          ),
+        ),
+        textAlign: TextAlign.center,
+        textDirection: parsedContent.directionOf(contentIndex),
+      ),
     );
   }
 
@@ -2741,6 +3010,7 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget>
   /// One whole verse - its Arabic, transliteration and translation together -
   /// as a single tappable item.
   Widget _buildAyahBlock({
+    required int tabIndex,
     required AyahIndex ayahIndex,
     required int spanIndex,
     required ParsedZikrContent parsedContent,
@@ -2751,7 +3021,13 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget>
     final span = ayahIndex.spans[spanIndex];
     final lines = <Widget>[
       for (var i = span.start; i < span.end; i++)
-        _buildLine(parsedContent, i, arabicStyle, transliStyle),
+        _buildLine(
+          parsedContent,
+          i,
+          arabicStyle,
+          transliStyle,
+          tabIndex: tabIndex,
+        ),
     ];
 
     final verse = span.verse;
@@ -2767,13 +3043,21 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget>
       sajdahVerse: verse == null ? null : sajdahVerseFor(verse),
       onAction: verse == null || widget.onAyahAction == null
           ? null
-          : () => _requestAyahAction(parsedContent, span),
+          : () => _requestAyahAction(tabIndex, parsedContent, span),
       children: lines,
     );
   }
 
   /// Opens the per-verse menu for [span], when the page offers one.
-  void _requestAyahAction(ParsedZikrContent parsedContent, AyahSpan span) {
+  ///
+  /// A tap on a verse is already this menu, so opening a verse's translation
+  /// while translation is off is an entry in it (see
+  /// [AyahActionRequest.onToggleTranslationPeek]) rather than a gesture.
+  void _requestAyahAction(
+    int tabIndex,
+    ParsedZikrContent parsedContent,
+    AyahSpan span,
+  ) {
     final verse = span.verse;
     final onAction = widget.onAyahAction;
     if (verse == null || onAction == null) return;
@@ -2785,6 +3069,10 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget>
         aliNote: aliRelatedNoteFor(verse),
         mahdiNote: mahdiRelatedNoteFor(verse),
         sajdahVerse: sajdahVerseFor(verse),
+        onToggleTranslationPeek: _canPeek(parsedContent, span.start)
+            ? () => _togglePeek(tabIndex, parsedContent, span.start)
+            : null,
+        translationPeeked: _isPeeked(tabIndex, parsedContent, span.start),
       ),
     );
   }
@@ -2805,6 +3093,7 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget>
   /// The verses' text offsets are recorded on [paragraph] as the span is
   /// built, so the reading position and scroll-to-verse can work inside it.
   Widget _buildQuranParagraphItem({
+    required int tabIndex,
     required _QuranParagraph paragraph,
     required AyahIndex ayahIndex,
     required ParsedZikrContent parsedContent,
@@ -2864,7 +3153,8 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget>
       final position =
           text.getPositionForOffset(text.globalToLocal(globalPosition));
       final spanIndex = paragraph.spanIndexAtTextOffset(position.offset);
-      _requestAyahAction(parsedContent, ayahIndex.spans[spanIndex]);
+      _requestAyahAction(
+          tabIndex, parsedContent, ayahIndex.spans[spanIndex]);
     }
 
     Widget ruled = Padding(
@@ -2897,11 +3187,58 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget>
           if (first.startsSurah != null)
             _SurahHeading(surah: first.startsSurah!),
           ruled,
+          _peekedTranslations(tabIndex, parsedContent, spans),
           Divider(
             height: 20,
             color: ShiaColors.of(context).readerDivider,
           ),
         ],
+      ),
+    );
+  }
+
+  /// The translations the reader has opened (see [_peekedVerses]) of the
+  /// verses in a paragraph, under it - a flowing paragraph has no room
+  /// between its verses - each headed by its verse number, and drawn as a
+  /// translation line always is.
+  Widget _peekedTranslations(
+    int tabIndex,
+    ParsedZikrContent parsedContent,
+    List<AyahSpan> spans,
+  ) {
+    final colors = ShiaColors.of(context);
+    final peeked = <Widget>[
+      for (final span in spans)
+        if (span.ayah != null &&
+            _isPeeked(tabIndex, parsedContent, span.start) &&
+            _peekTranslationLine(parsedContent, span.start) != null)
+          Padding(
+            padding: const EdgeInsets.only(top: 8),
+            child: Column(
+              children: [
+                Text(
+                  localizeDigits('${span.ayah}', context.l10n),
+                  style: TextStyle(
+                    fontSize: englishFontSize - 2,
+                    color: colors.textMuted,
+                  ),
+                ),
+                _translationLine(
+                  parsedContent,
+                  _peekTranslationLine(parsedContent, span.start)!,
+                ),
+              ],
+            ),
+          ),
+    ];
+    return AnimatedSize(
+      duration: const Duration(milliseconds: 180),
+      curve: Curves.easeOut,
+      alignment: Alignment.topCenter,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: peeked,
       ),
     );
   }
@@ -3026,6 +3363,7 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget>
   Widget build(BuildContext context) {
     final showTabHeaders = _showTabHeaders;
     _syncTabState(widget.tabContents.length);
+    _keepPlaceAcrossLayoutChange();
 
     final pages = PageView.builder(
       controller: _pageController,

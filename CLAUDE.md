@@ -30,6 +30,14 @@
   checked against online sources), the per-batch workflow, and the tools
   `scripts/zikr_arabic/duas_org.py` and `scripts/zikr_arabic/translit.py`.
 
+- **Restored zikrs that came back cut down: rebuilt, owner calls pending.**
+  Pass 7 (`e72d1bb3`) and `4c29a341` shipped stubs, some with Arabic not in
+  their source; all 29 are rebuilt (PR #362 and its follow-up). What's left
+  - owner decisions, reviewer items, translations to redo, smaller gaps - is
+  under "Resume here: what's left after Pass 7, redone" in
+  `scripts/RESTORING_MISSING_ZIKRS.md`. Check any restored entry with
+  `python3 -I scripts/zikr_arabic/source_check.py . <uids>` before shipping it.
+
 - **Zikr translations: Urdu has the first famous duas; Persian and
   Gujarati have none yet.** See `scripts/zikr_i18n/SOURCES.md` for what is
   done, which sources were turned down and why, and what's next. The rest:

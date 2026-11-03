@@ -447,10 +447,29 @@ const String zikrCompletionSuffix = '~done';
 /// playlist, counted in the zikr metric but never as an open.
 const String zikrPlaylistSuffix = '~playlist';
 
+/// Suffix [AnalyticsService.zikrAudioPlay] appends: a zikr's recitation
+/// played from its own page, likewise never an open.
+const String zikrAudioSuffix = '~audio';
+
+const List<String> _zikrSuffixes = [
+  zikrCompletionSuffix,
+  zikrPlaylistSuffix,
+  zikrAudioSuffix,
+];
+
 /// Whether a zikr-metric key is an open (a bare uid) rather than one of the
 /// suffixed counters riding along in the same metric.
-bool _isZikrOpenKey(String key) =>
-    !key.endsWith(zikrCompletionSuffix) && !key.endsWith(zikrPlaylistSuffix);
+bool _isZikrOpenKey(String key) => !_zikrSuffixes.any(key.endsWith);
+
+/// [key] with any of the zikr metric's suffixes taken off: the zikr's uid.
+String _zikrUidOf(String key) {
+  for (final suffix in _zikrSuffixes) {
+    if (key.endsWith(suffix)) {
+      return key.substring(0, key.length - suffix.length);
+    }
+  }
+  return key;
+}
 
 /// Parses `usage/totals`'s raw snapshot value into metric -> key -> count,
 /// with each counter filed under its dashboard metric (see
@@ -528,8 +547,8 @@ Map<String, Map<String, int>> parseUsageTotals(Object? value) {
 }
 
 /// Folds the completion counters back into the zikr they belong to, as its
-/// [UsageRow.note], and drops the playlist-play counters (see
-/// [zikrPlaylistRows]) so the result is opens only.
+/// [UsageRow.note], and drops the play counters (see [zikrPlayRows]) so the
+/// result is opens only.
 ///
 /// They live in the same metric as opens, so without this a popular zikr would
 /// appear twice in the ranking and its completions would compete with its own
@@ -623,32 +642,55 @@ Map<String, int> zikrPreviousByKey(
   return byKey;
 }
 
-/// The zikr-metric rows counting plays inside a playlist, keyed by bare uid
-/// and still in rank order, for their own "Played in playlists" ranking.
+/// The zikr-metric rows counting a recitation being played - in a playlist
+/// or on the zikr's own page - added up per zikr, keyed by bare uid and in
+/// rank order, for their own "Recitations played" ranking. A zikr played
+/// both ways notes how many of its plays were in playlists.
 @visibleForTesting
-List<UsageRow> zikrPlaylistRows(List<UsageRow> rows) => [
-      for (final row in rows)
-        if (row.key.endsWith(zikrPlaylistSuffix))
-          UsageRow(
-            key: row.key
-                .substring(0, row.key.length - zikrPlaylistSuffix.length),
-            label: row.label,
-            count: row.count,
-          ),
-    ];
+List<UsageRow> zikrPlayRows(List<UsageRow> rows) {
+  final labels = <String, String>{};
+  final playlist = <String, int>{};
+  final page = <String, int>{};
+  for (final row in rows) {
+    final Map<String, int> into;
+    if (row.key.endsWith(zikrPlaylistSuffix)) {
+      into = playlist;
+    } else if (row.key.endsWith(zikrAudioSuffix)) {
+      into = page;
+    } else {
+      continue;
+    }
+    final uid = _zikrUidOf(row.key);
+    labels.putIfAbsent(uid, () => row.label);
+    into[uid] = (into[uid] ?? 0) + row.count;
+  }
+  return [
+    for (final uid in labels.keys)
+      UsageRow(
+        key: uid,
+        label: labels[uid]!,
+        count: (playlist[uid] ?? 0) + (page[uid] ?? 0),
+        note: (playlist[uid] ?? 0) > 0 && (page[uid] ?? 0) > 0
+            ? '${playlist[uid]} in playlists · ${page[uid]} on its page'
+            : null,
+      ),
+  ]..sort((a, b) => b.count.compareTo(a.count));
+}
 
-/// The previous period's playlist-play counts, keyed by bare uid the way
-/// [zikrPlaylistRows] keys its rows.
+/// The previous period's play counts, added up per zikr and keyed by bare
+/// uid the way [zikrPlayRows] keys its rows.
 @visibleForTesting
-Map<String, int> zikrPlaylistPreviousByKey(
+Map<String, int> zikrPlayPreviousByKey(
     Map<String, Map<String, int>>? previousCounts) {
   final raw = previousCounts?[AnalyticsService.metricZikr] ?? const {};
-  return {
-    for (final entry in raw.entries)
-      if (entry.key.endsWith(zikrPlaylistSuffix))
-        entry.key.substring(0, entry.key.length - zikrPlaylistSuffix.length):
-            entry.value,
-  };
+  final byKey = <String, int>{};
+  raw.forEach((key, count) {
+    if (key.endsWith(zikrPlaylistSuffix) || key.endsWith(zikrAudioSuffix)) {
+      final uid = _zikrUidOf(key);
+      byKey[uid] = (byKey[uid] ?? 0) + count;
+    }
+  });
+  return byKey;
 }
 
 /// Admin-only view of the usage counters written by [AnalyticsService].
@@ -802,22 +844,21 @@ class _UsageDashboardPageState extends State<UsageDashboardPage> {
     );
   }
 
-  /// Prefers the label recorded alongside the counter, falls back to the live
-  /// zikr index, and shows the raw key when a zikr has since been deleted so a
-  /// row is never silently dropped.
+  /// A zikr is named from the live zikr index, in English: its recorded
+  /// label is in whatever language its last reader had the app in (before
+  /// AnalyticsService recorded English titles only). Anything else prefers
+  /// the recorded label. The raw key shows when neither is there - a zikr
+  /// since deleted - so a row is never silently dropped.
   String _labelFor(String metric, String key, Map<String, String> labels) {
+    if (metric == AnalyticsService.metricZikr) {
+      final title = items[_zikrUidOf(key)]?.toString().trim();
+      if (title != null && title.isNotEmpty) return title;
+    }
     // Zikr sources are stored, labels and all, under the feature metric.
     final storedAs =
         metric == zikrSourceMetric ? AnalyticsService.metricFeature : metric;
     final recorded = labels['$storedAs/$key'];
     if (recorded != null && recorded.isNotEmpty) return recorded;
-    if (metric == AnalyticsService.metricZikr) {
-      final uid = key.endsWith(zikrPlaylistSuffix)
-          ? key.substring(0, key.length - zikrPlaylistSuffix.length)
-          : key;
-      final title = items[uid]?.toString();
-      if (title != null && title.isNotEmpty) return title;
-    }
     return key;
   }
 
@@ -916,8 +957,8 @@ class UsageOverview extends StatelessWidget {
     final brightness = Theme.of(context).brightness;
 
     final zikrPrevious = hasPrevious ? zikrPreviousByKey(previous) : null;
-    final playlistPrevious =
-        hasPrevious ? zikrPlaylistPreviousByKey(previous) : null;
+    final playPrevious = hasPrevious ? zikrPlayPreviousByKey(previous) : null;
+    final playRows = zikrPlayRows(data.rowsFor(AnalyticsService.metricZikr));
     final featureRows = data.rowsFor(AnalyticsService.metricFeature);
 
     final cardsStart = <Widget>[
@@ -931,19 +972,17 @@ class UsageOverview extends StatelessWidget {
           previousByKey: zikrPrevious,
           previousCaption: previousCaption,
         ),
-      if (data.rowsFor(zikrSourceMetric).isNotEmpty)
-        _buildEntryPoints(context),
-      if (_searchSteps().any((step) => step.value > 0))
-        _buildSearch(),
-      if (zikrPlaylistRows(data.rowsFor(AnalyticsService.metricZikr))
-          .isNotEmpty)
+      if (data.rowsFor(zikrSourceMetric).isNotEmpty) _buildEntryPoints(context),
+      if (_searchSteps().any((step) => step.value > 0)) _buildSearch(),
+      if (playRows.isNotEmpty)
         UsageRankedCard(
-          title: 'Played in playlists',
-          subtitle: 'Each zikr counted once per playlist run',
-          rows: zikrPlaylistRows(data.rowsFor(AnalyticsService.metricZikr)),
-          previousTotal: playlistPrevious?.values
-              .fold<int>(0, (sum, count) => sum + count),
-          previousByKey: playlistPrevious,
+          title: 'Recitations played',
+          subtitle: "From a zikr's own page (once per visit) or a playlist "
+              '(once per run)',
+          rows: playRows,
+          previousTotal:
+              playPrevious?.values.fold<int>(0, (sum, count) => sum + count),
+          previousByKey: playPrevious,
           previousCaption: previousCaption,
           color: categoricalColor(6, brightness),
         ),

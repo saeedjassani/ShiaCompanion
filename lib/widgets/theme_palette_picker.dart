@@ -32,18 +32,24 @@ Future<void> showThemePalettePicker(BuildContext context) async {
   );
 
   if (selected == null || selected == current) return;
-  await choosePalette(context, selected);
+  await choosePalette(context, selected, source: 'settings');
 }
 
-/// Saves [palette] and logs the change; for the setup step's swatches too.
-Future<void> choosePalette(BuildContext context, AppPalette palette) async {
+/// Saves [palette] and logs the change, with where it was picked
+/// ([source]: settings, setup, home_card); for the swatches in setup and on
+/// Home too.
+Future<void> choosePalette(
+  BuildContext context,
+  AppPalette palette, {
+  required String source,
+}) async {
   final provider = context.read<ThemePaletteProvider>();
   if (provider.palette == palette) return;
   await provider.setPalette(palette);
   unawaited(AnalyticsService.feature(
     'theme_palette_changed',
     label: 'Color changed',
-    parameters: {'theme_palette': palette.name},
+    parameters: {'theme_palette': palette.name, 'source': source},
   ));
 }
 
@@ -73,6 +79,56 @@ class PaletteSwatch extends StatelessWidget {
             Expanded(child: ColoredBox(color: shown.ground)),
             Expanded(child: ColoredBox(color: shown.prayerCard)),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+/// One color to pick: its [PaletteSwatch] in a 48 px target, ringed in the
+/// accent while it is the one chosen. Setup's theme step and Home's color
+/// card lay out a row of these.
+class PaletteDot extends StatelessWidget {
+  const PaletteDot({
+    super.key,
+    required this.palette,
+    required this.selected,
+    required this.onTap,
+  });
+
+  /// The tap target's side.
+  static const double size = 48;
+
+  final AppPalette palette;
+  final bool selected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = ShiaColors.of(context);
+    return Semantics(
+      button: true,
+      selected: selected,
+      label: palette.label(context.l10n),
+      child: Tooltip(
+        message: palette.label(context.l10n),
+        excludeFromSemantics: true,
+        child: InkWell(
+          onTap: onTap,
+          customBorder: const CircleBorder(),
+          child: Container(
+            width: size,
+            height: size,
+            padding: const EdgeInsets.all(4),
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              border: Border.all(
+                color: selected ? colors.accent : Colors.transparent,
+                width: 2.4,
+              ),
+            ),
+            child: PaletteSwatch(palette),
+          ),
         ),
       ),
     );

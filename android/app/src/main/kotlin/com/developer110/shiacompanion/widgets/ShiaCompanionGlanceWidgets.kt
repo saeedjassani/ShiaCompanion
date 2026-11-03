@@ -2,6 +2,7 @@ package com.developer110.shiacompanion.widgets
 
 import android.app.AlarmManager
 import android.app.PendingIntent
+import android.appwidget.AppWidgetManager
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -60,6 +61,7 @@ import androidx.compose.ui.unit.sp
 import androidx.glance.unit.ColorProvider
 import com.developer110.shiacompanion.R
 import com.developer110.shia_companion.MainActivity
+import com.google.firebase.crashlytics.FirebaseCrashlytics
 import java.util.Calendar
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -74,15 +76,23 @@ private const val ACTION_REFRESH_RECITATION_WIDGET =
     "com.developer110.shiacompanion.widgets.REFRESH_RECITATION_WIDGET"
 private const val ACTION_REFRESH_CALENDAR_WIDGET =
     "com.developer110.shiacompanion.widgets.REFRESH_CALENDAR_WIDGET"
+private const val ACTION_REDRAW_WIDGETS =
+    "com.developer110.shiacompanion.widgets.REDRAW_WIDGETS"
+// Long enough for the launcher to have sized a new widget and settled after
+// an update; short enough that a broken one is fixed while it's being looked at.
+private const val REDRAW_DELAY_MILLIS = 10_000L
 
 private const val KEY_FAVORITES_TITLE = "sc_favorites_title"
 private val favoriteItemKeys = (1..12).map { "sc_favorites_item_$it" }
 private val favoriteUrlKeys = (1..12).map { "sc_favorites_url_$it" }
+private val favoritePlayUrlKeys = (1..12).map { "sc_favorites_play_$it" }
 
 private const val KEY_RECITATION_TITLE = "sc_recitation_title"
 private val recitationItemKeys = (1..12).map { "sc_recitation_item_$it" }
 private val recitationUrlKeys = (1..12).map { "sc_recitation_url_$it" }
+private val recitationPlayUrlKeys = (1..12).map { "sc_recitation_play_$it" }
 private const val KEY_RECITATION_SCHEDULE = "sc_recitation_schedule"
+private const val KEY_PLAY_LABEL = "sc_widget_play_label"
 
 private const val KEY_PRAYER_TITLE = "sc_prayer_title"
 private const val KEY_PRAYER_NAME = "sc_prayer_name"
@@ -201,9 +211,55 @@ private fun RemoteViews.setPaletteTextColor(context: Context, viewId: Int, color
     }
 }
 
-class FavoritesWidget : GlanceAppWidget() {
+/**
+ * Glance shows its "Can't show content" layout when a widget's composition
+ * throws, and only logs why. Send it to Crashlytics so a broken widget on
+ * someone's phone comes with its stack trace.
+ */
+abstract class ShiaCompanionGlanceWidget : GlanceAppWidget() {
     override val sizeMode: SizeMode = SizeMode.Exact
 
+    override fun onCompositionError(
+        context: Context,
+        glanceId: GlanceId,
+        appWidgetId: Int,
+        throwable: Throwable
+    ) {
+        try {
+            FirebaseCrashlytics.getInstance().recordException(throwable)
+        } catch (_: Exception) {
+            // Reporting must never stand in the way of the error layout.
+        }
+        super.onCompositionError(context, glanceId, appWidgetId, throwable)
+    }
+}
+
+/**
+ * Asks for a second render of every widget [REDRAW_DELAY_MILLIS] after the
+ * system's update broadcast, which comes when a widget is placed, after the
+ * app is updated and after a reboot.
+ *
+ * A launcher that fails to show a widget's views keeps its "Can't load
+ * widget" placeholder until the next update, and these widgets otherwise
+ * wait for the next prayer, midnight or the app being opened. A newly placed
+ * 4.0.3 Prayer Times widget did this once, right after the update, and came
+ * up fine when re-added; the views themselves apply cleanly at every size,
+ * so the redraw is that second attempt without the user having to make it.
+ * It renders through updateAll, which doesn't come back through onUpdate, so
+ * it never arms another.
+ */
+abstract class ShiaCompanionWidgetReceiver : GlanceAppWidgetReceiver() {
+    override fun onUpdate(
+        context: Context,
+        appWidgetManager: AppWidgetManager,
+        appWidgetIds: IntArray
+    ) {
+        super.onUpdate(context, appWidgetManager, appWidgetIds)
+        scheduleWidgetRedraw(context.applicationContext)
+    }
+}
+
+class FavoritesWidget : ShiaCompanionGlanceWidget() {
     override suspend fun provideGlance(context: Context, id: GlanceId) {
         provideContent {
             WidgetListContent(
@@ -211,19 +267,18 @@ class FavoritesWidget : GlanceAppWidget() {
                 titleFallback = "Favorites",
                 itemKeys = favoriteItemKeys,
                 itemUrlKeys = favoriteUrlKeys,
+                itemPlayUrlKeys = favoritePlayUrlKeys,
                 firstItemFallback = "No favorites yet"
             )
         }
     }
 }
 
-class FavoritesWidgetReceiver : GlanceAppWidgetReceiver() {
+class FavoritesWidgetReceiver : ShiaCompanionWidgetReceiver() {
     override val glanceAppWidget: GlanceAppWidget = FavoritesWidget()
 }
 
-class TodaysRecitationWidget : GlanceAppWidget() {
-    override val sizeMode: SizeMode = SizeMode.Exact
-
+class TodaysRecitationWidget : ShiaCompanionGlanceWidget() {
     override suspend fun provideGlance(context: Context, id: GlanceId) {
         provideContent {
             WidgetListContent(
@@ -231,6 +286,7 @@ class TodaysRecitationWidget : GlanceAppWidget() {
                 titleFallback = "Today's Recitations",
                 itemKeys = recitationItemKeys,
                 itemUrlKeys = recitationUrlKeys,
+                itemPlayUrlKeys = recitationPlayUrlKeys,
                 firstItemFallback = "Open app to refresh",
                 scheduleKey = KEY_RECITATION_SCHEDULE
             )
@@ -238,13 +294,11 @@ class TodaysRecitationWidget : GlanceAppWidget() {
     }
 }
 
-class TodaysRecitationWidgetReceiver : GlanceAppWidgetReceiver() {
+class TodaysRecitationWidgetReceiver : ShiaCompanionWidgetReceiver() {
     override val glanceAppWidget: GlanceAppWidget = TodaysRecitationWidget()
 }
 
-class UpcomingPrayerWidget : GlanceAppWidget() {
-    override val sizeMode: SizeMode = SizeMode.Exact
-
+class UpcomingPrayerWidget : ShiaCompanionGlanceWidget() {
     override suspend fun provideGlance(context: Context, id: GlanceId) {
         provideContent {
             PrayerWidgetContent()
@@ -252,13 +306,11 @@ class UpcomingPrayerWidget : GlanceAppWidget() {
     }
 }
 
-class UpcomingPrayerWidgetReceiver : GlanceAppWidgetReceiver() {
+class UpcomingPrayerWidgetReceiver : ShiaCompanionWidgetReceiver() {
     override val glanceAppWidget: GlanceAppWidget = UpcomingPrayerWidget()
 }
 
-class DailyPrayerTimesWidget : GlanceAppWidget() {
-    override val sizeMode: SizeMode = SizeMode.Exact
-
+class DailyPrayerTimesWidget : ShiaCompanionGlanceWidget() {
     override suspend fun provideGlance(context: Context, id: GlanceId) {
         // The tall size shows today's dates and event, which turn over at
         // midnight; see IslamicCalendarWidget for why this runs every render.
@@ -269,13 +321,11 @@ class DailyPrayerTimesWidget : GlanceAppWidget() {
     }
 }
 
-class DailyPrayerTimesWidgetReceiver : GlanceAppWidgetReceiver() {
+class DailyPrayerTimesWidgetReceiver : ShiaCompanionWidgetReceiver() {
     override val glanceAppWidget: GlanceAppWidget = DailyPrayerTimesWidget()
 }
 
-class IslamicCalendarWidget : GlanceAppWidget() {
-    override val sizeMode: SizeMode = SizeMode.Exact
-
+class IslamicCalendarWidget : ShiaCompanionGlanceWidget() {
     override suspend fun provideGlance(context: Context, id: GlanceId) {
         // Re-armed on every render, not only when the app publishes: a reboot
         // drops alarms, and the launcher's own periodic update then puts the
@@ -287,7 +337,7 @@ class IslamicCalendarWidget : GlanceAppWidget() {
     }
 }
 
-class IslamicCalendarWidgetReceiver : GlanceAppWidgetReceiver() {
+class IslamicCalendarWidgetReceiver : ShiaCompanionWidgetReceiver() {
     override val glanceAppWidget: GlanceAppWidget = IslamicCalendarWidget()
 }
 
@@ -315,6 +365,20 @@ class PrayerWidgetRefreshReceiver : BroadcastReceiver() {
     }
 }
 
+class WidgetRedrawReceiver : BroadcastReceiver() {
+    override fun onReceive(context: Context, intent: Intent) {
+        if (intent.action != ACTION_REDRAW_WIDGETS) return
+
+        CoroutineScope(Dispatchers.Main).launch {
+            FavoritesWidget().updateAll(context.applicationContext)
+            TodaysRecitationWidget().updateAll(context.applicationContext)
+            DailyPrayerTimesWidget().updateAll(context.applicationContext)
+            UpcomingPrayerWidget().updateAll(context.applicationContext)
+            IslamicCalendarWidget().updateAll(context.applicationContext)
+        }
+    }
+}
+
 class RecitationWidgetRefreshReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         if (intent.action != ACTION_REFRESH_RECITATION_WIDGET) return
@@ -333,6 +397,7 @@ private fun WidgetListContent(
     titleFallback: String,
     itemKeys: List<String>,
     itemUrlKeys: List<String>,
+    itemPlayUrlKeys: List<String>,
     firstItemFallback: String,
     scheduleKey: String? = null
 ) {
@@ -345,10 +410,13 @@ private fun WidgetListContent(
         } else {
             WidgetItem(
                 title = title,
-                url = data.text(itemUrlKeys[index], "")
+                url = data.text(itemUrlKeys[index], ""),
+                playUrl = data.text(itemPlayUrlKeys[index], "")
             )
         }
     }
+
+    val playLabel = data.text(KEY_PLAY_LABEL, "Play recitation")
 
     WidgetSurface(clickable = false) {
         Text(
@@ -391,14 +459,52 @@ private fun WidgetListContent(
                     .takeIf { it.isNotBlank() }
                     ?.let { actionStartActivity(context.openUrlIntent(it)) }
                     ?: actionRunCallback<NoOpWidgetAction>()
-                Text(
-                    text = if (item.url.isNotBlank()) "${item.title}  ›" else item.title,
-                    modifier = GlanceModifier.clickable(action).fillMaxWidth().height(26.dp),
-                    style = TextStyle(color = bodyTextColor, fontSize = 12.sp),
-                    maxLines = 1
-                )
+                Row(
+                    modifier = GlanceModifier.fillMaxWidth().height(28.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    // The title's Box, not its Text, takes the tap, so the
+                    // row's full height opens the zikr.
+                    Box(
+                        modifier = GlanceModifier.defaultWeight().fillMaxHeight().clickable(action),
+                        contentAlignment = Alignment.CenterStart
+                    ) {
+                        Text(
+                            text = if (item.url.isNotBlank()) "${item.title}  ›" else item.title,
+                            style = TextStyle(color = bodyTextColor, fontSize = 12.sp),
+                            maxLines = 1
+                        )
+                    }
+                    if (item.playUrl.isNotBlank()) {
+                        Spacer(GlanceModifier.width(6.dp))
+                        PlayButton(
+                            url = item.playUrl,
+                            contentDescription = "$playLabel, ${item.title}"
+                        )
+                    }
+                }
             }
         }
+    }
+}
+
+/** A list row's play button: opens the zikr and starts its recitation. */
+@Composable
+private fun PlayButton(url: String, contentDescription: String) {
+    val context = LocalContext.current
+    Box(
+        modifier = GlanceModifier
+            .size(26.dp)
+            .accentWash(R.drawable.widget_icon_badge, R.drawable.widget_icon_badge_mask)
+            .clickable(actionStartActivity(context.openUrlIntent(url))),
+        contentAlignment = Alignment.Center
+    ) {
+        Image(
+            provider = ImageProvider(R.drawable.ic_widget_play),
+            contentDescription = contentDescription,
+            modifier = GlanceModifier.size(14.dp),
+            colorFilter = ColorFilter.tint(accentColor)
+        )
     }
 }
 
@@ -1238,6 +1344,24 @@ fun scheduleNextCalendarWidgetRefresh(context: Context) {
 }
 
 /**
+ * One inexact alarm for [WidgetRedrawReceiver]; asking again before it fires
+ * moves it, so the five receivers' updates after an app update share one.
+ */
+fun scheduleWidgetRedraw(context: Context) {
+    val intent = Intent(context, WidgetRedrawReceiver::class.java).apply {
+        action = ACTION_REDRAW_WIDGETS
+    }
+    val flags = PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+    val pendingIntent = PendingIntent.getBroadcast(context, 3, intent, flags)
+    val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+    alarmManager.set(
+        AlarmManager.ELAPSED_REALTIME,
+        SystemClock.elapsedRealtime() + REDRAW_DELAY_MILLIS,
+        pendingIntent
+    )
+}
+
+/**
  * Does nothing. Used so every row in a widget's LazyColumn has a click action
  * (see the comment at its usage site) even when that row has no URL to open.
  */
@@ -1254,7 +1378,9 @@ class NoOpWidgetAction : ActionCallback {
 private data class WidgetItem(
     val title: String,
     val url: String,
-    val time: String = ""
+    val time: String = "",
+    /** Opens the zikr and starts its recitation; blank when it has none. */
+    val playUrl: String = ""
 )
 
 private data class WidgetListScheduleEntry(
@@ -1297,7 +1423,8 @@ private fun parseWidgetListSchedule(rawSchedule: String?): List<WidgetListSchedu
                 WidgetItem(
                     title = rawItem.optString("title", "").trim(),
                     url = rawItem.optString("url", "").trim(),
-                    time = rawItem.optString("time", "").trim()
+                    time = rawItem.optString("time", "").trim(),
+                    playUrl = rawItem.optString("play", "").trim()
                 )
             }.filter { it.title.isNotBlank() }
 

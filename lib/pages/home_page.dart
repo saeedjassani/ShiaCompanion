@@ -24,11 +24,14 @@ import 'package:shia_companion/services/deep_link_resolver.dart';
 import 'package:shia_companion/services/home_screen_widget_service.dart';
 import 'package:shia_companion/services/library_service.dart';
 import 'package:shia_companion/pages/library_page.dart';
+import 'package:shia_companion/pages/playlists_page.dart';
+import 'package:shia_companion/services/playlist_audio_service.dart';
+import 'package:shia_companion/services/zikr_playlist_store.dart';
 import 'package:shia_companion/services/location_service.dart';
 import 'package:shia_companion/services/rating_prompt_service.dart';
 import 'package:shia_companion/services/session_refresh_service.dart';
+import 'package:shia_companion/services/smart_actions_service.dart';
 import 'package:shia_companion/services/synced_data.dart';
-import 'package:shia_companion/services/whats_new_service.dart';
 import 'package:shia_companion/services/zikr_reminder_service.dart';
 import 'package:shia_companion/utils/deep_links.dart';
 import 'package:shia_companion/utils/font_preferences.dart';
@@ -38,6 +41,7 @@ import 'package:shia_companion/utils/islamic_day.dart';
 import 'package:shia_companion/utils/shared_preferences.dart';
 
 import 'package:shia_companion/pages/all_features_page.dart';
+import 'package:shia_companion/pages/home/color_card.dart';
 import 'package:shia_companion/pages/home/coming_up_section.dart';
 import 'package:shia_companion/pages/home/continue_section.dart';
 import 'package:shia_companion/pages/home/hadith_card.dart';
@@ -47,6 +51,7 @@ import 'package:shia_companion/pages/home/home_section.dart';
 import 'package:shia_companion/pages/home/shortcuts_section.dart';
 import 'package:shia_companion/pages/home/today_section.dart';
 import 'package:shia_companion/theme/shia_colors.dart';
+import 'package:shia_companion/widgets/app_toast.dart';
 import 'package:shia_companion/widgets/balanced_columns.dart';
 import 'package:shia_companion/widgets/glass_surface.dart';
 import 'package:shia_companion/widgets/responsive_content.dart';
@@ -97,6 +102,10 @@ class _MyHomePageState extends State<MyHomePage>
     item.open(context);
   }
 
+  /// Whether Home offers the Color setting under the prayer card; decided
+  /// once, so the card stays while someone tries the colors on it.
+  bool _offerColorCard = HomeColorCard.shouldShow();
+
   @override
   void initState() {
     super.initState();
@@ -123,6 +132,10 @@ class _MyHomePageState extends State<MyHomePage>
     _linkSubscription = _appLinks.uriLinkStream.listen((uri) {
       _queueDeepLink(parseDeepLinkUri(uri));
     });
+
+    // An "Open Dua" shortcut, or a dua picked from Spotlight, on iOS.
+    SmartActionsService.instance.linkHandler =
+        (uri) => _queueDeepLink(parseDeepLinkUri(uri));
   }
 
   Future<void> _setupAndroidWidgetLinks() async {
@@ -205,12 +218,17 @@ class _MyHomePageState extends State<MyHomePage>
       return;
     }
 
+    if (target.type == playlistDeepLinkType) {
+      _resolvePlaylistDeepLink(target);
+      return;
+    }
+
     if (target.segments.isEmpty) {
       _openDeepLinkNotFound(target.key);
       return;
     }
 
-    if (target.type != zikrDeepLinkType) {
+    if (target.type != zikrDeepLinkType && target.type != playDeepLinkType) {
       _openDeepLinkNotFound(target.key);
       return;
     }
@@ -220,6 +238,11 @@ class _MyHomePageState extends State<MyHomePage>
     if (resolvedItem == null) {
       _openDeepLinkNotFound(target.segments.join('/'));
       return;
+    }
+
+    if (target.type == playDeepLinkType) {
+      _startLinkedPlayback(() =>
+          PlaylistAudioService.instance.playZikr(resolvedItem.getFirstUId()));
     }
 
     final verse = zikrLinkVerse(target, resolvedItem);
@@ -237,6 +260,33 @@ class _MyHomePageState extends State<MyHomePage>
       );
       pushRootPageRoute(route) ?? pushPageRoute(context, route);
     });
+  }
+
+  /// Opens a `/playlist/<id>` link's playlist and starts it.
+  void _resolvePlaylistDeepLink(DeepLinkTarget target) {
+    final id = target.segments.isEmpty ? null : target.segments.first;
+    final playlist = id == null ? null : ZikrPlaylistStore.instance.byId(id);
+    if (playlist == null) {
+      _openDeepLinkNotFound(target.key);
+      return;
+    }
+    _startLinkedPlayback(() => PlaylistAudioService.instance.play(playlist));
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      final route = PlaylistDetailPage(playlistId: playlist.id);
+      pushRootPageRoute(route) ?? pushPageRoute(context, route);
+    });
+  }
+
+  /// Starts the recitation a play link asked for. Not on the web, where a
+  /// browser refuses to start audio nobody tapped for: there the link only
+  /// opens the page, whose Play button is one tap away.
+  void _startLinkedPlayback(Future<PlaylistStartResult> Function() start) {
+    if (kIsWeb) return;
+    unawaited(start().then((result) {
+      final message = result.message;
+      if (message != null) showToast(message);
+    }));
   }
 
   Future<void> _resolveQuranDeepLink(DeepLinkTarget target) async {
@@ -429,14 +479,22 @@ class _MyHomePageState extends State<MyHomePage>
               localized: localizedHadith,
             ),
           );
+    final colorCard = _offerColorCard
+        ? Padding(
+            padding: EdgeInsets.only(top: gap),
+            child: HomeColorCard(
+              onDismiss: () => setState(() => _offerColorCard = false),
+            ),
+          )
+        : const SizedBox.shrink();
     final getApp = kIsWeb
         ? Padding(padding: EdgeInsets.only(top: gap), child: const GetAppCard())
         : const SizedBox.shrink();
 
     final Widget content;
     if (wide) {
-      // Tablet and up, two columns: the prayer card, Continue and Today
-      // on the left, Shortcuts on the right; the hadith and (on the web)
+      // Tablet and up, two columns: the prayer card (and the color card
+      // under it), Continue and Today on the left, Shortcuts on the right; the hadith and (on the web)
       // Get the app each go under whichever column is shorter, so the two
       // end level rather than one leaving a gap.
       content = Padding(
@@ -452,6 +510,7 @@ class _MyHomePageState extends State<MyHomePage>
               gap: desktop ? 32 : 24,
               start: [
                 prayerCard,
+                colorCard,
                 ContinueSection(topSpacing: gap, horizontalPadding: 0),
                 today(horizontalPadding: 0, grid: true),
               ],
@@ -469,6 +528,7 @@ class _MyHomePageState extends State<MyHomePage>
           Padding(padding: pad, child: header),
           SizedBox(height: gap),
           Padding(padding: pad, child: prayerCard),
+          Padding(padding: pad, child: colorCard),
           // These two draw their own gutter: their cards scroll to the
           // screen's edge.
           ContinueSection(topSpacing: gap, horizontalPadding: gutter),
@@ -594,10 +654,6 @@ class _MyHomePageState extends State<MyHomePage>
         await requestNotificationPermissions();
       }
       await refreshExactPrayerAlarmPermissionStatus();
-
-      // The "What's new" dialog is retired; the baseline still advances so
-      // bringing it back would not replay every note at once.
-      await WhatsNewService.markSeen();
 
       // Only tracks install age here - the rating prompt itself is asked
       // from a real moment of engagement (see zikr_page.dart's
@@ -725,6 +781,7 @@ class _MyHomePageState extends State<MyHomePage>
     WidgetsBinding.instance.removeObserver(this);
     routeObserver.unsubscribe(this);
     _linkSubscription?.cancel();
+    SmartActionsService.instance.linkHandler = null;
     _widgetLinkChannel?.setMethodCallHandler(null);
     super.dispose();
   }

@@ -7,6 +7,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:intl/intl.dart';
 
+import '../constants.dart' show items;
+
 /// Two sinks behind one call site.
 ///
 /// Everything goes to Firebase Analytics, which is where retention, geography
@@ -78,7 +80,8 @@ class AnalyticsService {
 
   /// Records a zikr being opened, keyed by its canonical uid so an alias and
   /// its target are one row rather than two, and a retitled zikr keeps its
-  /// history.
+  /// history. Labelled with its English title whatever language it was read
+  /// in (see [_zikrTitle]).
   ///
   /// [source] is where the tap came from — the thing that tells you whether
   /// search, the home grid or a shared link is doing the work.
@@ -90,6 +93,7 @@ class AnalyticsService {
     if (!_isLive) return;
     final canonicalUid = uid.split('|').last.trim();
     if (canonicalUid.isEmpty) return;
+    title = _zikrTitle(canonicalUid, title);
 
     await _guard(() => FirebaseAnalytics.instance.logEvent(
           name: 'zikr_view',
@@ -152,6 +156,7 @@ class AnalyticsService {
     if (!_isLive) return;
     final canonicalUid = uid.split('|').last.trim();
     if (canonicalUid.isEmpty) return;
+    title = _zikrTitle(canonicalUid, title);
 
     await _guard(() => FirebaseAnalytics.instance.logEvent(
           name: 'zikr_completed',
@@ -172,6 +177,7 @@ class AnalyticsService {
     if (!_isLive) return;
     final canonicalUid = uid.split('|').last.trim();
     if (canonicalUid.isEmpty) return;
+    title = _zikrTitle(canonicalUid, title);
 
     await _guard(() => FirebaseAnalytics.instance.logEvent(
           name: 'zikr_playlist_track_play',
@@ -180,6 +186,41 @@ class AnalyticsService {
     _count(metricZikr, '$canonicalUid~playlist', label: title);
     _count(metricFeature, 'zikr_playlist_track_play',
         label: 'Zikr played in a playlist');
+  }
+
+  /// Records a zikr's recitation being played from its own page, once per
+  /// page visit (see ZikrAudioPlayer). Like [zikrPlaylistPlay] it has a
+  /// suffixed key of its own (`~audio`) so it never counts as an open; the
+  /// dashboard ranks the two together as recitations played.
+  static Future<void> zikrAudioPlay({
+    required String uid,
+    required String title,
+  }) async {
+    if (!_isLive) return;
+    final canonicalUid = uid.split('|').last.trim();
+    if (canonicalUid.isEmpty) return;
+    title = _zikrTitle(canonicalUid, title);
+
+    await _guard(() => FirebaseAnalytics.instance.logEvent(
+          name: 'feature_use',
+          parameters: {
+            'feature': 'zikr_audio_play',
+            'zikr_uid': canonicalUid,
+            'zikr_title': title,
+          },
+        ));
+    _count(metricZikr, '$canonicalUid~audio', label: title);
+    _count(metricFeature, 'zikr_audio_play', label: 'Zikr audio played');
+  }
+
+  /// [uid]'s English title from the zikr index, falling back to [title].
+  ///
+  /// Callers hold whatever title they show, which outside English is the
+  /// translated one; a label recorded from it would name the row in whichever
+  /// language its last reader used.
+  static String _zikrTitle(String uid, String title) {
+    final english = items[uid]?.toString().trim() ?? '';
+    return english.isEmpty ? title : english;
   }
 
   /// Records a library book or chapter being opened.

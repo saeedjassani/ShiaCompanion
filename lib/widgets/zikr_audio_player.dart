@@ -197,10 +197,9 @@ class _ZikrAudioPlayerState extends State<ZikrAudioPlayer> {
     }
     if (!_hasCountedPlay) {
       _hasCountedPlay = true;
-      unawaited(AnalyticsService.feature(
-        'zikr_audio_play',
-        label: 'Zikr audio played',
-        parameters: {'zikr_uid': widget.zikrUid},
+      unawaited(AnalyticsService.zikrAudioPlay(
+        uid: widget.zikrUid,
+        title: widget.zikrTitle,
       ));
     }
     await player.play();

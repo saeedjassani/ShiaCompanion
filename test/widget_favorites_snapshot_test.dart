@@ -1,6 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shia_companion/data/universal_data.dart';
 import 'package:shia_companion/services/home_screen_widget_service.dart';
+import 'package:shia_companion/services/zikr_audio_index.dart';
 import 'package:shia_companion/utils/slug_registry.dart';
 
 void main() {
@@ -105,5 +106,54 @@ void main() {
 
     expect(titlesFrom(snapshot), ['No favorites yet']);
     expect(urlsFrom(snapshot), isEmpty);
+  });
+
+  group('play buttons', () {
+    setUp(() {
+      ZikrAudioIndex.instance.setForTest(ZikrAudioIndex.parse({
+        '101': [
+          {'file': 'kumayl.mp3'},
+        ],
+      }));
+    });
+    tearDown(() => ZikrAudioIndex.instance.setForTest(const {}));
+
+    List<String> playUrlsFrom(Map<String, String> snapshot) => [
+          for (final key in HomeScreenWidgetService.favoritePlayUrlKeys)
+            snapshot[key] ?? '',
+        ];
+
+    test('a zikr with a recording gets a play link, tagged like its row', () {
+      setLocalSlugData('101', slug: 'dua-kumayl');
+
+      final snapshot = snapshotFor([UniversalData('101', 'Dua Kumayl', 0)]);
+
+      expect(
+        playUrlsFrom(snapshot).first,
+        'https://shiacompanion.app/play/dua-kumayl?src=home_widget_favorites',
+      );
+    });
+
+    test('nothing to play, no button', () {
+      final snapshot = snapshotFor([
+        UniversalData('202', 'Ziyarat Ashura', 0),
+        UniversalData('nahjul-balagha', 'Nahjul Balagha', 1),
+        UniversalData('101', 'Dua Kumayl', 0),
+      ]);
+
+      expect(playUrlsFrom(snapshot).take(3), [
+        '',
+        '',
+        'https://shiacompanion.app/play/101?src=home_widget_favorites',
+      ]);
+      // Rows past the last favourite are cleared, not left from before.
+      expect(playUrlsFrom(snapshot).skip(3), everyElement(isEmpty));
+    });
+
+    test('the button has a label for screen readers', () {
+      final snapshot = snapshotFor([UniversalData('101', 'Dua Kumayl', 0)]);
+
+      expect(snapshot[HomeScreenWidgetService.playLabelKey], 'Play recitation');
+    });
   });
 }
