@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shia_companion/constants.dart';
@@ -320,6 +321,79 @@ void main() {
       expect(AzaanOptInService.hasBeenAsked, isFalse);
     });
 
+    // Guideline 5.1.1(iv): before iOS has asked for a permission, the step
+    // explaining it leads only on to the OS prompt.
+    group('on iOS', () {
+      final ios = TargetPlatformVariant.only(TargetPlatform.iOS);
+
+      setUp(() => GeolocatorPlatform.instance = _RefusingGeolocator());
+
+      /// Continue on the Location step, refused at the OS prompt.
+      Future<void> refuseLocation(WidgetTester tester) async {
+        await tapText(tester, 'Continue');
+        expect(find.text('Location Permission Required'), findsOneWidget);
+        await tapText(tester, 'Cancel');
+      }
+
+      testWidgets('the Location step only goes on to the prompt',
+          (tester) async {
+        await pumpSetup(tester);
+        await tapText(tester, 'Get started');
+
+        expect(find.text('Prayer times for your city'), findsOneWidget);
+        expect(find.text('Continue'), findsOneWidget);
+        expect(find.text('Not now'), findsNothing);
+        expect(find.text('Choose my city'), findsNothing);
+        expect(find.text('Skip setup'), findsNothing);
+
+        await refuseLocation(tester);
+
+        // Asked and answered: the other ways on are back.
+        expect(find.text('Use my location'), findsOneWidget);
+        expect(find.text('Choose my city'), findsOneWidget);
+        expect(find.text('Skip setup'), findsOneWidget);
+        await tapText(tester, 'Not now');
+        expect(find.text('How should Arabic look?'), findsOneWidget);
+      }, variant: ios);
+
+      testWidgets('the Azan step has one Continue, which turns azan on',
+          (tester) async {
+        lat = 51.5;
+        long = -0.12;
+        await pumpSetup(tester);
+        await tapText(tester, 'Get started');
+        await refuseLocation(tester);
+        await tapText(tester, 'Not now');
+
+        expect(find.text('Hear the azan at prayer time?'), findsOneWidget);
+        expect(find.text('Turn on azan'), findsNothing);
+        expect(find.text('Not now'), findsNothing);
+        expect(find.text('Skip setup'), findsNothing);
+        await tapText(tester, 'Continue');
+
+        expect(AzaanOptInService.isEnabled, isTrue);
+        expect(find.text('How should Arabic look?'), findsOneWidget);
+      }, variant: ios);
+
+      testWidgets('with every prayer switched off, Continue leaves azan off',
+          (tester) async {
+        lat = 51.5;
+        long = -0.12;
+        await pumpSetup(tester);
+        await tapText(tester, 'Get started');
+        await refuseLocation(tester);
+        await tapText(tester, 'Not now');
+        for (final prayer in ['Fajr', 'Zuhr', 'Maghrib']) {
+          await tester.tap(find.bySemanticsLabel('Azan for $prayer'));
+          await tester.pumpAndSettle();
+        }
+        await tapText(tester, 'Continue');
+
+        expect(AzaanOptInService.hasBeenAsked, isTrue);
+        expect(AzaanOptInService.isEnabled, isFalse);
+      }, variant: ios);
+    });
+
     testWidgets('signing in finishes setup', (tester) async {
       final asked = <SignInProvider>[];
       await pumpSetup(tester, signIn: (_, provider) async {
@@ -379,4 +453,19 @@ void main() {
     expect(find.text('The app'), findsOneWidget);
     expect(find.text('Salamun Alaikum'), findsNothing);
   });
+}
+
+/// Location services on, and a refusal at the OS prompt - iOS's
+/// "not determined" then "denied", as Geolocator reports them.
+class _RefusingGeolocator extends GeolocatorPlatform {
+  @override
+  Future<bool> isLocationServiceEnabled() => Future.value(true);
+
+  @override
+  Future<LocationPermission> checkPermission() =>
+      Future.value(LocationPermission.denied);
+
+  @override
+  Future<LocationPermission> requestPermission() =>
+      Future.value(LocationPermission.deniedForever);
 }

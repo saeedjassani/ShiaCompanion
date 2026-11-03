@@ -366,7 +366,17 @@ either answer is final. A small gold bell beside a time on the card marks
 its azan as on. Replaces the location explainer and azan dialogs; the OS prompts
 only follow an explicit tap. No setup checklist on Home. Fresh installs on
 Android and iOS only: an install that has run an earlier build skips it,
-and the web keeps its quiet first load. The "What's new" dialog for
+and the web keeps its quiet first load.
+On iOS, App Review guideline 5.1.1(iv) forbids putting off an OS prompt
+from the screen that explains it (Apple rejected a build for the Location
+step's Not now), so while a permission is unasked the explainers only lead
+on (`lib/utils/permission_explainers.dart`): the Location step shows one
+Continue - no city, Not now or Skip setup - until it has been tapped once;
+the Azan step shows one Continue (asking for notifications when any prayer
+is on, leaving azan off when none is) and no Skip setup; Home's "Which city
+are you in?" card drops Not now until iOS has asked for location; and the
+card's azan question waits until notifications are already allowed
+(Settings' Azan switch asks otherwise). The "What's new" dialog for
 existing users is retired; see "What's new" below.
 
 ### What's new
