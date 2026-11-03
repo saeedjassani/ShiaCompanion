@@ -17,6 +17,7 @@ import '../../theme/shia_colors.dart';
 import '../../utils/app_text_scale.dart';
 import '../../utils/font_preferences.dart';
 import '../../utils/language_provider.dart';
+import '../../utils/permission_explainers.dart';
 import '../../utils/prayer_time_entries.dart';
 import '../../utils/shared_preferences.dart';
 import '../../utils/sign_in_flow.dart';
@@ -223,8 +224,8 @@ class _FirstRunSetupPageState extends State<FirstRunSetupPage> {
             child: switch (steps[_step - 1]) {
               _Setup.location => _LocationStep(onNext: _next),
               _Setup.azan => _AzanStep(onNext: _next),
-              _Setup.font => _FontStep(
-                  onNext: _next, onChosen: () => _fontChosen = true),
+              _Setup.font =>
+                _FontStep(onNext: _next, onChosen: () => _fontChosen = true),
               _Setup.theme => _ThemeStep(onNext: _next),
               _Setup.backup =>
                 _BackupStep(signIn: widget.signIn, onNext: _next),
@@ -861,6 +862,12 @@ class _LocationStep extends StatefulWidget {
 class _LocationStepState extends State<_LocationStep> {
   bool _locating = false;
 
+  /// On iOS the step leads only to the OS prompt until it has been asked
+  /// (guideline 5.1.1(iv), see [PermissionExplainers]): one Continue, no
+  /// city, Not now or Skip setup. Once tapped - whatever the answer, and
+  /// even when location services are off - the other ways on appear.
+  bool _askedOnce = !PermissionExplainers.mustLeadToPrompt;
+
   Future<void> _useMyLocation() async {
     setState(() => _locating = true);
     unawaited(AnalyticsService.feature(
@@ -874,7 +881,10 @@ class _LocationStepState extends State<_LocationStep> {
     final found =
         await LocationService.instance.useDeviceLocation(context: context);
     if (!mounted) return;
-    setState(() => _locating = false);
+    setState(() {
+      _locating = false;
+      _askedOnce = true;
+    });
     if (found) widget.onNext();
   }
 
@@ -901,29 +911,32 @@ class _LocationStepState extends State<_LocationStep> {
   Widget build(BuildContext context) {
     final colors = ShiaColors.of(context);
     final l10n = context.l10n;
+    final askedOnce = _askedOnce;
     return _StepFrame(
-      skippable: !_locating,
+      skippable: !_locating && askedOnce,
       centred: true,
       horizontalPadding: 24,
       actions: [
         _SetupButton(
-          label: l10n.setupUseMyLocation,
+          label: askedOnce ? l10n.setupUseMyLocation : l10n.commonContinue,
           onPressed: _useMyLocation,
           busy: _locating,
           leading: OutlineIcon(OutlineGlyph.pin,
               size: 20, color: colors.onAccent, strokeWidth: 2),
         ),
-        _SetupButton(
-          label: l10n.setupChooseCity,
-          onPressed: _locating ? null : _chooseCity,
-          kind: _ButtonKind.secondary,
-        ),
-        _SetupButton(
-          label: l10n.setupNotNow,
-          onPressed: _locating ? null : _notNow,
-          kind: _ButtonKind.quiet,
-          height: 48,
-        ),
+        if (askedOnce) ...[
+          _SetupButton(
+            label: l10n.setupChooseCity,
+            onPressed: _locating ? null : _chooseCity,
+            kind: _ButtonKind.secondary,
+          ),
+          _SetupButton(
+            label: l10n.setupNotNow,
+            onPressed: _locating ? null : _notNow,
+            kind: _ButtonKind.quiet,
+            height: 48,
+          ),
+        ],
       ],
       children: [
         const _StepBadge(glyph: OutlineGlyph.pin),
@@ -935,12 +948,14 @@ class _LocationStepState extends State<_LocationStep> {
           style: ShiaText.body
               .copyWith(fontSize: 18, height: 26 / 18, color: colors.text),
         ),
-        const SizedBox(height: 16),
-        Text(
-          l10n.setupLocationAlternative,
-          style: ShiaText.body
-              .copyWith(fontSize: 16, height: 22 / 16, color: colors.textMuted),
-        ),
+        if (askedOnce) ...[
+          const SizedBox(height: 16),
+          Text(
+            l10n.setupLocationAlternative,
+            style: ShiaText.body.copyWith(
+                fontSize: 16, height: 22 / 16, color: colors.textMuted),
+          ),
+        ],
       ],
     );
   }
@@ -1064,19 +1079,31 @@ class _AzanStepState extends State<_AzanStep> {
     final l10n = context.l10n;
     final isIOS = !kIsWeb && defaultTargetPlatform == TargetPlatform.iOS;
 
+    // On iOS the step leads only on (guideline 5.1.1(iv), see
+    // [PermissionExplainers]): one Continue and no Skip setup. With prayers
+    // on it asks for notifications; with every switch off it leaves azan off.
+    final leadOnly = PermissionExplainers.mustLeadToPrompt;
     return _StepFrame(
-      skippable: !_saving,
+      skippable: !_saving && !leadOnly,
       actions: [
-        _SetupButton(
-          label: l10n.setupTurnOnAzan,
-          onPressed: _on.isEmpty ? null : () => _answer(true),
-          busy: _saving,
-        ),
-        _SetupButton(
-          label: l10n.setupNotNow,
-          onPressed: _saving ? null : () => _answer(false),
-          kind: _ButtonKind.secondary,
-        ),
+        if (leadOnly)
+          _SetupButton(
+            label: l10n.commonContinue,
+            onPressed: () => _answer(_on.isNotEmpty),
+            busy: _saving,
+          )
+        else ...[
+          _SetupButton(
+            label: l10n.setupTurnOnAzan,
+            onPressed: _on.isEmpty ? null : () => _answer(true),
+            busy: _saving,
+          ),
+          _SetupButton(
+            label: l10n.setupNotNow,
+            onPressed: _saving ? null : () => _answer(false),
+            kind: _ButtonKind.secondary,
+          ),
+        ],
       ],
       children: [
         _Heading(title: l10n.setupAzanTitle, body: l10n.setupAzanBody),

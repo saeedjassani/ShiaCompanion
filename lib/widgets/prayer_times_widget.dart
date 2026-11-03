@@ -8,6 +8,7 @@ import 'package:shia_companion/services/azaan_opt_in_service.dart';
 import 'package:shia_companion/services/first_run_setup.dart';
 import 'package:shia_companion/services/location_service.dart';
 import 'package:shia_companion/theme/shia_colors.dart';
+import 'package:shia_companion/utils/permission_explainers.dart';
 import 'package:shia_companion/utils/shared_preferences.dart';
 import 'package:shia_companion/utils/widget_prayer_time_selection.dart';
 import 'package:shia_companion/widgets/outline_icon.dart';
@@ -75,10 +76,35 @@ class PrayerTimesState extends State<HomePrayerTimesCard> {
   @visibleForTesting
   static DateTime Function() debugNow = DateTime.now;
 
+  /// iOS only, where an explainer may not put off an unasked OS prompt
+  /// (guideline 5.1.1(iv), see [PermissionExplainers]). Until read, the
+  /// cautious answers: no Not now on the city card, and no azan question.
+  bool _locationPromptPending = true;
+  bool _notificationsAllowed = false;
+
+  Future<void> _readPermissions() async {
+    if (!PermissionExplainers.mustLeadToPrompt) return;
+    final pending = lat == null
+        ? await PermissionExplainers.locationPromptPending()
+        : _locationPromptPending;
+    final allowed = AzaanOptInService.hasBeenAsked
+        ? _notificationsAllowed
+        : await PermissionExplainers.notificationsAllowed();
+    if (!mounted) return;
+    if (pending == _locationPromptPending && allowed == _notificationsAllowed) {
+      return;
+    }
+    setState(() {
+      _locationPromptPending = pending;
+      _notificationsAllowed = allowed;
+    });
+  }
+
   @override
   void initState() {
     super.initState();
     _location.addListener(_onLocationChanged);
+    unawaited(_readPermissions());
     // The order of the times, and near midnight the list itself, move
     // forward on their own even when nothing else changes. Without a tick the
     // card would only catch up the next time something else rebuilt it.
@@ -96,6 +122,9 @@ class PrayerTimesState extends State<HomePrayerTimesCard> {
 
   void _onLocationChanged() {
     if (mounted) setState(() {});
+    // Asking for location, or a city that brings the azan question, may
+    // change what the card can offer.
+    unawaited(_readPermissions());
   }
 
   Future<void> _refreshLocation() async {
@@ -103,6 +132,7 @@ class PrayerTimesState extends State<HomePrayerTimesCard> {
     // interrupting dialog about permissions or location services is welcome.
     await _location.refresh(context: context);
     if (mounted) setState(() {});
+    await _readPermissions();
   }
 
   /// The city picker: a city by name, or back to the phone's location.
@@ -197,7 +227,10 @@ class PrayerTimesState extends State<HomePrayerTimesCard> {
         location: _location,
         onUseLocation: _refreshLocation,
         onChooseCity: _chooseCity,
-        onNotNow: _dismissCityPrompt,
+        onNotNow:
+            PermissionExplainers.mustLeadToPrompt && _locationPromptPending
+                ? null
+                : _dismissCityPrompt,
         footer: widget.footer,
       );
     }
@@ -212,11 +245,14 @@ class PrayerTimesState extends State<HomePrayerTimesCard> {
     // one picked on a trip, still set after the flight home.
     final askStillInCity = _location.chosenCityClockDifference != null;
     // One question at a time: the city comes first, since the times the
-    // azan would follow depend on it. Not on the web, which has no azan.
+    // azan would follow depend on it. Not on the web, which has no azan; on
+    // iOS only once notifications are allowed, since the question's Not now
+    // may not stand before the OS prompt. Settings' Azan switch asks there.
     final askAzan = !askStillInCity &&
         !kIsWeb &&
         !FirstRunSetup.isPending &&
-        !AzaanOptInService.hasBeenAsked;
+        !AzaanOptInService.hasBeenAsked &&
+        (!PermissionExplainers.mustLeadToPrompt || _notificationsAllowed);
 
     return Semantics(
       container: true,
@@ -727,8 +763,9 @@ class _ChooseLocationCard extends StatelessWidget {
   final VoidCallback onChooseCity;
 
   /// Shrinks the card to [_SetCityRow], for someone who would rather neither
-  /// share their location nor name a city.
-  final VoidCallback onNotNow;
+  /// share their location nor name a city. Null hides it: on iOS while the
+  /// location prompt is unasked (see [PermissionExplainers]).
+  final VoidCallback? onNotNow;
   final Widget? footer;
 
   @override
@@ -819,18 +856,20 @@ class _ChooseLocationCard extends StatelessWidget {
                   ),
                   const SizedBox(height: 8),
                   chooseCity,
-                  const SizedBox(height: 2),
-                  TextButton(
-                    onPressed: onNotNow,
-                    style: TextButton.styleFrom(
-                      foregroundColor: colors.onPrayerCardMuted,
-                      textStyle: buttonTextStyle(
-                          context,
-                          ShiaText.secondary
-                              .copyWith(fontWeight: FontWeight.w600)),
+                  if (onNotNow != null) ...[
+                    const SizedBox(height: 2),
+                    TextButton(
+                      onPressed: onNotNow,
+                      style: TextButton.styleFrom(
+                        foregroundColor: colors.onPrayerCardMuted,
+                        textStyle: buttonTextStyle(
+                            context,
+                            ShiaText.secondary
+                                .copyWith(fontWeight: FontWeight.w600)),
+                      ),
+                      child: Text(context.l10n.setupNotNow),
                     ),
-                    child: Text(context.l10n.setupNotNow),
-                  ),
+                  ],
                 ],
               ),
             ),

@@ -11,6 +11,7 @@ import 'package:shia_companion/pages/home/home_header.dart';
 import 'package:shia_companion/services/azaan_opt_in_service.dart';
 import 'package:shia_companion/services/first_run_setup.dart';
 import 'package:shia_companion/services/location_service.dart';
+import 'package:shia_companion/utils/permission_explainers.dart';
 import 'package:shia_companion/utils/shared_preferences.dart';
 import 'package:shia_companion/utils/widget_prayer_time_selection.dart';
 import 'package:shia_companion/utils/timezone_database.dart';
@@ -216,6 +217,42 @@ void main() {
     expect(find.text('Use my location'), findsOneWidget);
     expect(find.text('Choose city'), findsOneWidget);
     expect(find.text('Not now'), findsOneWidget);
+  });
+
+  group('on iOS, before the location prompt (guideline 5.1.1(iv))', () {
+    late bool pending;
+
+    setUp(() {
+      pending = true;
+      PermissionExplainers.debugLocationPromptPending = () async => pending;
+      PermissionExplainers.debugNotificationsAllowed = () async => false;
+    });
+
+    tearDown(() {
+      PermissionExplainers.debugLocationPromptPending = null;
+      PermissionExplainers.debugNotificationsAllowed = null;
+    });
+
+    testWidgets('the city question has no Not now while it is unasked',
+        (tester) async {
+      GeolocatorPlatform.instance = _FakeGeolocator();
+      await pumpCard(tester);
+      await tester.pump();
+
+      expect(find.text('Which city are you in?'), findsOneWidget);
+      expect(find.text('Use my location'), findsOneWidget);
+      expect(find.text('Choose city'), findsOneWidget);
+      expect(find.text('Not now'), findsNothing);
+    }, variant: TargetPlatformVariant.only(TargetPlatform.iOS));
+
+    testWidgets('once iOS has asked, Not now is back', (tester) async {
+      pending = false;
+      GeolocatorPlatform.instance = _FakeGeolocator();
+      await pumpCard(tester);
+      await tester.pump();
+
+      expect(find.text('Not now'), findsOneWidget);
+    }, variant: TargetPlatformVariant.only(TargetPlatform.iOS));
   });
 
   testWidgets('puts the next time up front, counting down, then the rest',
@@ -471,6 +508,37 @@ void main() {
       await SP.prefs.setString(FirstRunSetup.stateKey, FirstRunSetup.pending);
       await pumpCard(tester);
       expect(find.text(question), findsNothing);
+    });
+
+    group('on iOS', () {
+      late bool allowed;
+
+      setUp(() {
+        allowed = false;
+        PermissionExplainers.debugLocationPromptPending = () async => false;
+        PermissionExplainers.debugNotificationsAllowed = () async => allowed;
+      });
+
+      tearDown(() {
+        PermissionExplainers.debugLocationPromptPending = null;
+        PermissionExplainers.debugNotificationsAllowed = null;
+      });
+
+      // Its Not now may not stand before the OS prompt (guideline
+      // 5.1.1(iv)); Settings' Azan switch asks instead.
+      testWidgets('not before notifications are allowed', (tester) async {
+        await pumpCard(tester);
+        await tester.pump();
+        expect(find.text(question), findsNothing);
+        expect(find.text('Fajr'), findsOneWidget);
+      }, variant: TargetPlatformVariant.only(TargetPlatform.iOS));
+
+      testWidgets('asked once they are', (tester) async {
+        allowed = true;
+        await pumpCard(tester);
+        await tester.pump();
+        expect(find.text(question), findsOneWidget);
+      }, variant: TargetPlatformVariant.only(TargetPlatform.iOS));
     });
 
     testWidgets('not once answered', (tester) async {
