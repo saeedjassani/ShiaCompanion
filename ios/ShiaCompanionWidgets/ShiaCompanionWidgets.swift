@@ -11,14 +11,11 @@ private enum WidgetKeys {
     static let favoritesTitle = "sc_favorites_title"
     static let favoriteItems = (1...12).map { "sc_favorites_item_\($0)" }
     static let favoriteUrls = (1...12).map { "sc_favorites_url_\($0)" }
-    static let favoritePlayUrls = (1...12).map { "sc_favorites_play_\($0)" }
 
     static let recitationTitle = "sc_recitation_title"
     static let recitationItems = (1...12).map { "sc_recitation_item_\($0)" }
     static let recitationUrls = (1...12).map { "sc_recitation_url_\($0)" }
-    static let recitationPlayUrls = (1...12).map { "sc_recitation_play_\($0)" }
     static let recitationSchedule = "sc_recitation_schedule"
-    static let playLabel = "sc_widget_play_label"
 
     static let prayerTitle = "sc_prayer_title"
     static let prayerName = "sc_prayer_name"
@@ -54,8 +51,6 @@ struct WidgetListEntry: TimelineEntry {
     let date: Date
     let title: String
     let items: [WidgetListItem]
-    /// What VoiceOver says for a row's play button, in the app's language.
-    let playLabel: String
     let location: String
     let nextPrayerName: String
     let nextPrayerDate: Date?
@@ -64,7 +59,6 @@ struct WidgetListEntry: TimelineEntry {
         date: Date,
         title: String,
         items: [WidgetListItem],
-        playLabel: String = "Play recitation",
         location: String = "",
         nextPrayerName: String = "",
         nextPrayerDate: Date? = nil
@@ -72,7 +66,6 @@ struct WidgetListEntry: TimelineEntry {
         self.date = date
         self.title = title
         self.items = items
-        self.playLabel = playLabel
         self.location = location
         self.nextPrayerName = nextPrayerName
         self.nextPrayerDate = nextPrayerDate
@@ -82,14 +75,11 @@ struct WidgetListEntry: TimelineEntry {
 struct WidgetListItem {
     let title: String
     let url: URL?
-    /// Opens the zikr and starts its recitation; nil when it has none.
-    let playUrl: URL?
     let time: String
 
-    init(title: String, url: URL? = nil, playUrl: URL? = nil, time: String = "") {
+    init(title: String, url: URL? = nil, time: String = "") {
         self.title = title
         self.url = url
-        self.playUrl = playUrl
         self.time = time
     }
 }
@@ -122,15 +112,13 @@ struct FavoritesProvider: TimelineProvider {
             defaults: defaults,
             titleKeys: WidgetKeys.favoriteItems,
             urlKeys: WidgetKeys.favoriteUrls,
-            playUrlKeys: WidgetKeys.favoritePlayUrls,
             firstFallback: "No favorites yet"
         )
 
         return WidgetListEntry(
             date: Date(),
             title: defaults?.widgetString(WidgetKeys.favoritesTitle, fallback: "Favorites") ?? "Favorites",
-            items: items,
-            playLabel: widgetPlayLabel(defaults)
+            items: items
         )
     }
 }
@@ -198,7 +186,6 @@ struct RecitationProvider: TimelineProvider {
                 defaults: defaults,
                 titleKeys: WidgetKeys.recitationItems,
                 urlKeys: WidgetKeys.recitationUrls,
-                playUrlKeys: WidgetKeys.recitationPlayUrls,
                 firstFallback: "Open app to refresh"
             )
         }
@@ -209,8 +196,7 @@ struct RecitationProvider: TimelineProvider {
                 WidgetKeys.recitationTitle,
                 fallback: "Today's Recitations"
             ) ?? "Today's Recitations",
-            items: items,
-            playLabel: widgetPlayLabel(defaults)
+            items: items
         )
     }
 }
@@ -328,7 +314,6 @@ private func widgetItems(
     defaults: UserDefaults?,
     titleKeys: [String],
     urlKeys: [String],
-    playUrlKeys: [String],
     firstFallback: String
 ) -> [WidgetListItem] {
     titleKeys.enumerated().compactMap { index, titleKey in
@@ -338,13 +323,8 @@ private func widgetItems(
         }
 
         let rawUrl = defaults?.widgetString(urlKeys[index], fallback: "") ?? ""
-        let rawPlayUrl = defaults?.widgetString(playUrlKeys[index], fallback: "") ?? ""
-        return WidgetListItem(title: title, url: URL(string: rawUrl), playUrl: URL(string: rawPlayUrl))
+        return WidgetListItem(title: title, url: URL(string: rawUrl))
     }
-}
-
-private func widgetPlayLabel(_ defaults: UserDefaults?) -> String {
-    defaults?.widgetString(WidgetKeys.playLabel, fallback: "Play recitation") ?? "Play recitation"
 }
 
 private func dailyPrayerItems(defaults: UserDefaults?) -> [WidgetListItem] {
@@ -391,16 +371,9 @@ private func parseListSchedule(_ rawSchedule: String) -> [WidgetListScheduleEntr
 
             let rawUrl = (rawItem["url"] as? String)?
                 .trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
-            let rawPlayUrl = (rawItem["play"] as? String)?
-                .trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
             let time = (rawItem["time"] as? String)?
                 .trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
-            return WidgetListItem(
-                title: title,
-                url: URL(string: rawUrl),
-                playUrl: URL(string: rawPlayUrl),
-                time: time
-            )
+            return WidgetListItem(title: title, url: URL(string: rawUrl), time: time)
         }
 
         return WidgetListScheduleEntry(
@@ -546,22 +519,13 @@ struct WidgetListView: View {
                 Spacer(minLength: 0)
             } else {
                 ForEach(Array(visibleItems.enumerated()), id: \.offset) { _, item in
-                    HStack(spacing: 6) {
-                        if let url = item.url {
-                            Link(destination: url) {
-                                widgetItemRow(item.title, clickable: true)
-                            }
-                            .buttonStyle(.plain)
-                        } else {
-                            widgetItemRow(item.title, clickable: false)
+                    if let url = item.url {
+                        Link(destination: url) {
+                            widgetItemRow(item.title, clickable: true)
                         }
-                        if let playUrl = item.playUrl {
-                            Link(destination: playUrl) {
-                                playButton
-                            }
-                            .buttonStyle(.plain)
-                            .accessibilityLabel(Text(verbatim: "\(entry.playLabel), \(item.title)"))
-                        }
+                        .buttonStyle(.plain)
+                    } else {
+                        widgetItemRow(item.title, clickable: false)
                     }
                 }
             }
@@ -578,17 +542,6 @@ struct WidgetListView: View {
         default:
             return 10
         }
-    }
-
-    /// A row's play button: opens the zikr and starts its recitation. Sized
-    /// past the row's text so it is a fair target for a thumb.
-    private var playButton: some View {
-        Image(systemName: "play.fill")
-            .font(.caption2.weight(.bold))
-            .foregroundColor(.accentText)
-            .frame(width: 26, height: 26)
-            .background(Circle().fill(Color.accentText.opacity(0.18)))
-            .contentShape(Circle())
     }
 
     private func widgetItemRow(_ title: String, clickable: Bool) -> some View {
