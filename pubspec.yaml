@@ -50,6 +50,7 @@ dependencies:
   speech_to_text: ^7.5.0
   in_app_review: ^2.0.12
   fl_chart: ^1.2.0
+  quick_actions: ^1.1.1
 
 
 dev_dependencies:

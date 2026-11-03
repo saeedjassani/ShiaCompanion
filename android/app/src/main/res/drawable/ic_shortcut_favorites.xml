@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The "favorites" action under the app icon (AppShortcutsService):
+     a 24-unit outline glyph from lib/widgets/outline_icon.dart on a
+     44dp disc, as Android's shortcut icon guidelines draw them. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="48dp"
+    android:height="48dp"
+    android:viewportWidth="48"
+    android:viewportHeight="48">
+    <path
+        android:fillColor="#FFF5EFE8"
+        android:pathData="M2,24 A22,22 0 1 1 46,24 A22,22 0 1 1 2,24 Z" />
+    <group
+        android:translateX="12"
+        android:translateY="12">
+        <path
+            android:fillColor="#00000000"
+            android:strokeColor="#FF6D4C35"
+            android:strokeWidth="1.8"
+            android:strokeLineCap="round"
+            android:strokeLineJoin="round"
+            android:pathData="M12,20 C12,20 5,15.6 5,10 A4,4 0 0 1 12,7.4 A4,4 0 0 1 19,10 C19,15.6 12,20 12,20 Z" />
+    </group>
+</vector>
