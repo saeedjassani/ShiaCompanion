@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Launcher shortcut labels (xml/shortcuts.xml), as lib/l10n/app_gu.arb
+     words them (commonSearch, prayerTimesTitle). -->
+<resources>
+    <string name="shortcut_search">શોધો</string>
+    <string name="shortcut_prayer_times">નમાઝના સમય</string>
+</resources>

@@ -25,6 +25,7 @@ import 'package:shia_companion/services/home_screen_widget_service.dart';
 import 'package:shia_companion/services/library_service.dart';
 import 'package:shia_companion/pages/library_page.dart';
 import 'package:shia_companion/pages/playlists_page.dart';
+import 'package:shia_companion/pages/search_page.dart';
 import 'package:shia_companion/services/playlist_audio_service.dart';
 import 'package:shia_companion/services/zikr_playlist_store.dart';
 import 'package:shia_companion/services/location_service.dart';
@@ -133,9 +134,24 @@ class _MyHomePageState extends State<MyHomePage>
       _queueDeepLink(parseDeepLinkUri(uri));
     });
 
-    // An "Open Dua" shortcut, or a dua picked from Spotlight, on iOS.
-    SmartActionsService.instance.linkHandler =
-        (uri) => _queueDeepLink(parseDeepLinkUri(uri));
+    // An "Open Dua" shortcut, or a dua picked from Spotlight, on iOS; a
+    // launcher shortcut or a Google Assistant request on Android.
+    SmartActionsService.instance.navigator = _openSmartActionTarget;
+  }
+
+  void _openSmartActionTarget(SmartActionTarget target) {
+    switch (target) {
+      case SmartActionLink(:final link):
+        _queueDeepLink(parseDeepLinkUri(link));
+      case SmartActionFeature(:final item):
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted) _openHomeMenuItem(item);
+        });
+      case SmartActionSearch(:final query):
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted) unawaited(openAppSearch(context, query: query));
+        });
+    }
   }
 
   Future<void> _setupAndroidWidgetLinks() async {
@@ -781,7 +797,7 @@ class _MyHomePageState extends State<MyHomePage>
     WidgetsBinding.instance.removeObserver(this);
     routeObserver.unsubscribe(this);
     _linkSubscription?.cancel();
-    SmartActionsService.instance.linkHandler = null;
+    SmartActionsService.instance.navigator = null;
     _widgetLinkChannel?.setMethodCallHandler(null);
     super.dispose();
   }
@@ -811,6 +827,7 @@ class _MyHomePageState extends State<MyHomePage>
         unawaited(handleNotificationThatOpenedApp());
       }
       unawaited(_takePendingWidgetUrl());
+      unawaited(SmartActionsService.instance.takePendingActions());
       _refreshLocationOnResume();
     } else if (state == AppLifecycleState.paused ||
         state == AppLifecycleState.hidden) {

@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Launcher shortcuts and Google Assistant's App Actions: Android's side
+     of what Siri, Shortcuts and Spotlight do on iOS.
+
+     Every intent here goes to MainActivity with one of SmartActions.kt's
+     actions, which hands it to Dart (lib/services/smart_actions_service.dart)
+     to match the words against the app's features, duas and playlists. The
+     shortcuts SmartActions.kt adds itself - playlists played, duas opened -
+     are not here.
+
+     android:targetPackage is the release application id. A debug build's
+     is different, so src/debug/res/xml/shortcuts.xml is this file with the
+     .debug one; test/android_shortcuts_test.dart keeps the two in step. -->
+<shortcuts xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <!-- "Hey Google, open Qibla in Shia Companion" - any feature of the
+         home menu, or a dua by name. -->
+    <capability android:name="actions.intent.OPEN_APP_FEATURE">
+        <intent
+            android:action="com.developer110.shiacompanion.action.OPEN"
+            android:targetPackage="com.developer110.shiacompanion"
+            android:targetClass="com.developer110.shia_companion.MainActivity">
+            <parameter
+                android:name="feature"
+                android:key="name" />
+        </intent>
+    </capability>
+
+    <!-- "Hey Google, search for Dua Kumayl in Shia Companion". -->
+    <capability android:name="actions.intent.GET_THING">
+        <intent
+            android:action="com.developer110.shiacompanion.action.SEARCH"
+            android:targetPackage="com.developer110.shiacompanion"
+            android:targetClass="com.developer110.shia_companion.MainActivity">
+            <parameter
+                android:name="thing.name"
+                android:key="query" />
+        </intent>
+    </capability>
+
+    <!-- "Hey Google, play Dua Kumayl on Shia Companion": a dua's
+         recitation, or a playlist when that is what the words name. -->
+    <capability
+        android:name="custom.actions.intent.PLAY_DUA"
+        app:queryPatterns="@array/smart_actions_play_dua_queries">
+        <intent
+            android:action="com.developer110.shiacompanion.action.PLAY"
+            android:targetPackage="com.developer110.shiacompanion"
+            android:targetClass="com.developer110.shia_companion.MainActivity">
+            <parameter
+                android:name="dua"
+                android:key="name"
+                android:mimeType="https://schema.org/Text" />
+        </intent>
+    </capability>
+
+    <!-- "Hey Google, play my Thursday Night playlist on Shia Companion". -->
+    <capability
+        android:name="custom.actions.intent.PLAY_PLAYLIST"
+        app:queryPatterns="@array/smart_actions_play_playlist_queries">
+        <intent
+            android:action="com.developer110.shiacompanion.action.PLAY_PLAYLIST"
+            android:targetPackage="com.developer110.shiacompanion"
+            android:targetClass="com.developer110.shia_companion.MainActivity">
+            <parameter
+                android:name="playlist"
+                android:key="name"
+                android:mimeType="https://schema.org/Text" />
+        </intent>
+    </capability>
+
+    <!-- "Hey Google, read Ziyarat Ashura on Shia Companion". -->
+    <capability
+        android:name="custom.actions.intent.OPEN_DUA"
+        app:queryPatterns="@array/smart_actions_open_dua_queries">
+        <intent
+            android:action="com.developer110.shiacompanion.action.OPEN"
+            android:targetPackage="com.developer110.shiacompanion"
+            android:targetClass="com.developer110.shia_companion.MainActivity">
+            <parameter
+                android:name="dua"
+                android:key="name"
+                android:mimeType="https://schema.org/Text" />
+        </intent>
+    </capability>
+
+    <!-- Long-press the app icon. Kept to two, so the duas and playlists
+         the reader uses (SmartActions.kt) still fit beside them. -->
+    <shortcut
+        android:shortcutId="search"
+        android:enabled="true"
+        android:icon="@drawable/ic_shortcut_search"
+        android:shortcutShortLabel="@string/shortcut_search"
+        android:shortcutLongLabel="@string/shortcut_search">
+        <intent
+            android:action="com.developer110.shiacompanion.action.SEARCH"
+            android:targetPackage="com.developer110.shiacompanion"
+            android:targetClass="com.developer110.shia_companion.MainActivity" />
+    </shortcut>
+
+    <shortcut
+        android:shortcutId="prayer_times"
+        android:enabled="true"
+        android:icon="@drawable/ic_shortcut_prayer_times"
+        android:shortcutShortLabel="@string/shortcut_prayer_times"
+        android:shortcutLongLabel="@string/shortcut_prayer_times">
+        <intent
+            android:action="com.developer110.shiacompanion.action.OPEN"
+            android:targetPackage="com.developer110.shiacompanion"
+            android:targetClass="com.developer110.shia_companion.MainActivity">
+            <!-- A home menu item's analyticsId. -->
+            <extra
+                android:name="name"
+                android:value="calendar_prayer_times" />
+        </intent>
+    </shortcut>
+</shortcuts>

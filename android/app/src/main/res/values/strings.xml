@@ -19,4 +19,9 @@
     <string name="azan_resume_fallback">Resume</string>
     <string name="azan_stop_fallback">Stop</string>
     <string name="azan_channel_fallback">Azan playback</string>
+    <!-- Launcher shortcuts (xml/shortcuts.xml); the same words as the app's
+         commonSearch and prayerTimesTitle, in values-ur, -fa, -ar and -gu
+         too. -->
+    <string name="shortcut_search">Search</string>
+    <string name="shortcut_prayer_times">Prayer Times</string>
 </resources>

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- A launcher shortcut's icon, in the widgets' brown and gold
+     (SmartActions.kt, xml/shortcuts.xml). -->
+<adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
+    <background android:drawable="@color/widget_surface" />
+    <foreground android:drawable="@drawable/ic_shortcut_prayer_times_glyph" />
+</adaptive-icon>

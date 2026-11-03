@@ -168,6 +168,18 @@
   - The same site's "દુઆએ નુદબા", "દુઆ-એ-ઈફ્તેતાહ" and "ઝિયારતે આશુરા અને
     તેના ફાયદા" are single-dua books worth checking for Gujarati too.
 
+- **Android smart actions: untested on a device.** The Android side of
+  Siri/Shortcuts/Spotlight (`SmartActions.kt`, `res/xml/shortcuts.xml`,
+  `SmartActionsService` in Dart) only compiles and unit-tests here. Check on
+  a phone: long-press the icon (Search, Prayer Times, then the playlists
+  played and duas opened), launcher search for a dua opened before, and a
+  playlist's "Add to Home screen". The App Actions (open a feature, search,
+  play/open a dua or playlist by name) need the App Actions Test Tool in
+  Android Studio, then a Play Console upload for Assistant to pick them up;
+  whether Gemini honours them as Assistant did is not known. A debug build
+  has its own `src/debug/res/xml/shortcuts.xml` (its package differs) -
+  `test/android_shortcuts_test.dart` keeps it in step.
+
 - **Wear OS app: merged, not shipped.** `android/wear` is a standalone
   Gradle build (Compose for Wear OS: prayer times, calendar, tasbeeh, a tile,
   complications) fed from the phone over the Data Layer by `WearSync`, which

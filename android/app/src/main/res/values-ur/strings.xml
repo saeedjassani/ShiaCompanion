@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Launcher shortcut labels (xml/shortcuts.xml), as lib/l10n/app_ur.arb
+     words them (commonSearch, prayerTimesTitle). -->
+<resources>
+    <string name="shortcut_search">تلاش</string>
+    <string name="shortcut_prayer_times">نماز کے اوقات</string>
+</resources>

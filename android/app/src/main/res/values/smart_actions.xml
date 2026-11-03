@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- What Google Assistant listens for, for the custom App Actions in
+     xml/shortcuts.xml. Assistant adds "on Shia Companion" itself. English
+     only: Assistant takes custom intents in English alone. -->
+<resources>
+    <string-array name="smart_actions_play_dua_queries" translatable="false">
+        <item>play $dua</item>
+        <item>recite $dua</item>
+        <item>listen to $dua</item>
+        <item>play the recitation of $dua</item>
+    </string-array>
+    <string-array name="smart_actions_play_playlist_queries" translatable="false">
+        <item>play my $playlist playlist</item>
+        <item>play the $playlist playlist</item>
+        <item>start my $playlist playlist</item>
+        <item>start the $playlist playlist</item>
+    </string-array>
+    <string-array name="smart_actions_open_dua_queries" translatable="false">
+        <item>read $dua</item>
+        <item>open $dua</item>
+        <item>show me $dua</item>
+    </string-array>
+</resources>
