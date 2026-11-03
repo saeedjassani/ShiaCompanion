@@ -255,7 +255,7 @@ python3 scripts/zikr_arabic/batch.py plan <uid…>  # report + write .patch.json
 node    scripts/zikr_arabic/backup.js           # REQUIRED before any write
 node    scripts/zikr_arabic/apply_patch.js scripts/zikr_arabic/.patch.json --dry-run
 node    scripts/zikr_arabic/apply_patch.js scripts/zikr_arabic/.patch.json
-flutter test test/zikr_content_parser_test.dart test/zikr_translations_test.dart
+flutter test test/zikr_content_parser_test.dart test/zikr_translations_test.dart test/zikr_source_check_test.dart
 python3 scripts/zikr_arabic/batch.py done <uid…>
 git add assets/zikr && git commit
 ```
@@ -265,6 +265,14 @@ Proofreading never moves a line, so translated zikrs' segment numbering (see
 `zikr_translations_test.dart` fails on a zikr anyway, a line was split,
 merged or reclassified: run `python3 scripts/zikr_i18n/zikr_i18n.py rebase`
 and commit what it renumbers under `assets/zikr_i18n/` with the batch.
+
+`zikr_source_check_test.dart` compares restored entries with their source,
+ignoring vowels and hamza seats, so orthography fixes pass it. A letter fix
+to a line it already flags (accepted in
+`scripts/zikr_arabic/source_baseline.json`) changes that line's id: check
+the line with `python3 -I scripts/zikr_arabic/source_check.py . <uid>`, then
+run `python3 -I scripts/zikr_arabic/source_check.py . baseline` and commit
+the baseline with the batch.
 
 `normalize.py` and `silah.py` can be run standalone on named zikr for a closer
 look; both take `--out`/`--json` to dump a patch.

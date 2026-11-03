@@ -78,6 +78,8 @@ ships, set its uids' `kind` to `restored`/`retired` there and recount
 7. Validate: each Arabic line followed by an ALL-CAPS line and an English
    line; no English line repeated across unrelated duas (placeholder smell);
    `python3 scripts/zikr_arabic/audit.py <uids>` clean on INV-2/INV-3;
+   `python3 -I scripts/zikr_arabic/source_check.py . snapshot`, then
+   `. <uids>` (every `+` flag a fix you can cite), then `. baseline`;
    `flutter test`.
 8. Duplicates go in `lib/data/retired_zikr_redirects.dart` (with `tabIndex`
    when the content is one tab of the target); check every target and tab
@@ -577,6 +579,20 @@ duas.org's label, **please confirm**); AA43's Sahifa 45 (Wikisource).
 compares an entry with its source both ways. Run it on every restored
 entry; anything it flags must be a fix you can cite.
 
+It is also a test, `test/zikr_source_check_test.dart`, over all 384 restored
+uids (in `assets/zikr/` now, gone after `8c5f8258`, present before it). CI
+has no git history, so the sources are frozen, normalized, in
+`scripts/zikr_arabic/source_snapshot.json`. What the check flagged on
+2026-11-03 - 3,495 lines and blocks across 115 uids, mostly text from other
+sources (AL11, P1, AI3, AA22, AA43...) and the gaps listed below - is
+accepted in `source_baseline.json`. The test fails on a new flag, and on an
+accepted one that no longer fires. In the report, `+` marks a flag not yet
+accepted.
+- Edited a restored entry: run the report on it, read every `+` line, then
+  `source_check.py . baseline` and commit the baseline.
+- Restored more uids: `git fetch --unshallow`, then `source_check.py .
+  snapshot` and `baseline`.
+
 ## Resume here: what's left after Pass 7, redone
 
 **Owner decisions** (agents proposed, nobody acted):
@@ -623,8 +639,8 @@ check against Mafatih: F57 (source has 1 dua, entry has 25 lines), E152,
 E81, I24, I14, I17. Iqbal/Iraq entries (`d11c1f16`) come from a different
 source, so the check flags them without meaning much.
 
-**Next:** turn `source_check.py` into a test over every restored uid, then
-the owner decisions above, then the smaller gaps.
+**Next:** the owner decisions above, then the smaller gaps. (The source
+check is now a test; see "The check" above.)
 
 ## Full-corpus duplicate sweep (2026-09-17)
 
