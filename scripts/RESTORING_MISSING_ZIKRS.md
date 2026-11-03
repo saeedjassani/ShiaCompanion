@@ -616,37 +616,95 @@ accepted.
 - AA22's Iqbal dua (now tab 5, Allahumma Inna Hadha Shahru Ramadan): the
   owner isn't sure either. Still to confirm against Iqbal al-A'mal.
 
-**For a reviewer** (Arabic is source-checked; these are not):
-- English written fresh (sources had none): E102; most of E112; E90, E103,
-  F7 recited lines; E42 tabs 2-10, E41 tabs 2-6, E84 tabs 2-5, E63 tabs 2,
-  4, 5.
-- G77 keeps the source's English for three lines that look wrong: جادة الله
-  "bounty of Allah" (path), ادركني "accept me" (come to my aid), لا تعن علي
-  "don't molest me" (don't help against me).
-- Suspected Arabic typos left as the source has them (no vowelled online
-  copy): F15 مَعْصِيَّتِيْ, لَا شَيْءً, اَ تَقُوْلُ; E102 عِزُّ; E41 اَحَدٍ, يَكْفٰى/تَكْفٰى,
-  فَاَكْفِنِىْ; E84 فَاَطْغِىْ, فَاَشْقِىْ, بَغِىْ, مُرْتَجِىً; E42 شَاَنَتْهُ; E63 الْقاۤئِمِ.
-- F14 ends with يَا عَظِيْمُ ×4 as the source has it (its English says 6,
-  Mafatih 7). F15 says al-Tawhid 50 times "in each unit" (source English:
-  "the first unit").
-- `silah.py` bugs seen: it skips words ending in اله (`وَاٰلِهٖ`, `مَالِهِ`),
-  marks a root hā (`تَتَشَابَهٗ`), and `apply_to_text` marks every copy of a
-  word once one copy qualifies (E42's بِهِ before hamzat al-wasl).
+**Still open after the owner's review (2026-11-03).** The owner went
+through these on a review page in the app's own links; the decisions above
+are done, everything below is not. Titles are as of PR #411; "tab N"
+counts from 1 as the reader shows the tabs (the number a `?tab=N` link
+carries).
 
-**Translations to redo** (the rebase dropped them; they were old intro or
-instruction lines now rewritten): AA18, AA31, E146, F15, X10, X15, AC6,
-AA22, AA43, E41, E42, E63, E84 - their new instruction lines and tab labels
-have no Urdu/Persian/Arabic/Gujarati.
+1. **Confirm the Iqbal dua** - AA22 "Other Aamal of the First Night", tab 5
+   "Allahumma Inna Hadha Shahru Ramadan". Taken from duas.org, matched only
+   by its opening words and duas.org's label for Ibn Tawus's "lengthy"
+   supplication. Check it against Iqbal al-A'mal; the owner isn't sure.
 
-**Smaller gaps still open** (same check, corpus-wide, 2026-10-25): AK5
-(~22% of its source's Arabic nowhere in the app), AA21 Sahifa 43 (22%),
-D1 (14%), G52 (13%), E44, I94, E120, F55. Lines with no recorded source, to
-check against Mafatih: F57 (source has 1 dua, entry has 25 lines), E152,
-E81, I24, I14, I17. Iqbal/Iraq entries (`d11c1f16`) come from a different
-source, so the check flags them without meaning much.
+2. **English written fresh** (the sources had Arabic only). Read each
+   against the Arabic:
+   - E102 "Duas & Aamal for Healing the Sick" - all of it;
+   - E112 "Duas at Daybreak and Sunset" - most of it;
+   - E90 "Dua before and after Ritual Prayers", E103 "Duas in Prostration
+     (Sajdah)", F7 "Namaz-e-Mayyat" - the recited lines;
+   - E42 "Selected Supplications of the Imams (a.s.)" tabs 2-10, E41 "Dua
+     for Fending Off Distress, Grief, and Fear" tabs 2-6, E84 "Five Duas for
+     Sustenance" tabs 2-5, E63 "Recommended Daily Recitations" tabs 2, 4, 5.
 
-**Next:** the owner decisions above, then the smaller gaps. (The source
-check is now a test; see "The check" above.)
+3. **English that looks wrong**, kept as the source had it - G77 "Ziyarat
+   of Imam al-Hujjah (a.t.f.s.)":
+   - يَا جَادَّةَ اللّٰهِ "O bounty of Allah" - likely "O path of Allah";
+   - اَدْرِكْنِيْ ×3 "Accept me" - likely "Come to my aid";
+   - وَلَا تُعِنْ عَلَيَّ "don't molest me" - likely "do not help against me".
+
+4. **Suspected Arabic typos**, left as the source has them (no vowelled
+   copy online). The likely reading is a suggestion from the grammar -
+   check each against a printed Mafatih before changing anything:
+
+   | Entry, tab | As shipped | Likely | Why |
+   |---|---|---|---|
+   | F15 "Namaz of Imam Ali (a.s.)" | مَعْصِيَّتِيْ | مَعْصِيَتِيْ | stray shadda |
+   | F15 | لَا شَيْءً لِيْ | لَا شَيْءَ لِيْ | lā of absolute negation |
+   | F15 | اَ تَقُوْلُ | اَتَقُوْلُ | question hamza joins the verb |
+   | E102 "Duas & Aamal for Healing the Sick", tab 8 | وَّعِزُّ | وَّعِزٌّ | every other noun in the list has tanwin |
+   | E41 "Dua for Fending Off Distress...", tab 4 | لَا يَكْفٰى مِنْكَ اَحَدٍ | لَا يَكْفِيْ مِنْكَ اَحَدٌ | اَحَدٌ is the subject |
+   | E41, tab 4 | وَاَنْتَ تَكْفٰى | وَاَنْتَ تَكْفِيْ | same verb |
+   | E41, tab 4 | یَا كَافِيًا ... وَلَا يَكْفٰى مِنْكَ شَىْءٌ | يَا ... يَكْفِيْ | same verb; and its first word starts with a Persian ی (U+06CC), not Arabic ي - not in the earlier list |
+   | E41, tab 4 | فَاَكْفِنِىْ | فَاكْفِنِيْ | imperative, connecting alif |
+   | E84 "Five Duas for Sustenance", tab 5 | فَاَطْغِىْ | فَاَطْغٰى | subjunctive after fā |
+   | E84, tab 5 | فَاَشْقِىْ | فَاَشْقٰى | same |
+   | E84, tab 5 | مَنْ بَغِىْ | مَنْ بَغٰى | past tense |
+   | E84, tab 3 | مُرْتَجِىً | مُرْتَجًى | passive participle |
+   | E42 "Selected Supplications of the Imams (a.s.)", tab 10 | وَشَاَنَتْهُ | وَشَانَتْهُ | from شَانَ, no hamza |
+   | E63 "Recommended Daily Recitations", tab 5 | الْقاۤئِمِ | الْقَاۤئِمِ | missing fatha (the next copy has it) |
+
+5. **Counts that disagree** - owner's call:
+   - F14 "Namaz of Lady Fatimah al-Zahra (s.a.)", tab 3: ends with
+     يَا عَظِيْمُ ×4 as the source has it; the source's English says 6,
+     Mafatih 7.
+   - F15 "Namaz of Imam Ali (a.s.)": "Surah al-Tawhid 50 times in each
+     unit"; the source's English says the first unit only.
+
+6. **Translations to redo** - their rewritten instruction lines and tab
+   labels have no Urdu/Persian/Arabic/Gujarati (the rebase dropped the old
+   ones), so outside English the reader shows only the Arabic there: AA18
+   "Aamal & Duas for the Days of Ramazan", AA31 "Aamal of the 21st Night of
+   Ramazan", E146 "Supplications at Sunrise & Sunset", F15, X10
+   "Namaz-e-Salman (1st, 15th & Last of Rajab)", X15 "Aamal of Laylat
+   al-Mab'ath (27th Night)", AA22, AA43 "Last Night of Ramazan", E41, E42,
+   E63, E84. Not translated at all: AC6 "Salat of وَ وَاعَدْنَا", and the new
+   AA48/AA49 (Sahifa 44 and 45).
+
+7. **Smaller gaps** (same check, corpus-wide, 2026-10-25) - the next batch
+   of work, not owner questions:
+   - Part of the source's Arabic is nowhere in the app: AK5 "Ziyarat of
+     Imam Ali (a.s.) - Najaf (All Forms)" (~22%), AA21 "Dua No. 43 of Sahifa
+     al-Kamila" (22%), D1 "General Taqibaat" (14%), G52 "Ziyarat of Lady
+     Fatimah al-Zahra (s.a.)" (13%); a short block each in E44 "Dua for
+     Glorifying Allah (s.w.t.)", I94 "Verses to Restore Lost Things", E120
+     "Imam al-Sadiq (a.s.)'s Supplication", F55 "Namaz for Travel".
+   - Lines with no recorded source, to check against Mafatih: F57 "Duas of
+     the Imams (a.s.) to Ward Off Evil" (its source has one dua; the entry
+     has 25 lines in three tabs), E152 "True Incident of Fulfillment of
+     Desires", E81 "Dua & Medicine for Good Memory", I24 "Etiquettes of
+     Bedtime", I14 "General Taqibaat - 2", I17 "Taqibaat of the Dawn (Fajr)
+     Prayer".
+   - Iqbal/Iraq entries (`d11c1f16`) come from a different source, so the
+     check flags them without meaning much.
+
+8. **Tooling:** `silah.py` skips words ending in اله (`وَاٰلِهٖ`, `مَالِهِ`),
+   marks a root hā (`تَتَشَابَهٗ`), and `apply_to_text` marks every copy of a
+   word once one copy qualifies (E42's بِهِ before hamzat al-wasl).
+
+**Next:** items 1-5 need a reader who knows the text (the owner, or a
+reviewer they name); 6 needs translators; 7 is ordinary restoration work
+with `source_check.py` (it is a test now - see "The check" above).
 
 ## Full-corpus duplicate sweep (2026-09-17)
 
