@@ -94,6 +94,33 @@ static double SCNormalizeDegrees(double degrees) {
 
 @end
 
+/// Flutter's scene delegate, plus Spotlight: a tapped search result comes to
+/// the scene as a user activity, which Flutter's own delegate only reads for
+/// a web link - so without this a dua picked in Spotlight just opened Home.
+/// Named in Info.plist's `UISceneDelegateClassName`.
+@interface SCSceneDelegate : FlutterSceneDelegate
+@end
+
+@implementation SCSceneDelegate
+
+/// The tap launched the app.
+- (void)scene:(UIScene *)scene
+    willConnectToSession:(UISceneSession *)session
+                 options:(UISceneConnectionOptions *)connectionOptions {
+  [super scene:scene willConnectToSession:session options:connectionOptions];
+  for (NSUserActivity *activity in connectionOptions.userActivities) {
+    [SCSmartActions continueUserActivity:activity];
+  }
+}
+
+/// The app was already running.
+- (void)scene:(UIScene *)scene continueUserActivity:(NSUserActivity *)userActivity {
+  if ([SCSmartActions continueUserActivity:userActivity]) return;
+  [super scene:scene continueUserActivity:userActivity];
+}
+
+@end
+
 @interface AppDelegate () <FlutterStreamHandler, WCSessionDelegate>
 
 @property(nonatomic, copy) FlutterEventSink proximityEventSink;
