@@ -323,7 +323,7 @@ bar. Results scroll behind it under the same fade.
 
 ### Reading (zikr and Quran)
 - Top bar: round back button, one-line title, small sub-line ("12% read",
-  "Part 3 of 4", "Verse 255 of 286 · My reading"), reminder bell (the
+  "Part 3 of 4 · 12% read", "Verse 255 of 286 · My reading"), reminder bell (the
   favourite heart on web, where reminders can't fire), 3 px progress line
   along the bottom edge.
 - Multi-part zikrs: parts as chips under the title; swiping still changes
