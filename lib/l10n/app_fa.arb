@@ -1330,5 +1330,7 @@
   "playlistDefaultRamazanNights": "شب‌های ماه رمضان",
   "playlistDefaultRamazanSuhoor": "سحرهای ماه رمضان",
   "playlistDefaultShaban": "شعبان",
-  "accountNotSignedIn": "وارد حساب نشده‌اید."
+  "accountNotSignedIn": "وارد حساب نشده‌اید.",
+  "appShortcutContinueReading": "ادامهٔ خواندن",
+  "appShortcutContinueItem": "ادامهٔ {title}"
 }
