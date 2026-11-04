@@ -12,6 +12,7 @@ import 'package:shia_companion/data/universal_data.dart';
 import 'package:shia_companion/models/azaan_option.dart';
 import 'package:shia_companion/services/analytics_service.dart';
 import 'package:shia_companion/services/azan_playback_service.dart';
+import 'package:shia_companion/services/city_repository.dart';
 import 'package:http/http.dart' as http;
 import 'package:date_format/date_format.dart';
 import 'package:intl/intl.dart' show DateFormat;
@@ -22,6 +23,7 @@ import 'data/uid_title_data.dart';
 import 'pages/chapter_list_page.dart';
 
 import 'pages/video_player.dart';
+import 'utils/geo_utils.dart';
 import 'utils/hijri_date.dart';
 import 'utils/shared_preferences.dart';
 import 'package:shia_companion/utils/timezone_database.dart';
@@ -661,30 +663,73 @@ Future<void> renameLocation(String label) async {
   }
 }
 
+/// Where the stored place name was given for: the fix it was geocoded for,
+/// or the chosen city. Lets an offline fix tell whether that name still
+/// fits (see [_nameFromCityList]). Absent for names stored before it was
+/// recorded.
+const String cityLabelLatKey = 'city_label_lat';
+const String cityLabelLongKey = 'city_label_long';
+
+/// How far a fix may be from where its stored name was given and still keep
+/// it when the geocoder can't be reached: a geocoded name for this same spot
+/// says more than the nearest big city of the bundled list.
+const double cityLabelReuseRadiusKm = 10;
+
+/// Stores [label] as the place name for [latitude], [longitude], in
+/// [language]. Returns whether [city] changed.
+Future<bool> _storeLocationLabel(
+  String label, {
+  required double latitude,
+  required double longitude,
+  required String language,
+}) async {
+  final changed = city != label;
+  if (changed) {
+    needToSchedule = true;
+    city = label;
+  }
+  if (SP.isInitialized) {
+    if (changed) await SP.prefs.setString("city", label);
+    await SP.prefs.setString(cityLanguagePrefsKey, language);
+    await SP.prefs.setDouble(cityLabelLatKey, latitude);
+    await SP.prefs.setDouble(cityLabelLongKey, longitude);
+  }
+  return changed;
+}
+
 /// Names the current [lat], [long] by reverse-geocoding them, in the app
 /// language: "کربلا" for an Urdu reader, "Karbala" for an English one.
 /// Returns whether [city] changed.
 ///
 /// The city label is cosmetic: prayer times are already correct regardless
 /// of what the geocoder says. So every failure leaves the previous label in
-/// place rather than degrading it — never coordinates, never a dialog.
+/// place rather than degrading it — never coordinates, never a dialog. The
+/// one exception is a geocoder that can't be reached at all: then the
+/// nearest city of the bundled list names the fix, if the stored name is
+/// for somewhere else (see [_nameFromCityList]).
 Future<bool> refreshLocationLabel() async {
   final latitude = lat;
   final longitude = long;
   if (latitude == null || longitude == null) return false;
   final language = L10n.current.localeName;
+  final http.Response response;
   try {
-    final response = await http
+    response = await http
         .get(Uri.parse(
             "https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=$latitude&longitude=$longitude&localityLanguage=$language"))
         // Bounded like every other network read on the startup path:
         // without it a stalled connection held up everything awaiting
         // this location refresh indefinitely.
         .timeout(const Duration(seconds: 8));
-    if (response.statusCode != 200) {
-      debugPrint("Geocode returned status ${response.statusCode}");
-      return false;
-    }
+  } catch (e) {
+    debugPrint("Could not reach the geocoder: $e");
+    return _nameFromCityList(latitude, longitude, language);
+  }
+  if (response.statusCode != 200) {
+    debugPrint("Geocode returned status ${response.statusCode}");
+    return _nameFromCityList(latitude, longitude, language);
+  }
+  try {
     // The reader moved on while this was in flight; its answer is for a
     // place, or a language, no longer wanted.
     if (lat != latitude ||
@@ -703,14 +748,64 @@ Future<bool> refreshLocationLabel() async {
           "Geocode did not resolve a usable label ('$resolvedCity'); keeping ${city ?? 'no label'}.");
       return false;
     }
-    await SP.prefs.setString(cityLanguagePrefsKey, language);
-    if (city == resolvedLabel) return false;
-    needToSchedule = true;
-    city = resolvedLabel;
-    await SP.prefs.setString("city", resolvedLabel);
-    return true;
+    return await _storeLocationLabel(
+      resolvedLabel,
+      latitude: latitude,
+      longitude: longitude,
+      language: language,
+    );
   } catch (e) {
     debugPrint("Error getting city: $e");
+    return false;
+  }
+}
+
+/// Names [latitude], [longitude] after the nearest city of the bundled list
+/// ([CityRepository.nearest]), in [language], for a fix taken while the
+/// geocoder can't be reached: without it the card went on showing the last
+/// place's name, or "Your location" on a first run. Returns whether [city]
+/// changed.
+///
+/// Only when the stored name doesn't fit: none yet, given for a place more
+/// than [cityLabelReuseRadiusKm] away (or nobody knows where), or in another
+/// language. A fitting one is a geocoded name for this spot, which says more
+/// than the list's nearest big city. The next refresh made online asks the
+/// geocoder again.
+Future<bool> _nameFromCityList(
+    double latitude, double longitude, String language) async {
+  if (city != null && SP.isInitialized && cityLabelLanguage == language) {
+    final labelLat = SP.prefs.getDouble(cityLabelLatKey);
+    final labelLong = SP.prefs.getDouble(cityLabelLongKey);
+    if (labelLat != null &&
+        labelLong != null &&
+        greatCircleDistanceKm(
+                GeoPoint(labelLat, labelLong), GeoPoint(latitude, longitude)) <=
+            cityLabelReuseRadiusKm) {
+      return false;
+    }
+  }
+  try {
+    final cities = CityRepository.instance;
+    await cities.load();
+    // The reader moved on while the list was loading.
+    if (lat != latitude ||
+        long != longitude ||
+        L10n.current.localeName != language) {
+      return false;
+    }
+    final nearest = cities.nearest(latitude, longitude);
+    if (nearest == null) {
+      debugPrint("No listed city near the fix; keeping ${city ?? 'no label'}.");
+      return false;
+    }
+    return await _storeLocationLabel(
+      nearest.name,
+      latitude: latitude,
+      longitude: longitude,
+      language: language,
+    );
+  } catch (e) {
+    debugPrint("Could not name the fix from the city list: $e");
     return false;
   }
 }
@@ -767,6 +862,8 @@ Future<void> applyChosenPrayerLocation({
     await SP.prefs.setDouble("long", longitude);
     await SP.prefs.setString("city", label);
     await SP.prefs.setString(cityLanguagePrefsKey, L10n.current.localeName);
+    await SP.prefs.setDouble(cityLabelLatKey, latitude);
+    await SP.prefs.setDouble(cityLabelLongKey, longitude);
   }
   if (locationChanged && flutterLocalNotificationsPlugin != null && !kIsWeb) {
     await setUpNotifications();

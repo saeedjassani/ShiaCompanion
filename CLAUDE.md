@@ -137,16 +137,6 @@
   (e.g. from Sistani's office), applied on top of the prediction. Someone
   has to fill that doc in each month.
 
-- **Name a GPS fix offline from the bundled city list.** The place name on
-  the prayer card comes from an online reverse-geocode (bigdatacloud, in
-  `initializeLocation` in `lib/constants.dart`). Offline, prayer times are
-  still right - they are worked out from the coordinates - but the card
-  keeps the last name it had, or says "Your location" on a first run. When
-  the lookup can't be reached, fall back to the nearest city in
-  `assets/cities.tsv` (`CityRepository`). Caveat: that list only has
-  cities of 100,000+ people and capitals, so someone in a small town would
-  see the nearest big city's name; their times stay their own.
-
 - **Gujarati for the other famous duas: in progress.** Kumayl (E31) and
   Jamia Kabira's first 99 segments (G13) are done from duas.org's decks
   (`scripts/zikr_i18n/lmg_arun.py`). Hadith al-Kisa (E14), Ziyarat

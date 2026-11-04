@@ -3,6 +3,7 @@ import 'package:flutter/services.dart' show rootBundle;
 
 import '../l10n/l10n.dart';
 import '../models/city.dart';
+import '../utils/geo_utils.dart';
 
 /// One search result: the city, and the other spelling it was found by, if
 /// it was not found by its own name ("Mecca" for Makkah).
@@ -239,6 +240,37 @@ class CityRepository {
       }
     }
     return null;
+  }
+
+  /// How far [nearest] looks. The list has only cities of 100,000+ people
+  /// and capitals, so someone in a small town is named after the nearest big
+  /// one; past this, that name would mislead more than it tells.
+  static const double nearestMaxDistanceKm = 100;
+
+  /// The city of the list nearest [latitude], [longitude], if one is within
+  /// [maxDistanceKm]: for naming a GPS fix when the geocoder can't be
+  /// reached. Of two at the same distance, the bigger.
+  City? nearest(
+    double latitude,
+    double longitude, {
+    double maxDistanceKm = nearestMaxDistanceKm,
+  }) {
+    final cities = _cities;
+    if (cities == null) return null;
+    final here = GeoPoint(latitude, longitude);
+    City? best;
+    var bestDistance = double.infinity;
+    for (final city in cities) {
+      final distance =
+          greatCircleDistanceKm(here, GeoPoint(city.latitude, city.longitude));
+      // Strictly closer: index order is population order, so a tie keeps
+      // the bigger city, found first.
+      if (distance < bestDistance) {
+        best = city;
+        bestDistance = distance;
+      }
+    }
+    return bestDistance <= maxDistanceKm ? best : null;
   }
 
   /// The biggest cities in [timeZone], for suggesting before anything is
