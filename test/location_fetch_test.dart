@@ -9,6 +9,8 @@ import 'package:http/testing.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shia_companion/constants.dart';
 import 'package:shia_companion/l10n/l10n.dart';
+import 'package:shia_companion/models/city.dart';
+import 'package:shia_companion/services/city_repository.dart';
 import 'package:shia_companion/services/location_service.dart';
 import 'package:shia_companion/utils/shared_preferences.dart';
 
@@ -296,8 +298,7 @@ void main() {
       'ur': '{"locality":"کربلا","city":"کربلا","countryCode":"IQ"}',
     };
 
-    test('asks for the name in the app language and remembers which',
-        () async {
+    test('asks for the name in the app language and remembers which', () async {
       L10n.current = lookupAppLocalizations(const Locale('ur'));
       GeolocatorPlatform.instance =
           _FakeGeolocator(currentPosition: _pos(32.6, 44.0));
@@ -330,14 +331,14 @@ void main() {
           _FakeGeolocator(currentPosition: _pos(21.17, 72.83));
 
       await geocodeRequests({
-        'ur': '{"locality":"سورت (شہر)","city":"سورت (شہر)","countryCode":"IN"}',
+        'ur':
+            '{"locality":"سورت (شہر)","city":"سورت (شہر)","countryCode":"IN"}',
       }, () => initializeLocation(force: true));
 
       expect(city, 'سورت');
     });
 
-    test('renames the stored GPS location when the language changes',
-        () async {
+    test('renames the stored GPS location when the language changes', () async {
       lat = 32.6;
       long = 44.0;
       city = 'Karbala';
@@ -355,14 +356,34 @@ void main() {
       expect(cityLabelLanguage, 'ur');
     });
 
-    test('keeps the old name, and tries again later, when offline', () async {
+    test('offline, takes the name from the city list in the new language',
+        () async {
       lat = 32.6;
       long = 44.0;
       city = 'Karbala';
       LocationService.instance.restore();
       L10n.current = lookupAppLocalizations(const Locale('ur'));
 
-      await runWithGeocode(null, geocodeError: Exception('no network'),
+      await runWithGeocode(null,
+          geocodeError: Exception('no network'),
+          body: () => LocationService.instance.relabelForAppLanguage());
+
+      expect(city, 'کربلا');
+      expect(cityLabelLanguage, 'ur');
+    });
+
+    test(
+        'keeps the old name, and tries again later, offline where the list '
+        'has no city near', () async {
+      // Out in the Arabian Sea.
+      lat = 15.0;
+      long = 62.0;
+      city = 'Karbala';
+      LocationService.instance.restore();
+      L10n.current = lookupAppLocalizations(const Locale('ur'));
+
+      await runWithGeocode(null,
+          geocodeError: Exception('no network'),
           body: () => LocationService.instance.relabelForAppLanguage());
 
       expect(city, 'Karbala');
@@ -382,8 +403,8 @@ void main() {
     test('names a chosen city from the list, offline', () async {
       await chooseKarbala(latitude: 32.62);
 
-      final requests = await geocodeRequests(karbala,
-          () => LocationService.instance.relabelForAppLanguage());
+      final requests = await geocodeRequests(
+          karbala, () => LocationService.instance.relabelForAppLanguage());
 
       expect(requests, isEmpty);
       expect(city, 'کربلا');
@@ -393,11 +414,110 @@ void main() {
     test('keeps a chosen place the list does not have as it is', () async {
       await chooseKarbala(latitude: 10.5);
 
-      final requests = await geocodeRequests(karbala,
-          () => LocationService.instance.relabelForAppLanguage());
+      final requests = await geocodeRequests(
+          karbala, () => LocationService.instance.relabelForAppLanguage());
 
       expect(requests, isEmpty);
       expect(city, 'Karbala');
+    });
+  });
+
+  group('offline, named from the bundled city list', () {
+    City listed(String name, double latitude, double longitude) => City(
+          name: name,
+          countryCode: 'PK',
+          countryName: 'Pakistan',
+          latitude: latitude,
+          longitude: longitude,
+          population: 1000000,
+          timeZone: 'Asia/Karachi',
+        );
+
+    setUp(() {
+      CityRepository.instance.seedForTesting([
+        listed('Karachi', 24.86, 67.01),
+        listed('Hyderabad', 25.39, 68.37),
+      ]);
+    });
+    tearDown(() => CityRepository.instance.seedForTesting(const []));
+
+    Future<void> fixAt(double latitude, double longitude,
+        {bool online = false, String status = 'unreachable'}) async {
+      GeolocatorPlatform.instance =
+          _FakeGeolocator(currentPosition: _pos(latitude, longitude));
+      await http.runWithClient(
+        () async => expect(await initializeLocation(force: true), isTrue),
+        () => MockClient((request) async {
+          if (online) {
+            return http.Response(
+                '{"locality":"Lyari Town","city":"Karachi","countryCode":"PK"}',
+                200);
+          }
+          if (status == 'error') return http.Response('', 503);
+          throw Exception('no network');
+        }),
+      );
+    }
+
+    test('a first fix taken offline is named after the nearest city', () async {
+      await fixAt(24.80, 67.05);
+
+      expect(city, 'Karachi');
+      expect(SP.prefs.getString('city'), 'Karachi');
+      expect(cityLabelLanguage, 'en');
+    });
+
+    test('so is one when the geocoder answers with an error', () async {
+      await fixAt(24.80, 67.05, status: 'error');
+
+      expect(city, 'Karachi');
+    });
+
+    test('a geocoded name for the same spot is kept', () async {
+      await fixAt(24.86, 67.01, online: true);
+      expect(city, 'Lyari Town');
+
+      await fixAt(24.87, 67.02);
+
+      expect(city, 'Lyari Town');
+    });
+
+    test('the last place\'s name is replaced after moving offline', () async {
+      await fixAt(24.86, 67.01, online: true);
+      expect(city, 'Lyari Town');
+
+      await fixAt(25.40, 68.36);
+
+      expect(city, 'Hyderabad');
+      expect(needToSchedule, isTrue);
+    });
+
+    test('a name stored before its place was recorded gives way', () async {
+      city = 'Somewhere Else';
+      await SP.prefs.setString('city', 'Somewhere Else');
+
+      await fixAt(25.40, 68.36);
+
+      expect(city, 'Hyderabad');
+    });
+
+    test('a name in another language gives way to one in the app\'s', () async {
+      await fixAt(24.86, 67.01, online: true);
+      L10n.current = lookupAppLocalizations(const Locale('ur'));
+      CityRepository.instance.seedForTesting([listed('کراچی', 24.86, 67.01)]);
+
+      await fixAt(24.86, 67.01);
+
+      expect(city, 'کراچی');
+      expect(cityLabelLanguage, 'ur');
+    });
+
+    test('nothing within reach keeps what there was', () async {
+      await fixAt(24.86, 67.01, online: true);
+
+      await fixAt(30.0, 75.0);
+
+      expect(city, 'Lyari Town');
     });
   });
 }

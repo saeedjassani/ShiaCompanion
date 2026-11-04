@@ -406,7 +406,11 @@ the list's order. A new language needs an entry in `LANGUAGES`/
 
 The place name from GPS is looked up online (bigdatacloud) in the app
 language, and both it and a chosen city are named again when the language
-changes (`LocationService.relabelForAppLanguage`).
+changes (`LocationService.relabelForAppLanguage`). When the lookup can't be
+reached, the fix is named after the nearest city of this list within 100 km
+(`CityRepository.nearest`), in the app language, unless the stored name was
+given for a spot within 10 km of it and in that language
+(`_nameFromCityList` in `lib/constants.dart`).
 
 ## Urdu font
 

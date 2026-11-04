@@ -132,8 +132,8 @@ void main() {
         'سامرا\n'
         '\n';
     final cities = City.parseDatabase(list, names: urdu);
-    expect([for (final city in cities) city.name],
-        ['کربلا', 'سامرا', 'Nowhere']);
+    expect(
+        [for (final city in cities) city.name], ['کربلا', 'سامرا', 'Nowhere']);
     expect(cities.first.englishName, 'Karbala');
     expect(cities.first.countryName, 'عراق');
     expect(cities.first.admin1Name, 'محافظہ کربلا');
@@ -141,8 +141,8 @@ void main() {
     expect(cities.last.englishName, isEmpty);
 
     // A file that does not match the list is not trusted at all.
-    final shifted = City.parseDatabase(list,
-        names: urdu.replaceFirst('N\t4', 'N\t5'));
+    final shifted =
+        City.parseDatabase(list, names: urdu.replaceFirst('N\t4', 'N\t5'));
     expect(shifted.first.name, 'Karbala');
     expect(shifted.first.countryName, 'Iraq');
   });
@@ -154,6 +154,18 @@ void main() {
     expect(foldForSearch('آمل'), foldForSearch('امل'));
     expect(foldForSearch('کرمانشاه'), foldForSearch('کرمان‌شاه'));
     expect(foldForSearch('૧૨ અમદાવાદ'), '12 અમદાવાદ');
+  });
+
+  test('names a fix after the nearest city, within reach', () {
+    // On the road into Karbala from Najaf, a few kilometres out.
+    expect(repository.nearest(32.57, 44.06)?.name, 'Karbala');
+    // Mashhad's outskirts.
+    expect(repository.nearest(36.25, 59.50)?.name, 'Mashhad');
+    // Mid-Atlantic, and the (0, 0) an emulator reports: nothing near.
+    expect(repository.nearest(30.0, -40.0), isNull);
+    expect(repository.nearest(0, 0), isNull);
+    // A tighter reach turns away what a looser one finds.
+    expect(repository.nearest(32.9, 44.06, maxDistanceKm: 5), isNull);
   });
 
   group('in another language', () {
@@ -200,6 +212,10 @@ void main() {
       final mecca = repository.search('Mecca').first;
       expect(mecca.city.countryCode, 'SA');
       expect(mecca.alias, isNull);
+    });
+
+    test('names a fix after the nearest city in it', () {
+      expect(repository.nearest(32.57, 44.06)?.name, 'کربلا');
     });
 
     test('a chosen city can be found again by where it is', () {
