@@ -71,4 +71,21 @@ final List<WhatsNewEntry> whatsNewNotes = <WhatsNewEntry>[
       (l10n) => l10n.whatsNew139PrayerWidget,
     ],
   ),
+  WhatsNewEntry(
+    buildNumber: 140,
+    versionName: '4.2.0',
+    bullets: [
+      (l10n) => l10n.whatsNew140Sajdah,
+      (l10n) => l10n.whatsNew140AppIcon,
+      (l10n) => l10n.whatsNew140Content,
+      (l10n) => l10n.whatsNew140Fixes,
+    ],
+    iosBullets: [
+      (l10n) => l10n.whatsNew140Siri,
+      (l10n) => l10n.whatsNew140Spotlight,
+    ],
+    androidBullets: [
+      (l10n) => l10n.whatsNew140PinPlaylist,
+    ],
+  ),
 ];

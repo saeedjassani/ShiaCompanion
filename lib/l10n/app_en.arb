@@ -1967,6 +1967,34 @@
   "@whatsNew139PrayerWidget": {
     "description": "Release note on the What's new page, Android only: the home screen widget."
   },
+  "whatsNew140Sajdah": "In the Quran, the 15 verses of sajdah are marked wajib or mustahabb. Tap one for the ruling and the dua to recite in sajdah.",
+  "@whatsNew140Sajdah": {
+    "description": "Release note on the What's new page. Wajib/mustahabb as the Quran reader's sajdah badges say them."
+  },
+  "whatsNew140AppIcon": "Press and hold the app icon to go straight back to what you were reading, or to Favorites, Playlists, Tasbeeh or Qibla.",
+  "@whatsNew140AppIcon": {
+    "description": "Release note on the What's new page: the actions under the app icon's long press. Use the menu's names for the four features (menuFavorites, menuPlaylists, menuTasbeehShort, menuQiblaShort)."
+  },
+  "whatsNew140Content": "More duas in Persian, all of Jawshan Kabir among them, and corrections to Dua Kumayl and Dua Tawassul.",
+  "@whatsNew140Content": {
+    "description": "Release note on the What's new page."
+  },
+  "whatsNew140Fixes": "The Quran keeps your place when you turn translation on or off, the Library shows the right page in your reading progress, and duas in several parts show how much you have read.",
+  "@whatsNew140Fixes": {
+    "description": "Release note on the What's new page: bug fixes."
+  },
+  "whatsNew140Siri": "Ask Siri to play a playlist or a dua, open a dua, or tell you the next prayer time: \"Play Thursday Night in Shia Companion\". The same actions are in the Shortcuts app. Needs iOS 17 or later.",
+  "@whatsNew140Siri": {
+    "description": "Release note on the What's new page, iOS only. Keep the quoted Siri phrase in English: Siri takes it in English only. 'Thursday Night' is one of the starter playlists."
+  },
+  "whatsNew140Spotlight": "Duas show up in Spotlight search. Tap one to open it in the app.",
+  "@whatsNew140Spotlight": {
+    "description": "Release note on the What's new page, iOS only. Spotlight is the system search."
+  },
+  "whatsNew140PinPlaylist": "Put a playlist on your home screen from its menu, and start it with one tap.",
+  "@whatsNew140PinPlaylist": {
+    "description": "Release note on the What's new page, Android only. The menu item is playlistAddToHomeScreen."
+  },
   "pickerChooseZikr": "Choose a zikr",
   "pickerSearchZikrHint": "Search zikr, dua, ziyarat...",
   "todaysNone": "No recitations configured.",
