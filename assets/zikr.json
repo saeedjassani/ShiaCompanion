@@ -744,7 +744,7 @@
     "day": "12-09"
   },
   "AC13": {
-    "title": "Comprehensive Ziyarat Especially on the Day of Arafah (Can be Recited at Any Shrine)",
+    "title": "Ziyarat Jamia of the 14 Masumeen (a.s.) - Especially on the Day of Arafah",
     "order": 9,
     "slug": "comprehensive-ziyarat-especially-on-the-day-of-arafah-can-be-recited-at-any-shrine",
     "day": "12-09"
@@ -2419,6 +2419,11 @@
   "G84|AL17": {
     "title": "Ziyarat of Imam al-Mahdi (a.t.f.s.) after the Fajr Prayer (Allahumma Balligh)",
     "slug": "ziyarat-of-imam-mahdi-a-t-f-s-after-the-fajr-prayers-allaahumma-balligh"
+  },
+  "G85|AC13": {
+    "title": "Ziyarat Jamia of the 14 Masumeen (a.s.) - Especially on the Day of Arafah",
+    "order": 13.5,
+    "slug": "comprehensive-ziyarat-especially-on-the-day-of-arafah-can-be-recited-at-any-shrine"
   },
   "H1": {
     "title": "1st Whispered Prayer of the Repenters - Munajat al-Taibeen",
