@@ -618,58 +618,73 @@ accepted.
 
 **Still open after the owner's review (2026-11-03).** The owner went
 through these on a review page in the app's own links; the decisions above
-are done, everything below is not. Titles are as of PR #411; "tab N"
-counts from 1 as the reader shows the tabs (the number a `?tab=N` link
-carries).
+are done. Items 1-5 were then worked through on 2026-11-06 (below); 6-8
+are not done. Titles are as of PR #411; "tab N" counts from 1 as the reader
+shows the tabs (the number a `?tab=N` link carries).
 
-1. **Confirm the Iqbal dua** - AA22 "Other Aamal of the First Night", tab 5
-   "Allahumma Inna Hadha Shahru Ramadan". Taken from duas.org, matched only
-   by its opening words and duas.org's label for Ibn Tawus's "lengthy"
-   supplication. Check it against Iqbal al-A'mal; the owner isn't sure.
+**Items 1-5, done 2026-11-06.** Checked against Iqbal al-A'mal (Qayyumi
+edition, ablibrary.net book 2396) and the vowelled Arabic of the Urdu
+Mafatih on mafatih.duas.co (scraped page by page; the page names are given
+below):
 
-2. **English written fresh** (the sources had Arabic only). Read each
-   against the Arabic:
-   - E102 "Duas & Aamal for Healing the Sick" - all of it;
-   - E112 "Duas at Daybreak and Sunset" - most of it;
-   - E90 "Dua before and after Ritual Prayers", E103 "Duas in Prostration
-     (Sajdah)", F7 "Namaz-e-Mayyat" - the recited lines;
-   - E42 "Selected Supplications of the Imams (a.s.)" tabs 2-10, E41 "Dua
-     for Fending Off Distress, Grief, and Fear" tabs 2-6, E84 "Five Duas for
-     Sustenance" tabs 2-5, E63 "Recommended Daily Recitations" tabs 2, 4, 5.
+1. **AA22's Iqbal dua (tab 5) is authentic.** It is word for word (125/125
+   words, spelling aside) the dua at Iqbal 1:118, which Ibn Tawus copies
+   from a book in al-Sharif al-Radi's handwriting, "to be said when the
+   month of Ramadan arrives". Its merits note now says so instead of "a
+   lengthy supplication". **One question is left for the owner:** it is
+   only half a page long, but Mafatih calls the dua it means "lengthy"
+   (الدعاء الطويل). It is still the only Iqbal dua that opens with
+   اللهم إن هذا شهر رمضان. The next one, at Iqbal 1:119-123, really is
+   long (five pages, from Imam al-Sadiq via al-Tal'ukbari, for the first
+   night or day). It opens اللهم هذا شهر رمضان المبارك الذي أنزلت فيه
+   القرآن, without إنّ, so Mafatih may have meant it. If so, add it as
+   another tab (it is not in the app); keep this one either way.
+2. **The English written fresh was read against the Arabic**, by four
+   parallel reviews of E102, E112, E90, E103, F7, E42 (tabs 2-10), E41
+   (tabs 2-6), E84 (tabs 2-5) and E63 (tabs 2, 4, 5). Of ~525 lines, 49
+   were corrected: 13 for meaning, the rest for readability or house style
+   ("Household of Muhammad"). The meaning fixes:
+   - سَكَنَ لَهٗ: "for Whom all ... is still", not "to Whom belongs" (E102 tabs 7-8);
+   - شَقِيًّا / سَعِيْدًا: "the wretched" / "the blessed" (E112 tab 8);
+   - Ayat al-Kursi's كُرْسِيُّهُ: "His Seat (Kursi)", not "Throne" (E90 tab 6);
+   - يَا اَهْلَ التَّقْوٰى: "worthy to be feared" (E90 tab 3);
+   - حُسْنَ عَافِيَتِكَ: "excellent well-being from You" (E90 tab 5);
+   - بَلَاۤئَكَ عِنْدِىْ: "Your favors", not "Your trial" (E42 tab 10);
+   - خَيْرُ الْمَاكِرِيْنَ: "the best of planners" (E42 tab 4);
+   - يَا عُدَّتِىْ: "my Resource" (E42 tab 8);
+   - the adjectives of وَجْهِكَ, which had been read as names of Allah (E63 tab 2);
+   - نَكَالِهَا: the world's chastisements (E84 tab 5);
+   - the kafa min lines (E41 tab 4).
 
-3. **English that looks wrong**, kept as the source had it - G77 "Ziyarat
-   of Imam al-Hujjah (a.t.f.s.)":
-   - يَا جَادَّةَ اللّٰهِ "O bounty of Allah" - likely "O path of Allah";
-   - اَدْرِكْنِيْ ×3 "Accept me" - likely "Come to my aid";
-   - وَلَا تُعِنْ عَلَيَّ "don't molest me" - likely "do not help against me".
+   E102 tab 8's cut-off شَهِدَ اللّٰهُ … now has the whole of 3:18, copied
+   from tab 7. Mafatih abbreviates it the same way ("to the end of the
+   verse"). E103 needed nothing.
+3. **G77's three lines are fixed:** "O path of Allah", "Come to my aid"
+   ×3, "Help me and do not help others against me, support me and do not
+   support others against me, be with me and do not leave me."
+4. **Every suspected typo but one was confirmed by the vowelled Mafatih and
+   fixed**, transliteration included:
+   - F15: مَعْصِيَتِيْ, لَا شَيْءَ لِيْ and اَتَقُوْلُ (namaz-imam-ali);
+   - E102: وَّعِزٌّ وَّقُوَّةٌ (duas-sickness);
+   - E41: يَكْفِيْ, اَحَدٌ, تَكْفِيْ, فَاكْفِنِيْ and Arabic يَا (duas-fear-worries, taweez-toothache);
+   - E84: فَاَطْغٰى, فَاَشْقٰى, بَغٰى and مُرْتَجًى (duas-wusat-rizq);
+   - E63: الْقَاۤئِمِ (misc-daily-duas).
 
-4. **Suspected Arabic typos**, left as the source has them (no vowelled
-   copy online). The likely reading is a suggestion from the grammar -
-   check each against a printed Mafatih before changing anything:
-
-   | Entry, tab | As shipped | Likely | Why |
-   |---|---|---|---|
-   | F15 "Namaz of Imam Ali (a.s.)" | مَعْصِيَّتِيْ | مَعْصِيَتِيْ | stray shadda |
-   | F15 | لَا شَيْءً لِيْ | لَا شَيْءَ لِيْ | lā of absolute negation |
-   | F15 | اَ تَقُوْلُ | اَتَقُوْلُ | question hamza joins the verb |
-   | E102 "Duas & Aamal for Healing the Sick", tab 8 | وَّعِزُّ | وَّعِزٌّ | every other noun in the list has tanwin |
-   | E41 "Dua for Fending Off Distress...", tab 4 | لَا يَكْفٰى مِنْكَ اَحَدٍ | لَا يَكْفِيْ مِنْكَ اَحَدٌ | اَحَدٌ is the subject |
-   | E41, tab 4 | وَاَنْتَ تَكْفٰى | وَاَنْتَ تَكْفِيْ | same verb |
-   | E41, tab 4 | یَا كَافِيًا ... وَلَا يَكْفٰى مِنْكَ شَىْءٌ | يَا ... يَكْفِيْ | same verb; and its first word starts with a Persian ی (U+06CC), not Arabic ي - not in the earlier list |
-   | E41, tab 4 | فَاَكْفِنِىْ | فَاكْفِنِيْ | imperative, connecting alif |
-   | E84 "Five Duas for Sustenance", tab 5 | فَاَطْغِىْ | فَاَطْغٰى | subjunctive after fā |
-   | E84, tab 5 | فَاَشْقِىْ | فَاَشْقٰى | same |
-   | E84, tab 5 | مَنْ بَغِىْ | مَنْ بَغٰى | past tense |
-   | E84, tab 3 | مُرْتَجِىً | مُرْتَجًى | passive participle |
-   | E42 "Selected Supplications of the Imams (a.s.)", tab 10 | وَشَاَنَتْهُ | وَشَانَتْهُ | from شَانَ, no hamza |
-   | E63 "Recommended Daily Recitations", tab 5 | الْقاۤئِمِ | الْقَاۤئِمِ | missing fatha (the next copy has it) |
-
-5. **Counts that disagree** - owner's call:
-   - F14 "Namaz of Lady Fatimah al-Zahra (s.a.)", tab 3: ends with
-     يَا عَظِيْمُ ×4 as the source has it; the source's English says 6,
-     Mafatih 7.
-   - F15 "Namaz of Imam Ali (a.s.)": "Surah al-Tawhid 50 times in each
-     unit"; the source's English says the first unit only.
+   **Kept:** E42's وَشَاَنَتْهُ, because Mafatih has وَشَأَنَتْهُ too
+   (duas-hajaat-3). The reviewers' other doubts also match Mafatih: E42's
+   اَوِ الْهُدٰى بِالضَّلَالَةِ and E90's بَلْ عَفْوُكَ (the فَاِنَّ عَفْوَكَ
+   form belongs to a different prayer, namaz-imam-hasnain). Urdu/Persian
+   letters inside the Arabic were replaced (ہ ۃ ی in E112, F7, E42, E41).
+   F7's three lines with ۃ -> ة are accepted in `source_baseline.json`:
+   `norm` strips ۃ but reads ة as ه, so they stopped matching the frozen
+   source. Left for the zikr-arabic pass: Indo-Pak hamza spellings the
+   reviewers noted (امْلَاءْ, وَاَبْرِءْ, خَدَايِعِهٖ, عَوَايِدِكَ, شَاْنِى,
+   وَاَطْفِءْ, وَافْقَاْ, شَيْئٍ, الْخَلَايِق, الْغِنَا).
+5. **Counts, both now as Mafatih has them:**
+   - F14 tab 3: يَا عَظِيْمُ is now 7 times, printed as Mafatih prints it,
+     ×3 then ×4 (namaz-bibi-fatima-2). The source's English said 6.
+   - F15: Surah al-Tawhid 50 times "in each unit" (namaz-imam-ali:
+     "ہر رکعت میں"), as the entry already said. It is unchanged.
 
 6. **Translations to redo** - their rewritten instruction lines and tab
    labels have no Urdu/Persian/Arabic/Gujarati (the rebase dropped the old
@@ -702,8 +717,8 @@ carries).
    marks a root hā (`تَتَشَابَهٗ`), and `apply_to_text` marks every copy of a
    word once one copy qualifies (E42's بِهِ before hamzat al-wasl).
 
-**Next:** items 1-5 need a reader who knows the text (the owner, or a
-reviewer they name); 6 needs translators; 7 is ordinary restoration work
+**Next:** the owner's one question in item 1 (add Iqbal's long dua to
+AA22?); 6 needs translators; 7 is ordinary restoration work
 with `source_check.py` (it is a test now - see "The check" above).
 
 ## Full-corpus duplicate sweep (2026-09-17)
