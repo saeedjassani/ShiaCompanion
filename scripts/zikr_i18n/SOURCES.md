@@ -212,6 +212,20 @@ Published Urdu *Mafatih al-Jinan* (Sheikh Abbas Qummi, translated by Allama Riaz
 - **A3 (Dua Khatm al-Quran):** Not part of Sheikh Abbas Qummi's *Mafatih al-Jinan*. No published Urdu translation found in mafatih.duas.co or backstops (duas.org, ur.wikishia.net). The composite supplication lines do not match isolated Quran verses from our Urdu Quran translation. All 5 missing segments (1–5) are left blank per binding instructions; no A3 file is shipped in this batch (segment 0 remains served via its existing alias file). 1/6 segments translated (5 left blank: 1–5).
 - **D12 (Dua after Namaz for Seeking Sustenance):** Supplication from al-Kaf'ami's *al-Balad al-Amin* / Ibn al-Sa'i. Not part of *Mafatih al-Jinan*, and no published Urdu translation exists on mafatih.duas.co or backstops. All 7 missing segments (1–3, 5–8) are left blank per binding instructions; no D12 file is shipped in this batch (segments 0, 4, 9 remain served via their existing alias file). 3/10 segments translated (7 left blank: 1–3, 5–8).
 
+### Urdu Mafatih al-Jinan — reader requests (2026-11-05)
+
+From https://mafatih.duas.co, taken from the scraped page text rather than retyped. ؑ/ؐ are normalized to (ع)/(ص), and to (س) for Lady Fatimah.
+
+| uid | Zikr | Source | Segments |
+| --- | --- | --- | --- |
+| E11 | Dua Yastasheer | https://mafatih.duas.co/dua-yastashir | all 53, and the merits (the page's introduction) |
+| L3 | Ziyarat on Sunday | https://mafatih.duas.co/sunday-ziarat-1, https://mafatih.duas.co/sunday-ziarat-2 | all 36 (34 filled + existing 0, 23) |
+| E19 | Dua Faraj (اللہم کن لولیک) | https://mafatih.duas.co/ramadan-night23-dua, items 23–30 | all 8 |
+
+- **E11:** our segments break the Arabic in different places from the page, so items were joined with `،` and divided where the Urdu allows. Item 8 (`الْعَظِیْمُ الرُّبُوْبِیَّۃِ`) straddles segments 3–4 and sits whole in 4; item 38 (اغنیت/افقرت) straddles 19–20 and sits whole in 20; item 68 (ناصر من انتصر بك) straddles 31–32 and sits whole in 32. The page breaks `پس` across items 33–34 (`پ` / `س تو`), rejoined in segment 18. Three words of our Arabic differ from the page and from what its Urdu translates, and our English agrees with the page: seg 22 الْمُبِیْنُ (page المعین), seg 31 نَاصِحُ (page ناصر), seg 12 لِمَنْ اَعْطَیْتَ (page لما). Worth checking in `assets/zikr/E11`.
+- **L3:** two typos fixed (`حا ضر`, `خداکے`). Item 9 of the Fatimah ziyarat has one verb for both of its clauses, so it divides between segments 33 and 34 at `اور`, in reading order.
+- **E19:** the page prints the opening with `فلان بن فلان` and tells the reader to say `الحجۃ بن الحسن` instead; segment 0 joins the two as the reader would say them.
+
 ### The Quran translation, reused
 
 - **A4 Ayat al-Kursi** (ur, fa, gu): segments 1-3 are 2:255-257, copied from
@@ -496,14 +510,29 @@ at the Arabic phrase boundaries without altering or composing any words.
 | Q3 | Ziyarat on Thursday (Imam Hasan al-Askari) | https://valasr.app/library/mafatih/زیارت-روز-پنجشنبه-امام-حسن-عسکری-ع | all 13 (12 filled + existing 0) |
 | H17 | Munajat of Amir al-Mu'minin (Masjid Kufa) | https://valasr.app/library/mafatih/مناجات-حضرت-امیرالمومنین-2 | all 69 (68 filled + existing 0) |
 | E16 | Dua during Occultation (short version) | https://erfan.ir/mafatih569/دعای-اللهم-عرفنی-نفسک-برای-زمان-غیبت-کلیات-مفاتیح-الجنان-با-ترجمه-استاد-حسین-انصاریان (Ansarian translation, Kulliyat Mafatih al-Jinan; cross-checked with opening of Friday occultation prayer at https://valasr.app/library/mafatih/دعایی-بسیار-با-عظمت-که-در-عصر-غیبت-باید-خواند) | all 10 (9 filled + existing 0) |
-| E37 | Dua Sanamay Quraish | Not in Mafatih al-Jinan (source: al-Kaf'ami Misbah, Bihar al-Anwar 85:240); not found in published Mafatih al-Jinan translations (valasr.app, hawzah.net, mafatih.anhar.ir, ghbook.ir book 19344, erfan.ir) | 1 of 64 (63 missing left blank) |
+| E37 | Dua Sanamay Quraish | Not in Mafatih al-Jinan; see "Dua Sanamay Quraish (2026-11-05)" below | all 64 |
 | E141 | Istighfar before Sleep (Istighfar-e-Maujiz-e-Aasaa) | Not in Mafatih al-Jinan (source: al-Kaf'ami al-Balad al-Amin, Bihar al-Anwar); not found in published Mafatih al-Jinan translations (valasr.app, hawzah.net, mafatih.anhar.ir, ghbook.ir book 19344, erfan.ir) | 4 of 38 (34 missing left blank) |
 
 - **Q3:** Published on valasr.app under زیارت روز پنجشنبه امام حسن عسکری (ع) (Ansarian translation). The 6 published translation blocks were cleanly partitioned at Arabic phrase boundaries across the 12 Arabic segments (1/2, 3/4/5, 6, 7, 8/9/10, 11/12). Segment 0 ("امام حسن عسکری (ع)") is preserved as-is.
 - **H17:** Published on valasr.app under مناجات حضرت امیرالمومنین (مناجات مسجد کوفه) in 33 translation blocks (Ansarian translation). Segments 1–18 cleanly partition the 8 Quranic verses at the Arabic phrase boundaries (1/2, 3/4, 5/6, 7/8, 9/10, 11/12, 13/14, 15–18). Segments 19–64 correspond to the 23 pairs, each cleanly split into the statement (مولایم ای مولای من...) and question (آیا رحم می‌کند...). Segments 65–68 partition the closing duas (65/66 and 67/68). Segment 0 ("مناجات امام علی (ع)") is preserved as-is.
 - **E16:** Published on erfan.ir under item mafatih569 («دعای اللهم عرفنی نفسک برای زمان غیبت» از کلیات مفاتیح الجنان با ترجمه استاد حسین انصاریان). The 3 published translation blocks were cleanly partitioned across segments 1–3, 4–6, and 7–9. Segment 0 (the introductory narration note) is preserved as-is.
-- **E37:** Dua Sanamay Quraish is not part of Sheikh Abbas Qomi's *Mafatih al-Jinan*, and no published translation exists on valasr.app or backstops (hawzah.net collection 79461, mafatih.anhar.ir, ghbook.ir book 19344, erfan.ir). Per binding instruction, all 63 missing segments (1–60, 62–64) are left blank. Existing segment 61 ("سپس چهار مرتبه بگو:") is preserved as-is.
+- **E37:** Dua Sanamay Quraish is not part of Sheikh Abbas Qomi's *Mafatih al-Jinan*, so this batch found nothing on the Mafatih sites and left it blank. Filled later; see "Dua Sanamay Quraish (2026-11-05)" below.
 - **E141:** Istighfar before Sleep (Istighfar-e-Maujiz-e-Aasaa) is from al-Kaf'ami's *al-Balad al-Amin* and *Bihar al-Anwar*, and is not part of *Mafatih al-Jinan*. No published translation exists on valasr.app or backstops. Per binding instruction, all 34 missing segments (2–32, 35–37) are left blank. Existing segments 0, 1, 33, 34 are preserved as-is.
+
+### Dua Sanamay Quraish — Wikishia and setare.com (2026-11-05)
+
+E37, all 64 segments, for four reader requests. One human Persian translation, printed in two copies that each have faults of their own, and neither has its own translator's name:
+
+- https://fa.wikishia.net/view/دعای_صنمی_قریش (section «متن و ترجمه»): the better wording, but its fourth paragraph runs out of the Arabic's order, and it has typos (`شکستد`, `ضایع گردند`, a stray full stop in `دشمنی کردند. با`).
+- https://setare.com/fa/news/654352/ : the same translation, in the Arabic's order, chunk by chunk. Its weaknesses are `نعمت رسولت` for إنعامك and `دختران` for the dual ابنتيهما, and that it inserts glosses naming people.
+
+Segments follow Setare's order and take whichever copy is closer to the Arabic. Wikishia supplies segments 2–6, 11, 14, 33 (`باطلی`) and 51; the rest are Setare's.
+
+- **Left out, because neither the Arabic nor our English has them:** Setare's bracketed glosses naming individuals, its «صلی‌الله‌علیه‌وآله‌وسلم» after segment 1, Wikishia's `(وحی)` in segment 14, and the gloss on segment 49. Setare's `و هر امامی که مخالفتش کردند` is left out too, since our text doesn't have that phrase.
+- **Segment 7** (وَاَحَبَّا اَعْدَآئَكَ وَجَحَدَا اٰلَآئَكَ) is in neither copy, so it is our own wording. The first half follows https://dorar.ir/7077/ (`دشمنانت را دوست داشته`); the second uses segment 5's `انکار کردند`, because that page's `روزی` doesn't translate آلاء. dorar.ir's translation was not used elsewhere: it follows a different Arabic recension and paraphrases heavily.
+- **Segment 35:** our Arabic reads وَظِلٍّ; the Persian follows the commoner reading ظلم («هر ستمی»).
+- **Segment 0** is the corpus-standard Persian basmala.
+- A Persian reader should still check this one.
 
 ### erfan.ir — AH5, AL6 (2026-10-26)
 
@@ -722,10 +751,27 @@ Not to use, for the same reason: "Muntakhab Mafateehul Jinan" (Jafri 5859,
 Allama Haji Naji, 2,077 pp). Its "Gujarati" column is likewise Urdu
 written in Gujarati script throughout (checked on page renders of the
 Thursday supplication, Dua Simat and Dua Ihtijab sections, 2026-10). So
-Q1 (Thursday supplication), E26 (Dua Simat) and E154 (Dua Ihtijab) stay
-untranslated in Gujarati until a genuine Gujarati source turns up. The
+E26 (Dua Simat) and E154 (Dua Ihtijab) stay untranslated in Gujarati until
+a genuine Gujarati source turns up. Q1 (Thursday supplication) is now our
+own Gujarati; see "Our own Gujarati" below. The
 Salawat of Abul Hasan al-Zarrab (E144) is not in the book at all, and no
 other Gujarati source for it is known.
+
+### Our own Gujarati — Q1 (2026-11-05)
+
+**Q1 The Supplication of Thursday, all 26 segments, is our own translation,
+not a published one.** The owner asked for this on 2026-11-05 for the top
+Gujarati request. It was written from the Arabic in the wording of the
+app's other Gujarati duas (E31, E18, H17, E24, G1), not word for word, and
+checked by a separate reviewer against the Arabic and those files.
+
+A native Gujarati Shia reader should still check three phrases that aren't
+used anywhere else in the app's Gujarati: `માન્ય રાખ` (13), `પહોંચી વળતી` (17)
+and `કુશાદગી (મોકળાશ)` (20).
+
+A published text does exist: *Jannat ni Chaavio* (web.hajinaji.com) lists
+«ગુરૂવારના દિવસે પઢવાની દુઆ», behind its sign-in. If its text turns up,
+prefer it over ours.
 
 ### Jafri Library (jafrilibrary.com)
 
