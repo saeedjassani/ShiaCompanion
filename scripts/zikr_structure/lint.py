@@ -244,6 +244,15 @@ def merged_web_slugs():
     return {frozenset(p) for p in re.findall(r"'([^']+)':\s*'([^']+)'", block)}
 
 
+def title_slug(title):
+    """lib/utils/slug_registry.dart's normalizeSlug: titles that differ only
+    in punctuation ("(...)" vs "[...]") slugify the same. ASCII \\w, as in
+    Dart, so Arabic drops out."""
+    s = re.sub(r'[^\w\s-]', ' ', title.lower(), flags=re.ASCII)
+    s = re.sub(r'[_\s]+', '-', s)
+    return re.sub(r'-+', '-', s).strip('-')
+
+
 def lint_index(index, redirects, live):
     out = []
     merged = merged_web_slugs()
@@ -253,7 +262,8 @@ def lint_index(index, redirects, live):
             tmeta = index.get(target)
             if tmeta is None:
                 out.append(Finding(alias, 'error', 'ALIAS_TARGET', 'zikr.json', f'{key}: no {target}'))
-            elif (tmeta['title'] == meta['title'] and tmeta.get('slug') != meta.get('slug')
+            elif ('tabs' not in meta and title_slug(tmeta['title']) == title_slug(meta['title'])
+                  and tmeta.get('slug') != meta.get('slug')
                   and frozenset((tmeta.get('slug'), meta.get('slug'))) not in merged):
                 out.append(Finding(alias, 'error', 'ALIAS_SLUG', 'zikr.json',
                                    f"same title as {target} but slug {meta.get('slug')!r} != {tmeta.get('slug')!r}"))
