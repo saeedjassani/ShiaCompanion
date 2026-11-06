@@ -139,8 +139,10 @@ night prayers of Ramazan - marks each one with a heading line:
   `UNLINKED`. A translation of a linked line links the same names.
 - To list the same entry in another category, add an alias key
   `"<uid>|<targetUid>"` in `assets/zikr.json` with the **same title and the
-  same slug** as the target (CLAUDE.md, slug-collision note). Never copy
-  the content file.
+  same slug** as the target - copy its slug verbatim, never a `-2` of it.
+  `test/zikr_slugs_test.dart` fails on an alias that doesn't, on any slug
+  two zikrs share, and on a new collision-suffixed slug. Never copy the
+  content file.
 - A named dua that is also one tab (or a run of tabs) of a compilation can
   be an alias of just those tabs: give its `assets/zikr.json` entry
   `"tabs": [3]`, numbered from 1 as the reader shows them - the number a
