@@ -642,7 +642,7 @@ below):
 2. **The English written fresh was read against the Arabic**, by four
    parallel reviews of E102, E112, E90, E103, F7, E42 (tabs 2-10), E41
    (tabs 2-6), E84 (tabs 2-5) and E63 (tabs 2, 4, 5). Of ~525 lines, 49
-   were corrected: 13 for meaning, the rest for readability or house style
+   were corrected: 12 for meaning, the rest for readability or house style
    ("Household of Muhammad"). The meaning fixes:
    - سَكَنَ لَهٗ: "for Whom all ... is still", not "to Whom belongs" (E102 tabs 7-8);
    - شَقِيًّا / سَعِيْدًا: "the wretched" / "the blessed" (E112 tab 8);
