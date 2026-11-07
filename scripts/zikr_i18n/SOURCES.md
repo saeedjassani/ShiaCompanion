@@ -893,6 +893,7 @@ corrected throughout.
 | Y4 | Munajat Shabaniyah | amaal-namaz-gujarati/મુનાજાતે-શાઅબાનીય્યાહ/ (rows 1-124) | 131 of 140 |
 | E28 | Dua Mujeer | amaal-namaz-gujarati/dua-mujeer/ | all 96 |
 | E26 | Dua Simat | daily-dua-gujarati/duasimatfriday/ | 182 of 194 |
+| AC12 | Dua Arafah | amaal-namaz-gujarati/દોઆએ-અરફા-ઈમામ-હુસૈન-અ-સ/ | 635 of 691 |
 
 - **E34 Nudba:**
   - Our own: 169 («નજીબોના», for النجباء, which the page drops).
@@ -962,6 +963,35 @@ corrected throughout.
   - Blank: 52 («above» the pillar of fire), 70 and 83 (fused into their
     neighbours), 100 (خفقت), 104 (garbled, drops وذريته بالرحمة),
     184-185 and 188-192 (no Gujarati on the page).
+
+- **AC12 Arafah:** the loosest of these. The page is a free, often
+  explanatory paraphrase in long paragraphs, each covering many of our
+  segments. Gujarati puts the verb last, so some segments end on a
+  fragment whose verb is in the next (e.g. 27-29, 125-130). A native
+  reader should go through it.
+  - Our own: 50 («દર વર્ષે»), 107 («અને તમામ અંગો»), 223 (Ishaq, whom
+    the page drops from the prophets), 288 (فلك الحمد والشكر, in the
+    page's wording from 319-320), 458 (the Prophet's name, which the page
+    leaves out), 536 (لك الملك), 619 («તારી»), 416 (below).
+  - The refrain لا اله الا انت سبحانك: the page's repeats (375-395) read
+    «તું એકલો અને બેનિયાઝ છે» (You are One and Self-sufficient). All take
+    its own wording at 373, without its added «બેનિયાઝ»: «તારા સિવાય કોઈ
+    ખુદા નથી, તું પાક છે»; 416 (the two phrases reversed) matches.
+  - About 70 lines differ from the page: typos (હજ્જત, અચ્યુબ, ઝબ્ડ,
+    મબ્લુકો, અર્થ for અર્શ) and meaning fixes, among them 189 (the page
+    asks not to be made low in myself; the Arabic asks for humility), 533
+    (a missing "not"), 557 فبعدلك, 372 جود read as وجود, 217 حلم as
+    God's "humility", 201 غربتي as "poverty", 455, 655 اولياء as
+    "prophets", 665 العوالم as "sorrows", 581 القاهرة as "gracious"; 590
+    (printed twice, once wrongly) kept once.
+  - Blank (56): lines the page skips (17, 82, 144, 222, 242, 263, 272,
+    278-279, 322, 363, 389-390, 413, 436, 504, 615-616, 658); lines whose
+    Gujarati doesn't match the Arabic (24-26, 87-88, the list of limbs
+    91-104, 147, 180-181, 187, 193, 245, 303, 329, 408-410, 438, 457,
+    559, 596, 635, 643, 675-676); and lines fused into a neighbour (56,
+    58, 251, 254, 340, 445, 466).
+  - Kept as printed but worth a look: 206, 212, 523; from 415 on the page
+    often says "me" for the Arabic's "us" (and the reverse in 520-525).
 
 Turned down on the same site:
 - **E8 Dua Alqama** (dua-gujarati/દુઆ-એ-અલ્કમાં/): Urdu in Gujarati script
