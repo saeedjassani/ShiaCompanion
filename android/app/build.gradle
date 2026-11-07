@@ -119,6 +119,25 @@ android {
     lint {
         disable 'InvalidPackage'
     }
+    testOptions {
+        unitTests {
+            // The widget tests (src/test/.../widgets) render the Glance
+            // widgets under Robolectric, which needs the app's resources.
+            includeAndroidResources = true
+            all {
+                // Robolectric downloads one Android jar per SDK it runs on,
+                // from Maven Central unless told otherwise; the mirror the
+                // Wear OS build uses, which doesn't rate-limit CI.
+                systemProperty 'robolectric.dependency.repo.url',
+                    'https://maven-central.storage-download.googleapis.com/maven2'
+                maxHeapSize = '3g'
+                // SDK 36's ApplicationSharedMemory sets a FileDescriptor's
+                // private fd, which JDK 17+ refuses Robolectric without these.
+                jvmArgs '--add-opens=java.base/java.io=ALL-UNNAMED',
+                    '--add-exports=java.base/jdk.internal.access=ALL-UNNAMED'
+            }
+        }
+    }
     namespace 'com.developer110.shiacompanion'
 }
 
@@ -130,9 +149,24 @@ dependencies {
     testImplementation 'junit:junit:4.13.2'
     // Android's org.json is a stub in local unit tests; AzanScheduleRulesTest needs the real one.
     testImplementation 'org.json:json:20240303'
-    androidTestImplementation 'androidx.test:runner:1.6.2'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.6.1'
-    implementation 'androidx.glance:glance-appwidget:1.1.1'
+    // Renders the home-screen widgets on each Android version (see
+    // src/test/.../widgets).
+    testImplementation 'org.robolectric:robolectric:4.17'
+    testImplementation 'androidx.test:core-ktx:1.7.0'
+    // The versions Flutter's integration_test plugin already puts in the debug
+    // app (runner 1.3.0, espresso 3.3.0): AGP resolves the instrumented
+    // tests against the app's own classpath and refuses newer ones.
+    androidTestImplementation 'androidx.test:runner:1.3.0'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
+    // 1.2.0, not 1.1.x: 1.1's receiver could leave a newly placed widget on
+    // its loading spinner. Its goAsync() fails on some OEM builds before
+    // Android 15 (b/257513022), which 1.2 routes through a worker instead, and
+    // it cancelled the write that lets getGlanceIds() find the widget, so the
+    // app's refreshes skipped it.
+    implementation 'androidx.glance:glance-appwidget:1.2.0'
+    // Glance renders every widget through WorkManager; it only asks for
+    // 2.7.1 (2021), which predates Android 13 and 14's background changes.
+    implementation 'androidx.work:work-runtime-ktx:2.11.2'
     implementation 'androidx.core:core-ktx:1.13.1'
     // Native Azan playback reports what kept an Azan from playing. Same BoM
     // firebase_core resolves (its FirebaseSDKVersion), so no second version.
