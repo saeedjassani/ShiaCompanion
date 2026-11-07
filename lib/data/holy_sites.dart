@@ -129,7 +129,7 @@ const List<HolySite> otherHolySites = [
     arabicName: 'حَرَم ٱلْإِمَام عَلِيّ',
     city: 'Najaf',
     country: 'Iraq',
-    location: GeoPoint(32.0297, 44.3145),
+    location: GeoPoint(31.9966, 44.3147),
   ),
   HolySite(
     id: 'imam_husayn_karbala',
@@ -145,7 +145,7 @@ const List<HolySite> otherHolySites = [
     arabicName: 'حَرَم ٱلْعَبَّاس',
     city: 'Karbala',
     country: 'Iraq',
-    location: GeoPoint(32.6167, 44.0346),
+    location: GeoPoint(32.6171, 44.0362),
   ),
   HolySite(
     id: 'kadhimiya',
@@ -225,7 +225,7 @@ const List<HolySite> otherHolySites = [
     arabicName: 'مَسْجِد ٱلسَّهْلَة',
     city: 'Kufa',
     country: 'Iraq',
-    location: GeoPoint(32.0000, 44.4028),
+    location: GeoPoint(32.0390, 44.3799),
   ),
 ];
 

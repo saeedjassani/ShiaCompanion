@@ -477,6 +477,876 @@
       "arabicName": "العراق",
       "cities": [
         {
+          "id": "najaf",
+          "name": "Najaf al-Ashraf",
+          "arabicName": "النجف الأشرف",
+          "about": "Najaf is the city of Amir al-Mu'minin Imam Ali (a.s.), who was buried here in secret in 40 AH, and for a thousand years the home of the Shia seminary founded around his shrine by Shaykh al-Tusi. North of the shrine lies Wadi al-Salam, the vast cemetery where believers have long asked to be buried. Kufa, where Imam Ali (a.s.) lived and was struck, has grown into one city with Najaf, and its mosques are a short drive away.",
+          "tips": [
+            "Most pilgrims stay in the old city around the shrine and walk to it; Wadi al-Salam starts just north of the shrine, beyond Bab al-Tusi.",
+            "The busiest days are the martyrdom of Imam Ali (a.s.) on 19-21 Ramadan, Eid al-Ghadir on 18 Dhul Hijjah and the Mab'ath on 27 Rajab, when special ziyarats of Imam Ali (a.s.) are recited.",
+            "In the first weeks of Safar many pilgrims set out on foot from Najaf to Karbala for Arbaeen (20 Safar), along the road lined with mawkibs that host walkers.",
+            "Plan the Kufa mosques (Masjid al-Kufa, Masjid al-Sahla) as a half day of their own; Masjid al-Sahla is best visited between Maghrib and Isha.",
+            "Shoes are left at a kishwaniyya by each gate and bags are searched at the entrances, so carry little; women are expected to wear a full abaya or chador inside the shrines."
+          ],
+          "sites": [
+            {
+              "id": "imam_ali_shrine",
+              "name": "Shrine of Imam Ali (a.s.)",
+              "arabicName": "العتبة العلوية المقدسة",
+              "kind": "shrine",
+              "location": [
+                31.9966,
+                44.3147
+              ],
+              "holySiteId": "imam_ali_najaf",
+              "about": "The tomb of Amir al-Mu'minin Imam Ali ibn Abi Talib (a.s.), martyred in Kufa on 21 Ramadan 40 AH and buried by his sons at night outside the city. Its place was kept hidden until the Imams revealed it, and Imam al-Sadiq (a.s.) visited it with his companions. By narration Prophets Adam and Nuh (a.s.) lie with him, and the ziyarat greets them as his two companions. The building took its present form under the Safavids; around its courtyard lie many of the great scholars of the Shia.",
+              "ziyarat": [
+                {
+                  "uid": "B6"
+                },
+                {
+                  "uid": "AK5",
+                  "tab": 1,
+                  "label": "First Ziyarat of Imam Ali (a.s.)"
+                },
+                {
+                  "uid": "G2"
+                },
+                {
+                  "uid": "AK5",
+                  "note": "The other forms reported for this shrine, one per tab."
+                },
+                {
+                  "uid": "G51"
+                },
+                {
+                  "uid": "AK6",
+                  "note": "The six-unit ziyarat prayer and the duas after it."
+                },
+                {
+                  "uid": "AK7",
+                  "note": "At the head side of Imam Ali (a.s.)'s tomb, facing Karbala."
+                },
+                {
+                  "uid": "AC1",
+                  "note": "On Eid al-Ghadir, 18 Dhul Hijjah."
+                },
+                {
+                  "uid": "AC2",
+                  "note": "Also on 18 Dhul Hijjah."
+                },
+                {
+                  "uid": "AK15"
+                }
+              ],
+              "buried": [
+                {
+                  "id": "prophet_adam",
+                  "name": "Prophet Adam (a.s.)",
+                  "arabicName": "النبي آدم (ع)",
+                  "note": "By narration buried beside Imam Ali (a.s.); the ziyarat greets him, and two units of the ziyarat prayer are offered for him."
+                },
+                {
+                  "id": "prophet_nuh",
+                  "name": "Prophet Nuh (a.s.)",
+                  "arabicName": "النبي نوح (ع)",
+                  "note": "By narration buried beside Imam Ali (a.s.); greeted in the ziyarat with Adam (a.s.), with two units of the ziyarat prayer for him."
+                },
+                {
+                  "id": "allamah_hilli",
+                  "name": "Allamah al-Hilli",
+                  "arabicName": "العلامة الحلي",
+                  "diedAh": 726,
+                  "note": "Hasan ibn Yusuf, the great jurist and theologian of Hilla; buried inside the shrine under the northern minaret, near the small gate of the sanctuary."
+                },
+                {
+                  "id": "muqaddas_ardabili",
+                  "name": "Al-Muqaddas al-Ardabili",
+                  "arabicName": "المقدس الأردبيلي",
+                  "diedAh": 993,
+                  "note": "Ahmad ibn Muhammad al-Ardabili, jurist famed for his piety; buried in the shrine, where his tomb is shown on the shrine's own tour."
+                },
+                {
+                  "id": "shaykh_murtada_ansari",
+                  "name": "Shaykh Murtada al-Ansari",
+                  "arabicName": "الشيخ مرتضى الأنصاري",
+                  "diedAh": 1281,
+                  "note": "Author of al-Rasa'il and al-Makasib, still the core texts of the seminary; buried in a chamber of the courtyard by Bab al-Qibla."
+                },
+                {
+                  "id": "muhaddith_nuri",
+                  "name": "Muhaddith al-Nuri",
+                  "arabicName": "المحدث النوري",
+                  "diedAh": 1320,
+                  "note": "Mirza Husayn al-Nuri, compiler of Mustadrak al-Wasa'il; buried in a chamber of the courtyard near Bab al-Qibla."
+                },
+                {
+                  "id": "shaykh_abbas_qummi",
+                  "name": "Shaykh Abbas al-Qummi",
+                  "arabicName": "الشيخ عباس القمي",
+                  "diedAh": 1359,
+                  "note": "Compiler of Mafatih al-Jinan, the source of most of the ziyarats in this app; buried beside his teacher Muhaddith al-Nuri."
+                },
+                {
+                  "id": "akhund_khurasani",
+                  "name": "Akhund al-Khurasani",
+                  "arabicName": "الآخوند الخراساني",
+                  "diedAh": 1329,
+                  "note": "Muhammad Kazim al-Khurasani, author of Kifayat al-Usul; buried in one of the chambers of the shrine's courtyard."
+                },
+                {
+                  "id": "ayatollah_khoei",
+                  "name": "Sayyid Abu al-Qasim al-Khoei",
+                  "arabicName": "السيد أبو القاسم الخوئي",
+                  "diedAh": 1413,
+                  "note": "The leading marja of his time; buried with his sons in the chamber beside Masjid al-Khadra, which opens off the shrine's courtyard."
+                },
+                {
+                  "id": "adud_al_dawla",
+                  "name": "Adud al-Dawla",
+                  "arabicName": "عضد الدولة البويهي",
+                  "diedAh": 372,
+                  "note": "The Buyid ruler who rebuilt the shrine and asked to be buried near Imam Ali (a.s.); he lies on its western side."
+                }
+              ],
+              "tips": [
+                "Recite the permission to enter at the gate of the sanctuary; the First Ziyarat begins once you stand facing the tomb.",
+                "The ziyarat prayer here is six units: two for Imam Ali (a.s.) and four as a gift to Prophets Adam and Nuh (a.s.).",
+                "Masjid al-Ras, on the south side of the Abu Talib portico, marks where by narration the head of Imam Husayn (a.s.) was buried beside his father; the [ziyarat of the head](AK7) is recited at the head side of Imam Ali (a.s.)'s tomb, where Imam al-Sadiq (a.s.) prayed and recited it.",
+                "The scholars' chambers line the courtyard walls; those of Shaykh al-Ansari, Muhaddith al-Nuri and Shaykh Abbas al-Qummi are on the qibla side, either side of Bab al-Qibla."
+              ],
+              "sources": [
+                "https://en.wikipedia.org/wiki/Imam_Ali_Shrine",
+                "https://www.openstreetmap.org/node/13120808801",
+                "https://www.imamali.net/?id=8604",
+                "https://www.imamali.net/?id=10782",
+                "https://www.imamali.net/?id=4450",
+                "https://www.imamali.net/vtour/",
+                "https://en.wikishia.net/view/List_of_Figures_Buried_in_The_Holy_Shrine_of_Imam_%27Ali_(a)",
+                "https://en.wikishia.net/view/%27Abbas_Qummi",
+                "https://www.duas.org/downloads/najaf%20ulama.pdf",
+                "https://www.shiavault.com/books/biography-of-imam-ali-ibn-abi-talib/chapters/108-construction-of-the-mausoleum-of-imam-ali"
+              ]
+            },
+            {
+              "id": "masjid_al_tusi",
+              "name": "Masjid and Tomb of Shaykh al-Tusi",
+              "arabicName": "مسجد ومرقد الشيخ الطوسي",
+              "kind": "mosque",
+              "location": [
+                31.997,
+                44.3146
+              ],
+              "about": "Just outside Bab al-Tusi, the north gate of the shrine's courtyard, stands the house of Shaykh al-Tusi, which he willed to become a mosque and where he was buried. He came to Najaf from Baghdad in 448 AH and founded its seminary; two of the four books of Shia hadith are his. Sayyid Mahdi Bahr al-Ulum, who identified many of the holy places of Najaf and Kufa, is buried here too.",
+              "ziyarat": [],
+              "buried": [
+                {
+                  "id": "shaykh_al_tusi",
+                  "name": "Shaykh al-Tusi",
+                  "arabicName": "الشيخ الطوسي",
+                  "diedAh": 460,
+                  "note": "Muhammad ibn al-Hasan, Shaykh al-Ta'ifa, author of Tahdhib al-Ahkam and al-Istibsar; buried in his own house, now the mosque."
+                },
+                {
+                  "id": "bahr_al_ulum",
+                  "name": "Sayyid Mahdi Bahr al-Ulum",
+                  "arabicName": "السيد مهدي بحر العلوم",
+                  "diedAh": 1212,
+                  "note": "Jurist renowned for his piety, who preserved the graves in the shrine's courtyard from removal; buried beside Shaykh al-Tusi."
+                }
+              ],
+              "tips": [
+                "Leave the courtyard by Bab al-Tusi; the mosque is immediately beside the gate, on the way to Wadi al-Salam."
+              ],
+              "sources": [
+                "https://www.imamali.net/?id=8604",
+                "https://www.duas.org/downloads/najaf%20ulama.pdf",
+                "https://www.openstreetmap.org/node/3745490633"
+              ]
+            },
+            {
+              "id": "wadi_al_salam",
+              "name": "Wadi al-Salam Cemetery",
+              "arabicName": "مقبرة وادي السلام",
+              "kind": "cemetery",
+              "location": [
+                32.0235,
+                44.2933
+              ],
+              "about": "Wadi al-Salam, the Valley of Peace, stretches north and west of the shrine and is among the largest cemeteries in the world. By narration Imam Ali (a.s.) said that the souls of the believers gather here, and Shia families have brought their dead to be buried near him for centuries. It holds the tomb attributed to Prophets Hud and Salih (a.s.) and the maqams of Imam al-Mahdi (a.t.f.s.) and Imam al-Sadiq (a.s.) in its northern part.",
+              "ziyarat": [
+                {
+                  "uid": "G29"
+                }
+              ],
+              "buried": [
+                {
+                  "id": "muhammad_baqir_al_sadr",
+                  "name": "Sayyid Muhammad Baqir al-Sadr",
+                  "arabicName": "السيد محمد باقر الصدر",
+                  "diedAh": 1400,
+                  "note": "Jurist and philosopher, author of Falsafatuna and Iqtisaduna, executed in Baghdad and buried in Wadi al-Salam, where a shrine now marks his grave."
+                }
+              ],
+              "tips": [
+                "The cemetery is a maze of graves and lanes; enter from the old city near the shrine and keep to the main paths or go with someone who knows it.",
+                "Greet the believers buried here and recite al-Fatihah and Surah al-Qadr for them, as in [Visiting the Graves of the Faithful Believers](G29).",
+                "Avoid the open cemetery in the midday heat of summer and carry water."
+              ],
+              "sources": [
+                "https://en.wikipedia.org/wiki/Wadi-us-Salaam",
+                "https://en.wikishia.net/view/Wadi_al-Salam_cemetery",
+                "https://www.openstreetmap.org/way/1097262196",
+                "https://www.openstreetmap.org/node/13467949501"
+              ]
+            },
+            {
+              "id": "hud_salih_tomb",
+              "name": "Tomb of Prophets Hud and Salih (a.s.)",
+              "arabicName": "مرقد النبيين هود وصالح (ع)",
+              "kind": "tomb",
+              "location": [
+                32.0001,
+                44.3165
+              ],
+              "about": "A domed shrine at the edge of Wadi al-Salam, a short walk north of Imam Ali (a.s.)'s shrine, holding two graves attributed by narration to Prophet Hud (a.s.), sent to the people of 'Ad, and Prophet Salih (a.s.), sent to Thamud. The building was first raised in the time of Sayyid Mahdi Bahr al-Ulum and has been renewed since.",
+              "ziyarat": [],
+              "buried": [
+                {
+                  "id": "prophet_hud",
+                  "name": "Prophet Hud (a.s.)",
+                  "arabicName": "النبي هود (ع)",
+                  "note": "Sent to the people of 'Ad; by narration buried here in Wadi al-Salam."
+                },
+                {
+                  "id": "prophet_salih",
+                  "name": "Prophet Salih (a.s.)",
+                  "arabicName": "النبي صالح (ع)",
+                  "note": "Sent to the people of Thamud; by narration buried beside Hud (a.s.)."
+                }
+              ],
+              "tips": [
+                "It is the nearest part of Wadi al-Salam to the old city, so many pilgrims visit it on the way into the cemetery."
+              ],
+              "sources": [
+                "https://en.wikipedia.org/wiki/Shrine_of_Prophet_Hud_and_Salih",
+                "https://en.wikishia.net/view/Wadi_al-Salam_cemetery",
+                "https://www.openstreetmap.org/way/1097262196"
+              ]
+            },
+            {
+              "id": "masjid_al_hannanah",
+              "name": "Masjid al-Hannanah",
+              "arabicName": "مسجد الحنانة",
+              "kind": "mosque",
+              "location": [
+                32.005,
+                44.3345
+              ],
+              "about": "A mosque on the old road between Najaf and Kufa, also called Masjid al-Ras. By narration the column here bowed as Imam Ali (a.s.)'s body was carried past to his grave, and the head of Imam Husayn (a.s.) was set down here on its way to Ibn Ziyad in Kufa. Imam al-Sadiq (a.s.) is reported to have stopped and prayed here, and pilgrims pray and recite the ziyarat of Imam Husayn (a.s.).",
+              "ziyarat": [],
+              "tips": [
+                "It is a few hundred metres from the tomb of Kumayl ibn Ziyad, and the two are usually visited together on the way to Kufa."
+              ],
+              "sources": [
+                "https://en.wikipedia.org/wiki/Al-Hannanah_Mosque",
+                "https://ar.wikishia.net/view/%D9%85%D8%B3%D8%AC%D8%AF_%D8%A7%D9%84%D8%AD%D9%86%D8%A7%D9%86%D8%A9_(%D8%A7%D9%84%D9%86%D8%AC%D9%81)",
+                "https://www.openstreetmap.org/way/370844833"
+              ]
+            },
+            {
+              "id": "kumayl_tomb",
+              "name": "Tomb of Kumayl ibn Ziyad",
+              "arabicName": "مرقد كميل بن زياد النخعي",
+              "kind": "tomb",
+              "location": [
+                32.0069,
+                44.3389
+              ],
+              "about": "Kumayl ibn Ziyad al-Nakha'i was a close companion of Imam Ali (a.s.), who taught him the supplication now called [Dua Kumayl](E31). He was killed on the order of al-Hajjaj ibn Yusuf and buried at al-Thawiyya, between Najaf and Kufa, next to Masjid al-Hannanah. Pilgrims recite al-Fatihah for him here, and many recite his dua.",
+              "ziyarat": [],
+              "buried": [
+                {
+                  "id": "kumayl_ibn_ziyad",
+                  "name": "Kumayl ibn Ziyad al-Nakha'i",
+                  "arabicName": "كميل بن زياد النخعي",
+                  "diedAh": 82,
+                  "note": "Companion of Imam Ali (a.s.), martyred by al-Hajjaj."
+                }
+              ],
+              "tips": [
+                "If you have time, recite [Dua Kumayl](E31) here, the supplication he learned from Imam Ali (a.s.)."
+              ],
+              "sources": [
+                "https://en.wikipedia.org/wiki/Mausoleum_of_Kumayl_ibn_Ziyad",
+                "https://en.wikishia.net/view/Kumayl_b._Ziyad_al-Nakha%27i",
+                "https://najafchamber.com/en/5515",
+                "https://www.openstreetmap.org/way/370845135"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "kufa",
+          "name": "Kufa",
+          "arabicName": "الكوفة",
+          "about": "Kufa was the capital of Imam Ali (a.s.) during his caliphate and the city where he was struck in the mihrab of its mosque on 19 Ramadan 40 AH. Muslim ibn Aqeel (a.s.) was martyred here as Imam Husayn (a.s.)'s envoy. The Imams counted Masjid al-Kufa among the four great mosques of Islam and praised Masjid al-Sahla as a place where prayers are answered. Today it is joined to Najaf, about 10 km east of the shrine.",
+          "tips": [
+            "Most pilgrims come for the day from Najaf; start at Masjid al-Kufa, which holds the tombs of Muslim ibn Aqeel (a.s.) and Hani ibn Urwah (a.s.), then visit the House of Imam Ali (a.s.) and Maytham al-Tammar next to it.",
+            "The acts of Masjid al-Kufa are a long sequence of prayers at its stations; allow a few hours and bring the app's entries open on your phone.",
+            "Go to Masjid al-Sahla in the evening: the acts there are best between Maghrib and Isha, especially on the night before Wednesday (Tuesday night), when it is very full.",
+            "Masjid al-Kufa is crowded on 19-21 Ramadan, the nights Imam Ali (a.s.) was struck and passed away, and on Thursday nights for Dua Kumayl."
+          ],
+          "sites": [
+            {
+              "id": "masjid_al_kufa",
+              "name": "Masjid al-Kufa",
+              "arabicName": "مسجد الكوفة المعظم",
+              "kind": "mosque",
+              "location": [
+                32.0289,
+                44.4008
+              ],
+              "holySiteId": "masjid_al_kufa",
+              "about": "One of the four great mosques of Islam: by narration prophets from Adam to Ibrahim (a.s.) prayed here and Nuh (a.s.) built the Ark on its ground. Imam Ali (a.s.) taught, judged and led prayers here, and was struck by Ibn Muljam in its mihrab during the dawn prayer of 19 Ramadan 40 AH. Its stations (maqams) of the prophets and Imams, its seat of judgement (Dikkat al-Qada) and the place of the washtub (Bayt al-Tasht) each have their own prayers.",
+              "ziyarat": [
+                {
+                  "uid": "AI3",
+                  "note": "Entering the mosque, then the stations in order, ending at the mihrab."
+                },
+                {
+                  "uid": "AI5"
+                },
+                {
+                  "uid": "AI11"
+                },
+                {
+                  "uid": "AI4",
+                  "note": "Done last of all, after the station of Imam al-Sadiq (a.s.)."
+                },
+                {
+                  "uid": "AI12"
+                },
+                {
+                  "uid": "H17",
+                  "label": "Munajat of Amir al-Mu'minin (a.s.) in Masjid al-Kufa",
+                  "note": "The whispered prayer recited in this mosque."
+                }
+              ],
+              "tips": [
+                "The mihrab where Imam Ali (a.s.) was struck is at the front of the prayer hall, on the qibla side; its prayer is the last tab of the mosque's acts.",
+                "The station of Prophet Adam (a.s.) is at the seventh column and the station of Gabriel at the fifth, as the mosque's acts describe.",
+                "The station of Imam al-Sadiq (a.s.) is near the shrine of Muslim ibn Aqeel (a.s.)."
+              ],
+              "sources": [
+                "https://en.wikipedia.org/wiki/Great_Mosque_of_Kufa",
+                "https://en.wikishia.net/view/Masjid_al-Kufa",
+                "https://www.openstreetmap.org/relation/15610020"
+              ]
+            },
+            {
+              "id": "muslim_ibn_aqeel_shrine",
+              "name": "Shrine of Muslim ibn Aqeel (a.s.)",
+              "arabicName": "مرقد مسلم بن عقيل (ع)",
+              "kind": "shrine",
+              "location": [
+                32.0286,
+                44.4015
+              ],
+              "about": "Muslim ibn Aqeel (a.s.), cousin of Imam Husayn (a.s.), came to Kufa as his envoy, was betrayed and was killed by Ibn Ziyad on 9 Dhul Hijjah 60 AH, the Day of Arafah, before the Imam reached Iraq. He is buried under the golden dome on the eastern side of Masjid al-Kufa, next to the old governor's palace where he was killed. Al-Mukhtar al-Thaqafi, who later rose to avenge Karbala, is buried in the same complex.",
+              "ziyarat": [
+                {
+                  "uid": "G60"
+                }
+              ],
+              "buried": [
+                {
+                  "id": "mukhtar_al_thaqafi",
+                  "name": "Al-Mukhtar al-Thaqafi",
+                  "arabicName": "المختار الثقفي",
+                  "diedAh": 67,
+                  "note": "Led the uprising in Kufa that punished the killers of Imam Husayn (a.s.); killed in 67 AH and buried at the back of the shrine of Muslim ibn Aqeel (a.s.)."
+                }
+              ],
+              "tips": [
+                "Enter the shrine from inside Masjid al-Kufa, by its eastern side; Mukhtar's grave is reached through the same complex."
+              ],
+              "sources": [
+                "https://en.wikipedia.org/wiki/Great_Mosque_of_Kufa",
+                "https://en.wikishia.net/view/Al-Mukhtar_b._Abi_%27Ubayd_al-Thaqafi",
+                "https://www.openstreetmap.org/way/1238795786",
+                "https://nominatim.openstreetmap.org/ui/search.html?q=%D9%85%D8%B1%D9%82%D8%AF+%D9%85%D8%B3%D9%84%D9%85+%D8%A8%D9%86+%D8%B9%D9%82%D9%8A%D9%84"
+              ]
+            },
+            {
+              "id": "hani_ibn_urwah_tomb",
+              "name": "Tomb of Hani ibn Urwah (a.s.)",
+              "arabicName": "مرقد هانئ بن عروة (ع)",
+              "kind": "tomb",
+              "location": [
+                32.0293,
+                44.4016
+              ],
+              "about": "Hani ibn Urwah (a.s.), an elder of the tribe of Murad, sheltered Muslim ibn Aqeel (a.s.) in his house in Kufa and was killed by Ibn Ziyad for refusing to give him up, in 60 AH. His domed tomb stands against the eastern wall of Masjid al-Kufa, a few steps north of Muslim's shrine.",
+              "ziyarat": [
+                {
+                  "uid": "G61"
+                }
+              ],
+              "tips": [
+                "Visit him straight after Muslim ibn Aqeel (a.s.); the two shrines are next to each other."
+              ],
+              "sources": [
+                "https://en.wikipedia.org/wiki/Great_Mosque_of_Kufa",
+                "https://en.wikishia.net/view/Masjid_al-Kufa",
+                "https://nominatim.openstreetmap.org/ui/search.html?q=%D9%85%D8%B1%D9%82%D8%AF+%D9%87%D8%A7%D9%86%D9%8A+%D8%A8%D9%86+%D8%B9%D8%B1%D9%88%D8%A9"
+              ]
+            },
+            {
+              "id": "house_of_imam_ali_kufa",
+              "name": "House of Imam Ali (a.s.)",
+              "arabicName": "بيت الإمام علي (ع)",
+              "kind": "other",
+              "location": [
+                32.0281,
+                44.3997
+              ],
+              "about": "The modest house beside Masjid al-Kufa where Imam Ali (a.s.) lived with his family during his caliphate. By tradition he was carried here after being struck in the mosque and passed away here on 21 Ramadan 40 AH.",
+              "ziyarat": [],
+              "tips": [
+                "It is just south of Masjid al-Kufa, a short walk from the tomb of Maytham al-Tammar."
+              ],
+              "sources": [
+                "https://en.wikishia.net/view/Masjid_al-Kufa",
+                "https://nominatim.openstreetmap.org/ui/search.html?q=%D8%A8%D9%8A%D8%AA+%D8%A7%D9%84%D8%A7%D9%85%D8%A7%D9%85+%D8%B9%D9%84%D9%8A+%D8%A7%D9%84%D9%83%D9%88%D9%81%D8%A9"
+              ]
+            },
+            {
+              "id": "maytham_al_tammar_tomb",
+              "name": "Tomb of Maytham al-Tammar",
+              "arabicName": "مرقد ميثم التمار",
+              "kind": "tomb",
+              "location": [
+                32.0265,
+                44.395
+              ],
+              "about": "Maytham al-Tammar, the date-seller of Kufa, was a close companion of Imam Ali (a.s.), who foretold to him how he would die. He was crucified on the order of Ibn Ziyad shortly before Karbala in 60 AH, proclaiming the virtues of Imam Ali (a.s.) to the end. His shrine stands a little west of Masjid al-Kufa.",
+              "ziyarat": [],
+              "buried": [
+                {
+                  "id": "maytham_al_tammar",
+                  "name": "Maytham al-Tammar",
+                  "arabicName": "ميثم التمار",
+                  "diedAh": 60,
+                  "note": "Companion of Imam Ali (a.s.), martyred by Ibn Ziyad in Kufa."
+                }
+              ],
+              "sources": [
+                "https://en.wikipedia.org/wiki/Mausoleum_of_Maytham_al-Tammar",
+                "https://en.wikishia.net/view/Maytham_al-Tammar",
+                "https://www.openstreetmap.org/node/12504061022"
+              ]
+            },
+            {
+              "id": "masjid_al_sahla",
+              "name": "Masjid al-Sahla",
+              "arabicName": "مسجد السهلة المعظم",
+              "kind": "mosque",
+              "location": [
+                32.039,
+                44.3799
+              ],
+              "holySiteId": "sahla",
+              "about": "A great mosque on the north-west of Kufa that, by narration, was the house of Prophet Idris (a.s.) and of Ibrahim (a.s.), and will be the home of Imam al-Mahdi (a.t.f.s.) after his reappearance. Imam al-Sadiq (a.s.) said that whoever prays two units here between Maghrib and Isha with a need will have it met. Stations (maqams) inside mark Ibrahim, Idris, Khidr (a.s.), Imam al-Sadiq, Imam Zayn al-Abidin and Imam al-Mahdi.",
+              "ziyarat": [
+                {
+                  "uid": "AI15"
+                }
+              ],
+              "tips": [
+                "Come between Maghrib and Isha, ideally on the night before Wednesday (Tuesday night), as Sayyid Ibn Tawus advised.",
+                "The station of Ibrahim (a.s.) is in the north-west corner, Idris (a.s.) in the south-west, Khidr (a.s.) in the south-east corner and the Maqam of Imam al-Mahdi (a.t.f.s.) in the middle of the southern side."
+              ],
+              "sources": [
+                "https://en.wikipedia.org/wiki/Sahla_Mosque",
+                "https://en.wikishia.net/view/Masjid_al-Sahla",
+                "https://www.openstreetmap.org/way/857865681"
+              ]
+            },
+            {
+              "id": "masjid_zayd_sasaah",
+              "name": "Masjids of Zayd and Sa'sa'ah ibn Sawhan",
+              "arabicName": "مسجدا زيد وصعصعة ابني صوحان",
+              "kind": "mosque",
+              "location": [
+                32.0383,
+                44.3824
+              ],
+              "about": "Two small old mosques beside Masjid al-Sahla, named after the brothers Zayd and Sa'sa'ah ibn Sawhan, companions of Imam Ali (a.s.). Zayd was martyred fighting for him at the Battle of the Camel, and the dua prayed at his mosque is the one he used to recite in his night prayers. Scholars report that Imam al-Mahdi (a.t.f.s.) was seen praying two units in Masjid Sa'sa'ah in Rajab and reciting the dua that begins \"Allahumma ya dha al-minan\".",
+              "ziyarat": [
+                {
+                  "uid": "AI16"
+                },
+                {
+                  "uid": "X3",
+                  "tab": 3,
+                  "label": "Dua Ya Dhal Minan (Masjid Sa'sa'ah)",
+                  "note": "Especially in Rajab, after two units of prayer."
+                }
+              ],
+              "tips": [
+                "Visit both straight after Masjid al-Sahla; Masjid Zayd lies on its south-west side and Masjid Sa'sa'ah close by."
+              ],
+              "sources": [
+                "https://ar.wikishia.net/view/%D9%85%D8%B3%D8%AC%D8%AF_%D8%B2%D9%8A%D8%AF_%D8%A8%D9%86_%D8%B5%D9%88%D8%AD%D8%A7%D9%86",
+                "https://ar.wikishia.net/view/%D9%85%D8%B3%D8%AC%D8%AF_%D8%B5%D8%B9%D8%B5%D8%B9%D8%A9",
+                "https://www.openstreetmap.org/node/6412668541"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "karbala",
+          "name": "Karbala",
+          "arabicName": "كربلاء المقدسة",
+          "about": "Karbala is where Imam Husayn (a.s.), his family and companions were martyred on Ashura, 10 Muharram 61 AH, and where they are buried. Its two golden shrines, of Imam Husayn (a.s.) and of his brother Hazrat Abbas (a.s.), face each other across the open walkway of Bayn al-Haramayn. The Imams urged their followers never to abandon this ziyarat, and it is made on foot from all over Iraq for Arbaeen.",
+          "tips": [
+            "Most pilgrims stay within walking distance of Bayn al-Haramayn and move between the two shrines on foot.",
+            "The largest gatherings are on Ashura (10 Muharram) and Arbaeen (20 Safar), when millions arrive and the area around the shrines is packed for days; 15 Sha'ban, the Day of Arafah (9 Dhul Hijjah) and Thursday nights are also very full.",
+            "The ziyarats of Imam Husayn (a.s.) are recited without perfume, in a state of grief, after ghusl; the etiquettes are in [Etiquettes of the Journey to Imam Husayn (a.s.)](AG2).",
+            "The Mukhayyam (camp) and Tall al-Zaynabiyya are a few minutes' walk west of Imam Husayn (a.s.)'s shrine; the shrine of al-Hurr al-Riyahi is a short drive west of the city."
+          ],
+          "sites": [
+            {
+              "id": "imam_husayn_shrine",
+              "name": "Shrine of Imam Husayn (a.s.)",
+              "arabicName": "العتبة الحسينية المقدسة",
+              "kind": "shrine",
+              "location": [
+                32.6164,
+                44.0325
+              ],
+              "holySiteId": "imam_husayn_karbala",
+              "about": "The tomb of Imam Husayn ibn Ali (a.s.), grandson of the Holy Prophet (s.a.w.a.), martyred here on Ashura, 10 Muharram 61 AH. By tradition he was buried by his son Imam Zayn al-Abidin (a.s.) with the help of the Banu Asad, with his son Ali al-Akbar at his feet and the martyrs of his family and companions beyond. The ground around the tomb, al-Ha'ir, has its own rulings and merits, and the narrations on the reward of this ziyarat are countless.",
+              "ziyarat": [
+                {
+                  "uid": "AG2",
+                  "note": "Before setting out, at the Euphrates and on entering the shrine."
+                },
+                {
+                  "uid": "AG14",
+                  "note": "The full method from Mafatih al-Jinan: ghusl, permission to enter, the ziyarat, its prayer, then Ali al-Akbar (a.s.) and the martyrs."
+                },
+                {
+                  "uid": "G6",
+                  "label": "Ziyarat Warith (as commonly recited)"
+                },
+                {
+                  "uid": "AG8",
+                  "note": "Six more forms, one per tab, for any day."
+                },
+                {
+                  "uid": "G54"
+                },
+                {
+                  "uid": "G55",
+                  "note": "At the feet of Imam Husayn (a.s.), where Ali al-Akbar (a.s.) is buried."
+                },
+                {
+                  "uid": "G56",
+                  "note": "Facing the martyrs' grave, beyond Ali al-Akbar (a.s.)."
+                },
+                {
+                  "uid": "G58",
+                  "note": "At his tomb inside the shrine."
+                },
+                {
+                  "uid": "AG5",
+                  "note": "The ziyarat prayer at the head side, the tasbihs and the duas after the ziyarat."
+                },
+                {
+                  "uid": "G4",
+                  "note": "Especially on Ashura, 10 Muharram, and on any day."
+                },
+                {
+                  "uid": "G83",
+                  "note": "Another ziyarat for Ashura."
+                },
+                {
+                  "uid": "G11"
+                },
+                {
+                  "uid": "G3",
+                  "note": "On Arbaeen, 20 Safar, in the forenoon."
+                },
+                {
+                  "uid": "G74",
+                  "note": "On 1 and 15 Rajab and 15 Sha'ban."
+                },
+                {
+                  "uid": "X13",
+                  "note": "On the night of 15 Rajab."
+                },
+                {
+                  "uid": "Y11",
+                  "note": "On 15 Sha'ban."
+                },
+                {
+                  "uid": "G14",
+                  "note": "On the Qadr nights of Ramazan, and on the days of the two Eids."
+                },
+                {
+                  "uid": "AC3",
+                  "note": "On the nights before Eid al-Fitr and Eid al-Adha."
+                },
+                {
+                  "uid": "G75",
+                  "note": "On the Day of Arafah, 9 Dhul Hijjah."
+                },
+                {
+                  "uid": "AG6"
+                }
+              ],
+              "buried": [
+                {
+                  "id": "ali_al_akbar",
+                  "name": "Hazrat Ali al-Akbar (a.s.)",
+                  "arabicName": "علي الأكبر (ع)",
+                  "diedAh": 61,
+                  "note": "Eldest son of Imam Husayn (a.s.), the first of the Banu Hashim to be martyred on Ashura; buried at his father's feet."
+                },
+                {
+                  "id": "ali_al_asghar",
+                  "name": "Hazrat Ali al-Asghar (a.s.)",
+                  "arabicName": "علي الأصغر (ع)",
+                  "diedAh": 61,
+                  "note": "The infant son of Imam Husayn (a.s.), killed by an arrow in his father's arms; buried with his father."
+                },
+                {
+                  "id": "martyrs_of_karbala",
+                  "name": "The Martyrs of Karbala (a.s.)",
+                  "arabicName": "شهداء كربلاء (ع)",
+                  "diedAh": 61,
+                  "note": "The men of the Banu Hashim and the companions killed on Ashura, buried together in one grave beyond the feet of Imam Husayn (a.s.)."
+                },
+                {
+                  "id": "habib_ibn_mazahir",
+                  "name": "Habib ibn Mazahir (a.s.)",
+                  "arabicName": "حبيب بن مظاهر الأسدي (ع)",
+                  "diedAh": 61,
+                  "note": "Elderly companion of the Holy Prophet (s.a.w.a.) and Imam Ali (a.s.) who came from Kufa to fight for Imam Husayn (a.s.); buried apart from the others, to the right of the main qibla entrance of the sanctuary."
+                },
+                {
+                  "id": "ibrahim_al_mujab",
+                  "name": "Sayyid Ibrahim al-Mujab",
+                  "arabicName": "السيد إبراهيم المجاب",
+                  "note": "Grandson of Imam Musa al-Kazim (a.s.) and the first custodian of the shrine; called al-Mujab, \"the answered\", because by tradition his greeting at the tomb was answered. Buried in the portico named after him."
+                },
+                {
+                  "id": "wahid_bihbahani",
+                  "name": "Al-Wahid al-Bihbahani",
+                  "arabicName": "الوحيد البهبهاني",
+                  "diedAh": 1205,
+                  "note": "Muhammad Baqir al-Bihbahani, who renewed the study of usul al-fiqh in Karbala; buried in the eastern part of the shrine."
+                },
+                {
+                  "id": "sahib_al_riyad",
+                  "name": "Sayyid Ali al-Tabataba'i (Sahib al-Riyad)",
+                  "arabicName": "السيد علي الطباطبائي (صاحب الرياض)",
+                  "diedAh": 1231,
+                  "note": "Author of Riyad al-Masa'il and student of al-Wahid al-Bihbahani; buried beside his teacher."
+                }
+              ],
+              "tips": [
+                "Ali al-Akbar (a.s.) is at the feet of Imam Husayn (a.s.), inside the same enclosure; the martyrs' grave is just beyond him.",
+                "Pray the ziyarat prayer at the head side, stepping back a little so as not to stand level with the tomb; praying behind the tomb is also valid.",
+                "At the head side recite the tasbih of Imam Ali (a.s.), and at the feet the tasbih of Lady Fatimah (s.a.), as in the post-ziyarat acts.",
+                "Habib ibn Mazahir (a.s.)'s grave is in the portico by the qibla entrance of the sanctuary, about ten metres from the tomb of Imam Husayn (a.s.)."
+              ],
+              "sources": [
+                "https://en.wikipedia.org/wiki/Imam_Husayn_Shrine",
+                "https://en.wikishia.net/view/Holy_Shrine_of_Imam_al-Husayn_(a)",
+                "https://en.wikishia.net/view/List_of_Figures_Buried_in_Karbala",
+                "https://en.wikipedia.org/wiki/Ibrahim_al-Mujab",
+                "https://en.wikipedia.org/wiki/Habib_ibn_Muzahir",
+                "https://en.wikishia.net/view/Sahib_Riyad",
+                "https://www.openstreetmap.org/way/1156225811"
+              ]
+            },
+            {
+              "id": "abbas_shrine",
+              "name": "Shrine of Hazrat Abbas (a.s.)",
+              "arabicName": "العتبة العباسية المقدسة",
+              "kind": "shrine",
+              "location": [
+                32.6171,
+                44.0362
+              ],
+              "holySiteId": "abbas_karbala",
+              "about": "The tomb of Abu al-Fadl al-Abbas ibn Ali (a.s.), son of Imam Ali (a.s.) and Umm al-Baneen, standard-bearer of Imam Husayn (a.s.). He was martyred on Ashura by the river while bringing water for the thirsty children, after both his hands were cut off, and was buried where he fell, apart from the other martyrs. Imam al-Sadiq (a.s.) taught the ziyarat to be recited at the gate of his shrine.",
+              "ziyarat": [
+                {
+                  "uid": "AG18",
+                  "note": "From Mafatih al-Jinan, with its prayer, dua and farewell."
+                },
+                {
+                  "uid": "G7",
+                  "label": "Ziyarat of Hazrat Abbas (a.s.) (as commonly recited)"
+                },
+                {
+                  "uid": "G57",
+                  "label": "Short Ziyarat of Hazrat Abbas (a.s.)"
+                }
+              ],
+              "tips": [
+                "The ziyarat of Imam al-Sadiq (a.s.) is recited standing at the gate of the shrine, then you enter and stand at the tomb.",
+                "Two small shrines mark where his hands fell: Kaff al-Abbas al-Yamin (right hand) north-east of the shrine and Kaff al-Abbas al-Yasar (left hand) south-east of it, both a few minutes' walk away.",
+                "Pray two units of the ziyarat prayer at the head side, then supplicate; the farewell is the last part of the ziyarat entry."
+              ],
+              "sources": [
+                "https://en.wikipedia.org/wiki/Al-Abbas_Shrine",
+                "https://alkafeel.net/",
+                "https://www.openstreetmap.org/way/1386064528",
+                "https://www.openstreetmap.org/node/10830510022",
+                "https://www.openstreetmap.org/node/10880196283"
+              ]
+            },
+            {
+              "id": "bayn_al_haramayn",
+              "name": "Bayn al-Haramayn",
+              "arabicName": "بين الحرمين",
+              "kind": "other",
+              "location": [
+                32.6167,
+                44.0344
+              ],
+              "about": "The open, covered walkway of a few hundred metres between the shrines of Imam Husayn (a.s.) and Hazrat Abbas (a.s.), where pilgrims pass constantly between the two. On Ashura and Arbaeen the processions of mourners (mawkibs) pass through it, and the Tuwairij run of the afternoon of Ashura comes through it to Imam Husayn (a.s.)'s shrine.",
+              "ziyarat": [],
+              "tips": [
+                "From the middle of Bayn al-Haramayn both domes are in sight; many pilgrims greet both Imam Husayn (a.s.) and Hazrat Abbas (a.s.) from here when the shrines are too full to enter."
+              ],
+              "sources": [
+                "https://en.wikipedia.org/wiki/Al-Abbas_Shrine",
+                "https://en.wikipedia.org/wiki/Imam_Husayn_Shrine",
+                "https://nominatim.openstreetmap.org/ui/search.html?q=%D8%B5%D8%AD%D9%86+%D8%A7%D9%84%D8%AD%D8%B1%D9%85%D9%8A%D9%86+%D9%83%D8%B1%D8%A8%D9%84%D8%A7%D8%A1"
+              ]
+            },
+            {
+              "id": "tall_al_zaynabiyya",
+              "name": "Tall al-Zaynabiyya",
+              "arabicName": "التل الزينبي",
+              "kind": "maqam",
+              "location": [
+                32.6159,
+                44.0311
+              ],
+              "about": "A small domed shrine just west of Imam Husayn (a.s.)'s shrine on the rise where, by tradition, Lady Zainab (s.a.) stood on Ashura watching the battle and calling out to her brother as the tents were set on fire.",
+              "ziyarat": [],
+              "sources": [
+                "https://imamhussain.org/english/18071",
+                "https://en.wikipedia.org/wiki/Al-Tall_Al-Zaynabiyya",
+                "https://www.openstreetmap.org/way/1386102847"
+              ]
+            },
+            {
+              "id": "al_mukhayyam",
+              "name": "Al-Mukhayyam (The Camp of Imam Husayn (a.s.))",
+              "arabicName": "المخيم الحسيني",
+              "kind": "maqam",
+              "location": [
+                32.6145,
+                44.0306
+              ],
+              "about": "A building south-west of Imam Husayn (a.s.)'s shrine marking where the tents of the Imam, his family and companions stood, which were set on fire on the afternoon of Ashura. The camp itself spread over a wider area, so the building is a marker of it rather than its exact bounds.",
+              "ziyarat": [],
+              "sources": [
+                "https://imamhussain.org/english/18070",
+                "https://en.wikishia.net/view/Tents_of_Imam_al-Husayn_(a)",
+                "https://www.openstreetmap.org/way/1161247061"
+              ]
+            },
+            {
+              "id": "hurr_al_riyahi_shrine",
+              "name": "Shrine of al-Hurr al-Riyahi (a.s.)",
+              "arabicName": "مرقد الحر بن يزيد الرياحي (ع)",
+              "kind": "shrine",
+              "location": [
+                32.6513,
+                43.9853
+              ],
+              "about": "Al-Hurr ibn Yazid al-Riyahi (a.s.) led the troops sent to stop Imam Husayn (a.s.) on his way to Kufa, then on the morning of Ashura turned to the Imam, repented and was martyred defending him. The Imam said he was free (hurr), as his mother had named him, in this world and the next. His shrine stands a few kilometres west of the old city; some scholars doubt the site, holding that he lies with the other martyrs.",
+              "ziyarat": [
+                {
+                  "uid": "G59"
+                }
+              ],
+              "buried": [
+                {
+                  "id": "al_hurr_al_riyahi",
+                  "name": "Al-Hurr ibn Yazid al-Riyahi (a.s.)",
+                  "arabicName": "الحر بن يزيد الرياحي (ع)",
+                  "diedAh": 61,
+                  "note": "Martyred on Ashura after joining Imam Husayn (a.s.)."
+                }
+              ],
+              "tips": [
+                "Take a taxi from the old city; the shrine is in the al-Hurr district, west of Karbala."
+              ],
+              "sources": [
+                "https://imamhussain.org/english/23929",
+                "https://en.wikishia.net/view/Al-Hurr_b._Yazid_al-Riyahi",
+                "https://www.openstreetmap.org/way/469786126"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "musayyib",
+          "name": "Musayyib",
+          "arabicName": "المسيب",
+          "about": "A town on the Euphrates about 35 km north-east of Karbala, between Karbala and Baghdad. Pilgrims stop here for the shrine attributed to the two young sons of Muslim ibn Aqeel (a.s.).",
+          "tips": [
+            "Musayyib is usually visited as a short stop on the road between Karbala and Baghdad or Kazimayn; the shrine lies a few kilometres east of the town centre."
+          ],
+          "sites": [
+            {
+              "id": "sons_of_muslim_shrine",
+              "name": "Shrine of the Sons of Muslim ibn Aqeel (a.s.)",
+              "arabicName": "مرقد أولاد مسلم بن عقيل (ع)",
+              "kind": "shrine",
+              "location": [
+                32.7855,
+                44.313
+              ],
+              "about": "A twin-domed shrine attributed to Muhammad and Ibrahim, the two young sons of Muslim ibn Aqeel (a.s.). By the narration in Shaykh al-Saduq's al-Amali, they were captured after Karbala, escaped from prison in Kufa and were killed on the bank of the Euphrates. Some sources hold that the two boys were not Muslim's own sons, and their ages differ between accounts.",
+              "ziyarat": [
+                {
+                  "uid": "G62"
+                }
+              ],
+              "buried": [
+                {
+                  "id": "muhammad_ibn_muslim",
+                  "name": "Muhammad ibn Muslim ibn Aqeel (a.s.)",
+                  "arabicName": "محمد بن مسلم بن عقيل (ع)",
+                  "note": "The elder of the two brothers, by tradition killed with his brother on the Euphrates."
+                },
+                {
+                  "id": "ibrahim_ibn_muslim",
+                  "name": "Ibrahim ibn Muslim ibn Aqeel (a.s.)",
+                  "arabicName": "إبراهيم بن مسلم بن عقيل (ع)",
+                  "note": "The younger brother, buried beside him."
+                }
+              ],
+              "sources": [
+                "https://en.wikipedia.org/wiki/Muhammad_ibn_Muslim_and_Ibrahim_ibn_Muslim",
+                "https://en.wikishia.net/view/Two_Sons_of_Muslim_b._%27Aqil",
+                "https://www.openstreetmap.org/way/417403183"
+              ]
+            }
+          ]
+        },
+        {
           "id": "kazimayn",
           "name": "Kazimayn, Baghdad",
           "arabicName": "الكاظمية المقدسة",

@@ -240,7 +240,7 @@ void main() {
                   'id': 'imam_ali_shrine',
                   'name': 'Shrine of Imam Ali (a.s.)',
                   'kind': 'shrine',
-                  'location': [32.0297, 44.3145],
+                  'location': [31.9966, 44.3147],
                   'ziyarat': [
                     {'uid': 'AK5', 'tab': 2, 'label': 'Ziyarat Aminullah'},
                   ],

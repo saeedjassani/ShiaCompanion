@@ -186,7 +186,7 @@ final ZiyaratGuide _guideFixture = ZiyaratGuide.fromJson({
               'name': 'Shrine of Imam Ali (a.s.)',
               'arabicName': 'العتبة العلوية المقدسة',
               'kind': 'shrine',
-              'location': [32.0297, 44.3145],
+              'location': [31.9966, 44.3147],
               'holySiteId': 'imam_ali_najaf',
               'about': 'Read [Ziyarat Aminullah](AK5?tab=2) here. ' * 4,
               'ziyarat': [

@@ -237,6 +237,16 @@ see `scripts/RESTORING_MISSING_ZIKRS.md`); URLs hold a text to check against.
 - **Kazimayn:** AH3 (another ziyarat of Imam al-Kazim), AH1, AH11.
 - **Samarra:** Lady Narjis AL8, Lady Hakimah AL9, AL4, AL10, AL16.
 - **Mada'in:** prayer at Taq Kasra AJ3, Hudhayfah AJ4, AJ1.
+- **Najaf:** ziyarat of Imam Ali on the Prophet's birthday AK17
+  (duas.org/ziaratimamali17ra.htm) and on the Mab'ath AK19
+  (duas.org/pdfs/27rajabmafatih.pdf); the First Ziyarat's own izn (AK5's
+  first tab starts at the tomb, so the guide links B6); the short ziyarat
+  of Imam Husayn at Masjid al-Hannanah (Ibn al-Mashhadi, in Mafatih after
+  the head ziyarat).
+- **Kufa:** AI13/AI14 (Muslim, Hani - G60/G61 cover them), AI17 (Zayd and
+  Sa'sa'ah, prose only).
+- **Karbala:** AG21 (soil of Husayn), AG20 (special occasions), AG15, G31
+  (farewell to the Imams), B5 (izn).
 
 ## Corpus problems found (owner's review)
 
@@ -258,8 +268,20 @@ see `scripts/RESTORING_MISSING_ZIKRS.md`); URLs hold a text to check against.
 - Overlaps the guide resolved by linking the shrine entry: G69/G70/G71
   inside AH5 tab 1 / AL5 tab 1 / AL6 tab 1, G67 partly AH2, G72 partly
   G5/AL11 tab 3.
-- Fixed in session 1: `holy_sites.dart` had Jamkaran 3.5 km east of the
-  mosque, and Lady Zainab and Lady Ruqayya 90-180 m off.
+- **AG14** ends with leftover stub lines ("Other Ziarat inside shrine
+  complex", "[Hz.Habib Ibn Mazahir](G58)", "Ibrahim Mujab...", "Katalgah...",
+  "Mueseum - First floor"). Scaffolding also in AK6 ("Salat -Dua after
+  Ziarat..."), AK7 ("Ziarat Imam Hussain(as) from..."), AI5 ("Alt :"), AI15
+  tabs ("ENTRANCE", "Hz.Khizr", "Ambiya and Saleheen").
+- **AK8** is G2 (89%) with a bare link as its first line; **AK13** repeats
+  AK5's seventh tab; **G7** and **G57** share a title, G7 ~66% inside AG18;
+  G6 ~62% inside AG14; G55/G56 repeat Ziyarat Warith's Ali al-Akbar and
+  martyrs parts.
+- **H17** doesn't say it is Imam Ali's munajat in Masjid al-Kufa (the guide
+  labels it); **G51** gives no source.
+- Fixed in session 1, in `holy_sites.dart` (the compass): Imam Ali's shrine
+  was 3.7 km north of the tomb, Masjid al-Sahla 4.6 km off, Jamkaran 3.5 km
+  east, Hazrat Abbas, Lady Zainab and Lady Ruqayya 90-180 m off.
 
 ## Unverified, left out of phase 1
 
@@ -267,7 +289,14 @@ see `scripts/RESTORING_MISSING_ZIKRS.md`); URLs hold a text to check against.
   coordinates; mentioned in Baghdad's text), Ali ibn Babawayh in Qom, Hujr
   ibn Adi at Adra (shrine desecrated 2013), Ghadir Khumm/al-Juhfa, Hilla/
   al-Kifl, Nishapur.
-- OSM-only coordinates: the Sardab (Samarra), Balad.
+- OSM-only coordinates: the Sardab (Samarra), Balad. Masjid Zayd has none:
+  it shares Masjid Sa'sa'ah's site. The Maqam of Imam al-Mahdi in Wadi
+  al-Salam is in the text only (no coordinates). Awn ibn Abdullah's shrine
+  left out (who lies there is disputed).
+- Najaf's room positions near Bab al-Qibla (Ansari, Nuri, Qummi) rest on a
+  single weak source (a duas.org PDF chapter of an AI-written book): check
+  them. WikiShia was down all session, so its URLs in `sources` were seen
+  only as search snippets.
 - Death years where sources disagree (Shaykh Baha'i 1030/1031) or are not
   established are omitted.
 
@@ -275,20 +304,44 @@ see `scripts/RESTORING_MISSING_ZIKRS.md`); URLs hold a text to check against.
 
 (Updated at the end of every session.)
 
-**Session 1 (2026-11-07):**
+**Session 1 (2026-11-07): phase 1 done.**
 
-- Done: phase 1 infrastructure - model, repository, the three pages,
-  `ziyaratGuideMenuItem` (admin-only, shown after Ziyarats), ARB keys in
-  all five languages, `QiblaFinder(initialTarget:)`, `mapsUriFor`, tests
+- Infrastructure: model, repository, the three pages,
+  `ziyaratGuideMenuItem` (admin-only, after Ziyarats), ARB keys in all five
+  languages, `QiblaFinder(initialTarget:)`, `mapsUriFor`, tests
   (`ziyarat_guide_test.dart`, `maps_links_test.dart`, guide screens in
   `ui/page_render_test.dart`), analytics events in `docs/analytics.md`.
-- In flight when this was written: content for Iraq (south: Najaf, Kufa,
-  Karbala, Musayyib; north: Kazimayn, Baghdad, Samarra, Balad, Mada'in),
-  Iran, Saudi Arabia and Syria, researched by opus agents into the
-  session's scratchpad. If `assets/ziyarat_guide.json` still has
-  `"regions": []`, that content was lost with the session: redo phase 1's
-  content, one agent per region, with the brief below.
-- Done: the content audit (above).
+- Content: 52 places in 16 cities - Madinah, Makkah; Najaf, Kufa, Karbala,
+  Musayyib, Kazimayn, Baghdad, Samarra, Balad, Mada'in; Mashhad, Qom, Rey,
+  Shiraz; Damascus. Researched by one opus agent per region, with sources
+  per site. Full suite passed (2116 tests).
+- The audit, the missing-ziyarat list and the corpus problems are above.
+
+**Next (session 2):**
+
+1. Phase 2, owner review: the owner reads the guide on a device as an
+   admin (All features -> Ziyarat Guide) and checks facts, burials, tips.
+   Ask them for their decisions on "Corpus problems found" (G82's title,
+   AE15/G78, AJ2's title, the stray lines) and apply them with the
+   `zikr-structure` skill.
+2. Phase 3, restore missing ziyarats, biggest first: Imam Reza (AE3-AE8),
+   the Baqi Imams (AP8, AP9, AP11), Hamzah/Uhud (AQ1, AQ2, AQ4), the Four
+   Deputies (AM3), Abd al-Azim (AE17), Lady Khadijah. Follow
+   `scripts/RESTORING_MISSING_ZIKRS.md`'s per-batch workflow and check each
+   with `source_check.py`; then link each new uid from its site in
+   `assets/ziyarat_guide.json` (the test checks the links).
+3. Phase 4, translations: one opus/high agent per language (ur, fa, ar,
+   gu) writes `assets/ziyarat_guide_i18n/<code>.json` for every key the
+   test's `sourceKeys()` lists (names, about, tips, notes, labels), using
+   the wording the app's ARB files and zikr titles already use.
+4. Phase 5: point the Ziyarats list's `G0~B` row at the guide, ungate
+   `ziyaratGuideMenuItem` (move it into `homeMenuItems` after Ziyarats,
+   update `test/widget_test.dart`), What's New note, ship.
+
+Re-running a region's content: the agents' brief is below; they write
+`{"regions": [...]}` fragments that merge into the asset (Iraq's cities in
+pilgrim order: najaf, kufa, karbala, musayyib, kazimayn, baghdad, samarra,
+balad, madain).
 
 **Content brief for agents** (what session 1 used): read this doc and
 `CLAUDE.md`; research each site on the shrines' own sites, al-islam.org,
