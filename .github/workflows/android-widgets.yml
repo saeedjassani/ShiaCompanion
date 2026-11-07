@@ -140,8 +140,9 @@ jobs:
           profile: pixel_6
           disable-animations: true
           working-directory: android
-          # One line: this action's `script` mishandles continuations.
-          script: ./gradlew :app:connectedDebugAndroidTest --console=plain
+          # One line: this action's `script` mishandles continuations. On a
+          # failure, the device's log goes into the reports for the upload.
+          script: ./gradlew :app:connectedDebugAndroidTest --console=plain || (mkdir -p ../build/app/reports/androidTests/connected && adb logcat -d > ../build/app/reports/androidTests/connected/logcat.txt; exit 1)
 
       - name: Upload test reports
         if: always()

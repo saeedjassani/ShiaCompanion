@@ -12,12 +12,16 @@ import android.content.Context
 import android.os.Build
 import android.os.Bundle
 import android.os.ParcelFileDescriptor
+import android.util.Log
 import android.util.SizeF
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.test.runner.AndroidJUnit4
+import androidx.work.WorkManager
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.runBlocking
 import androidx.test.platform.app.InstrumentationRegistry
 import org.junit.After
 import org.junit.Assert.assertTrue
@@ -72,10 +76,19 @@ class WidgetHostTest {
     private fun publishData() {
         val hour = 60L * 60L * 1000L
         val now = System.currentTimeMillis()
-        val schedule = listOf("Zuhr" to "12:30 pm", "Asr" to "3:45 pm", "Maghrib" to "6:10 pm", "Isha" to "7:30 pm")
+        val prayers = listOf("Zuhr" to "12:30 pm", "Asr" to "3:45 pm", "Maghrib" to "6:10 pm", "Isha" to "7:30 pm")
+        val schedule = prayers
             .mapIndexed { index, (name, time) -> "${now + (index + 1) * 2 * hour}|$name|$time|Today" }
             .joinToString(";")
-        context.getSharedPreferences("shia_companion_widgets", Context.MODE_PRIVATE).edit()
+        val editor = context.getSharedPreferences("shia_companion_widgets", Context.MODE_PRIVATE).edit()
+        // The Daily Prayer Times widget shows as many prayers as these
+        // per-slot keys hold: the user's Settings selection, which the app
+        // always publishes.
+        prayers.forEachIndexed { index, (name, time) ->
+            editor.putString("sc_daily_prayer_name_${index + 1}", name)
+            editor.putString("sc_daily_prayer_time_${index + 1}", time)
+        }
+        editor
             .putString("sc_prayer_location", "Karachi")
             .putString("sc_prayer_schedule", schedule)
             .putString("sc_favorites_item_1", "Dua Ahad")
@@ -132,23 +145,31 @@ class WidgetHostTest {
         else -> false
     }
 
-    private fun awaitContent(view: AppWidgetHostView, what: String, expected: String, absent: String?) {
-        val deadline = System.currentTimeMillis() + TIMEOUT_MILLIS
+    /** Null once [view] shows [expected] and not [absent]; otherwise what went wrong. */
+    private fun awaitContent(view: AppWidgetHostView, what: String, expected: String, absent: String?): String? {
+        val start = System.currentTimeMillis()
         var shown = emptyList<String>()
         var spinning = true
-        while (System.currentTimeMillis() < deadline) {
+        while (System.currentTimeMillis() - start < TIMEOUT_MILLIS) {
             instrumentation.runOnMainSync {
                 spinning = loading(view)
                 shown = texts(view)
             }
-            if (!spinning && shown.any { expected in it } && (absent == null || shown.none { absent in it })) return
+            if (!spinning && shown.any { expected in it } && (absent == null || shown.none { absent in it })) {
+                Log.i(TAG, "$what rendered in ${System.currentTimeMillis() - start} ms: $shown")
+                return null
+            }
             Thread.sleep(250)
         }
-        fail(
-            "$what on API ${Build.VERSION.SDK_INT}: " +
-                (if (spinning) "still on the loading spinner" else "not showing \"$expected\" without \"$absent\"") +
-                " after ${TIMEOUT_MILLIS / 1000} s; it shows $shown"
-        )
+        // Where the render stopped: Glance's session for this widget is
+        // WorkManager's unique work "appWidget-<id>".
+        val work = runBlocking {
+            WorkManager.getInstance(context)
+                .getWorkInfosForUniqueWorkFlow("appWidget-${view.appWidgetId}").first()
+        }.joinToString { "${it.state} (attempt ${it.runAttemptCount})" }.ifEmpty { "none" }
+        return "$what: " +
+            (if (spinning) "still on the loading spinner" else "not showing \"$expected\" without \"$absent\"") +
+            " after ${TIMEOUT_MILLIS / 1000} s; it shows $shown; its session work: $work"
     }
 
     @Test
@@ -165,16 +186,26 @@ class WidgetHostTest {
             Triple(DailyPrayerTimesWidgetReceiver::class.java, "Asr", "Set location"),
             Triple(IslamicCalendarWidgetReceiver::class.java, "Islamic Calendar", null),
         )
+        // Every widget is checked, so one stuck widget doesn't hide how the
+        // others fared on this API level.
+        val failures = mutableListOf<String>()
         for ((receiver, expected, absent) in widgets) {
             for ((width, height) in listOf(150 to 150, 320 to 180)) {
                 val what = "${receiver.simpleName} at ${width}x$height"
-                awaitContent(place(receiver, width, height), what, expected, absent)
+                awaitContent(place(receiver, width, height), what, expected, absent)?.let {
+                    Log.e(TAG, it)
+                    failures += it
+                }
             }
+        }
+        if (failures.isNotEmpty()) {
+            fail("On API ${Build.VERSION.SDK_INT}, ${failures.size} of ${widgets.size * 2}:\n" + failures.joinToString("\n"))
         }
     }
 
     private companion object {
         const val HOST_ID = 4711
         const val TIMEOUT_MILLIS = 30_000L
+        const val TAG = "WidgetHostTest"
     }
 }
