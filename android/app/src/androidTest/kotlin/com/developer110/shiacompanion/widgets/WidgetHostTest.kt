@@ -58,11 +58,10 @@ class WidgetHostTest {
         // A freshly booted emulator is still delivering BOOT_COMPLETED to
         // every app, and the widgets' APPWIDGET_UPDATE queues behind it: on
         // API 32 the first widget placed waited over 30 s, the next ones 21,
-        // 15 and 8 s, the rest 0.5 s. A phone placing a widget isn't in that
-        // state, so wait for the broadcast queues to drain, as CTS does.
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            Log.i(TAG, "wait-for-broadcast-idle: " + shell("am wait-for-broadcast-idle"))
-        }
+        // 15 and 8 s, the rest 0.5 s; API 29 and 31 the same. A phone placing
+        // a widget isn't in that state, so wait for the broadcast queues to
+        // drain first, as CTS does (the command is there from Android 9).
+        Log.i(TAG, "wait-for-broadcast-idle: " + shell("am wait-for-broadcast-idle"))
         instrumentation.runOnMainSync {
             host = AppWidgetHost(context, HOST_ID)
             host.startListening()
