@@ -208,6 +208,69 @@ The audit scripts are not kept. To redo it, compare Arabic lines (strict,
 then diacritic-insensitive) per entry across those commits, against the
 whole HEAD corpus, with `assets/items/*` at `d11c1f16^` for Divine Pearls.
 
+## Missing ziyarats (phase 3 work list)
+
+Found while writing phase 1's content. Uids are from
+`scripts/unfavorited_missing_zikrs.json` (their old text is in git history,
+see `scripts/RESTORING_MISSING_ZIKRS.md`); URLs hold a text to check against.
+
+- **Imam Reza (the biggest gap):** G68 is only the head-side salutation.
+  Missing: the main first ziyarat AE3, the dua after it AE4, Ziyarat
+  Jawadiyya AE5, other forms AE6/AE7, the farewell AE8, his own
+  Izn-e-Dukhool, the "Seven Hadith" ziyarat, Imam al-Zaman's ziyarat at his
+  shrine. All on https://www.duas.org/ziaratimamreza_sr.htm.
+- **Iran, other:** Abd al-Azim al-Hasani AE17 (Arabic in history);
+  farewell to Lady Masuma (AE14 was prose only); descendants of the Imams in
+  general G28 (prose only, would serve Rey and Shiraz).
+- **Madinah**, all on https://www.duas.org/mobile/madina-mecca-rites.html:
+  the four Baqi Imams AP8 (https://www.duas.org/ziaratbaqi.htm), farewell to
+  them AP9, farewell to the Prophet AP13, Ibrahim son of the Prophet AP11,
+  Fatimah bint Asad AQ1, Hamzah AQ2, the martyrs of Uhud AQ4, acts in
+  Madinah's mosques AP12, ziyarat of the Prophet from a distance AP5/AP6;
+  no uid: Abbas ibn Abd al-Muttalib, Aqil and Abdullah ibn Ja'far, the
+  Prophet's wives, daughters and aunts, Isma'il ibn Ja'far, Halimah.
+- **Makkah (no uid):** Lady Khadijah
+  (https://www.duas.org/mobile/ziyarat-khadija.html), Abd Manaf, Qasim.
+- **Baghdad:** the Four Deputies AM3 (+AM2)
+  (https://duas.org/mobile/ziyarat-deputies-imam.html), Masjid Buratha AM1,
+  al-Kulayni AM4.
+- **Kazimayn:** AH3 (another ziyarat of Imam al-Kazim), AH1, AH11.
+- **Samarra:** Lady Narjis AL8, Lady Hakimah AL9, AL4, AL10, AL16.
+- **Mada'in:** prayer at Taq Kasra AJ3, Hudhayfah AJ4, AJ1.
+
+## Corpus problems found (owner's review)
+
+- **G82** is titled "Ziyarat of Lady Sakina (s.a.)" but is the ziyarat of
+  Lady Ruqayya of Damascus; check its `day`s (02-10, 07-20) too. The guide
+  labels it Ruqayya.
+- **AE15 / G78** are one Lady Masuma ziyarat: AE15 has the English, G78 the
+  34/33/33 takbir instruction, `day`s and all four overlays. Merge, alias
+  one to the other.
+- **G68**'s title reads as the full ziyarat of Imam Reza; it is a short form.
+- **AH5 tab 1** opens with Kazimayn's general entry rites, which belong
+  before AH2 (AH2 starts "You may then stop...").
+- **AL6 tab 1** is labelled "Entry Permission & Combined Ziyarat" but is
+  Imam al-Askari's own ziyarat; **AL1** has a stray "Farewell Ziyarat"
+  heading on line 2.
+- **AJ2**'s title names Hudhayfah, Tahir and "Abdullah ibn Jabir" (likely
+  Jabir ibn Abd Allah) but its text is Salman's alone; **G63** is a 10-line
+  excerpt of AJ2 and gives Salman "(a.s.)" where AJ2 has "(r.a.)".
+- Overlaps the guide resolved by linking the shrine entry: G69/G70/G71
+  inside AH5 tab 1 / AL5 tab 1 / AL6 tab 1, G67 partly AH2, G72 partly
+  G5/AL11 tab 3.
+- Fixed in session 1: `holy_sites.dart` had Jamkaran 3.5 km east of the
+  mosque, and Lady Zainab and Lady Ruqayya 90-180 m off.
+
+## Unverified, left out of phase 1
+
+- Tombs of Uthman ibn Sa'id, Husayn ibn Ruh and Ali al-Samarri (no
+  coordinates; mentioned in Baghdad's text), Ali ibn Babawayh in Qom, Hujr
+  ibn Adi at Adra (shrine desecrated 2013), Ghadir Khumm/al-Juhfa, Hilla/
+  al-Kifl, Nishapur.
+- OSM-only coordinates: the Sardab (Samarra), Balad.
+- Death years where sources disagree (Shaykh Baha'i 1030/1031) or are not
+  established are omitted.
+
 ## Status and resume here
 
 (Updated at the end of every session.)
