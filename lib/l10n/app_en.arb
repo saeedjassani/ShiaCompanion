@@ -4397,5 +4397,41 @@
         "example": "Dua Kumayl"
       }
     }
-  }
+  },
+  "menuZiyaratGuide": "Ziyarat Guide",
+  "ziyaratGuidePlaceCount": "{count, plural, =1{1 place} other{{count} places}}",
+  "@ziyaratGuidePlaceCount": {
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "ziyaratGuideBeforeYouGo": "Before you go",
+  "ziyaratGuidePlaces": "Places",
+  "ziyaratGuideAbout": "About",
+  "ziyaratGuideTips": "Tips for pilgrims",
+  "ziyaratGuideZiyarat": "Ziyarat",
+  "ziyaratGuideBuried": "Also buried here",
+  "ziyaratGuideDirections": "Directions",
+  "ziyaratGuideCompass": "Point the compass",
+  "ziyaratGuideDiedAh": "d. {year} AH",
+  "@ziyaratGuideDiedAh": {
+    "description": "A burial's Hijri year of death, beside the name.",
+    "placeholders": {
+      "year": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "ziyaratGuideKindShrine": "Shrine",
+  "ziyaratGuideKindMosque": "Mosque",
+  "ziyaratGuideKindCemetery": "Cemetery",
+  "ziyaratGuideKindTomb": "Tomb",
+  "ziyaratGuideKindMaqam": "Maqam",
+  "ziyaratGuideKindOther": "Place",
+  "ziyaratGuideLoadFailed": "The Ziyarat Guide couldn't be opened.",
+  "ziyaratGuideMapsFailed": "Couldn't open a maps app."
 }

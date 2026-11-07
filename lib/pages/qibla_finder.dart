@@ -34,10 +34,14 @@ import 'city_picker.dart';
 /// so magnetic readings can be compared against true bearings, and a dial to
 /// draw the result on.
 class QiblaFinder extends StatefulWidget {
-  const QiblaFinder({super.key, this.compassSource});
+  const QiblaFinder({super.key, this.compassSource, this.initialTarget});
 
   /// Injected by tests, which have no magnetometer to read.
   final CompassSource? compassSource;
+
+  /// What to point at instead of the saved choice: the shrine the Ziyarat
+  /// Guide was showing. Not saved; picking another target still is.
+  final HolySite? initialTarget;
 
   @override
   State<QiblaFinder> createState() => _QiblaFinderState();
@@ -105,9 +109,10 @@ class _QiblaFinderState extends State<QiblaFinder> {
     super.initState();
     unawaited(trackScreen('Qibla Finder'));
     _compass = widget.compassSource ?? const PlatformCompassSource();
-    _target = holySiteById(
-      SP.isInitialized ? SP.prefs.getString(_targetPreferenceKey) : null,
-    );
+    _target = widget.initialTarget ??
+        holySiteById(
+          SP.isInitialized ? SP.prefs.getString(_targetPreferenceKey) : null,
+        );
     _location.addListener(_onLocationChanged);
     // Quietly, with no dialogs: the screen has plenty to show while this runs,
     // and an unprompted permission sheet on open is hostile.

@@ -15,6 +15,10 @@ import 'package:shia_companion/pages/home/hadith_card.dart';
 import 'package:shia_companion/pages/home/home_header.dart';
 import 'package:shia_companion/pages/home/shortcuts_section.dart';
 import 'package:shia_companion/pages/list_items.dart';
+import 'package:shia_companion/constants.dart' show items;
+import 'package:shia_companion/models/ziyarat_guide.dart';
+import 'package:shia_companion/pages/ziyarat_guide/ziyarat_city_page.dart';
+import 'package:shia_companion/pages/ziyarat_guide/ziyarat_site_page.dart';
 import 'package:shia_companion/services/city_repository.dart';
 import 'package:shia_companion/theme/app_theme.dart';
 import 'package:shia_companion/utils/app_text_scale.dart';
@@ -45,6 +49,8 @@ void main() {
     SharedPreferences.setMockInitialValues({});
     await SP.init();
     await setUpFirebaseForRenderTests();
+    // What the guide's ziyarat rows look up their titles in.
+    items.putIfAbsent('AK5', () => 'Ziyarat of Imam Ali (a.s.) — Najaf');
     // The real list is 2 MB; a few rows exercise the same layout.
     CityRepository.instance.seedForTesting([
       for (final (name, country) in [
@@ -162,6 +168,55 @@ class _Viewport {
   final Size size;
 }
 
+/// A city and a site with every section filled, long text included.
+final ZiyaratGuide _guideFixture = ZiyaratGuide.fromJson({
+  'regions': [
+    {
+      'id': 'iraq',
+      'name': 'Iraq',
+      'cities': [
+        {
+          'id': 'najaf',
+          'name': 'Najaf al-Ashraf',
+          'about': 'The city of Amir al-Mu\'minin (a.s.). ' * 6,
+          'tips': ['Walk to the shrine early. ' * 4, 'Carry water.'],
+          'sites': [
+            {
+              'id': 'imam_ali_shrine',
+              'name': 'Shrine of Imam Ali (a.s.)',
+              'arabicName': 'العتبة العلوية المقدسة',
+              'kind': 'shrine',
+              'location': [32.0297, 44.3145],
+              'holySiteId': 'imam_ali_najaf',
+              'about': 'Read [Ziyarat Aminullah](AK5?tab=2) here. ' * 4,
+              'ziyarat': [
+                {'uid': 'AK5'},
+                {
+                  'uid': 'AK5',
+                  'tab': 2,
+                  'label': 'Ziyarat Aminullah',
+                  'note': 'Especially on 18 Dhul Hijjah.',
+                },
+              ],
+              'buried': [
+                {
+                  'id': 'allamah_hilli',
+                  'name': 'Allamah al-Hilli',
+                  'diedAh': 726,
+                  'note': 'Jurist and theologian, buried in the northern '
+                      'iwan of the courtyard.',
+                },
+                {'id': 'nuh', 'name': 'Prophet Nuh (a.s.)'},
+              ],
+              'tips': ['Pray two units at the head side.'],
+            },
+          ],
+        },
+      ],
+    },
+  ],
+});
+
 /// Menu screens that cannot be rendered in a widget test, with the reason.
 ///
 /// Empty at the moment. Qibla Finder used to be here, when it was a host for a
@@ -194,6 +249,11 @@ final List<_Screen> _screens = [
       ),
     ),
   ),
+  // Reached from the Ziyarat Guide's front page (a menu screen above).
+  _Screen('Ziyarat Guide city',
+      () => ZiyaratCityPage(city: _guideFixture.city('najaf')!)),
+  _Screen('Ziyarat Guide site',
+      () => ZiyaratSitePage(site: _guideFixture.site('imam_ali_shrine')!)),
   // Home itself starts the whole app (deep links, notifications, sync), so
   // its sections are rendered on their own, laid out as Home lays them out.
   _Screen('Home sections', () => const _HomeSections()),

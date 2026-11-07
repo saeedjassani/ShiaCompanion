@@ -68,6 +68,7 @@ void main() {
         // Relabelled from Preferences; the id stays.
         'Settings': 'preferences',
         'Quran': 'quran',
+        'Ziyarat Guide': 'ziyarat_guide',
         'Usage': 'usage',
         'My Stats': 'my_stats',
         'Mistake Reports': 'mistake_reports',
@@ -146,6 +147,15 @@ void main() {
           'Qibla',
         ],
       );
+    });
+
+    test('only an admin sees the Ziyarat Guide, after Ziyarats', () {
+      isUserAdmin = false;
+      expect(visibleHomeMenuItems, isNot(contains(ziyaratGuideMenuItem)));
+      isUserAdmin = true;
+      final shown = visibleHomeMenuItems.map((item) => item.label).toList();
+      expect(shown.indexOf('Ziyarat Guide'), shown.indexOf('Ziyarats') + 1);
+      isUserAdmin = false;
     });
 
     test('everyone gets the Quran screen in place of Surahs', () {

@@ -23,6 +23,7 @@ import '../pages/qibla_finder.dart';
 import '../pages/quran/quran_page.dart';
 import '../pages/settings_page.dart';
 import '../pages/tasbeeh_page.dart';
+import '../pages/ziyarat_guide/ziyarat_guide_page.dart';
 import '../pages/todays_recitation_page.dart';
 import '../widgets/home_glyph.dart';
 import '../widgets/outline_icon.dart';
@@ -329,6 +330,17 @@ final HomeMenuItem myStatsMenuItem = HomeMenuItem(
   pageBuilder: () => const MyStatsPage(),
 );
 
+/// The Ziyarat Guide (docs/ZIYARAT_GUIDE.md). Admin-only while its content
+/// and translations are reviewed: [visibleHomeMenuItems] adds it for an
+/// admin, after Ziyarats. To ship it, move it into [homeMenuItems] there.
+final HomeMenuItem ziyaratGuideMenuItem = HomeMenuItem(
+  label: 'Ziyarat Guide',
+  analyticsId: 'ziyarat_guide',
+  glyphType: HomeGlyphType.ziyaraat,
+  icon: Icons.place_rounded,
+  pageBuilder: () => const ZiyaratGuidePage(),
+);
+
 /// Menu entries only an admin sees, added on top of the regular grid rather
 /// than replacing anything in it. Kept out of [homeMenuItems] so the grid
 /// every user gets stays a compile-time constant, and so admin state — which
@@ -362,7 +374,12 @@ final List<HomeMenuItem> adminHomeMenuItems = List.unmodifiable([
 /// like Quran that never appears in [visibleHomeMenuItems] side by side with
 /// the item it replaces there.
 final List<HomeMenuItem> allHomeMenuItems = List.unmodifiable(
-  [...homeMenuItems, quranMenuItem, ...adminHomeMenuItems],
+  [
+    ...homeMenuItems,
+    quranMenuItem,
+    ziyaratGuideMenuItem,
+    ...adminHomeMenuItems
+  ],
 );
 
 /// What the home grid shows right now, which depends on who is signed in:
@@ -370,8 +387,10 @@ final List<HomeMenuItem> allHomeMenuItems = List.unmodifiable(
 /// after for an admin.
 List<HomeMenuItem> get visibleHomeMenuItems {
   return List.unmodifiable([
-    for (final item in homeMenuItems)
+    for (final item in homeMenuItems) ...[
       if (item.label == 'Surahs') quranMenuItem else item,
+      if (item.label == 'Ziyarats' && isUserAdmin) ziyaratGuideMenuItem,
+    ],
     if (isUserAdmin) ...adminHomeMenuItems,
   ]);
 }
@@ -451,6 +470,7 @@ String homeMenuDisplayLabel(String label) {
     'Namaz' => L10n.current.menuNamaz,
     'Duas' => L10n.current.menuDuas,
     'Ziyarats' => L10n.current.menuZiyarats,
+    'Ziyarat Guide' => L10n.current.menuZiyaratGuide,
     'Surahs' => L10n.current.menuSurahs,
     'Aamaal' => L10n.current.menuAamaal,
     'Library' => L10n.current.menuLibrary,

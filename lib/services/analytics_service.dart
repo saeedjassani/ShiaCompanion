@@ -129,6 +129,7 @@ class AnalyticsService {
     ZikrOpenSource.deepLink: 'Zikr opened from a shared link (from outside '
         'the app)',
     ZikrOpenSource.zikrLink: 'Zikr opened from a link inside another zikr',
+    ZikrOpenSource.ziyaratGuide: 'Zikr opened from the Ziyarat Guide',
     ZikrOpenSource.admin: 'Zikr opened from the admin list',
     ZikrOpenSource.playlist: 'Zikr opened from a playlist',
     ZikrOpenSource.downloads: 'Zikr opened from downloaded recitations',
@@ -397,6 +398,7 @@ class ZikrOpenSource {
   static const String liveStreaming = 'live_streaming';
   static const String deepLink = 'deep_link';
   static const String zikrLink = 'zikr_link';
+  static const String ziyaratGuide = 'ziyarat_guide';
   static const String admin = 'admin';
   static const String playlist = 'playlist';
 

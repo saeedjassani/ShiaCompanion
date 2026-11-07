@@ -109,6 +109,10 @@ count under their own keys (`azaan_opt_in`, `arabic_font_changed`,
 
 **Search** — `search`, `search_opened`.
 
+**Ziyarat Guide** — `ziyarat_guide_city` (+`city`), `ziyarat_guide_site`
+(+`site`), `ziyarat_guide_directions` (+`site`); labelled with the English
+name, keyed by the guide's stable ids (docs/ZIYARAT_GUIDE.md).
+
 **Feedback** — `feedback_email_opened`.
 
 A key nothing above recognises still shows up on the dashboard, just under an
@@ -137,6 +141,7 @@ them do not explain themselves.
 | `live_streaming` | Declared, currently unused |
 | `deep_link` | A URL from **outside** the app — a shared link, opened cold by the web launch route or while running by the home page's deep-link handler |
 | `zikr_link` | A link **inside another zikr's own text**, resolved to a local uid by `extractZikrLinkSegment` and pushed by `ZikrPage._handleZikrLinkTap` |
+| `ziyarat_guide` | Tapped in the Ziyarat Guide: a shrine's ziyarat rows, Before you go, or a link in its text |
 | `admin` | Opened from the admin zikr list |
 | `home_widget_favorites` | Tapped an item in the Favorites home screen widget |
 | `home_widget_recitation` | Tapped an item in the Today's Recitation home screen widget |
