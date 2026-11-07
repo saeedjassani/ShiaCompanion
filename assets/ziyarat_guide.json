@@ -607,7 +607,14 @@
                 44.339
               ],
               "about": "Two small shrines in the old quarter just south-east of the Kazimayn shrine, reached from its Bab al-Qibla side, are visited as the graves of the brothers al-Sharif al-Murtada and al-Sharif al-Radi. Where the brothers are buried is disputed: they were first buried in their house in Baghdad, and some reports say they were later carried to Karbala and buried near Imam Husayn (a.s.). The al-Murtada shrine was taken down in 2022 and rebuilt.",
-              "ziyarat": [],
+              "ziyarat": [
+                {
+                  "uid": "G29",
+                  "tab": 5,
+                  "label": "At the Grave of a Believer",
+                  "note": "The general visit to a believer's grave."
+                }
+              ],
               "buried": [
                 {
                   "id": "sharif_al_murtada",
@@ -626,13 +633,127 @@
               ],
               "tips": [
                 "Both tombs are a few minutes' walk from the shrine's Bab al-Qibla, on the street named after al-Sharif al-Radi.",
-                "Recite al-Fatihah for them; the corpus has no special ziyarat for these graves."
+                "Recite al-Fatihah for them; there is no special ziyarat for these graves."
               ],
               "sources": [
                 "https://en.wikipedia.org/wiki/Sharif_al-Murtada_Shrine",
                 "https://en.wikishia.net/view/Al-Sayyid_al-Murtada",
                 "https://en.wikipedia.org/wiki/Al-Kadhimiya_Mosque",
                 "https://nominatim.openstreetmap.org/ (مرقد الشريف المرتضى, مرقد الشريف الرضي)"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "baghdad",
+          "name": "Baghdad",
+          "arabicName": "بغداد",
+          "about": "Baghdad, the Abbasid capital founded by al-Mansur, was where the Four Deputies (al-Nuwwab al-Arba'a) of Imam al-Mahdi (a.t.f.s.) lived and carried his letters to the Shia during the Minor Occultation (260-329 AH), and where they are buried. The city also holds the tomb of Shaykh al-Kulayni, compiler of al-Kafi, and Masjid Buratha, where Imam Ali (a.s.) prayed. Kazimayn, on the city's north-western edge, is listed on its own.",
+          "tips": [
+            "The deputies' tombs and Shaykh al-Kulayni's are on the east bank (Rusafa), in and around the old markets between al-Rashid Street and Shorja; some of the graves sit inside the lanes of the bazaar, so ask locally or go with a guide.",
+            "Masjid Buratha is on the west bank, on the way between Kazimayn and central Baghdad, and is easily visited from Kazimayn.",
+            "Mafatih al-Jinan gives one ziyarat for Uthman ibn Sa'id al-Amri that may be recited for each of the four deputies by naming him; until it is in the app, greet them, recite al-Fatihah and pray for the Imam's reappearance.",
+            "Most pilgrims stay in Kazimayn and visit these sites in a single day across the river."
+          ],
+          "sites": [
+            {
+              "id": "muhammad_ibn_uthman_tomb",
+              "name": "Tomb of Muhammad ibn Uthman al-Amri (Khilani Mosque)",
+              "arabicName": "مرقد محمد بن عثمان العمري (جامع الخلاني)",
+              "kind": "tomb",
+              "location": [
+                33.3335,
+                44.4053
+              ],
+              "about": "The Khilani Mosque on al-Jumhuriya Street, in the square named after it, holds the grave visited by Shia as that of Abu Ja'far Muhammad ibn Uthman al-Amri, the second of the Four Deputies, who succeeded his father Uthman ibn Sa'id and died in 304 or 305 AH. Some historians attribute the grave to a Hanbali scholar instead. The mosque is cared for by Shia and is a centre of prayer in the heart of Rusafa.",
+              "ziyarat": [
+                {
+                  "uid": "G29",
+                  "tab": 5,
+                  "label": "At the Grave of a Believer",
+                  "note": "The general visit to a believer's grave."
+                }
+              ],
+              "buried": [
+                {
+                  "id": "muhammad_ibn_uthman_al_amri",
+                  "name": "Muhammad ibn Uthman al-Amri",
+                  "arabicName": "محمد بن عثمان العمري",
+                  "note": "Second deputy of Imam al-Mahdi (a.t.f.s.), son and successor of the first deputy; the grave in the mosque is visited as his."
+                }
+              ],
+              "tips": [
+                "Name him in the deputies' ziyarat when it is added to the app; meanwhile a salam, al-Fatihah and a prayer for the Imam are fitting.",
+                "The mosque holds congregational prayers; visit the grave outside prayer times."
+              ],
+              "sources": [
+                "https://en.wikipedia.org/wiki/Al-Khilani_Mosque",
+                "https://en.wikipedia.org/wiki/List_of_mosques_in_Baghdad",
+                "https://en.wikipedia.org/wiki/Four_Deputies",
+                "https://www.wikidata.org/wiki/Q6756164",
+                "https://nominatim.openstreetmap.org/ (جامع الخلاني)"
+              ]
+            },
+            {
+              "id": "kulayni_tomb",
+              "name": "Tomb of Shaykh al-Kulayni",
+              "arabicName": "مرقد الشيخ الكليني",
+              "kind": "tomb",
+              "location": [
+                33.3389,
+                44.3892
+              ],
+              "about": "A small shrine in the al-Asifiyya mosque on the east bank of the Tigris, beside the old Mustansiriyya school and the Shuhada (old) bridge, is visited as the grave of Muhammad ibn Ya'qub al-Kulayni. He compiled al-Kafi, the foremost of the four books of Shia hadith, and died in Baghdad in 329 AH, the year the Major Occultation began. Some writers attribute the tomb to the Sufi al-Harith al-Muhasibi instead.",
+              "ziyarat": [
+                {
+                  "uid": "G29",
+                  "tab": 5,
+                  "label": "At the Grave of a Believer",
+                  "note": "The general visit to a believer's grave."
+                }
+              ],
+              "buried": [
+                {
+                  "id": "shaykh_al_kulayni",
+                  "name": "Shaykh al-Kulayni",
+                  "arabicName": "الشيخ محمد بن يعقوب الكليني",
+                  "diedAh": 329,
+                  "note": "Thiqat al-Islam, compiler of al-Kafi; the shrine in the al-Asifiyya mosque is visited as his grave."
+                }
+              ],
+              "tips": [
+                "The tomb of Ali ibn Muhammad al-Samarri, the fourth deputy, is said to be near Shaykh al-Kulayni's; ask at the shrine for the way.",
+                "The shrine overlooks the river at the Rusafa end of the Shuhada bridge, next to the Mustansiriyya school."
+              ],
+              "sources": [
+                "https://en.wikipedia.org/wiki/Mosque-Madrasa_of_al-Asifyah",
+                "https://fa.wikishia.net/view/محمد_بن_یعقوب_کلینی",
+                "https://fa.wikifeqh.ir/زیارتگاه_سمری‌",
+                "https://www.al-islam.org/ziyarat/iraq.htm",
+                "https://nominatim.openstreetmap.org/ (المدرسة الآصفية, المدرسة المستنصرية)"
+              ]
+            },
+            {
+              "id": "buratha_mosque",
+              "name": "Masjid Buratha",
+              "arabicName": "جامع براثا",
+              "kind": "mosque",
+              "location": [
+                33.3509,
+                44.361
+              ],
+              "about": "An ancient mosque on the west bank of Baghdad, on the road between Kazimayn and the city, built where a monastery once stood. By narration, Imam Ali (a.s.) stopped and prayed here on his return from the battle of Nahrawan, and a spring of cold, sweet water came up where he struck the ground. Mafatih al-Jinan recommends praying in it; the present building is modern (1954).",
+              "ziyarat": [],
+              "buried": [],
+              "tips": [
+                "Pray two rak'ats of greeting the mosque (tahiyyat al-masjid); a stone inside marks the place associated with Imam Ali (a.s.)'s prayer.",
+                "It is a short drive from Kazimayn and is often visited on the way into central Baghdad."
+              ],
+              "sources": [
+                "https://en.wikipedia.org/wiki/List_of_mosques_in_Baghdad",
+                "https://al-islam.org/your-personal-guide-hajj-umrah-ziyarat-mahmud-habib-zehra-habib/ziyarat-iraq",
+                "https://www.wikidata.org/wiki/Q12204312",
+                "https://nominatim.openstreetmap.org/ (جامع براثا)"
               ]
             }
           ]
