@@ -1,0 +1,158 @@
+name: Android widgets
+
+# The home-screen widgets on every Android version the app supports (minSdk
+# 29 to targetSdk 36). They render through Glance, WorkManager and the
+# launcher's AppWidgetHost, which differ between versions and which the
+# Flutter tests never touch.
+#
+# - unit: Robolectric renders each widget on SDK 29-36 and places it through
+#   the real receiver -> WorkManager -> Glance path (android/app/src/test/.../widgets).
+# - emulator: hosts each widget in a real AppWidgetHost on one emulator per
+#   API level and waits for it to leave its loading spinner
+#   (android/app/src/androidTest/.../widgets/WidgetHostTest.kt).
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - 'android/app/src/main/kotlin/com/developer110/shiacompanion/widgets/**'
+      - 'android/app/src/main/kotlin/com/developer110/shia_companion/MainActivity.kt'
+      - 'android/app/src/main/res/xml/*widget_info.xml'
+      - 'android/app/src/test/kotlin/com/developer110/shiacompanion/widgets/**'
+      - 'android/app/src/androidTest/**'
+      - 'android/app/build.gradle'
+      - 'android/scripts/maven-central-mirror.init.gradle'
+      - '.github/workflows/android-widgets.yml'
+  pull_request:
+    paths:
+      - 'android/app/src/main/kotlin/com/developer110/shiacompanion/widgets/**'
+      - 'android/app/src/main/kotlin/com/developer110/shia_companion/MainActivity.kt'
+      - 'android/app/src/main/res/xml/*widget_info.xml'
+      - 'android/app/src/test/kotlin/com/developer110/shiacompanion/widgets/**'
+      - 'android/app/src/androidTest/**'
+      - 'android/app/build.gradle'
+      - 'android/scripts/maven-central-mirror.init.gradle'
+      - '.github/workflows/android-widgets.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: android-widgets-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  unit:
+    name: Robolectric, SDK 29-36
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - run: flutter pub get
+
+      # Writes android/local.properties and the Gradle wrapper, which the
+      # repo doesn't carry, without building the app.
+      - name: Configure the Android build
+        run: flutter build apk --debug --config-only
+
+      - uses: gradle/actions/setup-gradle@v4
+
+      - name: Use Google's Maven Central mirror
+        run: |
+          mkdir -p ~/.gradle/init.d
+          cp android/scripts/maven-central-mirror.init.gradle ~/.gradle/init.d/
+
+      - name: Unit tests
+        working-directory: android
+        run: ./gradlew :app:testDebugUnitTest --console=plain
+
+      - name: Upload test reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: widget-unit-test-reports
+          path: build/app/reports/tests/testDebugUnitTest/
+          if-no-files-found: warn
+          retention-days: 14
+
+  emulator:
+    name: Emulator, API ${{ matrix.api-level }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      # Eight builds at once is what got Maven Central to rate-limit them.
+      max-parallel: 4
+      matrix:
+        api-level: [29, 30, 31, 32, 33, 34, 35, 36]
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - run: flutter pub get
+
+      - name: Configure the Android build
+        run: flutter build apk --debug --config-only
+
+      - uses: gradle/actions/setup-gradle@v4
+
+      - name: Use Google's Maven Central mirror
+        run: |
+          mkdir -p ~/.gradle/init.d
+          cp android/scripts/maven-central-mirror.init.gradle ~/.gradle/init.d/
+
+      # Built before the emulator boots, so its time isn't spent waiting.
+      - name: Build the app and its instrumented tests
+        working-directory: android
+        run: ./gradlew :app:assembleDebug :app:assembleDebugAndroidTest --console=plain
+
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+
+      - name: Host every widget
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: ${{ matrix.api-level }}
+          target: google_apis
+          arch: x86_64
+          profile: pixel_6
+          # The profile's default VM heap is 16 MB, system_server's included:
+          # on API 29 it ran out of memory and crashed mid-test. A real
+          # phone's heap and RAM.
+          heap-size: 512M
+          ram-size: 4096M
+          disable-animations: true
+          working-directory: android
+          # One line: this action's `script` mishandles continuations. On a
+          # failure, the device's log goes into the reports for the upload.
+          script: ./gradlew :app:connectedDebugAndroidTest --console=plain || (mkdir -p ../build/app/reports/androidTests/connected && adb logcat -d > ../build/app/reports/androidTests/connected/logcat.txt; exit 1)
+
+      - name: Upload test reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: widget-emulator-reports-api-${{ matrix.api-level }}
+          path: build/app/reports/androidTests/connected/
+          if-no-files-found: warn
+          retention-days: 14

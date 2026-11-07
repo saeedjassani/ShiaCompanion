@@ -12,8 +12,10 @@ import android.os.SystemClock
 import android.util.TypedValue
 import android.widget.RemoteViews
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.key
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
+import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.glance.ColorFilter
 import androidx.glance.GlanceId
 import androidx.glance.GlanceModifier
@@ -35,7 +37,9 @@ import androidx.glance.appwidget.appWidgetBackground
 import androidx.glance.appwidget.lazy.LazyColumn
 import androidx.glance.appwidget.lazy.items
 import androidx.glance.appwidget.provideContent
-import androidx.glance.appwidget.updateAll
+import androidx.glance.appwidget.GlanceAppWidgetManager
+import androidx.glance.appwidget.state.updateAppWidgetState
+import androidx.glance.currentState
 import androidx.glance.background
 import androidx.glance.color.ColorProvider as dayNightColor
 import androidx.glance.layout.Alignment
@@ -168,6 +172,36 @@ private fun String.toColorOrNull(): Color? =
         null
     }
 
+/**
+ * When [refreshAll] last asked a widget to redraw, in its Glance state. The
+ * content is keyed on it, so it must be the one way the widgets are updated.
+ */
+private val RefreshedAtKey = longPreferencesKey("sc_refreshed_at")
+
+/**
+ * Redraws every placed [this] widget from what the app has published.
+ *
+ * Not updateAll(): a widget's Glance session stays up for 45 s after each
+ * render, and updateAll() on a live session only re-sends what it already
+ * composed - the content reads SharedPreferences, which Glance can't observe.
+ * So a widget placed, then refreshed by the app within that window, kept its
+ * "Set location" text. Changing its Glance state first makes [RefreshOnUpdate]
+ * compose it afresh; with no session running, update() starts one.
+ */
+suspend fun GlanceAppWidget.refreshAll(context: Context) {
+    val app = context.applicationContext
+    GlanceAppWidgetManager(app).getGlanceIds(javaClass).forEach { id ->
+        updateAppWidgetState(app, id) { it[RefreshedAtKey] = System.currentTimeMillis() }
+        update(app, id)
+    }
+}
+
+/** [content], composed anew whenever [refreshAll] has changed the widget's state. */
+@Composable
+private fun RefreshOnUpdate(content: @Composable () -> Unit) {
+    key(currentState(RefreshedAtKey)) { content() }
+}
+
 @Composable
 private fun widgetPalette() = WidgetPalette(LocalContext.current.widgetData())
 
@@ -242,7 +276,7 @@ abstract class ShiaCompanionGlanceWidget : GlanceAppWidget() {
  * 4.0.3 Prayer Times widget did this once, right after the update, and came
  * up fine when re-added; the views themselves apply cleanly at every size,
  * so the redraw is that second attempt without the user having to make it.
- * It renders through updateAll, which doesn't come back through onUpdate, so
+ * It renders through refreshAll, which doesn't come back through onUpdate, so
  * it never arms another.
  */
 abstract class ShiaCompanionWidgetReceiver : GlanceAppWidgetReceiver() {
@@ -259,13 +293,15 @@ abstract class ShiaCompanionWidgetReceiver : GlanceAppWidgetReceiver() {
 class FavoritesWidget : ShiaCompanionGlanceWidget() {
     override suspend fun provideGlance(context: Context, id: GlanceId) {
         provideContent {
-            WidgetListContent(
-                titleKey = KEY_FAVORITES_TITLE,
-                titleFallback = "Favorites",
-                itemKeys = favoriteItemKeys,
-                itemUrlKeys = favoriteUrlKeys,
-                firstItemFallback = "No favorites yet"
-            )
+            RefreshOnUpdate {
+                WidgetListContent(
+                    titleKey = KEY_FAVORITES_TITLE,
+                    titleFallback = "Favorites",
+                    itemKeys = favoriteItemKeys,
+                    itemUrlKeys = favoriteUrlKeys,
+                    firstItemFallback = "No favorites yet"
+                )
+            }
         }
     }
 }
@@ -277,14 +313,16 @@ class FavoritesWidgetReceiver : ShiaCompanionWidgetReceiver() {
 class TodaysRecitationWidget : ShiaCompanionGlanceWidget() {
     override suspend fun provideGlance(context: Context, id: GlanceId) {
         provideContent {
-            WidgetListContent(
-                titleKey = KEY_RECITATION_TITLE,
-                titleFallback = "Today's Recitations",
-                itemKeys = recitationItemKeys,
-                itemUrlKeys = recitationUrlKeys,
-                firstItemFallback = "Open app to refresh",
-                scheduleKey = KEY_RECITATION_SCHEDULE
-            )
+            RefreshOnUpdate {
+                WidgetListContent(
+                    titleKey = KEY_RECITATION_TITLE,
+                    titleFallback = "Today's Recitations",
+                    itemKeys = recitationItemKeys,
+                    itemUrlKeys = recitationUrlKeys,
+                    firstItemFallback = "Open app to refresh",
+                    scheduleKey = KEY_RECITATION_SCHEDULE
+                )
+            }
         }
     }
 }
@@ -296,7 +334,9 @@ class TodaysRecitationWidgetReceiver : ShiaCompanionWidgetReceiver() {
 class UpcomingPrayerWidget : ShiaCompanionGlanceWidget() {
     override suspend fun provideGlance(context: Context, id: GlanceId) {
         provideContent {
-            PrayerWidgetContent()
+            RefreshOnUpdate {
+                PrayerWidgetContent()
+            }
         }
     }
 }
@@ -311,7 +351,9 @@ class DailyPrayerTimesWidget : ShiaCompanionGlanceWidget() {
         // midnight; see IslamicCalendarWidget for why this runs every render.
         scheduleNextCalendarWidgetRefresh(context.applicationContext)
         provideContent {
-            DailyPrayerTimesWidgetContent()
+            RefreshOnUpdate {
+                DailyPrayerTimesWidgetContent()
+            }
         }
     }
 }
@@ -327,7 +369,9 @@ class IslamicCalendarWidget : ShiaCompanionGlanceWidget() {
         // midnight roll-over back without the app having to be opened.
         scheduleNextCalendarWidgetRefresh(context.applicationContext)
         provideContent {
-            IslamicCalendarWidgetContent()
+            RefreshOnUpdate {
+                IslamicCalendarWidgetContent()
+            }
         }
     }
 }
@@ -341,8 +385,8 @@ class CalendarWidgetRefreshReceiver : BroadcastReceiver() {
         if (intent.action != ACTION_REFRESH_CALENDAR_WIDGET) return
 
         CoroutineScope(Dispatchers.Main).launch {
-            IslamicCalendarWidget().updateAll(context.applicationContext)
-            DailyPrayerTimesWidget().updateAll(context.applicationContext)
+            IslamicCalendarWidget().refreshAll(context)
+            DailyPrayerTimesWidget().refreshAll(context)
             scheduleNextCalendarWidgetRefresh(context.applicationContext)
         }
     }
@@ -353,8 +397,8 @@ class PrayerWidgetRefreshReceiver : BroadcastReceiver() {
         if (intent.action != ACTION_REFRESH_PRAYER_WIDGET) return
 
         CoroutineScope(Dispatchers.Main).launch {
-            UpcomingPrayerWidget().updateAll(context.applicationContext)
-            DailyPrayerTimesWidget().updateAll(context.applicationContext)
+            UpcomingPrayerWidget().refreshAll(context)
+            DailyPrayerTimesWidget().refreshAll(context)
             scheduleNextPrayerWidgetRefresh(context.applicationContext)
         }
     }
@@ -365,11 +409,11 @@ class WidgetRedrawReceiver : BroadcastReceiver() {
         if (intent.action != ACTION_REDRAW_WIDGETS) return
 
         CoroutineScope(Dispatchers.Main).launch {
-            FavoritesWidget().updateAll(context.applicationContext)
-            TodaysRecitationWidget().updateAll(context.applicationContext)
-            DailyPrayerTimesWidget().updateAll(context.applicationContext)
-            UpcomingPrayerWidget().updateAll(context.applicationContext)
-            IslamicCalendarWidget().updateAll(context.applicationContext)
+            FavoritesWidget().refreshAll(context)
+            TodaysRecitationWidget().refreshAll(context)
+            DailyPrayerTimesWidget().refreshAll(context)
+            UpcomingPrayerWidget().refreshAll(context)
+            IslamicCalendarWidget().refreshAll(context)
         }
     }
 }
@@ -379,8 +423,8 @@ class RecitationWidgetRefreshReceiver : BroadcastReceiver() {
         if (intent.action != ACTION_REFRESH_RECITATION_WIDGET) return
 
         CoroutineScope(Dispatchers.Main).launch {
-            TodaysRecitationWidget().updateAll(context.applicationContext)
-            DailyPrayerTimesWidget().updateAll(context.applicationContext)
+            TodaysRecitationWidget().refreshAll(context)
+            DailyPrayerTimesWidget().refreshAll(context)
             scheduleNextRecitationWidgetRefresh(context.applicationContext)
         }
     }

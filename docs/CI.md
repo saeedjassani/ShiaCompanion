@@ -9,6 +9,7 @@
 | `web-release.yml` | push to `master` that changes the version in `pubspec.yaml`, manual | The only workflow that writes to the live site |
 | `smoke-test.yml` | push to `master` that bumps the version in `pubspec.yaml`, manual | Runs the automated smoke crawler integration test on both an iOS Simulator and an Android emulator |
 | `internal-testing.yml` | manual only | Builds any branch, commit or PR and uploads it to TestFlight and/or the Play internal testing track, or the Wear OS app to Play's Wear OS internal track. Never submits anything for review. |
+| `android-widgets.yml` | PRs and pushes touching the Android home-screen widgets, manual | Robolectric renders and places every widget on SDK 29-36, then an emulator per API level 29-36 hosts each one in a real `AppWidgetHost`. See "Android home-screen widgets" below |
 | `wear.yml` | PRs and pushes touching the Wear OS app, manual | Tests, lint, screenshots and an unsigned release build of `android/wear`. Uploads nothing; see `docs/WEAR_OS.md` |
 | `rules-deployed.yml` | push to `master`, PRs touching the rules, daily, manual | Fails when the live Firestore rules differ from `firestore.rules`. Read-only, never deploys. |
 
@@ -290,6 +291,31 @@ CI workflow for it.
 
 See [`docs/ROBO_TESTS.md`](ROBO_TESTS.md) for the guided Robo script
 (`android/robo_script.json`) and how to configure it in Play Console.
+
+### 6. Android home-screen widgets — `android/app/src/test/.../widgets`, `android/app/src/androidTest/`
+
+The widgets (`ShiaCompanionGlanceWidgets.kt`) are Glance, so nothing in
+`test/` reaches them. Each renders through the receiver, a WorkManager job
+and a Glance session before `AppWidgetManager.updateAppWidget()` replaces the
+launcher's loading spinner (the `initialLayout`), and each of those steps
+differs between Android versions.
+
+- `WidgetRenderTest` (Robolectric, SDK 29-36): composes every widget at six
+  launcher sizes, before and after the app has published data and in a
+  published colour palette, and inflates the RemoteViews as a host would.
+- `WidgetPlacementTest` (Robolectric, SDK 29-36): binds widget ids, sends
+  each receiver `APPWIDGET_UPDATE` and waits for the spinner to go, then has
+  the app publish and refresh (`refreshAll`, as `refreshWidgets` does) and
+  checks the placed widgets pick the data up.
+- `WidgetHostTest` (instrumented): the same on an emulator, in a real
+  `AppWidgetHost` with the system's own update broadcast.
+
+`android-widgets.yml` runs all three; locally, from `android/`:
+`./gradlew :app:testDebugUnitTest` (after `flutter build apk --debug
+--config-only` has written the wrapper), or `:app:connectedDebugAndroidTest`
+with a device attached. Update widgets with `refreshAll()`, never Glance's
+`updateAll()`: on a widget whose session is still running, `updateAll()`
+re-sends what it composed before.
 
 ## iOS builds and Xcode
 
