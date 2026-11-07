@@ -138,6 +138,11 @@ jobs:
           target: google_apis
           arch: x86_64
           profile: pixel_6
+          # The profile's default VM heap is 16 MB, system_server's included:
+          # on API 29 it ran out of memory and crashed mid-test. A real
+          # phone's heap and RAM.
+          heap-size: 512M
+          ram-size: 4096M
           disable-animations: true
           working-directory: android
           # One line: this action's `script` mishandles continuations. On a
