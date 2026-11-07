@@ -1,9 +1,1706 @@
 {
   "general": [
-    { "uid": "B3" },
-    { "uid": "B6" },
-    { "uid": "G26" },
-    { "uid": "G30" }
+    {
+      "uid": "B3"
+    },
+    {
+      "uid": "B6"
+    },
+    {
+      "uid": "G26"
+    },
+    {
+      "uid": "G30"
+    }
   ],
-  "regions": []
+  "regions": [
+    {
+      "id": "saudi_arabia",
+      "name": "Saudi Arabia",
+      "arabicName": "السعودية",
+      "cities": [
+        {
+          "id": "madinah",
+          "name": "Madinah al-Munawwarah",
+          "arabicName": "المدينة المنورة",
+          "about": "The city of the Holy Prophet (s.a.w.a.), where he lived after the Hijrah and where he is buried in his mosque. Lady Fatimah al-Zahra (s.a.) and four of the Imams (a.s.) - Imam Hasan, Imam Zayn al-Abidin, Imam al-Baqir and Imam al-Sadiq - are buried here too, the Imams in Jannat al-Baqi beside the mosque. Pilgrims also visit Hamzah (a.s.) and the martyrs at Uhud and pray in the mosques the Prophet (s.a.w.a.) prayed in.",
+          "tips": [
+            "Most pilgrims stay near the Prophet's Mosque and walk to it and to al-Baqi, which lies just east of its courtyard.",
+            "It is recommended to do ghusl on arriving in Madinah and before the ziyarat of the Prophet (s.a.w.a.); see [Etiquettes of Ziyarat](B3).",
+            "Local rules restrict some acts at graves: touching or kissing the grilles, praying facing a grave and reciting aloud in groups are usually stopped. Pilgrims recite the ziyarat quietly, standing at a respectful distance.",
+            "The city is most crowded in the weeks around Hajj (Dhul Qa'dah and Dhul Hijjah) and in Ramazan.",
+            "Men and women visit the Rawdah at separate times. Women cannot enter al-Baqi and recite the ziyarat of the Imams (a.s.) from outside its wall."
+          ],
+          "sites": [
+            {
+              "id": "masjid_al_nabawi",
+              "name": "Masjid al-Nabawi and the Tomb of the Holy Prophet (s.a.w.a.)",
+              "arabicName": "المسجد النبوي الشريف",
+              "kind": "mosque",
+              "location": [
+                24.4676,
+                39.6114
+              ],
+              "holySiteId": "masjid_an_nabawi",
+              "about": "The Prophet's (s.a.w.a.) own mosque, which he built after the Hijrah; his tomb lies in his house at its south-eastern corner, under the Green Dome. The area between his tomb and his minbar is the Rawdah, which he called one of the gardens of Paradise, and a prayer in his mosque is narrated to equal a thousand elsewhere. The burial place of Lady Fatimah al-Zahra (s.a.) was kept hidden; by different narrations it is her house (now inside the mosque, beside the Prophet's chamber), the Rawdah, or al-Baqi, and scholars recommend visiting her in all three. See [Method of Ziyarat of the Holy Prophet (s.a.w.a.) in Madinah](AP2).",
+              "ziyarat": [
+                {
+                  "uid": "B6",
+                  "note": "At the door of the mosque, before entering."
+                },
+                {
+                  "uid": "AP2"
+                },
+                {
+                  "uid": "G50"
+                },
+                {
+                  "uid": "G52",
+                  "note": "Most scholars recite it from the Rawdah; visiting her in her house and at al-Baqi as well is better."
+                },
+                {
+                  "uid": "AP4",
+                  "label": "Ziyarat of Lady Fatimah al-Zahra (s.a.): With the Longer Form"
+                },
+                {
+                  "uid": "W1",
+                  "note": "For 3 Jumada al-Akhirah, one of the narrated dates of her martyrdom."
+                },
+                {
+                  "uid": "E3",
+                  "note": "After the ziyarat."
+                }
+              ],
+              "buried": [
+                {
+                  "id": "prophet_muhammad",
+                  "name": "The Holy Prophet Muhammad (s.a.w.a.)",
+                  "arabicName": "النبي محمد صلى الله عليه وآله",
+                  "diedAh": 11,
+                  "note": "The Seal of the Prophets, buried in his house, now the chamber under the Green Dome."
+                },
+                {
+                  "id": "lady_fatimah_al_zahra",
+                  "name": "Lady Fatimah al-Zahra (s.a.)",
+                  "arabicName": "السيدة فاطمة الزهراء عليها السلام",
+                  "diedAh": 11,
+                  "note": "The Prophet's (s.a.w.a.) daughter, buried secretly at night; her house beside the Prophet's chamber and the Rawdah are two of the places where, by narration, her grave is said to be."
+                }
+              ],
+              "tips": [
+                "Enter by Bab Jibril if you can, right foot first, and say Allahu Akbar a hundred times; then pray the two rak'at greeting of the mosque before going to the tomb.",
+                "Stand facing the tomb from the side of the Rawdah or the passage in front of the chamber; pilgrims recite quietly and keep moving with the crowd.",
+                "In the Rawdah and at the place of the Prophet's (s.a.w.a.) minbar, pray as much as you can and ask for your needs.",
+                "Pray also at the place of Lady Fatimah's (s.a.) house, which adjoins the Prophet's chamber, and recite her ziyarat there; and at the place of Jibril (maqam Jibril), under the old waterspout, say the short dua given in the method of ziyarat."
+              ],
+              "sources": [
+                "https://www.duas.org/mobile/madina-mecca-rites.html",
+                "https://www.duas.org/downloads/Madina-Ziyarat-Duasorg.pdf",
+                "https://al-islam.org/es/node/37436",
+                "https://en.wikipedia.org/wiki/Burial_of_Fatima",
+                "https://nominatim.openstreetmap.org/search?q=القبة%20الخضراء"
+              ]
+            },
+            {
+              "id": "jannat_al_baqi",
+              "name": "Jannat al-Baqi",
+              "arabicName": "جنة البقيع",
+              "kind": "cemetery",
+              "location": [
+                24.4667,
+                39.6162
+              ],
+              "holySiteId": "jannat_al_baqi",
+              "about": "The oldest cemetery of Madinah, beside the Prophet's Mosque, where four of the Imams (a.s.) are buried with many of the Prophet's (s.a.w.a.) family and companions. Their graves had domes until these were demolished in 1806 and again on 8 Shawwal 1344 AH (1926); today the graves are plain mounds of earth. By one narration al-Baqi is also the burial place of Lady Fatimah al-Zahra (s.a.), and Bayt al-Ahzan, the place where she mourned her father, stood here south of the Imams' graves.",
+              "ziyarat": [
+                {
+                  "uid": "G29",
+                  "tab": 1,
+                  "label": "Greeting the Believers Buried Here",
+                  "note": "On entering the cemetery."
+                },
+                {
+                  "uid": "G53"
+                },
+                {
+                  "uid": "G64"
+                },
+                {
+                  "uid": "G65"
+                },
+                {
+                  "uid": "G66"
+                },
+                {
+                  "uid": "G52",
+                  "note": "Al-Baqi is one of the places where she is said to be buried."
+                },
+                {
+                  "uid": "G81"
+                },
+                {
+                  "uid": "E3",
+                  "note": "After the ziyarat of the Imams (a.s.)."
+                }
+              ],
+              "buried": [
+                {
+                  "id": "imam_hasan",
+                  "name": "Imam Hasan al-Mujtaba (a.s.)",
+                  "arabicName": "الإمام الحسن المجتبى عليه السلام",
+                  "diedAh": 50,
+                  "note": "The second Imam; the four Imams lie side by side near the gate, to the right as one enters."
+                },
+                {
+                  "id": "imam_zayn_al_abidin",
+                  "name": "Imam Zayn al-Abidin (a.s.)",
+                  "arabicName": "الإمام علي بن الحسين زين العابدين عليه السلام",
+                  "diedAh": 95,
+                  "note": "The fourth Imam, buried beside his uncle Imam Hasan (a.s.)."
+                },
+                {
+                  "id": "imam_muhammad_al_baqir",
+                  "name": "Imam Muhammad al-Baqir (a.s.)",
+                  "arabicName": "الإمام محمد الباقر عليه السلام",
+                  "diedAh": 114,
+                  "note": "The fifth Imam, buried beside his father."
+                },
+                {
+                  "id": "imam_jafar_al_sadiq",
+                  "name": "Imam Jafar al-Sadiq (a.s.)",
+                  "arabicName": "الإمام جعفر الصادق عليه السلام",
+                  "diedAh": 148,
+                  "note": "The sixth Imam, buried beside his father."
+                },
+                {
+                  "id": "abbas_ibn_abd_al_muttalib",
+                  "name": "Abbas ibn Abd al-Muttalib",
+                  "arabicName": "العباس بن عبد المطلب",
+                  "diedAh": 32,
+                  "note": "The Prophet's (s.a.w.a.) uncle, buried with the four Imams (a.s.) under the same former dome."
+                },
+                {
+                  "id": "fatimah_bint_asad",
+                  "name": "Lady Fatimah bint Asad (s.a.)",
+                  "arabicName": "فاطمة بنت أسد",
+                  "note": "Mother of Amir al-Mu'minin (a.s.), who raised the Prophet (s.a.w.a.); her grave is said to be at the far (north-eastern) end of the cemetery, and some place it beside the Imams."
+                },
+                {
+                  "id": "umm_al_baneen",
+                  "name": "Lady Umm al-Baneen (s.a.)",
+                  "arabicName": "أم البنين",
+                  "note": "Wife of Amir al-Mu'minin (a.s.) and mother of Hazrat Abbas (a.s.); buried near the Prophet's (s.a.w.a.) aunts."
+                },
+                {
+                  "id": "ibrahim_son_of_the_prophet",
+                  "name": "Ibrahim, Son of the Holy Prophet (s.a.w.a.)",
+                  "arabicName": "إبراهيم ابن رسول الله",
+                  "diedAh": 10,
+                  "note": "The Prophet's (s.a.w.a.) son by Mariyah, who died as an infant."
+                },
+                {
+                  "id": "daughters_of_the_prophet",
+                  "name": "Daughters of the Holy Prophet (s.a.w.a.)",
+                  "arabicName": "بنات رسول الله",
+                  "note": "Zainab, Ruqayyah and Umm Kulthum, by the common account."
+                },
+                {
+                  "id": "wives_of_the_prophet",
+                  "name": "Wives of the Holy Prophet (s.a.w.a.)",
+                  "arabicName": "أزواج النبي",
+                  "note": "Most of his wives, among them Umm Salamah; Lady Khadijah (s.a.) is buried in Makkah."
+                },
+                {
+                  "id": "aqil_and_abdullah_ibn_jafar",
+                  "name": "Aqil ibn Abi Talib and Abdullah ibn Ja'far",
+                  "arabicName": "عقيل بن أبي طالب وعبد الله بن جعفر",
+                  "note": "Amir al-Mu'minin's (a.s.) brother, and his nephew Abdullah son of Ja'far al-Tayyar, husband of Lady Zainab (s.a.); buried side by side."
+                },
+                {
+                  "id": "safiyyah_and_atikah",
+                  "name": "Safiyyah and Atikah, Aunts of the Holy Prophet (s.a.w.a.)",
+                  "arabicName": "صفية وعاتكة",
+                  "note": "Daughters of Abd al-Muttalib; Safiyyah's grave is the first on the left inside the entrance."
+                },
+                {
+                  "id": "ismail_ibn_jafar",
+                  "name": "Ismail ibn Ja'far al-Sadiq",
+                  "arabicName": "إسماعيل بن جعفر الصادق",
+                  "note": "Eldest son of Imam al-Sadiq (a.s.), who died in his father's lifetime."
+                },
+                {
+                  "id": "halimah_al_sadiyyah",
+                  "name": "Halimah al-Sa'diyyah",
+                  "arabicName": "حليمة السعدية",
+                  "note": "The Prophet's (s.a.w.a.) foster mother."
+                }
+              ],
+              "tips": [
+                "Only men can enter, at set times of the day; women recite the ziyarat from outside the wall, facing the Imams' graves.",
+                "The Imams' (a.s.) graves are close to the main gate on the western side, to the right as you enter; stand facing the graves with your back to the qiblah, as the narration teaches.",
+                "Touching graves, praying beside them and reciting aloud are not allowed by the cemetery's guards; recite quietly and pray the ziyarat prayer afterwards in the Prophet's Mosque.",
+                "On 8 Shawwal, the anniversary of the demolition, many pilgrims and believers remember al-Baqi."
+              ],
+              "sources": [
+                "https://www.duas.org/mobile/madina-mecca-rites.html",
+                "https://www.duas.org/downloads/Madina-Ziyarat-Duasorg.pdf",
+                "https://www.duas.org/baqee.htm",
+                "https://www.al-islam.org/shrines/baqi.htm",
+                "https://al-islam.org/es/node/181421",
+                "https://en.wikipedia.org/wiki/Al-Baqi_Cemetery",
+                "https://nominatim.openstreetmap.org/search?q=مقبرة%20البقيع"
+              ]
+            },
+            {
+              "id": "uhud_martyrs",
+              "name": "Uhud: Tomb of Hamzah (a.s.) and the Martyrs",
+              "arabicName": "مقبرة شهداء أحد",
+              "kind": "cemetery",
+              "location": [
+                24.5037,
+                39.6118
+              ],
+              "about": "At the foot of Mount Uhud, north of the city, lie the Muslims killed in the Battle of Uhud in Shawwal 3 AH, among them the Prophet's (s.a.w.a.) uncle Hamzah, the Master of Martyrs of his time. The Prophet (s.a.w.a.) is narrated to have said that whoever visits his tomb and not his uncle Hamzah's has deserted him. Opposite the graves is the small hill of the archers (Jabal al-Rumat), where the battle turned.",
+              "ziyarat": [
+                {
+                  "uid": "G29",
+                  "tab": 1,
+                  "label": "Greeting the Believers Buried Here",
+                  "note": "On arriving at the graves."
+                }
+              ],
+              "buried": [
+                {
+                  "id": "hamzah_ibn_abd_al_muttalib",
+                  "name": "Hamzah ibn Abd al-Muttalib (a.s.)",
+                  "arabicName": "حمزة بن عبد المطلب سيد الشهداء",
+                  "diedAh": 3,
+                  "note": "The Prophet's (s.a.w.a.) uncle and early defender, martyred at Uhud."
+                },
+                {
+                  "id": "martyrs_of_uhud",
+                  "name": "The Martyrs of Uhud",
+                  "arabicName": "شهداء أحد",
+                  "diedAh": 3,
+                  "note": "About seventy Muslims killed in the battle, buried around Hamzah (a.s.)."
+                }
+              ],
+              "tips": [
+                "The graves are inside a walled enclosure; pilgrims recite the ziyarat from the railing outside.",
+                "After the ziyarat of Hamzah (a.s.) it is recommended to pray two rak'at and to recite Surah al-Qadr as many times as you can."
+              ],
+              "sources": [
+                "https://www.duas.org/mobile/hazrat-hamza-ohad.html",
+                "https://www.duas.org/downloads/Madina-Ziyarat-Duasorg.pdf",
+                "https://nominatim.openstreetmap.org/search?q=مقبرة%20شهداء%20أحد"
+              ]
+            },
+            {
+              "id": "masjid_quba",
+              "name": "Masjid Quba",
+              "arabicName": "مسجد قباء",
+              "kind": "mosque",
+              "location": [
+                24.4394,
+                39.6175
+              ],
+              "about": "The first mosque of Islam, built by the Prophet (s.a.w.a.) on his arrival from Makkah, where he waited for Amir al-Mu'minin (a.s.) to join him; the Quran calls it the mosque founded on piety (9:108). The Prophet (s.a.w.a.) is narrated to have said that two rak'at prayed in it equal an Umrah, and Imam al-Sadiq (a.s.) said to begin with it when visiting the mosques around Madinah.",
+              "ziyarat": [],
+              "buried": [],
+              "tips": [
+                "Pray the two rak'at greeting of the mosque and as many prayers as you can; making wudu before setting out is recommended.",
+                "Nearby are the sites of Mashrabat Umm Ibrahim, the house of Mariyah where the Prophet (s.a.w.a.) used to pray, and Masjid al-Fadikh (Masjid al-Shams), where pilgrims also pray two rak'at."
+              ],
+              "sources": [
+                "https://www.duas.org/downloads/Madina-Ziyarat-Duasorg.pdf",
+                "https://www.duas.org/mobile/madina-mecca-rites.html",
+                "https://nominatim.openstreetmap.org/search?q=مسجد%20قباء"
+              ]
+            },
+            {
+              "id": "masjid_al_fath",
+              "name": "Masjid al-Fath (Masjid al-Ahzab)",
+              "arabicName": "مسجد الفتح",
+              "kind": "mosque",
+              "location": [
+                24.4778,
+                39.5957
+              ],
+              "about": "A small mosque on the slope of Mount Sal' where the Prophet (s.a.w.a.) prayed for victory during the Battle of the Trench (al-Khandaq or al-Ahzab), in which Amir al-Mu'minin (a.s.) killed Amr ibn Abd Wudd. Below it stand the small mosques named after Amir al-Mu'minin (a.s.), Lady Fatimah (s.a.) and Salman, together known as the Seven Mosques.",
+              "ziyarat": [],
+              "buried": [],
+              "tips": [
+                "Pray two rak'at in the mosque and supplicate, as the Prophet (s.a.w.a.) supplicated here for victory.",
+                "The Mosque of the Two Qiblahs (Masjid al-Qiblatayn), where the qiblah was changed from Jerusalem to the Kaaba, is a short drive to the west."
+              ],
+              "sources": [
+                "https://www.duas.org/downloads/Madina-Ziyarat-Duasorg.pdf",
+                "https://nominatim.openstreetmap.org/search?q=مسجد%20الفتح%20المدينة"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "makkah",
+          "name": "Makkah al-Mukarramah",
+          "arabicName": "مكة المكرمة",
+          "about": "The city of the Kaaba and the Prophet's (s.a.w.a.) birthplace, where pilgrims come for Hajj and Umrah. Their rites are not part of this guide. Beyond Masjid al-Haram, Shia pilgrims visit Jannat al-Mu'alla, where Lady Khadijah (s.a.), Hazrat Abu Talib (a.s.) and Hazrat Abdul Muttalib (a.s.) are buried, and the site of the house where the Prophet (s.a.w.a.) was born.",
+          "tips": [
+            "Hajj fills the city in the first half of Dhul Hijjah; outside Hajj, Ramazan, especially its last ten nights, is the busiest time for Umrah.",
+            "Jannat al-Mu'alla is a short walk or ride north of Masjid al-Haram, past the Masjid al-Jinn.",
+            "As in Madinah, local rules restrict acts at graves; pilgrims recite the ziyarat quietly from a distance."
+          ],
+          "sites": [
+            {
+              "id": "masjid_al_haram",
+              "name": "Masjid al-Haram",
+              "arabicName": "المسجد الحرام",
+              "kind": "mosque",
+              "location": [
+                21.4225,
+                39.8262
+              ],
+              "holySiteId": "kaaba",
+              "about": "The Sacred Mosque around the Kaaba, the qiblah of every prayer, built by Prophet Ibrahim (a.s.) and Ismail (a.s.). Amir al-Mu'minin (a.s.) was born inside the Kaaba. The rites of Hajj and Umrah performed here are outside this guide; follow a reliable manual of your marja for them.",
+              "ziyarat": [],
+              "buried": [
+                {
+                  "id": "ismail_and_hajar",
+                  "name": "Prophet Ismail (a.s.) and Lady Hajar",
+                  "arabicName": "إسماعيل عليه السلام وهاجر",
+                  "note": "By narration buried in the Hijr Ismail, the semicircular enclosure beside the Kaaba."
+                }
+              ],
+              "tips": [
+                "For the rites of Hajj and Umrah, and for praying in the Hijr Ismail, follow the manual of your marja.",
+                "Carry a small bag for your shoes; the racks at the gates fill up and the mosque's gates are far apart."
+              ],
+              "sources": [
+                "https://www.duas.org/mobile/madina-mecca-rites.html"
+              ]
+            },
+            {
+              "id": "jannat_al_mualla",
+              "name": "Jannat al-Mu'alla",
+              "arabicName": "جنة المعلاة",
+              "kind": "cemetery",
+              "location": [
+                21.437,
+                39.8292
+              ],
+              "about": "The old cemetery of Makkah, also called al-Hajun, second in honour after al-Baqi, which the Prophet (s.a.w.a.) often visited. Here lie his first wife Lady Khadijah (s.a.), his uncle and guardian Hazrat Abu Talib (a.s.), his grandfather Hazrat Abdul Muttalib (a.s.) and earlier forefathers. Their domes were demolished in 1925.",
+              "ziyarat": [
+                {
+                  "uid": "G29",
+                  "tab": 1,
+                  "label": "Greeting the Believers Buried Here",
+                  "note": "On entering the cemetery."
+                },
+                {
+                  "uid": "G79"
+                },
+                {
+                  "uid": "G80"
+                }
+              ],
+              "buried": [
+                {
+                  "id": "lady_khadijah",
+                  "name": "Lady Khadijah al-Kubra (s.a.)",
+                  "arabicName": "السيدة خديجة الكبرى",
+                  "note": "The Prophet's (s.a.w.a.) first wife, the first to believe in him and the mother of Lady Fatimah (s.a.); she died in the tenth year of the mission."
+                },
+                {
+                  "id": "abu_talib",
+                  "name": "Hazrat Abu Talib (a.s.)",
+                  "arabicName": "أبو طالب",
+                  "note": "The Prophet's (s.a.w.a.) uncle and protector, father of Amir al-Mu'minin (a.s.); he died in the same year as Lady Khadijah (s.a.), the Year of Grief."
+                },
+                {
+                  "id": "abdul_muttalib",
+                  "name": "Hazrat Abdul Muttalib (a.s.)",
+                  "arabicName": "عبد المطلب",
+                  "note": "The Prophet's (s.a.w.a.) grandfather and guardian in his childhood, chief of Makkah."
+                },
+                {
+                  "id": "abd_manaf",
+                  "name": "Abd Manaf",
+                  "arabicName": "عبد مناف",
+                  "note": "Forefather of the Prophet (s.a.w.a.) and of Amir al-Mu'minin (a.s.)."
+                },
+                {
+                  "id": "qasim_son_of_the_prophet",
+                  "name": "Qasim, Son of the Holy Prophet (s.a.w.a.)",
+                  "arabicName": "القاسم ابن رسول الله",
+                  "note": "The Prophet's (s.a.w.a.) son by Lady Khadijah (s.a.), who died as a child."
+                }
+              ],
+              "tips": [
+                "The graves are behind walls and railings; pilgrims recite the ziyarats from outside, facing the graves.",
+                "Pilgrims also recite al-Fatihah for Lady Khadijah (s.a.) and the others buried here."
+              ],
+              "sources": [
+                "https://www.duas.org/mobile/madina-mecca-rites.html",
+                "https://en.wikipedia.org/wiki/Jannat_al-Mu%27alla",
+                "https://www.al-islam.org/shrines/baqi.htm",
+                "https://nominatim.openstreetmap.org/search?q=مقبرة%20المعلاة"
+              ]
+            },
+            {
+              "id": "prophet_birthplace",
+              "name": "Birthplace of the Holy Prophet (s.a.w.a.)",
+              "arabicName": "بيت المولد",
+              "kind": "other",
+              "location": [
+                21.4249,
+                39.8299
+              ],
+              "about": "By the tradition most scholars accept, the Prophet (s.a.w.a.) was born on this spot in Suq al-Layl, east of Masjid al-Haram. The house was later made a mosque, and since about 1951 the site has been the Makkah al-Mukarramah Library.",
+              "ziyarat": [],
+              "buried": [],
+              "tips": [
+                "The building is a library and is not open for prayer; pilgrims send salawat outside it, especially on 17 Rabi al-Awwal, the Prophet's (s.a.w.a.) birthday."
+              ],
+              "sources": [
+                "https://en.wikipedia.org/wiki/Makkah_Al_Mukarramah_Library",
+                "https://www.islamiclandmarks.com/makkah-other/birthplace-of-the-prophet-saw",
+                "https://nominatim.openstreetmap.org/search?q=مكتبة%20مكة%20المكرمة"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "iraq",
+      "name": "Iraq",
+      "arabicName": "العراق",
+      "cities": [
+        {
+          "id": "kazimayn",
+          "name": "Kazimayn, Baghdad",
+          "arabicName": "الكاظمية المقدسة",
+          "about": "Kazimayn (al-Kazimiyya) is the shrine town on the west bank of the Tigris in northern Baghdad, grown up around the graves of Imam Musa al-Kazim (a.s.) and his grandson Imam Muhammad al-Jawad (a.s.). The site began as the Quraysh cemetery laid out beside the Abbasid round city, and the two Imams lie under one double-domed shrine. Several of the great early Shia scholars are buried with them.",
+          "tips": [
+            "Most pilgrims stay in the old quarter around the shrine and walk to it; the lanes and markets leading to the gates are busy until late at night.",
+            "The heaviest crowds come on 25 Rajab, the anniversary of Imam al-Kazim (a.s.)'s martyrdom, when many walk from all over Baghdad; the end of Dhul Qa'dah (Imam al-Jawad (a.s.)'s martyrdom) is also busy.",
+            "Baghdad's other ziyarat sites - the tombs of the Four Deputies and of Shaykh al-Kulayni across the river, and Masjid Buratha on the way - are easily combined with a stay here.",
+            "Samarra, with Balad on the way, and Salman Pak (Mada'in) are usually visited as day trips from Kazimayn.",
+            "Imam al-Kazim (a.s.) is known as Bab al-Hawa'ij (the door of needs): pilgrims traditionally bring their requests to him."
+          ],
+          "sites": [
+            {
+              "id": "kazimayn_shrine",
+              "name": "Shrine of Imam Musa al-Kazim and Imam Muhammad al-Jawad (a.s.)",
+              "arabicName": "العتبة الكاظمية المقدسة",
+              "kind": "shrine",
+              "location": [
+                33.38,
+                44.3381
+              ],
+              "holySiteId": "kadhimiya",
+              "about": "The shrine of the seventh Imam, Musa al-Kazim (a.s.), who died in the prison of Harun al-Rashid in Baghdad in 183 AH, and of the ninth Imam, Muhammad al-Jawad (a.s.), buried beside his grandfather in 220 AH. The two graves lie side by side under one shrine with twin golden domes; the present building goes back largely to the Safavid rebuilding of the 16th century. Begin with [Izn-e-Dukhool](B6), visit each Imam with his own ziyarat, and end with the farewell common to both in [the shared ziyarat](AH9).",
+              "ziyarat": [
+                {
+                  "uid": "B6",
+                  "note": "At the gate of the shrine."
+                },
+                {
+                  "uid": "AH2",
+                  "tab": 1,
+                  "label": "Ziyarat of Imam Musa al-Kazim (a.s.) (by Shaykh al-Mufid)"
+                },
+                {
+                  "uid": "AH2",
+                  "tab": 2,
+                  "label": "Second Ziyarat of Imam Musa al-Kazim (a.s.)"
+                },
+                {
+                  "uid": "AH4"
+                },
+                {
+                  "uid": "AH5",
+                  "tab": 1,
+                  "label": "Ziyarat of Imam Muhammad al-Jawad (a.s.)",
+                  "note": "Opens with the entry rites recited at the shrine's gate."
+                },
+                {
+                  "uid": "AH5",
+                  "tab": 2,
+                  "label": "Ziyarat of Imam al-Jawad (a.s.) from Baqiyat al-Salihat"
+                },
+                {
+                  "uid": "AH5",
+                  "tab": 3,
+                  "label": "Dua after the Ziyarat of Imam al-Jawad (a.s.)"
+                },
+                {
+                  "uid": "AH7"
+                },
+                {
+                  "uid": "G13",
+                  "note": "Can be recited at the shrine of any of the Imams (a.s.)."
+                },
+                {
+                  "uid": "AH9",
+                  "note": "Addresses both Imams together and ends with the farewell (wida)."
+                }
+              ],
+              "buried": [
+                {
+                  "id": "imam_musa_al_kazim",
+                  "name": "Imam Musa al-Kazim (a.s.)",
+                  "arabicName": "الإمام موسى الكاظم",
+                  "diedAh": 183,
+                  "note": "The seventh Imam, martyred in the prison of Harun al-Rashid; buried in the Quraysh cemetery, around which the shrine grew."
+                },
+                {
+                  "id": "imam_muhammad_al_jawad",
+                  "name": "Imam Muhammad al-Jawad (a.s.)",
+                  "arabicName": "الإمام محمد الجواد",
+                  "diedAh": 220,
+                  "note": "The ninth Imam, grandson of Imam al-Kazim (a.s.), buried beside him under the same shrine."
+                },
+                {
+                  "id": "shaykh_al_mufid",
+                  "name": "Shaykh al-Mufid",
+                  "arabicName": "الشيخ المفيد",
+                  "diedAh": 413,
+                  "note": "Muhammad ibn Muhammad ibn al-Nu'man, the leading Shia theologian and jurist of Baghdad; his body was moved here from his house and laid near the feet of the two Imams, beside his teacher Ibn Qulawayh."
+                },
+                {
+                  "id": "ibn_qulawayh",
+                  "name": "Ibn Qulawayh al-Qummi",
+                  "arabicName": "ابن قولويه القمي",
+                  "note": "Ja'far ibn Muhammad ibn Qulawayh, author of Kamil al-Ziyarat and teacher of Shaykh al-Mufid; buried beside him in the shrine (one later scholar placed his grave in Qom)."
+                },
+                {
+                  "id": "nasir_al_din_al_tusi",
+                  "name": "Khwaja Nasir al-Din al-Tusi",
+                  "arabicName": "الخواجة نصير الدين الطوسي",
+                  "diedAh": 672,
+                  "note": "Theologian, philosopher and astronomer, author of Tajrid al-I'tiqad; died in Baghdad and was buried in the shrine at his own request."
+                }
+              ],
+              "tips": [
+                "Stand facing the tomb with your back to the qiblah for the ziyarat, then pray the two rak'ats of ziyarat for each Imam; [Surah Ya-Sin](A40) and [Surah Ar-Rahman](A59) after al-Fatihah are recommended.",
+                "The two Imams lie side by side in one shrine: greet each with his own ziyarat, and recite the shared one (with its farewell) at the end.",
+                "Men's and women's entrances and the shoe-keeping (kishwaniyya) are at the gates of the courtyard; follow the signs and the shrine staff.",
+                "Shaykh al-Mufid's grave is near the feet of the two Imams; ask the shrine staff to point out his and Khwaja Nasir al-Din al-Tusi's graves and recite al-Fatihah for them."
+              ],
+              "sources": [
+                "https://en.wikipedia.org/wiki/Al-Kadhimiya_Mosque",
+                "https://en.wikishia.net/view/Category:Buried_in_the_shrine_of_Kazimayn",
+                "https://en.wikishia.net/view/Ibn_Qulawayh_al-Qummi",
+                "https://en.wikipedia.org/wiki/Shaykh_Mufid",
+                "https://www.al-islam.org/ziyarat/iraq.htm",
+                "https://nominatim.openstreetmap.org/ (العتبة الكاظمية, مرقد الامام موسى الكاظم)"
+              ]
+            },
+            {
+              "id": "sharif_murtada_radi_tombs",
+              "name": "Tombs of Sayyid al-Murtada and Sayyid al-Radi",
+              "arabicName": "مرقدا الشريف المرتضى والشريف الرضي",
+              "kind": "tomb",
+              "location": [
+                33.379,
+                44.339
+              ],
+              "about": "Two small shrines in the old quarter just south-east of the Kazimayn shrine, reached from its Bab al-Qibla side, are visited as the graves of the brothers al-Sharif al-Murtada and al-Sharif al-Radi. Where the brothers are buried is disputed: they were first buried in their house in Baghdad, and some reports say they were later carried to Karbala and buried near Imam Husayn (a.s.). The al-Murtada shrine was taken down in 2022 and rebuilt.",
+              "ziyarat": [],
+              "buried": [
+                {
+                  "id": "sharif_al_murtada",
+                  "name": "Sayyid al-Murtada",
+                  "arabicName": "الشريف المرتضى",
+                  "diedAh": 436,
+                  "note": "Alam al-Huda, the leading Shia theologian and jurist of Baghdad after Shaykh al-Mufid; one of the places where he is said to be buried."
+                },
+                {
+                  "id": "sharif_al_radi",
+                  "name": "Sayyid al-Radi",
+                  "arabicName": "الشريف الرضي",
+                  "diedAh": 406,
+                  "note": "Compiler of Nahj al-Balagha and elder brother of al-Murtada; his shrine stands beside his brother's, one of the places where he is said to be buried."
+                }
+              ],
+              "tips": [
+                "Both tombs are a few minutes' walk from the shrine's Bab al-Qibla, on the street named after al-Sharif al-Radi.",
+                "Recite al-Fatihah for them; the corpus has no special ziyarat for these graves."
+              ],
+              "sources": [
+                "https://en.wikipedia.org/wiki/Sharif_al-Murtada_Shrine",
+                "https://en.wikishia.net/view/Al-Sayyid_al-Murtada",
+                "https://en.wikipedia.org/wiki/Al-Kadhimiya_Mosque",
+                "https://nominatim.openstreetmap.org/ (مرقد الشريف المرتضى, مرقد الشريف الرضي)"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "samarra",
+          "name": "Samarra",
+          "arabicName": "سامراء",
+          "about": "Samarra (Surra-man-Ra'a), on the Tigris north of Baghdad, was built by the Abbasid caliph al-Mu'tasim as his capital. Imam Ali al-Naqi (a.s.) was brought here and kept under watch, as was his son Imam al-Hasan al-Askari (a.s.) after him; both are buried in their house, which is now the al-Askari Shrine. Beside it is the Sardab, the cellar linked with Imam al-Mahdi (a.t.f.s.) and the start of his occultation.",
+          "tips": [
+            "Most pilgrims visit Samarra on a day trip from Kazimayn or Baghdad, often in organised groups, stopping at Balad for Sayyid Muhammad on the way.",
+            "The busiest days are 8 Rabi al-Awwal (martyrdom of Imam al-Askari (a.s.)), 3 Rajab (martyrdom of Imam al-Naqi (a.s.)) and 15 Shaban (birth of Imam al-Mahdi (a.t.f.s.)).",
+            "Visit the two Imams first, then go down to the Sardab; the same permission to enter ([Izn-e-Dukhool](B6)) serves both.",
+            "Most of the town's people are not Shia; keep to the shrine area and follow the guidance of your group and the shrine staff."
+          ],
+          "sites": [
+            {
+              "id": "al_askari_shrine",
+              "name": "Al-Askari Shrine (Imam Ali al-Naqi and Imam al-Hasan al-Askari (a.s.))",
+              "arabicName": "العتبة العسكرية المقدسة",
+              "kind": "shrine",
+              "location": [
+                34.1989,
+                43.8735
+              ],
+              "holySiteId": "al_askari_samarra",
+              "about": "The house of the tenth and eleventh Imams, Ali al-Naqi al-Hadi (a.s.) and al-Hasan al-Askari (a.s.), where both were buried; Lady Narjis, mother of Imam al-Mahdi (a.t.f.s.), and Lady Hakimah, daughter of Imam al-Jawad (a.s.), lie in the same shrine. Its golden dome was destroyed in bombings in 2006 and 2007 and has since been rebuilt. Begin with [the ziyarat of both Imams together](AL1), then visit each Imam with his own ziyarat.",
+              "ziyarat": [
+                {
+                  "uid": "B6",
+                  "note": "At the gate of the shrine."
+                },
+                {
+                  "uid": "AL1",
+                  "note": "Both Imams together; recited on arriving at the shrine and described in it as the most authentic form."
+                },
+                {
+                  "uid": "AL5",
+                  "tab": 1,
+                  "label": "Permission to Enter and Ziyarat of Imam Ali al-Naqi (a.s.)"
+                },
+                {
+                  "uid": "AL5",
+                  "tab": 2,
+                  "label": "Salawat upon Imam Ali al-Naqi (a.s.)"
+                },
+                {
+                  "uid": "AL6",
+                  "tab": 1,
+                  "label": "Ziyarat of Imam al-Hasan al-Askari (a.s.)"
+                },
+                {
+                  "uid": "AL6",
+                  "tab": 2,
+                  "label": "Dua after the Ziyarat of Imam al-Askari (a.s.)"
+                },
+                {
+                  "uid": "AL6",
+                  "tab": 3,
+                  "label": "Salawat upon Imam al-Hasan al-Askari (a.s.)"
+                },
+                {
+                  "uid": "G13",
+                  "note": "Can be recited at the shrine of any of the Imams (a.s.)."
+                },
+                {
+                  "uid": "AL7",
+                  "note": "Prayer, dua and farewell (wida) to the two Imams at the end of the visit."
+                }
+              ],
+              "buried": [
+                {
+                  "id": "imam_ali_al_naqi",
+                  "name": "Imam Ali al-Naqi al-Hadi (a.s.)",
+                  "arabicName": "الإمام علي الهادي",
+                  "diedAh": 254,
+                  "note": "The tenth Imam, brought to Samarra by the caliph al-Mutawakkil and kept there until his martyrdom; buried in his house."
+                },
+                {
+                  "id": "imam_hasan_al_askari",
+                  "name": "Imam al-Hasan al-Askari (a.s.)",
+                  "arabicName": "الإمام الحسن العسكري",
+                  "diedAh": 260,
+                  "note": "The eleventh Imam, father of Imam al-Mahdi (a.t.f.s.); buried beside his father."
+                },
+                {
+                  "id": "lady_narjis",
+                  "name": "Lady Narjis (s.a.)",
+                  "arabicName": "السيدة نرجس",
+                  "note": "Mother of Imam al-Mahdi (a.t.f.s.), buried in the shrine beside the two Imams."
+                },
+                {
+                  "id": "lady_hakimah",
+                  "name": "Lady Hakimah (s.a.)",
+                  "arabicName": "السيدة حكيمة",
+                  "note": "Daughter of Imam Muhammad al-Jawad (a.s.) and aunt of Imam al-Askari (a.s.), who was present at the birth of Imam al-Mahdi (a.t.f.s.); buried in the same shrine."
+                },
+                {
+                  "id": "husayn_ibn_ali_al_hadi",
+                  "name": "Husayn ibn Ali al-Hadi",
+                  "arabicName": "الحسين بن علي الهادي",
+                  "note": "Son of Imam al-Naqi (a.s.) and brother of Imam al-Askari (a.s.), buried in the shrine."
+                }
+              ],
+              "tips": [
+                "Pray the ziyarat prayer at the tombs if you can reach them, or else in the mosque beside the Imams' house where they used to pray, as the [combined ziyarat](AL1) instructs.",
+                "Remember Lady Narjis (s.a.) and Lady Hakimah (s.a.) inside the same zarih; the corpus does not yet hold their own ziyarats, so a salam and al-Fatihah will do.",
+                "The Sardab is reached through the mosque that adjoins the shrine, under its own dome."
+              ],
+              "sources": [
+                "https://en.wikipedia.org/wiki/Al-Askari_Shrine",
+                "https://www.al-islam.org/ziyarat/iraq.htm",
+                "https://en.wikishia.net/view/Al-%27Askariyyayn_Shrine",
+                "https://nominatim.openstreetmap.org/ (مرقد الامامين علي الهادي والحسن العسكري)"
+              ]
+            },
+            {
+              "id": "sardab_al_ghayba",
+              "name": "The Holy Sardab (Cellar of the Occultation)",
+              "arabicName": "سرداب الغيبة",
+              "kind": "maqam",
+              "location": [
+                34.1994,
+                43.873
+              ],
+              "about": "A cellar in the house of the two Imams, now under the mosque and blue dome beside the al-Askari Shrine, associated with Imam al-Mahdi (a.t.f.s.): by tradition the place where he worshipped and from which his occultation began. It is not a grave but a place of ziyarat and prayer for the living Imam, visited after the two Imams. The scholars of ziyarat give several forms to recite here, followed by a twelve-rak'at prayer gifted to the Imam.",
+              "ziyarat": [
+                {
+                  "uid": "B6",
+                  "note": "Permission to enter the Sardab."
+                },
+                {
+                  "uid": "AL11",
+                  "tab": 1,
+                  "label": "Permission and Ziyarat at the Sardab (from Rabi al-Anam)"
+                },
+                {
+                  "uid": "AL11",
+                  "tab": 2,
+                  "label": "Second Ziyarat at the Sardab"
+                },
+                {
+                  "uid": "AL11",
+                  "tab": 3,
+                  "label": "Ziyarat at the Sardab by Sayyid Ibn Tawus"
+                },
+                {
+                  "uid": "AL15"
+                },
+                {
+                  "uid": "G1",
+                  "note": "The best-known ziyarat of Imam al-Mahdi (a.t.f.s.), placed among the Sardab's ziyarats in Mafatih al-Jinan."
+                },
+                {
+                  "uid": "G5"
+                },
+                {
+                  "uid": "AL17",
+                  "note": "After the Fajr prayer."
+                },
+                {
+                  "uid": "E18",
+                  "note": "After the Fajr prayer."
+                }
+              ],
+              "buried": [],
+              "tips": [
+                "Go down placing the right foot first, as the ziyarats instruct; on 15 Shaban expect long queues to enter.",
+                "After the ziyarat, pray twelve rak'ats in pairs and gift them to Imam al-Mahdi (a.t.f.s.), reciting the [Tasbih of Lady Fatimah (s.a.)](I9) after each pair.",
+                "Pray here for the Imam's reappearance before your own needs; [Dua Ahad](E18) and [Ziyarat Aal-e-Yasin](G1) are short enough to recite in the crowd."
+              ],
+              "sources": [
+                "https://en.wikipedia.org/wiki/Al-Askari_Shrine",
+                "https://www.al-islam.org/ziyarat/iraq.htm",
+                "https://al-islam.org/node/28827",
+                "https://nominatim.openstreetmap.org/reverse?lat=34.1994&lon=43.8730 (mosque adjoining the shrine)"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "balad",
+          "name": "Balad",
+          "arabicName": "بلد",
+          "about": "Balad is a town on the road from Baghdad to Samarra, about 85 km north of Baghdad. It is known for the shrine of Sayyid Muhammad, the eldest son of Imam Ali al-Naqi (a.s.), who died in 252 AH and is buried here. Pilgrims usually stop here on the way to or from Samarra.",
+          "tips": [
+            "Plan Balad as a stop on the Samarra day trip, on the way there or back.",
+            "Locals call Sayyid Muhammad Sab' al-Dujayl (the lion of Dujayl) and hold oaths sworn by him in great respect; keep to the shrine's customs."
+          ],
+          "sites": [
+            {
+              "id": "sayyid_muhammad_shrine",
+              "name": "Shrine of Sayyid Muhammad, Son of Imam Ali al-Naqi (a.s.)",
+              "arabicName": "مرقد السيد محمد بن الإمام علي الهادي",
+              "kind": "shrine",
+              "location": [
+                33.996,
+                44.1929
+              ],
+              "about": "The shrine of Abu Ja'far Muhammad, the eldest son of Imam Ali al-Naqi (a.s.) and brother of Imam al-Hasan al-Askari (a.s.). He was so honoured for his piety that many expected him to succeed his father, but he died in 252 AH, in his father's lifetime, and was buried here. Shia scholars hold him in high regard, and his shrine has long been a place of pilgrimage and of seeking needs.",
+              "ziyarat": [
+                {
+                  "uid": "AN1"
+                }
+              ],
+              "buried": [
+                {
+                  "id": "sayyid_muhammad_ibn_ali_al_hadi",
+                  "name": "Sayyid Muhammad ibn Ali al-Hadi",
+                  "arabicName": "السيد محمد بن علي الهادي",
+                  "diedAh": 252,
+                  "note": "Eldest son of Imam Ali al-Naqi (a.s.), known as Sab' al-Dujayl; buried at Balad, between Samarra and Baghdad."
+                }
+              ],
+              "tips": [
+                "After his ziyarat, pray two rak'ats and gift them to him; many pilgrims also bring him their needs, as the people of the region have long done."
+              ],
+              "sources": [
+                "https://www.al-islam.org/ziyarat/iraq.htm",
+                "https://en.wikishia.net/view/Muhammad_b._%27Ali_al-Hadi",
+                "https://en.wikipedia.org/wiki/Muhammad_ibn_Ali_al-Hadi_Mausoleum_attack",
+                "https://nominatim.openstreetmap.org/ (مرقد السيد محمد بن الامام الهادي سبع الدجيل)"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "madain",
+          "name": "Mada'in (Salman Pak)",
+          "arabicName": "المدائن (سلمان باك)",
+          "about": "Mada'in, the old Sasanian capital Ctesiphon on the Tigris about 30 km south-east of Baghdad, was governed for the second caliph by Salman al-Farsi, who died and was buried here; the town around his shrine is called Salman Pak after him. Hudhayfah ibn al-Yaman, also governor of Mada'in, and other companions lie in the same complex, and the ruined arch of the Sasanian palace (Taq Kasra) stands nearby.",
+          "tips": [
+            "Mada'in is a half-day trip from Kazimayn or Baghdad; the shrine complex and Taq Kasra are a short walk apart.",
+            "Recite [Surah Al-Qadr](A101) seven times at Salman's tomb, as his ziyarat instructs, then pray and gift it to him.",
+            "The tombs of Hudhayfah and the others are in separate buildings of the same complex; visit them after Salman."
+          ],
+          "sites": [
+            {
+              "id": "salman_al_farsi_shrine",
+              "name": "Shrine of Salman al-Farsi",
+              "arabicName": "مرقد سلمان المحمدي (الفارسي)",
+              "kind": "shrine",
+              "location": [
+                33.0985,
+                44.5814
+              ],
+              "about": "The tomb of Salman al-Farsi, the Persian companion of the Prophet (s.a.w.a.) of whom he said \"Salman is one of us, the Ahl al-Bayt\", and a loyal follower of Imam Ali (a.s.). By narration, Imam Ali (a.s.) came from Madinah to wash and bury him. In 1931 the remains of Hudhayfah ibn al-Yaman and of two graves attributed to Jabir ibn Abd Allah al-Ansari and Tahir son of Imam al-Baqir (a.s.) were moved here from the Tigris bank, where water threatened them.",
+              "ziyarat": [
+                {
+                  "uid": "AJ2",
+                  "note": "The ziyarat of Salman, from Misbah al-Za'ir and Tahdhib al-Ahkam, ending with his farewell."
+                }
+              ],
+              "buried": [
+                {
+                  "id": "salman_al_farsi",
+                  "name": "Salman al-Farsi (r.a.)",
+                  "arabicName": "سلمان الفارسي",
+                  "note": "Companion of the Prophet (s.a.w.a.) and of Imam Ali (a.s.), governor of Mada'in, where he died; buried in the main shrine."
+                },
+                {
+                  "id": "hudhayfah_ibn_al_yaman",
+                  "name": "Hudhayfah ibn al-Yaman",
+                  "arabicName": "حذيفة بن اليمان",
+                  "diedAh": 36,
+                  "note": "Companion of the Prophet (s.a.w.a.), keeper of his confidences and governor of Mada'in, who urged its people to pledge allegiance to Imam Ali (a.s.); reburied in a tomb beside Salman's in 1931."
+                },
+                {
+                  "id": "jabir_ibn_abd_allah_al_ansari",
+                  "name": "Jabir ibn Abd Allah al-Ansari",
+                  "arabicName": "جابر بن عبد الله الأنصاري",
+                  "note": "Companion of the Prophet (s.a.w.a.) and the first pilgrim to Imam Husayn (a.s.)'s grave on the Arbaeen; a grave here bears his name, though most sources say he died and was buried in Madinah."
+                },
+                {
+                  "id": "tahir_ibn_imam_al_baqir",
+                  "name": "Tahir, son of Imam al-Baqir (a.s.)",
+                  "arabicName": "طاهر بن الإمام الباقر",
+                  "note": "A son of Imam Muhammad al-Baqir (a.s.) to whom a grave in the complex is attributed; it was moved here with Hudhayfah's in 1931."
+                }
+              ],
+              "tips": [
+                "Stand at Salman's tomb facing the qiblah for his ziyarat, as AJ2 instructs.",
+                "Hudhayfah's tomb is in the second building of the complex, and the graves of Jabir and Tahir in the third."
+              ],
+              "sources": [
+                "https://en.wikipedia.org/wiki/Salman_Al-Farsi_Mosque",
+                "https://www.al-islam.org/ziyarat/iraq.htm",
+                "https://en.wikipedia.org/wiki/Jabir_ibn_Abd_Allah",
+                "https://nominatim.openstreetmap.org/ (المرقد الشريف للصحابي سلمان الفارسي, مزار الصحابي حذيفة بن اليمان)"
+              ]
+            },
+            {
+              "id": "taq_kasra",
+              "name": "Taq Kasra (Arch of Ctesiphon)",
+              "arabicName": "طاق كسرى (إيوان المدائن)",
+              "kind": "other",
+              "location": [
+                33.0937,
+                44.5808
+              ],
+              "about": "The great brick arch of the Sasanian palace at Ctesiphon, a short walk south of Salman's shrine. Imam Ali (a.s.) prayed there by narration, and Mafatih al-Jinan recommends praying at the site in his memory and reflecting on the passing of earthly power.",
+              "ziyarat": [],
+              "buried": [],
+              "tips": [
+                "Pray two rak'ats here as Imam Ali (a.s.) did; the corpus does not yet hold Mafatih's section on it."
+              ],
+              "sources": [
+                "https://www.al-islam.org/ziyarat/iraq.htm",
+                "https://nominatim.openstreetmap.org/ (إيوان المدائن)"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "iran",
+      "name": "Iran",
+      "arabicName": "إيران",
+      "cities": [
+        {
+          "id": "mashhad",
+          "name": "Mashhad",
+          "arabicName": "مشهد المقدسة",
+          "about": "Mashhad, in north-eastern Iran, grew up around the grave of Imam Ali al-Reza (a.s.), the eighth Imam, who was martyred in Tus in 203 AH; its name means \"the place of martyrdom\". He is the only one of the Twelve Imams buried in Iran, and pilgrims call him Gharib al-Ghuraba, the stranger far from home. The shrine complex at the city's centre, with the Goharshad Mosque inside it, is visited by millions every year.",
+          "tips": [
+            "Most pilgrims stay within walking distance of the shrine; the streets around it are closed to traffic, and its courtyards are open day and night.",
+            "The shrine is most crowded on his birth (11 Dhul Qa'dah) and martyrdom (end of Safar), when many walk to Mashhad from other cities, and on 23 Dhul Qa'dah, a recommended day for his ziyarat.",
+            "Bags, phones and cameras are checked at the gates and large bags are left at the cloakrooms, so carry only what you need. Women wear the chador inside the haram; one can usually be borrowed at the entrance.",
+            "Ziyarat by a pilgrim who knows the Imam's right carries great reward by narration: he promised to come to his visitors at three hard moments - when the books of deeds fly, at the Sirat, and at the Scale.",
+            "Before you leave, recite the farewell at the tomb, as the Imams taught for every shrine."
+          ],
+          "sites": [
+            {
+              "id": "imam_reza_shrine",
+              "name": "Shrine of Imam Ali al-Reza (a.s.)",
+              "arabicName": "الحرم الرضوي المطهر",
+              "kind": "shrine",
+              "location": [
+                36.288,
+                59.6157
+              ],
+              "holySiteId": "imam_reza_mashhad",
+              "about": "The tomb of Imam Ali ibn Musa al-Reza (a.s.), the eighth Imam, who was summoned to Khurasan by the Abbasid caliph al-Ma'mun, named his heir, and martyred by poison in 203 AH. The golden-domed tomb chamber stands at the heart of a complex of porticoes (riwaqs) and courtyards that has grown over more than a thousand years. Imam al-Jawad (a.s.) taught the ziyarat known as al-Jawadiyya for his father, and by narration a visit to him is counted among the greatest of acts.",
+              "ziyarat": [
+                {
+                  "uid": "B6"
+                },
+                {
+                  "uid": "G68",
+                  "note": "Especially on 23 Dhul Qa'dah, his birth (11 Dhul Qa'dah) and his martyrdom (end of Safar)."
+                },
+                {
+                  "uid": "G76",
+                  "tab": 2,
+                  "label": "Short salutation to Imam Reza (a.s.)"
+                },
+                {
+                  "uid": "E136"
+                },
+                {
+                  "uid": "O3",
+                  "note": "On Wednesdays, the day of the four Imams from Imam Musa al-Kazim (a.s.) to Imam Ali al-Naqi (a.s.)."
+                },
+                {
+                  "uid": "G13",
+                  "note": "Can be recited at the shrine of any of the Imams (a.s.)."
+                },
+                {
+                  "uid": "G26",
+                  "note": "After the ziyarat."
+                }
+              ],
+              "buried": [
+                {
+                  "id": "shaykh_bahai",
+                  "name": "Shaykh Baha'i (Baha al-Din al-Amili)",
+                  "arabicName": "الشيخ البهائي",
+                  "note": "Jurist, mathematician and author of Miftah al-Falah; he died in Isfahan and was brought to Mashhad by his will. His tomb is in the portico named after him, where he used to teach."
+                },
+                {
+                  "id": "hurr_amili",
+                  "name": "Shaykh al-Hurr al-Amili",
+                  "arabicName": "الشيخ الحر العاملي",
+                  "diedAh": 1104,
+                  "note": "Muhaddith from Jabal Amil and compiler of Wasa'il al-Shi'a; he settled in Mashhad and was buried in the shrine complex."
+                },
+                {
+                  "id": "amin_al_islam_tabarsi",
+                  "name": "Amin al-Islam al-Tabarsi",
+                  "arabicName": "أمين الإسلام الطبرسي",
+                  "diedAh": 548,
+                  "note": "Author of the Quran commentary Majma' al-Bayan. His tomb is shown on the north side of the complex, though some place his grave elsewhere."
+                }
+              ],
+              "tips": [
+                "Ask permission to enter at the door of the haram, then go to the tomb; after the ziyarat pray two units of ziyarat prayer at the head side.",
+                "Men and women enter the tomb chamber from separate sides, and the crowd around the zarih is often very heavy; the ziyarat can be recited from the porticoes as well.",
+                "The drums of the Naqqarah Khanah are played over the old courtyard at sunrise and sunset, a centuries-old custom of the shrine.",
+                "Large congregational prayers are held in the Goharshad Mosque, on the south side of the tomb."
+              ],
+              "sources": [
+                "https://en.wikipedia.org/wiki/Imam_Reza_shrine",
+                "https://www.duas.org/ziaratimamreza_sr.htm",
+                "https://en.wikipedia.org/wiki/Al-Hurr_al-Amili",
+                "https://en.wikipedia.org/wiki/Baha_al-Din_al-Amili",
+                "https://en.wikipedia.org/wiki/Al-Tabarsi",
+                "https://www.kojaro.com/attraction/41153-tomb-of-sheikh-bahai/",
+                "https://fa.wikishia.net/view/فهرست_مدفونان_در_حرم_امام_رضا(ع)",
+                "https://www.openstreetmap.org/search?query=مقبره%20شیخ%20طبرسی"
+              ]
+            },
+            {
+              "id": "goharshad_mosque",
+              "name": "Goharshad Mosque",
+              "arabicName": "مسجد گوهرشاد",
+              "kind": "mosque",
+              "location": [
+                36.2875,
+                59.6147
+              ],
+              "about": "The great congregational mosque of the shrine, on the south side of the tomb of Imam al-Reza (a.s.), reached through the Dar al-Siyadah portico. It was built from 821 AH (1418 CE) by Goharshad, wife of the Timurid ruler Shah Rukh, to the design of Qavam al-Din Shirazi, with four iwans, a turquoise dome and two minarets.",
+              "ziyarat": [],
+              "tips": [
+                "The shrine's daily congregational prayers are held here.",
+                "Many pilgrims pray here before or after going to the tomb, as it lies right beside the tomb chamber."
+              ],
+              "sources": [
+                "https://en.wikipedia.org/wiki/Goharshad_Mosque",
+                "https://en.wikipedia.org/wiki/Imam_Reza_shrine",
+                "https://www.openstreetmap.org/search?query=مسجد%20گوهرشاد"
+              ]
+            },
+            {
+              "id": "khwaja_rabi",
+              "name": "Tomb of Khwaja Rabi'",
+              "arabicName": "مرقد الربيع بن خثيم",
+              "kind": "tomb",
+              "location": [
+                36.3422,
+                59.6295
+              ],
+              "about": "The tomb of al-Rabi' ibn Khuthaym, one of the early Tabi'in and a companion of Imam Ali (a.s.), about 6 km north of the shrine of Imam al-Reza (a.s.). The domed mausoleum standing today was built by order of Shah Abbas I, on the advice of Shaykh Baha'i, and finished in 1617 CE; tradition holds that Imam al-Reza (a.s.) visited the grave.",
+              "ziyarat": [
+                {
+                  "uid": "G29",
+                  "tab": 5,
+                  "label": "At the grave of a believer"
+                }
+              ],
+              "buried": [
+                {
+                  "id": "rabi_ibn_khuthaym",
+                  "name": "Al-Rabi' ibn Khuthaym (Khwaja Rabi')",
+                  "arabicName": "الربيع بن خثيم",
+                  "note": "An early Tabi'i known for his asceticism and a companion of Imam Ali (a.s.); buried under the dome."
+                }
+              ],
+              "tips": [
+                "It is a short drive from the shrine; many pilgrims visit it on the same day as the other sites around Mashhad.",
+                "The garden around the mausoleum is also a cemetery, with many martyrs and believers buried there."
+              ],
+              "sources": [
+                "https://en.wikipedia.org/wiki/Tomb_of_Khajeh_Rabie",
+                "https://archnet.org/sites/3907",
+                "https://www.openstreetmap.org/search?query=آرامگاه%20خواجه%20ربیع"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "qom",
+          "name": "Qom",
+          "arabicName": "قم المقدسة",
+          "about": "Qom, south of Tehran, grew around the grave of Lady Fatimah al-Masuma (s.a.), daughter of Imam Musa al-Kazim (a.s.) and sister of Imam al-Reza (a.s.), who fell ill on her way to Khurasan and died here in 201 AH. It was among the earliest Shia towns, home of the Ash'ari scholars who narrated from the Imams, and since the 1920s it has been one of the great seminaries of the Shia world. The Jamkaran Mosque, linked with Imam al-Mahdi (a.t.f.s.), lies on the city's south-eastern edge.",
+          "tips": [
+            "Most pilgrims stay near the shrine; the Shaykhan cemetery is next to it, and Jamkaran is a short drive to the south-east.",
+            "The shrine is most crowded on her birth (1 Dhul Qa'dah) and on the anniversary of her death (10 Rabi al-Thani), and Jamkaran on 15 Shaban and on Tuesday nights (the eve of Wednesday).",
+            "Qom is a seminary city and modest dress is expected everywhere; women wear the chador inside the shrine.",
+            "Many pilgrims come to Qom on the way to or from Mashhad, honouring the sister before or after the brother."
+          ],
+          "sites": [
+            {
+              "id": "masuma_shrine",
+              "name": "Shrine of Lady Fatimah al-Masuma (s.a.)",
+              "arabicName": "حرم السيدة فاطمة المعصومة",
+              "kind": "shrine",
+              "location": [
+                34.6417,
+                50.8789
+              ],
+              "holySiteId": "fatima_masuma_qum",
+              "about": "The tomb of Lady Fatimah, daughter of Imam Musa al-Kazim (a.s.), known as al-Masuma. She set out from Madinah in 201 AH to join her brother Imam al-Reza (a.s.) in Khurasan, fell ill at Saveh, asked to be taken to Qom and died there; she was buried on the land of her host. By narration from Imam al-Reza (a.s.), whoever visits her knowing her right will have Paradise, and her ziyarat was taught by him. The present dome goes back to the Safavid era, and many scholars and rulers are buried around her.",
+              "ziyarat": [
+                {
+                  "uid": "B6"
+                },
+                {
+                  "uid": "AE15",
+                  "note": "Especially on 10 Rabi al-Thani and 1 Dhul Qa'dah."
+                },
+                {
+                  "uid": "G26",
+                  "note": "After the ziyarat."
+                }
+              ],
+              "buried": [
+                {
+                  "id": "daughters_of_imam_jawad",
+                  "name": "Daughters of Imam Muhammad al-Taqi (a.s.)",
+                  "arabicName": "بنات الإمام الجواد",
+                  "note": "By the early history of Qom, women of the family of Imam al-Taqi (a.s.) were buried beside Lady Masuma, among them Zaynab, who built the first dome over her grave."
+                },
+                {
+                  "id": "abdul_karim_haeri",
+                  "name": "Shaykh Abdul Karim Haeri Yazdi",
+                  "arabicName": "الشيخ عبد الكريم الحائري اليزدي",
+                  "diedAh": 1355,
+                  "note": "Jurist who re-founded the seminary of Qom in 1921 CE; buried in the shrine."
+                },
+                {
+                  "id": "ayatollah_borujerdi",
+                  "name": "Ayatollah Sayyid Husayn Borujerdi",
+                  "arabicName": "السيد حسين الطباطبائي البروجردي",
+                  "diedAh": 1380,
+                  "note": "Leading marja of his time, who built the A'zam Mosque beside the shrine; buried in the Bala Sar portico, on the head side of the tomb."
+                },
+                {
+                  "id": "allamah_tabatabai",
+                  "name": "Allamah Sayyid Muhammad Husayn Tabatabai",
+                  "arabicName": "العلامة السيد محمد حسين الطباطبائي",
+                  "diedAh": 1402,
+                  "note": "Philosopher and author of the Quran commentary al-Mizan; buried in the Bala Sar portico."
+                },
+                {
+                  "id": "ayatollah_bahjat",
+                  "name": "Ayatollah Muhammad Taqi Bahjat",
+                  "arabicName": "الشيخ محمد تقي بهجت",
+                  "diedAh": 1430,
+                  "note": "Jurist and marja known for his devotion and spiritual guidance; buried in the shrine."
+                }
+              ],
+              "tips": [
+                "The manner given with her ziyarat is to stand before the zarih facing the qiblah and say Allahu Akbar 34 times, Subhan Allah 33 times and al-Hamdu lillah 33 times, then recite the ziyarat.",
+                "After the ziyarat pray two units of ziyarat prayer; the prayer halls around the tomb (Bala Sar, Tabatabai, A'zam) are used for prayer.",
+                "Men and women enter the tomb chamber from separate sides."
+              ],
+              "sources": [
+                "https://en.wikipedia.org/wiki/Fatima_Masumeh_Shrine",
+                "https://fa.wikipedia.org/wiki/حرم_فاطمه_معصومه",
+                "https://fa.wikishia.net/view/فهرست_مدفونان_در_حرم_حضرت_معصومه(س)",
+                "https://en.wikipedia.org/wiki/Abdul-Karim_Haeri_Yazdi",
+                "https://en.wikipedia.org/wiki/Hossein_Borujerdi",
+                "https://en.wikipedia.org/wiki/Muhammad_Husayn_Tabatabai",
+                "https://en.wikipedia.org/wiki/Mohammad-Taqi_Bahjat_Foumani",
+                "https://www.openstreetmap.org/search?query=آرامگاه%20حضرت%20فاطمه%20معصومه"
+              ]
+            },
+            {
+              "id": "jamkaran_mosque",
+              "name": "Jamkaran Mosque",
+              "arabicName": "مسجد جمكران",
+              "kind": "mosque",
+              "location": [
+                34.5837,
+                50.9143
+              ],
+              "holySiteId": "jamkaran",
+              "about": "A mosque about 6 km south-east of the centre of Qom which, by the account that Mirza Husayn al-Nuri gives in al-Najm al-Thaqib, was built on the instruction of Imam al-Mahdi (a.t.f.s.), given to Hasan ibn Muthlah of Jamkaran on 17 Ramazan 373 AH. It is visited for the two prayers taught in that account and for prayers for the Imam's reappearance.",
+              "ziyarat": [
+                {
+                  "uid": "F41",
+                  "tab": 1,
+                  "label": "Greeting of the Mosque (2 units)"
+                },
+                {
+                  "uid": "F41",
+                  "tab": 2,
+                  "label": "Prayer for Imam al-Mahdi (a.t.f.s.) (2 units)"
+                },
+                {
+                  "uid": "G1",
+                  "note": "A ziyarat of Imam al-Mahdi (a.t.f.s.), often recited here."
+                }
+              ],
+              "tips": [
+                "It is busiest on Tuesday nights (the eve of Wednesday), when pilgrims gather for Maghrib and stay into the night, and on 15 Shaban, the Imam's birth.",
+                "Offer the greeting prayer of the mosque first, then the prayer for Imam al-Mahdi (a.t.f.s.), followed by the tasbih and the salawat described with it.",
+                "Many pilgrims write a petition (arizah) to the Imam and leave it at the well in the mosque's grounds, a long-standing custom."
+              ],
+              "sources": [
+                "https://en.wikipedia.org/wiki/Jamkaran_Mosque",
+                "https://www.openstreetmap.org/search?query=مسجد%20مقدس%20جمکران"
+              ]
+            },
+            {
+              "id": "shaykhan_cemetery",
+              "name": "Shaykhan Cemetery",
+              "arabicName": "مقبرة شيخان",
+              "kind": "cemetery",
+              "location": [
+                34.6426,
+                50.8816
+              ],
+              "about": "An old cemetery just north-east of the shrine of Lady Masuma (s.a.), named after the two shaykhs buried there, Zakariyya ibn Adam and Zakariyya ibn Idris, narrators from the Imams. Many scholars of Qom lie here, as well as martyrs of the revolution and the Iran-Iraq war.",
+              "ziyarat": [
+                {
+                  "uid": "G29",
+                  "tab": 3,
+                  "label": "Entering a graveyard: salam"
+                },
+                {
+                  "uid": "G29",
+                  "tab": 5,
+                  "label": "At the grave of a believer"
+                }
+              ],
+              "buried": [
+                {
+                  "id": "zakariyya_ibn_adam",
+                  "name": "Zakariyya ibn Adam al-Ash'ari",
+                  "arabicName": "زكريا بن آدم الأشعري",
+                  "note": "A trusted companion of Imam al-Reza (a.s.) from Qom; by narration the Imam said that through him calamity is kept away from the people of Qom."
+                },
+                {
+                  "id": "zakariyya_ibn_idris",
+                  "name": "Zakariyya ibn Idris al-Ash'ari",
+                  "arabicName": "زكريا بن إدريس الأشعري",
+                  "note": "A hadith narrator of the Ash'ari family of Qom who related from the Imams (a.s.)."
+                },
+                {
+                  "id": "mirza_qummi",
+                  "name": "Mirza Abu al-Qasim al-Qummi (Mirza-ye Qummi)",
+                  "arabicName": "الميرزا القمي",
+                  "diedAh": 1231,
+                  "note": "Jurist and author of Qawanin al-Usul."
+                },
+                {
+                  "id": "mirza_javad_maleki_tabrizi",
+                  "name": "Mirza Javad Agha Maleki Tabrizi",
+                  "arabicName": "الميرزا جواد الملكي التبريزي",
+                  "diedAh": 1343,
+                  "note": "Jurist and teacher of ethics, author of al-Muraqabat (on the acts of the year) and Asrar al-Salat."
+                }
+              ],
+              "tips": [
+                "It is a few minutes' walk from the shrine and is easily visited on the same trip."
+              ],
+              "sources": [
+                "https://fa.wikipedia.org/wiki/قبرستان_شیخان",
+                "https://www.openstreetmap.org/search?query=قبرستان%20شیخان%20قم"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "rey",
+          "name": "Rey (Tehran)",
+          "arabicName": "الري",
+          "about": "Rey is the ancient city of al-Rayy, now the southern part of Tehran. Its great shrine is that of Abd al-Azim al-Hasani, a descendant of Imam al-Hasan (a.s.) and trusted companion of Imam al-Hadi (a.s.), with two sons of the Imams' family buried beside him; Shaykh al-Saduq, the great hadith scholar, lies a short way north-east in the cemetery named after him.",
+          "tips": [
+            "Rey is part of greater Tehran, and pilgrims usually visit it from the capital as a day trip; the shrine stands at the end of the old bazaar of Rey.",
+            "The shrine is especially crowded on Thursday evenings and Fridays.",
+            "Visit Abd al-Azim, Imamzadeh Hamzah and Imamzadeh Tahir together, as they share one complex, then the tomb of Shaykh al-Saduq about 2 km away."
+          ],
+          "sites": [
+            {
+              "id": "shah_abdul_azim_shrine",
+              "name": "Shrine of Shah Abdul Azim al-Hasani",
+              "arabicName": "مرقد السيد عبد العظيم الحسني",
+              "kind": "shrine",
+              "location": [
+                35.5855,
+                51.4355
+              ],
+              "about": "The tomb of Abd al-Azim ibn Abdullah al-Hasani, a descendant of Imam al-Hasan al-Mujtaba (a.s.), a narrator and scholar who presented his creed to Imam al-Hadi (a.s.) and was approved by him. He fled persecution to Rey and died there in the 3rd century AH. By narration, Imam al-Hadi (a.s.) told a man of Rey that visiting Abd al-Azim's grave in his own city was like visiting Imam al-Husayn (a.s.). The dome over his tomb was first built under the Seljuks, and the complex also holds the shrines of Imamzadeh Hamzah and Imamzadeh Tahir.",
+              "ziyarat": [],
+              "buried": [
+                {
+                  "id": "abd_al_azim_hasani",
+                  "name": "Abd al-Azim al-Hasani",
+                  "arabicName": "عبد العظيم الحسني",
+                  "note": "Descendant of Imam al-Hasan (a.s.) and companion of Imam al-Jawad (a.s.) and Imam al-Hadi (a.s.); buried under the main dome."
+                },
+                {
+                  "id": "imamzadeh_hamzah",
+                  "name": "Imamzadeh Hamzah",
+                  "arabicName": "حمزة بن موسى الكاظم",
+                  "note": "Said to be a son of Imam Musa al-Kazim (a.s.); al-Najashi reports that Abd al-Azim used to visit his grave in secret, saying it was the grave of a son of Imam Musa (a.s.). His shrine adjoins Abd al-Azim's."
+                },
+                {
+                  "id": "imamzadeh_tahir",
+                  "name": "Imamzadeh Tahir",
+                  "arabicName": "الإمام زاده طاهر",
+                  "note": "From the line of Imam Zayn al-Abidin (a.s.) - some sources say his son; his shrine stands beside Abd al-Azim's."
+                },
+                {
+                  "id": "abu_al_futuh_razi",
+                  "name": "Abu al-Futuh al-Razi",
+                  "arabicName": "أبو الفتوح الرازي",
+                  "note": "Author of the Persian Quran commentary Rawd al-Jinan; buried by his will at the shrine of Hamzah, near Abd al-Azim."
+                }
+              ],
+              "tips": [
+                "Men and women enter from separate sides, and women wear the chador inside.",
+                "Imamzadeh Hamzah's shrine opens off the same complex, to the side of Abd al-Azim's tomb, so both are visited together."
+              ],
+              "sources": [
+                "https://en.wikipedia.org/wiki/Shah-Abdol-Azim_shrine",
+                "https://en.wikishia.net/view/Abu_l-Futuh_al-Razi",
+                "https://en.wikishia.net/view/List_of_Figures_Buried_in_The_Holy_Shrine_of_'Abd_al-'Azim_al-Hasani",
+                "https://www.openstreetmap.org/search?query=حرم%20عبدالعظیم%20الحسنی"
+              ]
+            },
+            {
+              "id": "shaykh_saduq_tomb",
+              "name": "Tomb of Shaykh al-Saduq (Ibn Babawayh)",
+              "arabicName": "مرقد الشيخ الصدوق",
+              "kind": "tomb",
+              "location": [
+                35.6023,
+                51.4437
+              ],
+              "about": "The tomb of Muhammad ibn Ali ibn Babawayh al-Qummi, known as Shaykh al-Saduq, who spent the end of his life in Rey and died there in 381 AH. He wrote Man La Yahduruhu al-Faqih, one of the four books of Shia hadith, and many more. The large cemetery around his tomb, named Ibn Babawayh after him, holds many scholars, poets and public figures of Tehran.",
+              "ziyarat": [
+                {
+                  "uid": "G29",
+                  "tab": 5,
+                  "label": "At the grave of a believer"
+                }
+              ],
+              "buried": [
+                {
+                  "id": "shaykh_saduq",
+                  "name": "Shaykh al-Saduq",
+                  "arabicName": "الشيخ الصدوق",
+                  "diedAh": 381,
+                  "note": "Hadith scholar and author of Man La Yahduruhu al-Faqih, Uyun Akhbar al-Reza and Kamal al-Din; buried under the dome."
+                }
+              ],
+              "tips": [
+                "Recite al-Fatihah for him and the believers buried around him."
+              ],
+              "sources": [
+                "https://en.wikipedia.org/wiki/Ibn_Babawayh_Cemetery",
+                "https://en.wikishia.net/view/Ibn_Babawayh_Cemetery",
+                "https://www.openstreetmap.org/search?query=آرامگاه%20شیخ%20صدوق"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "shiraz",
+          "name": "Shiraz",
+          "arabicName": "شيراز",
+          "about": "Shiraz, in southern Iran, holds the shrines of sons of Imam Musa al-Kazim (a.s.) who came to Persia in the time of their brother Imam al-Reza (a.s.) and died there. The best known is Ahmad ibn Musa, called Shah Cheragh, whose shrine, with that of his brother Muhammad beside it, is the city's chief place of pilgrimage; their brother Sayyid Alaeddin Husayn lies a short walk to the south-east.",
+          "tips": [
+            "Shah Cheragh, the shrine of Sayyid Mir Muhammad and Sayyid Alaeddin Husayn are close together in the old city and can be visited on foot in one outing.",
+            "Women wear the chador inside the shrines; one can usually be borrowed at the entrance.",
+            "The mirror-work of the shrines is part of their beauty; photography rules vary, so ask before taking pictures inside."
+          ],
+          "sites": [
+            {
+              "id": "shah_cheragh",
+              "name": "Shah Cheragh (Ahmad ibn Musa al-Kazim)",
+              "arabicName": "شاه چراغ - أحمد بن موسى الكاظم",
+              "kind": "shrine",
+              "location": [
+                29.6096,
+                52.5432
+              ],
+              "about": "The shrine of Sayyid Ahmad, son of Imam Musa al-Kazim (a.s.), who took refuge in Shiraz with his brother Muhammad during the Abbasid persecution and died there in the 3rd century AH. By local tradition his grave was found when a light was seen over it, which gave him the name Shah Cheragh, \"king of the lamp\". The first dome was built in the 13th century CE under the Salghurid atabegs; the mirror-covered interior is from later restorations.",
+              "ziyarat": [],
+              "buried": [
+                {
+                  "id": "ahmad_ibn_musa",
+                  "name": "Sayyid Ahmad ibn Musa (Shah Cheragh)",
+                  "arabicName": "السيد أحمد بن موسى الكاظم",
+                  "note": "Son of Imam Musa al-Kazim (a.s.) and brother of Imam al-Reza (a.s.); buried under the main dome."
+                },
+                {
+                  "id": "muhammad_ibn_musa",
+                  "name": "Sayyid Mir Muhammad ibn Musa",
+                  "arabicName": "السيد محمد بن موسى الكاظم",
+                  "note": "Son of Imam Musa al-Kazim (a.s.) and brother of Ahmad; buried in his own shrine just east of Shah Cheragh."
+                }
+              ],
+              "tips": [
+                "Mir Muhammad's shrine is a short walk east of Shah Cheragh; pilgrims usually visit both."
+              ],
+              "sources": [
+                "https://en.wikipedia.org/wiki/Shah_Cheragh",
+                "https://www.openstreetmap.org/search?query=حرم%20شاهچراغ",
+                "https://www.openstreetmap.org/search?query=امامزاده%20سید%20میرمحمد"
+              ]
+            },
+            {
+              "id": "sayyid_alaeddin_husayn",
+              "name": "Shrine of Sayyid Alaeddin Husayn",
+              "arabicName": "مرقد السيد علاء الدين حسين بن موسى الكاظم",
+              "kind": "shrine",
+              "location": [
+                29.6055,
+                52.5488
+              ],
+              "about": "The shrine of Sayyid Husayn, known as Alaeddin Husayn, said to be the youngest son of Imam Musa al-Kazim (a.s.) and a brother of Imam al-Reza (a.s.) and of Shah Cheragh. It stands in the Astaneh quarter of Shiraz, about 700 m south-east of Shah Cheragh; its main building and tilework go back to the Safavid era.",
+              "ziyarat": [],
+              "buried": [
+                {
+                  "id": "alaeddin_husayn_ibn_musa",
+                  "name": "Sayyid Alaeddin Husayn ibn Musa",
+                  "arabicName": "السيد حسين بن موسى الكاظم",
+                  "note": "Said to be the youngest son of Imam Musa al-Kazim (a.s.); buried under the dome."
+                }
+              ],
+              "tips": [
+                "It is usually quieter than Shah Cheragh and is reached on foot from there through the old quarter."
+              ],
+              "sources": [
+                "https://en.wikipedia.org/wiki/Tomb_of_Seyed_Alaeddin_Husayn",
+                "https://itto.org/iran/attraction/343-Seyed-Ala-edin-Hossein-Shrine",
+                "https://www.openstreetmap.org/search?query=امامزاده%20سید%20علاءالدین%20حسین"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "syria",
+      "name": "Syria",
+      "arabicName": "سوريا",
+      "cities": [
+        {
+          "id": "damascus",
+          "name": "Damascus",
+          "arabicName": "دمشق",
+          "about": "The Umayyad capital to which the women and children of the Holy Prophet's (s.a.w.a.) family were brought as captives after Karbala, with the heads of the martyrs, in Safar 61 AH. Pilgrims visit Lady Zainab (s.a.), who stood before Yazid's court with her famous sermon, in her shrine south of the city, and in the old city the shrine of Lady Ruqayya (s.a.), the places in the Umayyad Mosque linked to the head of Imam Husayn (a.s.) and to Imam Zayn al-Abidin (a.s.), and the Bab al-Saghir cemetery.",
+          "tips": [
+            "Most pilgrims stay in the town of al-Sayyida Zaynab, around her shrine about 10 km south of the city, and visit the old city shrines by car.",
+            "The shrines are most crowded on 15 Rajab, the anniversary of Lady Zainab's (s.a.) passing, and in Muharram and Safar, when the arrival of the captives in Damascus is remembered (1 Safar).",
+            "The old city shrines are close together: Lady Ruqayya's (s.a.) shrine is a few minutes' walk north of the Umayyad Mosque, and Bab al-Saghir lies at the south edge of the walled city.",
+            "Women are expected to cover fully at the shrines, and men and women enter by separate doors."
+          ],
+          "sites": [
+            {
+              "id": "sayyida_zainab_shrine",
+              "name": "Shrine of Lady Zainab (s.a.)",
+              "arabicName": "مقام السيدة زينب عليها السلام",
+              "kind": "shrine",
+              "location": [
+                33.4444,
+                36.3409
+              ],
+              "holySiteId": "sayyida_zaynab",
+              "about": "The shrine of Lady Zainab al-Kubra (s.a.), daughter of Amir al-Mu'minin (a.s.) and Lady Fatimah al-Zahra (s.a.), who carried the message of Karbala through the captivity in Kufa and Damascus. It stands in what was the village of Rawiya, now the town named after her. Cairo and al-Baqi are also named in some accounts as her burial place; Shia pilgrims have long visited her here. The present building was completed in 1990.",
+              "ziyarat": [
+                {
+                  "uid": "B6",
+                  "note": "Before entering the shrine."
+                },
+                {
+                  "uid": "G73",
+                  "note": "Especially on 15 Rajab, the anniversary of her passing."
+                }
+              ],
+              "buried": [
+                {
+                  "id": "lady_zainab",
+                  "name": "Lady Zainab al-Kubra (s.a.)",
+                  "arabicName": "السيدة زينب الكبرى عليها السلام",
+                  "note": "Daughter of Amir al-Mu'minin (a.s.) and Lady Fatimah al-Zahra (s.a.), sister of Imam Hasan and Imam Husayn (a.s.), buried under the main dome."
+                },
+                {
+                  "id": "muhsin_al_amin",
+                  "name": "Sayyid Muhsin al-Amin",
+                  "arabicName": "السيد محسن الأمين",
+                  "diedAh": 1371,
+                  "note": "Lebanese scholar, author of A'yan al-Shi'a, who led the shrine's expansion; buried in front of its main entrance."
+                },
+                {
+                  "id": "ali_shariati",
+                  "name": "Ali Shariati",
+                  "arabicName": "علي شريعتي",
+                  "note": "Iranian writer, buried at his wish near the shrine; his tomb is in the shrine's grounds."
+                }
+              ],
+              "tips": [
+                "On 15 Rajab and in Muharram and Safar the shrine is very crowded; go early in the morning or late at night.",
+                "After the ziyarat, pray the two rak'at of ziyarat inside the shrine, away from the grille so as not to block those circling it; see [Etiquettes of Ziyarat](B3)."
+              ],
+              "sources": [
+                "https://en.wikipedia.org/wiki/Sayyidah_Zaynab_Mosque",
+                "https://en.wikishia.net/view/Holy_Shrine_of_al-Sayyida_Zaynab_(a)",
+                "https://en.wikishia.net/view/Muhsin_al-Amin",
+                "https://www.al-islam.org/ziyarat/syria.htm",
+                "https://nominatim.openstreetmap.org/search?q=مقام%20السيدة%20زينب"
+              ]
+            },
+            {
+              "id": "sayyida_ruqayya_shrine",
+              "name": "Shrine of Lady Ruqayya (s.a.)",
+              "arabicName": "مقام السيدة رقية عليها السلام",
+              "kind": "shrine",
+              "location": [
+                33.5133,
+                36.3073
+              ],
+              "holySiteId": "sayyida_ruqayya",
+              "about": "The shrine of Lady Ruqayya (s.a.), the young daughter of Imam Husayn (a.s.), who by Shia narration died in captivity in Damascus, aged about three or four, after the captives were brought there. It stands in the old city near the Umayyad Mosque, on the site where by tradition the family was held. The present mosque around her grave was built in 1985.",
+              "ziyarat": [
+                {
+                  "uid": "B6",
+                  "note": "Before entering the shrine."
+                },
+                {
+                  "uid": "G82",
+                  "label": "Ziyarat of Lady Ruqayya (s.a.)"
+                }
+              ],
+              "buried": [
+                {
+                  "id": "lady_ruqayya",
+                  "name": "Lady Ruqayya bint al-Husayn (s.a.)",
+                  "arabicName": "السيدة رقية بنت الحسين عليها السلام",
+                  "note": "Daughter of Imam Husayn (a.s.), known to many also as Lady Sakina; buried under the dome."
+                }
+              ],
+              "tips": [
+                "The shrine is small and fills quickly after the congregational prayers; visit between prayer times if you can.",
+                "After the ziyarat, pray the two rak'at of ziyarat in the hall around the grave."
+              ],
+              "sources": [
+                "https://en.wikipedia.org/wiki/Sayyida_Ruqayya_Mosque",
+                "https://www.al-islam.org/ziyarat/syria.htm",
+                "https://nominatim.openstreetmap.org/search?q=مقام%20السيدة%20رقية%20دمشق"
+              ]
+            },
+            {
+              "id": "umayyad_mosque_ras_al_husayn",
+              "name": "Umayyad Mosque: Ras al-Husayn and the Maqam of Imam Zayn al-Abidin (a.s.)",
+              "arabicName": "الجامع الأموي: مقام رأس الحسين ومقام الإمام زين العابدين",
+              "kind": "maqam",
+              "location": [
+                33.5115,
+                36.3067
+              ],
+              "about": "The great mosque of Damascus, into which the captives of Karbala were brought. At its eastern side, by Bab Jayrun, is the Maqam Ras al-Husayn, the place where by tradition the head of Imam Husayn (a.s.) was kept; most Shia scholars hold that it was returned to Karbala and buried with his body. Beside it is the Maqam of Imam Zayn al-Abidin (a.s.), linked to his time in captivity, and in the mosque is the minbar from which, by narration, he gave his sermon before Yazid.",
+              "ziyarat": [
+                {
+                  "uid": "G54",
+                  "note": "At the Maqam Ras al-Husayn."
+                },
+                {
+                  "uid": "G64",
+                  "note": "At the Maqam of Imam Zayn al-Abidin (a.s.)."
+                }
+              ],
+              "buried": [],
+              "tips": [
+                "Enter by the eastern gate (Bab Jayrun) to reach the two maqams directly; the shrine of Prophet Yahya (a.s.) stands in the prayer hall.",
+                "The Umayyad Mosque is the city's main congregational mosque; recite the ziyarat quietly, especially at prayer times."
+              ],
+              "sources": [
+                "https://en.wikipedia.org/wiki/Umayyad_Mosque",
+                "https://www.al-islam.org/ziyarat/syria.htm",
+                "https://en.wikishia.net/view/Umayyad_Mosque",
+                "https://nominatim.openstreetmap.org/search?q=الجامع%20الأموي%20دمشق"
+              ]
+            },
+            {
+              "id": "bab_al_saghir_cemetery",
+              "name": "Bab al-Saghir Cemetery",
+              "arabicName": "مقبرة الباب الصغير",
+              "kind": "cemetery",
+              "location": [
+                33.5036,
+                36.3034
+              ],
+              "about": "The old cemetery outside the southern gate of Damascus, where many of the Prophet's (s.a.w.a.) companions and several women of his family are said to be buried. Its best-known shrine for Shia pilgrims is the Maqam Ru'us al-Shuhada, where by tradition the heads of the martyrs of Karbala were buried. Many of the other attributions rest on medieval tradition.",
+              "ziyarat": [
+                {
+                  "uid": "G29",
+                  "tab": 1,
+                  "label": "Greeting the Believers Buried Here",
+                  "note": "On entering the cemetery."
+                },
+                {
+                  "uid": "G56",
+                  "note": "At the Maqam Ru'us al-Shuhada."
+                }
+              ],
+              "buried": [
+                {
+                  "id": "heads_of_the_martyrs",
+                  "name": "Heads of the Martyrs of Karbala",
+                  "arabicName": "رؤوس شهداء كربلاء",
+                  "diedAh": 61,
+                  "note": "By tradition the heads of the companions and family of Imam Husayn (a.s.) were buried in the Maqam Ru'us al-Shuhada."
+                },
+                {
+                  "id": "umm_kulthum_bint_ali",
+                  "name": "Lady Umm Kulthum bint Ali (s.a.)",
+                  "arabicName": "أم كلثوم بنت علي",
+                  "note": "Daughter of Amir al-Mu'minin (a.s.); a shrine here is attributed to her."
+                },
+                {
+                  "id": "fatimah_al_sughra",
+                  "name": "Lady Fatimah al-Sughra bint al-Husayn (s.a.)",
+                  "arabicName": "فاطمة الصغرى بنت الحسين",
+                  "note": "Daughter of Imam Husayn (a.s.); a grave here is attributed to her."
+                },
+                {
+                  "id": "sukayna_bint_al_husayn",
+                  "name": "Lady Sukayna bint al-Husayn (s.a.)",
+                  "arabicName": "سكينة بنت الحسين",
+                  "note": "Daughter of Imam Husayn (a.s.); a tomb dedicated to her is mentioned here from the twelfth century, though she is generally held to have died in Madinah."
+                },
+                {
+                  "id": "maymunah_bint_al_hasan",
+                  "name": "Maymunah bint al-Hasan",
+                  "arabicName": "ميمونة بنت الحسن",
+                  "note": "Said to be a daughter of Imam Hasan (a.s.); her grave is marked as that of Umm al-Hasan."
+                },
+                {
+                  "id": "abdullah_ibn_zayn_al_abidin",
+                  "name": "Abdullah ibn Zayn al-Abidin",
+                  "arabicName": "عبد الله بن زين العابدين",
+                  "note": "Said to be a son of Imam Zayn al-Abidin (a.s.)."
+                },
+                {
+                  "id": "hamidah_bint_muslim",
+                  "name": "Hamidah bint Muslim ibn Aqeel",
+                  "arabicName": "حميدة بنت مسلم بن عقيل",
+                  "note": "Said to be the daughter of Muslim ibn Aqeel (a.s.), who was among the captives."
+                },
+                {
+                  "id": "fiddah",
+                  "name": "Fiddah",
+                  "arabicName": "فضة",
+                  "note": "The devoted maid of Lady Fatimah al-Zahra (s.a.); a grave here is attributed to her."
+                },
+                {
+                  "id": "bilal_al_habashi",
+                  "name": "Bilal al-Habashi",
+                  "arabicName": "بلال الحبشي",
+                  "note": "The Prophet's (s.a.w.a.) muezzin, who settled in Syria; his grave is one of the best known in the cemetery."
+                },
+                {
+                  "id": "asma_bint_umays",
+                  "name": "Asma bint Umays",
+                  "arabicName": "أسماء بنت عميس",
+                  "note": "Companion, wife of Ja'far al-Tayyar and later of Amir al-Mu'minin (a.s.), close to Lady Fatimah (s.a.); said to be buried here."
+                }
+              ],
+              "tips": [
+                "The Ahl al-Bayt graves are small domed rooms spread along the paths; the custodians or pilgrim guides can point out each one.",
+                "Recite al-Fatihah for each of the women of the Prophet's (s.a.w.a.) family whose graves are attributed here."
+              ],
+              "sources": [
+                "https://en.wikipedia.org/wiki/Bab_al-Saghir_Cemetery",
+                "https://www.al-islam.org/ziyarat/syria.htm",
+                "https://nominatim.openstreetmap.org/search?q=مقبرة%20باب%20الصغير"
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
 }
