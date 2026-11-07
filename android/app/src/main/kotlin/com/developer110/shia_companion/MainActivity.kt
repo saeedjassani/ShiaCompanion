@@ -8,13 +8,13 @@ import android.hardware.SensorEventListener
 import android.hardware.SensorManager
 import android.os.Bundle
 import android.util.Log
-import androidx.glance.appwidget.updateAll
 import com.developer110.shiacompanion.azan.AzanChannel
 import com.developer110.shiacompanion.smartactions.SmartActions
 import com.developer110.shiacompanion.wear.WearSync
 import com.developer110.shiacompanion.widgets.DailyPrayerTimesWidget
 import com.developer110.shiacompanion.widgets.FavoritesWidget
 import com.developer110.shiacompanion.widgets.IslamicCalendarWidget
+import com.developer110.shiacompanion.widgets.refreshAll
 import com.developer110.shiacompanion.widgets.scheduleNextCalendarWidgetRefresh
 import com.developer110.shiacompanion.widgets.scheduleNextPrayerWidgetRefresh
 import com.developer110.shiacompanion.widgets.scheduleNextRecitationWidgetRefresh
@@ -153,11 +153,11 @@ class MainActivity: AudioServiceActivity() {
                 "refreshWidgets" -> {
                     mainScope.launch {
                         try {
-                            FavoritesWidget().updateAll(applicationContext)
-                            TodaysRecitationWidget().updateAll(applicationContext)
-                            DailyPrayerTimesWidget().updateAll(applicationContext)
-                            UpcomingPrayerWidget().updateAll(applicationContext)
-                            IslamicCalendarWidget().updateAll(applicationContext)
+                            FavoritesWidget().refreshAll(applicationContext)
+                            TodaysRecitationWidget().refreshAll(applicationContext)
+                            DailyPrayerTimesWidget().refreshAll(applicationContext)
+                            UpcomingPrayerWidget().refreshAll(applicationContext)
+                            IslamicCalendarWidget().refreshAll(applicationContext)
                             scheduleNextPrayerWidgetRefresh(applicationContext)
                             scheduleNextRecitationWidgetRefresh(applicationContext)
                             scheduleNextCalendarWidgetRefresh(applicationContext)
