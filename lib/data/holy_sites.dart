@@ -185,7 +185,7 @@ const List<HolySite> otherHolySites = [
     arabicName: 'مَسْجِد جَمْكَرَان',
     city: 'Qum',
     country: 'Iran',
-    location: GeoPoint(34.5836, 50.9536),
+    location: GeoPoint(34.5837, 50.9143),
   ),
   HolySite(
     id: 'sayyida_zaynab',
@@ -193,7 +193,7 @@ const List<HolySite> otherHolySites = [
     arabicName: 'حَرَم ٱلسَّيِّدَة زَيْنَب',
     city: 'Damascus',
     country: 'Syria',
-    location: GeoPoint(33.4436, 36.3413),
+    location: GeoPoint(33.4444, 36.3409),
   ),
   HolySite(
     id: 'sayyida_ruqayya',
@@ -201,7 +201,7 @@ const List<HolySite> otherHolySites = [
     arabicName: 'حَرَم ٱلسَّيِّدَة رُقَيَّة',
     city: 'Damascus',
     country: 'Syria',
-    location: GeoPoint(33.5136, 36.3053),
+    location: GeoPoint(33.5133, 36.3073),
   ),
   HolySite(
     id: 'masjid_al_aqsa',
