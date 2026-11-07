@@ -23,6 +23,14 @@
 
 ## TODO / follow-ups
 
+- **Ziyarat Guide: in progress (admin-only).** A home feature listing the
+  places pilgrims visit (regions -> cities -> shrines), each shrine linking
+  its ziyarats in the zikr corpus, with about, burials, tips and
+  directions. Schema, rules, phases and where to resume:
+  `docs/ZIYARAT_GUIDE.md` ("Status and resume here"). Ungate it in
+  `visibleHomeMenuItems` only after the owner's content review and the
+  four translations.
+
 - **Missing-zikr restoration is mid-way.** 136 unfavorited uids are still
   missing from the corpus. Before resuming, read the "Resume here" section at
   the top of `scripts/RESTORING_MISSING_ZIKRS.md`: next batches (taweez and

@@ -170,3 +170,28 @@ in all five `lib/l10n/app_<code>.arb`.
 ## Status and resume here
 
 (Updated at the end of every session.)
+
+**Session 1 (2026-11-07):**
+
+- Done: phase 1 infrastructure - model, repository, the three pages,
+  `ziyaratGuideMenuItem` (admin-only, shown after Ziyarats), ARB keys in
+  all five languages, `QiblaFinder(initialTarget:)`, `mapsUriFor`, tests
+  (`ziyarat_guide_test.dart`, `maps_links_test.dart`, guide screens in
+  `ui/page_render_test.dart`), analytics events in `docs/analytics.md`.
+- In flight when this was written: content for Iraq (south: Najaf, Kufa,
+  Karbala, Musayyib; north: Kazimayn, Baghdad, Samarra, Balad, Mada'in),
+  Iran, Saudi Arabia and Syria, researched by opus agents into the
+  session's scratchpad. If `assets/ziyarat_guide.json` still has
+  `"regions": []`, that content was lost with the session: redo phase 1's
+  content, one agent per region, with the brief below.
+- Also in flight: an audit of whether the zikr-structure commits lost any
+  shrine-ziyarat text (results go under "Content audit" below).
+
+**Content brief for agents** (what session 1 used): read this doc and
+`CLAUDE.md`; research each site on the shrines' own sites, al-islam.org,
+duas.org, wikishia.net, Mafatih al-Jinan; verify each burial and
+coordinate on two sources; link only live zikr uids whose text is for that
+place (open the file first; `tab` from 1 + `label`); write
+`{"regions": [...]}` for the region only; report the ziyarats the corpus
+lacks (with a uid from `scripts/unfavorited_missing_zikrs.json` when one
+matches) and anything unverifiable left out.
