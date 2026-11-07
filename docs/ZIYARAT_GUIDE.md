@@ -167,6 +167,47 @@ in all five `lib/l10n/app_<code>.arb`.
    Lebanon, Saudi Ghadir/Juhfa), shrine audio/live streams links
    (`lib/data/live_streaming_data.dart`).
 
+## Content audit (2026-11-07)
+
+Did the zikr-structure commits (2e563e3c, 2c32ff77, 4eb9c7a3, 3f1f1734,
+475bacb9, 08884d4d) lose shrine-ziyarat text? **No Arabic was lost.**
+Every Arabic line is still in the corpus. AK5's Aminullah tab moved to G2,
+with one typo fixed. About 120 English sentences were dropped, almost all
+book scaffolding ("Ninth:", "as mentioned above", attributions and chains).
+Only the provenance lines in AG2, AK5/G2 and G26 might be worth putting back
+into merits.
+
+The real gaps come from the import and retirement steps, not from structure:
+
+- **Divine Pearls text never re-imported** (all on the restoration list in
+  `scripts/unfavorited_missing_zikrs.json`):
+  - Mashhad AE3, AE4, AE7, AE8, AE17 (Abd al-Azim);
+  - Karbala AG21 (soil of Husayn), AG15;
+  - AJ3 Taq Kasra;
+  - AI13 Muslim ibn Aqil (partial);
+  - Najaf AK17, AK19 (Prophet's birthday, Be'that);
+  - Samarra AL8 (Lady Narjis), AL4;
+  - Baghdad AM3 (Four Deputies);
+  - Madinah AP5-AP14 and Uhud AQ1-AQ4 (absent entirely);
+  - B1, B5, G31 (farewell to the Imams), G32 (Niyabat).
+- **Weak retirements:** G8 (Imam Reza, Ya Gharib) -> G76 tab 1 keeps about
+  28% of its text. G9 -> G76 tab 2 keeps about 37%. G17/L4 -> L3 keeps about
+  45%. AK9-AK11 -> AK5 are each missing 100-230 letters.
+- **Live entries short of their source:** AK5 lacks 39% of the Divine Pearls
+  text: the First Ziyarah's pre-departure dua, the takbirs and the poem.
+  The duas.org import never had them. G11 Nahiya lacks about 720 letters,
+  AG14 about 330, AL15 about 360.
+- **Duplicates (share of Arabic overlapping):** AK13 is 99% inside AK5's
+  "Seventh Ziyarat" tab. AE15 and G78 (Masuma) overlap 97%/99%. AK8 and G2
+  overlap 91%/89%. G69 is 97% inside AH5 tab 1. G78 and G82 (Sakina)
+  overlap 91%/71%. G57 is 87% inside AG18, G6 78% inside AG14, G71 73%
+  inside AL6 tab 1. Each pair is a candidate for a tab-level alias
+  (`ZIKR_STRUCTURE.md` rule 5) once the texts are compared.
+
+The audit scripts are not kept. To redo it, compare Arabic lines (strict,
+then diacritic-insensitive) per entry across those commits, against the
+whole HEAD corpus, with `assets/items/*` at `d11c1f16^` for Divine Pearls.
+
 ## Status and resume here
 
 (Updated at the end of every session.)
@@ -184,8 +225,7 @@ in all five `lib/l10n/app_<code>.arb`.
   session's scratchpad. If `assets/ziyarat_guide.json` still has
   `"regions": []`, that content was lost with the session: redo phase 1's
   content, one agent per region, with the brief below.
-- Also in flight: an audit of whether the zikr-structure commits lost any
-  shrine-ziyarat text (results go under "Content audit" below).
+- Done: the content audit (above).
 
 **Content brief for agents** (what session 1 used): read this doc and
 `CLAUDE.md`; research each site on the shrines' own sites, al-islam.org,
