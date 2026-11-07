@@ -54,15 +54,27 @@ class WidgetHostTest {
         // The tool takes a numeric user id, as CTS passes it; uids are
         // 100000 per user.
         val user = android.os.Process.myUid() / 100_000
-        val output = instrumentation.uiAutomation
-            .executeShellCommand("appwidget grantbind --package ${context.packageName} --user $user")
-        // Read to the end, so the command has finished before the first bind.
-        grantOutput = ParcelFileDescriptor.AutoCloseInputStream(output)
-            .use { it.readBytes() }.toString(Charsets.UTF_8).trim()
+        grantOutput = shell("appwidget grantbind --package ${context.packageName} --user $user")
+        // A freshly booted emulator is still delivering BOOT_COMPLETED to
+        // every app, and the widgets' APPWIDGET_UPDATE queues behind it: on
+        // API 32 the first widget placed waited over 30 s, the next ones 21,
+        // 15 and 8 s, the rest 0.5 s. A phone placing a widget isn't in that
+        // state, so wait for the broadcast queues to drain, as CTS does.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            Log.i(TAG, "wait-for-broadcast-idle: " + shell("am wait-for-broadcast-idle"))
+        }
         instrumentation.runOnMainSync {
             host = AppWidgetHost(context, HOST_ID)
             host.startListening()
         }
+    }
+
+    /** Runs [command] as the shell and returns its output, once it has finished. */
+    private fun shell(command: String): String {
+        val output = instrumentation.uiAutomation.executeShellCommand(command)
+        // Read to the end: the command has finished only once its output closes.
+        return ParcelFileDescriptor.AutoCloseInputStream(output)
+            .use { it.readBytes() }.toString(Charsets.UTF_8).trim()
     }
 
     @After
