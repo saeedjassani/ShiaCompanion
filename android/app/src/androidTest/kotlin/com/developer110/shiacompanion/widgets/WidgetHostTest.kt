@@ -41,15 +41,20 @@ class WidgetHostTest {
     private val manager = AppWidgetManager.getInstance(context)
     private lateinit var host: AppWidgetHost
     private val ids = mutableListOf<Int>()
+    private var grantOutput = ""
 
     @Before
     fun setUp() {
         // What a launcher holds as the default home app; any other host needs
         // the user's (here the shell's) leave to bind widgets.
+        // The tool takes a numeric user id, as CTS passes it; uids are
+        // 100000 per user.
+        val user = android.os.Process.myUid() / 100_000
         val output = instrumentation.uiAutomation
-            .executeShellCommand("appwidget grantbind --package ${context.packageName} --user current")
+            .executeShellCommand("appwidget grantbind --package ${context.packageName} --user $user")
         // Read to the end, so the command has finished before the first bind.
-        ParcelFileDescriptor.AutoCloseInputStream(output).use { it.readBytes() }
+        grantOutput = ParcelFileDescriptor.AutoCloseInputStream(output)
+            .use { it.readBytes() }.toString(Charsets.UTF_8).trim()
         instrumentation.runOnMainSync {
             host = AppWidgetHost(context, HOST_ID)
             host.startListening()
@@ -100,7 +105,7 @@ class WidgetHostTest {
             val id = host.allocateAppWidgetId()
             ids += id
             assertTrue(
-                "Could not bind $component; is the shell's grantbind missing?",
+                "Could not bind $component; appwidget grantbind said: \"$grantOutput\"",
                 manager.bindAppWidgetIdIfAllowed(id, component, options)
             )
             view = host.createView(context, id, info)
