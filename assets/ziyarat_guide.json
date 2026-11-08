@@ -348,6 +348,9 @@
                 24.4705,
                 39.6198
               ],
+              "layers": {
+                "w232440740": "greenDome"
+              },
               "sites": [
                 "masjid_al_nabawi",
                 "jannat_al_baqi"
@@ -728,8 +731,8 @@
               "arabicName": "العتبة العلوية المقدسة",
               "kind": "shrine",
               "location": [
-                31.9966,
-                44.3147
+                31.9958,
+                44.3146
               ],
               "holySiteId": "imam_ali_najaf",
               "about": "The tomb of Amir al-Mu'minin Imam Ali ibn Abi Talib (a.s.), martyred in Kufa on 21 Ramadan 40 AH and buried by his sons at night outside the city. Its place was kept hidden until the Imams revealed it, and Imam al-Sadiq (a.s.) visited it with his companions. By narration Prophets Adam and Nuh (a.s.) lie with him, and the ziyarat greets them as his two companions. The building took its present form under the Safavids; around its courtyard lie many of the great scholars of the Shia.",

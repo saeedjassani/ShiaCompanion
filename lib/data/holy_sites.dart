@@ -129,7 +129,7 @@ const List<HolySite> otherHolySites = [
     arabicName: 'حَرَم ٱلْإِمَام عَلِيّ',
     city: 'Najaf',
     country: 'Iraq',
-    location: GeoPoint(31.9966, 44.3147),
+    location: GeoPoint(31.9958, 44.3146),
   ),
   HolySite(
     id: 'imam_husayn_karbala',

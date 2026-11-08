@@ -837,6 +837,7 @@ class _ShrinePlanViewState extends State<ShrinePlanView>
                       _basePpm * _controller.value.getMaxScaleOnAxis(),
                   viewport: _viewport,
                   selected: widget.selected,
+                  focus: widget.plan.focusFor(widget.site.id),
                   onSelect: widget.interactive ? widget.onSelect : null,
                   showLabels: true,
                   compact: !widget.interactive,
@@ -864,6 +865,7 @@ class _MarkerLayer extends StatelessWidget {
     required this.pixelsPerMetre,
     required this.viewport,
     required this.selected,
+    this.focus,
     required this.onSelect,
     required this.showLabels,
     required this.compact,
@@ -878,6 +880,9 @@ class _MarkerLayer extends StatelessWidget {
   final double pixelsPerMetre;
   final Size viewport;
   final PlanFeature? selected;
+
+  /// What the plan opened on: labelled before the rest.
+  final PlanFeature? focus;
   final ValueChanged<PlanFeature>? onSelect;
   final bool showLabels;
 
@@ -914,10 +919,16 @@ class _MarkerLayer extends StatelessWidget {
         );
     final direction = Directionality.of(context);
 
-    // Selected first, then by priority, so they win a label.
+    // Selected first, then what the plan opened on, then by priority, so
+    // they win a label.
+    int rank(PlanFeature f) => f == selected
+        ? 2
+        : f == focus
+            ? 1
+            : 0;
     final ordered = [...features]..sort((a, b) {
-        if (a == selected) return -1;
-        if (b == selected) return 1;
+        final byRank = rank(b).compareTo(rank(a));
+        if (byRank != 0) return byRank;
         return b.kind.labelPriority.compareTo(a.kind.labelPriority);
       });
     // The page's chrome: no label goes under it.
@@ -989,13 +1000,30 @@ class _MarkerLayer extends StatelessWidget {
               : 170);
       final labelSize = Size(painter.width + 14, painter.height + 6);
       Rect? place;
-      for (final dy in [size / 2 + 3, -(size / 2 + 3 + labelSize.height)]) {
-        // Kept on screen: slid sideways rather than cut off at an edge.
-        final double left = (at.dx - labelSize.width / 2)
-            .clamp(6.0, math.max(6.0, viewport.width - labelSize.width - 6));
-        final rect =
-            Rect.fromLTWH(left, at.dy + dy, labelSize.width, labelSize.height);
-        if (!taken.any((r) => r.overlaps(rect))) {
+      // Below, above, then beside the marker; kept on screen, slid sideways
+      // rather than cut off at an edge.
+      final double centred = (at.dx - labelSize.width / 2)
+          .clamp(6.0, math.max(6.0, viewport.width - labelSize.width - 6));
+      final besideTop = at.dy - labelSize.height / 2;
+      final candidates = [
+        Rect.fromLTWH(
+            centred, at.dy + size / 2 + 3, labelSize.width, labelSize.height),
+        Rect.fromLTWH(centred, at.dy - size / 2 - 3 - labelSize.height,
+            labelSize.width, labelSize.height),
+        Rect.fromLTWH(
+            at.dx + size / 2 + 4, besideTop, labelSize.width, labelSize.height),
+        Rect.fromLTWH(at.dx - size / 2 - 4 - labelSize.width, besideTop,
+            labelSize.width, labelSize.height),
+      ];
+      // The selected feature's and the opened-on one's labels may cover
+      // other markers (never the page's chrome or another label): they
+      // matter most.
+      final blockers = rank(feature) > 0
+          ? [...chrome, ...taken.skip(chrome.length + markerRects.length)]
+          : taken;
+      for (final rect in candidates) {
+        if (rect.left < 0 || rect.right > viewport.width) continue;
+        if (!blockers.any((r) => r.overlaps(rect))) {
           place = rect;
           break;
         }
