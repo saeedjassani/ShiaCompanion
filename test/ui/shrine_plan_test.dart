@@ -27,7 +27,8 @@ void main() {
     SharedPreferences.setMockInitialValues({});
     await SP.init();
     await setUpFirebaseForRenderTests();
-    final zikr = json.decode(File('assets/zikr.json').readAsStringSync()) as Map;
+    final zikr =
+        json.decode(File('assets/zikr.json').readAsStringSync()) as Map;
     for (final entry in zikr.entries) {
       items[entry.key] = (entry.value as Map)['title'];
     }
@@ -71,11 +72,30 @@ void main() {
         File('assets/ziyarat_plans/karbala_haramayn.json')
             .readAsStringSync()) as Map<String, dynamic>);
     expect(drawing.shapes, isNotEmpty);
-    final tomb = guide.site('imam_husayn_shrine')!.plan!.focusFor(
-        'imam_husayn_shrine')!;
+    final tomb =
+        guide.site('imam_husayn_shrine')!.plan!.focusFor('imam_husayn_shrine')!;
     final back = drawing.unproject(drawing.project(tomb.location));
     expect(back.latitude, closeTo(tomb.location.latitude, 1e-9));
     expect(back.longitude, closeTo(tomb.location.longitude, 1e-9));
+  });
+
+  test('a feature\'s side is measured from its site\'s zarih', () {
+    final plan = guide.site('imam_husayn_shrine')!.plan!;
+    PlanFeature feature(String id) =>
+        plan.features.firstWhere((f) => f.id == id);
+    expect(planFeatureSide(feature('husayn_gate_qibla')), 's');
+    expect(planFeatureSide(feature('husayn_gate_sidra')), 'n');
+    expect(planFeatureSide(feature('husayn_tomb')), isNull);
+
+    // The Umayyad Mosque has no zarih: its gates' middle stands in.
+    final mosque = guide.site('umayyad_mosque_ras_al_husayn')!.plan!;
+    PlanFeature gate(String id) =>
+        mosque.features.firstWhere((f) => f.id == id);
+    expect(planFeatureSide(gate('umayyad_gate_amara')), 'n');
+    expect(planFeatureSide(gate('umayyad_gate_jayrun')), 'e');
+    // In the western part of the south wall.
+    expect(planFeatureSide(gate('umayyad_gate_ziyada')), 'sw');
+    expect(planFeatureSide(gate('umayyad_gate_barid')), 'w');
   });
 
   for (final (name, size) in [

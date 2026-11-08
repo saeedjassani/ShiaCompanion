@@ -51,7 +51,8 @@ String guidePlanFeatureKindLabel(AppLocalizations l10n, PlanFeatureKind kind) =>
       PlanFeatureKind.landmark => l10n.ziyaratGuideFeatureLandmark,
     };
 
-/// Which side of its site's zarih [feature] lies on, as "n", "ne", ... for
+/// Which side of its site's zarih (or, without one, of the site's
+/// location) [feature] lies on, as "n", "ne", ... for
 /// [AppLocalizations.ziyaratGuideMapSide]; null for the zarih itself or a
 /// feature with nothing to be beside.
 String? planFeatureSide(PlanFeature feature) {
@@ -59,14 +60,28 @@ String? planFeatureSide(PlanFeature feature) {
       feature.kind == PlanFeatureKind.place) {
     return null;
   }
-  final siteId = feature.siteId;
-  if (siteId == null) return null;
-  final centre = feature.plan.focusFor(siteId);
-  if (centre == null || centre == feature) return null;
-  final metres =
-      greatCircleDistanceKm(centre.location, feature.location) * 1000;
+  final site = feature.site;
+  if (site == null) return null;
+  // From the site's zarih. A site without one (a mosque) is measured from
+  // the middle of its gates when it has three or more, else from its own
+  // location - never from whichever feature happens to come first.
+  final zarih = feature.plan.focusFor(site.id);
+  final gates = [
+    for (final f in feature.plan.features)
+      if (f.siteId == site.id && f.kind == PlanFeatureKind.gate) f.location
+  ];
+  final centre = zarih != null && zarih.kind == PlanFeatureKind.zarih
+      ? zarih.location
+      : gates.length >= 3
+          ? GeoPoint(
+              gates.map((g) => g.latitude).reduce((a, b) => a + b) /
+                  gates.length,
+              gates.map((g) => g.longitude).reduce((a, b) => a + b) /
+                  gates.length)
+          : site.location;
+  final metres = greatCircleDistanceKm(centre, feature.location) * 1000;
   if (metres < 3) return null;
-  final bearing = initialBearingDegrees(centre.location, feature.location);
+  final bearing = initialBearingDegrees(centre, feature.location);
   const sides = ['n', 'ne', 'e', 'se', 's', 'sw', 'w', 'nw'];
   return sides[((bearing + 22.5) % 360 ~/ 45)];
 }
