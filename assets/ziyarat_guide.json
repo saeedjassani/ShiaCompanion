@@ -1017,6 +1017,178 @@
                 "https://www.openstreetmap.org/way/370845135"
               ]
             }
+          ],
+          "plans": [
+            {
+              "id": "najaf_haram",
+              "bbox": [
+                31.9946,
+                44.313,
+                31.9977,
+                44.3163
+              ],
+              "sites": [
+                "imam_ali_shrine",
+                "masjid_al_tusi"
+              ],
+              "features": [
+                {
+                  "id": "ali_tomb",
+                  "kind": "zarih",
+                  "name": "Zarih of Imam Ali (a.s.)",
+                  "arabicName": "ضريح الإمام علي (ع)",
+                  "osm": "n9722628289",
+                  "site": "imam_ali_shrine",
+                  "note": "By narration Prophets Adam (a.s.) and Nuh (a.s.) are buried with him here.",
+                  "ziyarat": [
+                    {
+                      "uid": "AK5",
+                      "tab": 1,
+                      "label": "First Ziyarat of Imam Ali (a.s.)"
+                    },
+                    {
+                      "uid": "G2"
+                    },
+                    {
+                      "uid": "AK5",
+                      "note": "The other forms reported for this shrine, one per tab."
+                    },
+                    {
+                      "uid": "G51"
+                    },
+                    {
+                      "uid": "AK6",
+                      "note": "The six-unit ziyarat prayer and the duas after it."
+                    },
+                    {
+                      "uid": "AK7",
+                      "note": "At the head side of the tomb, facing Karbala."
+                    },
+                    {
+                      "uid": "AC1",
+                      "note": "On Eid al-Ghadir, 18 Dhul Hijjah."
+                    },
+                    {
+                      "uid": "AK15"
+                    }
+                  ],
+                  "location": [
+                    31.995816,
+                    44.314583
+                  ]
+                },
+                {
+                  "id": "allamah_hilli_tomb",
+                  "kind": "tomb",
+                  "name": "Tomb of Allamah al-Hilli",
+                  "arabicName": "مرقد العلامة الحلي",
+                  "osm": "w1058116498",
+                  "site": "imam_ali_shrine",
+                  "person": "allamah_hilli",
+                  "note": "On the north side of the Golden Iwan, under its northern minaret.",
+                  "location": [
+                    31.995961,
+                    44.314799
+                  ]
+                },
+                {
+                  "id": "golden_iwan",
+                  "kind": "landmark",
+                  "name": "The Golden Iwan",
+                  "arabicName": "الإيوان الذهبي",
+                  "osm": "w1058116539",
+                  "site": "imam_ali_shrine",
+                  "note": "The gilded porch on the east side of the haram, between its two gold minarets, facing the Clock Gate.",
+                  "location": [
+                    31.995836,
+                    44.314834
+                  ]
+                },
+                {
+                  "id": "ali_gate_saa",
+                  "kind": "gate",
+                  "name": "Bab al-Sa'a",
+                  "arabicName": "باب الساعة",
+                  "osm": "n9723305133",
+                  "site": "imam_ali_shrine",
+                  "note": "The Clock Gate, the main gate of the courtyard, under the clock tower.",
+                  "ziyarat": [
+                    {
+                      "uid": "B6"
+                    }
+                  ],
+                  "location": [
+                    31.995849,
+                    44.315258
+                  ]
+                },
+                {
+                  "id": "ali_gate_tusi",
+                  "kind": "gate",
+                  "name": "Bab al-Tusi",
+                  "arabicName": "باب الطوسي",
+                  "osm": "n9723305135",
+                  "site": "imam_ali_shrine",
+                  "note": "The north gate, on the way to the tomb of Shaykh al-Tusi.",
+                  "ziyarat": [
+                    {
+                      "uid": "B6"
+                    }
+                  ],
+                  "location": [
+                    31.996412,
+                    44.314699
+                  ]
+                },
+                {
+                  "id": "ali_gate_qibla",
+                  "kind": "gate",
+                  "name": "Bab al-Qibla",
+                  "arabicName": "باب القبلة",
+                  "osm": "n9723305131",
+                  "site": "imam_ali_shrine",
+                  "ziyarat": [
+                    {
+                      "uid": "B6"
+                    }
+                  ],
+                  "location": [
+                    31.995355,
+                    44.314745
+                  ]
+                },
+                {
+                  "id": "ali_gate_faraj",
+                  "kind": "gate",
+                  "name": "Bab al-Faraj",
+                  "arabicName": "باب الفرج",
+                  "osm": "n9723305132",
+                  "site": "imam_ali_shrine",
+                  "note": "Also called Bab al-Amara, after the old quarter it faces.",
+                  "ziyarat": [
+                    {
+                      "uid": "B6"
+                    }
+                  ],
+                  "location": [
+                    31.995535,
+                    44.314172
+                  ]
+                },
+                {
+                  "id": "masjid_al_tusi",
+                  "kind": "place",
+                  "name": "Masjid and Tomb of Shaykh al-Tusi",
+                  "arabicName": "مسجد ومرقد الشيخ الطوسي",
+                  "osm": "n3745490633",
+                  "site": "masjid_al_tusi",
+                  "location": [
+                    31.997009,
+                    44.314571
+                  ]
+                }
+              ]
+            }
           ]
         },
         {
@@ -1234,6 +1406,409 @@
                 "https://ar.wikishia.net/view/%D9%85%D8%B3%D8%AC%D8%AF_%D8%B2%D9%8A%D8%AF_%D8%A8%D9%86_%D8%B5%D9%88%D8%AD%D8%A7%D9%86",
                 "https://ar.wikishia.net/view/%D9%85%D8%B3%D8%AC%D8%AF_%D8%B5%D8%B9%D8%B5%D8%B9%D8%A9",
                 "https://www.openstreetmap.org/node/6412668541"
+              ]
+            }
+          ],
+          "plans": [
+            {
+              "id": "kufa_mosque",
+              "bbox": [
+                32.0272,
+                44.3988,
+                32.0306,
+                44.403
+              ],
+              "sites": [
+                "masjid_al_kufa",
+                "muslim_ibn_aqeel_shrine",
+                "hani_ibn_urwah_tomb",
+                "house_of_imam_ali_kufa"
+              ],
+              "features": [
+                {
+                  "id": "kufa_maqam_prophet",
+                  "kind": "maqam",
+                  "name": "Maqam of the Prophet (s.a.w.a.)",
+                  "arabicName": "مقام النبي (ص)",
+                  "osm": "w1155191919",
+                  "site": "masjid_al_kufa",
+                  "note": "The centre of the mosque, also called Dikkat al-Mi'raj, where by tradition the Prophet (s.a.w.a.) prayed on the night of the Ascension.",
+                  "ziyarat": [
+                    {
+                      "uid": "AI5"
+                    }
+                  ],
+                  "location": [
+                    32.0291,
+                    44.400738
+                  ]
+                },
+                {
+                  "id": "kufa_mihrab",
+                  "kind": "maqam",
+                  "name": "Mihrab of Amir al-Mu'minin (a.s.)",
+                  "arabicName": "محراب أمير المؤمنين (ع)",
+                  "osm": "w1155191905",
+                  "site": "masjid_al_kufa",
+                  "note": "Where Imam Ali (a.s.) was struck by Ibn Muljim's sword at the dawn prayer.",
+                  "ziyarat": [
+                    {
+                      "uid": "AI3",
+                      "tab": 8,
+                      "label": "Acts at the Mihrab"
+                    },
+                    {
+                      "uid": "H17",
+                      "label": "Munajat of Amir al-Mu'minin (a.s.)"
+                    }
+                  ],
+                  "location": [
+                    32.028791,
+                    44.40025
+                  ]
+                },
+                {
+                  "id": "kufa_maqam_ibrahim",
+                  "kind": "maqam",
+                  "name": "Maqams of Ibrahim (a.s.) and Khizr (a.s.)",
+                  "arabicName": "مقام النبي إبراهيم ومقام الخضر (ع)",
+                  "osm": "w1155191909",
+                  "site": "masjid_al_kufa",
+                  "ziyarat": [
+                    {
+                      "uid": "AI3",
+                      "tab": 2,
+                      "label": "Station of Ibrahim (a.s.) & Khizr (a.s.)"
+                    }
+                  ],
+                  "location": [
+                    32.029546,
+                    44.400719
+                  ]
+                },
+                {
+                  "id": "kufa_maqam_adam",
+                  "kind": "maqam",
+                  "name": "Maqams of Adam (a.s.) and Jibra'il (a.s.)",
+                  "arabicName": "مقام النبي آدم ومقام جبرائيل (ع)",
+                  "osm": "w1155191913",
+                  "site": "masjid_al_kufa",
+                  "ziyarat": [
+                    {
+                      "uid": "AI3",
+                      "tab": 3,
+                      "label": "Station of Adam (a.s.)"
+                    },
+                    {
+                      "uid": "AI3",
+                      "tab": 4,
+                      "label": "Station of Jibra'il (a.s.)"
+                    }
+                  ],
+                  "location": [
+                    32.02899,
+                    44.400397
+                  ]
+                },
+                {
+                  "id": "kufa_maqam_zayn",
+                  "kind": "maqam",
+                  "name": "Maqam of Imam Zayn al-Abidin (a.s.)",
+                  "arabicName": "مقام الإمام زين العابدين (ع)",
+                  "osm": "w1154985719",
+                  "site": "masjid_al_kufa",
+                  "ziyarat": [
+                    {
+                      "uid": "AI3",
+                      "tab": 5,
+                      "label": "Station of Imam Zayn al-Abidin (a.s.)"
+                    }
+                  ],
+                  "location": [
+                    32.028956,
+                    44.400271
+                  ]
+                },
+                {
+                  "id": "kufa_maqam_nuh",
+                  "kind": "maqam",
+                  "name": "Maqam of Prophet Nuh (a.s.)",
+                  "arabicName": "مقام النبي نوح (ع)",
+                  "osm": "w1154985720",
+                  "site": "masjid_al_kufa",
+                  "ziyarat": [
+                    {
+                      "uid": "AI3",
+                      "tab": 7,
+                      "label": "Station of Prophet Nuh (a.s.)"
+                    }
+                  ],
+                  "location": [
+                    32.028916,
+                    44.400084
+                  ]
+                },
+                {
+                  "id": "kufa_maqam_sadiq",
+                  "kind": "maqam",
+                  "name": "Maqam of Imam al-Sadiq (a.s.)",
+                  "arabicName": "مقام الإمام الصادق (ع)",
+                  "osm": "w1155191910",
+                  "site": "masjid_al_kufa",
+                  "ziyarat": [
+                    {
+                      "uid": "AI11"
+                    }
+                  ],
+                  "location": [
+                    32.028774,
+                    44.400967
+                  ]
+                },
+                {
+                  "id": "kufa_dikkat_al_qadha",
+                  "kind": "maqam",
+                  "name": "Dikkat al-Qadha",
+                  "arabicName": "دكة القضاء",
+                  "osm": "w1155191907",
+                  "site": "masjid_al_kufa",
+                  "note": "The Seat of Judgement, where Imam Ali (a.s.) sat to judge. Its acts are done last of all.",
+                  "ziyarat": [
+                    {
+                      "uid": "AI4"
+                    }
+                  ],
+                  "location": [
+                    32.029156,
+                    44.400988
+                  ]
+                },
+                {
+                  "id": "kufa_bayt_al_tasht",
+                  "kind": "maqam",
+                  "name": "Bayt al-Tasht",
+                  "arabicName": "بيت الطشت",
+                  "osm": "w1155191906",
+                  "site": "masjid_al_kufa",
+                  "note": "The Place of the Wash-Tub, beside the Seat of Judgement.",
+                  "ziyarat": [
+                    {
+                      "uid": "AI4"
+                    }
+                  ],
+                  "location": [
+                    32.029216,
+                    44.401025
+                  ]
+                },
+                {
+                  "id": "muslim_tomb",
+                  "kind": "tomb",
+                  "name": "Tomb of Muslim ibn Aqeel (a.s.)",
+                  "arabicName": "مرقد مسلم بن عقيل (ع)",
+                  "osm": "w1154985723",
+                  "site": "muslim_ibn_aqeel_shrine",
+                  "ziyarat": [
+                    {
+                      "uid": "G60"
+                    }
+                  ],
+                  "location": [
+                    32.028714,
+                    44.401276
+                  ]
+                },
+                {
+                  "id": "mukhtar_tomb",
+                  "kind": "tomb",
+                  "name": "Tomb of al-Mukhtar al-Thaqafi",
+                  "arabicName": "مرقد المختار الثقفي",
+                  "osm": "w1155191904",
+                  "site": "muslim_ibn_aqeel_shrine",
+                  "person": "mukhtar_al_thaqafi",
+                  "note": "At the back of the shrine of Muslim ibn Aqeel (a.s.).",
+                  "location": [
+                    32.028555,
+                    44.401145
+                  ]
+                },
+                {
+                  "id": "hani_tomb",
+                  "kind": "tomb",
+                  "name": "Tomb of Hani ibn Urwah (a.s.)",
+                  "arabicName": "مرقد هانئ بن عروة (ع)",
+                  "osm": "w1154985722",
+                  "site": "hani_ibn_urwah_tomb",
+                  "ziyarat": [
+                    {
+                      "uid": "G61"
+                    }
+                  ],
+                  "location": [
+                    32.029374,
+                    44.401529
+                  ]
+                },
+                {
+                  "id": "house_of_imam_ali",
+                  "kind": "place",
+                  "name": "House of Imam Ali (a.s.)",
+                  "arabicName": "بيت الإمام علي (ع)",
+                  "osm": "w1155191903",
+                  "site": "house_of_imam_ali_kufa",
+                  "location": [
+                    32.028032,
+                    44.399733
+                  ]
+                },
+                {
+                  "id": "kufa_gate_hujja",
+                  "kind": "gate",
+                  "name": "Bab al-Hujja",
+                  "arabicName": "باب الحجة",
+                  "osm": "n10743007875",
+                  "site": "masjid_al_kufa",
+                  "ziyarat": [
+                    {
+                      "uid": "AI3",
+                      "tab": 1,
+                      "label": "Entering the Mosque"
+                    }
+                  ],
+                  "location": [
+                    32.029243,
+                    44.400192
+                  ]
+                },
+                {
+                  "id": "kufa_gate_thuban",
+                  "kind": "gate",
+                  "name": "Bab al-Thu'ban",
+                  "arabicName": "باب الثعبان",
+                  "osm": "n10743007874",
+                  "site": "masjid_al_kufa",
+                  "note": "Also called Bab al-Fil; the one old gate of the mosque still standing.",
+                  "ziyarat": [
+                    {
+                      "uid": "AI3",
+                      "tab": 1,
+                      "label": "Entering the Mosque"
+                    }
+                  ],
+                  "location": [
+                    32.029726,
+                    44.400654
+                  ]
+                },
+                {
+                  "id": "kufa_gate_rahma",
+                  "kind": "gate",
+                  "name": "Bab al-Rahma",
+                  "arabicName": "باب الرحمة",
+                  "osm": "n10743007873",
+                  "site": "masjid_al_kufa",
+                  "ziyarat": [
+                    {
+                      "uid": "AI3",
+                      "tab": 1,
+                      "label": "Entering the Mosque"
+                    }
+                  ],
+                  "location": [
+                    32.029617,
+                    44.401021
+                  ]
+                },
+                {
+                  "id": "kufa_gate_hani",
+                  "kind": "gate",
+                  "name": "Bab Hani ibn Urwah",
+                  "arabicName": "باب هانئ بن عروة",
+                  "osm": "n10743007869",
+                  "site": "masjid_al_kufa",
+                  "ziyarat": [
+                    {
+                      "uid": "AI3",
+                      "tab": 1,
+                      "label": "Entering the Mosque"
+                    }
+                  ],
+                  "location": [
+                    32.029254,
+                    44.401392
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "sahla_mosque",
+              "bbox": [
+                32.0377,
+                44.3783,
+                32.0402,
+                44.3833
+              ],
+              "sites": [
+                "masjid_al_sahla",
+                "masjid_zayd_sasaah"
+              ],
+              "features": [
+                {
+                  "id": "sahla_centre",
+                  "kind": "maqam",
+                  "name": "Centre of the Mosque",
+                  "arabicName": "وسط المسجد",
+                  "osm": "w857865681",
+                  "site": "masjid_al_sahla",
+                  "note": "By tradition the maqams of Imam al-Sadiq (a.s.) and Imam Zayn al-Abidin (a.s.) are here, in the middle of the mosque.",
+                  "ziyarat": [
+                    {
+                      "uid": "AI15",
+                      "tab": 2,
+                      "label": "Centre of the Mosque"
+                    },
+                    {
+                      "uid": "AI15",
+                      "tab": 7,
+                      "label": "Maqam of Imam Zayn al-Abidin (a.s.)"
+                    }
+                  ],
+                  "location": [
+                    32.038969,
+                    44.379746
+                  ]
+                },
+                {
+                  "id": "sahla_gate_east",
+                  "kind": "gate",
+                  "name": "East Gate",
+                  "arabicName": "الباب الشرقي",
+                  "osm": "n348121412",
+                  "site": "masjid_al_sahla",
+                  "ziyarat": [
+                    {
+                      "uid": "AI15",
+                      "tab": 1,
+                      "label": "Entering the Mosque"
+                    }
+                  ],
+                  "location": [
+                    32.038795,
+                    44.380284
+                  ]
+                },
+                {
+                  "id": "masjid_sasaah",
+                  "kind": "place",
+                  "name": "Masjid Sa'sa'ah ibn Sawhan",
+                  "arabicName": "مسجد صعصعة بن صوحان",
+                  "osm": "n6412668541",
+                  "site": "masjid_zayd_sasaah",
+                  "location": [
+                    32.038335,
+                    44.382429
+                  ]
+                }
               ]
             }
           ]
