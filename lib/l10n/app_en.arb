@@ -1995,6 +1995,10 @@
   "@whatsNew140PinPlaylist": {
     "description": "Release note on the What's new page, Android only. The menu item is playlistAddToHomeScreen."
   },
+  "whatsNew141EventNotifications": "Get notified of wiladat, shahadat and the other days of the Islamic calendar, at Maghrib the evening before. Turn it on with the bell on the Calendar, or in Settings › Notifications. Even if you don't open the app for a while, every month still brings at least one.",
+  "@whatsNew141EventNotifications": {
+    "description": "Release note on the What's new page (build 141): the new opt-in notifications of the Islamic calendar's events (eventNotificationsTitle), which come at Maghrib on the eve of each event. Turned on with the bell on the Calendar (menuCalendar) or under Settings > Notifications (actionSettings, settingsSectionNotifications)."
+  },
   "pickerChooseZikr": "Choose a zikr",
   "pickerSearchZikrHint": "Search zikr, dua, ziyarat...",
   "todaysNone": "No recitations configured.",
