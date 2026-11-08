@@ -2168,6 +2168,190 @@
                 "https://nominatim.openstreetmap.org/ (مرقد الشريف المرتضى, مرقد الشريف الرضي)"
               ]
             }
+          ],
+          "plans": [
+            {
+              "id": "kazimayn_haram",
+              "bbox": [
+                33.3779,
+                44.3363,
+                33.3818,
+                44.3402
+              ],
+              "sites": [
+                "kazimayn_shrine",
+                "sharif_murtada_radi_tombs"
+              ],
+              "features": [
+                {
+                  "id": "kazim_tomb",
+                  "kind": "zarih",
+                  "name": "Zarih of Imam Musa al-Kazim (a.s.)",
+                  "arabicName": "ضريح الإمام موسى الكاظم (ع)",
+                  "osm": "n11597386427",
+                  "site": "kazimayn_shrine",
+                  "note": "One zarih holds both Imams: Imam al-Kazim (a.s.) lies at its southern end, under the southern dome.",
+                  "ziyarat": [
+                    {
+                      "uid": "AH2",
+                      "tab": 1,
+                      "label": "Ziyarat of Imam Musa al-Kazim (a.s.) (by Shaykh al-Mufid)"
+                    },
+                    {
+                      "uid": "AH2",
+                      "tab": 2,
+                      "label": "Second Ziyarat of Imam Musa al-Kazim (a.s.)"
+                    },
+                    {
+                      "uid": "AH4"
+                    },
+                    {
+                      "uid": "G13",
+                      "note": "Can be recited at the shrine of any of the Imams (a.s.)."
+                    },
+                    {
+                      "uid": "AH9",
+                      "note": "Addresses both Imams together and ends with the farewell (wida)."
+                    }
+                  ],
+                  "location": [
+                    33.380029,
+                    44.338104
+                  ]
+                },
+                {
+                  "id": "jawad_tomb",
+                  "kind": "zarih",
+                  "name": "Zarih of Imam Muhammad al-Jawad (a.s.)",
+                  "arabicName": "ضريح الإمام محمد الجواد (ع)",
+                  "osm": "n11597386428",
+                  "site": "kazimayn_shrine",
+                  "note": "Imam al-Jawad (a.s.) lies behind his grandfather, at the northern end of the same zarih, under the northern dome.",
+                  "ziyarat": [
+                    {
+                      "uid": "AH5",
+                      "tab": 1,
+                      "label": "Ziyarat of Imam Muhammad al-Jawad (a.s.)",
+                      "note": "Opens with the entry rites recited at the shrine's gate."
+                    },
+                    {
+                      "uid": "AH5",
+                      "tab": 2,
+                      "label": "Ziyarat of Imam al-Jawad (a.s.) from Baqiyat al-Salihat"
+                    },
+                    {
+                      "uid": "AH5",
+                      "tab": 3,
+                      "label": "Dua after the Ziyarat of Imam al-Jawad (a.s.)"
+                    },
+                    {
+                      "uid": "AH7"
+                    },
+                    {
+                      "uid": "G13",
+                      "note": "Can be recited at the shrine of any of the Imams (a.s.)."
+                    },
+                    {
+                      "uid": "AH9",
+                      "note": "Addresses both Imams together and ends with the farewell (wida)."
+                    }
+                  ],
+                  "location": [
+                    33.380137,
+                    44.3381
+                  ]
+                },
+                {
+                  "id": "sharif_murtada_tomb",
+                  "kind": "tomb",
+                  "name": "Tomb of Sayyid al-Murtada",
+                  "arabicName": "مرقد الشريف المرتضى",
+                  "osm": "w1246005730",
+                  "site": "sharif_murtada_radi_tombs",
+                  "person": "sharif_al_murtada",
+                  "ziyarat": [
+                    {
+                      "uid": "G29",
+                      "tab": 5,
+                      "label": "At the Grave of a Believer"
+                    }
+                  ],
+                  "location": [
+                    33.379149,
+                    44.339002
+                  ]
+                },
+                {
+                  "id": "sharif_radi_tomb",
+                  "kind": "tomb",
+                  "name": "Tomb of Sayyid al-Radi",
+                  "arabicName": "مرقد الشريف الرضي",
+                  "osm": "w1246005875",
+                  "site": "sharif_murtada_radi_tombs",
+                  "person": "sharif_al_radi",
+                  "ziyarat": [
+                    {
+                      "uid": "G29",
+                      "tab": 5,
+                      "label": "At the Grave of a Believer"
+                    }
+                  ],
+                  "location": [
+                    33.378793,
+                    44.33899
+                  ]
+                },
+                {
+                  "id": "kazimayn_gate_qibla",
+                  "kind": "gate",
+                  "name": "Bab al-Qibla",
+                  "arabicName": "باب القبلة",
+                  "osm": "w1058585281",
+                  "site": "kazimayn_shrine",
+                  "note": "The main gate in the middle of the south side, opening on the Qibla courtyard.",
+                  "ziyarat": [
+                    {
+                      "uid": "B6"
+                    }
+                  ],
+                  "location": [
+                    33.37937,
+                    44.338134
+                  ]
+                },
+                {
+                  "id": "kazimayn_gate_murad",
+                  "kind": "gate",
+                  "name": "Bab al-Murad",
+                  "arabicName": "باب المراد",
+                  "osm": "w1058585282",
+                  "site": "kazimayn_shrine",
+                  "note": "In the middle of the east side, facing the door of the haram.",
+                  "ziyarat": [
+                    {
+                      "uid": "B6"
+                    }
+                  ],
+                  "location": [
+                    33.380024,
+                    44.338867
+                  ]
+                },
+                {
+                  "id": "jawadayn_mosque",
+                  "kind": "landmark",
+                  "name": "Masjid al-Jawadayn",
+                  "arabicName": "مسجد الجوادين",
+                  "osm": "w1058585277",
+                  "site": "kazimayn_shrine",
+                  "note": "The mosque adjoining the shrine on its north side, under the turquoise dome.",
+                  "location": [
+                    33.380422,
+                    44.338112
+                  ]
+                }
+              ]
+            }
           ]
         },
         {
@@ -2456,6 +2640,127 @@
                 "https://www.al-islam.org/ziyarat/iraq.htm",
                 "https://al-islam.org/node/28827",
                 "https://nominatim.openstreetmap.org/reverse?lat=34.1994&lon=43.8730 (mosque adjoining the shrine)"
+              ]
+            }
+          ],
+          "plans": [
+            {
+              "id": "samarra_haram",
+              "bbox": [
+                34.197,
+                43.871,
+                34.2007,
+                43.8755
+              ],
+              "sites": [
+                "al_askari_shrine",
+                "sardab_al_ghayba"
+              ],
+              "features": [
+                {
+                  "id": "askariyayn_tomb",
+                  "kind": "zarih",
+                  "name": "Zarih of Imam Ali al-Naqi and Imam al-Hasan al-Askari (a.s.)",
+                  "arabicName": "ضريح الإمامين العسكريين (ع)",
+                  "osm": "w973257206",
+                  "site": "al_askari_shrine",
+                  "note": "The two Imams lie side by side under the golden dome; Lady Narjis (s.a.) and Lady Hakimah (s.a.) are buried with them under the same dome.",
+                  "ziyarat": [
+                    {
+                      "uid": "AL1",
+                      "note": "Both Imams together; recited on arriving at the shrine and described in it as the most authentic form."
+                    },
+                    {
+                      "uid": "AL5",
+                      "tab": 1,
+                      "label": "Permission to Enter and Ziyarat of Imam Ali al-Naqi (a.s.)"
+                    },
+                    {
+                      "uid": "AL5",
+                      "tab": 2,
+                      "label": "Salawat upon Imam Ali al-Naqi (a.s.)"
+                    },
+                    {
+                      "uid": "AL6",
+                      "tab": 1,
+                      "label": "Ziyarat of Imam al-Hasan al-Askari (a.s.)"
+                    },
+                    {
+                      "uid": "AL6",
+                      "tab": 2,
+                      "label": "Dua after the Ziyarat of Imam al-Askari (a.s.)"
+                    },
+                    {
+                      "uid": "AL6",
+                      "tab": 3,
+                      "label": "Salawat upon Imam al-Hasan al-Askari (a.s.)"
+                    },
+                    {
+                      "uid": "G13",
+                      "note": "Can be recited at the shrine of any of the Imams (a.s.)."
+                    },
+                    {
+                      "uid": "AL7",
+                      "note": "Prayer, dua and farewell (wida) to the two Imams at the end of the visit."
+                    }
+                  ],
+                  "location": [
+                    34.198973,
+                    43.873534
+                  ]
+                },
+                {
+                  "id": "sardab",
+                  "kind": "maqam",
+                  "name": "The Holy Sardab",
+                  "arabicName": "سرداب الغيبة",
+                  "osm": "w199306705",
+                  "site": "sardab_al_ghayba",
+                  "note": "The cellar of the Imams' house, under the tiled dome on the west side of the shrine; reached by steps down.",
+                  "ziyarat": [
+                    {
+                      "uid": "B6",
+                      "note": "Permission to enter the Sardab."
+                    },
+                    {
+                      "uid": "AL11",
+                      "tab": 1,
+                      "label": "Permission and Ziyarat at the Sardab (from Rabi al-Anam)"
+                    },
+                    {
+                      "uid": "AL11",
+                      "tab": 2,
+                      "label": "Second Ziyarat at the Sardab"
+                    },
+                    {
+                      "uid": "AL11",
+                      "tab": 3,
+                      "label": "Ziyarat at the Sardab by Sayyid Ibn Tawus"
+                    },
+                    {
+                      "uid": "AL15"
+                    },
+                    {
+                      "uid": "G1",
+                      "note": "The best-known ziyarat of Imam al-Mahdi (a.t.f.s.), placed among the Sardab's ziyarats in Mafatih al-Jinan."
+                    },
+                    {
+                      "uid": "G5"
+                    },
+                    {
+                      "uid": "AL17",
+                      "note": "After the Fajr prayer."
+                    },
+                    {
+                      "uid": "E18",
+                      "note": "After the Fajr prayer."
+                    }
+                  ],
+                  "location": [
+                    34.199239,
+                    43.873015
+                  ]
+                }
               ]
             }
           ]
