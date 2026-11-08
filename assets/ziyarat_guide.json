@@ -338,6 +338,239 @@
                 "https://nominatim.openstreetmap.org/search?q=مسجد%20الفتح%20المدينة"
               ]
             }
+          ],
+          "plans": [
+            {
+              "id": "madinah_haram",
+              "bbox": [
+                24.4642,
+                39.6085,
+                24.4705,
+                39.6198
+              ],
+              "sites": [
+                "masjid_al_nabawi",
+                "jannat_al_baqi"
+              ],
+              "features": [
+                {
+                  "id": "prophet_tomb",
+                  "kind": "zarih",
+                  "name": "Tomb of the Holy Prophet (s.a.w.a.)",
+                  "arabicName": "قبر النبي محمد (ص)",
+                  "osm": "n13415346081",
+                  "site": "masjid_al_nabawi",
+                  "person": "prophet_muhammad",
+                  "note": "In his house, now the chamber under the Green Dome.",
+                  "ziyarat": [
+                    {
+                      "uid": "AP2"
+                    },
+                    {
+                      "uid": "G50"
+                    },
+                    {
+                      "uid": "E3",
+                      "note": "After the ziyarat."
+                    }
+                  ],
+                  "location": [
+                    24.467577,
+                    39.611447
+                  ]
+                },
+                {
+                  "id": "house_of_fatimah",
+                  "kind": "tomb",
+                  "name": "House of Lady Fatimah al-Zahra (s.a.)",
+                  "arabicName": "بيت السيدة فاطمة الزهراء (ع)",
+                  "location": [
+                    24.46765,
+                    39.61145
+                  ],
+                  "site": "masjid_al_nabawi",
+                  "person": "lady_fatimah_al_zahra",
+                  "note": "Her house adjoined the Prophet's (s.a.w.a.) chamber on its north side and is now inside the same enclosure; it is one of the places where she is said to be buried.",
+                  "ziyarat": [
+                    {
+                      "uid": "G52"
+                    },
+                    {
+                      "uid": "AP4",
+                      "label": "Ziyarat of Lady Fatimah al-Zahra (s.a.): With the Longer Form"
+                    }
+                  ]
+                },
+                {
+                  "id": "rawdah",
+                  "kind": "maqam",
+                  "name": "The Rawdah",
+                  "arabicName": "الروضة الشريفة",
+                  "osm": "w626051161",
+                  "site": "masjid_al_nabawi",
+                  "note": "Between the Prophet's (s.a.w.a.) tomb and his minbar, which he called one of the gardens of Paradise; one of the places where Lady Fatimah (s.a.) is said to be buried.",
+                  "ziyarat": [
+                    {
+                      "uid": "G52",
+                      "note": "Most scholars recite it from the Rawdah."
+                    }
+                  ],
+                  "location": [
+                    24.467555,
+                    39.6112
+                  ]
+                },
+                {
+                  "id": "minbar",
+                  "kind": "landmark",
+                  "name": "Minbar of the Holy Prophet (s.a.w.a.)",
+                  "arabicName": "منبر النبي (ص)",
+                  "osm": "w746505691",
+                  "site": "masjid_al_nabawi",
+                  "note": "A later minbar standing where the Prophet's (s.a.w.a.) own minbar stood, at the western end of the Rawdah.",
+                  "location": [
+                    24.467528,
+                    39.611077
+                  ]
+                },
+                {
+                  "id": "gate_salam",
+                  "kind": "gate",
+                  "name": "Bab al-Salam",
+                  "arabicName": "باب السلام",
+                  "osm": "n4562374597",
+                  "site": "masjid_al_nabawi",
+                  "note": "Gate 1, on the west side near the qiblah wall; pilgrims traditionally enter here and walk along the qiblah wall to the tomb.",
+                  "ziyarat": [
+                    {
+                      "uid": "B6"
+                    }
+                  ],
+                  "location": [
+                    24.46744,
+                    39.610663
+                  ]
+                },
+                {
+                  "id": "gate_rahma",
+                  "kind": "gate",
+                  "name": "Bab al-Rahma",
+                  "arabicName": "باب الرحمة",
+                  "osm": "n5124338122",
+                  "site": "masjid_al_nabawi",
+                  "note": "Gate 3, one of the old gates on the west side.",
+                  "ziyarat": [
+                    {
+                      "uid": "B6"
+                    }
+                  ],
+                  "location": [
+                    24.467749,
+                    39.610662
+                  ]
+                },
+                {
+                  "id": "gate_jibril",
+                  "kind": "gate",
+                  "name": "Bab Jibril",
+                  "arabicName": "باب جبريل",
+                  "osm": "n5124318602",
+                  "site": "masjid_al_nabawi",
+                  "note": "Gate 40, on the east side beside the Prophet's (s.a.w.a.) chamber.",
+                  "ziyarat": [
+                    {
+                      "uid": "B6"
+                    }
+                  ],
+                  "location": [
+                    24.46774,
+                    39.611598
+                  ]
+                },
+                {
+                  "id": "gate_baqi",
+                  "kind": "gate",
+                  "name": "Bab al-Baqi",
+                  "arabicName": "باب البقيع",
+                  "osm": "n4562374598",
+                  "site": "masjid_al_nabawi",
+                  "note": "Gate 41, on the east side near the qiblah wall, the gate nearest al-Baqi; the way past the tomb leaves the mosque here.",
+                  "location": [
+                    24.467451,
+                    39.611599
+                  ]
+                },
+                {
+                  "id": "gate_king_fahd",
+                  "kind": "gate",
+                  "name": "King Fahd Gate",
+                  "arabicName": "باب الملك فهد",
+                  "osm": "n3059531452",
+                  "site": "masjid_al_nabawi",
+                  "note": "Gates 20 to 22, the main entrance on the north side.",
+                  "ziyarat": [
+                    {
+                      "uid": "B6"
+                    }
+                  ],
+                  "location": [
+                    24.469925,
+                    39.611156
+                  ]
+                },
+                {
+                  "id": "baqi_imams",
+                  "kind": "tomb",
+                  "name": "Graves of the Four Imams (a.s.)",
+                  "arabicName": "قبور أئمة البقيع (ع)",
+                  "location": [
+                    24.46696,
+                    39.61398
+                  ],
+                  "site": "jannat_al_baqi",
+                  "note": "Imam Hasan, Imam Zayn al-Abidin, Imam al-Baqir and Imam al-Sadiq (a.s.) lie together inside this low octagonal wall, with Abbas ibn Abd al-Muttalib; their dome stood here until 1926.",
+                  "ziyarat": [
+                    {
+                      "uid": "G53"
+                    },
+                    {
+                      "uid": "G64"
+                    },
+                    {
+                      "uid": "G65"
+                    },
+                    {
+                      "uid": "G66"
+                    },
+                    {
+                      "uid": "E3",
+                      "note": "After the ziyarat of the Imams (a.s.)."
+                    }
+                  ]
+                },
+                {
+                  "id": "baqi_gate",
+                  "kind": "gate",
+                  "name": "Gate of al-Baqi",
+                  "arabicName": "باب مقبرة البقيع",
+                  "osm": "n8346252308",
+                  "site": "jannat_al_baqi",
+                  "note": "The cemetery's main gate, in its western wall facing the Prophet's Mosque.",
+                  "ziyarat": [
+                    {
+                      "uid": "G29",
+                      "tab": 1,
+                      "label": "Greeting the Believers Buried Here",
+                      "note": "On entering the cemetery."
+                    }
+                  ],
+                  "location": [
+                    24.467166,
+                    39.613486
+                  ]
+                }
+              ]
+            }
           ]
         },
         {
