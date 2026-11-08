@@ -3868,6 +3868,307 @@
                 "https://www.openstreetmap.org/search?query=آرامگاه%20خواجه%20ربیع"
               ]
             }
+          ],
+          "plans": [
+            {
+              "id": "mashhad_haram",
+              "bbox": [
+                36.284,
+                59.609,
+                36.2915,
+                59.6205
+              ],
+              "sites": [
+                "imam_reza_shrine",
+                "goharshad_mosque"
+              ],
+              "features": [
+                {
+                  "id": "reza_tomb",
+                  "kind": "zarih",
+                  "name": "Zarih of Imam Ali al-Reza (a.s.)",
+                  "arabicName": "ضريح الإمام علي الرضا (ع)",
+                  "osm": "w765638427",
+                  "site": "imam_reza_shrine",
+                  "ziyarat": [
+                    {
+                      "uid": "G68"
+                    },
+                    {
+                      "uid": "G76",
+                      "tab": 2,
+                      "label": "Short salutation to Imam Reza (a.s.)"
+                    },
+                    {
+                      "uid": "E136"
+                    }
+                  ],
+                  "location": [
+                    36.287989,
+                    59.615688
+                  ]
+                },
+                {
+                  "id": "goharshad_mosque",
+                  "kind": "place",
+                  "name": "Goharshad Mosque",
+                  "arabicName": "مسجد گوهرشاد",
+                  "osm": "n314329179",
+                  "site": "goharshad_mosque",
+                  "location": [
+                    36.287414,
+                    59.614556
+                  ]
+                },
+                {
+                  "id": "sahn_enqelab",
+                  "kind": "landmark",
+                  "name": "Sahn Enqelab",
+                  "arabicName": "صحن انقلاب",
+                  "osm": "w55915341",
+                  "site": "imam_reza_shrine",
+                  "note": "The Old Courtyard (Sahn-e Atiq). The Steel Window (Panjara Fulad) of the tomb chamber looks onto it.",
+                  "location": [
+                    36.288445,
+                    59.616123
+                  ]
+                },
+                {
+                  "id": "sahn_azadi",
+                  "kind": "landmark",
+                  "name": "Sahn Azadi",
+                  "arabicName": "صحن آزادی",
+                  "osm": "w55915335",
+                  "site": "imam_reza_shrine",
+                  "note": "The New Courtyard (Sahn-e Now). Shaykh Baha'i's tomb opens off it.",
+                  "location": [
+                    36.287371,
+                    59.616458
+                  ]
+                },
+                {
+                  "id": "sahn_jomhouri",
+                  "kind": "landmark",
+                  "name": "Sahn Jomhouri Islami",
+                  "arabicName": "صحن جمهوری اسلامی",
+                  "osm": "w55915338",
+                  "site": "imam_reza_shrine",
+                  "location": [
+                    36.288853,
+                    59.614462
+                  ]
+                },
+                {
+                  "id": "sahn_qods",
+                  "kind": "landmark",
+                  "name": "Sahn Qods",
+                  "arabicName": "صحن قدس",
+                  "osm": "w385252768",
+                  "site": "imam_reza_shrine",
+                  "location": [
+                    36.287144,
+                    59.614289
+                  ]
+                },
+                {
+                  "id": "sahn_ghadir",
+                  "kind": "landmark",
+                  "name": "Sahn Ghadir",
+                  "arabicName": "صحن غدیر",
+                  "osm": "w55955760",
+                  "site": "imam_reza_shrine",
+                  "location": [
+                    36.288877,
+                    59.613104
+                  ]
+                },
+                {
+                  "id": "sahn_kawthar",
+                  "kind": "landmark",
+                  "name": "Sahn Kawthar",
+                  "arabicName": "صحن کوثر",
+                  "osm": "w55955755",
+                  "site": "imam_reza_shrine",
+                  "location": [
+                    36.285898,
+                    59.616212
+                  ]
+                },
+                {
+                  "id": "sahn_imam_hasan",
+                  "kind": "landmark",
+                  "name": "Sahn Imam Hasan Mujtaba (a.s.)",
+                  "arabicName": "صحن امام حسن مجتبی (ع)",
+                  "osm": "w391919810",
+                  "site": "imam_reza_shrine",
+                  "location": [
+                    36.288132,
+                    59.618535
+                  ]
+                },
+                {
+                  "id": "sahn_payambar_azam",
+                  "kind": "landmark",
+                  "name": "Sahn Payambar-e A'zam (s.a.w.a.)",
+                  "arabicName": "صحن پیامبر اعظم (ص)",
+                  "location": [
+                    36.286522,
+                    59.6132
+                  ],
+                  "site": "imam_reza_shrine",
+                  "note": "The largest courtyard, formerly called Sahn Jame' Razavi. Bab al-Jawad and Bab al-Reza open into it."
+                },
+                {
+                  "id": "clock_iwan",
+                  "kind": "landmark",
+                  "name": "Clock Iwan",
+                  "arabicName": "ایوان ساعت",
+                  "osm": "w385252777",
+                  "site": "imam_reza_shrine",
+                  "note": "In Sahn Enqelab, under the clock.",
+                  "location": [
+                    36.288898,
+                    59.61575
+                  ]
+                },
+                {
+                  "id": "naqqara_khana_iwan",
+                  "kind": "landmark",
+                  "name": "Naqqara Khana Iwan",
+                  "arabicName": "ایوان نقاره‌خانه",
+                  "osm": "w385252774",
+                  "site": "imam_reza_shrine",
+                  "note": "In Sahn Enqelab, below the drum house.",
+                  "location": [
+                    36.288049,
+                    59.616607
+                  ]
+                },
+                {
+                  "id": "bast_shaykh_bahai",
+                  "kind": "landmark",
+                  "name": "Bast Shaykh Baha'i",
+                  "arabicName": "بست شیخ بهایی",
+                  "osm": "w385252764",
+                  "site": "imam_reza_shrine",
+                  "location": [
+                    36.287841,
+                    59.614234
+                  ]
+                },
+                {
+                  "id": "bast_hurr_amili",
+                  "kind": "landmark",
+                  "name": "Bast Shaykh Hurr Amili",
+                  "arabicName": "بست شیخ حر عاملی",
+                  "osm": "w385252772",
+                  "site": "imam_reza_shrine",
+                  "location": [
+                    36.287604,
+                    59.617032
+                  ]
+                },
+                {
+                  "id": "tabarsi_tomb",
+                  "kind": "tomb",
+                  "name": "Tomb of Amin al-Islam al-Tabarsi",
+                  "arabicName": "مقبره شیخ طبرسی",
+                  "osm": "w669888958",
+                  "site": "imam_reza_shrine",
+                  "person": "amin_al_islam_tabarsi",
+                  "location": [
+                    36.290066,
+                    59.617361
+                  ]
+                },
+                {
+                  "id": "gate_bab_al_jawad",
+                  "kind": "gate",
+                  "name": "Bab al-Jawad",
+                  "arabicName": "باب الجواد",
+                  "osm": "n3184734889",
+                  "site": "imam_reza_shrine",
+                  "ziyarat": [
+                    {
+                      "uid": "B6"
+                    }
+                  ],
+                  "location": [
+                    36.286123,
+                    59.610431
+                  ]
+                },
+                {
+                  "id": "gate_bab_al_reza",
+                  "kind": "gate",
+                  "name": "Bab al-Reza",
+                  "arabicName": "باب الرضا",
+                  "osm": "n3849205058",
+                  "site": "imam_reza_shrine",
+                  "ziyarat": [
+                    {
+                      "uid": "B6"
+                    }
+                  ],
+                  "location": [
+                    36.285064,
+                    59.613209
+                  ]
+                },
+                {
+                  "id": "gate_bast_tusi",
+                  "kind": "gate",
+                  "name": "Bast Shaykh Tusi",
+                  "arabicName": "بست شیخ طوسی",
+                  "osm": "w391919812",
+                  "site": "imam_reza_shrine",
+                  "note": "Also called the upper bast (Bast-e Bala).",
+                  "ziyarat": [
+                    {
+                      "uid": "B6"
+                    }
+                  ],
+                  "location": [
+                    36.290238,
+                    59.614161
+                  ]
+                },
+                {
+                  "id": "gate_bast_tabarsi",
+                  "kind": "gate",
+                  "name": "Bast Shaykh Tabarsi",
+                  "arabicName": "بست شیخ طبرسی",
+                  "osm": "w391919813",
+                  "site": "imam_reza_shrine",
+                  "ziyarat": [
+                    {
+                      "uid": "B6"
+                    }
+                  ],
+                  "location": [
+                    36.289443,
+                    59.61824
+                  ]
+                },
+                {
+                  "id": "gate_bast_navvab_safavi",
+                  "kind": "gate",
+                  "name": "Bast Navvab Safavi",
+                  "arabicName": "بست نواب صفوی",
+                  "osm": "w391919811",
+                  "site": "imam_reza_shrine",
+                  "ziyarat": [
+                    {
+                      "uid": "B6"
+                    }
+                  ],
+                  "location": [
+                    36.286526,
+                    59.617983
+                  ]
+                }
+              ]
+            }
           ]
         },
         {
@@ -4051,6 +4352,153 @@
               "sources": [
                 "https://fa.wikipedia.org/wiki/قبرستان_شیخان",
                 "https://www.openstreetmap.org/search?query=قبرستان%20شیخان%20قم"
+              ]
+            }
+          ],
+          "plans": [
+            {
+              "id": "qom_haram",
+              "bbox": [
+                34.6395,
+                50.8758,
+                34.6444,
+                50.8826
+              ],
+              "sites": [
+                "masuma_shrine",
+                "shaykhan_cemetery"
+              ],
+              "features": [
+                {
+                  "id": "masuma_tomb",
+                  "kind": "zarih",
+                  "name": "Zarih of Lady Masuma (s.a.)",
+                  "arabicName": "ضريح السيدة فاطمة المعصومة (ع)",
+                  "osm": "w1572187993",
+                  "site": "masuma_shrine",
+                  "ziyarat": [
+                    {
+                      "uid": "G78"
+                    }
+                  ],
+                  "location": [
+                    34.641855,
+                    50.878937
+                  ]
+                },
+                {
+                  "id": "borujerdi_tomb",
+                  "kind": "tomb",
+                  "name": "Tomb of Ayatollah Borujerdi",
+                  "arabicName": "مرقد السيد حسين الطباطبائي البروجردي",
+                  "osm": "n13416585644",
+                  "site": "masuma_shrine",
+                  "person": "ayatollah_borujerdi",
+                  "location": [
+                    34.641738,
+                    50.878506
+                  ]
+                },
+                {
+                  "id": "shaykhan_cemetery",
+                  "kind": "place",
+                  "name": "Shaykhan Cemetery",
+                  "arabicName": "قبرستان شیخان",
+                  "osm": "w245086868",
+                  "site": "shaykhan_cemetery",
+                  "location": [
+                    34.642714,
+                    50.881439
+                  ]
+                },
+                {
+                  "id": "sahn_atiq",
+                  "kind": "landmark",
+                  "name": "Sahn Atiq",
+                  "arabicName": "صحن عتیق",
+                  "location": [
+                    34.642179,
+                    50.879075
+                  ],
+                  "site": "masuma_shrine",
+                  "note": "The Old Courtyard. The Golden Iwan opens from it onto the shrine."
+                },
+                {
+                  "id": "sahn_atabaki",
+                  "kind": "landmark",
+                  "name": "Sahn Atabaki",
+                  "arabicName": "صحن اتابکی",
+                  "osm": "r3359977",
+                  "site": "masuma_shrine",
+                  "note": "The New Courtyard, also called Sahn Imam Reza (a.s.).",
+                  "location": [
+                    34.641735,
+                    50.87965
+                  ]
+                },
+                {
+                  "id": "sahn_sahib_al_zaman",
+                  "kind": "landmark",
+                  "name": "Sahn Sahib al-Zaman (a.t.f.s.)",
+                  "arabicName": "صحن صاحب‌الزمان (عج)",
+                  "osm": "r3359976",
+                  "site": "masuma_shrine",
+                  "location": [
+                    34.64162,
+                    50.877587
+                  ]
+                },
+                {
+                  "id": "sahn_jawad_al_aimma",
+                  "kind": "landmark",
+                  "name": "Sahn Jawad al-A'imma (a.s.)",
+                  "arabicName": "صحن جواد الائمه (ع)",
+                  "osm": "r9282672",
+                  "site": "masuma_shrine",
+                  "location": [
+                    34.643453,
+                    50.878657
+                  ]
+                },
+                {
+                  "id": "azam_mosque",
+                  "kind": "landmark",
+                  "name": "A'zam Mosque",
+                  "arabicName": "مسجد اعظم",
+                  "osm": "w323644053",
+                  "site": "masuma_shrine",
+                  "note": "Built by Ayatollah Borujerdi beside the shrine.",
+                  "location": [
+                    34.642419,
+                    50.878415
+                  ]
+                },
+                {
+                  "id": "shabestan_imam_khomeini",
+                  "kind": "landmark",
+                  "name": "Shabestan Imam Khomeini",
+                  "arabicName": "شبستان امام خمینی",
+                  "osm": "r4509210",
+                  "site": "masuma_shrine",
+                  "note": "A large prayer hall.",
+                  "location": [
+                    34.641102,
+                    50.878772
+                  ]
+                },
+                {
+                  "id": "madrasa_faiziyya",
+                  "kind": "landmark",
+                  "name": "Madrasa Faiziyya",
+                  "arabicName": "مدرسه فیضیه",
+                  "osm": "r4509252",
+                  "site": "masuma_shrine",
+                  "note": "The seminary school beside the Old Courtyard.",
+                  "location": [
+                    34.642766,
+                    50.879308
+                  ]
+                }
               ]
             }
           ]
