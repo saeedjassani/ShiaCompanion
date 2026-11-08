@@ -896,7 +896,8 @@ class _MarkerLayer extends StatelessWidget {
   final double reservedBottom;
 
   static double _markerSize(PlanFeatureKind kind) => switch (kind) {
-        PlanFeatureKind.zarih => 30,
+        // Small enough to leave a ring of the dome around it.
+        PlanFeatureKind.zarih => 26,
         PlanFeatureKind.place => 26,
         PlanFeatureKind.tomb => 20,
         PlanFeatureKind.gate => 20,
@@ -939,6 +940,7 @@ class _MarkerLayer extends StatelessWidget {
     ];
     final markers = <Widget>[];
     final labels = <Widget>[];
+    final topLabels = <Widget>[];
     final screen = (Offset.zero & viewport).inflate(40);
     final visible = Offset.zero & viewport;
 
@@ -1015,22 +1017,27 @@ class _MarkerLayer extends StatelessWidget {
         Rect.fromLTWH(at.dx - size / 2 - 4 - labelSize.width, besideTop,
             labelSize.width, labelSize.height),
       ];
-      // The selected feature's and the opened-on one's labels may cover
-      // other markers (never the page's chrome or another label): they
-      // matter most.
-      final blockers = rank(feature) > 0
-          ? [...chrome, ...taken.skip(chrome.length + markerRects.length)]
-          : taken;
-      for (final rect in candidates) {
-        if (rect.left < 0 || rect.right > viewport.width) continue;
-        if (!blockers.any((r) => r.overlaps(rect))) {
-          place = rect;
-          break;
+      // Clear of every marker if it can be; failing that, the selected
+      // feature's and the opened-on one's labels may cover other markers
+      // (drawn above them) - never the page's chrome or another label.
+      var overMarkers = false;
+      Rect? fit(List<Rect> blockers) {
+        for (final rect in candidates) {
+          if (rect.left < 0 || rect.right > viewport.width) continue;
+          if (!blockers.any((r) => r.overlaps(rect))) return rect;
         }
+        return null;
+      }
+
+      place = fit(taken);
+      if (place == null && rank(feature) > 0) {
+        place =
+            fit([...chrome, ...taken.skip(chrome.length + markerRects.length)]);
+        overMarkers = place != null;
       }
       if (place == null) continue;
       taken.add(place);
-      labels.add(Positioned.fromRect(
+      (overMarkers ? topLabels : labels).add(Positioned.fromRect(
         rect: place,
         // The marker already says the name to a screen reader.
         child: ExcludeSemantics(
@@ -1072,6 +1079,7 @@ class _MarkerLayer extends StatelessWidget {
         ...labels,
         // Later markers draw on top: put the important ones last.
         ...markers.reversed,
+        ...topLabels,
         if (meAt != null && screen.contains(meAt))
           Positioned(
             left: meAt.dx - 9,

@@ -3878,6 +3878,9 @@
                 36.2915,
                 59.6205
               ],
+              "layers": {
+                "w765638427": "gold"
+              },
               "sites": [
                 "imam_reza_shrine",
                 "goharshad_mosque"
@@ -4364,6 +4367,9 @@
                 34.6444,
                 50.8826
               ],
+              "layers": {
+                "w1572187993": "gold"
+              },
               "sites": [
                 "masuma_shrine",
                 "shaykhan_cemetery"
