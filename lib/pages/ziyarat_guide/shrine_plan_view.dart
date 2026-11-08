@@ -453,7 +453,8 @@ class _ShrinePlanPageState extends State<ShrinePlanPage> {
   }
 
   Future<void> _showList() async {
-    final feature = await showPlanFeatureList(context, widget.plan);
+    final feature =
+        await showPlanFeatureList(context, widget.plan, siteId: widget.site.id);
     if (feature != null && mounted) _select(feature, move: true);
   }
 
@@ -1655,7 +1656,8 @@ class _FeatureCard extends StatelessWidget {
 }
 
 /// Every feature of [plan] in a sheet, grouped; returns the one tapped.
-Future<PlanFeature?> showPlanFeatureList(BuildContext context, GuidePlan plan) {
+Future<PlanFeature?> showPlanFeatureList(BuildContext context, GuidePlan plan,
+    {String? siteId}) {
   final colors = ShiaColors.of(context);
   return showModalBottomSheet<PlanFeature>(
     context: context,
@@ -1671,27 +1673,36 @@ Future<PlanFeature?> showPlanFeatureList(BuildContext context, GuidePlan plan) {
       initialChildSize: 0.6,
       maxChildSize: 0.94,
       builder: (context, scroll) =>
-          PlanFeatureList(plan: plan, controller: scroll),
+          PlanFeatureList(plan: plan, siteId: siteId, controller: scroll),
     ),
   );
 }
 
 /// The list inside [showPlanFeatureList]; public for tests.
 class PlanFeatureList extends StatelessWidget {
-  const PlanFeatureList({super.key, required this.plan, this.controller});
+  const PlanFeatureList(
+      {super.key, required this.plan, this.siteId, this.controller});
 
   final GuidePlan plan;
+
+  /// The site the plan was opened from: its features come first.
+  final String? siteId;
   final ScrollController? controller;
 
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     final colors = ShiaColors.of(context);
+    // The open site's own features first in each group.
+    final features = [
+      ...plan.features.where((f) => f.siteId == siteId),
+      ...plan.features.where((f) => f.siteId != siteId),
+    ];
     final groups = <(String, List<PlanFeature>)>[
       (
         l10n.ziyaratGuideMapTombs,
         [
-          for (final f in plan.features)
+          for (final f in features)
             if (f.kind == PlanFeatureKind.zarih ||
                 f.kind == PlanFeatureKind.tomb ||
                 f.kind == PlanFeatureKind.maqam)
@@ -1701,21 +1712,21 @@ class PlanFeatureList extends StatelessWidget {
       (
         l10n.ziyaratGuideMapGates,
         [
-          for (final f in plan.features)
+          for (final f in features)
             if (f.kind == PlanFeatureKind.gate) f
         ]
       ),
       (
         l10n.ziyaratGuideMapDoors,
         [
-          for (final f in plan.features)
+          for (final f in features)
             if (f.kind == PlanFeatureKind.door) f
         ]
       ),
       (
         l10n.ziyaratGuideMapNearby,
         [
-          for (final f in plan.features)
+          for (final f in features)
             if (f.kind == PlanFeatureKind.place ||
                 f.kind == PlanFeatureKind.landmark)
               f
