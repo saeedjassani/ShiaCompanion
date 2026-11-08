@@ -2652,6 +2652,10 @@
                 34.2007,
                 43.8755
               ],
+              "layers": {
+                "w973257206": "gold",
+                "w199306705": "tile"
+              },
               "sites": [
                 "al_askari_shrine",
                 "sardab_al_ghayba"

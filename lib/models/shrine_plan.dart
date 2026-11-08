@@ -99,6 +99,12 @@ enum PlanShapeKind {
   water,
   building,
   gate,
+
+  /// A tiled (blue or turquoise) dome.
+  tile,
+
+  /// A green dome: the Prophet's (s.a.w.a.) in Madinah.
+  greenDome,
   gold,
   minaret,
   wall;

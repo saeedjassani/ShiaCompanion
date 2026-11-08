@@ -113,6 +113,10 @@ class _PlanPalette {
             c.well, c.text, brightness == Brightness.dark ? 0.12 : 0.08)!,
         buildingEdge = Color.lerp(c.well, c.text, 0.30)!,
         gate = Color.lerp(c.well, c.accent, 0.30)!,
+        tile = Color.lerp(c.well, const Color(0xFF2E8B9A), 0.55)!,
+        greenDome = Color.lerp(c.well, const Color(0xFF3E8E41), 0.75)!,
+        greenDomeEdge = Color.lerp(c.well, const Color(0xFF235A25), 0.85)!,
+        tileEdge = Color.lerp(c.well, const Color(0xFF1F5F69), 0.7)!,
         gold = c.gold,
         goldEdge = Color.lerp(c.gold, Colors.black, 0.28)!,
         wall = Color.lerp(c.line, c.text, 0.35)!;
@@ -130,6 +134,10 @@ class _PlanPalette {
   final Color building;
   final Color buildingEdge;
   final Color gate;
+  final Color tile;
+  final Color tileEdge;
+  final Color greenDome;
+  final Color greenDomeEdge;
   final Color gold;
   final Color goldEdge;
   final Color wall;
@@ -207,6 +215,10 @@ class _PlanPainter extends CustomPainter {
           area(path, palette.building, edge: palette.buildingEdge);
         case PlanShapeKind.gate:
           area(path, palette.gate, edge: palette.buildingEdge);
+        case PlanShapeKind.tile:
+          area(path, palette.tile, edge: palette.tileEdge);
+        case PlanShapeKind.greenDome:
+          area(path, palette.greenDome, edge: palette.greenDomeEdge);
         case PlanShapeKind.gold:
           area(path, palette.gold, edge: palette.goldEdge);
         case PlanShapeKind.minaret:
@@ -969,7 +981,12 @@ class _MarkerLayer extends StatelessWidget {
         textScaler: textScaler,
         maxLines: 1,
         ellipsis: '…',
-      )..layout(maxWidth: 170);
+      )..layout(
+          // The zarih's and the next site's names are worth the room.
+          maxWidth: feature.kind == PlanFeatureKind.zarih ||
+                  feature.kind == PlanFeatureKind.place
+              ? math.min(260.0, viewport.width - 24)
+              : 170);
       final labelSize = Size(painter.width + 14, painter.height + 6);
       Rect? place;
       for (final dy in [size / 2 + 3, -(size / 2 + 3 + labelSize.height)]) {

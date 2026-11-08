@@ -52,6 +52,9 @@ M_PER_DEG_LNG = 111320.0
 SIMPLIFY_M = 0.25
 
 GOLD = {'gold', '#ffd700', '#ffcc00', '#d4af37', 'yellow', 'golden'}
+# Tiled domes: Samarra's Sardab, Kazimayn's Jawadayn mosque.
+GREEN_DOME = {'green', '#008000', '#00a650', '#2e8b57', '#228b22', '#006400'}
+TILE = {'blue', 'turquoise', 'teal', 'cyan', '#40e0d0', '#30d5c8', '#008080', '#0000ff'}
 
 
 def fetch(url: str, cache_name: str, refresh: bool) -> dict:
@@ -184,6 +187,10 @@ def classify(tags: dict, closed: bool) -> str | None:
                    ('material', 'roof:material', 'roof:colour', 'building:colour')}
         if colours & GOLD:
             return 'gold'
+        if colours & TILE:
+            return 'tile'
+        if colours & GREEN_DOME and get('roof:shape') == 'dome':
+            return 'greenDome'
         return 'building'
     if closed and (get('amenity') == 'place_of_worship' or get('landuse') in ('religious', 'cemetery')
                    or get('amenity') == 'grave_yard'):
@@ -208,7 +215,7 @@ def classify(tags: dict, closed: bool) -> str | None:
 
 # Drawing order: earlier layers lie underneath.
 LAYERS = ['precinct', 'green', 'walk', 'court', 'road', 'path', 'water', 'building',
-          'gate', 'gold', 'minaret', 'wall']
+          'gate', 'tile', 'greenDome', 'gold', 'minaret', 'wall']
 LINE_LAYERS = {'road', 'path', 'wall'}
 
 
@@ -293,8 +300,15 @@ def build_plan(plan: dict, osm: Osm, origin: tuple[float, float]) -> dict:
     s, w, n, e = plan['bbox']
     box = (*project((s, w)), *project((n, e)))
     shapes = []
+    # The plan's `layers`: {"w123": "gold"} draws that way or relation in
+    # that layer, on top of the layer's others - for what OSM tags too
+    # little (a gold dome without a colour).
+    overrides = plan.get('layers', {})
+    unknown = set(overrides.values()) - set(LAYERS)
+    if unknown:
+        raise SystemExit(f"{plan['id']}: unknown layers {sorted(unknown)}")
 
-    def add_polygon(layer, rings, tags):
+    def add_polygon(layer, rings, tags, top=False):
         out = []
         for ring in rings:
             pts = [project(p) for p in ring]
@@ -305,7 +319,7 @@ def build_plan(plan: dict, osm: Osm, origin: tuple[float, float]) -> dict:
             if len(pts) >= 3 and ring_area(pts) >= 0.5:
                 out.append(pts)
         if out:
-            shapes.append((LAYERS.index(layer), height_of(tags), layer, out, False))
+            shapes.append((LAYERS.index(layer), 1e9 if top else height_of(tags), layer, out, False))
 
     def add_line(layer, pts, tags):
         pts = [project(p) for p in pts]
@@ -321,7 +335,7 @@ def build_plan(plan: dict, osm: Osm, origin: tuple[float, float]) -> dict:
         tags = rel.get('tags', {})
         if tags.get('type') not in ('multipolygon', 'building'):
             continue
-        layer = classify(tags, True)
+        layer = overrides.get(f"r{rel['id']}") or classify(tags, True)
         if tags.get('type') == 'building':
             # A building relation groups parts that are drawn on their own.
             continue
@@ -329,30 +343,31 @@ def build_plan(plan: dict, osm: Osm, origin: tuple[float, float]) -> dict:
             continue
         rings = osm.relation_rings(rel)
         if rings:
-            add_polygon(layer, rings, tags)
+            add_polygon(layer, rings, tags, top=f"r{rel['id']}" in overrides)
             for m in rel['members']:
                 if m['type'] == 'way':
                     in_relation.add(m['ref'])
 
     for way in osm.ways.values():
         tags = way.get('tags', {})
-        if not tags:
+        forced = overrides.get(f"w{way['id']}")
+        if not tags and not forced:
             continue
         pts = osm.way_points(way['id'])
         if len(pts) < 2:
             continue
         closed = pts[0] == pts[-1] and len(pts) >= 4
-        layer = classify(tags, closed)
+        layer = forced or classify(tags, closed)
         if layer is None:
             continue
-        if way['id'] in in_relation and layer not in LINE_LAYERS:
+        if way['id'] in in_relation and layer not in LINE_LAYERS and not forced:
             # Its relation already drew it, unless the way is a part of its own.
             if not (tags.get('building') or tags.get('building:part')):
                 continue
         if layer in LINE_LAYERS:
             add_line(layer, pts, tags)
         elif closed:
-            add_polygon(layer, [pts], tags)
+            add_polygon(layer, [pts], tags, top=bool(forced))
 
     shapes.sort(key=lambda s: (s[0], s[1]))
     dm = lambda v: int(round(v * 10))
