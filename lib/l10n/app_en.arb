@@ -4410,9 +4410,9 @@
   "@eventNotificationsSwitch": {
     "description": "The switch that turns notifications of the Islamic calendar's events on."
   },
-  "eventNotificationsSwitchHint": "Even if you don't open the app for a while, every month still brings at least one",
+  "eventNotificationsSwitchHint": "At Maghrib the evening before, when the Islamic day begins",
   "@eventNotificationsSwitchHint": {
-    "description": "Under the event notifications switch: notifications are spread out so that even someone who rarely opens the app hears of at least one event a month."
+    "description": "Under the event notifications switch: when each event's notification comes - at Maghrib on the evening before it, since the Islamic day begins at Maghrib."
   },
   "eventKindsLabel": "Which events",
   "@eventKindsLabel": {
@@ -4438,25 +4438,15 @@
   "@eventKindsNoneChosen": {
     "description": "Shown when event notifications are on but every kind of event is switched off."
   },
-  "eventTimingLabel": "When",
-  "@eventTimingLabel": {
-    "description": "Group label over when an event's notification goes off: on the day or the day before, and at what time."
-  },
-  "eventTimingOnDay": "On the day",
-  "@eventTimingOnDay": {
-    "description": "Event notifications go off on the day of the event."
-  },
-  "eventTimingDayBefore": "The day before",
-  "@eventTimingDayBefore": {
-    "description": "Event notifications go off the day before the event."
-  },
-  "eventTimingDayBeforeHint": "The Islamic day begins at Maghrib, so its night comes first",
-  "@eventTimingDayBeforeHint": {
-    "description": "Why someone might want to hear of an event the day before."
-  },
-  "eventNotificationsFootnote": "Each time you open the app, every event of the weeks ahead is set. If it stays closed, what is already set is spread over the months ahead, so even the quiet months bring one.",
+  "eventNotificationsFootnote": "Each time you open the app, every event of the weeks ahead is set. If it stays closed, what is already set is spread over the months ahead, so even the quiet months bring one. Until the app knows your location, they come at {time}.",
   "@eventNotificationsFootnote": {
-    "description": "Footnote on the event notifications page explaining how they are scheduled."
+    "description": "Footnote on the event notifications page explaining how they are scheduled. {time} is the fallback time used without a location, e.g. '8:00 pm'.",
+    "placeholders": {
+      "time": {
+        "type": "String",
+        "example": "8:00 pm"
+      }
+    }
   },
   "eventNotificationBody": "{when} · {date}",
   "@eventNotificationBody": {

@@ -87,17 +87,16 @@ const int eventNotificationSoonestKept = 2;
 /// Rescheduling on every launch keeps the near weeks complete for anyone who
 /// does open the app.
 ///
-/// [now] is the local time; an event whose notification time has passed is
-/// left out. [dayBefore] tells the reader the evening before (the Islamic day
-/// begins at Maghrib), at [hour]:[minute], instead of on the day itself.
+/// Each event is told the evening before, when its Islamic day begins:
+/// [notifyAt] gives the time on that eve's civil date (Maghrib where the
+/// reader is; see [eventNotificationFallbackTime] without a location). [now]
+/// is the local time; an event whose eve has already been told is left out.
 List<PlannedEventNotification> planEventNotifications({
   required DateTime now,
   required Map<String, dynamic> events,
   required int offsetDays,
   required Set<EventNotificationKind> kinds,
-  required bool dayBefore,
-  required int hour,
-  required int minute,
+  required DateTime Function(DateTime eve) notifyAt,
   required int budget,
   int horizonDays = eventNotificationHorizonDays,
 }) {
@@ -112,13 +111,8 @@ List<PlannedEventNotification> planEventNotifications({
     if (event is! Map || eventHeadline(event).isEmpty) continue;
     final kind = EventNotificationKind.ofColor(event['color']);
     if (!kinds.contains(kind)) continue;
-    // By calendar day, on the event day's own clock: a clock change between
-    // the two must not move the notification an hour.
-    final fireAt = dateTimeOfDay(
-      calendarDayFrom(date, dayBefore ? -1 : 0),
-      hour,
-      minute,
-    );
+    // By calendar day: the day the clocks go back is 25 hours long.
+    final fireAt = notifyAt(calendarDayFrom(date, -1));
     if (!fireAt.isAfter(now)) continue;
     candidates.add(PlannedEventNotification(
       fireAt: fireAt,
@@ -170,7 +164,7 @@ List<PlannedEventNotification> planEventNotifications({
   ];
 }
 
-/// [day]'s date at [hour]:[minute], on [day]'s own clock.
-@visibleForTesting
-DateTime dateTimeOfDay(DateTime day, int hour, int minute) =>
-    DateTime(day.year, day.month, day.day, hour, minute);
+/// When an event is told without a location to work out Maghrib from:
+/// 8:00 pm on its eve, after Maghrib nearly everywhere for most of the year.
+DateTime eventNotificationFallbackTime(DateTime eve) =>
+    DateTime(eve.year, eve.month, eve.day, 20);

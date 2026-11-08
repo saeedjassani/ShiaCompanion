@@ -23,8 +23,6 @@ void main() {
   List<PlannedEventNotification> plan({
     required DateTime now,
     Set<EventNotificationKind>? kinds,
-    bool dayBefore = false,
-    int hour = 9,
     int budget = 1000,
   }) =>
       planEventNotifications(
@@ -32,9 +30,7 @@ void main() {
         events: events,
         offsetDays: 0,
         kinds: kinds ?? EventNotificationKind.values.toSet(),
-        dayBefore: dayBefore,
-        hour: hour,
-        minute: 0,
+        notifyAt: eventNotificationFallbackTime,
         budget: budget,
       );
 
@@ -43,7 +39,10 @@ void main() {
       '${p.hijriDay.toString().padLeft(2, '0')}';
 
   test('with room for all, plans every event of the coming year once', () {
-    final now = civil(1448, 1, 1).add(const Duration(hours: 6));
+    // The morning of 1 Muharram's eve.
+    final now = civil(1448, 1, 1)
+        .subtract(const Duration(days: 1))
+        .add(const Duration(hours: 6));
     final all = plan(now: now);
 
     expect(all.map(key).toSet(), events.keys.toSet());
@@ -51,25 +50,33 @@ void main() {
     for (var i = 1; i < all.length; i++) {
       expect(all[i].fireAt.isAfter(all[i - 1].fireAt), isTrue);
     }
-    expect(all.first.fireAt, DateTime(now.year, now.month, now.day, 9));
+    expect(key(all.first), '01-01');
+    expect(all.first.fireAt, DateTime(now.year, now.month, now.day, 20));
   });
 
-  test('leaves out an event whose time has passed', () {
-    final morning = civil(1448, 1, 10).add(const Duration(hours: 8));
-    expect(key(plan(now: morning).first), '01-10');
-
-    final afternoon = morning.add(const Duration(hours: 6));
-    expect(key(plan(now: afternoon).first), '01-11');
-  });
-
-  test('the day before goes off the evening before', () {
+  test('tells each event at its eve, at the time given for that eve', () {
     final now = civil(1448, 1, 1).add(const Duration(hours: 6));
-    final ashura = plan(now: now, dayBefore: true, hour: 20)
-        .firstWhere((p) => key(p) == '01-10');
+    final ashura = planEventNotifications(
+      now: now,
+      events: events,
+      offsetDays: 0,
+      kinds: EventNotificationKind.values.toSet(),
+      notifyAt: (eve) => DateTime(eve.year, eve.month, eve.day, 18, 47),
+      budget: 1000,
+    ).firstWhere((p) => key(p) == '01-10');
     final eve = civil(1448, 1, 9);
 
     expect(ashura.eventDate, civil(1448, 1, 10));
-    expect(ashura.fireAt, DateTime(eve.year, eve.month, eve.day, 20));
+    expect(ashura.fireAt, DateTime(eve.year, eve.month, eve.day, 18, 47));
+  });
+
+  test('leaves out an event whose eve has been told', () {
+    final eveOfAshura = civil(1448, 1, 9);
+    final beforeMaghrib = eveOfAshura.add(const Duration(hours: 19));
+    expect(key(plan(now: beforeMaghrib).first), '01-10');
+
+    final afterMaghrib = eveOfAshura.add(const Duration(hours: 21));
+    expect(key(plan(now: afterMaghrib).first), '01-11');
   });
 
   test('keeps only the kinds asked for', () {

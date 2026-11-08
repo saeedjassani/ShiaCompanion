@@ -518,10 +518,11 @@ today's Quran progress, privacy note and community sections as cards.
 From Settings → Notifications → Islamic events, or the bell on the
 Calendar. Off until turned on. One switch ("Notify me of events"), then
 **Which events** (Wiladat and Eids / Shahadat and days of mourning / Other
-days, by events.json's colour, all on by default) and **When** (On the day /
-The day before, and a time: 9:00 am, or 8:00 pm for the day before). The
-notification reads "Birth of Imam Ali (a.s.)" over "Today · 13 Rajab"; a tap
-opens the Calendar on that day.
+days, by events.json's colour, all on by default). No choice of when: each
+event comes at Maghrib on its eve, when its Islamic day begins (8:00 pm
+without a location), so with the Maghrib Azan on, the two arrive together.
+The notification reads "Birth of Imam Ali (a.s.)" over "Tonight · 13
+Rajab"; a tap opens the Calendar on that day.
 
 Scheduling (`planEventNotifications`): a fixed budget of pending
 notifications (40 on Android, 8 on iOS, where the Azan gives up those slots

@@ -17,7 +17,10 @@ import 'analytics_service.dart';
 /// Notifications for the Islamic calendar's events (assets/events.json):
 /// wiladat, shahadat and the other days, each kind opted into on its own.
 ///
-/// Off until the reader turns it on. Which events get a notification is
+/// Off until the reader turns it on. Each event is told at Maghrib on its
+/// eve, when its Islamic day begins: "Tonight · 13 Rajab".
+///
+/// Which events get a notification is
 /// [planEventNotifications]'s choice: it spreads a fixed number of them over
 /// the coming year so that a reader who stays away from the app still hears
 /// about at least one event a month, the quiet months included. Every launch
@@ -33,8 +36,6 @@ class EventNotificationService extends ChangeNotifier {
 
   static const String enabledKey = 'event_notifications_enabled';
   static const String kindsKey = 'event_notifications_kinds';
-  static const String dayBeforeKey = 'event_notifications_day_before';
-  static const String timeKey = 'event_notifications_time_minutes';
 
   /// Prefix on every notification payload this service schedules, followed
   /// by the event's civil date (`2026-12-08`), so a tap can open the Calendar
@@ -50,11 +51,6 @@ class EventNotificationService extends ChangeNotifier {
   /// slots while events are on (see [iosReservedSlots]).
   static const int _androidBudget = 40;
   static const int _iosBudget = 8;
-
-  /// Defaults for the two timings: in the morning on the day, or in the
-  /// evening of the day before, once the Islamic day has begun.
-  static const int defaultOnDayMinutes = 9 * 60;
-  static const int defaultDayBeforeMinutes = 20 * 60;
 
   static String get _androidChannelId => 'calendar_events';
 
@@ -75,15 +71,6 @@ class EventNotificationService extends ChangeNotifier {
       for (final kind in EventNotificationKind.values)
         if (saved.contains(kind.name)) kind,
     };
-  }
-
-  bool get dayBefore =>
-      SP.isInitialized && (SP.prefs.getBool(dayBeforeKey) ?? false);
-
-  /// Minutes after midnight the notification goes off at.
-  int get timeMinutes {
-    final saved = SP.isInitialized ? SP.prefs.getInt(timeKey) : null;
-    return saved ?? (dayBefore ? defaultDayBeforeMinutes : defaultOnDayMinutes);
   }
 
   Future<void> setEnabled(bool value) async {
@@ -113,25 +100,6 @@ class EventNotificationService extends ChangeNotifier {
       label: 'Event notification kind changed',
       parameters: {'kind': kind.name, 'on': on ? 1 : 0},
     ));
-    await rescheduleAll();
-  }
-
-  /// Moves the timing. A time still at the old timing's default moves to the
-  /// new one's, so "the day before" doesn't go off at 9 in the morning just
-  /// because that was the default for "on the day".
-  Future<void> setDayBefore(bool value) async {
-    if (value == dayBefore) return;
-    final saved = SP.prefs.getInt(timeKey);
-    final oldDefault = value ? defaultOnDayMinutes : defaultDayBeforeMinutes;
-    await SP.prefs.setBool(dayBeforeKey, value);
-    if (saved == null || saved == oldDefault) await SP.prefs.remove(timeKey);
-    notifyListeners();
-    await rescheduleAll();
-  }
-
-  Future<void> setTimeMinutes(int minutes) async {
-    await SP.prefs.setInt(timeKey, minutes);
-    notifyListeners();
     await rescheduleAll();
   }
 
@@ -177,15 +145,12 @@ class EventNotificationService extends ChangeNotifier {
     await initializeNotificationTimeZone();
     final l10n = L10n.current;
     final events = await CalendarEvents.load(languageCode: l10n.localeName);
-    final minutes = timeMinutes;
     final plan = planEventNotifications(
       now: DateTime.now(),
       events: events,
       offsetDays: hijriOffsetInEffect,
       kinds: kinds,
-      dayBefore: dayBefore,
-      hour: minutes ~/ 60,
-      minute: minutes % 60,
+      notifyAt: eventMaghrib,
       budget: Platform.isIOS ? _iosBudget : _androidBudget,
     );
 
@@ -196,7 +161,7 @@ class EventNotificationService extends ChangeNotifier {
           id: _baseId + i,
           title: eventNotificationTitle(plan[i].event),
           body: l10n.eventNotificationBody(
-            dayBefore ? l10n.commonTomorrow : l10n.commonToday,
+            l10n.homeEventTonight,
             localizeDigits(
                 '${plan[i].hijriDay} ${hijriMonthName(plan[i].hijriMonth)}'),
           ),
@@ -207,6 +172,29 @@ class EventNotificationService extends ChangeNotifier {
         ),
     ]);
     debugPrint('Scheduled ${plan.length} event notifications');
+  }
+
+  /// Maghrib on [eve] where the reader is, as the Azan and the prayer times
+  /// card have it: the moment the event's Islamic day begins. 8:00 pm without
+  /// a location.
+  @visibleForTesting
+  static DateTime eventMaghrib(DateTime eve) {
+    final latitude = lat, longitude = long;
+    if (latitude != null && longitude != null) {
+      try {
+        for (final entry in buildPrayerNotificationEntriesForDay(
+          prayerTime: getPrayerTimeObject(),
+          date: eve,
+          latitude: latitude,
+          longitude: longitude,
+        )) {
+          if (entry.name == 'Maghrib') return entry.dateTime;
+        }
+      } catch (e) {
+        debugPrint('No Maghrib for event notifications: $e');
+      }
+    }
+    return eventNotificationFallbackTime(eve);
   }
 
   NotificationDetails _notificationDetails() {

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:shia_companion/constants.dart';
 import 'package:shia_companion/pages/event_notifications_page.dart';
 import 'package:shia_companion/services/event_notification_service.dart';
 import 'package:shia_companion/utils/event_notification_planning.dart';
@@ -50,24 +51,38 @@ void main() {
     expect(find.text('Choose at least one kind of event'), findsOneWidget);
   });
 
-  testWidgets('the day before moves a default time to the evening',
-      (tester) async {
-    await service.setEnabled(true);
+  testWidgets('offers no choice of when: Maghrib on the eve', (tester) async {
     await pump(tester);
-    expect(find.text('9:00 am'), findsOneWidget);
 
-    await tester.tap(find.text('The day before'));
-    await tester.pumpAndSettle();
-    expect(service.dayBefore, isTrue);
     expect(
-        service.timeMinutes, EventNotificationService.defaultDayBeforeMinutes);
-    expect(find.text('8:00 pm'), findsOneWidget);
+        find.text('At Maghrib the evening before, when the Islamic day begins'),
+        findsOneWidget);
+    expect(find.textContaining('they come at 8:00 pm'), findsOneWidget);
+  });
 
-    // A time the reader chose stays put.
-    await service.setTimeMinutes(19 * 60 + 30);
-    await tester.tap(find.text('On the day'));
-    await tester.pumpAndSettle();
-    expect(service.dayBefore, isFalse);
-    expect(service.timeMinutes, 19 * 60 + 30);
+  group('eventMaghrib', () {
+    tearDown(() {
+      lat = null;
+      long = null;
+    });
+
+    test('is 8:00 pm without a location', () {
+      lat = null;
+      long = null;
+      expect(EventNotificationService.eventMaghrib(DateTime(2026, 12, 7)),
+          DateTime(2026, 12, 7, 20));
+    });
+
+    test("is that evening's Maghrib where the reader is", () {
+      // Accra, on UTC like the test machine's clock (times come out on the
+      // device's): Maghrib is around 6 pm all year.
+      lat = 5.6;
+      long = -0.2;
+      final maghrib =
+          EventNotificationService.eventMaghrib(DateTime(2026, 12, 7));
+      expect(DateTime(maghrib.year, maghrib.month, maghrib.day),
+          DateTime(2026, 12, 7));
+      expect(maghrib.hour, inInclusiveRange(17, 18));
+    });
   });
 }
