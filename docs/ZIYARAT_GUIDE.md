@@ -255,7 +255,16 @@ without its colour (Samarra, Mashhad, Qom gold; Madinah's Green Dome).
 almost nothing there: someone would have to map them in OSM first);
 Jamkaran, Rey, Shiraz, Uhud, Makkah (not attempted yet).
 
-**For the owner to confirm before shipping:**
+**Owner's answers (2026-11-08, session 3):** the Esri-read locations stay
+(accepted); Qom's numbered doors are added as "Gate N" with B6; the rest
+of the list below the owner asked Claude to research and verify itself
+(session 3's two plan agents - see "Status and resume here" for what
+they found). The owner also found Najaf's plan incomplete (no Bab
+al-Rida, no Sahn Fatimah al-Zahra, only two scholars) and asked for the
+site page's Directions/Compass buttons to move into the app bar and the
+map preview to shrink to a row (done).
+
+**As listed for the owner in session 2:**
 
 - `madinah_haram.baqi_imams`, `mashhad_haram.sahn_payambar_azam` and
   `qom_haram.sahn_atiq` have `location`s read off Esri's satellite
@@ -382,8 +391,9 @@ of Imam Hasan al-Askari (a.s.)" (the lint's 40-character limit dropped the
 "al-"); G68 retitled "Short Ziyarat of Imam Ali al-Reza (a.s.)". The owner
 chose to leave AH5's entry rites where they are. Still open from these:
 
-- G82's `day` 02-10 matches `events.json`'s Sakina date; Lady Ruqayya's
-  death is mostly marked on 5 Safar - owner to decide.
+- G82's `day`s: the owner chose 5 Safar (Lady Ruqayya's death as mostly
+  marked) *and* kept 10 Safar / 20 Rajab (`events.json`'s Sakina dates,
+  as many treat them as one person): `["02-05", "02-10", "07-20"]`.
 - G78's line «السلام عليكما يا سبطي نبي الرحمة…» has no English: AE15 read
   «يا سبطي الرحمة», so its translation didn't fit.
 - G78's three new tasbih lines have no ur/fa/ar/gu translation; the

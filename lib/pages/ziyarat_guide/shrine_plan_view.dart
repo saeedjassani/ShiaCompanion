@@ -299,53 +299,36 @@ class ShrinePlanCard extends StatelessWidget {
         clipBehavior: Clip.antiAlias,
         child: InkWell(
           onTap: () => _open(context),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              SizedBox(
-                height: 230,
-                child: _PlanLoader(
-                  plan: plan,
-                  builder: (context, drawing) => IgnorePointer(
-                    child: ShrinePlanView(
-                      plan: plan,
-                      drawing: drawing,
-                      site: site,
-                      interactive: false,
-                    ),
+          child: Padding(
+            padding: const EdgeInsetsDirectional.fromSTEB(14, 12, 12, 12),
+            child: Row(
+              children: [
+                OutlineIcon(OutlineGlyph.grid, size: 22, color: colors.accent),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        l10n.ziyaratGuideOpenMap,
+                        style: ShiaText.body.copyWith(
+                          fontWeight: FontWeight.w600,
+                          color: colors.text,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        l10n.ziyaratGuideMapHint,
+                        style:
+                            ShiaText.caption.copyWith(color: colors.textMuted),
+                      ),
+                    ],
                   ),
                 ),
-              ),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(16, 12, 12, 12),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            l10n.ziyaratGuideOpenMap,
-                            style: ShiaText.body.copyWith(
-                              fontWeight: FontWeight.w600,
-                              color: colors.text,
-                            ),
-                          ),
-                          const SizedBox(height: 2),
-                          Text(
-                            l10n.ziyaratGuideMapHint,
-                            style: ShiaText.caption
-                                .copyWith(color: colors.textMuted),
-                          ),
-                        ],
-                      ),
-                    ),
-                    OutlineIcon(OutlineGlyph.chevronRight,
-                        size: 18, color: colors.chevron),
-                  ],
-                ),
-              ),
-            ],
+                OutlineIcon(OutlineGlyph.chevronRight,
+                    size: 18, color: colors.chevron),
+              ],
+            ),
           ),
         ),
       ),

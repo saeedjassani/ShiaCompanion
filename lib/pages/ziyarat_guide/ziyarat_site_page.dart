@@ -66,6 +66,20 @@ class _ZiyaratSitePageState extends State<ZiyaratSitePage> {
       maxWidth: widePageWidth,
       title: site.name,
       subtitle: '${guideSiteKindLabel(l10n, site.kind)} · ${site.city.name}',
+      actions: [
+        if (holySite != null)
+          RoundIconButton(
+            label: l10n.ziyaratGuideCompass,
+            icon: OutlineIcon(OutlineGlyph.compass,
+                size: 22, color: colors.accent),
+            onPressed: () => _openCompass(holySite),
+          ),
+        RoundIconButton(
+          label: l10n.ziyaratGuideDirections,
+          icon: OutlineIcon(OutlineGlyph.pin, size: 22, color: colors.accent),
+          onPressed: _openDirections,
+        ),
+      ],
       slivers: [
         SliverPadding(
           padding: pageGutter(context, maxWidth: widePageWidth),
@@ -86,24 +100,6 @@ class _ZiyaratSitePageState extends State<ZiyaratSitePage> {
                       ),
                     ),
                   ),
-                Wrap(
-                  spacing: 10,
-                  runSpacing: 10,
-                  children: [
-                    PageButton(
-                      label: l10n.ziyaratGuideDirections,
-                      glyph: OutlineGlyph.pin,
-                      filled: true,
-                      onPressed: _openDirections,
-                    ),
-                    if (holySite != null)
-                      PageButton(
-                        label: l10n.ziyaratGuideCompass,
-                        glyph: OutlineGlyph.compass,
-                        onPressed: () => _openCompass(holySite),
-                      ),
-                  ],
-                ),
               ],
             ),
           ),
@@ -111,7 +107,7 @@ class _ZiyaratSitePageState extends State<ZiyaratSitePage> {
         if (plan != null)
           SliverPadding(
             padding: pageGutter(context, maxWidth: widePageWidth)
-                .copyWith(top: 16, bottom: 0),
+                .copyWith(top: 4, bottom: 0),
             sliver: SliverToBoxAdapter(
               child: ShrinePlanCard(site: site, plan: plan),
             ),
