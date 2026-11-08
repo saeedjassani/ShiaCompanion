@@ -18,6 +18,8 @@ import 'package:date_format/date_format.dart';
 import 'package:intl/intl.dart' show DateFormat;
 import 'package:shia_companion/pages/zikr/zikr_page.dart';
 import 'package:shia_companion/services/zikr_reminder_service.dart';
+import 'package:shia_companion/services/event_notification_service.dart';
+import 'package:shia_companion/pages/calendar_page.dart';
 import 'data/live_streaming_data.dart';
 import 'data/uid_title_data.dart';
 import 'pages/chapter_list_page.dart';
@@ -632,6 +634,9 @@ Future<bool> initializeLocation(
       // Prayer-relative zikr reminders (e.g. "30 min after Maghrib") shift
       // with location exactly like Azan times do.
       await ZikrReminderService.instance.rescheduleAll();
+      // So can the day an event falls on, in Automatic: the month starts
+      // follow the crescent where the reader is.
+      await EventNotificationService.instance.rescheduleAll();
     }
     return true;
   } catch (e) {
@@ -868,6 +873,7 @@ Future<void> applyChosenPrayerLocation({
   if (locationChanged && flutterLocalNotificationsPlugin != null && !kIsWeb) {
     await setUpNotifications();
     await ZikrReminderService.instance.rescheduleAll();
+    await EventNotificationService.instance.rescheduleAll();
   }
 }
 
@@ -1052,8 +1058,12 @@ int prayerNotificationScheduleDays(int enabledPrayerCount) {
   const defaultScheduleDays = 12;
   if (!Platform.isIOS || enabledPrayerCount <= 0) return defaultScheduleDays;
 
-  // iOS keeps only 64 pending notifications. Reserve one slot for the reminder.
-  const maxIosPrayerNotifications = 63;
+  // iOS keeps only the soonest 64 pending notifications and drops the rest.
+  // Reserve one slot for the reminder, and the Islamic events' while they
+  // are on - their notifications fire later than these, so they would be the
+  // ones dropped.
+  final maxIosPrayerNotifications =
+      63 - EventNotificationService.iosReservedSlots;
   final iosDays = maxIosPrayerNotifications ~/ enabledPrayerCount;
   return iosDays.clamp(1, defaultScheduleDays).toInt();
 }
@@ -1515,6 +1525,18 @@ Future<void> handlePrayerNotificationResponse(
     await _openZikrReminderNotification(
       response.payload!.substring(ZikrReminderService.payloadPrefix.length),
     );
+    return;
+  }
+  final eventDate =
+      EventNotificationService.eventDateOfPayload(response.payload);
+  if (eventDate != null) {
+    // The Calendar on the event's day, with its events shown in full. No
+    // navigator from the background isolate: the launch path in Home picks
+    // the tap up again once the app is up.
+    final navigator = appNavigatorKey.currentState;
+    if (navigator == null) return;
+    navigator.popUntil((route) => route.isFirst);
+    pushRootPageRoute(CalendarPage(initialDate: eventDate));
     return;
   }
 

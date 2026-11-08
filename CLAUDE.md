@@ -216,6 +216,11 @@ it to `lib/l10n/app_en.arb` and read it with `context.l10n.key` (or
 files already use for the same ideas; `build/untranslated_messages.json`
 (written by `flutter gen-l10n`) should list none of the new keys. See
 "Keeping translations in step" in `docs/TRANSLATIONS.md`.
+**Before committing new or changed strings, have an independent agent
+review them in every language** - a fresh subagent per language
+(`opus`, `high`) that did not write them, given
+`python3 -I scripts/l10n_changed_keys.py --lang <code>`'s output; see
+"Every new string is checked by another agent" in `docs/TRANSLATIONS.md`.
 Analytics labels, `trackScreen` names, preference keys and `debugPrint` text
 stay English literals. Zikr translations are overlays in
 `assets/zikr_i18n/<code>/` keyed by **segment number** (each verse, standalone

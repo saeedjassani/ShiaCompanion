@@ -88,4 +88,11 @@ final List<WhatsNewEntry> whatsNewNotes = <WhatsNewEntry>[
       (l10n) => l10n.whatsNew140PinPlaylist,
     ],
   ),
+  WhatsNewEntry(
+    buildNumber: 141,
+    versionName: '4.3.0',
+    bullets: [
+      (l10n) => l10n.whatsNew141EventNotifications,
+    ],
+  ),
 ];

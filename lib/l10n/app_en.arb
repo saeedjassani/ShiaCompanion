@@ -1995,6 +1995,10 @@
   "@whatsNew140PinPlaylist": {
     "description": "Release note on the What's new page, Android only. The menu item is playlistAddToHomeScreen."
   },
+  "whatsNew141EventNotifications": "Get notified of wiladat, shahadat and the other days of the Islamic calendar, at Maghrib the evening before. Turn it on with the bell on the Calendar, or in Settings › Notifications. Even if you don't open the app for a while, every month still brings at least one.",
+  "@whatsNew141EventNotifications": {
+    "description": "Release note on the What's new page (build 141): the new opt-in notifications of the Islamic calendar's events (eventNotificationsTitle), which come at Maghrib on the eve of each event. Turned on with the bell on the Calendar (menuCalendar) or under Settings > Notifications (actionSettings, settingsSectionNotifications)."
+  },
   "pickerChooseZikr": "Choose a zikr",
   "pickerSearchZikrHint": "Search zikr, dua, ziyarat...",
   "todaysNone": "No recitations configured.",
@@ -4395,6 +4399,70 @@
       "title": {
         "type": "String",
         "example": "Dua Kumayl"
+      }
+    }
+  },
+  "eventNotificationsTitle": "Islamic events",
+  "@eventNotificationsTitle": {
+    "description": "Title of the page (and Settings row, and Android notification channel) for notifications of the Islamic calendar's events: wiladat, shahadat and other days."
+  },
+  "eventNotificationsSubtitle": "Wiladat, shahadat and the other days of the Islamic calendar",
+  "@eventNotificationsSubtitle": {
+    "description": "Subtitle of the Islamic events notifications page; also the Android notification channel's description."
+  },
+  "eventNotificationsSwitch": "Notify me of events",
+  "@eventNotificationsSwitch": {
+    "description": "The switch that turns notifications of the Islamic calendar's events on."
+  },
+  "eventNotificationsSwitchHint": "At Maghrib the evening before, when the Islamic day begins",
+  "@eventNotificationsSwitchHint": {
+    "description": "Under the event notifications switch: when each event's notification comes - at Maghrib on the evening before it, since the Islamic day begins at Maghrib."
+  },
+  "eventKindsLabel": "Which events",
+  "@eventKindsLabel": {
+    "description": "Group label over the kinds of event a reader can be notified of."
+  },
+  "eventKindCelebration": "Wiladat and Eids",
+  "@eventKindCelebration": {
+    "description": "Kind of event to be notified of: births of the Prophet, Imams and their family, and the Eids (the calendar's days of joy)."
+  },
+  "eventKindMourning": "Shahadat and days of mourning",
+  "@eventKindMourning": {
+    "description": "Kind of event to be notified of: martyrdoms, deaths and the calendar's other days of mourning."
+  },
+  "eventKindOther": "Other days",
+  "@eventKindOther": {
+    "description": "Kind of event to be notified of: days that are neither joy nor mourning."
+  },
+  "eventKindOtherHint": "The start of Ramazan, the Nights of Qadr, battles",
+  "@eventKindOtherHint": {
+    "description": "Examples of the 'Other days' kind of event."
+  },
+  "eventKindsNoneChosen": "Choose at least one kind of event",
+  "@eventKindsNoneChosen": {
+    "description": "Shown when event notifications are on but every kind of event is switched off."
+  },
+  "eventNotificationsFootnote": "Each time you open the app, every event of the weeks ahead is set. If it stays closed, what is already set is spread over the months ahead, so even the quiet months bring one. Until the app knows your location, they come at {time}.",
+  "@eventNotificationsFootnote": {
+    "description": "Footnote on the event notifications page explaining how they are scheduled. {time} is the fallback time used without a location, e.g. '8:00 pm'.",
+    "placeholders": {
+      "time": {
+        "type": "String",
+        "example": "8:00 pm"
+      }
+    }
+  },
+  "eventNotificationBody": "{when} · {date}",
+  "@eventNotificationBody": {
+    "description": "Body of an event's notification: when it is (always 'Tonight': it comes at Maghrib on the eve) and its Hijri date, e.g. 'Tonight · 13 Rajab'.",
+    "placeholders": {
+      "when": {
+        "type": "String",
+        "example": "Tonight"
+      },
+      "date": {
+        "type": "String",
+        "example": "13 Rajab"
       }
     }
   }

@@ -10,6 +10,7 @@ import '../l10n/l10n.dart';
 import '../services/analytics_service.dart';
 import '../services/audio_download_store.dart';
 import '../services/content_request_service.dart';
+import '../services/event_notification_service.dart';
 import '../services/home_screen_widget_service.dart';
 import '../services/location_service.dart';
 import '../services/preferences_sync_service.dart';
@@ -41,6 +42,7 @@ import 'about_page.dart';
 import 'account_page.dart';
 import 'city_picker.dart';
 import 'downloaded_audio_page.dart';
+import 'event_notifications_page.dart';
 import 'prayer_notifications_page.dart';
 import 'scheduled_notifications_page.dart';
 import 'whats_new_page.dart';
@@ -264,6 +266,18 @@ class _SettingsPageState extends State<SettingsPage> {
                         title: l10n.settingsZikrReminders,
                         onTap: () =>
                             pushPageRoute(context, const ZikrRemindersPage()),
+                      ),
+                      _SettingsRow(
+                        icon: const _RowGlyph(OutlineGlyph.calendar),
+                        title: l10n.eventNotificationsTitle,
+                        value: EventNotificationService.instance.enabled
+                            ? l10n.settingsOn
+                            : l10n.settingsOff,
+                        onTap: () async {
+                          await pushPageRoute(
+                              context, const EventNotificationsPage());
+                          if (mounted) setState(() {});
+                        },
                       ),
                       if (_showPrecisePrayerAlarmSetting)
                         _SettingsRow(
@@ -549,6 +563,8 @@ class _SettingsPageState extends State<SettingsPage> {
     unawaited(PreferencesSyncService.instance.pushHijriDate());
     await HomeScreenWidgetService.instance.publishTodaysRecitations();
     await HomeScreenWidgetService.instance.publishCalendar();
+    // The events fall on other days now.
+    unawaited(EventNotificationService.instance.rescheduleAll());
     if (mounted) setState(() {});
   }
 

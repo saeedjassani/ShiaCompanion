@@ -37,6 +37,7 @@ import 'package:shia_companion/services/smart_actions_service.dart';
 import 'package:shia_companion/services/synced_data.dart';
 import 'package:shia_companion/services/zikr_bookmarks_manager.dart';
 import 'package:shia_companion/services/zikr_reminder_service.dart';
+import 'package:shia_companion/services/event_notification_service.dart';
 import 'package:shia_companion/utils/deep_links.dart';
 import 'package:shia_companion/utils/font_preferences.dart';
 import 'package:shia_companion/utils/hadith_loader.dart';
@@ -783,6 +784,9 @@ class _MyHomePageState extends State<MyHomePage>
       // Cheap once there are no reminders, so this runs on every cold start
       // rather than trying to track whether anything changed.
       await ZikrReminderService.instance.rescheduleAll();
+      // From today, every launch: what was the year's spread-out plan when
+      // the app was last opened becomes every event of the weeks ahead.
+      await EventNotificationService.instance.rescheduleAll();
     }
     await HomeScreenWidgetService.instance.publishAll();
     setState(() {});
