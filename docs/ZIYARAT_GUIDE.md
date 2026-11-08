@@ -240,14 +240,55 @@ Two parts:
   feature per site, the asset exists); `test/ui/shrine_plan_test.dart`
   renders the Karbala plan at three sizes and taps through it.
 
-**Plans so far:** `karbala_haramayn` (Imam Husayn, Hazrat Abbas, Bayn
-al-Haramayn, Tall al-Zaynabiyya, al-Mukhayyam: 43 features). **To do**, in
-order: Najaf (Imam Ali), Kazimayn, Samarra, Masjid al-Kufa and Masjid al-Sahla (each maqam
-linking its own tab of the mosque's aamal), Mashhad, Qom, Lady
-Zainab, Lady Ruqayya, Madinah (Masjid al-Nabawi and al-Baqi's graves). For
-each: fetch, print candidates with `--candidates`, pick and name the
-features (verify names on the shrine's own site), link their ziyarats,
-build, run the two tests, look at it.
+**Plans so far (10, 126 features):** `karbala_haramayn` (41: Imam
+Husayn, Hazrat Abbas, Bayn al-Haramayn, Tall al-Zaynabiyya, al-Mukhayyam),
+`najaf_haram` (8), `kufa_mosque` (17: nine maqams linked to their AI3/AI4/
+AI5/AI11 tabs, Muslim, Hani, al-Mukhtar), `sahla_mosque` (3),
+`kazimayn_haram` (7), `samarra_haram` (2: the zarih and the Sardab),
+`mashhad_haram` (20, mostly courtyards and basts), `qom_haram` (10),
+`damascus_old_city` (7: Lady Ruqayya, Ras al-Husayn, the Umayyad Mosque's
+gates), `madinah_haram` (11: the Prophet's tomb, Rawdah, gates, al-Baqi's
+gate and the Imams' graves). Plans use `layers` where OSM tags a dome
+without its colour (Samarra, Mashhad, Qom gold; Madinah's Green Dome).
+
+**No plan, and why:** Lady Zainab's shrine and Bab al-Saghir (OSM maps
+almost nothing there: someone would have to map them in OSM first);
+Jamkaran, Rey, Shiraz, Uhud, Makkah (not attempted yet).
+
+**For the owner to confirm before shipping:**
+
+- `madinah_haram.baqi_imams`, `mashhad_haram.sahn_payambar_azam` and
+  `qom_haram.sahn_atiq` have `location`s read off Esri's satellite
+  imagery, not OSM; Esri's terms may not allow taking positions from it.
+  Confirm or replace (e.g. by mapping them in OSM first). Typed, not from
+  OSM, too: `madinah_haram.house_of_fatimah` and
+  `damascus_old_city.ras_al_husayn` (from descriptions, a few metres out).
+- Al-Baqi's other graves (Fatimah
+  bint Asad, Umm al-Banin, the aunts, Ibrahim...) are left out: sources
+  disagree on where they lie.
+- Samarra: the Sardab marker is on an unnamed tiled dome west-north-west
+  of the shrine, inside an OSM polygon tagged as the Great Mosque.
+- Najaf: Allamah al-Hilli is placed at the northern minaret (from the
+  guide's own note); Bab Muslim ibn Aqil left out (5 m from Bab al-Sa'a in
+  OSM).
+- Kufa: the gates link AI3 tab 1 (entering the mosque), not B6; Mafatih's
+  column numbers for Ibrahim/Adam disagree with the mosque's own site, the
+  plan follows the markers on the ground; AI3 tab 7 ("Station of Prophet
+  Nuh") also holds the Seat of Amir al-Mu'minin's acts.
+- Qom: OSM numbers 23 gates "درب ۱"-"درب ۲۴"; if that is the shrine's own
+  numbering they can be added as "Gate N" with B6.
+- Mashhad: English names of courtyards and basts (Enqelab, Jomhouri
+  Islami, Kawthar, Navvab Safavi, Naqqara Khana) are common spellings, not
+  checked against razavi.ir (unreachable from a cloud session).
+
+**To grow a plan**, or add one: fetch, print candidates with
+`--candidates`, pick and name the features (verify names on the shrine's
+own site), link their ziyarats, build, run the two tests, and look at it
+with `flutter test scripts/ziyarat_maps/plan_shots_test.dart
+--dart-define=SITE=<site> --dart-define=OUT=<dir>
+[--dart-define=FEATURES=<ids>]` (PNGs with real fonts). Missing tombs
+inside the shrines (Shaykh Baha'i, al-Hurr al-Amili, al-Mufid, Ibn
+Qulawayh, Khoei...) need OSM to map them, or two agreeing sources.
 
 ## Content audit (2026-11-07)
 
@@ -422,23 +463,21 @@ The list as found in session 1:
   per site. Full suite passed (2116 tests).
 - The audit, the missing-ziyarat list and the corpus problems are above.
 
-**Session 2 (2026-11-08), in progress:**
+**Session 2 (2026-11-08):**
 
 - Step 1 done: the owner's corpus decisions are applied (see "Corpus
   problems found" for what each became and what is still open). The owner
   has not yet reviewed the guide's facts on a device.
 - Shrine plans (the owner asked for maps a pilgrim can tap: "click on a
-  gate or a shrine ... and that opens the respective ziyarat"): built and
-  pushed - see "Shrine plans". Karbala is done (`karbala_haramayn`).
-  Five opus agents are curating Najaf/Kufa/Sahla, Kazimayn/Samarra,
-  Mashhad/Qom, Damascus and Madinah plans in worktrees; their commits are
-  to be reviewed (look at the PNGs from `plan_shots_test.dart`) and
-  cherry-picked. Any plan not merged is still on the "To do" list there.
+  gate or a shrine ... and that opens the respective ziyarat"): built,
+  with 10 plans over Iraq, Iran, Syria and Madinah - see "Shrine plans",
+  including what the owner should confirm before shipping.
 
 **Next:**
 
-1. Merge the region plans still outstanding; the owner looks at a few
-   plans on a device (pinch, tap, "show where I am" on site).
+1. The owner tries the plans on a device as an admin (pinch, tap a gate
+   or tomb, open its ziyarat, "show where I am") and answers "For the
+   owner to confirm before shipping" under "Shrine plans".
 2. Phase 3, restore missing ziyarats, biggest first: Imam Reza (AE3-AE8),
    the Baqi Imams (AP8, AP9, AP11), Hamzah/Uhud (AQ1, AQ2, AQ4), the Four
    Deputies (AM3), Abd al-Azim (AE17), Lady Khadijah. Follow
