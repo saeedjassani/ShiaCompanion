@@ -887,10 +887,6 @@
       "12-10"
     ]
   },
-  "AE15": {
-    "title": "Ziyarat of Lady Masuma (s.a.) - Qom",
-    "slug": "ziyarat-lady-masooma-qom"
-  },
   "AF~AG3": {
     "title": "Karbala al-Muqaddasah",
     "slug": "karbala-al-muqaddasah"
@@ -1004,8 +1000,11 @@
     "slug": "centre-masjid-kufah"
   },
   "AJ2": {
-    "title": "Ziyarat at Mada'in — Salman al-Farsi, Hudhayfah al-Yamani, Tahir ibn Imam al-Baqir & Abdullah ibn Jabir (r.a.)",
-    "slug": "ziyarah-madaen-salman-hudhayfah"
+    "title": "Ziyarat of Salman al-Farsi (r.a.) — Mada'in",
+    "slug": "ziyarah-madaen-salman-hudhayfah",
+    "slugAliases": [
+      "ziyarate-janabe-salman-e-farsi-a-s"
+    ]
   },
   "AK13": {
     "title": "Seventh Ziyarat",
@@ -2258,10 +2257,6 @@
     "slug": "ziyarate-farzandane-janabe-muslim-a-s",
     "day": "12-23"
   },
-  "G63": {
-    "title": "Ziyarat of Salman al-Farsi (a.s.)",
-    "slug": "ziyarate-janabe-salman-e-farsi-a-s"
-  },
   "G64": {
     "title": "Ziyarat of Imam Zayn al-Abidin (a.s.)",
     "slug": "ziyarate-imam-zainul-aabedeen-a-s",
@@ -2296,7 +2291,7 @@
     ]
   },
   "G68": {
-    "title": "Ziyarat of Imam Ali al-Reza (a.s.)",
+    "title": "Short Ziyarat of Imam Ali al-Reza (a.s.)",
     "slug": "ziyarate-imam-ali-raza-a-s",
     "day": [
       "02-17",
@@ -2379,6 +2374,9 @@
       "03-04",
       "04-10",
       "11-01"
+    ],
+    "slugAliases": [
+      "ziyarat-lady-masooma-qom"
     ]
   },
   "G79": {
@@ -2401,7 +2399,7 @@
     "day": "06-13"
   },
   "G82": {
-    "title": "Ziyarat of Lady Sakina (s.a.)",
+    "title": "Ziyarat of Lady Ruqayya (s.a.) of Damascus",
     "slug": "ziyarat-of-janabe-sakina-s-a",
     "day": [
       "02-10",

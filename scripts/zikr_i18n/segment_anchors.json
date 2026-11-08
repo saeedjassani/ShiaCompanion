@@ -11084,12 +11084,7 @@
     "a:فياليتنيكنتمعكمفافوزمعكم",
     "e:youshouldthenreturntotheplacenea",
     "e:endtheziyarahwith",
-    "a:فياليتنيكنتمعكمفافوزمعكم",
-    "e:otherziaratinsideshrinecomplex",
-    "e:hzhabibibnmazahirg58",
-    "e:ibrahimmujabsonofimamkazimas",
-    "e:katalgahplaceofseveranceofheadof",
-    "e:mueseumfirstfloor"
+    "a:فياليتنيكنتمعكمفافوزمعكم"
   ],
   "AG18": [
     "e:atthegateoftheshedprecinctofthet",
@@ -12492,7 +12487,6 @@
   "AI15": [
     "e:enteringthemosque",
     "e:itishighlyrecommendedtoofferatma",
-    "e:entrance",
     "e:whenyouintendtoentermasjidalsahl",
     "a:بسماللهوبالله",
     "a:ومناللهواليالله",
@@ -12572,7 +12566,6 @@
     "a:ياسميعالدعا",
     "e:youmaythenprostrateyourselfshows",
     "e:stationofibrahimas",
-    "e:prophetibrahimas",
     "e:prophetibrahimshousefromwhereheu",
     "a:اللهمبحقهذهالبقعهالشريفه",
     "a:وبحقمنتعبدلكفيها",
@@ -12586,7 +12579,6 @@
     "a:وافعلبيماانتاهله",
     "a:ياارحمالراحمين",
     "e:stationofidrisas",
-    "e:prophetidrisas",
     "e:youmaythenmovetotheothersidewhic",
     "a:اللهمانيصليتهذهالصلاهابتغامرضاتك",
     "a:وطلبنايلك",
@@ -12597,7 +12589,6 @@
     "a:وافعلبيماانتاهله",
     "a:ياارحمالراحمين",
     "e:stationofkhizras",
-    "e:hzkhizr",
     "e:youmaythenprostrateyourselfandpu",
     "a:اللهمانكانتالذنوبوالخطايا",
     "a:قداخلقتوجهيعندك",
@@ -12613,7 +12604,6 @@
     "a:ولاتحرمنيحينارجوك",
     "a:ياارحمالراحمين",
     "e:stationoftheprophetsrighteous",
-    "e:ambiyaandsaleheen",
     "e:accordingtoananonymousguidebooko",
     "a:اللهمانياسالكباسمكياالله",
     "a:انتصليعليمحمدوالمحمد",
@@ -12635,7 +12625,6 @@
     "a:وصلياللهعليسيدنامحمد",
     "a:والهالطاهرينياربالعالمين",
     "e:maqamofimamsajjadas",
-    "e:stationofimamzainulabideenas",
     "e:thisholyareaofmasjidalsahlaiscur",
     "a:يامنهواقرباليمنحبلالوريد",
     "a:يافعالالمايريد",
@@ -13311,7 +13300,6 @@
   "AI5": [
     "e:observancesatthemosquescentreatt",
     "e:afteryoufinishtheprayerandsaythe",
-    "e:alt",
     "a:اللهمانتالسلام",
     "a:ومنكالسلام",
     "a:واليكيعودالسلام",
@@ -14160,7 +14148,7 @@
   ],
   "AK6": [
     "e:postziyarahprayerdua",
-    "e:salatduaafterziaratofferasixunit",
+    "e:offerasixunitprayer",
     "e:inthefirsttwounitswhichareintend",
     "e:youmaythensaythefamoustasbihalza",
     "a:اللهمانيصليتهاتينالركعتين",
@@ -14210,8 +14198,7 @@
     "a:ياكريمياكريمياكريم",
     "e:youmaythenreturntothestateofordi",
     "a:شكرا",
-    "e:reciteduaafterziaratallhummalabu",
-    "e:duaalqamae8",
+    "e:reciteduaalqamae8",
     "e:youarealsorecommendedtoimploreal",
     "e:furtherdua",
     "e:inhisbookofalmazarsayyidibntawus",
@@ -14279,7 +14266,6 @@
     "a:ياوليالدنياوالاخره"
   ],
   "AK7": [
-    "e:ziaratimamhussainasfromimamalias",
     "e:itisalsorecommendedtovisitthehea",
     "e:theauthorofalmustadrakhasreporte",
     "a:السلامعليكيابنرسولالله",
@@ -14370,7 +14356,6 @@
   ],
   "AL1": [
     "e:combinedziyarahofimamalialnaqian",
-    "e:farewellziyarat",
     "e:whenyouarriveinsamarraalsocalled",
     "a:السلامعليكماياولييالله",
     "a:السلامعليكماياحجتيالله",
@@ -15370,7 +15355,7 @@
     "a:ياالهالعالمين"
   ],
   "AL6": [
-    "e:entrypermissioncombinedziyarat",
+    "e:ziyaratofimamhasanalaskarias",
     "a:السلامعليكيامولاي",
     "a:ياابامحمدالحسنبنعلي",
     "a:الهاديالمهتدي",
@@ -24360,9 +24345,13 @@
   ],
   "G78": [
     "e:entertheharam",
-    "e:forseekingpermissionstandbeforet",
-    "e:allaahoakbar34timessubhaanallaah",
-    "e:33timesafterthisrecitetheziyarat",
+    "e:toseekpermissionstandbeforetheza",
+    "a:اللهاكبر",
+    "e:recite33times",
+    "a:سبحانالله",
+    "e:recite33times",
+    "a:الحمدلله",
+    "e:thenrecitetheziyarat",
     "a:السلامعليادمصفوهاللهالسلامعلينوح",
     "a:السلامعليابراهيمخليلاللهالسلامعل",
     "a:السلامعليكيارسولاللهالسلامعليكيا",

@@ -405,4 +405,11 @@ const Map<String, RetiredZikrRedirect> retiredZikrRedirects = {
   /// merits carry X9's narrations and its 1st/15th of Rajab and 15th of
   /// Sha'ban.
   'X9': RetiredZikrRedirect('G74'),
+
+  /// Ziyarat of Lady Masuma (s.a.) of Qom: the same ziyarat as G78, whose
+  /// transliteration, translation and tasbih lines were brought into G78.
+  'AE15': RetiredZikrRedirect('G78'),
+
+  /// Ziyarat of Salman al-Farsi: the first ten lines of AJ2's ziyarat.
+  'G63': RetiredZikrRedirect('AJ2'),
 };
