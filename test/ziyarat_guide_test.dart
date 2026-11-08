@@ -3,7 +3,9 @@ import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shia_companion/data/holy_sites.dart';
+import 'package:shia_companion/models/shrine_plan.dart';
 import 'package:shia_companion/models/ziyarat_guide.dart';
+import 'package:shia_companion/utils/geo_utils.dart';
 
 // The rules of docs/ZIYARAT_GUIDE.md that a script can check, over
 // assets/ziyarat_guide.json and its overlays in assets/ziyarat_guide_i18n/.
@@ -80,6 +82,14 @@ void main() {
             if (person['note'] case final String note) keys['$b.note'] = note;
           }
         }
+        for (final plan in _maps(city['plans'])) {
+          for (final feature in _maps(plan['features'])) {
+            final f = 'plan.${plan['id']}.${feature['id']}';
+            keys['$f.name'] = feature['name'] as String;
+            if (feature['note'] case final String note) keys['$f.note'] = note;
+            refs('$f.ziyarat', feature['ziyarat']);
+          }
+        }
       }
     }
     return keys;
@@ -96,6 +106,7 @@ void main() {
     }
 
     final regions = <String>{}, cities = <String>{}, sites = <String>{};
+    final plans = <String>{};
     for (final region in _maps(guide['regions'])) {
       check('region', region['id'] as String?, regions);
       for (final city in _maps(region['cities'])) {
@@ -105,6 +116,14 @@ void main() {
           final people = <String>{};
           for (final person in _maps(site['buried'])) {
             check('burial in ${site['id']}', person['id'] as String?, people);
+          }
+        }
+        for (final plan in _maps(city['plans'])) {
+          check('plan', plan['id'] as String?, plans);
+          final features = <String>{};
+          for (final feature in _maps(plan['features'])) {
+            check(
+                'feature in ${plan['id']}', feature['id'] as String?, features);
           }
         }
       }
@@ -142,6 +161,112 @@ void main() {
         for (final site in _maps(city['sites'])) {
           for (final ref in _maps(site['ziyarat'])) {
             check(site['id'] as String, ref);
+          }
+        }
+        for (final plan in _maps(city['plans'])) {
+          for (final feature in _maps(plan['features'])) {
+            for (final ref in _maps(feature['ziyarat'])) {
+              check('${plan['id']}.${feature['id']}', ref);
+            }
+          }
+        }
+      }
+    }
+    expect(problems, isEmpty);
+  });
+
+  test('plans: their sites, features and drawings agree', () {
+    final kinds = {for (final kind in PlanFeatureKind.values) kind.name};
+    final osmRef = RegExp(r'^[nwr][1-9][0-9]*$');
+    final problems = <String>[];
+    for (final region in _maps(guide['regions'])) {
+      for (final city in _maps(region['cities'])) {
+        final sites = {
+          for (final site in _maps(city['sites'])) site['id'] as String: site
+        };
+        for (final plan in _maps(city['plans'])) {
+          final id = plan['id'];
+          final planSites = [
+            for (final site in (plan['sites'] as List? ?? const [])) '$site'
+          ];
+          if (planSites.isEmpty) problems.add('$id: no sites');
+          for (final site in planSites) {
+            if (!sites.containsKey(site)) {
+              problems.add('$id: site "$site" is not in ${city['id']}');
+            }
+          }
+          final bbox = plan['bbox'];
+          if (bbox is! List ||
+              bbox.length != 4 ||
+              bbox.any((v) => v is! num) ||
+              (bbox[0] as num) >= (bbox[2] as num) ||
+              (bbox[1] as num) >= (bbox[3] as num)) {
+            problems.add('$id: bbox $bbox is not [south, west, north, east]');
+            continue;
+          }
+          final features = _maps(plan['features']).toList();
+          for (final feature in features) {
+            final where = '$id.${feature['id']}';
+            if (!kinds.contains(feature['kind'])) {
+              problems.add('$where: kind "${feature['kind']}"');
+            }
+            final osm = feature['osm'];
+            if (osm != null && (osm is! String || !osmRef.hasMatch(osm))) {
+              problems.add('$where: osm "$osm" is not n123, w123 or r123');
+            }
+            final location = feature['location'];
+            if (location is! List ||
+                location.length != 2 ||
+                location.any((v) => v is! num)) {
+              problems.add('$where: location $location '
+                  '(run scripts/ziyarat_maps/build_plans.py)');
+            } else {
+              final lat = location[0] as num, lng = location[1] as num;
+              if (lat < (bbox[0] as num) ||
+                  lat > (bbox[2] as num) ||
+                  lng < (bbox[1] as num) ||
+                  lng > (bbox[3] as num)) {
+                problems.add('$where: $location is outside the bbox');
+              }
+            }
+            final site = feature['site'];
+            if (site != null && !sites.containsKey(site)) {
+              problems.add('$where: site "$site" is not in ${city['id']}');
+            }
+            final person = feature['person'];
+            if (person != null) {
+              final buried = site == null
+                  ? const <Map<String, dynamic>>[]
+                  : _maps(sites[site]?['buried']);
+              if (!buried.any((p) => p['id'] == person)) {
+                problems.add('$where: person "$person" is not buried at '
+                    '"$site"');
+              }
+            }
+          }
+          for (final site in planSites) {
+            if (!features.any((f) => f['site'] == site)) {
+              problems.add('$id: no feature belongs to "$site", so the plan '
+                  'has nothing to open on for it');
+            }
+          }
+          final file = File('assets/ziyarat_plans/$id.json');
+          if (!file.existsSync()) {
+            problems.add('$id: no ${file.path} '
+                '(run scripts/ziyarat_maps/build_plans.py $id)');
+            continue;
+          }
+          final drawing = ShrinePlan.fromJson(_readJson(file.path));
+          if (drawing.shapes.isEmpty) problems.add('$id: an empty drawing');
+          for (final feature in features) {
+            final location = feature['location'];
+            if (location is! List || location.length != 2) continue;
+            final at = drawing.project(GeoPoint((location[0] as num).toDouble(),
+                (location[1] as num).toDouble()));
+            if (!drawing.bounds.inflate(1).contains(at)) {
+              problems.add('$id.${feature['id']}: outside the drawing '
+                  '(rebuild it)');
+            }
           }
         }
       }
@@ -249,6 +374,35 @@ void main() {
                   ],
                 },
               ],
+              'plans': [
+                {
+                  'id': 'najaf_haram',
+                  'sites': ['imam_ali_shrine'],
+                  'features': [
+                    {
+                      'id': 'gate',
+                      'kind': 'gate',
+                      'name': 'Bab al-Qibla',
+                      'arabicName': 'باب القبلة',
+                      'site': 'imam_ali_shrine',
+                      'location': [31.9960, 44.3147],
+                    },
+                    {
+                      'id': 'zarih',
+                      'kind': 'zarih',
+                      'name': 'Zarih of Imam Ali (a.s.)',
+                      'arabicName': 'ضريح الإمام علي',
+                      'note': 'Under the dome.',
+                      'site': 'imam_ali_shrine',
+                      'person': 'allamah_hilli',
+                      'location': [31.9966, 44.3147],
+                      'ziyarat': [
+                        {'uid': 'AK5', 'note': 'The first ziyarat.'},
+                      ],
+                    },
+                  ],
+                },
+              ],
             },
           ],
         },
@@ -260,6 +414,11 @@ void main() {
     expect(site.city.region.id, 'iraq');
     expect(site.ziyarat.single.initialTabIndex, 1);
     expect(en.city('najaf')!.tips, ['One', 'Two']);
+    final plan = site.plan!;
+    expect(plan.focusFor('imam_ali_shrine')!.id, 'zarih',
+        reason: 'a plan opens on the zarih, not the first feature');
+    expect(plan.features.last.person!.id, 'allamah_hilli');
+    expect(plan.features.last.ziyarat.single.note, 'The first ziyarat.');
 
     final ur = ZiyaratGuide.fromJson(fixture,
         languageCode: 'ur', translations: {'city.najaf.tips.1': 'دو'});
@@ -270,6 +429,14 @@ void main() {
     expect(ur.general.single.note, isNull);
     expect(ur.site('imam_ali_shrine')!.ziyarat.single.label, isNull,
         reason: 'falls back to the zikr title, which is translated');
+    final urPlan = ur.site('imam_ali_shrine')!.plan!;
+    expect(urPlan.features.first.name, 'باب القبلة');
+    expect(urPlan.features.last.note, isNull);
+    final urTranslated = ZiyaratGuide.fromJson(fixture,
+        languageCode: 'ur',
+        translations: {'plan.najaf_haram.zarih.note': 'گنبد کے نیچے۔'});
+    expect(urTranslated.site('imam_ali_shrine')!.plan!.features.last.note,
+        'گنبد کے نیچے۔');
 
     final gu = ZiyaratGuide.fromJson(fixture, languageCode: 'gu');
     expect(gu.city('najaf')!.name, 'Najaf',

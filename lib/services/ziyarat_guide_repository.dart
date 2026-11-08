@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
 import '../l10n/l10n.dart';
+import '../models/shrine_plan.dart';
 import '../models/ziyarat_guide.dart';
 
 const String ziyaratGuideAssetPath = 'assets/ziyarat_guide.json';
@@ -17,6 +18,23 @@ class ZiyaratGuideRepository {
   ZiyaratGuideRepository._();
 
   static final Map<String, Future<ZiyaratGuide>> _cache = {};
+  static final Map<String, Future<ShrinePlan?>> _plans = {};
+
+  /// The drawing of [plan], or null when its asset is missing or broken.
+  static Future<ShrinePlan?> loadPlan(GuidePlan plan, {AssetBundle? bundle}) {
+    if (bundle != null) return _loadPlan(plan.assetPath, bundle);
+    return _plans[plan.id] ??= _loadPlan(plan.assetPath, rootBundle);
+  }
+
+  static Future<ShrinePlan?> _loadPlan(String path, AssetBundle bundle) async {
+    try {
+      final decoded = json.decode(await bundle.loadString(path)) as Map;
+      return ShrinePlan.fromJson(decoded.cast<String, dynamic>());
+    } catch (error) {
+      debugPrint('Ziyarat guide: no plan at $path ($error)');
+      return null;
+    }
+  }
 
   /// The guide in [languageCode] (the app language when omitted). A
   /// [bundle] (tests) bypasses the cache.
@@ -58,5 +76,8 @@ class ZiyaratGuideRepository {
   }
 
   @visibleForTesting
-  static void clearCache() => _cache.clear();
+  static void clearCache() {
+    _cache.clear();
+    _plans.clear();
+  }
 }

@@ -101,6 +101,7 @@ class GuideCity {
     this.about,
     required this.tips,
     required this.sites,
+    required this.plans,
   });
 
   final String id;
@@ -111,6 +112,25 @@ class GuideCity {
   final String? about;
   final List<String> tips;
   final List<GuideSite> sites;
+
+  /// Interactive plans of the city's shrines (see "Shrine plans" in
+  /// docs/ZIYARAT_GUIDE.md); one plan can cover several neighbouring sites.
+  final List<GuidePlan> plans;
+
+  /// The plan that shows [siteId], if any.
+  GuidePlan? planFor(String siteId) {
+    for (final plan in plans) {
+      if (plan.siteIds.contains(siteId)) return plan;
+    }
+    return null;
+  }
+
+  GuideSite? site(String id) {
+    for (final site in sites) {
+      if (site.id == id) return site;
+    }
+    return null;
+  }
 
   /// Every ziyarat linked from the city's places.
   int get ziyaratCount =>
@@ -133,9 +153,13 @@ class GuideCity {
       about: t.prose('city.$id.about', json['about'] as String?),
       tips: t.list('city.$id.tips', json['tips']),
       sites: [],
+      plans: [],
     );
     for (final site in _maps(json['sites'])) {
       city.sites.add(GuideSite._fromJson(site, city, t));
+    }
+    for (final plan in _maps(json['plans'])) {
+      city.plans.add(GuidePlan._fromJson(plan, city, t));
     }
     return city;
   }
@@ -189,6 +213,16 @@ class GuideSite {
   final List<GuideBurial> buried;
   final List<String> tips;
 
+  /// The interactive plan that shows this site, if it has one.
+  GuidePlan? get plan => city.planFor(id);
+
+  GuideBurial? burial(String personId) {
+    for (final person in buried) {
+      if (person.id == personId) return person;
+    }
+    return null;
+  }
+
   factory GuideSite._fromJson(
     Map<String, dynamic> json,
     GuideCity city,
@@ -214,6 +248,167 @@ class GuideSite {
           GuideBurial._fromJson(person, 'site.$id.buried', t),
       ],
       tips: t.list('site.$id.tips', json['tips']),
+    );
+  }
+}
+
+/// An interactive plan of one or more neighbouring sites: the geometry is
+/// `assets/ziyarat_plans/<id>.json` (built from OpenStreetMap by
+/// `scripts/ziyarat_maps/build_plans.py`); the tappable [features] - the
+/// zarih, gates, tombs - come from the guide.
+class GuidePlan {
+  GuidePlan({
+    required this.id,
+    required this.city,
+    required this.siteIds,
+    required this.features,
+  });
+
+  final String id;
+  final GuideCity city;
+
+  /// The guide sites this plan shows, in the city's [GuideCity.sites].
+  final List<String> siteIds;
+  final List<PlanFeature> features;
+
+  /// The asset holding the plan's drawing.
+  String get assetPath => 'assets/ziyarat_plans/$id.json';
+
+  /// What the plan opens on for [siteId]: its zarih or main tomb, else its
+  /// first feature.
+  PlanFeature? focusFor(String siteId) {
+    PlanFeature? first;
+    for (final feature in features) {
+      if (feature.siteId != siteId) continue;
+      if (feature.kind == PlanFeatureKind.zarih) return feature;
+      first ??= feature;
+    }
+    return first;
+  }
+
+  factory GuidePlan._fromJson(
+    Map<String, dynamic> json,
+    GuideCity city,
+    GuideLocalizer t,
+  ) {
+    final id = json['id'] as String;
+    final plan = GuidePlan(
+      id: id,
+      city: city,
+      siteIds: [
+        for (final site in (json['sites'] as List? ?? const [])) site as String
+      ],
+      features: [],
+    );
+    for (final feature in _maps(json['features'])) {
+      plan.features.add(PlanFeature._fromJson(feature, plan, t));
+    }
+    return plan;
+  }
+}
+
+/// What a plan feature is: how it is drawn, and which are labelled first
+/// when labels would overlap.
+enum PlanFeatureKind {
+  /// The tomb of an Imam or of the person the shrine is for.
+  zarih,
+
+  /// Another tomb inside the shrine.
+  tomb,
+
+  /// A maqam: a place marked for an event, not a grave.
+  maqam,
+
+  /// Another site of the guide shown on this plan.
+  place,
+
+  /// A gate of the courtyard.
+  gate,
+
+  /// A door of the haram, inside the courtyard.
+  door,
+
+  /// Something to find one's way by: a clock tower, a museum.
+  landmark;
+
+  static PlanFeatureKind parse(Object? raw) {
+    for (final kind in values) {
+      if (kind.name == raw) return kind;
+    }
+    return landmark;
+  }
+
+  /// Higher wins a label when two would overlap.
+  int get labelPriority => switch (this) {
+        zarih => 6,
+        place => 5,
+        tomb => 4,
+        gate => 3,
+        maqam => 2,
+        landmark => 1,
+        door => 0,
+      };
+}
+
+/// One tappable point of a [GuidePlan].
+class PlanFeature {
+  PlanFeature({
+    required this.id,
+    required this.plan,
+    required this.kind,
+    required this.name,
+    required this.englishName,
+    this.arabicName,
+    this.note,
+    required this.location,
+    this.siteId,
+    this.personId,
+    required this.ziyarat,
+  });
+
+  final String id;
+  final GuidePlan plan;
+  final PlanFeatureKind kind;
+  final String name;
+  final String englishName;
+  final String? arabicName;
+  final String? note;
+  final GeoPoint location;
+
+  /// The guide site this feature belongs to (a gate of it, a tomb in it),
+  /// or, for a [PlanFeatureKind.place], the site it is.
+  final String? siteId;
+
+  /// A person in [site]'s `buried` this tomb is of.
+  final String? personId;
+  final List<ZiyaratRef> ziyarat;
+
+  GuideSite? get site => siteId == null ? null : plan.city.site(siteId!);
+
+  GuideBurial? get person => personId == null ? null : site?.burial(personId!);
+
+  factory PlanFeature._fromJson(
+    Map<String, dynamic> json,
+    GuidePlan plan,
+    GuideLocalizer t,
+  ) {
+    final id = json['id'] as String;
+    final key = 'plan.${plan.id}.$id';
+    final english = json['name'] as String;
+    final arabic = json['arabicName'] as String?;
+    final location = (json['location'] as List).cast<num>();
+    return PlanFeature(
+      id: id,
+      plan: plan,
+      kind: PlanFeatureKind.parse(json['kind']),
+      name: t.name('$key.name', english, arabic),
+      englishName: english,
+      arabicName: arabic,
+      note: t.prose('$key.note', json['note'] as String?),
+      location: GeoPoint(location[0].toDouble(), location[1].toDouble()),
+      siteId: json['site'] as String?,
+      personId: json['person'] as String?,
+      ziyarat: _refs(json['ziyarat'], '$key.ziyarat', t),
     );
   }
 }

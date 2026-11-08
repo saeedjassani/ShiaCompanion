@@ -134,6 +134,33 @@ class GuideZiyaratList extends StatelessWidget {
   }
 }
 
+/// One [ZiyaratRef] as a row of a [CardList] (outside a sliver list).
+class ZikrRefRow extends StatelessWidget {
+  const ZikrRefRow({
+    super.key,
+    required this.ref,
+    this.first = false,
+    this.last = false,
+  });
+
+  final ZiyaratRef ref;
+  final bool first;
+  final bool last;
+
+  @override
+  Widget build(BuildContext context) {
+    final item = UniversalData(ref.uid, items[ref.uid].toString(), 0);
+    return ZikrListRow(
+      item: item,
+      title: ref.label,
+      subtitle: ref.note,
+      first: first,
+      last: last,
+      onTap: () => openGuideZikr(context, ref),
+    );
+  }
+}
+
 Future<void> openGuideZikr(BuildContext context, ZiyaratRef ref) {
   final title = items[ref.uid]?.toString() ?? ref.uid;
   return pushPageRoute(

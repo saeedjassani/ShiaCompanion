@@ -110,8 +110,12 @@ count under their own keys (`azaan_opt_in`, `arabic_font_changed`,
 **Search** — `search`, `search_opened`.
 
 **Ziyarat Guide** — `ziyarat_guide_city` (+`city`), `ziyarat_guide_site`
-(+`site`), `ziyarat_guide_directions` (+`site`); labelled with the English
-name, keyed by the guide's stable ids (docs/ZIYARAT_GUIDE.md).
+(+`site`), `ziyarat_guide_directions` (+`site`); the shrine plan's
+`ziyarat_guide_plan_open` (+`site`, `plan`), `ziyarat_guide_plan_feature`
+and `ziyarat_guide_plan_directions` (+`plan`, `feature`: a zarih, gate or
+tomb tapped, or walked to), `ziyarat_guide_plan_locate` (+`plan`); labelled
+with the English name, keyed by the guide's stable ids
+(docs/ZIYARAT_GUIDE.md). Screen: `Ziyarat Guide Plan`.
 
 **Feedback** — `feedback_email_opened`.
 

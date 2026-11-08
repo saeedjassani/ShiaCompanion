@@ -13,6 +13,7 @@ import '../../widgets/outline_icon.dart';
 import '../../widgets/page_chrome.dart';
 import '../qibla_finder.dart';
 import 'ziyarat_city_page.dart' show guideSiteKindLabel;
+import 'shrine_plan_view.dart';
 import 'ziyarat_guide_widgets.dart';
 
 /// One place of the Ziyarat Guide: the ziyarats to recite there, what it
@@ -59,6 +60,7 @@ class _ZiyaratSitePageState extends State<ZiyaratSitePage> {
         ? null
         : allHolySites.where((s) => s.id == site.holySiteId).firstOrNull;
     final buried = site.buried;
+    final plan = site.plan;
 
     return LargeTitlePage(
       maxWidth: widePageWidth,
@@ -106,6 +108,14 @@ class _ZiyaratSitePageState extends State<ZiyaratSitePage> {
             ),
           ),
         ),
+        if (plan != null)
+          SliverPadding(
+            padding: pageGutter(context, maxWidth: widePageWidth)
+                .copyWith(top: 16, bottom: 0),
+            sliver: SliverToBoxAdapter(
+              child: ShrinePlanCard(site: site, plan: plan),
+            ),
+          ),
         if (site.ziyarat.isNotEmpty)
           GuideSection(
             label: l10n.ziyaratGuideZiyarat,

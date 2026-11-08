@@ -1298,6 +1298,662 @@
                 "https://www.openstreetmap.org/way/469786126"
               ]
             }
+          ],
+          "plans": [
+            {
+              "id": "karbala_haramayn",
+              "bbox": [
+                32.6138,
+                44.0296,
+                32.6192,
+                44.039
+              ],
+              "sites": [
+                "imam_husayn_shrine",
+                "abbas_shrine",
+                "bayn_al_haramayn",
+                "tall_al_zaynabiyya",
+                "al_mukhayyam"
+              ],
+              "features": [
+                {
+                  "id": "husayn_tomb",
+                  "kind": "zarih",
+                  "name": "Zarih of Imam Husayn (a.s.)",
+                  "arabicName": "ضريح الإمام الحسين (ع)",
+                  "osm": "w1156225811",
+                  "site": "imam_husayn_shrine",
+                  "ziyarat": [
+                    {
+                      "uid": "AG14"
+                    },
+                    {
+                      "uid": "G6",
+                      "label": "Ziyarat Warith (as commonly recited)"
+                    },
+                    {
+                      "uid": "AG8"
+                    },
+                    {
+                      "uid": "G4"
+                    },
+                    {
+                      "uid": "AG5",
+                      "note": "The ziyarat prayer at the head side, and the duas after it."
+                    }
+                  ],
+                  "location": [
+                    32.616356,
+                    44.032544
+                  ]
+                },
+                {
+                  "id": "ali_al_akbar_tomb",
+                  "kind": "tomb",
+                  "name": "Tomb of Hazrat Ali al-Akbar (a.s.)",
+                  "arabicName": "ضريح علي الأكبر (ع)",
+                  "osm": "w1156225810",
+                  "site": "imam_husayn_shrine",
+                  "ziyarat": [
+                    {
+                      "uid": "G55"
+                    }
+                  ],
+                  "note": "At the feet of Imam Husayn (a.s.).",
+                  "location": [
+                    32.616347,
+                    44.032585
+                  ]
+                },
+                {
+                  "id": "martyrs_tomb",
+                  "kind": "tomb",
+                  "name": "Tomb of the Martyrs of Karbala (a.s.)",
+                  "arabicName": "ضريح الشهداء",
+                  "osm": "w1156225809",
+                  "site": "imam_husayn_shrine",
+                  "ziyarat": [
+                    {
+                      "uid": "G56"
+                    }
+                  ],
+                  "note": "The companions and family of Imam Husayn (a.s.) martyred with him lie together here.",
+                  "location": [
+                    32.616236,
+                    44.032607
+                  ]
+                },
+                {
+                  "id": "habib_tomb",
+                  "kind": "tomb",
+                  "name": "Tomb of Habib ibn Mazahir (a.s.)",
+                  "arabicName": "ضريح حبيب بن مظاهر",
+                  "osm": "w1156225808",
+                  "site": "imam_husayn_shrine",
+                  "ziyarat": [
+                    {
+                      "uid": "G58"
+                    }
+                  ],
+                  "location": [
+                    32.616261,
+                    44.03239
+                  ]
+                },
+                {
+                  "id": "ibrahim_al_mujab_tomb",
+                  "kind": "tomb",
+                  "name": "Tomb of Sayyid Ibrahim al-Mujab",
+                  "arabicName": "مرقد إبراهيم المجاب",
+                  "osm": "w1156225807",
+                  "site": "imam_husayn_shrine",
+                  "person": "ibrahim_al_mujab",
+                  "location": [
+                    32.616585,
+                    44.032408
+                  ]
+                },
+                {
+                  "id": "madhbah",
+                  "kind": "maqam",
+                  "name": "Maqam al-Madhbah",
+                  "arabicName": "مقام المذبح",
+                  "osm": "w1156225806",
+                  "site": "imam_husayn_shrine",
+                  "note": "Marks the place where, by tradition, Imam Husayn (a.s.) was martyred.",
+                  "location": [
+                    32.616252,
+                    44.032304
+                  ]
+                },
+                {
+                  "id": "abbas_tomb",
+                  "kind": "zarih",
+                  "name": "Zarih of Hazrat Abbas (a.s.)",
+                  "arabicName": "ضريح العباس بن علي (ع)",
+                  "osm": "w1063142120",
+                  "site": "abbas_shrine",
+                  "ziyarat": [
+                    {
+                      "uid": "AG18"
+                    },
+                    {
+                      "uid": "G7",
+                      "label": "Ziyarat of Hazrat Abbas (a.s.) (as commonly recited)"
+                    },
+                    {
+                      "uid": "G57",
+                      "label": "Short Ziyarat of Hazrat Abbas (a.s.)"
+                    }
+                  ],
+                  "location": [
+                    32.617154,
+                    44.03645
+                  ]
+                },
+                {
+                  "id": "kaff_al_abbas_right",
+                  "kind": "maqam",
+                  "name": "Maqam of the Right Hand of Hazrat Abbas (a.s.)",
+                  "arabicName": "مقام كف العباس الأيمن",
+                  "osm": "n10830510022",
+                  "site": "abbas_shrine",
+                  "note": "Marks the place where, by tradition, the right hand of Hazrat Abbas (a.s.) fell.",
+                  "location": [
+                    32.617444,
+                    44.037435
+                  ]
+                },
+                {
+                  "id": "kaff_al_abbas_left",
+                  "kind": "maqam",
+                  "name": "Maqam of the Left Hand of Hazrat Abbas (a.s.)",
+                  "arabicName": "مقام كف العباس الأيسر",
+                  "osm": "n10880196283",
+                  "site": "abbas_shrine",
+                  "note": "Marks the place where, by tradition, the left hand of Hazrat Abbas (a.s.) fell.",
+                  "location": [
+                    32.61623,
+                    44.036831
+                  ]
+                },
+                {
+                  "id": "bayn_al_haramayn",
+                  "kind": "place",
+                  "name": "Bayn al-Haramayn",
+                  "arabicName": "بين الحرمين",
+                  "osm": "n14067940501",
+                  "site": "bayn_al_haramayn",
+                  "location": [
+                    32.616526,
+                    44.034416
+                  ]
+                },
+                {
+                  "id": "tall_al_zaynabiyya",
+                  "kind": "place",
+                  "name": "Tall al-Zaynabiyya",
+                  "arabicName": "التل الزينبي",
+                  "osm": "w1386102847",
+                  "site": "tall_al_zaynabiyya",
+                  "location": [
+                    32.61585,
+                    44.031055
+                  ]
+                },
+                {
+                  "id": "al_mukhayyam",
+                  "kind": "place",
+                  "name": "Al-Mukhayyam",
+                  "arabicName": "المخيم الحسيني",
+                  "osm": "w1161247061",
+                  "site": "al_mukhayyam",
+                  "location": [
+                    32.614545,
+                    44.030616
+                  ]
+                },
+                {
+                  "id": "clock_tower",
+                  "kind": "landmark",
+                  "name": "Clock Tower",
+                  "arabicName": "برج الساعة",
+                  "osm": "r14188559",
+                  "site": "abbas_shrine",
+                  "note": "Above the qibla gate of the shrine of Hazrat Abbas (a.s.); a landmark pilgrims often meet at.",
+                  "location": [
+                    32.616537,
+                    44.036278
+                  ]
+                },
+                {
+                  "id": "husayn_gate_qibla",
+                  "kind": "gate",
+                  "name": "Bab al-Qibla",
+                  "arabicName": "باب القبلة",
+                  "osm": "w988126932",
+                  "site": "imam_husayn_shrine",
+                  "ziyarat": [
+                    {
+                      "uid": "B6"
+                    }
+                  ],
+                  "location": [
+                    32.61578,
+                    44.032411
+                  ]
+                },
+                {
+                  "id": "husayn_gate_raja",
+                  "kind": "gate",
+                  "name": "Bab al-Raja",
+                  "arabicName": "باب الرجاء",
+                  "osm": "w988126933",
+                  "site": "imam_husayn_shrine",
+                  "ziyarat": [
+                    {
+                      "uid": "B6"
+                    }
+                  ],
+                  "location": [
+                    32.615671,
+                    44.032897
+                  ]
+                },
+                {
+                  "id": "husayn_gate_qadi_al_hajat",
+                  "kind": "gate",
+                  "name": "Bab Qadi al-Hajat",
+                  "arabicName": "باب قاضي الحاجات",
+                  "osm": "w988126934",
+                  "site": "imam_husayn_shrine",
+                  "ziyarat": [
+                    {
+                      "uid": "B6"
+                    }
+                  ],
+                  "location": [
+                    32.615998,
+                    44.03314
+                  ]
+                },
+                {
+                  "id": "husayn_gate_shuhada",
+                  "kind": "gate",
+                  "name": "Bab al-Shuhada",
+                  "arabicName": "باب الشهداء",
+                  "osm": "w988126931",
+                  "site": "imam_husayn_shrine",
+                  "ziyarat": [
+                    {
+                      "uid": "B6"
+                    }
+                  ],
+                  "location": [
+                    32.61625,
+                    44.033209
+                  ]
+                },
+                {
+                  "id": "husayn_gate_karama",
+                  "kind": "gate",
+                  "name": "Bab al-Karama",
+                  "arabicName": "باب الكرامة",
+                  "osm": "w988126935",
+                  "site": "imam_husayn_shrine",
+                  "ziyarat": [
+                    {
+                      "uid": "B6"
+                    }
+                  ],
+                  "location": [
+                    32.616632,
+                    44.03326
+                  ]
+                },
+                {
+                  "id": "husayn_gate_salam",
+                  "kind": "gate",
+                  "name": "Bab al-Salam",
+                  "arabicName": "باب السلام",
+                  "osm": "w988126930",
+                  "site": "imam_husayn_shrine",
+                  "ziyarat": [
+                    {
+                      "uid": "B6"
+                    }
+                  ],
+                  "location": [
+                    32.616861,
+                    44.032684
+                  ]
+                },
+                {
+                  "id": "husayn_gate_sidra",
+                  "kind": "gate",
+                  "name": "Bab al-Sidra",
+                  "arabicName": "باب السدرة",
+                  "osm": "w988126929",
+                  "site": "imam_husayn_shrine",
+                  "ziyarat": [
+                    {
+                      "uid": "B6"
+                    }
+                  ],
+                  "location": [
+                    32.616931,
+                    44.032358
+                  ]
+                },
+                {
+                  "id": "husayn_gate_sultaniyya",
+                  "kind": "gate",
+                  "name": "Bab al-Sultaniyya",
+                  "arabicName": "باب السلطانية",
+                  "osm": "w988126936",
+                  "site": "imam_husayn_shrine",
+                  "ziyarat": [
+                    {
+                      "uid": "B6"
+                    }
+                  ],
+                  "location": [
+                    32.616695,
+                    44.032075
+                  ]
+                },
+                {
+                  "id": "husayn_gate_ras_al_sharif",
+                  "kind": "gate",
+                  "name": "Bab al-Ras al-Sharif",
+                  "arabicName": "باب الرأس الشريف",
+                  "osm": "w988126937",
+                  "site": "imam_husayn_shrine",
+                  "ziyarat": [
+                    {
+                      "uid": "B6"
+                    }
+                  ],
+                  "location": [
+                    32.616423,
+                    44.032012
+                  ]
+                },
+                {
+                  "id": "husayn_gate_zaynabiyya",
+                  "kind": "gate",
+                  "name": "Bab al-Zainabiyya",
+                  "arabicName": "باب الزينبية",
+                  "osm": "w988126928",
+                  "site": "imam_husayn_shrine",
+                  "ziyarat": [
+                    {
+                      "uid": "B6"
+                    }
+                  ],
+                  "location": [
+                    32.616127,
+                    44.031913
+                  ]
+                },
+                {
+                  "id": "husayn_door_ras_al_sharif",
+                  "kind": "door",
+                  "name": "Bab al-Ras al-Sharif",
+                  "arabicName": "باب الرأس الشريف",
+                  "osm": "n10752523425",
+                  "site": "imam_husayn_shrine",
+                  "location": [
+                    32.616347,
+                    44.032308
+                  ]
+                },
+                {
+                  "id": "husayn_door_dhahab",
+                  "kind": "door",
+                  "name": "Bab al-Dhahab",
+                  "arabicName": "باب الذهب",
+                  "osm": "n10752523426",
+                  "site": "imam_husayn_shrine",
+                  "location": [
+                    32.616208,
+                    44.032503
+                  ]
+                },
+                {
+                  "id": "husayn_door_habib",
+                  "kind": "door",
+                  "name": "Bab Habib ibn Mazahir",
+                  "arabicName": "باب حبيب بن مظاهر",
+                  "osm": "n10752523429",
+                  "site": "imam_husayn_shrine",
+                  "location": [
+                    32.616223,
+                    44.032423
+                  ]
+                },
+                {
+                  "id": "husayn_door_sharqi",
+                  "kind": "door",
+                  "name": "Al-Bab al-Sharqi",
+                  "arabicName": "الباب الشرقي",
+                  "osm": "n10752523431",
+                  "site": "imam_husayn_shrine",
+                  "location": [
+                    32.61619,
+                    44.032596
+                  ]
+                },
+                {
+                  "id": "husayn_door_ibrahim_al_mujab",
+                  "kind": "door",
+                  "name": "Bab Ibrahim al-Mujab",
+                  "arabicName": "باب إبراهيم المجاب",
+                  "osm": "n10752523437",
+                  "site": "imam_husayn_shrine",
+                  "location": [
+                    32.616484,
+                    44.032345
+                  ]
+                },
+                {
+                  "id": "husayn_door_karama",
+                  "kind": "door",
+                  "name": "Bab al-Karama",
+                  "arabicName": "باب الكرامة",
+                  "osm": "n10752523440",
+                  "site": "imam_husayn_shrine",
+                  "location": [
+                    32.616406,
+                    44.032799
+                  ]
+                },
+                {
+                  "id": "husayn_door_sahib_al_zaman",
+                  "kind": "door",
+                  "name": "Bab Sahib al-Zaman",
+                  "arabicName": "باب صاحب الزمان",
+                  "osm": "n10752523443",
+                  "site": "imam_husayn_shrine",
+                  "location": [
+                    32.616164,
+                    44.032734
+                  ]
+                },
+                {
+                  "id": "husayn_door_madhbah",
+                  "kind": "door",
+                  "name": "Bab al-Madhbah",
+                  "arabicName": "باب المذبح",
+                  "osm": "n10752523445",
+                  "site": "imam_husayn_shrine",
+                  "location": [
+                    32.61625,
+                    44.032282
+                  ]
+                },
+                {
+                  "id": "husayn_door_ali_al_akbar",
+                  "kind": "door",
+                  "name": "Bab Ali al-Akbar",
+                  "arabicName": "باب علي الأكبر",
+                  "osm": "n10752523457",
+                  "site": "imam_husayn_shrine",
+                  "location": [
+                    32.616313,
+                    44.032774
+                  ]
+                },
+                {
+                  "id": "husayn_door_hurr",
+                  "kind": "door",
+                  "name": "Bab al-Hurr",
+                  "arabicName": "باب الحر",
+                  "osm": "n10752523459",
+                  "site": "imam_husayn_shrine",
+                  "location": [
+                    32.616403,
+                    44.032323
+                  ]
+                },
+                {
+                  "id": "abbas_gate_qibla",
+                  "kind": "gate",
+                  "name": "Bab al-Qibla",
+                  "arabicName": "باب القبلة",
+                  "osm": "w1386064565",
+                  "site": "abbas_shrine",
+                  "ziyarat": [
+                    {
+                      "uid": "B6"
+                    }
+                  ],
+                  "location": [
+                    32.616559,
+                    44.036297
+                  ]
+                },
+                {
+                  "id": "abbas_gate_imam_hasan",
+                  "kind": "gate",
+                  "name": "Bab al-Imam al-Hasan (a.s.)",
+                  "arabicName": "باب الإمام الحسن",
+                  "osm": "w1386064555",
+                  "site": "abbas_shrine",
+                  "ziyarat": [
+                    {
+                      "uid": "B6"
+                    }
+                  ],
+                  "location": [
+                    32.616789,
+                    44.035745
+                  ]
+                },
+                {
+                  "id": "abbas_gate_sahib_al_zaman",
+                  "kind": "gate",
+                  "name": "Bab Sahib al-Zaman",
+                  "arabicName": "باب صاحب الزمان",
+                  "osm": "w1386064556",
+                  "site": "abbas_shrine",
+                  "ziyarat": [
+                    {
+                      "uid": "B6"
+                    }
+                  ],
+                  "location": [
+                    32.617245,
+                    44.035874
+                  ]
+                },
+                {
+                  "id": "abbas_gate_imam_jawad",
+                  "kind": "gate",
+                  "name": "Bab al-Imam al-Jawad (a.s.)",
+                  "arabicName": "باب الإمام محمد الجواد",
+                  "osm": "w1386064562",
+                  "site": "abbas_shrine",
+                  "ziyarat": [
+                    {
+                      "uid": "B6"
+                    }
+                  ],
+                  "location": [
+                    32.617583,
+                    44.03656
+                  ]
+                },
+                {
+                  "id": "abbas_gate_imam_hadi",
+                  "kind": "gate",
+                  "name": "Bab al-Imam al-Hadi (a.s.)",
+                  "arabicName": "باب الإمام علي الهادي",
+                  "osm": "w1386064563",
+                  "site": "abbas_shrine",
+                  "ziyarat": [
+                    {
+                      "uid": "B6"
+                    }
+                  ],
+                  "location": [
+                    32.617525,
+                    44.036885
+                  ]
+                },
+                {
+                  "id": "abbas_gate_amir",
+                  "kind": "gate",
+                  "name": "Bab al-Amir",
+                  "arabicName": "باب الأمير",
+                  "osm": "w1386064564",
+                  "site": "abbas_shrine",
+                  "ziyarat": [
+                    {
+                      "uid": "B6"
+                    }
+                  ],
+                  "location": [
+                    32.617051,
+                    44.036923
+                  ]
+                },
+                {
+                  "id": "abbas_gate_imam_husayn",
+                  "kind": "gate",
+                  "name": "Bab al-Imam al-Husayn (a.s.)",
+                  "arabicName": "باب الإمام الحسين",
+                  "osm": "w1386064571",
+                  "site": "abbas_shrine",
+                  "ziyarat": [
+                    {
+                      "uid": "B6"
+                    }
+                  ],
+                  "location": [
+                    32.616985,
+                    44.035808
+                  ]
+                },
+                {
+                  "id": "abbas_gate_imam_kazim",
+                  "kind": "gate",
+                  "name": "Bab al-Imam Musa al-Kazim (a.s.)",
+                  "arabicName": "باب الإمام موسى الكاظم",
+                  "osm": "w1386609971",
+                  "site": "abbas_shrine",
+                  "ziyarat": [
+                    {
+                      "uid": "B6"
+                    }
+                  ],
+                  "location": [
+                    32.61757,
+                    44.03596
+                  ]
+                }
+              ]
+            }
           ]
         },
         {

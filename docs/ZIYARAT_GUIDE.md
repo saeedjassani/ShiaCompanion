@@ -22,8 +22,15 @@ Home ▸ All features ▸ Ziyarat Guide
   City page                about, tips, then one row per site
   Site page                header (name, Arabic name, kind, city),
                            Directions / Compass buttons,
+                           Map of the shrine (a card; opens the plan page),
                            Ziyarat (rows opening ZikrPage, optionally a tab),
                            About, Also buried here, Tips for pilgrims
+  Plan page                the shrine drawn from above, pinch and drag; the
+                           zarih, tombs, gates and doors as markers; tap one
+                           for its card (side of the shrine, distance from
+                           you, its ziyarats, Directions to it, the next
+                           site's page); "Places on the map" lists them all;
+                           north/qibla dial, "show where I am", scale bar
 ```
 
 - The existing zikr groups (`G0~B` -> `B~AF8` Iraq -> `AF~AK1` Najaf ...)
@@ -31,9 +38,9 @@ Home ▸ All features ▸ Ziyarat Guide
   a second, richer way in that links to the same entries; it never copies
   zikr text.
 - Directions open the platform maps app (`geo:` / Apple Maps / Google Maps
-  URL) via `url_launcher`; no map SDK, no tiles, works offline-first. An
-  in-app map (flutter_map + a tile provider) is a possible later phase and
-  needs the owner's call (new dependency, tile usage policy).
+  URL) via `url_launcher`; no map SDK, no tiles, works offline-first. The
+  shrine plans (below) are drawn by the app itself from bundled data, so
+  they need neither.
 - A site with a `holySiteId` also offers "Point the compass", which opens
   the Qibla Finder aimed at that `HolySite` (`lib/data/holy_sites.dart`).
 
@@ -163,9 +170,84 @@ in all five `lib/l10n/app_<code>.arb`.
    opus/high agents, one language each.
 5. Point the Ziyarats list's `G0~B` row at the guide, ungate, What's New
    note, ship.
-6. Optional: in-app map, more regions (Egypt, Jordan - Ja'far al-Tayyar,
+6. Optional: more regions (Egypt, Jordan - Ja'far al-Tayyar,
    Lebanon, Saudi Ghadir/Juhfa), shrine audio/live streams links
    (`lib/data/live_streaming_data.dart`).
+
+## Shrine plans
+
+An interactive plan of a shrine and its neighbours: the precinct,
+courtyards, buildings, gold domes and minarets drawn from above, with the
+places a pilgrim looks for as tappable markers - the zarih, the other tombs
+and maqams, the courtyard gates, the doors of the haram, and the next site
+(Bayn al-Haramayn, Tall al-Zaynabiyya). Tapping one shows what it is, which
+side of the shrine it is on, how far it is from the reader (once they ask
+to be located), the ziyarats to recite there, Directions to that very gate,
+and a link to the next site's page. The owner asked for this (2026-11-08):
+"click on a gate or a shrine ... and that opens the respective ziyarat".
+
+Two parts:
+
+- **The drawing**, `assets/ziyarat_plans/<plan id>.json`, generated - never
+  edit it by hand. `python3 -I scripts/ziyarat_maps/build_plans.py [<plan
+  id>]` downloads OpenStreetMap's data for the plan's `bbox` (cached in
+  `build/osm_cache/`, `--refresh` to download again), sorts ways into layers
+  (precinct, green, walk, court, road, path, water, building, gate, gold,
+  minaret, wall), clips and simplifies them and writes them in decimetres
+  around the bbox's centre. About 30 KB a plan. The data is © OpenStreetMap
+  contributors (ODbL); the plan page shows that line, keep it.
+- **The features**, in the guide, on the city: `plans`, one or more per
+  city, each covering one or more neighbouring sites.
+
+```jsonc
+"plans": [
+  {
+    "id": "karbala_haramayn",            // stable; names the asset
+    "bbox": [32.6138, 44.0296, 32.6192, 44.0390],   // south, west, north, east
+    "sites": ["imam_husayn_shrine", "abbas_shrine", "bayn_al_haramayn"],
+    "features": [
+      {
+        "id": "husayn_tomb",
+        "kind": "zarih",       // zarih | tomb | maqam | place | gate | door | landmark
+        "name": "Zarih of Imam Husayn (a.s.)",
+        "arabicName": "ضريح الإمام الحسين (ع)",
+        "osm": "w1156225811",  // n/w/r + id: the script sets `location` from it
+        "location": [32.616356, 44.032544],
+        "site": "imam_husayn_shrine",   // the site it belongs to (or, for a place, is)
+        "person": "ali_al_akbar",       // optional: a `buried` id of that site
+        "note": "...",                  // optional, short
+        "ziyarat": [{ "uid": "AG14" }]  // as a site's ziyarat refs
+      }
+    ]
+  }
+]
+```
+
+- A site page shows the plan whose `sites` lists it, opened on that site's
+  `zarih` (else its first feature). Every listed site needs a feature.
+- Prefer an OSM id over a typed `location`, and check what OSM says: Hazrat
+  Abbas's tomb node is 43 m south of his dome, so `abbas_tomb` uses the
+  dome's way. A feature without `osm` keeps the `location` typed in.
+- Gates link Izn-e-Dukhool (B6); tombs link their own ziyarat; a maqam
+  without a ziyarat gets a one-line `note` ("by tradition" where it is).
+- Markers appear by zoom (doors only close up) and labels by priority
+  (zarih, place, tomb, gate, maqam, landmark, door) where they fit.
+- Translations: `plan.<plan id>.<feature id>.name` / `.note` /
+  `.ziyarat.<n>.label` / `.note` in the overlays; an untranslated name
+  falls back to `arabicName` as elsewhere.
+- `test/ziyarat_guide_test.dart` checks plans (sites in the city, kinds,
+  osm ids, locations inside the bbox and the drawing, persons, refs, a
+  feature per site, the asset exists); `test/ui/shrine_plan_test.dart`
+  renders the Karbala plan at three sizes and taps through it.
+
+**Plans so far:** `karbala_haramayn` (Imam Husayn, Hazrat Abbas, Bayn
+al-Haramayn, Tall al-Zaynabiyya, al-Mukhayyam: 43 features). **To do**, in
+order: Najaf (Imam Ali), Kazimayn, Samarra, Masjid al-Kufa and Masjid al-Sahla (each maqam
+linking its own tab of the mosque's aamal), Mashhad, Qom, Lady
+Zainab, Lady Ruqayya, Madinah (Masjid al-Nabawi and al-Baqi's graves). For
+each: fetch, print candidates with `--candidates`, pick and name the
+features (verify names on the shrine's own site), link their ziyarats,
+build, run the two tests, look at it.
 
 ## Content audit (2026-11-07)
 
