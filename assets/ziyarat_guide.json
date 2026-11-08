@@ -3345,6 +3345,130 @@
                 "https://nominatim.openstreetmap.org/search?q=مقبرة%20باب%20الصغير"
               ]
             }
+          ],
+          "plans": [
+            {
+              "id": "damascus_old_city",
+              "bbox": [
+                33.51,
+                36.3035,
+                33.5145,
+                36.309
+              ],
+              "sites": [
+                "sayyida_ruqayya_shrine",
+                "umayyad_mosque_ras_al_husayn"
+              ],
+              "features": [
+                {
+                  "id": "ruqayya_zarih",
+                  "kind": "zarih",
+                  "name": "Zarih of Lady Ruqayya (s.a.)",
+                  "arabicName": "ضريح السيدة رقية (ع)",
+                  "osm": "n13629202322",
+                  "site": "sayyida_ruqayya_shrine",
+                  "ziyarat": [
+                    {
+                      "uid": "B6",
+                      "note": "Before entering the shrine."
+                    },
+                    {
+                      "uid": "G82"
+                    }
+                  ],
+                  "location": [
+                    33.51339,
+                    36.307068
+                  ]
+                },
+                {
+                  "id": "ras_al_husayn",
+                  "kind": "maqam",
+                  "name": "Maqam Ras al-Husayn (a.s.)",
+                  "arabicName": "مقام رأس الحسين (ع)",
+                  "location": [
+                    33.51185,
+                    36.3074
+                  ],
+                  "site": "umayyad_mosque_ras_al_husayn",
+                  "note": "In the north-east corner of the mosque, where by tradition the head of Imam Husayn (a.s.) was kept. Beside it is the Maqam of Imam Zayn al-Abidin (a.s.), where by tradition he prayed.",
+                  "ziyarat": [
+                    {
+                      "uid": "G54"
+                    },
+                    {
+                      "uid": "G64",
+                      "note": "At the Maqam of Imam Zayn al-Abidin (a.s.), beside it."
+                    }
+                  ]
+                },
+                {
+                  "id": "yahya_tomb",
+                  "kind": "tomb",
+                  "name": "Shrine of Prophet Yahya (a.s.)",
+                  "arabicName": "مقام النبي يحيى (ع)",
+                  "osm": "n12420762434",
+                  "site": "umayyad_mosque_ras_al_husayn",
+                  "note": "In the prayer hall. By tradition the head of Prophet Yahya (a.s.), son of Prophet Zakariya (a.s.), is buried here.",
+                  "location": [
+                    33.511365,
+                    36.306966
+                  ]
+                },
+                {
+                  "id": "umayyad_gate_jayrun",
+                  "kind": "gate",
+                  "name": "Bab Jayrun",
+                  "arabicName": "باب جيرون",
+                  "osm": "n3213611700",
+                  "site": "umayyad_mosque_ras_al_husayn",
+                  "note": "The eastern gate, the nearest to the Maqam Ras al-Husayn.",
+                  "location": [
+                    33.511636,
+                    36.307496
+                  ]
+                },
+                {
+                  "id": "umayyad_gate_amara",
+                  "kind": "gate",
+                  "name": "Bab al-Amara (Bab al-Kallasa)",
+                  "arabicName": "باب العمارة (باب الكلاسة)",
+                  "osm": "n3213611699",
+                  "site": "umayyad_mosque_ras_al_husayn",
+                  "note": "The northern gate, below the Minaret of the Bride; the nearest to the shrine of Lady Ruqayya (s.a.).",
+                  "location": [
+                    33.512085,
+                    36.306652
+                  ]
+                },
+                {
+                  "id": "umayyad_gate_barid",
+                  "kind": "gate",
+                  "name": "Bab al-Barid",
+                  "arabicName": "باب البريد",
+                  "osm": "n3213620937",
+                  "site": "umayyad_mosque_ras_al_husayn",
+                  "note": "The western gate, at the end of the Hamidiyya market.",
+                  "location": [
+                    33.511533,
+                    36.305809
+                  ]
+                },
+                {
+                  "id": "umayyad_gate_ziyada",
+                  "kind": "gate",
+                  "name": "Bab al-Ziyada",
+                  "arabicName": "باب الزيادة",
+                  "osm": "n3213620936",
+                  "site": "umayyad_mosque_ras_al_husayn",
+                  "note": "The southern gate, the only one that opens straight into the prayer hall.",
+                  "location": [
+                    33.511076,
+                    36.306034
+                  ]
+                }
+              ]
+            }
           ]
         }
       ]
