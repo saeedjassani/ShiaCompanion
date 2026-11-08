@@ -250,6 +250,29 @@ see `scripts/RESTORING_MISSING_ZIKRS.md`); URLs hold a text to check against.
 
 ## Corpus problems found (owner's review)
 
+**Owner's decisions (2026-11-08), applied in session 2:** G82 retitled
+"Ziyarat of Lady Ruqayya (s.a.) of Damascus"; AE15 retired into G78 (G78
+took AE15's English and its three tasbih lines); AJ2 retitled "Ziyarat of
+Salman al-Farsi (r.a.) — Mada'in" and G63 retired into it; the stub lines
+of AG14, AK6, AK7, AI5, AI15 and AL1 removed; AL6 tab 1 relabelled "Ziyarat
+of Imam Hasan al-Askari (a.s.)" (the lint's 40-character limit dropped the
+"al-"); G68 retitled "Short Ziyarat of Imam Ali al-Reza (a.s.)". The owner
+chose to leave AH5's entry rites where they are. Still open from these:
+
+- G82's `day` 02-10 matches `events.json`'s Sakina date; Lady Ruqayya's
+  death is mostly marked on 5 Safar - owner to decide.
+- G78's line «السلام عليكما يا سبطي نبي الرحمة…» has no English: AE15 read
+  «يا سبطي الرحمة», so its translation didn't fit.
+- G78's three new tasbih lines have no ur/fa/ar/gu translation; the
+  Ruqayya spellings in the four `index.json` titles (رقیہ / رقیه / رقية /
+  રુકૈયા) need a native speaker's check.
+- G63's four one-word variants against AJ2 (ابن/بن, وَسَيِّدِ, الملٰئكة,
+  السادات/السادة) were not carried over.
+- Other heading-like lines remain in AG14, AI5, AL1 ("Permission to enter",
+  "Z I Y A R A T", ...); not part of the decision.
+
+The list as found in session 1:
+
 - **G82** is titled "Ziyarat of Lady Sakina (s.a.)" but is the ziyarat of
   Lady Ruqayya of Damascus; check its `day`s (02-10, 07-20) too. The guide
   labels it Ruqayya.
