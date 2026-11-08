@@ -514,6 +514,23 @@ today's Quran progress, privacy note and community sections as cards.
   plain-words summary above the pinned **Add reminder** button: "Thursdays,
   15 minutes after Maghrib (about 6:56 pm this week)".
 
+### Islamic events notifications
+From Settings → Notifications → Islamic events, or the bell on the
+Calendar. Off until turned on. One switch ("Notify me of events"), then
+**Which events** (Wiladat and Eids / Shahadat and days of mourning / Other
+days, by events.json's colour, all on by default) and **When** (On the day /
+The day before, and a time: 9:00 am, or 8:00 pm for the day before). The
+notification reads "Birth of Imam Ali (a.s.)" over "Today · 13 Rajab"; a tap
+opens the Calendar on that day.
+
+Scheduling (`planEventNotifications`): a fixed budget of pending
+notifications (40 on Android, 8 on iOS, where the Azan gives up those slots
+while events are on), filled with the next two events, then one per Hijri
+month ahead (its first `major` day, else its first day), then the soonest of
+the rest. So the busy months (Rajab, Sha'ban) can't use it all up, and a
+reader who doesn't open the app still hears of at least one event a month.
+Every launch plans again from that day.
+
 ### Tools
 - **Tasbeeh:** segmented Tasbih al-Zahra / Free count; in Zahra mode the
   current phrase in Arabic + transliteration, "12 of 34", three phase bars

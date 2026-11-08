@@ -88,7 +88,13 @@ void main() {
           isTrue,
           reason: entry.key);
       final event = entry.value as Map<String, dynamic>;
-      expect(event.keys.toSet(), {'content', 'color'}, reason: entry.key);
+      // `major` marks a day the event notifications keep when they have to
+      // choose (see planEventNotifications); present only when true.
+      expect(event.keys.toSet().difference({'major'}), {'content', 'color'},
+          reason: entry.key);
+      if (event.containsKey('major')) {
+        expect(event['major'], isTrue, reason: entry.key);
+      }
       expect([0, 1, null], contains(event['color']), reason: entry.key);
       expect(event['content'], isNot(startsWith('Evening')),
           reason: '${entry.key}: night occasions belong on a zikr\'s "N" day');

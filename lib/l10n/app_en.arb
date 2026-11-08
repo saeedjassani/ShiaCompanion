@@ -4397,5 +4397,79 @@
         "example": "Dua Kumayl"
       }
     }
+  },
+  "eventNotificationsTitle": "Islamic events",
+  "@eventNotificationsTitle": {
+    "description": "Title of the page (and Settings row, and Android notification channel) for notifications of the Islamic calendar's events: wiladat, shahadat and other days."
+  },
+  "eventNotificationsSubtitle": "Wiladat, shahadat and the other days of the Islamic calendar",
+  "@eventNotificationsSubtitle": {
+    "description": "Subtitle of the Islamic events notifications page; also the Android notification channel's description."
+  },
+  "eventNotificationsSwitch": "Notify me of events",
+  "@eventNotificationsSwitch": {
+    "description": "The switch that turns notifications of the Islamic calendar's events on."
+  },
+  "eventNotificationsSwitchHint": "Even if you don't open the app for a while, every month still brings at least one",
+  "@eventNotificationsSwitchHint": {
+    "description": "Under the event notifications switch: notifications are spread out so that even someone who rarely opens the app hears of at least one event a month."
+  },
+  "eventKindsLabel": "Which events",
+  "@eventKindsLabel": {
+    "description": "Group label over the kinds of event a reader can be notified of."
+  },
+  "eventKindCelebration": "Wiladat and Eids",
+  "@eventKindCelebration": {
+    "description": "Kind of event to be notified of: births of the Prophet, Imams and their family, and the Eids (the calendar's days of joy)."
+  },
+  "eventKindMourning": "Shahadat and days of mourning",
+  "@eventKindMourning": {
+    "description": "Kind of event to be notified of: martyrdoms, deaths and the calendar's other days of mourning."
+  },
+  "eventKindOther": "Other days",
+  "@eventKindOther": {
+    "description": "Kind of event to be notified of: days that are neither joy nor mourning."
+  },
+  "eventKindOtherHint": "The start of Ramazan, the Nights of Qadr, battles",
+  "@eventKindOtherHint": {
+    "description": "Examples of the 'Other days' kind of event."
+  },
+  "eventKindsNoneChosen": "Choose at least one kind of event",
+  "@eventKindsNoneChosen": {
+    "description": "Shown when event notifications are on but every kind of event is switched off."
+  },
+  "eventTimingLabel": "When",
+  "@eventTimingLabel": {
+    "description": "Group label over when an event's notification goes off: on the day or the day before, and at what time."
+  },
+  "eventTimingOnDay": "On the day",
+  "@eventTimingOnDay": {
+    "description": "Event notifications go off on the day of the event."
+  },
+  "eventTimingDayBefore": "The day before",
+  "@eventTimingDayBefore": {
+    "description": "Event notifications go off the day before the event."
+  },
+  "eventTimingDayBeforeHint": "The Islamic day begins at Maghrib, so its night comes first",
+  "@eventTimingDayBeforeHint": {
+    "description": "Why someone might want to hear of an event the day before."
+  },
+  "eventNotificationsFootnote": "Each time you open the app, every event of the weeks ahead is set. If it stays closed, what is already set is spread over the months ahead, so even the quiet months bring one.",
+  "@eventNotificationsFootnote": {
+    "description": "Footnote on the event notifications page explaining how they are scheduled."
+  },
+  "eventNotificationBody": "{when} · {date}",
+  "@eventNotificationBody": {
+    "description": "Body of an event's notification: when it is and its Hijri date, e.g. 'Today · 13 Rajab'.",
+    "placeholders": {
+      "when": {
+        "type": "String",
+        "example": "Today"
+      },
+      "date": {
+        "type": "String",
+        "example": "13 Rajab"
+      }
+    }
   }
 }

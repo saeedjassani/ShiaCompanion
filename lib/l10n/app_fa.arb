@@ -1340,5 +1340,21 @@
   "playlistDefaultShaban": "شعبان",
   "accountNotSignedIn": "وارد حساب نشده‌اید.",
   "appShortcutContinueReading": "ادامهٔ خواندن",
-  "appShortcutContinueItem": "ادامهٔ {title}"
+  "appShortcutContinueItem": "ادامهٔ {title}",
+  "eventNotificationsTitle": "مناسبت‌های اسلامی",
+  "eventNotificationsSubtitle": "ولادت‌ها، شهادت‌ها و دیگر مناسبت‌های تقویم اسلامی",
+  "eventNotificationsSwitch": "مناسبت‌ها را به من اطلاع بده",
+  "eventNotificationsSwitchHint": "حتی اگر مدتی برنامه را باز نکنید، هر ماه دست‌کم یک اعلان دریافت می‌کنید",
+  "eventKindsLabel": "کدام مناسبت‌ها",
+  "eventKindCelebration": "ولادت‌ها و اعیاد",
+  "eventKindMourning": "شهادت‌ها و ایام سوگواری",
+  "eventKindOther": "دیگر مناسبت‌ها",
+  "eventKindOtherHint": "آغاز ماه رمضان، شب‌های قدر، جنگ‌ها",
+  "eventKindsNoneChosen": "دست‌کم یک نوع مناسبت را انتخاب کنید",
+  "eventTimingLabel": "چه زمانی",
+  "eventTimingOnDay": "در همان روز",
+  "eventTimingDayBefore": "یک روز قبل",
+  "eventTimingDayBeforeHint": "روز اسلامی از مغرب آغاز می‌شود، پس شبش زودتر می‌آید",
+  "eventNotificationsFootnote": "هر بار که برنامه را باز می‌کنید، اعلان همهٔ مناسبت‌های هفته‌های پیش رو تنظیم می‌شود. اگر برنامه بسته بماند، اعلان‌ها در ماه‌های پیش رو پخش شده‌اند تا ماه‌های کم‌مناسبت هم بی‌اعلان نمانند.",
+  "eventNotificationBody": "{when} · {date}"
 }
