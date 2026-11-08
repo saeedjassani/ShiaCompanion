@@ -422,23 +422,35 @@ The list as found in session 1:
   per site. Full suite passed (2116 tests).
 - The audit, the missing-ziyarat list and the corpus problems are above.
 
-**Next (session 2):**
+**Session 2 (2026-11-08), in progress:**
 
-1. Phase 2, owner review: the owner reads the guide on a device as an
-   admin (All features -> Ziyarat Guide) and checks facts, burials, tips.
-   Ask them for their decisions on "Corpus problems found" (G82's title,
-   AE15/G78, AJ2's title, the stray lines) and apply them with the
-   `zikr-structure` skill.
+- Step 1 done: the owner's corpus decisions are applied (see "Corpus
+  problems found" for what each became and what is still open). The owner
+  has not yet reviewed the guide's facts on a device.
+- Shrine plans (the owner asked for maps a pilgrim can tap: "click on a
+  gate or a shrine ... and that opens the respective ziyarat"): built and
+  pushed - see "Shrine plans". Karbala is done (`karbala_haramayn`).
+  Five opus agents are curating Najaf/Kufa/Sahla, Kazimayn/Samarra,
+  Mashhad/Qom, Damascus and Madinah plans in worktrees; their commits are
+  to be reviewed (look at the PNGs from `plan_shots_test.dart`) and
+  cherry-picked. Any plan not merged is still on the "To do" list there.
+
+**Next:**
+
+1. Merge the region plans still outstanding; the owner looks at a few
+   plans on a device (pinch, tap, "show where I am" on site).
 2. Phase 3, restore missing ziyarats, biggest first: Imam Reza (AE3-AE8),
    the Baqi Imams (AP8, AP9, AP11), Hamzah/Uhud (AQ1, AQ2, AQ4), the Four
    Deputies (AM3), Abd al-Azim (AE17), Lady Khadijah. Follow
    `scripts/RESTORING_MISSING_ZIKRS.md`'s per-batch workflow and check each
    with `source_check.py`; then link each new uid from its site in
-   `assets/ziyarat_guide.json` (the test checks the links).
+   `assets/ziyarat_guide.json` (the test checks the links), and from the
+   plan feature it is recited at (a zarih, a tomb).
 3. Phase 4, translations: one opus/high agent per language (ur, fa, ar,
    gu) writes `assets/ziyarat_guide_i18n/<code>.json` for every key the
-   test's `sourceKeys()` lists (names, about, tips, notes, labels), using
-   the wording the app's ARB files and zikr titles already use.
+   test's `sourceKeys()` lists (names, about, tips, notes, labels, and the
+   plans' `plan.<id>.<feature>.*` keys), using the wording the app's ARB
+   files and zikr titles already use.
 4. Phase 5: point the Ziyarats list's `G0~B` row at the guide, ungate
    `ziyaratGuideMenuItem` (move it into `homeMenuItems` after Ziyarats,
    update `test/widget_test.dart`), What's New note, ship.
