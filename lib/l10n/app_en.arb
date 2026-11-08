@@ -4450,11 +4450,11 @@
   },
   "eventNotificationBody": "{when} · {date}",
   "@eventNotificationBody": {
-    "description": "Body of an event's notification: when it is and its Hijri date, e.g. 'Today · 13 Rajab'.",
+    "description": "Body of an event's notification: when it is (always 'Tonight': it comes at Maghrib on the eve) and its Hijri date, e.g. 'Tonight · 13 Rajab'.",
     "placeholders": {
       "when": {
         "type": "String",
-        "example": "Today"
+        "example": "Tonight"
       },
       "date": {
         "type": "String",
