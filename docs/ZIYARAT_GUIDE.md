@@ -427,14 +427,14 @@ see `scripts/RESTORING_MISSING_ZIKRS.md`); URLs hold a text to check against.
   biography in its merits, and linked); farewell to Lady Masuma (AE14 was prose only); descendants of the Imams in
   general G28 (prose only, would serve Rey and Shiraz).
 - **Madinah**, all on https://www.duas.org/mobile/madina-mecca-rites.html:
-  the four Baqi Imams AP8 (https://www.duas.org/ziaratbaqi.htm), farewell to
-  them AP9, farewell to the Prophet AP13, Ibrahim son of the Prophet AP11,
-  Fatimah bint Asad AQ1, acts in
-  Madinah's mosques AP12, ziyarat of the Prophet from a distance AP5/AP6;
-  no uid: Abbas ibn Abd al-Muttalib, Aqil and Abdullah ibn Ja'far, the
-  Prophet's wives, daughters and aunts, Isma'il ibn Ja'far, Halimah.
-  (Hamzah and the martyrs of Uhud are restored: AQ2, with AQ3/AQ4 retired
-  into it.)
+  acts in Madinah's mosques AP12, ziyarat of the Prophet from a distance
+  AP5/AP6; no uid: Abbas ibn Abd al-Muttalib, Aqil and Abdullah ibn
+  Ja'far, the Prophet's wives, daughters and aunts, Isma'il ibn Ja'far,
+  Halimah (duas.org's ziaratbaqi.htm has texts for the first three).
+  Restored: al-Baqi as AP8's tabs (the four Imams, their farewell,
+  Ibrahim, Fatimah bint Asad; AP9/AP11/AQ1 redirect there), the farewell
+  to the Prophet as AP2's second tab (AP13 redirects there), and Hamzah
+  and the martyrs of Uhud as AQ2 (AQ3/AQ4 retired into it).
 - **Makkah (no uid):** Abd Manaf, Qasim (both on madina-mecca-rites.html).
   Lady Khadijah is restored as AQ5.
 - **Baghdad:** (the Four Deputies AM3 is restored, AM2 retired into it,
