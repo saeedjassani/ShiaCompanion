@@ -1079,11 +1079,23 @@
   },
   "AP2": {
     "title": "Method of Ziyarat of the Holy Prophet (s.a.w.a.) in Madinah",
-    "slug": "method-of-ziyarah-of-holy-prophet-s-in-madinah"
+    "slug": "method-of-ziyarah-of-holy-prophet-s-in-madinah",
+    "slugAliases": [
+      "bidding-farewell-wida-to-the-holy-prophet-s"
+    ]
   },
   "AP4": {
     "title": "Ziyarat of Lady Fatimah al-Zahra (s.a.)",
     "slug": "ziyarah-of-lady-fatimah-al-zahra"
+  },
+  "AP8": {
+    "title": "Ziyarat of the Imams of al-Baqi (a.s.)",
+    "slug": "ziyarah-of-the-imams-in-al-baqi-al-hasan-al-mujtaba-ali-zayn-al-abidin-muhammad-al-baqir-and-jafar-al-sadiq",
+    "slugAliases": [
+      "bidding-farewell-to-the-imams-in-al-baqi",
+      "ziyarah-of-ibrahim-son-of-the-holy-prophet-s",
+      "visiting-the-tomb-of-lady-fatimah-bint-asad-imam-ali-s-mother"
+    ]
   },
   "AS1": {
     "title": "Dua No. 1",

@@ -69,6 +69,12 @@
                 {
                   "uid": "E3",
                   "note": "After the ziyarat."
+                },
+                {
+                  "uid": "AP2",
+                  "tab": 2,
+                  "label": "Farewell to the Holy Prophet (s.a.w.a.)",
+                  "note": "Before leaving Madinah."
                 }
               ],
               "buried": [
@@ -120,6 +126,11 @@
                   "note": "On entering the cemetery."
                 },
                 {
+                  "uid": "AP8",
+                  "tab": 1,
+                  "label": "Ziyarat of the Four Imams (a.s.)"
+                },
+                {
                   "uid": "G53"
                 },
                 {
@@ -132,6 +143,16 @@
                   "uid": "G66"
                 },
                 {
+                  "uid": "AP8",
+                  "tab": 3,
+                  "label": "Ziyarat of Ibrahim, Son of the Prophet (s.a.w.a.)"
+                },
+                {
+                  "uid": "AP8",
+                  "tab": 4,
+                  "label": "Ziyarat of Lady Fatimah bint Asad (s.a.)"
+                },
+                {
                   "uid": "G52",
                   "note": "Al-Baqi is one of the places where she is said to be buried."
                 },
@@ -141,6 +162,12 @@
                 {
                   "uid": "E3",
                   "note": "After the ziyarat of the Imams (a.s.)."
+                },
+                {
+                  "uid": "AP8",
+                  "tab": 2,
+                  "label": "Farewell to the Four Imams (a.s.)",
+                  "note": "When leaving al-Baqi."
                 }
               ],
               "buried": [
@@ -375,6 +402,12 @@
                     {
                       "uid": "E3",
                       "note": "After the ziyarat."
+                    },
+                    {
+                      "uid": "AP2",
+                      "tab": 2,
+                      "label": "Farewell to the Holy Prophet (s.a.w.a.)",
+                      "note": "Before leaving Madinah."
                     }
                   ],
                   "location": [
@@ -534,6 +567,11 @@
                   "note": "Imam Hasan, Imam Zayn al-Abidin, Imam al-Baqir and Imam al-Sadiq (a.s.) lie together inside this low octagonal wall, with Abbas ibn Abd al-Muttalib; their dome stood here until 1926.",
                   "ziyarat": [
                     {
+                      "uid": "AP8",
+                      "tab": 1,
+                      "label": "Ziyarat of the Four Imams (a.s.)"
+                    },
+                    {
                       "uid": "G53"
                     },
                     {
@@ -548,6 +586,12 @@
                     {
                       "uid": "E3",
                       "note": "After the ziyarat of the Imams (a.s.)."
+                    },
+                    {
+                      "uid": "AP8",
+                      "tab": 2,
+                      "label": "Farewell to the Four Imams (a.s.)",
+                      "note": "When leaving al-Baqi."
                     }
                   ]
                 },

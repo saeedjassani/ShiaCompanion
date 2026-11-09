@@ -412,4 +412,15 @@ const Map<String, RetiredZikrRedirect> retiredZikrRedirects = {
 
   /// Ziyarat of Salman al-Farsi: the first ten lines of AJ2's ziyarat.
   'G63': RetiredZikrRedirect('AJ2'),
+
+  /// Al-Baqi is one tabbed entry, AP8 (the four Imams' ziyarat first): these
+  /// three were never restored on their own. Their historic text, checked
+  /// against duas.org's ziaratbaqi page, is AP8's tabs.
+  'AP9': RetiredZikrRedirect('AP8', tabIndex: 0), // farewell to the Imams
+  'AP11': RetiredZikrRedirect('AP8', tabIndex: 1), // Ibrahim, son of the Prophet
+  'AQ1': RetiredZikrRedirect('AP8', tabIndex: 2), // Fatimah bint Asad
+
+  /// The farewell to the Holy Prophet (s.a.w.a.) is the second tab of his
+  /// ziyarat in Madinah, AP2.
+  'AP13': RetiredZikrRedirect('AP2', tabIndex: 0),
 };
