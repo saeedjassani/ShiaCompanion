@@ -640,14 +640,45 @@ The list as found in session 1:
   `python3 -I scripts/ziyarat_maps/guide_keys.py [check <code>]` dumps the
   keys / checks an overlay.
 
+**Session 4 (2026-11-09):**
+
+- Phase 4's overlays done: all four have every key, and each was read
+  in full by an independent reviewer (opus, a fresh agent per language)
+  against the English, together with the PR's 39 ARB keys. Their fixes
+  are in the "apply the independent ... review" commits; besides wording
+  they restored a link every language had dropped (`[his
+  ziyarat](AJ2)`), brought the overlays in line with English edits
+  (martyred, not died), and found three English slips (the Mukhayyam is
+  south-west of the shrine, Bayn al-Haramayn no longer "open", Sukayna's
+  tomb "twelfth century CE").
+- AP2's farewell tab: its two instruction lines translated and reviewed
+  in all four languages (its Arabic lines stay untranslated, as the rest
+  of AP2's do: verses need a published source, `scripts/zikr_i18n/SOURCES.md`).
+- Tab labels and instruction lines of AE3, AP8, AQ2, AQ5, AM3 and AE17,
+  and the ur/fa/ar/gu titles of AM3 and AE17, translated (see the commit);
+  their merits and verses are not.
+
+**For the owner (translations):**
+
+- Persian: Salman al-Farsi's honorific. The guide and AJ2's Persian title
+  use (رض); a reviewer notes Iranian Shia texts usually write (ره) or
+  «حضرت سلمان», and (رض) can read as Sunni usage. Urdu keeps (رض) as the
+  corpus does.
+- Gujarati: `site.bab_al_saghir_cemetery.buried.fiddah.name` is "જનાબે
+  ફિઝ્ઝા" where the English is plain "Fiddah" (keep, or drop જનાબે); and
+  the guide spells the month મોહર્રમ, as most of the zikr corpus does,
+  while `app_gu.arb`'s month names use મુહર્રમ.
+- Urdu: the Jamkaran tahiyyat label reads `تحیۃ المسجد` while tips say
+  `نماز تحیت مسجد`; left as it is.
+
 **Next:**
 
 1. The owner tries the plans and the restored ziyarats on a device as an
    admin, and reviews the flagged lines above.
-2. Phase 4: finish and review the four overlays (any key added to the
-   guide after them needs translating in all four: `guide_keys.py check`).
-   Translate the new zikr entries' tab labels and instruction lines
-   (`assets/zikr_i18n/<code>/`, segment-keyed; see `docs/TRANSLATIONS.md`).
+2. Phase 4 is done but for merits (any key added to the guide later
+   needs translating in all four: `guide_keys.py check`; any entry
+   restored later needs its labels and instructions translated in
+   `assets/zikr_i18n/<code>/`, segment-keyed; see `docs/TRANSLATIONS.md`).
 3. Phase 3, what is left in "Missing ziyarats" (Samarra, Kazimayn,
    Mada'in, Karbala, Najaf occasions, Madinah's mosques and other graves).
 4. Phase 5: point the Ziyarats list's `G0~B` row at the guide, ungate
