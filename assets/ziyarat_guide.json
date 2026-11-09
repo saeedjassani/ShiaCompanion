@@ -3746,7 +3746,30 @@
               "about": "The tomb of Imam Ali ibn Musa al-Reza (a.s.), the eighth Imam, who was summoned to Khurasan by the Abbasid caliph al-Ma'mun, named his heir, and martyred by poison in 203 AH. The golden-domed tomb chamber stands at the heart of a complex of porticoes (riwaqs) and courtyards that has grown over more than a thousand years. Imam al-Jawad (a.s.) taught the ziyarat known as al-Jawadiyya for his father, and by narration a visit to him is counted among the greatest of acts.",
               "ziyarat": [
                 {
-                  "uid": "B6"
+                  "uid": "AE3",
+                  "tab": 1,
+                  "label": "Permission to enter (Izn)"
+                },
+                {
+                  "uid": "AE3",
+                  "tab": 2,
+                  "label": "First Ziyarat of Imam Reza (a.s.)",
+                  "note": "The best-known ziyarat, from Shaykh al-Saduq."
+                },
+                {
+                  "uid": "AE3",
+                  "tab": 3,
+                  "label": "Dua after the ziyarat prayer"
+                },
+                {
+                  "uid": "AE3",
+                  "tab": 4,
+                  "label": "Ziyarat al-Jawadiyya"
+                },
+                {
+                  "uid": "AE3",
+                  "tab": 5,
+                  "label": "Other forms (Ibn Qulawayh, al-Mufid)"
                 },
                 {
                   "uid": "G68",
@@ -3767,6 +3790,12 @@
                 {
                   "uid": "G13",
                   "note": "Can be recited at the shrine of any of the Imams (a.s.)."
+                },
+                {
+                  "uid": "AE3",
+                  "tab": 6,
+                  "label": "Farewell to Imam Reza (a.s.)",
+                  "note": "When leaving the shrine."
                 },
                 {
                   "uid": "G26",
@@ -3895,6 +3924,22 @@
                   "site": "imam_reza_shrine",
                   "ziyarat": [
                     {
+                      "uid": "AE3",
+                      "tab": 2,
+                      "label": "First Ziyarat of Imam Reza (a.s.)",
+                      "note": "The best-known ziyarat, from Shaykh al-Saduq."
+                    },
+                    {
+                      "uid": "AE3",
+                      "tab": 4,
+                      "label": "Ziyarat al-Jawadiyya"
+                    },
+                    {
+                      "uid": "AE3",
+                      "tab": 3,
+                      "label": "Dua after the ziyarat prayer"
+                    },
+                    {
                       "uid": "G68"
                     },
                     {
@@ -3904,6 +3949,12 @@
                     },
                     {
                       "uid": "E136"
+                    },
+                    {
+                      "uid": "AE3",
+                      "tab": 6,
+                      "label": "Farewell to Imam Reza (a.s.)",
+                      "note": "When leaving the shrine."
                     }
                   ],
                   "location": [
@@ -4093,7 +4144,9 @@
                   "site": "imam_reza_shrine",
                   "ziyarat": [
                     {
-                      "uid": "B6"
+                      "uid": "AE3",
+                      "tab": 1,
+                      "label": "Permission to enter (Izn)"
                     }
                   ],
                   "location": [
@@ -4110,7 +4163,9 @@
                   "site": "imam_reza_shrine",
                   "ziyarat": [
                     {
-                      "uid": "B6"
+                      "uid": "AE3",
+                      "tab": 1,
+                      "label": "Permission to enter (Izn)"
                     }
                   ],
                   "location": [
@@ -4128,7 +4183,9 @@
                   "note": "Also called the upper bast (Bast-e Bala).",
                   "ziyarat": [
                     {
-                      "uid": "B6"
+                      "uid": "AE3",
+                      "tab": 1,
+                      "label": "Permission to enter (Izn)"
                     }
                   ],
                   "location": [
@@ -4145,7 +4202,9 @@
                   "site": "imam_reza_shrine",
                   "ziyarat": [
                     {
-                      "uid": "B6"
+                      "uid": "AE3",
+                      "tab": 1,
+                      "label": "Permission to enter (Izn)"
                     }
                   ],
                   "location": [
@@ -4162,7 +4221,9 @@
                   "site": "imam_reza_shrine",
                   "ziyarat": [
                     {
-                      "uid": "B6"
+                      "uid": "AE3",
+                      "tab": 1,
+                      "label": "Permission to enter (Izn)"
                     }
                   ],
                   "location": [

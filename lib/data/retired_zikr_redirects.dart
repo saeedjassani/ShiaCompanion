@@ -412,4 +412,15 @@ const Map<String, RetiredZikrRedirect> retiredZikrRedirects = {
 
   /// Ziyarat of Salman al-Farsi: the first ten lines of AJ2's ziyarat.
   'G63': RetiredZikrRedirect('AJ2'),
+
+  /// Imam al-Reza (a.s.), Mashhad: Mafatih's chapter was one uid per page
+  /// (AE3-AE8). AE3 is now the whole chapter as one tabbed entry - permission
+  /// to enter (main part), the first ziyarat (tab 0), the dua after its
+  /// prayer (1), al-Jawadiyya (2), Ibn Qulawayh's and al-Mufid's forms (3),
+  /// the farewell (4) - so the other five open their own tab of it.
+  'AE4': RetiredZikrRedirect('AE3', tabIndex: 1),
+  'AE5': RetiredZikrRedirect('AE3', tabIndex: 2),
+  'AE6': RetiredZikrRedirect('AE3', tabIndex: 3),
+  'AE7': RetiredZikrRedirect('AE3', tabIndex: 3),
+  'AE8': RetiredZikrRedirect('AE3', tabIndex: 4),
 };
