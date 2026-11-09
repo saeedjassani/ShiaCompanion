@@ -668,8 +668,9 @@ The list as found in session 1:
   2026-11-09), in the guide and AJ2's Persian title. Urdu keeps (رض) as
   the corpus does.
 - Gujarati: Fiddah stays "જનાબે ફિઝ્ઝા" (the owner's call, 2026-11-09).
-  Open: the guide spells the month મોહર્રમ, as most of the zikr corpus does,
-  while `app_gu.arb`'s month names use મુહર્રમ.
+  Muharram is મોહર્રમ everywhere, as the community's own texts write it
+  (the owner: "whichever is widely used"); the app's month names, the
+  events overlay and four zikr titles followed.
 - Urdu: the Jamkaran tahiyyat label reads `تحیۃ المسجد` while tips say
   `نماز تحیت مسجد`; left as it is.
 
