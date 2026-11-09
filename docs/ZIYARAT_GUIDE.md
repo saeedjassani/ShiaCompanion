@@ -483,6 +483,22 @@ The list as found in session 1:
   with 10 plans over Iraq, Iran, Syria and Madinah - see "Shrine plans",
   including what the owner should confirm before shipping.
 
+**Session 3 (2026-11-08/09), in progress:**
+
+- Done: the owner's answers (see "Shrine plans" and "Corpus problems
+  found"); site page's Directions/Compass moved into the app bar and the
+  plan card reduced to a row.
+- Running as agents in worktrees (merge each branch, then run
+  `source_check.py . baseline` once, recount
+  `scripts/unfavorited_missing_zikrs.json`, full `flutter test`): phase 3
+  batches Imam Reza (AE3 tabbed, AE4-AE8 retired into it), al-Baqi (AP8
+  tabbed with AP9/AP11/AQ1; AP13), Uhud (AQ2 tabbed, AQ3/AQ4) and Lady
+  Khadijah (new uid), the Four Deputies (AM3, AM2) and Abd al-Azim (AE17);
+  Najaf's plan completed (gates incl. Bab al-Rida, Sahn Fatimah al-Zahra,
+  the scholars buried there); the other plan checks (Qom Gate N, Samarra
+  Sardab, Kufa, al-Baqi burials, Mashhad names). If a session stops
+  before merging, redo whatever batch has no commit on this branch.
+
 **Next:**
 
 1. The owner tries the plans on a device as an admin (pinch, tap a gate
