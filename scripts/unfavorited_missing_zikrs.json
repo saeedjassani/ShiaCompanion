@@ -4,10 +4,10 @@
  "counts": {
   "total": 209,
   "menuCategory": 7,
-  "retired": 52,
-  "restored": 26,
-  "toRestoreHasArabic": 70,
-  "toRestoreProseOnly": 54
+  "retired": 57,
+  "restored": 27,
+  "toRestoreHasArabic": 65,
+  "toRestoreProseOnly": 53
  },
  "uids": [
   {
@@ -91,37 +91,37 @@
   {
    "uid": "AE3",
    "title": "Method of Visiting Imam Al Reza",
-   "kind": "has-arabic",
+   "kind": "restored",
    "itemsBytes": 25344
   },
   {
    "uid": "AE4",
    "title": "Dua after Ziyarah of Imam Al Reza's tomb",
-   "kind": "has-arabic",
+   "kind": "retired",
    "itemsBytes": 10191
   },
   {
    "uid": "AE5",
    "title": "Al Ziyarah al Jawadiyyah",
-   "kind": "prose-only",
+   "kind": "retired",
    "itemsBytes": 1624
   },
   {
    "uid": "AE6",
    "title": "Another Ziyarah of Imam al Rida",
-   "kind": "has-arabic",
+   "kind": "retired",
    "itemsBytes": 1277
   },
   {
    "uid": "AE7",
    "title": "Another Ziyarah of Imam al Rida",
-   "kind": "has-arabic",
+   "kind": "retired",
    "itemsBytes": 4057
   },
   {
    "uid": "AE8",
    "title": "Bidding Farewell To Imam Al Reza",
-   "kind": "has-arabic",
+   "kind": "retired",
    "itemsBytes": 1800
   },
   {
