@@ -240,13 +240,14 @@ Two parts:
   feature per site, the asset exists); `test/ui/shrine_plan_test.dart`
   renders the Karbala plan at three sizes and taps through it.
 
-**Plans so far (10, 129 features):** `karbala_haramayn` (41: Imam
+**Plans so far (10, 151 features):** `karbala_haramayn` (41: Imam
 Husayn, Hazrat Abbas, Bayn al-Haramayn, Tall al-Zaynabiyya, al-Mukhayyam),
 `najaf_haram` (11: the five courtyard gates, the tombs of Allamah
 al-Hilli and Muqaddas Ardabili, Sahn Fatimah al-Zahra), `kufa_mosque` (17: nine maqams linked to their AI3/AI4/
 AI5/AI11 tabs, Muslim, Hani, al-Mukhtar), `sahla_mosque` (3),
 `kazimayn_haram` (7), `samarra_haram` (2: the zarih and the Sardab),
-`mashhad_haram` (20, mostly courtyards and basts), `qom_haram` (10),
+`mashhad_haram` (20, mostly courtyards and basts), `qom_haram` (32: 22 of them the
+shrine's numbered gates),
 `damascus_old_city` (7: Lady Ruqayya, Ras al-Husayn, the Umayyad Mosque's
 gates), `madinah_haram` (11: the Prophet's tomb, Rawdah, gates, al-Baqi's
 gate and the Imams' graves). Plans use `layers` where OSM tags a dome
@@ -273,11 +274,11 @@ map preview to shrink to a row (done).
   Confirm or replace (e.g. by mapping them in OSM first). Typed, not from
   OSM, too: `madinah_haram.house_of_fatimah` and
   `damascus_old_city.ras_al_husayn` (from descriptions, a few metres out).
-- Al-Baqi's other graves (Fatimah
-  bint Asad, Umm al-Banin, the aunts, Ibrahim...) are left out: sources
-  disagree on where they lie.
-- Samarra: the Sardab marker is on an unnamed tiled dome west-north-west
-  of the shrine, inside an OSM polygon tagged as the Great Mosque.
+- Al-Baqi's other graves (Fatimah bint Asad, Umm al-Banin, the aunts,
+  Ibrahim...) stay off the plan: no current plan of the cemetery places
+  them, and the one old description (Ibn Battuta's, quoted on duas.org)
+  goes by a gate that has since moved. They are `buried` entries of
+  `jannat_al_baqi`, each noting that its exact spot is not marked today.
 - Najaf (reworked 2026-11-09 after the owner's device check; see "Najaf:
   what the shrine's own sources say" below): Bab Muslim ibn Aqil is OSM's
   node, 5 m north of Bab al-Sa'a's. The direction is right (the shrine's
@@ -286,15 +287,48 @@ map preview to shrink to a row (done).
   under Bab al-Sa'a's until zoomed right in. Sahn Fatimah is OSM's unnamed
   courtyard building west of the shrine (r14118576, tagged name:fa "صحن
   حضرت زهرا" in 2023, reverted only because the name was Persian).
-- Kufa: the gates link AI3 tab 1 (entering the mosque), not B6; Mafatih's
-  column numbers for Ibrahim/Adam disagree with the mosque's own site, the
-  plan follows the markers on the ground; AI3 tab 7 ("Station of Prophet
-  Nuh") also holds the Seat of Amir al-Mu'minin's acts.
-- Qom: OSM numbers 23 gates "درب ۱"-"درب ۲۴"; if that is the shrine's own
-  numbering they can be added as "Gate N" with B6.
-- Mashhad: English names of courtyards and basts (Enqelab, Jomhouri
-  Islami, Kawthar, Navvab Safavi, Naqqara Khana) are common spellings, not
-  checked against razavi.ir (unreachable from a cloud session).
+
+**Checked 2026-11-09** (sites in Iran - razavi.ir, news.razavi.ir,
+amfm.ir, WikiShia - and web.archive.org's copies of them refuse a cloud
+session; what they say came from search snippets only):
+
+- Qom: the shrine numbers its gates 1-24 itself: a guide (lastsecond.ir)
+  puts gates 1-11 on Eram Street, 12-16 on Shabestan Street and 17-24 on
+  the Arak side, which is where OSM has them, and the shrine's virtual
+  tour (snippet) names gate 24 Bab al-Jawad. OSM has 22 of them (no 16,
+  no 20), added as "Gate N" (`arabicName` "درب N") with B6. Their names
+  (Bab al-Jawad, Bab al-Karama, Bab al-Kawthar, Bab al-Shifa...) are not
+  added: no two sources tie a name to a number (gate 24 is Bab al-Jawad in
+  the virtual tour, but another guide calls the entrance of Sahn Jawad
+  al-A'imma Bab al-Karama).
+- Samarra: the Sardab marker is right. The tiled dome west-north-west of
+  the zarih is Masjid al-Sahib, built over the cellar and long used by
+  Samarra's Sunni community for Friday prayer (Arabic Wikipedia, العتبة
+  العسكرية), which is why OSM tags its polygon as the Great Mosque;
+  WikiShia (snippet) puts the Sardab north-west of the tomb, about 15 m
+  from the shrine building.
+- Kufa: AI3 tab 1 is the text for entering the mosque (stop at the gate,
+  enter by Bab al-Fil), so the gates keep it. The mosque's own site
+  (masjed-alkufa.com) puts Ibrahim at the seventh column toward the Kinda
+  gates, after Imam al-Sadiq (a.s.), where AI3 (Mafatih) says the fourth;
+  for Adam (seventh) and Jibra'il (fifth) both agree. The plan follows the
+  markers on the ground and says so on Ibrahim's. The mosque's site gives
+  at the Station of Nuh, beside Amir al-Mu'minin's minbar, the same
+  prayers AI3 tab 7 gives for his Seat, so Nuh's marker keeps tab 7.
+- Mashhad: the shrine's English news (snippets) writes Enqelab, Ghadir,
+  Kowsar and Quds Courtyard: Kawthar and Qods became Kowsar and Quds.
+  Jomhouri Islami, Azadi, Navvab Safavi and Naqqara Khana are unchecked.
+  Sahn Hidayat and Sahn Imam Khomeini are not in OSM, so not on the plan
+  (one source says the latter is now roofed as Riwaq Imam Khomeini, which
+  OSM has south of the tomb; another puts that riwaq north-west). Shaykh
+  Baha'i's tomb "opening off Sahn Azadi" was dropped: sources disagree.
+- Missing but not added (no OSM feature, or no second source): in Qom the
+  tombs of Allamah Tabatabai, Ayatollah Bahjat and Shaykh Abd al-Karim
+  Ha'iri (OSM has Borujerdi's only) and Ali ibn Babawayh (an OSM "ruins"
+  node); in Mashhad Shaykh Baha'i's and al-Hurr al-Amili's tombs, the
+  Steel Window and the Saqqakhana; in Samarra the shrine's gates (OSM names
+  none); in Kufa Safinat Nuh and Dar al-Imara (OSM has both) and Maqam
+  al-Khizr as a marker of its own; in Madinah Bayt al-Ahzan.
 
 **To grow a plan**, or add one: fetch, print candidates with
 `--candidates`, pick and name the features (verify names on the shrine's
@@ -528,6 +562,9 @@ The list as found in session 1:
   gate or a shrine ... and that opens the respective ziyarat"): built,
   with 10 plans over Iraq, Iran, Syria and Madinah - see "Shrine plans",
   including what the owner should confirm before shipping.
+- Plans checked against sources (2026-11-09): Qom's 22 numbered gates
+  added; the Sardab, Kufa's maqams and al-Baqi's burials confirmed or
+  qualified; two Mashhad spellings changed. See "Checked 2026-11-09".
 
 **Session 3 (2026-11-08/09), in progress:**
 
