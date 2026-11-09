@@ -1368,7 +1368,7 @@
   "ziyaratGuideMapRecenter": "પાછા રોઝા પર",
   "ziyaratGuideMapNoLocation": "તમારું સ્થાન ઉપલબ્ધ નથી.",
   "ziyaratGuideMapAway": "તમે અહીંથી {distance} દૂર છો.",
-  "ziyaratGuideMapFromYou": "તમારાથી {distance}",
+  "ziyaratGuideMapFromYou": "તમારાથી {distance} દૂર",
   "ziyaratGuideMapYou": "તમે અહીં છો",
   "ziyaratGuideMapMetres": "{metres} મી",
   "ziyaratGuideMapSide": "{side, select, n{ઉત્તર બાજુ} ne{ઉત્તર-પૂર્વ બાજુ} e{પૂર્વ બાજુ} se{દક્ષિણ-પૂર્વ બાજુ} s{દક્ષિણ બાજુ} sw{દક્ષિણ-પશ્ચિમ બાજુ} w{પશ્ચિમ બાજુ} nw{ઉત્તર-પશ્ચિમ બાજુ} other{}}",

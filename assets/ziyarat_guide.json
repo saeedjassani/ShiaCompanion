@@ -1966,12 +1966,12 @@
           "id": "karbala",
           "name": "Karbala",
           "arabicName": "كربلاء المقدسة",
-          "about": "Karbala is where Imam Husayn (a.s.), his family and companions were martyred on Ashura, 10 Muharram 61 AH, and where they are buried. Its two golden shrines, of Imam Husayn (a.s.) and of his brother Hazrat Abbas (a.s.), face each other across the open walkway of Bayn al-Haramayn. The Imams urged their followers never to abandon this ziyarat, and it is made on foot from all over Iraq for Arbaeen.",
+          "about": "Karbala is where Imam Husayn (a.s.), his family and companions were martyred on Ashura, 10 Muharram 61 AH, and where they are buried. Its two golden shrines, of Imam Husayn (a.s.) and of his brother Hazrat Abbas (a.s.), face each other across the walkway of Bayn al-Haramayn. The Imams urged their followers never to abandon this ziyarat, and it is made on foot from all over Iraq for Arbaeen.",
           "tips": [
             "Most pilgrims stay within walking distance of Bayn al-Haramayn and move between the two shrines on foot.",
             "The largest gatherings are on Ashura (10 Muharram) and Arbaeen (20 Safar), when millions arrive and the area around the shrines is packed for days; 15 Sha'ban, the Day of Arafah (9 Dhul Hijjah) and Thursday nights are also very full.",
             "The ziyarats of Imam Husayn (a.s.) are recited without perfume, in a state of grief, after ghusl; the etiquettes are in [Etiquettes of the Journey to Imam Husayn (a.s.)](AG2).",
-            "The Mukhayyam (camp) and Tall al-Zaynabiyya are a few minutes' walk west of Imam Husayn (a.s.)'s shrine; the shrine of al-Hurr al-Riyahi is a short drive west of the city."
+            "The Mukhayyam (camp) and Tall al-Zaynabiyya are a few minutes' walk south-west of Imam Husayn (a.s.)'s shrine; the shrine of al-Hurr al-Riyahi is a short drive west of the city."
           ],
           "sites": [
             {
@@ -5474,7 +5474,7 @@
                   "id": "sukayna_bint_al_husayn",
                   "name": "Lady Sukayna bint al-Husayn (s.a.)",
                   "arabicName": "سكينة بنت الحسين",
-                  "note": "Daughter of Imam Husayn (a.s.); a tomb dedicated to her is mentioned here from the twelfth century, though she is generally held to have died in Madinah."
+                  "note": "Daughter of Imam Husayn (a.s.); a tomb dedicated to her is mentioned here from the twelfth century CE, though she is generally held to have died in Madinah."
                 },
                 {
                   "id": "maymunah_bint_al_hasan",
