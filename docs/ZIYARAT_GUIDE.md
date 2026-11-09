@@ -128,7 +128,9 @@ Rules:
 ## Translations: `assets/ziyarat_guide_i18n/<code>.json`
 
 Flat `{ "<key>": "<text>" }` per language (ur, fa, ar, gu), keyed by ids,
-never by English text:
+never by English text (`python3 -I scripts/ziyarat_maps/guide_keys.py`
+prints every key with its English; `... check <code>` lists an overlay's
+missing and stale keys):
 
 | key | text |
 | --- | --- |
@@ -570,39 +572,44 @@ The list as found in session 1:
   added; the Sardab, Kufa's maqams and al-Baqi's burials confirmed or
   qualified; two Mashhad spellings changed. See "Checked 2026-11-09".
 
-**Session 3 (2026-11-08/09), in progress:**
+**Session 3 (2026-11-08/09):**
 
-- Done: the owner's answers (see "Shrine plans" and "Corpus problems
-  found"); site page's Directions/Compass moved into the app bar and the
-  plan card reduced to a row.
-- Running as agents in worktrees (merge each branch, then run
-  `source_check.py . baseline` once, recount
-  `scripts/unfavorited_missing_zikrs.json`, full `flutter test`): phase 3
-  batches Imam Reza (AE3 tabbed, AE4-AE8 retired into it), al-Baqi (AP8
-  tabbed with AP9/AP11/AQ1; AP13), Uhud (AQ2 tabbed, AQ3/AQ4) and Lady
-  Khadijah (new uid), the Four Deputies (AM3, AM2) and Abd al-Azim (AE17);
-  Najaf's plan completed (gates incl. Bab al-Rida, Sahn Fatimah al-Zahra,
-  the scholars buried there); the other plan checks (Qom Gate N, Samarra
-  Sardab, Kufa, al-Baqi burials, Mashhad names). If a session stops
-  before merging, redo whatever batch has no commit on this branch.
+- The owner's answers applied (see "Shrine plans" and "Corpus problems
+  found"); the site page's Directions and Compass are app-bar buttons and
+  the plan card is a one-line row.
+- Plans: Najaf completed from the shrine's own sources ("Najaf: what the
+  shrine's own sources say"; Bab al-Sa'a is also Bab al-Rida, so the gate
+  is named "Bab al-Sa'a (Bab al-Rida)"); Qom's 22 numbered gates; the
+  Sardab, Kufa, al-Baqi's burials and Mashhad's names checked ("Checked
+  2026-11-09").
+- Phase 3 done for the listed batches, each checked against online
+  copies, as tabbed shrine entries: **AE3** Imam Reza (izn, first
+  ziyarat, dua after, al-Jawadiyya, other forms, farewell; AE4-AE8
+  retired into it), **AP8** al-Baqi (the four Imams, their farewell,
+  Ibrahim, Fatimah bint Asad; AP9/AP11/AQ1), **AP2** gains the Prophet's
+  farewell (AP13), **AQ2** Hamzah and the martyrs of Uhud (AQ3/AQ4),
+  **AQ5** Lady Khadijah (new uid), **AM3** the Four Deputies (AM2),
+  **AE17** Abd al-Azim (AE16). Each is linked from its site and plan
+  feature; `source_check` baselined; counts recounted. For the owner to
+  review in them (fresh English, Arabic readings chosen between sources,
+  machine-drafted transliteration): see the commit messages of the
+  merged agent branches and "Missing ziyarats". Tab labels, instruction
+  lines and new merits of these entries have no ur/fa/ar/gu yet.
+- Phase 4 started: one opus agent per language writes
+  `assets/ziyarat_guide_i18n/<code>.json` (918 keys);
+  `python3 -I scripts/ziyarat_maps/guide_keys.py [check <code>]` dumps the
+  keys / checks an overlay.
 
 **Next:**
 
-1. The owner tries the plans on a device as an admin (pinch, tap a gate
-   or tomb, open its ziyarat, "show where I am") and answers "For the
-   owner to confirm before shipping" under "Shrine plans".
-2. Phase 3, restore missing ziyarats, biggest first: Imam Reza (AE3-AE8),
-   the Baqi Imams (AP8, AP9, AP11), Fatimah bint Asad (AQ1), the Four
-   Deputies (AM3), Abd al-Azim (AE17) - Uhud (AQ2) and Lady Khadijah (AQ5) are done. Follow
-   `scripts/RESTORING_MISSING_ZIKRS.md`'s per-batch workflow and check each
-   with `source_check.py`; then link each new uid from its site in
-   `assets/ziyarat_guide.json` (the test checks the links), and from the
-   plan feature it is recited at (a zarih, a tomb).
-3. Phase 4, translations: one opus/high agent per language (ur, fa, ar,
-   gu) writes `assets/ziyarat_guide_i18n/<code>.json` for every key the
-   test's `sourceKeys()` lists (names, about, tips, notes, labels, and the
-   plans' `plan.<id>.<feature>.*` keys), using the wording the app's ARB
-   files and zikr titles already use.
+1. The owner tries the plans and the restored ziyarats on a device as an
+   admin, and reviews the flagged lines above.
+2. Phase 4: finish and review the four overlays (any key added to the
+   guide after them needs translating in all four: `guide_keys.py check`).
+   Translate the new zikr entries' tab labels and instruction lines
+   (`assets/zikr_i18n/<code>/`, segment-keyed; see `docs/TRANSLATIONS.md`).
+3. Phase 3, what is left in "Missing ziyarats" (Samarra, Kazimayn,
+   Mada'in, Karbala, Najaf occasions, Madinah's mosques and other graves).
 4. Phase 5: point the Ziyarats list's `G0~B` row at the guide, ungate
    `ziyaratGuideMenuItem` (move it into `homeMenuItems` after Ziyarats,
    update `test/widget_test.dart`), What's New note, ship.
