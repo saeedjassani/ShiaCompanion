@@ -3173,7 +3173,7 @@
           "tips": [
             "The deputies' tombs and Shaykh al-Kulayni's are on the east bank (Rusafa), in and around the old markets between al-Rashid Street and Shorja; some of the graves sit inside the lanes of the bazaar, so ask locally or go with a guide.",
             "Masjid Buratha is on the west bank, on the way between Kazimayn and central Baghdad, and is easily visited from Kazimayn.",
-            "Mafatih al-Jinan gives one ziyarat for Uthman ibn Sa'id al-Amri that may be recited for each of the four deputies by naming him; until it is in the app, greet them, recite al-Fatihah and pray for the Imam's reappearance.",
+            "Mafatih al-Jinan gives one ziyarat for the deputies, reported from Husayn ibn Ruh, that is recited at the tomb of each of them, naming him.",
             "Most pilgrims stay in Kazimayn and visit these sites in a single day across the river."
           ],
           "sites": [
@@ -3188,6 +3188,10 @@
               ],
               "about": "The Khilani Mosque on al-Jumhuriya Street, in the square named after it, holds the grave visited by Shia as that of Abu Ja'far Muhammad ibn Uthman al-Amri, the second of the Four Deputies, who succeeded his father Uthman ibn Sa'id and died in 304 or 305 AH. Some historians attribute the grave to a Hanbali scholar instead. The mosque is cared for by Shia and is a centre of prayer in the heart of Rusafa.",
               "ziyarat": [
+                {
+                  "uid": "AM3",
+                  "note": "Recited at the tomb of each deputy, naming him."
+                },
                 {
                   "uid": "G29",
                   "tab": 5,
@@ -3204,7 +3208,7 @@
                 }
               ],
               "tips": [
-                "Name him in the deputies' ziyarat when it is added to the app; meanwhile a salam, al-Fatihah and a prayer for the Imam are fitting.",
+                "In the deputies' ziyarat, greet him by name: Muhammad ibn Uthman.",
                 "The mosque holds congregational prayers; visit the grave outside prayer times."
               ],
               "sources": [
@@ -3212,7 +3216,9 @@
                 "https://en.wikipedia.org/wiki/List_of_mosques_in_Baghdad",
                 "https://en.wikipedia.org/wiki/Four_Deputies",
                 "https://www.wikidata.org/wiki/Q6756164",
-                "https://nominatim.openstreetmap.org/ (جامع الخلاني)"
+                "https://nominatim.openstreetmap.org/ (جامع الخلاني)",
+                "https://mafatih.duas.co/ziarat-nawab-arba",
+                "https://www.duas.org/mobile/ziyarat-deputies-imam.html"
               ]
             },
             {
@@ -4530,7 +4536,11 @@
                 51.4355
               ],
               "about": "The tomb of Abd al-Azim ibn Abdullah al-Hasani, a descendant of Imam al-Hasan al-Mujtaba (a.s.), a narrator and scholar who presented his creed to Imam al-Hadi (a.s.) and was approved by him. He fled persecution to Rey and died there in the 3rd century AH. By narration, Imam al-Hadi (a.s.) told a man of Rey that visiting Abd al-Azim's grave in his own city was like visiting Imam al-Husayn (a.s.). The dome over his tomb was first built under the Seljuks, and the complex also holds the shrines of Imamzadeh Hamzah and Imamzadeh Tahir.",
-              "ziyarat": [],
+              "ziyarat": [
+                {
+                  "uid": "AE17"
+                }
+              ],
               "buried": [
                 {
                   "id": "abd_al_azim_hasani",
@@ -4565,7 +4575,8 @@
                 "https://en.wikipedia.org/wiki/Shah-Abdol-Azim_shrine",
                 "https://en.wikishia.net/view/Abu_l-Futuh_al-Razi",
                 "https://en.wikishia.net/view/List_of_Figures_Buried_in_The_Holy_Shrine_of_'Abd_al-'Azim_al-Hasani",
-                "https://www.openstreetmap.org/search?query=حرم%20عبدالعظیم%20الحسنی"
+                "https://www.openstreetmap.org/search?query=حرم%20عبدالعظیم%20الحسنی",
+                "https://mafatih.duas.co/ziarat-shah-abdul-azeem"
               ]
             },
             {

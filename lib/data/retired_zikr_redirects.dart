@@ -412,4 +412,14 @@ const Map<String, RetiredZikrRedirect> retiredZikrRedirects = {
 
   /// Ziyarat of Salman al-Farsi: the first ten lines of AJ2's ziyarat.
   'G63': RetiredZikrRedirect('AJ2'),
+
+  /// AM2 (Visitation to the Special Deputies of Imam al-Mahdi) was Mafatih
+  /// al-Jinan's prose introduction to the deputies' ziyarat, with nothing to
+  /// recite; it is now in the merits of AM3, the ziyarat itself.
+  'AM2': RetiredZikrRedirect('AM3'),
+
+  /// AE16 (Short Biography of Abd al-Azim al-Hasani) was Mafatih al-Jinan's
+  /// account of his life and the merits of visiting him, with nothing to
+  /// recite; it is now in the merits of AE17, his ziyarat.
+  'AE16': RetiredZikrRedirect('AE17'),
 };

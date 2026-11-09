@@ -887,6 +887,13 @@
       "12-10"
     ]
   },
+  "AE17": {
+    "title": "Ziyarat of Abd al-Azim al-Hasani",
+    "slug": "ziyarah-of-abd-al-azim-al-hasani",
+    "slugAliases": [
+      "short-biography-of-abd-al-azim-al-hasani"
+    ]
+  },
   "AF~AG3": {
     "title": "Karbala al-Muqaddasah",
     "slug": "karbala-al-muqaddasah"
@@ -1072,6 +1079,13 @@
   "AL7": {
     "title": "Bidding Farewell to the Two Imams (Naqi & Askari) — Samarra",
     "slug": "farewell-two-imams-samarra"
+  },
+  "AM3": {
+    "title": "Ziyarat of the Four Deputies of Imam al-Mahdi (a.t.f.s.)",
+    "slug": "ziyarah-of-the-four-emissaries",
+    "slugAliases": [
+      "visitation-to-naeb-khaas-special-deputies-of-imam-mahdi-a"
+    ]
   },
   "AN1": {
     "title": "Ziyarat of Sayyid Muhammad, Son of Imam Ali al-Hadi (a.s.) — Balad",
