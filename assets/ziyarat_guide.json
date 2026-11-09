@@ -323,7 +323,7 @@
                   "name": "The Martyrs of Uhud",
                   "arabicName": "شهداء أحد",
                   "diedAh": 3,
-                  "note": "About seventy Muslims killed in the battle, buried around Hamzah (a.s.)."
+                  "note": "About seventy Muslims martyred in the battle, buried around Hamzah (a.s.)."
                 }
               ],
               "tips": [
@@ -1343,7 +1343,7 @@
             "Most pilgrims come for the day from Najaf; start at Masjid al-Kufa, which holds the tombs of Muslim ibn Aqeel (a.s.) and Hani ibn Urwah (a.s.), then visit the House of Imam Ali (a.s.) and Maytham al-Tammar next to it.",
             "The acts of Masjid al-Kufa are a long sequence of prayers at its stations; allow a few hours and bring the app's entries open on your phone.",
             "Go to Masjid al-Sahla in the evening: the acts there are best between Maghrib and Isha, especially on the night before Wednesday (Tuesday night), when it is very full.",
-            "Masjid al-Kufa is crowded on 19-21 Ramazan, the nights Imam Ali (a.s.) was struck and passed away, and on Thursday nights for Dua Kumayl."
+            "Masjid al-Kufa is crowded on 19-21 Ramazan, the nights Imam Ali (a.s.) was struck and martyred, and on Thursday nights for Dua Kumayl."
           ],
           "sites": [
             {
@@ -1463,7 +1463,7 @@
                 32.0281,
                 44.3997
               ],
-              "about": "The modest house beside Masjid al-Kufa where Imam Ali (a.s.) lived with his family during his caliphate. By tradition he was carried here after being struck in the mosque and passed away here on 21 Ramazan 40 AH.",
+              "about": "The modest house beside Masjid al-Kufa where Imam Ali (a.s.) lived with his family during his caliphate. By tradition he was carried here after being struck in the mosque and was martyred here on 21 Ramazan 40 AH.",
               "ziyarat": [],
               "tips": [
                 "It is just south of Masjid al-Kufa, a short walk from the tomb of Maytham al-Tammar."
@@ -2077,14 +2077,14 @@
                   "name": "Hazrat Ali al-Asghar (a.s.)",
                   "arabicName": "علي الأصغر (ع)",
                   "diedAh": 61,
-                  "note": "The infant son of Imam Husayn (a.s.), killed by an arrow in his father's arms; buried with his father."
+                  "note": "The infant son of Imam Husayn (a.s.), martyred by an arrow in his father's arms; buried with his father."
                 },
                 {
                   "id": "martyrs_of_karbala",
                   "name": "The Martyrs of Karbala (a.s.)",
                   "arabicName": "شهداء كربلاء (ع)",
                   "diedAh": 61,
-                  "note": "The men of the Banu Hashim and the companions killed on Ashura, buried together in one grave beyond the feet of Imam Husayn (a.s.)."
+                  "note": "The men of the Banu Hashim and the companions martyred on Ashura, buried together in one grave beyond the feet of Imam Husayn (a.s.)."
                 },
                 {
                   "id": "habib_ibn_mazahir",
@@ -2177,7 +2177,7 @@
                 32.6167,
                 44.0344
               ],
-              "about": "The open, covered walkway of a few hundred metres between the shrines of Imam Husayn (a.s.) and Hazrat Abbas (a.s.), where pilgrims pass constantly between the two. On Ashura and Arbaeen the processions of mourners (mawkibs) pass through it, and the Tuwairij run of the afternoon of Ashura comes through it to Imam Husayn (a.s.)'s shrine.",
+              "about": "The walkway of a few hundred metres between the shrines of Imam Husayn (a.s.) and Hazrat Abbas (a.s.), where pilgrims pass constantly between the two. On Ashura and Arbaeen the processions of mourners (mawkibs) pass through it, and the Tuwairij run of the afternoon of Ashura comes through it to Imam Husayn (a.s.)'s shrine.",
               "ziyarat": [],
               "tips": [
                 "From the middle of Bayn al-Haramayn both domes are in sight; many pilgrims greet both Imam Husayn (a.s.) and Hazrat Abbas (a.s.) from here when the shrines are too full to enter."
@@ -2982,7 +2982,7 @@
                 44.3381
               ],
               "holySiteId": "kadhimiya",
-              "about": "The shrine of the seventh Imam, Musa al-Kazim (a.s.), who died in the prison of Harun al-Rashid in Baghdad in 183 AH, and of the ninth Imam, Muhammad al-Jawad (a.s.), buried beside his grandfather in 220 AH. The two graves lie side by side under one shrine with twin golden domes; the present building goes back largely to the Safavid rebuilding of the 16th century. Begin with [Izn-e-Dukhool](B6), visit each Imam with his own ziyarat, and end with the farewell common to both in [the shared ziyarat](AH9).",
+              "about": "The shrine of the seventh Imam, Musa al-Kazim (a.s.), who was martyred in the prison of Harun al-Rashid in Baghdad in 183 AH, and of the ninth Imam, Muhammad al-Jawad (a.s.), buried beside his grandfather in 220 AH. The two graves lie side by side under one shrine with twin golden domes; the present building goes back largely to the Safavid rebuilding of the 16th century. Begin with [Izn-e-Dukhool](B6), visit each Imam with his own ziyarat, and end with the farewell common to both in [the shared ziyarat](AH9).",
               "ziyarat": [
                 {
                   "uid": "B6",
