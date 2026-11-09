@@ -314,3 +314,4 @@ scripts/duas_audio_map.json
 # language rewrote these, so design and translation PRs conflicted here even
 # when their ARB edits did not overlap. See docs/TRANSLATIONS.md.
 lib/l10n/app_localizations*.dart
+.claude/worktrees/
