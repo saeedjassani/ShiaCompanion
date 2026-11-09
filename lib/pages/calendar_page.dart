@@ -4,6 +4,7 @@ import 'package:hijri/hijri_calendar.dart';
 import 'package:intl/intl.dart' show DateFormat;
 import 'package:shia_companion/pages/city_picker.dart';
 import 'package:shia_companion/pages/prayer_notifications_page.dart';
+import 'package:shia_companion/pages/event_notifications_page.dart';
 import 'package:shia_companion/services/location_service.dart';
 import 'package:shia_companion/utils/islamic_calendar_widget_data.dart';
 import 'package:shia_companion/utils/prayer_time_entries.dart';
@@ -130,6 +131,17 @@ class _CalendarPageState extends State<CalendarPage> {
           children: [
             if (pushed) const PageBackButton(),
             const SizedBox(width: 8),
+            // Notifications can't fire on the web.
+            if (!kIsWeb) ...[
+              RoundIconButton(
+                label: context.l10n.eventNotificationsTitle,
+                icon: OutlineIcon(OutlineGlyph.bell,
+                    size: 20, color: colors.accent, strokeWidth: 2.2),
+                onPressed: () =>
+                    pushPageRoute(context, const EventNotificationsPage()),
+              ),
+              const SizedBox(width: 8),
+            ],
             Expanded(
               child: Align(
                 alignment: AlignmentDirectional.centerEnd,

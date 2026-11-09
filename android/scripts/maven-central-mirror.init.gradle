@@ -1,0 +1,28 @@
+// Sends every Maven Central request, Flutter's own included Gradle build's
+// too, to Google's mirror of it. Central answers parallel CI jobs with
+// "429 Too Many Requests", and flutter_tools/gradle lists its repositories
+// itself, so the app's settings.gradle can't redirect it.
+//
+// android-widgets.yml copies this into ~/.gradle/init.d/. Locally, run Gradle
+// with --init-script android/scripts/maven-central-mirror.init.gradle if
+// Central rate-limits you.
+def mirror = 'https://maven-central.storage-download.googleapis.com/maven2/'
+
+def redirect = { RepositoryHandler repositories ->
+    repositories.withType(MavenArtifactRepository).configureEach { repository ->
+        def url = repository.url.toString()
+        if (url.contains('repo.maven.apache.org') || url.contains('repo1.maven.org')) {
+            repository.url = mirror
+        }
+    }
+}
+
+beforeSettings { settings -> redirect(settings.pluginManagement.repositories) }
+settingsEvaluated { settings ->
+    redirect(settings.pluginManagement.repositories)
+    redirect(settings.dependencyResolutionManagement.repositories)
+}
+allprojects {
+    redirect(repositories)
+    buildscript { redirect(repositories) }
+}

@@ -17,7 +17,8 @@
   },
   "01-10": {
     "content": "Ashoora ‐ Martyrdom of Imam Hussain(a.s.) and his companions ‐ (61 A.H.)",
-    "color": 0
+    "color": 0,
+    "major": true
   },
   "01-11": {
     "content": "Prophet Mohammad(sawaw)’s family was shackled and taken away as prisoners",
@@ -29,7 +30,8 @@
   },
   "01-25": {
     "content": "Martyrdom of Imam Ali Zain‐al‐Abideen(a.s.) – the 4th Holy Imam ‐ (95 A.H.)",
-    "color": 0
+    "color": 0,
+    "major": true
   },
   "02-01": {
     "content": "Battle of Siffin started – (37 A.H.)\n\nArrival of the captive family of Imam Hussain(a.s.) in Shaam ‐ (61 A.H.)",
@@ -37,7 +39,8 @@
   },
   "02-07": {
     "content": "Birth of Imam Moosa al‐Kazim(a.s.) – the 7th Holy Imam ‐ (128 A.H.)",
-    "color": 1
+    "color": 1,
+    "major": true
   },
   "02-10": {
     "content": "Martyrdom of Hazrat Sakina bint‐al‐Hussain(a.s.) – (61 A.H.)",
@@ -49,15 +52,18 @@
   },
   "02-20": {
     "content": "Arbaeen of martyrs of Karbala",
-    "color": 0
+    "color": 0,
+    "major": true
   },
   "02-28": {
     "content": "Martyrdom of Holy Prophet (saww) ‐ (11 A.H.)\n\nMartyrdom of Imam Hasan(a.s.) – the 2nd Holy Imam ‐ (50 A.H.)",
-    "color": 0
+    "color": 0,
+    "major": true
   },
   "02-29": {
     "content": "Martyrdom of Imam Ali ibn‐e‐Moosa ar‐Riza(a.s.) – the 8th Holy Imam ‐ (203 A.H.)",
-    "color": 0
+    "color": 0,
+    "major": true
   },
   "03-01": {
     "content": "Shahadate Janabe Mohsin (a.s.)\nLaylat al‐Mabit: Imam Ali (a.s.) slept in the Prophet's bed as Prophet Muhammad (s.a.w.a.) left Makkah on the Hijrat to Madina\nMay Allah (s.w.t.) curse the killers of Janabe Mohsin (a.s.) (and those who set fire on the door of Lady Zahra (s.a.)) and hasten the reappearance of the Avenger (a.t.f.s.) of his blood.",
@@ -69,7 +75,8 @@
   },
   "03-08": {
     "content": "Martyrdom of Imam Hasan Askari(a.s.) – the 11th Holy Imam ‐ (260 A.H.)\n\nBeginning of Ghaibat‐e‐Sughra of Imam Mohammad Mehdi(atfs) ‐ the 12th Holy Imam",
-    "color": 0
+    "color": 0,
+    "major": true
   },
   "03-09": {
     "content": "Eid‐e‐Zahra(s.a.)",
@@ -89,11 +96,13 @@
   },
   "03-17": {
     "content": "Birth of Prophet Muhammad(sawaw) – (53 years before Hijra)\n\nBirth of Imam Jafer Sadiq(a.s.) – the 6th Holy Imam ‐ (83 A.H.)",
-    "color": 1
+    "color": 1,
+    "major": true
   },
   "04-08": {
     "content": "Birth of Imam Hasan Askari(a.s.) – the 11th Holy Imam ‐ (232 A.H.)",
-    "color": 1
+    "color": 1,
+    "major": true
   },
   "04-10": {
     "content": "Death of Hazrat Fatima Masooma‐e‐Qum(a.s.) – (201 A.H.)",
@@ -121,7 +130,8 @@
   },
   "06-03": {
     "content": "Death of Hazrat Fatima Zahra(s.a.) – (11 A.H.)",
-    "color": 0
+    "color": 0,
+    "major": true
   },
   "06-13": {
     "content": "Death of Hazrat Umm‐ul‐Baneen – Mother of Hazrat Abbas(a.s.)",
@@ -129,7 +139,8 @@
   },
   "06-20": {
     "content": "Birth of Hazrat Fatima Zahra(s.a.)",
-    "color": 1
+    "color": 1,
+    "major": true
   },
   "06-21": {
     "content": "Death of Hazrat Umme Kulsum (s.a.)",
@@ -137,7 +148,8 @@
   },
   "07-01": {
     "content": "Birth of Imam Mohammad Baqir(a.s.) – the 5th Holy Imam ‐ (57 A.H.)",
-    "color": 1
+    "color": 1,
+    "major": true
   },
   "07-02": {
     "content": "Birth of Imam Ali Naqi al‐Hadi(a.s.) – the 10th Holy Imam ‐ (214 A.H.)",
@@ -145,7 +157,8 @@
   },
   "07-03": {
     "content": "Martyrdom of Imam Ali Naqi al‐Hadi(a.s.) – the 10th Holy Imam ‐ (254 A.H.)",
-    "color": 0
+    "color": 0,
+    "major": true
   },
   "07-05": {
     "content": "Birth of Imam Ali Naqi al‐Hadi(a.s.) – the 10th Holy Imam ‐ (214 A.H.)",
@@ -153,11 +166,13 @@
   },
   "07-10": {
     "content": "Birth of Imam Mohammad Taqi al‐Jawwad(a.s.) – the 9th Holy Imam ‐ (195 A.H.)",
-    "color": 1
+    "color": 1,
+    "major": true
   },
   "07-13": {
     "content": "Birth of Imam Ali(a.s.) – the 1st Holy Imam ‐ (30 Aamul Feel)",
-    "color": 1
+    "color": 1,
+    "major": true
   },
   "07-14": {
     "content": "Death of Hazrat Abbas ibn‐e‐Abdul Muttalib(a.s.) – uncle of Prophet Mohammad(sawaw)",
@@ -181,7 +196,8 @@
   },
   "07-25": {
     "content": "Martyrdom of Imam Moosa‐e‐Kazim(a.s.) – the 7th Holy Imam ‐ (183 A.H.)",
-    "color": 0
+    "color": 0,
+    "major": true
   },
   "07-26": {
     "content": "Death of Hazrat Abu Talib(a.s.)",
@@ -189,7 +205,8 @@
   },
   "07-27": {
     "content": "Eid‐e‐Mab'ath\nBe'sat ‐ the declaration of prophethood of Prophet Muhammad(sawaw)",
-    "color": 1
+    "color": 1,
+    "major": true
   },
   "07-28": {
     "content": "Imam Hussain(a.s.) left Madina for Makkah on the journey to Karbala ‐ (60 A.H.)",
@@ -201,7 +218,8 @@
   },
   "08-03": {
     "content": "Birth of Imam Hussain(a.s.) ‐ the 3rd Holy Imam ‐ (4 A.H.)",
-    "color": 1
+    "color": 1,
+    "major": true
   },
   "08-04": {
     "content": "Birth of Hazrat Abbas(a.s.) ‐ (26 A.H.)",
@@ -221,11 +239,13 @@
   },
   "08-15": {
     "content": "Birth of Imam Mahdi(atfs), Wali‐e‐Asr ‐ the 12th Holy Imam ‐ (255 A.H.)\n\nCommencement of Ghaibat al‐Kubra ‐ (329 A.H.)\nAli ibn Mohammad as‐Samari, the 4th special deputy of Imam Mahdi(atfs), passed away on this day\nMay Allah (s.w.t.) hasten the reappearance of Imam Mahdi (a.t.f.s.) and count us among his helpers and soldiers.",
-    "color": 1
+    "color": 1,
+    "major": true
   },
   "09-01": {
     "content": "Beginning of the Holy Month of Ramazan",
-    "color": null
+    "color": null,
+    "major": true
   },
   "09-07": {
     "content": "Death of Hazrat Abu Talib(a.s.)",
@@ -241,7 +261,8 @@
   },
   "09-15": {
     "content": "Birth of Imam Hasan(a.s.) ‐ the 2nd Holy Imam ‐ (3 A.H.)",
-    "color": 1
+    "color": 1,
+    "major": true
   },
   "09-17": {
     "content": "Battle of Badr ‐ (2 A.H.)",
@@ -257,15 +278,18 @@
   },
   "09-21": {
     "content": "Martyrdom of Imam Ali(a.s.) ‐ the 1st Holy Imam ‐ (40 A.H.)\n\nShab‐e‐Qadr\nThe night before is the 2nd Night of Qadr",
-    "color": 0
+    "color": 0,
+    "major": true
   },
   "09-23": {
     "content": "Shab‐e‐Qadr\nThe night before is the 3rd Night of Qadr, the most probable Night of Power",
-    "color": null
+    "color": null,
+    "major": true
   },
   "10-01": {
     "content": "Eid ul Fitr",
-    "color": 1
+    "color": 1,
+    "major": true
   },
   "10-08": {
     "content": "Demolition of Jannatul Baqi by Aal e Saud.\nMay Allah (s.w.t.) curse those who harmed the Ahlul Bayt (a.s.).",
@@ -277,7 +301,8 @@
   },
   "10-25": {
     "content": "Martyrdom of Imam Jafar Sadiq (a.s.)\nMay Allah (s.w.t.) curse the killers of Imam Sadiq (a.s.) and hasten the reappearance of the Avenger (a.t.f.s.) of his blood.",
-    "color": 0
+    "color": 0,
+    "major": true
   },
   "11-01": {
     "content": "Wiladat of Hazrat Fatima Masooma‐e‐Qum(a.s.) – (173 A.H.)",
@@ -285,7 +310,8 @@
   },
   "11-11": {
     "content": "Wiladat of Imam Ali Raza (a.s.)",
-    "color": 1
+    "color": 1,
+    "major": true
   },
   "11-23": {
     "content": "Shahadat of Imam Ali Raza (a.s.)",
@@ -297,7 +323,8 @@
   },
   "11-29": {
     "content": "Martyrdom of Imam Mohammad Taqi (a.s.)\nMay Allah (s.w.t.) curse the killers of Imam (a.s.) and hasten the reappearance of the Avenger (a.t.f.s.) of his blood.",
-    "color": 0
+    "color": 0,
+    "major": true
   },
   "12-01": {
     "content": "Wedding of Imam Ali (a.s.) and Janabe Fatema Zahra (s.a.)",
@@ -305,7 +332,8 @@
   },
   "12-07": {
     "content": "Martyrdom of Imam Mohammad Baqir (a.s.)\nMay Allah (s.w.t.) curse the killers of Imam (a.s.) and hasten the reappearance of the Avenger (a.t.f.s.) of his blood.",
-    "color": 0
+    "color": 0,
+    "major": true
   },
   "12-08": {
     "content": "Imam Husain (a.s.) left Makkah towards karbala",
@@ -317,7 +345,8 @@
   },
   "12-10": {
     "content": "Eid ul Azha",
-    "color": 1
+    "color": 1,
+    "major": true
   },
   "12-14": {
     "content": "Bagh‐e‐Fadak gifted by the Holy Prophet(sawaw) to Hazrat Fatima Zahra(s.a.)",
@@ -325,11 +354,13 @@
   },
   "12-15": {
     "content": "Wiladat e Imam Ali Naqi (a.s.)",
-    "color": 1
+    "color": 1,
+    "major": true
   },
   "12-18": {
     "content": "Eid e Ghadeer\nThe greatest Eid of Islam. On this day the religion of Islam was completed by annoucing the Mastership of Ameerul Momineen Ali (as) by Prophet Mohammad (saww).",
-    "color": 1
+    "color": 1,
+    "major": true
   },
   "12-23": {
     "content": "Martyrdom of Muhammad and Ibrahim, sons of Hazrat Muslim Ibne Aqeel(a.s.)",
@@ -337,7 +368,8 @@
   },
   "12-24": {
     "content": "Eid e Mubahila - 9 A.H.\n\nRevelation of the Verse of Wilayat\nImam Ali (a.s.) gave his ring in charity while in rukoo, and Surah al‐Maidah 5:55 was revealed about him",
-    "color": 1
+    "color": 1,
+    "major": true
   },
   "12-25": {
     "content": "Revelation of Surah Hal Ata (al‐Insaan) in praise of the Ahlul Bayt(a.s.)",

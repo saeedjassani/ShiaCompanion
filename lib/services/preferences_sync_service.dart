@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -5,6 +7,7 @@ import 'package:firebase_core/firebase_core.dart';
 import '../constants.dart';
 import '../utils/font_preferences.dart';
 import '../utils/shared_preferences.dart';
+import 'event_notification_service.dart';
 import 'home_shortcuts_store.dart';
 
 /// Syncs the reading preferences that used to live only in SharedPreferences
@@ -148,6 +151,7 @@ class PreferencesSyncService {
       };
 
   Future<void> _applyRemote(Map<String, dynamic> data) async {
+    final hijriBefore = (hijriDate, hijriAutomatic);
     final hijri = data[_hijriDateOffsetField];
     if (hijri is num) {
       hijriDate = hijri.toInt();
@@ -167,6 +171,10 @@ class PreferencesSyncService {
       await SP.prefs.setBool('hijri_automatic', hijriAutomatic);
     }
     applyHijriSighting();
+    if ((hijriDate, hijriAutomatic) != hijriBefore) {
+      // Another device moved the Hijri date: the events fall on other days.
+      unawaited(EventNotificationService.instance.rescheduleAll());
+    }
 
     final arabicSize = data[_arabicFontSizeField];
     if (arabicSize is num) {

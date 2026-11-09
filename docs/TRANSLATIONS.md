@@ -109,6 +109,39 @@ first, so "۳۳:۳۳" works as well as "33:33".
   each based on `master` - for improving existing translations, or filling
   any gaps left from before this rule.
 
+### Every new string is checked by another agent
+
+Whoever writes a translation is the worst person to proofread it. So **a
+PR that adds or changes strings in any `app_<code>.arb` (or in
+`assets/events_i18n/`) has them reviewed, in every language, by an
+independent agent before it is committed** - a fresh subagent that did not
+write them, one per language, run in parallel. Per `CLAUDE.md`, this is
+judgement work: `opus`, `high` effort.
+
+1. List what changed: `python3 -I scripts/l10n_changed_keys.py --lang <code>`
+   (against `origin/master` by default) prints each added or changed key
+   with its English, `@description`, placeholders and that language's text.
+   For `assets/events_i18n/<code>.json`, give it `git diff origin/master --
+   assets/events_i18n/<code>.json` and the matching `assets/events.json`
+   entries.
+2. Give each reviewer that output, this file, and its `app_<code>.arb` to
+   compare against. It checks every string for:
+   - meaning: says what the English and the description say, nothing
+     dropped or added;
+   - the file's own terms for the same ideas (Settings, notifications,
+     the calendar, prayer names, honorifics), and its register;
+   - placeholders kept exactly (`{when}`, `{count}`, plural and select
+     forms), and digits, punctuation and word order right for the script
+     (RTL for Urdu, Persian and Arabic);
+   - Gujarati written in Gujarati, not Urdu in Gujarati letters (see
+     `scripts/zikr_i18n/SOURCES.md`);
+   - length: fits where it is shown (a switch, a row, a notification).
+3. It answers per key: OK, or a corrected string and why. Apply what you
+   agree with; for a disagreement on religious wording, ask the owner
+   rather than pick.
+4. Say in the PR description that the review ran, and list what changed
+   because of it.
+
 A key still missing from a language shows in English there, and a key
 removed from `app_en.arb` but still in an `app_<code>.arb` is ignored, so
 nothing breaks if one slips through. Hold off translating a screen that is
