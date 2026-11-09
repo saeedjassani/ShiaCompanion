@@ -342,8 +342,8 @@ see `scripts/RESTORING_MISSING_ZIKRS.md`); URLs hold a text to check against.
   Jawadiyya AE5, other forms AE6/AE7, the farewell AE8, his own
   Izn-e-Dukhool, the "Seven Hadith" ziyarat, Imam al-Zaman's ziyarat at his
   shrine. All on https://www.duas.org/ziaratimamreza_sr.htm.
-- **Iran, other:** Abd al-Azim al-Hasani AE17 (Arabic in history);
-  farewell to Lady Masuma (AE14 was prose only); descendants of the Imams in
+- **Iran, other:** (Abd al-Azim al-Hasani AE17 is restored, with AE16's
+  biography in its merits, and linked); farewell to Lady Masuma (AE14 was prose only); descendants of the Imams in
   general G28 (prose only, would serve Rey and Shiraz).
 - **Madinah**, all on https://www.duas.org/mobile/madina-mecca-rites.html:
   the four Baqi Imams AP8 (https://www.duas.org/ziaratbaqi.htm), farewell to
@@ -354,9 +354,11 @@ see `scripts/RESTORING_MISSING_ZIKRS.md`); URLs hold a text to check against.
   Prophet's wives, daughters and aunts, Isma'il ibn Ja'far, Halimah.
 - **Makkah (no uid):** Lady Khadijah
   (https://www.duas.org/mobile/ziyarat-khadija.html), Abd Manaf, Qasim.
-- **Baghdad:** the Four Deputies AM3 (+AM2)
-  (https://duas.org/mobile/ziyarat-deputies-imam.html), Masjid Buratha AM1,
-  al-Kulayni AM4.
+- **Baghdad:** (the Four Deputies AM3 is restored, AM2 retired into it,
+  and linked from Muhammad ibn Uthman's tomb); Allamah al-Majlisi's own
+  ziyarat of Uthman ibn Sa'id (Bihar al-Anwar 102:292 - duas.org's mobile
+  page has its English but its Arabic lacks the first seven salutations, so
+  it was left out); Masjid Buratha AM1, al-Kulayni AM4.
 - **Kazimayn:** AH3 (another ziyarat of Imam al-Kazim), AH1, AH11.
 - **Samarra:** Lady Narjis AL8, Lady Hakimah AL9, AL4, AL10, AL16.
 - **Mada'in:** prayer at Taq Kasra AJ3, Hudhayfah AJ4, AJ1.
