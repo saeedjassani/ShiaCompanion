@@ -240,9 +240,10 @@ Two parts:
   feature per site, the asset exists); `test/ui/shrine_plan_test.dart`
   renders the Karbala plan at three sizes and taps through it.
 
-**Plans so far (10, 126 features):** `karbala_haramayn` (41: Imam
+**Plans so far (10, 129 features):** `karbala_haramayn` (41: Imam
 Husayn, Hazrat Abbas, Bayn al-Haramayn, Tall al-Zaynabiyya, al-Mukhayyam),
-`najaf_haram` (8), `kufa_mosque` (17: nine maqams linked to their AI3/AI4/
+`najaf_haram` (11: the five courtyard gates, the tombs of Allamah
+al-Hilli and Muqaddas Ardabili, Sahn Fatimah al-Zahra), `kufa_mosque` (17: nine maqams linked to their AI3/AI4/
 AI5/AI11 tabs, Muslim, Hani, al-Mukhtar), `sahla_mosque` (3),
 `kazimayn_haram` (7), `samarra_haram` (2: the zarih and the Sardab),
 `mashhad_haram` (20, mostly courtyards and basts), `qom_haram` (10),
@@ -277,9 +278,14 @@ map preview to shrink to a row (done).
   disagree on where they lie.
 - Samarra: the Sardab marker is on an unnamed tiled dome west-north-west
   of the shrine, inside an OSM polygon tagged as the Great Mosque.
-- Najaf: Allamah al-Hilli is placed at the northern minaret (from the
-  guide's own note); Bab Muslim ibn Aqil left out (5 m from Bab al-Sa'a in
-  OSM).
+- Najaf (reworked 2026-11-09 after the owner's device check; see "Najaf:
+  what the shrine's own sources say" below): Bab Muslim ibn Aqil is OSM's
+  node, 5 m north of Bab al-Sa'a's. The direction is right (the shrine's
+  site and its library both put it to the right of Bab al-Sa'a, Wikipedia
+  north of it), but the true gap is probably larger, so its marker hides
+  under Bab al-Sa'a's until zoomed right in. Sahn Fatimah is OSM's unnamed
+  courtyard building west of the shrine (r14118576, tagged name:fa "صحن
+  حضرت زهرا" in 2023, reverted only because the name was Persian).
 - Kufa: the gates link AI3 tab 1 (entering the mosque), not B6; Mafatih's
   column numbers for Ibrahim/Adam disagree with the mosque's own site, the
   plan follows the markers on the ground; AI3 tab 7 ("Station of Prophet
@@ -298,6 +304,38 @@ with `flutter test scripts/ziyarat_maps/plan_shots_test.dart
 [--dart-define=FEATURES=<ids>]` (PNGs with real fonts). Missing tombs
 inside the shrines (Shaykh Baha'i, al-Hurr al-Amili, al-Mufid, Ibn
 Qulawayh, Khoei...) need OSM to map them, or two agreeing sources.
+
+### Najaf: what the shrine's own sources say
+
+Checked 2026-11-09 against the shrine's site (imamali.net ?id=8604, the
+gates; en.imamali.net, the courtyard, Sahn Fatimah and the deceased) and a
+description by its library, Maktabat al-Rawda al-Haydariyya (almohsinlibrary
+PDF SerEAli1497):
+
+- **Five courtyard gates**: Bab al-Sa'a (east, the largest; renamed Bab
+  al-Imam al-Reza when it reopened in 2023 - imamali.net and an almerja.com
+  report of the reopening; there is no separate Bab al-Reza), Bab Muslim
+  ibn Aqil (beside it, to its right/north; once Bab al-Abayjiyya), Bab
+  al-Tusi (north), Bab al-Qibla (south, the smallest main gate), Bab
+  al-Faraj (west; also al-Bab al-Sultani, Bab al-Amara; faces Sahn
+  Fatimah). No gates of Sahn Fatimah are named anywhere found.
+- **Great iwans of the courtyard**: Yazdi Iwan (north, the old Safavid
+  Tusi gate), Hububi Iwan (south, the old qibla gate), Bab al-Sa'a Iwan
+  (east). In gate notes, not markers: each is beside its gate.
+- **Doors of the haram**: the Golden Door in the Golden Iwan; Bab
+  al-Murad, the riwaq's south door, facing Bab al-Qibla; a north door
+  facing Bab al-Tusi. Not on the plan: OSM has no door nodes and their
+  exact place along the haram's walls is not given.
+- **Sahn Fatimah al-Zahra**: west of the shrine, between the Abu Talib
+  riwaq and the Maqam of Imam Zayn al-Abidin (en.imamali.net, Shafaq News),
+  about 61,000 m2 with halls below ground.
+- **Tombs placed**: Allamah al-Hilli in the room on the north side of the
+  Golden Iwan by the northern minaret, Muqaddas Ardabili in the room
+  opposite (south side) - the library's description, a 2021 shrine news
+  item on al-Hilli's tomb by the northern minaret, a Babylon University
+  paper. Shaykh al-Ansari's room (No. 11 on the shrine's site) adjoins Bab
+  al-Qibla (areq.net, alkafeel forum citing a biography, WikiShia) but its
+  side of the gate is not given, so he is in `buried` only.
 
 ## Content audit (2026-11-07)
 
@@ -451,10 +489,14 @@ The list as found in session 1:
   it shares Masjid Sa'sa'ah's site. The Maqam of Imam al-Mahdi in Wadi
   al-Salam is in the text only (no coordinates). Awn ibn Abdullah's shrine
   left out (who lies there is disputed).
-- Najaf's room positions near Bab al-Qibla (Ansari, Nuri, Qummi) rest on a
-  single weak source (a duas.org PDF chapter of an AI-written book): check
-  them. WikiShia was down all session, so its URLs in `sources` were seen
-  only as search snippets.
+- Najaf: Muhaddith al-Nuri and Shaykh Abbas al-Qummi are said by WikiShia
+  alone to be in room 15 / "the third iwan on the right entering from the
+  qibla side", so their notes say only "a chamber of the courtyard".
+  Mirza al-Na'ini (WikiShia: fifth room south of the bazaar gate),
+  al-Hububi (the southern iwan bears his name), Mirza Hasan Ashtiani (the
+  shrine's site: Chamber of Abu Talib) and Adud al-Dawla's exact place are
+  single-source; left out or kept general. WikiShia was down again
+  (2026-11-09), so it was seen only as search snippets.
 - Death years where sources disagree (Shaykh Baha'i 1030/1031) or are not
   established are omitted.
 
