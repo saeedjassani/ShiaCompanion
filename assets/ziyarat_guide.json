@@ -183,56 +183,56 @@
                   "id": "fatimah_bint_asad",
                   "name": "Lady Fatimah bint Asad (s.a.)",
                   "arabicName": "فاطمة بنت أسد",
-                  "note": "Mother of Amir al-Mu'minin (a.s.), who raised the Prophet (s.a.w.a.); her grave is said to be at the far (north-eastern) end of the cemetery, and some place it beside the Imams."
+                  "note": "Mother of Amir al-Mu'minin (a.s.), who raised the Prophet (s.a.w.a.). The exact spot of her grave is not marked today: some place it at the far (north-eastern) end of the cemetery, others beside the Imams (a.s.)."
                 },
                 {
                   "id": "umm_al_baneen",
                   "name": "Lady Umm al-Baneen (s.a.)",
                   "arabicName": "أم البنين",
-                  "note": "Wife of Amir al-Mu'minin (a.s.) and mother of Hazrat Abbas (a.s.); buried near the Prophet's (s.a.w.a.) aunts."
+                  "note": "Wife of Amir al-Mu'minin (a.s.) and mother of Hazrat Abbas (a.s.); by tradition buried beside the Prophet's (s.a.w.a.) aunts. The exact spot is not marked today."
                 },
                 {
                   "id": "ibrahim_son_of_the_prophet",
                   "name": "Ibrahim, Son of the Holy Prophet (s.a.w.a.)",
                   "arabicName": "إبراهيم ابن رسول الله",
                   "diedAh": 10,
-                  "note": "The Prophet's (s.a.w.a.) son by Mariyah, who died as an infant."
+                  "note": "The Prophet's (s.a.w.a.) son by Mariyah, who died as an infant and was buried here at his father's command. His grave had a dome until 1926; the exact spot is not marked today."
                 },
                 {
                   "id": "daughters_of_the_prophet",
                   "name": "Daughters of the Holy Prophet (s.a.w.a.)",
                   "arabicName": "بنات رسول الله",
-                  "note": "Zainab, Ruqayyah and Umm Kulthum, by the common account."
+                  "note": "Zainab, Ruqayyah and Umm Kulthum, by the common account. The exact spot is not marked today."
                 },
                 {
                   "id": "wives_of_the_prophet",
                   "name": "Wives of the Holy Prophet (s.a.w.a.)",
                   "arabicName": "أزواج النبي",
-                  "note": "Most of his wives, among them Umm Salamah; Lady Khadijah (s.a.) is buried in Makkah."
+                  "note": "Most of his wives, among them Umm Salamah; Lady Khadijah (s.a.) is buried in Makkah. The exact spot is not marked today."
                 },
                 {
                   "id": "aqil_and_abdullah_ibn_jafar",
                   "name": "Aqil ibn Abi Talib and Abdullah ibn Ja'far",
                   "arabicName": "عقيل بن أبي طالب وعبد الله بن جعفر",
-                  "note": "Amir al-Mu'minin's (a.s.) brother, and his nephew Abdullah son of Ja'far al-Tayyar, husband of Lady Zainab (s.a.); buried side by side."
+                  "note": "Amir al-Mu'minin's (a.s.) brother, and his nephew Abdullah son of Ja'far al-Tayyar, husband of Lady Zainab (s.a.); buried side by side. The exact spot is not marked today."
                 },
                 {
                   "id": "safiyyah_and_atikah",
                   "name": "Safiyyah and Atikah, Aunts of the Holy Prophet (s.a.w.a.)",
                   "arabicName": "صفية وعاتكة",
-                  "note": "Daughters of Abd al-Muttalib; Safiyyah's grave is the first on the left inside the entrance."
+                  "note": "Daughters of Abd al-Muttalib. Ibn Battuta found Safiyyah's grave the first on the left inside the old gate; the exact spot is not marked today."
                 },
                 {
                   "id": "ismail_ibn_jafar",
                   "name": "Ismail ibn Ja'far al-Sadiq",
                   "arabicName": "إسماعيل بن جعفر الصادق",
-                  "note": "Eldest son of Imam al-Sadiq (a.s.), who died in his father's lifetime."
+                  "note": "Eldest son of Imam al-Sadiq (a.s.), who died in his father's lifetime. The exact spot is not marked today."
                 },
                 {
                   "id": "halimah_al_sadiyyah",
                   "name": "Halimah al-Sa'diyyah",
                   "arabicName": "حليمة السعدية",
-                  "note": "The Prophet's (s.a.w.a.) foster mother."
+                  "note": "The Prophet's (s.a.w.a.) foster mother. The exact spot is not marked today."
                 }
               ],
               "tips": [
@@ -248,7 +248,10 @@
                 "https://www.al-islam.org/shrines/baqi.htm",
                 "https://al-islam.org/es/node/181421",
                 "https://en.wikipedia.org/wiki/Al-Baqi_Cemetery",
-                "https://nominatim.openstreetmap.org/search?q=مقبرة%20البقيع"
+                "https://nominatim.openstreetmap.org/search?q=مقبرة%20البقيع",
+                "https://en.wikishia.net/view/List_of_Figures_Buried_in_al-Baqi%27_Cemetery",
+                "https://en.wikishia.net/view/Umm_al-Banin",
+                "https://en.wikishia.net/view/%27Atika_bt._%27Abd_al-Muttalib"
               ]
             },
             {
@@ -1249,7 +1252,11 @@
               "sources": [
                 "https://en.wikipedia.org/wiki/Great_Mosque_of_Kufa",
                 "https://en.wikishia.net/view/Masjid_al-Kufa",
-                "https://www.openstreetmap.org/relation/15610020"
+                "https://www.openstreetmap.org/relation/15610020",
+                "https://masjed-alkufa.com/index.php/permalink/5670.html",
+                "https://masjed-alkufa.com/index.php/permalink/5667.html",
+                "https://masjed-alkufa.com/index.php/permalink/5669.html",
+                "https://masjed-alkufa.com/index.php/permalink/5671.html"
               ]
             },
             {
@@ -1487,7 +1494,8 @@
                   "location": [
                     32.029546,
                     44.400719
-                  ]
+                  ],
+                  "note": "The mosque places it at the seventh column on the side of the Kinda gates, as narrated from Imam al-Sadiq (a.s.); the acts from Mafatih al-Jinan call it the fourth column."
                 },
                 {
                   "id": "kufa_maqam_adam",
@@ -1549,7 +1557,8 @@
                   "location": [
                     32.028916,
                     44.400084
-                  ]
+                  ],
+                  "note": "Beside the minbar of Amir al-Mu'minin (a.s.). The mosque gives here the same prayers that the linked acts give for the Seat of Amir al-Mu'minin (a.s.)."
                 },
                 {
                   "id": "kufa_maqam_sadiq",
@@ -3397,8 +3406,8 @@
               "arabicName": "سرداب الغيبة",
               "kind": "maqam",
               "location": [
-                34.1994,
-                43.873
+                34.19924,
+                43.87302
               ],
               "about": "A cellar in the house of the two Imams, now under the mosque and blue dome beside the al-Askari Shrine, associated with Imam al-Mahdi (a.t.f.s.): by tradition the place where he worshipped and from which his occultation began. It is not a grave but a place of ziyarat and prayer for the living Imam, visited after the two Imams. The scholars of ziyarat give several forms to recite here, followed by a twelve-rak'at prayer gifted to the Imam.",
               "ziyarat": [
@@ -3450,7 +3459,12 @@
                 "https://en.wikipedia.org/wiki/Al-Askari_Shrine",
                 "https://www.al-islam.org/ziyarat/iraq.htm",
                 "https://al-islam.org/node/28827",
-                "https://nominatim.openstreetmap.org/reverse?lat=34.1994&lon=43.8730 (mosque adjoining the shrine)"
+                "https://nominatim.openstreetmap.org/reverse?lat=34.1994&lon=43.8730 (mosque adjoining the shrine)",
+                "https://ar.wikipedia.org/wiki/العتبة_العسكرية",
+                "https://ar.wikipedia.org/wiki/سرداب_الغيبة",
+                "https://ar.wikishia.net/view/سرداب_الغيبة",
+                "https://www.openstreetmap.org/way/199306705",
+                "https://www.openstreetmap.org/way/1096889891"
               ]
             }
           ],
@@ -3531,7 +3545,7 @@
                   "arabicName": "سرداب الغيبة",
                   "osm": "w199306705",
                   "site": "sardab_al_ghayba",
-                  "note": "The cellar of the Imams' house, under the tiled dome on the west side of the shrine; reached by steps down.",
+                  "note": "The cellar of the Imams' house, under the tiled dome of the mosque on the north-west side of the shrine (Masjid al-Sahib); reached by steps down.",
                   "ziyarat": [
                     {
                       "uid": "B6",
@@ -3809,7 +3823,10 @@
                 "https://en.wikipedia.org/wiki/Al-Tabarsi",
                 "https://www.kojaro.com/attraction/41153-tomb-of-sheikh-bahai/",
                 "https://fa.wikishia.net/view/فهرست_مدفونان_در_حرم_امام_رضا(ع)",
-                "https://www.openstreetmap.org/search?query=مقبره%20شیخ%20طبرسی"
+                "https://www.openstreetmap.org/search?query=مقبره%20شیخ%20طبرسی",
+                "https://news.razavi.ir/en/news/470/visual-narrative-of-martyred-leader-in-imam-reza-shrine-kowsar-courtyard",
+                "https://news.razavi.ir/en/news/557/imam-reza-shrines-english-speaking-mourning-group-promotes-the-teachings-of-the-ahl-al-bayt-as",
+                "https://en.wikipedia.org/wiki/Imam_Reza_Shrine"
               ]
             },
             {
@@ -3943,7 +3960,7 @@
                   "arabicName": "صحن آزادی",
                   "osm": "w55915335",
                   "site": "imam_reza_shrine",
-                  "note": "The New Courtyard (Sahn-e Now). Shaykh Baha'i's tomb opens off it.",
+                  "note": "The New Courtyard (Sahn-e Now).",
                   "location": [
                     36.287371,
                     59.616458
@@ -3964,7 +3981,7 @@
                 {
                   "id": "sahn_qods",
                   "kind": "landmark",
-                  "name": "Sahn Qods",
+                  "name": "Sahn Quds",
                   "arabicName": "صحن قدس",
                   "osm": "w385252768",
                   "site": "imam_reza_shrine",
@@ -3988,7 +4005,7 @@
                 {
                   "id": "sahn_kawthar",
                   "kind": "landmark",
-                  "name": "Sahn Kawthar",
+                  "name": "Sahn Kowsar",
                   "arabicName": "صحن کوثر",
                   "osm": "w55955755",
                   "site": "imam_reza_shrine",
@@ -4259,7 +4276,11 @@
                 "https://en.wikipedia.org/wiki/Hossein_Borujerdi",
                 "https://en.wikipedia.org/wiki/Muhammad_Husayn_Tabatabai",
                 "https://en.wikipedia.org/wiki/Mohammad-Taqi_Bahjat_Foumani",
-                "https://www.openstreetmap.org/search?query=آرامگاه%20حضرت%20فاطمه%20معصومه"
+                "https://www.openstreetmap.org/search?query=آرامگاه%20حضرت%20فاطمه%20معصومه",
+                "https://lastsecond.ir/blog/9142-fatima-masumeh-shrine",
+                "https://lastsecond.ir/attractions/8885-fatima-masumeh-shrine",
+                "https://vtour.amfm.ir/",
+                "https://www.openstreetmap.org/node/4355253033"
               ]
             },
             {
@@ -4503,6 +4524,380 @@
                   "location": [
                     34.642766,
                     50.879308
+                  ]
+                },
+                {
+                  "id": "qom_gate_1",
+                  "kind": "gate",
+                  "name": "Gate 1",
+                  "arabicName": "درب ۱",
+                  "osm": "n5233076016",
+                  "site": "masuma_shrine",
+                  "ziyarat": [
+                    {
+                      "uid": "B6"
+                    }
+                  ],
+                  "location": [
+                    34.642159,
+                    50.879686
+                  ]
+                },
+                {
+                  "id": "qom_gate_2",
+                  "kind": "gate",
+                  "name": "Gate 2",
+                  "arabicName": "درب ۲",
+                  "osm": "n2523377924",
+                  "site": "masuma_shrine",
+                  "ziyarat": [
+                    {
+                      "uid": "B6"
+                    }
+                  ],
+                  "location": [
+                    34.642109,
+                    50.879933
+                  ]
+                },
+                {
+                  "id": "qom_gate_3",
+                  "kind": "gate",
+                  "name": "Gate 3",
+                  "arabicName": "درب ۳",
+                  "osm": "n5233075964",
+                  "site": "masuma_shrine",
+                  "ziyarat": [
+                    {
+                      "uid": "B6"
+                    }
+                  ],
+                  "location": [
+                    34.64197,
+                    50.880004
+                  ]
+                },
+                {
+                  "id": "qom_gate_4",
+                  "kind": "gate",
+                  "name": "Gate 4",
+                  "arabicName": "درب ۴",
+                  "osm": "n5233076274",
+                  "site": "masuma_shrine",
+                  "ziyarat": [
+                    {
+                      "uid": "B6"
+                    }
+                  ],
+                  "location": [
+                    34.64182,
+                    50.880091
+                  ]
+                },
+                {
+                  "id": "qom_gate_5",
+                  "kind": "gate",
+                  "name": "Gate 5",
+                  "arabicName": "درب ۵",
+                  "osm": "n5233075957",
+                  "site": "masuma_shrine",
+                  "ziyarat": [
+                    {
+                      "uid": "B6"
+                    }
+                  ],
+                  "location": [
+                    34.641605,
+                    50.880142
+                  ]
+                },
+                {
+                  "id": "qom_gate_6",
+                  "kind": "gate",
+                  "name": "Gate 6",
+                  "arabicName": "درب ۶",
+                  "osm": "n5233075961",
+                  "site": "masuma_shrine",
+                  "ziyarat": [
+                    {
+                      "uid": "B6"
+                    }
+                  ],
+                  "location": [
+                    34.641103,
+                    50.879482
+                  ]
+                },
+                {
+                  "id": "qom_gate_7",
+                  "kind": "gate",
+                  "name": "Gate 7",
+                  "arabicName": "درب ۷",
+                  "osm": "n5233075933",
+                  "site": "masuma_shrine",
+                  "ziyarat": [
+                    {
+                      "uid": "B6"
+                    }
+                  ],
+                  "location": [
+                    34.641035,
+                    50.879366
+                  ]
+                },
+                {
+                  "id": "qom_gate_8",
+                  "kind": "gate",
+                  "name": "Gate 8",
+                  "arabicName": "درب ۸",
+                  "osm": "n5233075978",
+                  "site": "masuma_shrine",
+                  "ziyarat": [
+                    {
+                      "uid": "B6"
+                    }
+                  ],
+                  "location": [
+                    34.640955,
+                    50.879223
+                  ]
+                },
+                {
+                  "id": "qom_gate_9",
+                  "kind": "gate",
+                  "name": "Gate 9",
+                  "arabicName": "درب ۹",
+                  "osm": "n3304178870",
+                  "site": "masuma_shrine",
+                  "ziyarat": [
+                    {
+                      "uid": "B6"
+                    }
+                  ],
+                  "location": [
+                    34.640742,
+                    50.878882
+                  ]
+                },
+                {
+                  "id": "qom_gate_10",
+                  "kind": "gate",
+                  "name": "Gate 10",
+                  "arabicName": "درب ۱۰",
+                  "osm": "n3304178868",
+                  "site": "masuma_shrine",
+                  "ziyarat": [
+                    {
+                      "uid": "B6"
+                    }
+                  ],
+                  "location": [
+                    34.64062,
+                    50.878687
+                  ]
+                },
+                {
+                  "id": "qom_gate_11",
+                  "kind": "gate",
+                  "name": "Gate 11",
+                  "arabicName": "درب ۱۱",
+                  "osm": "n5233075965",
+                  "site": "masuma_shrine",
+                  "ziyarat": [
+                    {
+                      "uid": "B6"
+                    }
+                  ],
+                  "location": [
+                    34.640499,
+                    50.878518
+                  ]
+                },
+                {
+                  "id": "qom_gate_12",
+                  "kind": "gate",
+                  "name": "Gate 12",
+                  "arabicName": "درب ۱۲",
+                  "osm": "n5233075980",
+                  "site": "masuma_shrine",
+                  "ziyarat": [
+                    {
+                      "uid": "B6"
+                    }
+                  ],
+                  "location": [
+                    34.640658,
+                    50.878289
+                  ]
+                },
+                {
+                  "id": "qom_gate_13",
+                  "kind": "gate",
+                  "name": "Gate 13",
+                  "arabicName": "درب ۱۳",
+                  "osm": "n5233075977",
+                  "site": "masuma_shrine",
+                  "ziyarat": [
+                    {
+                      "uid": "B6"
+                    }
+                  ],
+                  "location": [
+                    34.640852,
+                    50.87801
+                  ]
+                },
+                {
+                  "id": "qom_gate_14",
+                  "kind": "gate",
+                  "name": "Gate 14",
+                  "arabicName": "درب ۱۴",
+                  "osm": "n5233076234",
+                  "site": "masuma_shrine",
+                  "ziyarat": [
+                    {
+                      "uid": "B6"
+                    }
+                  ],
+                  "location": [
+                    34.641063,
+                    50.877707
+                  ]
+                },
+                {
+                  "id": "qom_gate_15",
+                  "kind": "gate",
+                  "name": "Gate 15",
+                  "arabicName": "درب ۱۵",
+                  "osm": "n5233075942",
+                  "site": "masuma_shrine",
+                  "ziyarat": [
+                    {
+                      "uid": "B6"
+                    }
+                  ],
+                  "location": [
+                    34.641463,
+                    50.877286
+                  ]
+                },
+                {
+                  "id": "qom_gate_17",
+                  "kind": "gate",
+                  "name": "Gate 17",
+                  "arabicName": "درب ۱۷",
+                  "osm": "w541097223",
+                  "site": "masuma_shrine",
+                  "ziyarat": [
+                    {
+                      "uid": "B6"
+                    }
+                  ],
+                  "location": [
+                    34.641719,
+                    50.876971
+                  ]
+                },
+                {
+                  "id": "qom_gate_18",
+                  "kind": "gate",
+                  "name": "Gate 18",
+                  "arabicName": "درب ۱۸",
+                  "osm": "n3855870457",
+                  "site": "masuma_shrine",
+                  "ziyarat": [
+                    {
+                      "uid": "B6"
+                    }
+                  ],
+                  "location": [
+                    34.641819,
+                    50.876896
+                  ]
+                },
+                {
+                  "id": "qom_gate_19",
+                  "kind": "gate",
+                  "name": "Gate 19",
+                  "arabicName": "درب ۱۹",
+                  "osm": "n5233075984",
+                  "site": "masuma_shrine",
+                  "ziyarat": [
+                    {
+                      "uid": "B6"
+                    }
+                  ],
+                  "location": [
+                    34.64218,
+                    50.877298
+                  ]
+                },
+                {
+                  "id": "qom_gate_21",
+                  "kind": "gate",
+                  "name": "Gate 21",
+                  "arabicName": "درب ۲۱",
+                  "osm": "n10736467147",
+                  "site": "masuma_shrine",
+                  "ziyarat": [
+                    {
+                      "uid": "B6"
+                    }
+                  ],
+                  "location": [
+                    34.642679,
+                    50.878086
+                  ]
+                },
+                {
+                  "id": "qom_gate_22",
+                  "kind": "gate",
+                  "name": "Gate 22",
+                  "arabicName": "درب ۲۲",
+                  "osm": "n5233075932",
+                  "site": "masuma_shrine",
+                  "ziyarat": [
+                    {
+                      "uid": "B6"
+                    }
+                  ],
+                  "location": [
+                    34.644076,
+                    50.880343
+                  ]
+                },
+                {
+                  "id": "qom_gate_23",
+                  "kind": "gate",
+                  "name": "Gate 23",
+                  "arabicName": "درب ۲۳",
+                  "osm": "n4355253031",
+                  "site": "masuma_shrine",
+                  "ziyarat": [
+                    {
+                      "uid": "B6"
+                    }
+                  ],
+                  "location": [
+                    34.643873,
+                    50.878687
+                  ]
+                },
+                {
+                  "id": "qom_gate_24",
+                  "kind": "gate",
+                  "name": "Gate 24",
+                  "arabicName": "درب ۲۴",
+                  "osm": "n4355253033",
+                  "site": "masuma_shrine",
+                  "ziyarat": [
+                    {
+                      "uid": "B6"
+                    }
+                  ],
+                  "location": [
+                    34.643197,
+                    50.877582
                   ]
                 }
               ]
