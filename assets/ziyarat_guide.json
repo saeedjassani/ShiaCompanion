@@ -263,6 +263,17 @@
               "about": "At the foot of Mount Uhud, north of the city, lie the Muslims killed in the Battle of Uhud in Shawwal 3 AH, among them the Prophet's (s.a.w.a.) uncle Hamzah, the Master of Martyrs of his time. The Prophet (s.a.w.a.) is narrated to have said that whoever visits his tomb and not his uncle Hamzah's has deserted him. Opposite the graves is the small hill of the archers (Jabal al-Rumat), where the battle turned.",
               "ziyarat": [
                 {
+                  "uid": "AQ2",
+                  "tab": 1,
+                  "label": "Ziyarat of Hamzah (a.s.)",
+                  "note": "At his tomb."
+                },
+                {
+                  "uid": "AQ2",
+                  "tab": 2,
+                  "label": "Ziyarat of the Martyrs of Uhud"
+                },
+                {
                   "uid": "G29",
                   "tab": 1,
                   "label": "Greeting the Believers Buried Here",
@@ -287,10 +298,11 @@
               ],
               "tips": [
                 "The graves are inside a walled enclosure; pilgrims recite the ziyarat from the railing outside.",
-                "After the ziyarat of Hamzah (a.s.) it is recommended to pray two rak'at and to recite Surah al-Qadr as many times as you can."
+                "After the ziyarat of Hamzah (a.s.) it is recommended to pray two rak'at, and after the ziyarat of the martyrs to recite Surah al-Qadr as many times as you can."
               ],
               "sources": [
                 "https://www.duas.org/mobile/hazrat-hamza-ohad.html",
+                "https://forums.alkafeel.net/node/1008522",
                 "https://www.duas.org/downloads/Madina-Ziyarat-Duasorg.pdf",
                 "https://nominatim.openstreetmap.org/search?q=مقبرة%20شهداء%20أحد"
               ]
@@ -633,6 +645,9 @@
                   "note": "On entering the cemetery."
                 },
                 {
+                  "uid": "AQ5"
+                },
+                {
                   "uid": "G79"
                 },
                 {
@@ -677,6 +692,8 @@
               ],
               "sources": [
                 "https://www.duas.org/mobile/madina-mecca-rites.html",
+                "https://forums.alkafeel.net/node/1062588",
+                "https://www.duas.org/mobile/ziyarat-khadija.html",
                 "https://en.wikipedia.org/wiki/Jannat_al-Mu%27alla",
                 "https://www.al-islam.org/shrines/baqi.htm",
                 "https://nominatim.openstreetmap.org/search?q=مقبرة%20المعلاة"

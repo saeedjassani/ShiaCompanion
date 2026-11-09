@@ -348,12 +348,14 @@ see `scripts/RESTORING_MISSING_ZIKRS.md`); URLs hold a text to check against.
 - **Madinah**, all on https://www.duas.org/mobile/madina-mecca-rites.html:
   the four Baqi Imams AP8 (https://www.duas.org/ziaratbaqi.htm), farewell to
   them AP9, farewell to the Prophet AP13, Ibrahim son of the Prophet AP11,
-  Fatimah bint Asad AQ1, Hamzah AQ2, the martyrs of Uhud AQ4, acts in
+  Fatimah bint Asad AQ1, acts in
   Madinah's mosques AP12, ziyarat of the Prophet from a distance AP5/AP6;
   no uid: Abbas ibn Abd al-Muttalib, Aqil and Abdullah ibn Ja'far, the
   Prophet's wives, daughters and aunts, Isma'il ibn Ja'far, Halimah.
-- **Makkah (no uid):** Lady Khadijah
-  (https://www.duas.org/mobile/ziyarat-khadija.html), Abd Manaf, Qasim.
+  (Hamzah and the martyrs of Uhud are restored: AQ2, with AQ3/AQ4 retired
+  into it.)
+- **Makkah (no uid):** Abd Manaf, Qasim (both on madina-mecca-rites.html).
+  Lady Khadijah is restored as AQ5.
 - **Baghdad:** the Four Deputies AM3 (+AM2)
   (https://duas.org/mobile/ziyarat-deputies-imam.html), Masjid Buratha AM1,
   al-Kulayni AM4.
@@ -479,8 +481,8 @@ The list as found in session 1:
    or tomb, open its ziyarat, "show where I am") and answers "For the
    owner to confirm before shipping" under "Shrine plans".
 2. Phase 3, restore missing ziyarats, biggest first: Imam Reza (AE3-AE8),
-   the Baqi Imams (AP8, AP9, AP11), Hamzah/Uhud (AQ1, AQ2, AQ4), the Four
-   Deputies (AM3), Abd al-Azim (AE17), Lady Khadijah. Follow
+   the Baqi Imams (AP8, AP9, AP11), Fatimah bint Asad (AQ1), the Four
+   Deputies (AM3), Abd al-Azim (AE17) - Uhud (AQ2) and Lady Khadijah (AQ5) are done. Follow
    `scripts/RESTORING_MISSING_ZIKRS.md`'s per-batch workflow and check each
    with `source_check.py`; then link each new uid from its site in
    `assets/ziyarat_guide.json` (the test checks the links), and from the

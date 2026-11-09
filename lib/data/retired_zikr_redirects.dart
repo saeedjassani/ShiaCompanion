@@ -412,4 +412,10 @@ const Map<String, RetiredZikrRedirect> retiredZikrRedirects = {
 
   /// Ziyarat of Salman al-Farsi: the first ten lines of AJ2's ziyarat.
   'G63': RetiredZikrRedirect('AJ2'),
+
+  /// Uhud, restored as one entry: AQ4 (the ziyarat of the martyrs of Uhud)
+  /// is AQ2's second tab, and AQ3 (the merits of visiting Hamzah and the
+  /// martyrs, prose only) is AQ2's merits.
+  'AQ3': RetiredZikrRedirect('AQ2'),
+  'AQ4': RetiredZikrRedirect('AQ2', tabIndex: 0),
 };

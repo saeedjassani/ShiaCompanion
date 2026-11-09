@@ -1085,6 +1085,20 @@
     "title": "Ziyarat of Lady Fatimah al-Zahra (s.a.)",
     "slug": "ziyarah-of-lady-fatimah-al-zahra"
   },
+  "AQ2": {
+    "title": "Ziyarat of Hamzah (a.s.) and the Martyrs of Uhud",
+    "slug": "visiting-the-tomb-of-hamzah-at-uhud",
+    "day": "10-15",
+    "slugAliases": [
+      "visiting-the-tombs-of-the-martyrs-in-the-battle-of-uhud",
+      "merits-of-visiting-the-tombs-of-the-martyrs-in-the-battle-of-uhud"
+    ]
+  },
+  "AQ5": {
+    "title": "Ziyarat of Lady Khadijah al-Kubra (s.a.)",
+    "slug": "ziyarat-of-lady-khadijah-al-kubra-s-a",
+    "day": "09-10"
+  },
   "AS1": {
     "title": "Dua No. 1",
     "slug": "dua-no-1"
