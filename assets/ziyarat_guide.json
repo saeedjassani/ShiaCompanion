@@ -783,7 +783,7 @@
           "about": "Najaf is the city of Amir al-Mu'minin Imam Ali (a.s.), who was buried here in secret in 40 AH, and for a thousand years the home of the Shia seminary founded around his shrine by Shaykh al-Tusi. North of the shrine lies Wadi al-Salam, the vast cemetery where believers have long asked to be buried. Kufa, where Imam Ali (a.s.) lived and was struck, has grown into one city with Najaf, and its mosques are a short drive away.",
           "tips": [
             "Most pilgrims stay in the old city around the shrine and walk to it; Wadi al-Salam starts just north of the shrine, beyond Bab al-Tusi.",
-            "The busiest days are the martyrdom of Imam Ali (a.s.) on 19-21 Ramadan, Eid al-Ghadir on 18 Dhul Hijjah and the Mab'ath on 27 Rajab, when special ziyarats of Imam Ali (a.s.) are recited.",
+            "The busiest days are the martyrdom of Imam Ali (a.s.) on 19-21 Ramazan, Eid al-Ghadir on 18 Dhul Hijjah and the Mab'ath on 27 Rajab, when special ziyarats of Imam Ali (a.s.) are recited.",
             "In the first weeks of Safar many pilgrims set out on foot from Najaf to Karbala for Arbaeen (20 Safar), along the road lined with mawkibs that host walkers.",
             "Plan the Kufa mosques (Masjid al-Kufa, Masjid al-Sahla) as a half day of their own; Masjid al-Sahla is best visited between Maghrib and Isha.",
             "Shoes are left at a kishwaniyya by each gate and bags are searched at the entrances, so carry little; women are expected to wear a full abaya or chador inside the shrines."
@@ -799,7 +799,7 @@
                 44.3146
               ],
               "holySiteId": "imam_ali_najaf",
-              "about": "The tomb of Amir al-Mu'minin Imam Ali ibn Abi Talib (a.s.), martyred in Kufa on 21 Ramadan 40 AH and buried by his sons at night outside the city. Its place was kept hidden until the Imams revealed it, and Imam al-Sadiq (a.s.) visited it with his companions. By narration Prophets Adam and Nuh (a.s.) lie with him, and the ziyarat greets them as his two companions. The building took its present form under the Safavids; around its courtyard lie many of the great scholars of the Shia.",
+              "about": "The tomb of Amir al-Mu'minin Imam Ali ibn Abi Talib (a.s.), martyred in Kufa on 21 Ramazan 40 AH and buried by his sons at night outside the city. Its place was kept hidden until the Imams revealed it, and Imam al-Sadiq (a.s.) visited it with his companions. By narration Prophets Adam and Nuh (a.s.) lie with him, and the ziyarat greets them as his two companions. The building took its present form under the Safavids; around its courtyard lie many of the great scholars of the Shia.",
               "ziyarat": [
                 {
                   "uid": "B6"
@@ -1338,12 +1338,12 @@
           "id": "kufa",
           "name": "Kufa",
           "arabicName": "الكوفة",
-          "about": "Kufa was the capital of Imam Ali (a.s.) during his caliphate and the city where he was struck in the mihrab of its mosque on 19 Ramadan 40 AH. Muslim ibn Aqeel (a.s.) was martyred here as Imam Husayn (a.s.)'s envoy. The Imams counted Masjid al-Kufa among the four great mosques of Islam and praised Masjid al-Sahla as a place where prayers are answered. Today it is joined to Najaf, about 10 km east of the shrine.",
+          "about": "Kufa was the capital of Imam Ali (a.s.) during his caliphate and the city where he was struck in the mihrab of its mosque on 19 Ramazan 40 AH. Muslim ibn Aqeel (a.s.) was martyred here as Imam Husayn (a.s.)'s envoy. The Imams counted Masjid al-Kufa among the four great mosques of Islam and praised Masjid al-Sahla as a place where prayers are answered. Today it is joined to Najaf, about 10 km east of the shrine.",
           "tips": [
             "Most pilgrims come for the day from Najaf; start at Masjid al-Kufa, which holds the tombs of Muslim ibn Aqeel (a.s.) and Hani ibn Urwah (a.s.), then visit the House of Imam Ali (a.s.) and Maytham al-Tammar next to it.",
             "The acts of Masjid al-Kufa are a long sequence of prayers at its stations; allow a few hours and bring the app's entries open on your phone.",
             "Go to Masjid al-Sahla in the evening: the acts there are best between Maghrib and Isha, especially on the night before Wednesday (Tuesday night), when it is very full.",
-            "Masjid al-Kufa is crowded on 19-21 Ramadan, the nights Imam Ali (a.s.) was struck and passed away, and on Thursday nights for Dua Kumayl."
+            "Masjid al-Kufa is crowded on 19-21 Ramazan, the nights Imam Ali (a.s.) was struck and passed away, and on Thursday nights for Dua Kumayl."
           ],
           "sites": [
             {
@@ -1356,7 +1356,7 @@
                 44.4008
               ],
               "holySiteId": "masjid_al_kufa",
-              "about": "One of the four great mosques of Islam: by narration prophets from Adam to Ibrahim (a.s.) prayed here and Nuh (a.s.) built the Ark on its ground. Imam Ali (a.s.) taught, judged and led prayers here, and was struck by Ibn Muljam in its mihrab during the dawn prayer of 19 Ramadan 40 AH. Its stations (maqams) of the prophets and Imams, its seat of judgement (Dikkat al-Qada) and the place of the washtub (Bayt al-Tasht) each have their own prayers.",
+              "about": "One of the four great mosques of Islam: by narration prophets from Adam to Ibrahim (a.s.) prayed here and Nuh (a.s.) built the Ark on its ground. Imam Ali (a.s.) taught, judged and led prayers here, and was struck by Ibn Muljam in its mihrab during the dawn prayer of 19 Ramazan 40 AH. Its stations (maqams) of the prophets and Imams, its seat of judgement (Dikkat al-Qadha) and the place of the washtub (Bayt al-Tasht) each have their own prayers.",
               "ziyarat": [
                 {
                   "uid": "AI3",
@@ -1463,7 +1463,7 @@
                 32.0281,
                 44.3997
               ],
-              "about": "The modest house beside Masjid al-Kufa where Imam Ali (a.s.) lived with his family during his caliphate. By tradition he was carried here after being struck in the mosque and passed away here on 21 Ramadan 40 AH.",
+              "about": "The modest house beside Masjid al-Kufa where Imam Ali (a.s.) lived with his family during his caliphate. By tradition he was carried here after being struck in the mosque and passed away here on 21 Ramazan 40 AH.",
               "ziyarat": [],
               "tips": [
                 "It is just south of Masjid al-Kufa, a short walk from the tomb of Maytham al-Tammar."
