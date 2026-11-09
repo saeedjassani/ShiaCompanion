@@ -664,13 +664,11 @@ The list as found in session 1:
 
 **For the owner (translations):**
 
-- Persian: Salman al-Farsi's honorific. The guide and AJ2's Persian title
-  use (رض); a reviewer notes Iranian Shia texts usually write (ره) or
-  «حضرت سلمان», and (رض) can read as Sunni usage. Urdu keeps (رض) as the
-  corpus does.
-- Gujarati: `site.bab_al_saghir_cemetery.buried.fiddah.name` is "જનાબે
-  ફિઝ્ઝા" where the English is plain "Fiddah" (keep, or drop જનાબે); and
-  the guide spells the month મોહર્રમ, as most of the zikr corpus does,
+- Persian: Salman al-Farsi's honorific is (ره) (the owner's call,
+  2026-11-09), in the guide and AJ2's Persian title. Urdu keeps (رض) as
+  the corpus does.
+- Gujarati: Fiddah stays "જનાબે ફિઝ્ઝા" (the owner's call, 2026-11-09).
+  Open: the guide spells the month મોહર્રમ, as most of the zikr corpus does,
   while `app_gu.arb`'s month names use મુહર્રમ.
 - Urdu: the Jamkaran tahiyyat label reads `تحیۃ المسجد` while tips say
   `نماز تحیت مسجد`; left as it is.
