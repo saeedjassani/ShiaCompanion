@@ -1222,7 +1222,7 @@
                   "arabicName": "باب الساعة (باب الإمام الرضا)",
                   "osm": "n9723305133",
                   "site": "imam_ali_shrine",
-                  "note": "Also called Bab al-Imam al-Reza (a.s.), a name it took when it reopened, restored and gilded, in 2023. The Clock Gate, the largest gate of the courtyard, in the middle of its east side, under the clock tower.",
+                  "note": "The Clock Gate, the largest gate of the courtyard, in the middle of its east side under the clock tower. Also called Bab al-Imam al-Reza (a.s.), a name it took when it reopened, restored and gilded, in 2023.",
                   "ziyarat": [
                     {
                       "uid": "B6"
@@ -3453,7 +3453,7 @@
                 43.8735
               ],
               "holySiteId": "al_askari_samarra",
-              "about": "The house of the tenth and eleventh Imams, Ali al-Naqi al-Hadi (a.s.) and al-Hasan al-Askari (a.s.), where both were buried; Lady Narjis, mother of Imam al-Mahdi (a.t.f.s.), and Lady Hakimah, daughter of Imam al-Jawad (a.s.), lie in the same shrine. Its golden dome was destroyed in bombings in 2006 and 2007 and has since been rebuilt. Begin with [the ziyarat of both Imams together](AL1), then visit each Imam with his own ziyarat.",
+              "about": "The house of the tenth and eleventh Imams, Ali al-Naqi al-Hadi (a.s.) and al-Hasan al-Askari (a.s.), where both were buried; Lady Narjis (s.a.), mother of Imam al-Mahdi (a.t.f.s.), and Lady Hakimah, daughter of Imam al-Jawad (a.s.), lie in the same shrine. Its golden dome was destroyed in bombings in 2006 and 2007 and has since been rebuilt. Begin with [the ziyarat of both Imams together](AL1), then visit each Imam with his own ziyarat.",
               "ziyarat": [
                 {
                   "uid": "B6",
@@ -3533,7 +3533,7 @@
               ],
               "tips": [
                 "Pray the ziyarat prayer at the tombs if you can reach them, or else in the mosque beside the Imams' house where they used to pray, as the [combined ziyarat](AL1) instructs.",
-                "Remember Lady Narjis (s.a.) and Lady Hakimah (s.a.) inside the same zarih; the corpus does not yet hold their own ziyarats, so a salam and al-Fatihah will do.",
+                "Remember Lady Narjis (s.a.) and Lady Hakimah (s.a.) inside the same zarih; the app does not yet have their own ziyarats, so a salam and al-Fatihah will do.",
                 "The Sardab is reached through the mosque that adjoins the shrine, under its own dome."
               ],
               "sources": [
@@ -3861,7 +3861,7 @@
               "ziyarat": [],
               "buried": [],
               "tips": [
-                "Pray two rak'ats here as Imam Ali (a.s.) did; the corpus does not yet hold Mafatih's section on it."
+                "Pray two rak'ats here as Imam Ali (a.s.) did; the app does not yet have Mafatih's section on it."
               ],
               "sources": [
                 "https://www.al-islam.org/ziyarat/iraq.htm",
