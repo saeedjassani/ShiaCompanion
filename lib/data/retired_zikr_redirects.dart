@@ -422,4 +422,10 @@ const Map<String, RetiredZikrRedirect> retiredZikrRedirects = {
   /// account of his life and the merits of visiting him, with nothing to
   /// recite; it is now in the merits of AE17, his ziyarat.
   'AE16': RetiredZikrRedirect('AE17'),
+
+  /// Uhud, restored as one entry: AQ4 (the ziyarat of the martyrs of Uhud)
+  /// is AQ2's second tab, and AQ3 (the merits of visiting Hamzah and the
+  /// martyrs, prose only) is AQ2's merits.
+  'AQ3': RetiredZikrRedirect('AQ2'),
+  'AQ4': RetiredZikrRedirect('AQ2', tabIndex: 0),
 };
