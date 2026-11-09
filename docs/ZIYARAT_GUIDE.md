@@ -418,11 +418,15 @@ Found while writing phase 1's content. Uids are from
 `scripts/unfavorited_missing_zikrs.json` (their old text is in git history,
 see `scripts/RESTORING_MISSING_ZIKRS.md`); URLs hold a text to check against.
 
-- **Imam Reza (the biggest gap):** G68 is only the head-side salutation.
-  Missing: the main first ziyarat AE3, the dua after it AE4, Ziyarat
-  Jawadiyya AE5, other forms AE6/AE7, the farewell AE8, his own
-  Izn-e-Dukhool, the "Seven Hadith" ziyarat, Imam al-Zaman's ziyarat at his
-  shrine. All on https://www.duas.org/ziaratimamreza_sr.htm.
+- **Imam Reza: restored** as AE3 "Ziyarat of Imam Ali al-Reza (a.s.) —
+  Mashhad (All Forms)", six tabs: permission to enter, the first ziyarat,
+  the dua after its prayer, al-Jawadiyya, Ibn Qulawayh's and al-Mufid's
+  forms, the farewell (AE4-AE8 redirect to their tabs). Still missing: the
+  "Seven Hadith" ziyarat and the other forms of duas.org's Sahifa Radawiyya
+  page (not in Mafatih); Imam al-Zaman's ziyarat at his shrine (its only
+  source is Sahifa-e-Mahdiyya, p. 610; G76 tab 2 has a short form); the
+  farewell tab's first line was written fresh because AP13 was missing
+  then; it is now AP2's second tab, so that line can be checked against it.
 - **Iran, other:** (Abd al-Azim al-Hasani AE17 is restored, with AE16's
   biography in its merits, and linked); farewell to Lady Masuma (AE14 was prose only); descendants of the Imams in
   general G28 (prose only, would serve Rey and Shiraz).
