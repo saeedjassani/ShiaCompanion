@@ -659,8 +659,8 @@ The list as found in session 1:
   in all four languages (its Arabic lines stay untranslated, as the rest
   of AP2's do: verses need a published source, `scripts/zikr_i18n/SOURCES.md`).
 - Tab labels and instruction lines of AE3, AP8, AQ2, AQ5, AM3 and AE17,
-  and the ur/fa/ar/gu titles of AM3 and AE17, translated (see the commit);
-  their merits and verses are not.
+  and the ur/fa/ar/gu titles of AM3 and AE17, translated, each language
+  then read by an independent reviewer; their merits and verses are not.
 
 **For the owner (translations):**
 
