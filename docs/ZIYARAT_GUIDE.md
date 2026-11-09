@@ -414,6 +414,47 @@ The audit scripts are not kept. To redo it, compare Arabic lines (strict,
 then diacritic-insensitive) per entry across those commits, against the
 whole HEAD corpus, with `assets/items/*` at `d11c1f16^` for Divine Pearls.
 
+## Restored in session 3: for the owner to review
+
+Transliteration of all of these is `translit.py` output read line by line,
+not native-checked. Instruction lines and tab labels are new English.
+
+- **AE3 Imam Reza.** Tab 1 (izn) is duas.org's (Sahifa Radawiyya),
+  Mafatih's general izn with his name; its ending «فَاَنْتَ اَهْلٌ لَهٗ» may
+  read «لِذٰلِكَ» in Mafatih - check. Tab 4 (al-Jawadiyya) rests on
+  duas.org alone (Bihar 102); six vowel slips fixed from grammar, «اِمَامَ
+  قَصِيْبٍ» left as is, bracketed alternates dropped (two named in
+  merits), nine English lines written fresh. Tab 6's first line ("May
+  Allah not make this my last greeting to you.") was written fresh: the
+  Prophet's farewell it opens with is now AP2 tab 2 - compare. AE6's
+  salawat (tab 5) also sits in G68 («تامة»/«نامية»).
+- **AP8 al-Baqi / AP2.** History checked against duas.org's
+  ziaratbaqi.htm; three small fixes (AP13 «السَّلَامَ», AQ1 and AP8 stray
+  marks). AP13's "to send blessings upon you" for «وَاَقْرَاُ عَلَيْكَ
+  السَّلَامَ» kept from the source (it means "greet you with peace").
+  Fatimah bint Asad's variants «الْمَرْضِيَّةُ» and «مُؤْثِرَةً هَوَاهُ»
+  not carried over. `silah.py` skips words ending in «اله» (fixed
+  «حَلَالَهُ» by hand). Not added: ziaratbaqi.htm's ziyarats of the
+  Prophet's wives, daughters, Aqil and Abdullah ibn Ja'far.
+- **AQ2 Uhud.** Two phrases added from duas.org that our history lacked
+  («اِلَى اللّٰهِ عَزَّ وَجَلَّ بِزِيَارَتِكَ وَمُتَقَرِّبًا», «وَسَخَطِكَ
+  وَمَقْتِكَ»); al-Qadr placed after the martyrs (Mafatih), not after
+  Hamzah's dua (duas.org). `day` 15 Shawwal.
+- **AQ5 Lady Khadijah** (new uid; AQ was history's Makkah series). From
+  duas.org checked against alkafeel's post of Kashif al-Ghita's Murshid
+  al-Anam; the first four salutations are alkafeel's alone, with fresh
+  English; readings «وَمَلِكَةَ الْبَطْحَاۤءِ», «الْعِقْيَانِ», «وَاَنَّ
+  اللّٰهَ» kept from duas.org; «الْمُزَوَّجَةِ» may want a fatha. A shorter
+  form by Muhsin al-Amin (alkafeel node/1005886) is a possible second tab.
+  `day` 10 Ramadan. Its four `index.json` titles need a native check.
+- **AM3 Four Deputies.** The 15 opening salutations' Arabic is duas.org's
+  (Tahdhib); two-reading brackets resolved to mafatih.duas.co's text;
+  the greeting "O (name) son of (name)" and instructions are new English.
+- **AE17 Abd al-Azim.** Matches mafatih.duas.co line for line; English
+  edits: «السلام على العبد الصالح» as "Peace be upon the righteous
+  servant", a clause with no Arabic («وبه راض») dropped. AE16 (biography)
+  retired into its merits.
+
 ## Missing ziyarats (phase 3 work list)
 
 Found while writing phase 1's content. Uids are from
@@ -590,10 +631,9 @@ The list as found in session 1:
   farewell (AP13), **AQ2** Hamzah and the martyrs of Uhud (AQ3/AQ4),
   **AQ5** Lady Khadijah (new uid), **AM3** the Four Deputies (AM2),
   **AE17** Abd al-Azim (AE16). Each is linked from its site and plan
-  feature; `source_check` baselined; counts recounted. For the owner to
-  review in them (fresh English, Arabic readings chosen between sources,
-  machine-drafted transliteration): see the commit messages of the
-  merged agent branches and "Missing ziyarats". Tab labels, instruction
+  feature; `source_check` baselined; counts recounted. What the owner
+  should review in them: "Restored in session 3: for the owner to
+  review". Tab labels, instruction
   lines and new merits of these entries have no ur/fa/ar/gu yet.
 - Phase 4 started: one opus agent per language writes
   `assets/ziyarat_guide_i18n/<code>.json` (918 keys);
