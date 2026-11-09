@@ -796,6 +796,7 @@
   "whatsNew140Siri": "Siriને કોઈ પ્લેલિસ્ટ કે દુઆ ચલાવવા, કોઈ દુઆ ખોલવા કે આગલી નમાઝનો સમય કહેવા કહો: \"Play Thursday Night in Shia Companion\". આ જ કામ Shortcuts ઍપમાં પણ છે. iOS 17 કે તે પછીનું વર્ઝન જોઈએ.",
   "whatsNew140Spotlight": "દુઆઓ Spotlight શોધમાં દેખાય છે. કોઈ પર ટેપ કરો તો તે ઍપમાં ખૂલે છે.",
   "whatsNew140PinPlaylist": "કોઈ પ્લેલિસ્ટને તેના મેનૂમાંથી હોમ સ્ક્રીન પર મૂકો, અને એક ટેપથી ચલાવો.",
+  "whatsNew141EventNotifications": "ઇસ્લામી કેલેન્ડરની વિલાદત, શહાદત અને બીજા પ્રસંગોની સૂચના પહેલાંની સાંજે મગરિબના સમયે મેળવો. કેલેન્ડરમાં ઘંટડીના ચિહ્નથી અથવા સેટિંગ્સ › સૂચનાઓમાં તેને ચાલુ કરો. થોડો સમય એપ ન ખોલો તો પણ દર મહિને ઓછામાં ઓછી એક સૂચના મળશે.",
   "pickerChooseZikr": "ઝિક્ર પસંદ કરો",
   "pickerSearchZikrHint": "ઝિક્ર, દુઆ, ઝિયારત શોધો...",
   "todaysNone": "કોઈ પઠન ગોઠવેલા નથી.",
@@ -1379,5 +1380,17 @@
   "ziyaratGuideMapTombs": "મઝારો અને મકામો",
   "ziyaratGuideMapGates": "દરવાજા",
   "ziyaratGuideMapDoors": "હરમના દરવાજા",
-  "ziyaratGuideMapNearby": "નજીક"
+  "ziyaratGuideMapNearby": "નજીક",
+  "eventNotificationsTitle": "ઇસ્લામી પ્રસંગો",
+  "eventNotificationsSubtitle": "ઇસ્લામી કેલેન્ડરની વિલાદત, શહાદત અને બીજા પ્રસંગો",
+  "eventNotificationsSwitch": "પ્રસંગોની સૂચના આપો",
+  "eventNotificationsSwitchHint": "પહેલાંની સાંજે મગરિબના સમયે, જ્યારે ઇસ્લામી દિવસ શરૂ થાય છે",
+  "eventKindsLabel": "કયા પ્રસંગો",
+  "eventKindCelebration": "વિલાદત અને ઈદ",
+  "eventKindMourning": "શહાદત અને શોકના દિવસો",
+  "eventKindOther": "બીજા પ્રસંગો",
+  "eventKindOtherHint": "રમઝાનની શરૂઆત, કદ્રની રાતો, જંગો",
+  "eventKindsNoneChosen": "ઓછામાં ઓછો એક પ્રકારનો પ્રસંગ પસંદ કરો",
+  "eventNotificationsFootnote": "તમે જ્યારે પણ એપ ખોલો ત્યારે આવનારા અઠવાડિયાંના બધા પ્રસંગોની સૂચનાઓ ગોઠવાઈ જાય છે. એપ બંધ રહે તો જે સૂચનાઓ ગોઠવાઈ ચૂકી છે તે આવનારા મહિનાઓમાં વહેંચાયેલી રહે છે, જેથી ઓછા પ્રસંગોવાળા મહિનાઓમાં પણ એક સૂચના આવે. એપને તમારા સ્થાનની જાણ ન થાય ત્યાં સુધી સૂચનાઓ {time} વાગ્યે આવશે.",
+  "eventNotificationBody": "{when} · {date}"
 }

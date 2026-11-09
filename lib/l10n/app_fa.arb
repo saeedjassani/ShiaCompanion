@@ -796,6 +796,7 @@
   "whatsNew140Siri": "از Siri بخواهید فهرست پخش یا دعایی را پخش کند، دعایی را باز کند یا وقت نماز بعدی را بگوید: «Play Thursday Night in Shia Companion». همین کارها در برنامهٔ Shortcuts هم هست. به iOS 17 یا بالاتر نیاز دارد.",
   "whatsNew140Spotlight": "دعاها در جست‌وجوی Spotlight پیدا می‌شوند. روی یکی بزنید تا در برنامه باز شود.",
   "whatsNew140PinPlaylist": "یک فهرست پخش را از منوی آن به صفحهٔ اصلی گوشی بیفزایید و با یک ضربه پخشش کنید.",
+  "whatsNew141EventNotifications": "از ولادت‌ها، شهادت‌ها و دیگر مناسبت‌های تقویم اسلامی، هنگام مغربِ شب قبل باخبر شوید. این اعلان‌ها را با دکمهٔ زنگ در صفحهٔ تقویم یا در «تنظیمات › اعلان‌ها» روشن کنید. حتی اگر مدتی برنامه را باز نکنید، هر ماه دست‌کم یک اعلان دریافت می‌کنید.",
   "pickerChooseZikr": "انتخاب ذکر",
   "pickerSearchZikrHint": "جستجوی ذکر، دعا، زیارت...",
   "todaysNone": "هیچ ذکری برای امروز تنظیم نشده است.",
@@ -1379,5 +1380,17 @@
   "ziyaratGuideMapTombs": "آرامگاه‌ها و مقام‌ها",
   "ziyaratGuideMapGates": "درب‌ها",
   "ziyaratGuideMapDoors": "درهای حرم",
-  "ziyaratGuideMapNearby": "نزدیک"
+  "ziyaratGuideMapNearby": "نزدیک",
+  "eventNotificationsTitle": "مناسبت‌های اسلامی",
+  "eventNotificationsSubtitle": "ولادت‌ها، شهادت‌ها و دیگر مناسبت‌های تقویم اسلامی",
+  "eventNotificationsSwitch": "اعلان مناسبت‌ها",
+  "eventNotificationsSwitchHint": "هنگام مغربِ شب قبل، که روز قمری آغاز می‌شود",
+  "eventKindsLabel": "کدام مناسبت‌ها",
+  "eventKindCelebration": "ولادت‌ها و اعیاد",
+  "eventKindMourning": "شهادت‌ها و ایام سوگواری",
+  "eventKindOther": "دیگر مناسبت‌ها",
+  "eventKindOtherHint": "آغاز ماه رمضان، شب‌های قدر، جنگ‌ها",
+  "eventKindsNoneChosen": "دست‌کم یک نوع مناسبت را انتخاب کنید",
+  "eventNotificationsFootnote": "هر بار که برنامه را باز می‌کنید، اعلان همهٔ مناسبت‌های چند هفتهٔ آینده تنظیم می‌شود. اگر برنامه بسته بماند، اعلان‌هایی که از قبل تنظیم شده‌اند میان ماه‌های آینده تقسیم شده‌اند تا ماه‌های کم‌مناسبت هم دست‌کم یک اعلان داشته باشند. تا وقتی مکان شما مشخص نشده است، اعلان‌ها ساعت {time} نمایش داده می‌شوند.",
+  "eventNotificationBody": "{when} · {date}"
 }

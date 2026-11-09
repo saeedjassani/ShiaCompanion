@@ -796,6 +796,7 @@
   "whatsNew140Siri": "Siri سے کوئی پلے لسٹ یا دعا چلوائیں، کوئی دعا کھلوائیں، یا اگلی نماز کا وقت پوچھیں: \"Play Thursday Night in Shia Companion\"۔ یہی کام Shortcuts ایپ میں بھی ہیں۔ iOS 17 یا اس کے بعد کا ورژن درکار ہے۔",
   "whatsNew140Spotlight": "دعائیں Spotlight تلاش میں نظر آتی ہیں۔ کسی پر ٹیپ کریں تو وہ ایپ میں کھل جاتی ہے۔",
   "whatsNew140PinPlaylist": "کسی پلے لسٹ کو اس کے مینو سے ہوم اسکرین پر رکھیں، اور ایک ٹیپ سے چلائیں۔",
+  "whatsNew141EventNotifications": "ولادت، شہادت اور اسلامی کیلنڈر کے دیگر ایام کی اطلاع ایک دن پہلے مغرب کے وقت پائیں۔ اسے کیلنڈر پر گھنٹی کے نشان سے، یا ترتیبات › اطلاعات میں آن کریں۔ اگر آپ کچھ عرصہ ایپ نہ بھی کھولیں، تب بھی ہر مہینے کم از کم ایک اطلاع ملے گی۔",
   "pickerChooseZikr": "ذکر منتخب کریں",
   "pickerSearchZikrHint": "ذکر، دعا، زیارت تلاش کریں...",
   "todaysNone": "آج کے لیے کوئی ذکر مقرر نہیں۔",
@@ -1379,5 +1380,17 @@
   "ziyaratGuideMapTombs": "مزارات اور مقامات",
   "ziyaratGuideMapGates": "دروازے",
   "ziyaratGuideMapDoors": "حرم کے دروازے",
-  "ziyaratGuideMapNearby": "قریب"
+  "ziyaratGuideMapNearby": "قریب",
+  "eventNotificationsTitle": "اسلامی ایام",
+  "eventNotificationsSubtitle": "ولادت، شہادت اور اسلامی کیلنڈر کے دیگر ایام",
+  "eventNotificationsSwitch": "ایام کی اطلاع دیں",
+  "eventNotificationsSwitchHint": "ایک دن پہلے مغرب کے وقت، جب اسلامی دن شروع ہوتا ہے",
+  "eventKindsLabel": "کون سے ایام",
+  "eventKindCelebration": "ولادتیں اور عیدیں",
+  "eventKindMourning": "شہادتیں اور ایام غم",
+  "eventKindOther": "دیگر ایام",
+  "eventKindOtherHint": "ماہِ رمضان کا آغاز، شب ہائے قدر، جنگیں",
+  "eventKindsNoneChosen": "کم از کم ایک قسم کے ایام منتخب کریں",
+  "eventNotificationsFootnote": "جب بھی آپ ایپ کھولتے ہیں، آنے والے ہفتوں کے تمام ایام کی اطلاعات مقرر ہو جاتی ہیں۔ ایپ بند رہے تو پہلے سے مقرر اطلاعات آنے والے مہینوں پر پھیلی ہوتی ہیں، تاکہ جن مہینوں میں کم ایام ہوں ان میں بھی ایک اطلاع آئے۔ جب تک ایپ کو آپ کا مقام معلوم نہ ہو، اطلاعات {time} پر آئیں گی۔",
+  "eventNotificationBody": "{when} · {date}"
 }
