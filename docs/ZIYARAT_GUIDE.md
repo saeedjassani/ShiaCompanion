@@ -427,7 +427,11 @@ not native-checked. Instruction lines and tab labels are new English.
   merits), nine English lines written fresh. Tab 6's first line ("May
   Allah not make this my last greeting to you.") was written fresh: the
   Prophet's farewell it opens with is now AP2 tab 2 - compare. AE6's
-  salawat (tab 5) also sits in G68 («تامة»/«نامية»).
+  salawat (tab 5) also sits in G68 («تامة»/«نامية»). Three translators
+  (session 4) found its instruction "pray the two-unit prayer of the
+  ziyarat, glorify Allah, and offer them as a gift" vague: if the source
+  means the Tasbih of Lady Fatimah (s.a.), say so (and link it); the four
+  translations say only "glorify".
 - **AP8 al-Baqi / AP2.** History checked against duas.org's
   ziaratbaqi.htm; three small fixes (AP13 «السَّلَامَ», AQ1 and AP8 stray
   marks). AP13's "to send blessings upon you" for «وَاَقْرَاُ عَلَيْكَ
