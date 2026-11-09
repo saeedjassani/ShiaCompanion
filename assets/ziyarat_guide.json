@@ -793,28 +793,28 @@
                   "name": "Allamah al-Hilli",
                   "arabicName": "العلامة الحلي",
                   "diedAh": 726,
-                  "note": "Hasan ibn Yusuf, the great jurist and theologian of Hilla; buried inside the shrine under the northern minaret, near the small gate of the sanctuary."
+                  "note": "Hasan ibn Yusuf, the great jurist and theologian of Hilla; buried in the room on the north side of the Golden Iwan, beside its northern minaret, on the right as you enter the haram."
                 },
                 {
                   "id": "muqaddas_ardabili",
                   "name": "Al-Muqaddas al-Ardabili",
                   "arabicName": "المقدس الأردبيلي",
                   "diedAh": 993,
-                  "note": "Ahmad ibn Muhammad al-Ardabili, jurist famed for his piety; buried in the shrine, where his tomb is shown on the shrine's own tour."
+                  "note": "Ahmad ibn Muhammad al-Ardabili, jurist famed for his piety; buried in the room on the south side of the Golden Iwan, opposite Allamah al-Hilli."
                 },
                 {
                   "id": "shaykh_murtada_ansari",
                   "name": "Shaykh Murtada al-Ansari",
                   "arabicName": "الشيخ مرتضى الأنصاري",
                   "diedAh": 1281,
-                  "note": "Author of al-Rasa'il and al-Makasib, still the core texts of the seminary; buried in a chamber of the courtyard by Bab al-Qibla."
+                  "note": "Author of al-Rasa'il and al-Makasib, still the core texts of the seminary; buried in the courtyard chamber beside Bab al-Qibla."
                 },
                 {
                   "id": "muhaddith_nuri",
                   "name": "Muhaddith al-Nuri",
                   "arabicName": "المحدث النوري",
                   "diedAh": 1320,
-                  "note": "Mirza Husayn al-Nuri, compiler of Mustadrak al-Wasa'il; buried in a chamber of the courtyard near Bab al-Qibla."
+                  "note": "Mirza Husayn al-Nuri, compiler of Mustadrak al-Wasa'il; buried in one of the chambers of the courtyard."
                 },
                 {
                   "id": "shaykh_abbas_qummi",
@@ -831,6 +831,20 @@
                   "note": "Muhammad Kazim al-Khurasani, author of Kifayat al-Usul; buried in one of the chambers of the shrine's courtyard."
                 },
                 {
+                  "id": "sayyid_kazim_yazdi",
+                  "name": "Sayyid Muhammad Kazim al-Yazdi",
+                  "arabicName": "السيد محمد كاظم اليزدي",
+                  "diedAh": 1337,
+                  "note": "Author of al-Urwa al-Wuthqa, the book of rulings on which most later jurists wrote their glosses; buried in the courtyard."
+                },
+                {
+                  "id": "sayyid_abu_al_hasan_isfahani",
+                  "name": "Sayyid Abu al-Hasan al-Isfahani",
+                  "arabicName": "السيد أبو الحسن الأصفهاني",
+                  "diedAh": 1365,
+                  "note": "The leading marja of his time; buried in one of the chambers of the courtyard."
+                },
+                {
                   "id": "ayatollah_khoei",
                   "name": "Sayyid Abu al-Qasim al-Khoei",
                   "arabicName": "السيد أبو القاسم الخوئي",
@@ -842,14 +856,14 @@
                   "name": "Adud al-Dawla",
                   "arabicName": "عضد الدولة البويهي",
                   "diedAh": 372,
-                  "note": "The Buyid ruler who rebuilt the shrine and asked to be buried near Imam Ali (a.s.); he lies on its western side."
+                  "note": "The Buyid ruler who rebuilt the shrine and asked to be buried near Imam Ali (a.s.)."
                 }
               ],
               "tips": [
                 "Recite the permission to enter at the gate of the sanctuary; the First Ziyarat begins once you stand facing the tomb.",
                 "The ziyarat prayer here is six units: two for Imam Ali (a.s.) and four as a gift to Prophets Adam and Nuh (a.s.).",
                 "Masjid al-Ras, on the south side of the Abu Talib portico, marks where by narration the head of Imam Husayn (a.s.) was buried beside his father; the [ziyarat of the head](AK7) is recited at the head side of Imam Ali (a.s.)'s tomb, where Imam al-Sadiq (a.s.) prayed and recited it.",
-                "The scholars' chambers line the courtyard walls; those of Shaykh al-Ansari, Muhaddith al-Nuri and Shaykh Abbas al-Qummi are on the qibla side, either side of Bab al-Qibla."
+                "The scholars' chambers line the courtyard walls; Shaykh al-Ansari's is beside Bab al-Qibla, and Allamah al-Hilli and al-Muqaddas al-Ardabili lie on either side of the Golden Iwan."
               ],
               "sources": [
                 "https://en.wikipedia.org/wiki/Imam_Ali_Shrine",
@@ -861,7 +875,23 @@
                 "https://en.wikishia.net/view/List_of_Figures_Buried_in_The_Holy_Shrine_of_Imam_%27Ali_(a)",
                 "https://en.wikishia.net/view/%27Abbas_Qummi",
                 "https://www.duas.org/downloads/najaf%20ulama.pdf",
-                "https://www.shiavault.com/books/biography-of-imam-ali-ibn-abi-talib/chapters/108-construction-of-the-mausoleum-of-imam-ali"
+                "https://www.shiavault.com/books/biography-of-imam-ali-ibn-abi-talib/chapters/108-construction-of-the-mausoleum-of-imam-ali",
+                "https://en.imamali.net/13606/the-overall-structure-and-geometric-form-of-the-sacred-alawi-courtyard/",
+                "https://en.imamali.net/1240/lady-fatima-al-zahra-courtyard/",
+                "https://en.imamali.net/the-deceased/the-mujahid-scholar-grand-ayatollah-sheikh-murtadha-al-ansari-may-god-sanctify-his-soul/",
+                "https://download.almohsinlibrary.com/SerM/SeEAli/SerEAli1497.pdf",
+                "https://www.almerja.com/more.php?idm=201587",
+                "https://www.almerja.com/more.php?idm=147411",
+                "https://shafaq.com/ar/مجتـمع/شفق-نيوز-في-صحن-فاطمة-ضخم-مشروع-استراتيجي-للعتبات-المقدسة-في-العراق",
+                "https://areq.net/m/مرتضى_الأنصاري.html",
+                "https://forums.alkafeel.net/node/104243",
+                "https://ar.wikishia.net/view/الميرزا_حسين_النوري",
+                "https://fa.wikishia.net/view/فهرست_مدفونان_در_حرم_امام_علی(ع)",
+                "https://ar.wikishia.net/view/السيد_أبو_الحسن_الأصفهاني",
+                "https://www.iranicaonline.org/?p=4730",
+                "https://fa.wikifeqh.ir/سید_محمدکاظم_طباطبایی‌_یزدی",
+                "https://fa.wikifeqh.ir/مسجد_خضرا",
+                "https://www.openstreetmap.org/relation/14118576/history"
               ]
             },
             {
@@ -1026,7 +1056,7 @@
               "id": "najaf_haram",
               "bbox": [
                 31.9946,
-                44.313,
+                44.3108,
                 31.9977,
                 44.3163
               ],
@@ -1088,10 +1118,24 @@
                   "osm": "w1058116498",
                   "site": "imam_ali_shrine",
                   "person": "allamah_hilli",
-                  "note": "On the north side of the Golden Iwan, under its northern minaret.",
+                  "note": "In the room on the north side of the Golden Iwan, beside its northern minaret.",
                   "location": [
                     31.995961,
                     44.314799
+                  ]
+                },
+                {
+                  "id": "muqaddas_ardabili_tomb",
+                  "kind": "tomb",
+                  "name": "Tomb of Muqaddas Ardabili",
+                  "arabicName": "مرقد المقدس الأردبيلي",
+                  "osm": "w1058116497",
+                  "site": "imam_ali_shrine",
+                  "person": "muqaddas_ardabili",
+                  "note": "In the room on the south side of the Golden Iwan, opposite Allamah al-Hilli.",
+                  "location": [
+                    31.995709,
+                    44.31482
                   ]
                 },
                 {
@@ -1101,7 +1145,7 @@
                   "arabicName": "الإيوان الذهبي",
                   "osm": "w1058116539",
                   "site": "imam_ali_shrine",
-                  "note": "The gilded porch on the east side of the haram, between its two gold minarets, facing the Clock Gate.",
+                  "note": "The gilded porch on the east side of the haram, between its two gold minarets, facing Bab al-Sa'a. The Golden Door in its middle leads into the haram.",
                   "location": [
                     31.995836,
                     44.314834
@@ -1111,10 +1155,10 @@
                   "id": "ali_gate_saa",
                   "kind": "gate",
                   "name": "Bab al-Sa'a",
-                  "arabicName": "باب الساعة",
+                  "arabicName": "باب الساعة (باب الإمام الرضا)",
                   "osm": "n9723305133",
                   "site": "imam_ali_shrine",
-                  "note": "The Clock Gate, the main gate of the courtyard, under the clock tower.",
+                  "note": "Also called Bab al-Imam al-Reza (a.s.), a name it took when it reopened, restored and gilded, in 2023. The Clock Gate, the largest gate of the courtyard, in the middle of its east side, under the clock tower.",
                   "ziyarat": [
                     {
                       "uid": "B6"
@@ -1126,13 +1170,31 @@
                   ]
                 },
                 {
+                  "id": "ali_gate_muslim",
+                  "kind": "gate",
+                  "name": "Bab Muslim ibn Aqil",
+                  "arabicName": "باب مسلم بن عقيل",
+                  "osm": "n9723305134",
+                  "site": "imam_ali_shrine",
+                  "note": "A smaller gate on the east side, just north of Bab al-Sa'a. Opened in 1252 AH; once called Bab al-Abayjiyya.",
+                  "ziyarat": [
+                    {
+                      "uid": "B6"
+                    }
+                  ],
+                  "location": [
+                    31.995895,
+                    44.315257
+                  ]
+                },
+                {
                   "id": "ali_gate_tusi",
                   "kind": "gate",
                   "name": "Bab al-Tusi",
                   "arabicName": "باب الطوسي",
                   "osm": "n9723305135",
                   "site": "imam_ali_shrine",
-                  "note": "The north gate, on the way to the tomb of Shaykh al-Tusi.",
+                  "note": "The north gate, on the way to the tomb of Shaykh al-Tusi. Beside it is the great northern iwan (the Yazdi Iwan), which was the gate in the Safavid plan.",
                   "ziyarat": [
                     {
                       "uid": "B6"
@@ -1158,7 +1220,8 @@
                   "location": [
                     31.995355,
                     44.314745
-                  ]
+                  ],
+                  "note": "The south gate, the smallest of the main gates. Beside it is the great southern iwan (the Hububi Iwan), the original qibla gate."
                 },
                 {
                   "id": "ali_gate_faraj",
@@ -1167,7 +1230,7 @@
                   "arabicName": "باب الفرج",
                   "osm": "n9723305132",
                   "site": "imam_ali_shrine",
-                  "note": "Also called Bab al-Amara, after the old quarter it faces.",
+                  "note": "The west gate, opened in Ottoman times; also called al-Bab al-Sultani and Bab al-Amara. It faces Sahn Fatimah al-Zahra (s.a.).",
                   "ziyarat": [
                     {
                       "uid": "B6"
@@ -1176,6 +1239,19 @@
                   "location": [
                     31.995535,
                     44.314172
+                  ]
+                },
+                {
+                  "id": "sahn_fatimah",
+                  "kind": "landmark",
+                  "name": "Sahn Fatimah al-Zahra (s.a.)",
+                  "arabicName": "صحن السيدة فاطمة الزهراء (ع)",
+                  "osm": "r14118576",
+                  "site": "imam_ali_shrine",
+                  "note": "The large new courtyard on the west side of the shrine, with prayer halls on levels below ground. Bab al-Faraj opens onto it.",
+                  "location": [
+                    31.99574,
+                    44.312834
                   ]
                 },
                 {
