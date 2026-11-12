@@ -8,3 +8,8 @@ output-localization-file: app_localizations.dart
 output-class: AppLocalizations
 # Keys an app_<code>.arb is still missing, per language, for translators.
 untranslated-messages-file: build/untranslated_messages.json
+# Flutter's generator still lists flutter_localizations' Material and
+# Cupertino delegates, deprecated since 3.47 for material_ui's and
+# cupertino_ui's. The app passes its own list (main.dart); this keeps the
+# generated file from failing `flutter analyze`.
+header: "// ignore_for_file: deprecated_member_use"

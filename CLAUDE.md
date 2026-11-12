@@ -204,6 +204,18 @@
   It needs a Mac or CI's `iOS build` to verify; a cloud session can only
   resolve pods, not build.
 
+- **Drop the material_ui stopgaps once dependencies catch up.** Flutter
+  3.47 moved Material and Cupertino into the `material_ui` and
+  `cupertino_ui` packages; the app imports those, never
+  `package:flutter/material.dart`. Two temporary pieces remain:
+  - `MaterialUiCompatibilityBridge` in `main.dart`'s `MaterialApp.builder`
+    (and `legacy.Theme.of` in `lib/utils/reader_style.dart`), because
+    `flutter_markdown_plus` and `fl_chart` still read the framework's
+    `Theme`. Remove them once both depend on `material_ui`.
+  - `findTooltip` (`test/helpers/finders.dart`) instead of `find.byTooltip`,
+    which misses `material_ui` tooltips with `excludeFromSemantics`. Go
+    back once flutter_test recognises them.
+
 - **Drop the `firebase_analytics` pin workaround once FlutterFire fixes it.**
   `RelaxFirebaseAnalyticsPin` in `ios/Podfile` exists because
   `firebase_analytics` 13.0.1 pins `FirebaseAnalytics` to exactly

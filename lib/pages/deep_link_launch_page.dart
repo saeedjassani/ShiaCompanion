@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 import '../data/uid_title_data.dart';
 import '../services/deep_link_resolver.dart';

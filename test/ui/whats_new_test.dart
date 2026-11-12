@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -12,6 +12,7 @@ import 'package:shia_companion/utils/shared_preferences.dart';
 import 'package:shia_companion/utils/theme_palette.dart';
 
 import 'firebase_test_doubles.dart';
+import '../helpers/finders.dart';
 
 void main() {
   final original = List<WhatsNewEntry>.of(whatsNewNotes);
@@ -135,7 +136,7 @@ void main() {
         Scaffold(body: HomeColorCard(onDismiss: () => dismissed = true)),
       );
 
-      await tester.tap(find.byTooltip('Close'));
+      await tester.tap(findTooltip('Close'));
       await tester.pump();
 
       expect(dismissed, isTrue);

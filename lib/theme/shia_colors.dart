@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// The revamp's colour tokens (docs/DESIGN_SPEC.md, "Colour tokens"), one
 /// set per brightness.
