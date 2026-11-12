@@ -52,6 +52,25 @@
   `test/zikr_source_check_test.dart` fails on anything new it flags until
   you accept it with `source_check.py . baseline` (see "The check" there).
 
+- **Sahifa Sajjadiya (2026-11-12): in the app, a few readings to check.**
+  The 54 supplications are a group at the top of Duas (`E~AS0`, opening
+  the `AS` list). AS2-AS54 are Arabic and Chittick's English from the
+  library copy (al-islam.org), one line per numbered verse, with
+  machine-drafted transliteration proofread line by line by agents. AS1
+  (an old "Dua No. 1") is Sahifa 1; Sahifa 7 is E9 (Dua Amaan, now split
+  into verses), and 43-45 are AA21/AA48/AA49 - aliases in the group.
+  Still worth a human with a printed Sahifa:
+  - variant readings left as the source has them: AS20 بِالنَّظَرِ (Chittick's
+    "ingratitude" fits بِالْبَطَرِ), AS37 شَكَرْتَهٗ (passive شُكِرْتَهُ?),
+    AS16 الْخَلَائِقُ كُلُّهُمْ, AS24 الْحَفُوفِ (الْحُفُوفِ?);
+  - English from the source with a dropped clause (AS19 verse 8) or odd
+    words (AS39 "Senders", AS33 "chose", AS42 "He delivered");
+  - AS6 (morning and evening) has no `day` tag; AS46/AS48 are tagged Eid
+    and Friday, AS47 Arafah;
+  - Urdu/Gujarati name the book صحیفہ سجادیہ / સહીફએ સજ્જાદિયા; the older
+    titles said صحیفہ کاملہ / સહીફએ કામિલા. E9's translated titles
+    ("Dua Amaan") are not what Arabic/Persian readers call Sahifa 7.
+
 - **Zikr translations: Urdu has the first famous duas; Persian and
   Gujarati have none yet.** See `scripts/zikr_i18n/SOURCES.md` for what is
   done, which sources were turned down and why, and what's next. The rest:

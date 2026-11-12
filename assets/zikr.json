@@ -537,7 +537,7 @@
     "day": "N09-01"
   },
   "AA21": {
-    "title": "Dua No. 43 of Sahifa al-Kamila",
+    "title": "Sahifa Sajjadiya 43: Sighting the New Moon",
     "slug": "dua-no-43-of-saheefah-al-kaamelah",
     "day": "N09-01"
   },
@@ -668,12 +668,12 @@
     ]
   },
   "AA48": {
-    "title": "Dua No. 44 of Sahifa al-Kamila (Welcoming Ramazan)",
+    "title": "Sahifa Sajjadiya 44: Welcoming Ramazan",
     "slug": "dua-no-44-of-saheefah-al-kaamelah",
     "day": "N09-01"
   },
   "AA49": {
-    "title": "Dua No. 45 of Sahifa al-Kamila (Farewell to Ramazan)",
+    "title": "Sahifa Sajjadiya 45: Farewell to Ramazan",
     "slug": "dua-no-45-of-saheefah-al-kaamelah",
     "day": [
       "N09-29",
@@ -1087,8 +1087,229 @@
     "slug": "ziyarah-of-lady-fatimah-al-zahra"
   },
   "AS1": {
-    "title": "Dua No. 1",
+    "title": "Sahifa Sajjadiya 1: In Praise of Allah",
     "slug": "dua-no-1"
+  },
+  "AS10": {
+    "title": "Sahifa Sajjadiya 10: Seeking Asylum with Allah",
+    "slug": "sahifa-sajjadiya-10-seeking-asylum-with-allah"
+  },
+  "AS11": {
+    "title": "Sahifa Sajjadiya 11: For Good Outcomes",
+    "slug": "sahifa-sajjadiya-11-for-good-outcomes"
+  },
+  "AS12": {
+    "title": "Sahifa Sajjadiya 12: Confession and Repentance",
+    "slug": "sahifa-sajjadiya-12-confession-and-repentance"
+  },
+  "AS13": {
+    "title": "Sahifa Sajjadiya 13: Seeking Needs from Allah",
+    "slug": "sahifa-sajjadiya-13-seeking-needs-from-allah"
+  },
+  "AS14": {
+    "title": "Sahifa Sajjadiya 14: When Wronged",
+    "slug": "sahifa-sajjadiya-14-when-wronged"
+  },
+  "AS15": {
+    "title": "Sahifa Sajjadiya 15: When Sick",
+    "slug": "sahifa-sajjadiya-15-when-sick"
+  },
+  "AS16": {
+    "title": "Sahifa Sajjadiya 16: Asking Release from Sins",
+    "slug": "sahifa-sajjadiya-16-asking-release-from-sins"
+  },
+  "AS17": {
+    "title": "Sahifa Sajjadiya 17: Seeking Refuge from Satan",
+    "slug": "sahifa-sajjadiya-17-seeking-refuge-from-satan"
+  },
+  "AS18": {
+    "title": "Sahifa Sajjadiya 18: When Perils Are Repelled",
+    "slug": "sahifa-sajjadiya-18-when-perils-are-repelled"
+  },
+  "AS19": {
+    "title": "Sahifa Sajjadiya 19: Asking for Rain in a Drought",
+    "slug": "sahifa-sajjadiya-19-asking-for-rain-in-a-drought"
+  },
+  "AS2": {
+    "title": "Sahifa Sajjadiya 2: Blessings upon Muhammad and His Household",
+    "slug": "sahifa-sajjadiya-2-blessings-upon-muhammad-and-his-household"
+  },
+  "AS20": {
+    "title": "Sahifa Sajjadiya 20: Makarim al-Akhlaq (Noble Moral Traits)",
+    "slug": "sahifa-sajjadiya-20-makarim-al-akhlaq-noble-moral-traits"
+  },
+  "AS21": {
+    "title": "Sahifa Sajjadiya 21: In Sorrow",
+    "slug": "sahifa-sajjadiya-21-in-sorrow"
+  },
+  "AS22": {
+    "title": "Sahifa Sajjadiya 22: In Hardship",
+    "slug": "sahifa-sajjadiya-22-in-hardship"
+  },
+  "AS23": {
+    "title": "Sahifa Sajjadiya 23: For Well-Being",
+    "slug": "sahifa-sajjadiya-23-for-well-being"
+  },
+  "AS24": {
+    "title": "Sahifa Sajjadiya 24: For Parents",
+    "slug": "sahifa-sajjadiya-24-for-parents"
+  },
+  "AS25": {
+    "title": "Sahifa Sajjadiya 25: For Children",
+    "slug": "sahifa-sajjadiya-25-for-children"
+  },
+  "AS26": {
+    "title": "Sahifa Sajjadiya 26: For Neighbors and Friends",
+    "slug": "sahifa-sajjadiya-26-for-neighbors-and-friends"
+  },
+  "AS27": {
+    "title": "Sahifa Sajjadiya 27: For the Defenders of the Frontiers",
+    "slug": "sahifa-sajjadiya-27-for-the-defenders-of-the-frontiers"
+  },
+  "AS28": {
+    "title": "Sahifa Sajjadiya 28: Fleeing to Allah",
+    "slug": "sahifa-sajjadiya-28-fleeing-to-allah"
+  },
+  "AS29": {
+    "title": "Sahifa Sajjadiya 29: When Provision Is Tight",
+    "slug": "sahifa-sajjadiya-29-when-provision-is-tight"
+  },
+  "AS3": {
+    "title": "Sahifa Sajjadiya 3: Blessings upon the Bearers of the Throne",
+    "slug": "sahifa-sajjadiya-3-blessings-upon-the-bearers-of-the-throne"
+  },
+  "AS30": {
+    "title": "Sahifa Sajjadiya 30: For Help in Repaying Debts",
+    "slug": "sahifa-sajjadiya-30-for-help-in-repaying-debts"
+  },
+  "AS31": {
+    "title": "Sahifa Sajjadiya 31: Repentance (Dua al-Tawbah)",
+    "slug": "sahifa-sajjadiya-31-repentance-dua-al-tawbah"
+  },
+  "AS32": {
+    "title": "Sahifa Sajjadiya 32: After the Night Prayer",
+    "slug": "sahifa-sajjadiya-32-after-the-night-prayer"
+  },
+  "AS33": {
+    "title": "Sahifa Sajjadiya 33: Asking for the Best (Istikhara)",
+    "slug": "sahifa-sajjadiya-33-asking-for-the-best-istikhara"
+  },
+  "AS34": {
+    "title": "Sahifa Sajjadiya 34: When Afflicted",
+    "slug": "sahifa-sajjadiya-34-when-afflicted"
+  },
+  "AS35": {
+    "title": "Sahifa Sajjadiya 35: Contentment with the Decree",
+    "slug": "sahifa-sajjadiya-35-contentment-with-the-decree"
+  },
+  "AS36": {
+    "title": "Sahifa Sajjadiya 36: Upon Hearing Thunder",
+    "slug": "sahifa-sajjadiya-36-upon-hearing-thunder"
+  },
+  "AS37": {
+    "title": "Sahifa Sajjadiya 37: Giving Thanks",
+    "slug": "sahifa-sajjadiya-37-giving-thanks"
+  },
+  "AS38": {
+    "title": "Sahifa Sajjadiya 38: Asking Pardon for Wronging Others",
+    "slug": "sahifa-sajjadiya-38-asking-pardon-for-wronging-others"
+  },
+  "AS39": {
+    "title": "Sahifa Sajjadiya 39: Seeking Pardon and Mercy",
+    "slug": "sahifa-sajjadiya-39-seeking-pardon-and-mercy"
+  },
+  "AS4": {
+    "title": "Sahifa Sajjadiya 4: Blessings upon the Attesters to the Messengers",
+    "slug": "sahifa-sajjadiya-4-blessings-upon-the-attesters-to-the-messengers"
+  },
+  "AS40": {
+    "title": "Sahifa Sajjadiya 40: When Death Is Mentioned",
+    "slug": "sahifa-sajjadiya-40-when-death-is-mentioned"
+  },
+  "AS41": {
+    "title": "Sahifa Sajjadiya 41: Asking for Covering and Protection",
+    "slug": "sahifa-sajjadiya-41-asking-for-covering-and-protection"
+  },
+  "AS42": {
+    "title": "Sahifa Sajjadiya 42: On Completing the Quran",
+    "slug": "sahifa-sajjadiya-42-on-completing-the-quran"
+  },
+  "AS43|AA21": {
+    "title": "Sahifa Sajjadiya 43: Sighting the New Moon",
+    "slug": "dua-no-43-of-saheefah-al-kaamelah"
+  },
+  "AS44|AA48": {
+    "title": "Sahifa Sajjadiya 44: Welcoming Ramazan",
+    "slug": "dua-no-44-of-saheefah-al-kaamelah"
+  },
+  "AS45|AA49": {
+    "title": "Sahifa Sajjadiya 45: Farewell to Ramazan",
+    "slug": "dua-no-45-of-saheefah-al-kaamelah"
+  },
+  "AS46": {
+    "title": "Sahifa Sajjadiya 46: Eid al-Fitr and Friday",
+    "slug": "sahifa-sajjadiya-46-eid-al-fitr-and-friday",
+    "day": [
+      "10-01",
+      "*-*-5"
+    ]
+  },
+  "AS47": {
+    "title": "Sahifa Sajjadiya 47: Day of Arafah",
+    "slug": "sahifa-sajjadiya-47-day-of-arafah",
+    "day": "12-09"
+  },
+  "AS48": {
+    "title": "Sahifa Sajjadiya 48: Eid al-Adha and Friday",
+    "slug": "sahifa-sajjadiya-48-eid-al-adha-and-friday",
+    "day": [
+      "12-10",
+      "*-*-5"
+    ]
+  },
+  "AS49": {
+    "title": "Sahifa Sajjadiya 49: Repelling Enemies",
+    "slug": "sahifa-sajjadiya-49-repelling-enemies"
+  },
+  "AS5": {
+    "title": "Sahifa Sajjadiya 5: For Himself and Those in His Care",
+    "slug": "sahifa-sajjadiya-5-for-himself-and-those-in-his-care"
+  },
+  "AS50": {
+    "title": "Sahifa Sajjadiya 50: In Fear",
+    "slug": "sahifa-sajjadiya-50-in-fear"
+  },
+  "AS51": {
+    "title": "Sahifa Sajjadiya 51: Pleading and Humility",
+    "slug": "sahifa-sajjadiya-51-pleading-and-humility"
+  },
+  "AS52": {
+    "title": "Sahifa Sajjadiya 52: Imploring Allah",
+    "slug": "sahifa-sajjadiya-52-imploring-allah"
+  },
+  "AS53": {
+    "title": "Sahifa Sajjadiya 53: Humbling Himself before Allah",
+    "slug": "sahifa-sajjadiya-53-humbling-himself-before-allah"
+  },
+  "AS54": {
+    "title": "Sahifa Sajjadiya 54: For the Removal of Worries",
+    "slug": "sahifa-sajjadiya-54-for-the-removal-of-worries"
+  },
+  "AS6": {
+    "title": "Sahifa Sajjadiya 6: Morning and Evening",
+    "slug": "sahifa-sajjadiya-6-morning-and-evening"
+  },
+  "AS7|E9": {
+    "title": "Dua Amaan (The Supplication for Security)",
+    "slug": "dua-amaan-the-supplication-for-security"
+  },
+  "AS8": {
+    "title": "Sahifa Sajjadiya 8: Seeking Refuge",
+    "slug": "sahifa-sajjadiya-8-seeking-refuge"
+  },
+  "AS9": {
+    "title": "Sahifa Sajjadiya 9: Yearning for Forgiveness",
+    "slug": "sahifa-sajjadiya-9-yearning-for-forgiveness"
   },
   "B3": {
     "title": "Etiquettes of Ziyarat",
@@ -1819,6 +2040,11 @@
   "E97": {
     "title": "Dua for Ailing Diseases",
     "slug": "dua-of-ailing-diseases"
+  },
+  "E~AS0": {
+    "title": "Sahifa Sajjadiya",
+    "slug": "sahifa-sajjadiya",
+    "order": 0.5
   },
   "F10": {
     "title": "Namaz-e-Maghfirat-e-Walidain (Forgiveness for Parents)",

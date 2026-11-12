@@ -65,7 +65,7 @@ class ContinueEntry {
     'A' => (s.homeCategoryQuran, HomeGlyphType.surahs),
     'C' => (s.homeCategoryAamaal, HomeGlyphType.aamaal),
     'D' => (s.homeCategoryTaqibaat, HomeGlyphType.taqeebat),
-    'E' => (s.homeCategoryDua, HomeGlyphType.duas),
+    'E' || 'AS' => (s.homeCategoryDua, HomeGlyphType.duas),
     'F' => (s.homeCategoryNamaz, HomeGlyphType.namaz),
     'G' => (s.homeCategoryZiyarat, HomeGlyphType.ziyaraat),
     'H' => (s.homeCategoryMunajat, HomeGlyphType.munajaat),
