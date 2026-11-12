@@ -2043,7 +2043,8 @@
   },
   "E~AS0": {
     "title": "Sahifa Sajjadiya",
-    "slug": "sahifa-sajjadiya"
+    "slug": "sahifa-sajjadiya",
+    "order": 0.5
   },
   "F10": {
     "title": "Namaz-e-Maghfirat-e-Walidain (Forgiveness for Parents)",
