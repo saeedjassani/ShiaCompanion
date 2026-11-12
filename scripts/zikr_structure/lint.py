@@ -159,7 +159,11 @@ def lint_entry(uid, entry, index, redirects, live):
             if len(shown) > MAX_NOTE:
                 add('error', 'LONG_LINE', f'{where} line {i + 1}',
                     f'{len(shown)} chars: {shown[:70]}...')
-        for line in part.lines:
+        for kind, line in zip(part.kind, part.lines):
+            # A translation is the recited text ("mentioned before Thee" in
+            # Sahifa 23), never a pointer to another part of a book.
+            if kind == 'translation':
+                continue
             m = BACKREF.search(unquoted(line))
             if m:
                 add('error', 'BACKREF', where, f'"{m.group(0)}" in: {line[:90]}')

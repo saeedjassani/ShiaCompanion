@@ -25,9 +25,10 @@ enum TodayRecitationType { dua, ziyarat, munajat, other }
 
 final RegExp _leadingLetters = RegExp(r'^[A-Za-z]+');
 
-/// Duas, ziyarats and munajat by category (E, G, H) or, for those filed
-/// with a month's aamal (Dua Iftitah, Ziyarat Rajabiyah, Munajat
-/// Shabaniyah), by title. Everything else is aamal, rites and merits pages.
+/// Duas, ziyarats and munajat by category (E and AS, G, H) or, for those
+/// filed with a month's aamal (Dua Iftitah, Ziyarat Rajabiyah, Munajat
+/// Shabaniyah, Sahifa Sajjadiya 44), by title. Everything else is aamal,
+/// rites and merits pages.
 @visibleForTesting
 TodayRecitationType todayRecitationType(UidTitleData entry) {
   final prefix = _leadingLetters.stringMatch(entry.uid) ?? '';
@@ -38,7 +39,14 @@ TodayRecitationType todayRecitationType(UidTitleData entry) {
   if (prefix == 'H' || title.startsWith('Munajat ')) {
     return TodayRecitationType.munajat;
   }
-  if (prefix == 'E' || title.startsWith('Dua ')) return TodayRecitationType.dua;
+  // AS: Sahifa Sajjadiya, a group of the Duas list; its Ramazan duas are
+  // filed with the month's aamal (Sahifa Sajjadiya 44 is AA48).
+  if (prefix == 'E' ||
+      prefix == 'AS' ||
+      title.startsWith('Dua ') ||
+      title.startsWith('Sahifa Sajjadiya ')) {
+    return TodayRecitationType.dua;
+  }
   return TodayRecitationType.other;
 }
 
@@ -101,8 +109,8 @@ const List<String> homeFamousRecitations = [
 List<TodayPick> todayPicks(List<TodaysRecitationGroup> groups) {
   bool isRecitation(UidTitleData entry) =>
       todayRecitationType(entry) != TodayRecitationType.other;
-  bool isCatalogued(UidTitleData entry) =>
-      const {'E', 'G', 'H'}.contains(_leadingLetters.stringMatch(entry.uid));
+  bool isCatalogued(UidTitleData entry) => const {'E', 'AS', 'G', 'H'}
+      .contains(_leadingLetters.stringMatch(entry.uid));
   bool isOccasion(TodaysRecitationKind kind) =>
       kind == TodaysRecitationKind.night || kind == TodaysRecitationKind.date;
   int fame(UidTitleData entry) => homeFamousRecitations.indexOf(entry.uid);
