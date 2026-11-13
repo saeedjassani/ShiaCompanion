@@ -43,6 +43,27 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
+  testWidgets('Maybe later shrinks the sign-in card to one row, for good',
+      (tester) async {
+    await _pump(tester, const SettingsPage());
+
+    await tester.tap(find.text('Maybe later'));
+    await tester.pumpAndSettle();
+    expect(find.text('Keep your favorites safe'), findsNothing);
+    expect(find.text('Continue with Google'), findsNothing);
+    expect(find.text('Back up and sync'), findsOneWidget);
+
+    // Still one row the next time Settings opens.
+    await tester.pumpWidget(const SizedBox());
+    await _pump(tester, const SettingsPage());
+    expect(find.text('Keep your favorites safe'), findsNothing);
+
+    // The row opens the card again.
+    await tester.tap(find.text('Back up and sync'));
+    await tester.pumpAndSettle();
+    expect(find.text('Continue with Google'), findsOneWidget);
+  });
+
   testWidgets('signed in, the first card says who and that it is backed up',
       (tester) async {
     await _pump(
@@ -145,7 +166,7 @@ void main() {
       (tester) async {
     await _pump(tester, const SettingsPage());
 
-    await tester.drag(find.byType(CustomScrollView), const Offset(0, -300));
+    await tester.drag(find.byType(CustomScrollView), const Offset(0, -360));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Adjust Hijri date'));
     await tester.pumpAndSettle();

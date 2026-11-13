@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/gestures.dart' show PointerDeviceKind;
 import 'package:material_ui/material_ui.dart';
 import 'package:shia_companion/constants.dart';
 import 'package:shia_companion/data/universal_data.dart';
@@ -19,7 +20,8 @@ import '../widgets/app_toast.dart';
 /// The Favorites tab (docs/DESIGN_SPEC.md, "Favorites"; mockup
 /// `R2-Favorites`): what the reader has kept, in their own order, with
 /// **Edit** to remove or reorder rather than a drag handle on every row; and,
-/// beside it, the Quran verses they have saved.
+/// beside it, the Quran verses they have saved. A sideways swipe moves
+/// between the two, as tapping the switcher does.
 class FavoritesPage extends StatefulWidget {
   @override
   _FavoritesPageState createState() => _FavoritesPageState();
@@ -39,6 +41,29 @@ class _FavoritesPageState extends State<FavoritesPage> {
     unawaited(FavoritesManager.instance.loadFavorites());
     unawaited(SavedVersesManager.instance.loadSavedVerses());
   }
+
+  void _show(_FavoritesView view) => setState(() {
+        _view = view;
+        _editing = false;
+      });
+
+  /// A swipe towards the start of the line shows the next list (the one
+  /// after it in the switcher), the other way the one before.
+  void _onSwipe(DragEndDetails details) {
+    final velocity = details.primaryVelocity ?? 0;
+    if (velocity.abs() < _swipeMinVelocity) return;
+    final towardsStart = Directionality.of(context) == TextDirection.ltr
+        ? velocity < 0
+        : velocity > 0;
+    final views = _FavoritesView.values;
+    final next = views.indexOf(_view) + (towardsStart ? 1 : -1);
+    if (next < 0 || next >= views.length) return;
+    _show(views[next]);
+  }
+
+  /// How fast a sideways swipe has to end to change the list, so a slow,
+  /// slightly diagonal scroll never does.
+  static const double _swipeMinVelocity = 350;
 
   Future<void> _onReorder(int oldIndex, int newIndex) async {
     try {
@@ -61,45 +86,53 @@ class _FavoritesPageState extends State<FavoritesPage> {
         final editing = _editing && favorites.isNotEmpty;
         final gutter = pageGutter(context, maxWidth: widePageWidth);
 
-        return LargeTitlePage(
-          maxWidth: widePageWidth,
-          title: context.l10n.menuFavorites,
-          actions: [
-            if (view == _FavoritesView.zikr && favorites.isNotEmpty)
-              PageTextAction(
-                label:
-                    editing ? context.l10n.commonDone : context.l10n.commonEdit,
-                semanticsLabel: editing ? null : context.l10n.favoritesEdit,
-                onPressed: () => setState(() => _editing = !editing),
-              ),
-          ],
-          slivers: [
-            SliverPadding(
-              padding: gutter.copyWith(bottom: 14),
-              sliver: SliverToBoxAdapter(
-                child: SegmentedSwitcher<_FavoritesView>(
-                  segments: [
-                    Segment(_FavoritesView.zikr, context.l10n.favoritesTabZikr),
-                    Segment(
-                        _FavoritesView.verses, context.l10n.favoritesTabVerses),
-                  ],
-                  selected: view,
-                  onChanged: (next) => setState(() {
-                    _view = next;
-                    _editing = false;
-                  }),
+        // Touch only: a mouse dragging sideways is selecting text. Off while
+        // editing, where a drag reorders.
+        return GestureDetector(
+            behavior: HitTestBehavior.translucent,
+            supportedDevices: const {
+              PointerDeviceKind.touch,
+              PointerDeviceKind.stylus,
+            },
+            onHorizontalDragEnd: editing ? null : _onSwipe,
+            child: LargeTitlePage(
+              maxWidth: widePageWidth,
+              title: context.l10n.menuFavorites,
+              actions: [
+                if (view == _FavoritesView.zikr && favorites.isNotEmpty)
+                  PageTextAction(
+                    label: editing
+                        ? context.l10n.commonDone
+                        : context.l10n.commonEdit,
+                    semanticsLabel: editing ? null : context.l10n.favoritesEdit,
+                    onPressed: () => setState(() => _editing = !editing),
+                  ),
+              ],
+              slivers: [
+                SliverPadding(
+                  padding: gutter.copyWith(bottom: 14),
+                  sliver: SliverToBoxAdapter(
+                    child: SegmentedSwitcher<_FavoritesView>(
+                      segments: [
+                        Segment(
+                            _FavoritesView.zikr, context.l10n.favoritesTabZikr),
+                        Segment(_FavoritesView.verses,
+                            context.l10n.favoritesTabVerses),
+                      ],
+                      selected: view,
+                      onChanged: _show,
+                    ),
+                  ),
                 ),
-              ),
-            ),
-            SliverPadding(
-              padding: gutter,
-              sliver: view == _FavoritesView.zikr
-                  ? _buildZikrList(favorites, editing)
-                  : _buildVerseList(
-                      SavedVersesManager.instance.state.inMushafOrder),
-            ),
-          ],
-        );
+                SliverPadding(
+                  padding: gutter,
+                  sliver: view == _FavoritesView.zikr
+                      ? _buildZikrList(favorites, editing)
+                      : _buildVerseList(
+                          SavedVersesManager.instance.state.inMushafOrder),
+                ),
+              ],
+            ));
       },
     );
   }

@@ -1014,6 +1014,20 @@
   "trackMarkEarlierRead": "Count earlier verses towards progress",
   "trackMarkEarlierReadHint": "Everything before this counts as read for this Khatm. Your stats only count what you read in the app.",
   "trackCreate": "Start Khatm",
+  "trackDelete": "Delete Khatm",
+  "@trackDelete": {
+    "description": "Button at the bottom of a Khatm's edit sheet (Quran screen, the ... on its card)."
+  },
+  "trackDeleteTitle": "Delete \"{name}\"?",
+  "@trackDeleteTitle": {
+    "description": "Title of the dialog confirming a Khatm is deleted. {name} is the name the reader gave it.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "trackDeleteBody": "Its progress and everything read under it are deleted too, including from My Stats.",
   "notifCustomSound": "Custom: {file}",
   "@notifCustomSound": {
     "description": "{file} is an audio file name.",
@@ -4029,6 +4043,10 @@
   },
   "settingsBackupBody": "Sign in to back up your favorites, bookmarks, Quran progress and stats, and get them back on any phone.",
   "settingsBackupFree": "Free. Takes a few seconds.",
+  "settingsBackupRow": "Back up and sync",
+  "@settingsBackupRow": {
+    "description": "Settings, signed out, after Maybe later: the one row the sign-in card shrinks to. Its value is Off; tapping it shows the card again."
+  },
   "settingsArabicFont": "Arabic font",
   "settingsSectionPrayerTimes": "Prayer times",
   "settingsSectionReading": "Reading",
