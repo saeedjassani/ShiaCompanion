@@ -4402,6 +4402,103 @@
       }
     }
   },
+  "menuZiyaratGuide": "Ziyarat Guide",
+  "ziyaratGuidePlaceCount": "{count, plural, =1{1 place} other{{count} places}}",
+  "@ziyaratGuidePlaceCount": {
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "ziyaratGuideBeforeYouGo": "Before you go",
+  "ziyaratGuidePlaces": "Places",
+  "ziyaratGuideAbout": "About",
+  "ziyaratGuideTips": "Tips for pilgrims",
+  "ziyaratGuideZiyarat": "Ziyarat",
+  "ziyaratGuideBuried": "Also buried here",
+  "ziyaratGuideDirections": "Directions",
+  "ziyaratGuideCompass": "Point the compass",
+  "ziyaratGuideDiedAh": "d. {year} AH",
+  "@ziyaratGuideDiedAh": {
+    "description": "A burial's Hijri year of death, beside the name.",
+    "placeholders": {
+      "year": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "ziyaratGuideKindShrine": "Shrine",
+  "ziyaratGuideKindMosque": "Mosque",
+  "ziyaratGuideKindCemetery": "Cemetery",
+  "ziyaratGuideKindTomb": "Tomb",
+  "ziyaratGuideKindMaqam": "Maqam",
+  "ziyaratGuideKindOther": "Place",
+  "ziyaratGuideLoadFailed": "The Ziyarat Guide couldn't be opened.",
+  "ziyaratGuideMapsFailed": "Couldn't open a maps app.",
+  "ziyaratGuideOpenMap": "Map of the shrine",
+  "ziyaratGuideMapHint": "Tap a tomb or a gate to see what to recite there.",
+  "ziyaratGuideMapPlaces": "Places on the map",
+  "ziyaratGuideMapLocate": "Show where I am",
+  "ziyaratGuideMapRecenter": "Back to the shrine",
+  "ziyaratGuideMapNoLocation": "Your location isn't available.",
+  "ziyaratGuideMapAway": "You are {distance} from here.",
+  "@ziyaratGuideMapAway": {
+    "description": "After 'Show where I am', when the reader is far from the shrine plan.",
+    "placeholders": {
+      "distance": {
+        "type": "String",
+        "example": "12 km"
+      }
+    }
+  },
+  "ziyaratGuideMapFromYou": "{distance} from you",
+  "@ziyaratGuideMapFromYou": {
+    "description": "On a shrine plan feature's card: how far it is from the reader.",
+    "placeholders": {
+      "distance": {
+        "type": "String",
+        "example": "120 m"
+      }
+    }
+  },
+  "ziyaratGuideMapYou": "You are here",
+  "ziyaratGuideMapMetres": "{metres} m",
+  "@ziyaratGuideMapMetres": {
+    "description": "A distance in metres; {metres} is already formatted.",
+    "placeholders": {
+      "metres": {
+        "type": "String",
+        "example": "50"
+      }
+    }
+  },
+  "ziyaratGuideMapSide": "{side, select, n{North side} ne{North-east side} e{East side} se{South-east side} s{South side} sw{South-west side} w{West side} nw{North-west side} other{}}",
+  "@ziyaratGuideMapSide": {
+    "description": "Which side of the shrine's zarih a gate or tomb is on; side is n, ne, e, se, s, sw, w or nw.",
+    "placeholders": {
+      "side": {
+        "type": "String"
+      }
+    }
+  },
+  "ziyaratGuideFeatureZarih": "Zarih",
+  "@ziyaratGuideFeatureZarih": {
+    "description": "The tomb of the Imam (or of the person a shrine is for), on the shrine plan."
+  },
+  "ziyaratGuideFeaturePlace": "Nearby place",
+  "ziyaratGuideFeatureGate": "Gate",
+  "ziyaratGuideFeatureDoor": "Door of the haram",
+  "@ziyaratGuideFeatureDoor": {
+    "description": "A door of the haram (the roofed sanctuary around the zarih), inside the courtyard."
+  },
+  "ziyaratGuideFeatureLandmark": "Landmark",
+  "ziyaratGuideMapTombs": "Tombs and maqams",
+  "ziyaratGuideMapGates": "Gates",
+  "ziyaratGuideMapDoors": "Doors of the haram",
+  "ziyaratGuideMapNearby": "Nearby",
   "eventNotificationsTitle": "Islamic events",
   "@eventNotificationsTitle": {
     "description": "Title of the page (and Settings row, and Android notification channel) for notifications of the Islamic calendar's events: wiladat, shahadat and other days."

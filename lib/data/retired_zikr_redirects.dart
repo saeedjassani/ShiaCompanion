@@ -405,4 +405,49 @@ const Map<String, RetiredZikrRedirect> retiredZikrRedirects = {
   /// merits carry X9's narrations and its 1st/15th of Rajab and 15th of
   /// Sha'ban.
   'X9': RetiredZikrRedirect('G74'),
+
+  /// Ziyarat of Lady Masuma (s.a.) of Qom: the same ziyarat as G78, whose
+  /// transliteration, translation and tasbih lines were brought into G78.
+  'AE15': RetiredZikrRedirect('G78'),
+
+  /// Ziyarat of Salman al-Farsi: the first ten lines of AJ2's ziyarat.
+  'G63': RetiredZikrRedirect('AJ2'),
+
+  /// AM2 (Visitation to the Special Deputies of Imam al-Mahdi) was Mafatih
+  /// al-Jinan's prose introduction to the deputies' ziyarat, with nothing to
+  /// recite; it is now in the merits of AM3, the ziyarat itself.
+  'AM2': RetiredZikrRedirect('AM3'),
+
+  /// AE16 (Short Biography of Abd al-Azim al-Hasani) was Mafatih al-Jinan's
+  /// account of his life and the merits of visiting him, with nothing to
+  /// recite; it is now in the merits of AE17, his ziyarat.
+  'AE16': RetiredZikrRedirect('AE17'),
+
+  /// Uhud, restored as one entry: AQ4 (the ziyarat of the martyrs of Uhud)
+  /// is AQ2's second tab, and AQ3 (the merits of visiting Hamzah and the
+  /// martyrs, prose only) is AQ2's merits.
+  'AQ3': RetiredZikrRedirect('AQ2'),
+  'AQ4': RetiredZikrRedirect('AQ2', tabIndex: 0),
+
+  /// Al-Baqi is one tabbed entry, AP8 (the four Imams' ziyarat first): these
+  /// three were never restored on their own. Their historic text, checked
+  /// against duas.org's ziaratbaqi page, is AP8's tabs.
+  'AP9': RetiredZikrRedirect('AP8', tabIndex: 0), // farewell to the Imams
+  'AP11': RetiredZikrRedirect('AP8', tabIndex: 1), // Ibrahim, son of the Prophet
+  'AQ1': RetiredZikrRedirect('AP8', tabIndex: 2), // Fatimah bint Asad
+
+  /// The farewell to the Holy Prophet (s.a.w.a.) is the second tab of his
+  /// ziyarat in Madinah, AP2.
+  'AP13': RetiredZikrRedirect('AP2', tabIndex: 0),
+
+  /// Imam al-Reza (a.s.), Mashhad: Mafatih's chapter was one uid per page
+  /// (AE3-AE8). AE3 is now the whole chapter as one tabbed entry - permission
+  /// to enter (main part), the first ziyarat (tab 0), the dua after its
+  /// prayer (1), al-Jawadiyya (2), Ibn Qulawayh's and al-Mufid's forms (3),
+  /// the farewell (4) - so the other five open their own tab of it.
+  'AE4': RetiredZikrRedirect('AE3', tabIndex: 1),
+  'AE5': RetiredZikrRedirect('AE3', tabIndex: 2),
+  'AE6': RetiredZikrRedirect('AE3', tabIndex: 3),
+  'AE7': RetiredZikrRedirect('AE3', tabIndex: 3),
+  'AE8': RetiredZikrRedirect('AE3', tabIndex: 4),
 };

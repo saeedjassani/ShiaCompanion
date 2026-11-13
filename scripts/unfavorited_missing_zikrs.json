@@ -4,10 +4,10 @@
  "counts": {
   "total": 209,
   "menuCategory": 7,
-  "retired": 44,
-  "restored": 22,
-  "toRestoreHasArabic": 79,
-  "toRestoreProseOnly": 57
+  "retired": 57,
+  "restored": 27,
+  "toRestoreHasArabic": 65,
+  "toRestoreProseOnly": 53
  },
  "uids": [
   {
@@ -91,37 +91,37 @@
   {
    "uid": "AE3",
    "title": "Method of Visiting Imam Al Reza",
-   "kind": "has-arabic",
+   "kind": "restored",
    "itemsBytes": 25344
   },
   {
    "uid": "AE4",
    "title": "Dua after Ziyarah of Imam Al Reza's tomb",
-   "kind": "has-arabic",
+   "kind": "retired",
    "itemsBytes": 10191
   },
   {
    "uid": "AE5",
    "title": "Al Ziyarah al Jawadiyyah",
-   "kind": "prose-only",
+   "kind": "retired",
    "itemsBytes": 1624
   },
   {
    "uid": "AE6",
    "title": "Another Ziyarah of Imam al Rida",
-   "kind": "has-arabic",
+   "kind": "retired",
    "itemsBytes": 1277
   },
   {
    "uid": "AE7",
    "title": "Another Ziyarah of Imam al Rida",
-   "kind": "has-arabic",
+   "kind": "retired",
    "itemsBytes": 4057
   },
   {
    "uid": "AE8",
    "title": "Bidding Farewell To Imam Al Reza",
-   "kind": "has-arabic",
+   "kind": "retired",
    "itemsBytes": 1800
   },
   {
@@ -163,13 +163,13 @@
   {
    "uid": "AE16",
    "title": "Short Biography of ‘Abd Al ’Azim Al Hasani",
-   "kind": "prose-only",
+   "kind": "retired",
    "itemsBytes": 5337
   },
   {
    "uid": "AE17",
    "title": "Ziyarah of Abd Al Azim Al Hasani",
-   "kind": "has-arabic",
+   "kind": "restored",
    "itemsBytes": 7682
   },
   {
@@ -512,13 +512,13 @@
   {
    "uid": "AM2",
    "title": "Visitation to Naeb Khaas (Special Deputies of Imam Mahdi (a)",
-   "kind": "prose-only",
+   "kind": "retired",
    "itemsBytes": 2051
   },
   {
    "uid": "AM3",
    "title": "Ziyarah of the four Emissaries",
-   "kind": "has-arabic",
+   "kind": "restored",
    "itemsBytes": 4071
   },
   {
@@ -560,13 +560,13 @@
   {
    "uid": "AP8",
    "title": "Ziyarah of The Imams in Al Baqi : Al Hasan Al Mujtaba, Ali Zayn Al Abidin, Muhammad Al Baqir, And Jafar Al Sadiq",
-   "kind": "has-arabic",
+   "kind": "restored",
    "itemsBytes": 9036
   },
   {
    "uid": "AP9",
    "title": "Bidding Farewell to the Imams in Al Baqi",
-   "kind": "has-arabic",
+   "kind": "retired",
    "itemsBytes": 3340
   },
   {
@@ -578,7 +578,7 @@
   {
    "uid": "AP11",
    "title": "Ziyarah of Ibrahim, son of the Holy prophet (s)",
-   "kind": "has-arabic",
+   "kind": "retired",
    "itemsBytes": 6660
   },
   {
@@ -590,7 +590,7 @@
   {
    "uid": "AP13",
    "title": "Bidding Farewell (Wida) to the Holy Prophet (s)",
-   "kind": "has-arabic",
+   "kind": "retired",
    "itemsBytes": 2104
   },
   {
@@ -602,25 +602,25 @@
   {
    "uid": "AQ1",
    "title": "Visiting The Tomb of Lady Fatimah Bint Asad - Imam Ali’s Mother",
-   "kind": "has-arabic",
+   "kind": "retired",
    "itemsBytes": 5759
   },
   {
    "uid": "AQ2",
    "title": "Visiting The Tomb of Hamzah at Uhud",
-   "kind": "has-arabic",
+   "kind": "restored",
    "itemsBytes": 9469
   },
   {
    "uid": "AQ3",
    "title": "Merits of Visiting the Tombs of the Martyrs in the Battle of Uhud",
-   "kind": "prose-only",
+   "kind": "retired",
    "itemsBytes": 1904
   },
   {
    "uid": "AQ4",
    "title": "Visiting the tombs of the Martyrs in the battle of Uhud",
-   "kind": "has-arabic",
+   "kind": "retired",
    "itemsBytes": 4750
   },
   {

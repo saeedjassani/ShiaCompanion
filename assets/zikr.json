@@ -887,9 +887,22 @@
       "12-10"
     ]
   },
-  "AE15": {
-    "title": "Ziyarat of Lady Masuma (s.a.) - Qom",
-    "slug": "ziyarat-lady-masooma-qom"
+  "AE17": {
+    "title": "Ziyarat of Abd al-Azim al-Hasani",
+    "slug": "ziyarah-of-abd-al-azim-al-hasani",
+    "slugAliases": [
+      "short-biography-of-abd-al-azim-al-hasani"
+    ]
+  },
+  "AE3": {
+    "title": "Ziyarat of Imam Ali al-Reza (a.s.) — Mashhad (All Forms)",
+    "slug": "method-of-visiting-imam-al-reza",
+    "slugAliases": [
+      "dua-after-ziyarah-of-imam-al-rezas-tomb",
+      "al-ziyarah-al-jawadiyyah",
+      "another-ziyarah-of-imam-al-rida",
+      "bidding-farewell-to-imam-al-reza"
+    ]
   },
   "AF~AG3": {
     "title": "Karbala al-Muqaddasah",
@@ -1004,8 +1017,11 @@
     "slug": "centre-masjid-kufah"
   },
   "AJ2": {
-    "title": "Ziyarat at Mada'in — Salman al-Farsi, Hudhayfah al-Yamani, Tahir ibn Imam al-Baqir & Abdullah ibn Jabir (r.a.)",
-    "slug": "ziyarah-madaen-salman-hudhayfah"
+    "title": "Ziyarat of Salman al-Farsi (r.a.) — Mada'in",
+    "slug": "ziyarah-madaen-salman-hudhayfah",
+    "slugAliases": [
+      "ziyarate-janabe-salman-e-farsi-a-s"
+    ]
   },
   "AK13": {
     "title": "Seventh Ziyarat",
@@ -1074,17 +1090,50 @@
     "title": "Bidding Farewell to the Two Imams (Naqi & Askari) — Samarra",
     "slug": "farewell-two-imams-samarra"
   },
+  "AM3": {
+    "title": "Ziyarat of the Four Deputies of Imam al-Mahdi (a.t.f.s.)",
+    "slug": "ziyarah-of-the-four-emissaries",
+    "slugAliases": [
+      "visitation-to-naeb-khaas-special-deputies-of-imam-mahdi-a"
+    ]
+  },
   "AN1": {
     "title": "Ziyarat of Sayyid Muhammad, Son of Imam Ali al-Hadi (a.s.) — Balad",
     "slug": "ziyarah-sayed-mohammed-balad"
   },
   "AP2": {
     "title": "Method of Ziyarat of the Holy Prophet (s.a.w.a.) in Madinah",
-    "slug": "method-of-ziyarah-of-holy-prophet-s-in-madinah"
+    "slug": "method-of-ziyarah-of-holy-prophet-s-in-madinah",
+    "slugAliases": [
+      "bidding-farewell-wida-to-the-holy-prophet-s"
+    ]
   },
   "AP4": {
     "title": "Ziyarat of Lady Fatimah al-Zahra (s.a.)",
     "slug": "ziyarah-of-lady-fatimah-al-zahra"
+  },
+  "AP8": {
+    "title": "Ziyarat of the Imams of al-Baqi (a.s.)",
+    "slug": "ziyarah-of-the-imams-in-al-baqi-al-hasan-al-mujtaba-ali-zayn-al-abidin-muhammad-al-baqir-and-jafar-al-sadiq",
+    "slugAliases": [
+      "bidding-farewell-to-the-imams-in-al-baqi",
+      "ziyarah-of-ibrahim-son-of-the-holy-prophet-s",
+      "visiting-the-tomb-of-lady-fatimah-bint-asad-imam-ali-s-mother"
+    ]
+  },
+  "AQ2": {
+    "title": "Ziyarat of Hamzah (a.s.) and the Martyrs of Uhud",
+    "slug": "visiting-the-tomb-of-hamzah-at-uhud",
+    "day": "10-15",
+    "slugAliases": [
+      "visiting-the-tombs-of-the-martyrs-in-the-battle-of-uhud",
+      "merits-of-visiting-the-tombs-of-the-martyrs-in-the-battle-of-uhud"
+    ]
+  },
+  "AQ5": {
+    "title": "Ziyarat of Lady Khadijah al-Kubra (s.a.)",
+    "slug": "ziyarat-of-lady-khadijah-al-kubra-s-a",
+    "day": "09-10"
   },
   "AS1": {
     "title": "Sahifa Sajjadiya 1: In Praise of Allah",
@@ -2484,10 +2533,6 @@
     "slug": "ziyarate-farzandane-janabe-muslim-a-s",
     "day": "12-23"
   },
-  "G63": {
-    "title": "Ziyarat of Salman al-Farsi (a.s.)",
-    "slug": "ziyarate-janabe-salman-e-farsi-a-s"
-  },
   "G64": {
     "title": "Ziyarat of Imam Zayn al-Abidin (a.s.)",
     "slug": "ziyarate-imam-zainul-aabedeen-a-s",
@@ -2522,7 +2567,7 @@
     ]
   },
   "G68": {
-    "title": "Ziyarat of Imam Ali al-Reza (a.s.)",
+    "title": "Short Ziyarat of Imam Ali al-Reza (a.s.)",
     "slug": "ziyarate-imam-ali-raza-a-s",
     "day": [
       "02-17",
@@ -2605,6 +2650,9 @@
       "03-04",
       "04-10",
       "11-01"
+    ],
+    "slugAliases": [
+      "ziyarat-lady-masooma-qom"
     ]
   },
   "G79": {
@@ -2627,9 +2675,10 @@
     "day": "06-13"
   },
   "G82": {
-    "title": "Ziyarat of Lady Sakina (s.a.)",
+    "title": "Ziyarat of Lady Ruqayya (s.a.) of Damascus",
     "slug": "ziyarat-of-janabe-sakina-s-a",
     "day": [
+      "02-05",
       "02-10",
       "07-20"
     ]

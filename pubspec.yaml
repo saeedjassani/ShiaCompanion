@@ -94,6 +94,9 @@ flutter:
     - assets/retired_slugs.json
     - assets/zikr.json
     - assets/zikr_audio.json
+    - assets/ziyarat_guide.json
+    - assets/ziyarat_guide_i18n/
+    - assets/ziyarat_plans/
     - assets/zikr_i18n/ar/
     - assets/zikr_i18n/fa/
     - assets/zikr_i18n/ur/
