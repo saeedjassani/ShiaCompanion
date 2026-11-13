@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:shia_companion/utils/shared_preferences.dart';
 import 'package:shia_companion/l10n/l10n.dart';
 

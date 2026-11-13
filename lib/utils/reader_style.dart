@@ -1,4 +1,9 @@
-import 'package:flutter/material.dart';
+// MarkdownStyleSheet.fromTheme takes the framework's ThemeData, which
+// MaterialUiCompatibilityBridge (in main.dart's MaterialApp.builder) mirrors
+// from the app's material_ui theme.
+// ignore: deprecated_member_use
+import 'package:flutter/material.dart' as legacy;
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_markdown_plus/flutter_markdown_plus.dart';
 
 /// The line height the reader lays body text out at.
@@ -15,7 +20,7 @@ MarkdownStyleSheet readerStyleSheet(
 }) {
   final theme = Theme.of(context);
   final textTheme = theme.textTheme;
-  return MarkdownStyleSheet.fromTheme(theme).copyWith(
+  return MarkdownStyleSheet.fromTheme(legacy.Theme.of(context)).copyWith(
     // Justified body text is what makes a page read like a printed book
     // rather than a web page. WrapAlignment.spaceBetween is how
     // flutter_markdown_plus spells TextAlign.justify. Headings and list items
@@ -64,6 +69,18 @@ MarkdownStyleSheet readerStyleSheet(
     a: textTheme.bodyLarge?.copyWith(
       fontSize: fontSize,
       color: theme.colorScheme.primary,
+    ),
+    // fromTheme takes these from the app's card and divider colours and
+    // primaryColor, which the compatibility bridge doesn't carry over, so
+    // they're set from the app's own theme, as fromTheme would have.
+    checkbox: textTheme.bodyMedium?.copyWith(color: theme.primaryColor),
+    tableBorder: TableBorder.all(color: theme.dividerColor),
+    codeblockDecoration: BoxDecoration(
+      color: theme.cardTheme.color ?? theme.cardColor,
+      borderRadius: BorderRadius.circular(2.0),
+    ),
+    horizontalRuleDecoration: BoxDecoration(
+      border: Border(top: BorderSide(width: 5.0, color: theme.dividerColor)),
     ),
   );
 }

@@ -1,9 +1,10 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shia_companion/constants.dart' show isUserAdmin;
 import 'package:shia_companion/navigation/app_shell.dart';
 import 'package:shia_companion/theme/app_theme.dart';
 import 'package:shia_companion/widgets/glass_surface.dart';
+import 'helpers/finders.dart';
 
 /// A tab root that counts its builds and keeps a counter in its state, so
 /// the tests can tell "kept alive" from "rebuilt from scratch".
@@ -155,7 +156,7 @@ void main() {
     final h = _Harness();
     await tester.pumpWidget(h.app());
 
-    await tester.tap(find.byTooltip('Search'));
+    await tester.tap(findTooltip('Search'));
     expect(h.searches, 1);
   });
 
@@ -207,7 +208,7 @@ void main() {
       addTearDown(tester.view.reset);
 
       await tester.pumpWidget(_Harness().app());
-      final search = tester.getRect(find.byTooltip('Search'));
+      final search = tester.getRect(findTooltip('Search'));
       expect(search.width, AppTabBar.height);
       expect(search.right, 390 - AppTabBar.gutter);
       expect(search.bottom, 844 - AppTabBar.bottomGap);
@@ -219,7 +220,7 @@ void main() {
       addTearDown(tester.view.reset);
 
       await tester.pumpWidget(_Harness().app());
-      final search = tester.getRect(find.byTooltip('Search'));
+      final search = tester.getRect(findTooltip('Search'));
       const group =
           AppTabBar.wideBarWidth + AppTabBar.searchGap + AppTabBar.height;
       expect(search.right, closeTo((820 + group) / 2, 0.01));
@@ -233,7 +234,7 @@ void main() {
       addTearDown(tester.view.reset);
 
       await tester.pumpWidget(_Harness().app());
-      final search = tester.getRect(find.byTooltip('Search'));
+      final search = tester.getRect(findTooltip('Search'));
       expect(search.bottom, 844 - 48 - 8);
     });
 

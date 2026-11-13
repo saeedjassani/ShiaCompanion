@@ -1,7 +1,7 @@
 import 'dart:math' as math;
 
 import 'package:flutter/gestures.dart' show PointerDeviceKind;
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// The three layouts of docs/DESIGN_SPEC.md, "Responsive behaviour":
 /// phones below [tabletBreakpoint], tablets (portrait) up to

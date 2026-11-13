@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// The type of a block-level element in the markdown content.
 enum MarkdownBlockType {

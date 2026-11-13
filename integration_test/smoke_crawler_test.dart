@@ -1,10 +1,11 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:shia_companion/main.dart' as app;
 import 'package:shia_companion/navigation/app_shell.dart';
 import 'package:shia_companion/navigation/home_menu.dart';
 import 'package:shia_companion/pages/all_features_page.dart';
+import '../test/helpers/finders.dart';
 
 /// Automated Smoke Crawler for iOS & Android.
 ///
@@ -288,7 +289,7 @@ void main() {
 
     // 6. Test search bar interaction
     debugPrint('==> Smoke Crawler: Testing search interaction...');
-    final searchButtons = find.byTooltip('Search');
+    final searchButtons = findTooltip('Search');
     expect(searchButtons, findsOneWidget,
         reason: 'The search button beside the tab bar is missing');
     if (searchButtons.evaluate().isNotEmpty) {
@@ -304,7 +305,7 @@ void main() {
       await binding.takeScreenshot('99_search');
 
       // Dismiss search with the Close button beside its field
-      final closeSearch = find.byTooltip('Close search');
+      final closeSearch = findTooltip('Close search');
       if (closeSearch.evaluate().isNotEmpty) {
         await tester.tap(closeSearch.first);
       } else {

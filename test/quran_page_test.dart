@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shia_companion/constants.dart';
@@ -14,6 +14,7 @@ import 'package:shia_companion/utils/quran_index.dart';
 import 'package:shia_companion/utils/shared_preferences.dart';
 
 import 'ui/firebase_test_doubles.dart';
+import 'helpers/finders.dart';
 
 void main() {
   setUpAll(() async {
@@ -107,7 +108,7 @@ void main() {
 
     testWidgets('closing it keeps it closed', (tester) async {
       await pump(tester);
-      await tester.tap(find.byTooltip('Close'));
+      await tester.tap(findTooltip('Close'));
       await tester.pumpAndSettle();
 
       expect(find.text(hint), findsNothing);
@@ -136,7 +137,7 @@ void main() {
   testWidgets('the app bar opens recent sessions', (tester) async {
     await pump(tester);
 
-    await tester.tap(find.byTooltip('Recent sessions'));
+    await tester.tap(findTooltip('Recent sessions'));
     await tester.pumpAndSettle();
 
     expect(find.text('Recent sessions'), findsWidgets);
@@ -254,7 +255,7 @@ void main() {
     await pump(tester);
     await openCollection(tester, 'Saved');
 
-    await tester.tap(find.byTooltip('Remove'));
+    await tester.tap(findTooltip('Remove'));
     await tester.pumpAndSettle();
 
     expect(find.text('No saved verses yet'), findsOneWidget);
