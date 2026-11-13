@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shia_companion/constants.dart';
@@ -14,6 +14,7 @@ import 'package:shia_companion/theme/app_theme.dart';
 import 'package:shia_companion/utils/shared_preferences.dart';
 
 import 'firebase_test_doubles.dart';
+import '../helpers/finders.dart';
 
 // The interactive shrine plan (docs/ZIYARAT_GUIDE.md, "Shrine plans") over
 // the real Karbala plan: it lays out at every size, a tapped gate shows its
@@ -132,7 +133,7 @@ void main() {
   testWidgets('the list of places selects one', (tester) async {
     await pumpPlan(
         tester, const Size(393, 852), guide.site('imam_husayn_shrine')!);
-    await tester.tap(find.byTooltip('Places on the map').first);
+    await tester.tap(findTooltip('Places on the map').first);
     await settle(tester);
     final row = find.text('Tomb of Habib ibn Mazahir (a.s.)');
     await tester.ensureVisible(row);

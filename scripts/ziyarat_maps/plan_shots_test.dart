@@ -12,7 +12,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:ui' as ui;
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -26,6 +26,7 @@ import 'package:shia_companion/theme/app_theme.dart';
 import 'package:shia_companion/utils/shared_preferences.dart';
 
 import '../../test/ui/firebase_test_doubles.dart';
+import '../../test/helpers/finders.dart';
 
 const _site = String.fromEnvironment('SITE');
 const _out = String.fromEnvironment('OUT');
@@ -128,7 +129,7 @@ void main() {
       tester,
       ShrinePlanPage(plan: plan, site: site),
       '${_site}_list',
-      then: () => tester.tap(find.byTooltip('Places on the map').first),
+      then: () => tester.tap(findTooltip('Places on the map').first),
     );
     for (final id in _features.split(',').where((id) => id.isNotEmpty)) {
       final feature = plan.features.firstWhere((f) => f.id == id);
