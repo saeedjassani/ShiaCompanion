@@ -451,7 +451,38 @@ class RecitationTrackerManager extends ChangeNotifier {
       for (final entry in changes.entries.values) entry.id: entry.toJson(),
       for (final id in changes.removedEntryIds) id: FieldValue.delete(),
     };
-    return _doc(userId).set({
+    final archive = <String, Map<String, Object>>{
+      for (final day in changes.removedSummaries.entries)
+        day.key: {for (final label in day.value) label: FieldValue.delete()},
+    };
+    for (final day in changes.archive.entries) {
+      final into = archive[day.key] ??= {};
+      for (final summary in day.value.entries) {
+        into[summary.key] = summary.value.encode();
+      }
+    }
+    final trackSettings = <String, Object>{
+      for (final label in changes.clearedTracks) label: FieldValue.delete(),
+      // Nested under the label rather than written as one map, so a merge
+      // write touches only the tracks that changed. A merge also keeps
+      // fields it is not given, so a start point no longer set is deleted
+      // outright rather than left behind.
+      for (final setting in changes.trackSettings.entries)
+        setting.key: {
+          'startSurah': FieldValue.delete(),
+          'startAyah': FieldValue.delete(),
+          'startSetAt': FieldValue.delete(),
+          'readBeforeSurah': FieldValue.delete(),
+          'readBeforeAyah': FieldValue.delete(),
+          ...setting.value.toJson(),
+        },
+    };
+    final coverage = <String, Object>{
+      for (final label in changes.clearedTracks) label: FieldValue.delete(),
+      for (final track in changes.coverage.entries)
+        track.key: encodeAyahRanges(track.value),
+    };
+    final write = {
       'version': 2,
       'state': {
         // Never written empty: in a merge write an empty map replaces the
@@ -459,38 +490,34 @@ class RecitationTrackerManager extends ChangeNotifier {
         if (entries.isNotEmpty) 'entries': entries,
         if (changes.labels.isNotEmpty)
           'labels': FieldValue.arrayUnion(changes.labels.toList()),
-        // Nested under the label rather than written as one map, so a merge
-        // write touches only the tracks that changed. A merge also keeps
-        // fields it is not given, so a start point no longer set is deleted
-        // outright rather than left behind.
-        if (changes.trackSettings.isNotEmpty)
-          'trackSettings': {
-            for (final setting in changes.trackSettings.entries)
-              setting.key: {
-                'startSurah': FieldValue.delete(),
-                'startAyah': FieldValue.delete(),
-                'startSetAt': FieldValue.delete(),
-                ...setting.value.toJson(),
-              },
-          },
+        if (trackSettings.isNotEmpty) 'trackSettings': trackSettings,
         // Nested by day and label, so a merge write sets only the summaries
         // it carries and leaves every other day as it was.
-        if (changes.archive.isNotEmpty)
-          'archive': {
-            for (final day in changes.archive.entries)
-              day.key: {
-                for (final summary in day.value.entries)
-                  summary.key: summary.value.encode(),
-              },
-          },
-        if (changes.coverage.isNotEmpty)
-          'coverage': {
-            for (final track in changes.coverage.entries)
-              track.key: encodeAyahRanges(track.value),
-          },
+        if (archive.isNotEmpty) 'archive': archive,
+        if (coverage.isNotEmpty) 'coverage': coverage,
       },
       'updatedAt': FieldValue.serverTimestamp(),
-    }, SetOptions(merge: true));
+    };
+    final doc = _doc(userId);
+    if (changes.removedLabels.isEmpty) {
+      return doc.set(write, SetOptions(merge: true));
+    }
+    // One write cannot both add to and take from the label list, so a
+    // deleted track's label comes out in a write of its own, committed with
+    // the rest as one batch.
+    return (_firestore.batch()
+          ..set(
+            doc,
+            {
+              'state': {
+                'labels':
+                    FieldValue.arrayRemove(changes.removedLabels.toList()),
+              },
+            },
+            SetOptions(merge: true),
+          )
+          ..set(doc, write, SetOptions(merge: true)))
+        .commit();
   }
 
   void setupRealtimeListener() {
@@ -714,6 +741,26 @@ class RecitationTrackerManager extends ChangeNotifier {
     return _applyOperation(
       PendingRecitationOperation.setTrackSettings(trimmed, settings),
     );
+  }
+
+  /// Deletes the track [label] and everything read under it - its sessions,
+  /// progress and settings - here and from the backup. The default track
+  /// cannot be deleted.
+  Future<void> removeTrack(String label) {
+    final trimmed = label.trim();
+    if (trimmed.isEmpty || trimmed == unlabeledRecitationLabel) {
+      return Future.value();
+    }
+    final (entryIds, days) = _state.trackFootprint(trimmed);
+    unawaited(AnalyticsService.feature(
+      'recitation_track_removed',
+      label: 'Recitation track removed',
+    ));
+    return _applyOperation(PendingRecitationOperation.removeTrack(
+      trimmed,
+      entryIds: entryIds,
+      days: days,
+    ));
   }
 
   String _newEntryId() => 'r_${DateTime.now().microsecondsSinceEpoch}';

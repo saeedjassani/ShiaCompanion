@@ -411,6 +411,37 @@ void main() {
     );
   });
 
+  testWidgets('a track can be deleted, after asking', (tester) async {
+    await pump(tester);
+
+    await tapNewTrack(tester);
+    await tester.enterText(find.widgetWithText(TextField, 'Name'), 'Gone');
+    await tester.tap(find.text('Start Khatm'));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.bySemanticsLabel('Edit Gone'));
+    await tester.pumpAndSettle();
+    await tester.ensureVisible(find.text('Delete Khatm'));
+    await tester.tap(find.text('Delete Khatm'));
+    await tester.pumpAndSettle();
+    expect(find.text('Delete "Gone"?'), findsOneWidget);
+
+    // Cancel keeps it. (The sheet behind has a Cancel of its own.)
+    await tester.tap(find.text('Cancel').last);
+    await tester.pumpAndSettle();
+    expect(RecitationTrackerManager.instance.state.labels, contains('Gone'));
+
+    await tester.tap(find.text('Delete Khatm'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Delete'));
+    await tester.pumpAndSettle();
+
+    expect(RecitationTrackerManager.instance.state.labels,
+        isNot(contains('Gone')));
+    expect(find.text('Gone'), findsNothing);
+    expect(find.text('Delete Khatm'), findsNothing);
+  });
+
   testWidgets('a start can be typed down to the ayah', (tester) async {
     await pump(tester);
 

@@ -638,6 +638,44 @@ class RecitationTrackerState {
     );
   }
 
+  /// Deletes the track [label] and everything read under it: its sessions,
+  /// day summaries, coverage and settings. The default track
+  /// ([unlabeledRecitationLabel]) cannot be deleted.
+  RecitationTrackerState removeTrack(String label) {
+    final trimmed = label.trim();
+    if (trimmed.isEmpty || trimmed == unlabeledRecitationLabel) return this;
+    final known = customLabels.contains(trimmed) ||
+        trackSettings.containsKey(trimmed) ||
+        coverage.containsKey(trimmed) ||
+        entries.values.any((entry) => entry.label == trimmed) ||
+        archive.values.any((day) => day.containsKey(trimmed));
+    if (!known) return this;
+    return RecitationTrackerState(
+      {...entries}..removeWhere((_, entry) => entry.label == trimmed),
+      {...customLabels}..remove(trimmed),
+      {...trackSettings}..remove(trimmed),
+      {
+        for (final day in archive.entries)
+          day.key: {...day.value}..remove(trimmed),
+      },
+      {...coverage}..remove(trimmed),
+    );
+  }
+
+  /// What deleting [label] removes from the synced doc: the ids of its
+  /// sessions and the days its summaries are under. Carried by the queued
+  /// operation, so replaying it deletes exactly what the device knew of.
+  (Set<String>, Set<String>) trackFootprint(String label) => (
+        {
+          for (final entry in entries.values)
+            if (entry.label == label) entry.id,
+        },
+        {
+          for (final day in archive.entries)
+            if (day.value.containsKey(label)) day.key,
+        },
+      );
+
   /// Sets how [label] reads, registering it as a track if it was not one.
   RecitationTrackerState setTrackSettings(
     String label,

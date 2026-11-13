@@ -373,4 +373,134 @@ void main() {
       expect(twice.distinctVersesRecitedFor('Family'), 30);
     });
   });
+
+  group('removeTrack', () {
+    RecitationEntry entry(String id, String label) => RecitationEntry(
+          id: id,
+          label: label,
+          recitedAt: DateTime.utc(2026, 11, 1),
+          surah: 1,
+          fromAyah: 1,
+          toAyah: 7,
+        );
+
+    final state = RecitationTrackerState(
+      {
+        'a': entry('a', 'Family'),
+        'b': entry('b', 'Unlabeled'),
+        'c': entry('c', 'Majlis'),
+      },
+      {'Family', 'Majlis'},
+      {'Family': const RecitationTrackSettings(readByJuz: true)},
+      {
+        '2026-08-01': {
+          'Family': RecitationDaySummary.decode('2|30|36:1-30')!,
+          'Unlabeled': RecitationDaySummary.decode('1|7|1:1-7')!,
+        },
+        '2026-08-02': {'Family': RecitationDaySummary.decode('1|7|1:1-7')!},
+      },
+      {
+        'Family': {
+          2: [(1, 286)],
+        },
+      },
+    );
+
+    test(
+      'deletes the track and everything read under it, and nothing else',
+      () {
+        final next = state.removeTrack('Family');
+
+        expect(next.labels, ['Majlis']);
+        expect(next.entries.keys, unorderedEquals(['b', 'c']));
+        expect(next.trackSettings, isEmpty);
+        expect(next.coverage, isEmpty);
+        expect(next.archive.keys, ['2026-08-01']);
+        expect(next.archive['2026-08-01']!.keys, ['Unlabeled']);
+        expect(next.percentCompleteFor('Family'), 0);
+      },
+    );
+
+    test('never deletes the default track, or one that is not there', () {
+      expect(identical(state.removeTrack('Unlabeled'), state), isTrue);
+      expect(identical(state.removeTrack('Nobody'), state), isTrue);
+    });
+
+    test('serializes and restores what it deletes', () {
+      final (ids, days) = state.trackFootprint('Family');
+      expect(ids, {'a'});
+      expect(days, {'2026-08-01', '2026-08-02'});
+
+      final operation = PendingRecitationOperation.removeTrack(
+        'Family',
+        entryIds: ids,
+        days: days,
+      );
+      final restored = PendingRecitationOperation.fromJson(operation.toJson())!;
+      expect(restored.kind, RecitationOperationKind.removeTrack);
+      expect(restored.labelName, 'Family');
+      expect(restored.trackEntryIds, {'a'});
+      expect(restored.trackDays, {'2026-08-01', '2026-08-02'});
+
+      final replayed = applyPendingRecitationOperations(state, [
+        restored,
+        restored,
+      ]);
+      expect(replayed.labels, ['Majlis']);
+    });
+
+    test(
+      'folds into deletes of its sessions, settings, coverage and summaries',
+      () {
+        final changes = recitationRemoteChangesFor([
+          PendingRecitationOperation.addLabel('Family'),
+          PendingRecitationOperation.add(entry('d', 'Family')),
+          PendingRecitationOperation.add(entry('e', 'Majlis')),
+          PendingRecitationOperation.removeTrack(
+            'Family',
+            entryIds: {'a'},
+            days: {'2026-08-01'},
+          ),
+        ]);
+
+        expect(changes.entries.keys, ['e']);
+        expect(changes.removedEntryIds, {'a', 'd'});
+        expect(changes.labels, {'Majlis'});
+        expect(changes.removedLabels, {'Family'});
+        expect(changes.clearedTracks, {'Family'});
+        expect(changes.removedSummaries, {
+          '2026-08-01': {'Family'},
+        });
+      },
+    );
+
+    test('a track made again under the same name starts afresh', () {
+      final ops = [
+        PendingRecitationOperation.removeTrack(
+          'Family',
+          entryIds: {'a'},
+          days: {'2026-08-01'},
+        ),
+        PendingRecitationOperation.setTrackSettings(
+          'Family',
+          const RecitationTrackSettings(),
+        ),
+      ];
+      final changes = recitationRemoteChangesFor(ops);
+
+      expect(changes.labels, {'Family'});
+      expect(
+        changes.removedLabels,
+        isEmpty,
+        reason: 'the list cannot both gain and lose it in one write',
+      );
+      expect(changes.removedEntryIds, {'a'});
+      expect(changes.trackSettings['Family'], const RecitationTrackSettings());
+
+      final next = applyPendingRecitationOperations(state, ops);
+      expect(next.labels, contains('Family'));
+      expect(next.percentCompleteFor('Family'), 0);
+      expect(next.settingsFor('Family').readByJuz, isFalse);
+    });
+  });
 }

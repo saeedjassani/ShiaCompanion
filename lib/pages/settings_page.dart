@@ -52,7 +52,7 @@ import '../widgets/app_toast.dart';
 /// Settings (docs/DESIGN_SPEC.md, "Settings"; mockups `Settings-A` and
 /// `Settings-A-signedin`): the sign-in card first (what is at stake and the
 /// sign-in buttons, or who is signed in and whether the backup is up to
-/// date), then Appearance, Prayer times, Notifications, Reading, Offline
+/// date; signed out, "Maybe later" shrinks it to one row for good), then Appearance, Prayer times, Notifications, Reading, Offline
 /// audio and Support as card lists of rows, each showing its current value.
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key, this.profile, this.checkBackup});
@@ -69,7 +69,31 @@ class SettingsPage extends StatefulWidget {
 }
 
 class _SettingsPageState extends State<SettingsPage> {
+  /// Set once someone signed out taps "Maybe later" on the sign-in card:
+  /// from then on it is one "Back up and sync" row rather than the first
+  /// thing on the page, for people who are happy without an account.
+  static const String signInCardCollapsedKey = 'settings_sign_in_collapsed';
+
   SignInProvider? _signingIn;
+
+  /// The sign-in card was opened again from its collapsed row this visit.
+  bool _signInExpanded = false;
+
+  bool get _signInCollapsed =>
+      !_signInExpanded &&
+      SP.isInitialized &&
+      (SP.prefs.getBool(signInCardCollapsedKey) ?? false);
+
+  void _collapseSignIn() {
+    unawaited(AnalyticsService.feature(
+      'settings_sign_in_collapsed',
+      label: 'Settings sign-in card collapsed',
+    ));
+    if (SP.isInitialized) {
+      unawaited(SP.prefs.setBool(signInCardCollapsedKey, true));
+    }
+    setState(() => _signInExpanded = false);
+  }
 
   /// Whether the signed-in user's backup is up to date; null while
   /// checking, or while signed out.
@@ -152,13 +176,27 @@ class _SettingsPageState extends State<SettingsPage> {
           sliver: SliverToBoxAdapter(
             child: WideColumns(
               start: [
-                profile == null
-                    ? _SignInCard(signingIn: _signingIn, onSignIn: _signIn)
-                    : _SignedInCard(
-                        profile: profile,
-                        backedUp: _backedUp,
-                        onTap: _openAccountPage,
-                      ),
+                if (profile == null && _signInCollapsed)
+                  CardList(children: [
+                    _SettingsRow(
+                      icon: const _RowGlyph(OutlineGlyph.cloud),
+                      title: l10n.settingsBackupRow,
+                      value: l10n.settingsOff,
+                      onTap: () => setState(() => _signInExpanded = true),
+                    ),
+                  ])
+                else if (profile == null)
+                  _SignInCard(
+                    signingIn: _signingIn,
+                    onSignIn: _signIn,
+                    onLater: _collapseSignIn,
+                  )
+                else
+                  _SignedInCard(
+                    profile: profile,
+                    backedUp: _backedUp,
+                    onTap: _openAccountPage,
+                  ),
                 _SettingsGroup(
                   label: l10n.settingsSectionAppearance,
                   rows: [
@@ -1041,13 +1079,20 @@ class _RowTile extends StatelessWidget {
   }
 }
 
-/// Signed out: what is at stake, and the sign-in buttons.
+/// Signed out: what is at stake, the sign-in buttons, and "Maybe later".
 class _SignInCard extends StatelessWidget {
-  const _SignInCard({required this.signingIn, required this.onSignIn});
+  const _SignInCard({
+    required this.signingIn,
+    required this.onSignIn,
+    required this.onLater,
+  });
 
   /// Which provider is signing in; null while neither is.
   final SignInProvider? signingIn;
   final ValueChanged<SignInProvider> onSignIn;
+
+  /// "Maybe later": shrinks the card to one row.
+  final VoidCallback onLater;
 
   @override
   Widget build(BuildContext context) {
@@ -1132,6 +1177,19 @@ class _SignInCard extends StatelessWidget {
             l10n.settingsBackupFree,
             textAlign: TextAlign.center,
             style: ShiaText.caption.copyWith(color: colors.textMuted),
+          ),
+          const SizedBox(height: 4),
+          Center(
+            child: TextButton(
+              onPressed: busy ? null : onLater,
+              style: TextButton.styleFrom(
+                foregroundColor: colors.accent,
+                minimumSize: const Size(48, 44),
+                textStyle: buttonTextStyle(context, ShiaText.body)
+                    .copyWith(fontWeight: FontWeight.w600),
+              ),
+              child: Text(l10n.setupMaybeLater),
+            ),
           ),
         ],
       ),

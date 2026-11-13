@@ -121,4 +121,44 @@ void main() {
     // Nothing to reorder among verses, which keep mushaf order.
     expect(find.text('Edit'), findsNothing);
   });
+
+  testWidgets('a sideways swipe moves between duas and verses', (tester) async {
+    await keep(tester, ['Dua Kumayl']);
+    await pump(tester);
+
+    await tester.fling(find.text('Dua Kumayl'), const Offset(-300, 0), 1000);
+    await tester.pumpAndSettle();
+    expect(find.text('Dua Kumayl'), findsNothing);
+    expect(find.text('No saved verses yet'), findsOneWidget);
+
+    // Nothing further that way.
+    await tester.fling(
+        find.text('No saved verses yet'), const Offset(-300, 0), 1000);
+    await tester.pumpAndSettle();
+    expect(find.text('No saved verses yet'), findsOneWidget);
+
+    await tester.fling(
+        find.text('No saved verses yet'), const Offset(300, 0), 1000);
+    await tester.pumpAndSettle();
+    expect(find.text('Dua Kumayl'), findsOneWidget);
+  });
+
+  testWidgets('right to left, the swipe runs the other way', (tester) async {
+    await keep(tester, ['Dua Kumayl']);
+    await tester.pumpWidget(MaterialApp(
+      home: Directionality(
+        textDirection: TextDirection.rtl,
+        child: FavoritesPage(),
+      ),
+    ));
+    await tester.pumpAndSettle();
+
+    await tester.fling(find.text('Dua Kumayl'), const Offset(-300, 0), 1000);
+    await tester.pumpAndSettle();
+    expect(find.text('Dua Kumayl'), findsOneWidget);
+
+    await tester.fling(find.text('Dua Kumayl'), const Offset(300, 0), 1000);
+    await tester.pumpAndSettle();
+    expect(find.text('Dua Kumayl'), findsNothing);
+  });
 }

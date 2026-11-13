@@ -396,8 +396,9 @@ Not on a fresh install (setup's theme step asked) or the web; gone from the
 next launch once a color is picked, and for good once dismissed.
 
 ### Settings
-Sign-in card first (signed out: what's at stake + Google/Apple buttons;
-signed in: name, email, "Backed up · 2 minutes ago", opens Account with Log
+Sign-in card first (signed out: what's at stake + Google/Apple buttons, and
+"Maybe later", which shrinks it for good to one "Back up and sync · Off" row
+that opens it again; signed in: name, email, "Backed up · 2 minutes ago", opens Account with Log
 out / Delete account). Then Appearance (Theme, Color, Arabic font with
 sample, Text size), Prayer times (Location, Azan, Adjust Hijri date, Prayer
 times shown), Notifications, Reading, Offline audio, Support (... What's

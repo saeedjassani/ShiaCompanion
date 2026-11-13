@@ -47,7 +47,8 @@ String describeRecitationPosition(
 /// Both ask the same two things: read by surah or by juz, and where to start.
 /// Creating also asks for a name; editing shows where the track has got to
 /// as "Continue from", so moving a khatm along after reading some of it away
-/// from the app is the same tap as choosing where a new one begins.
+/// from the app is the same tap as choosing where a new one begins. Editing
+/// also offers to delete the track, after asking.
 ///
 /// "Start Khatm" opens the reader at the new track's start straight away.
 Future<void> showRecitationTrackSheet(
@@ -215,6 +216,26 @@ class _RecitationTrackSheetState extends State<_RecitationTrackSheet> {
     Navigator.pop(context, name);
   }
 
+  /// Asks first, since the track's progress and the reading logged under it
+  /// go with it; then closes the sheet.
+  Future<void> _delete() async {
+    final label = widget.label;
+    if (label == null) return;
+    final l10n = context.l10n;
+    final confirmed = await showRevampDialog<bool>(
+      context,
+      title: l10n.trackDeleteTitle(label),
+      body: l10n.trackDeleteBody,
+      answers: [
+        DialogAnswer(false, l10n.commonCancel),
+        DialogAnswer(true, l10n.commonDelete, danger: true),
+      ],
+    );
+    if (confirmed != true || !mounted) return;
+    unawaited(RecitationTrackerManager.instance.removeTrack(label));
+    Navigator.pop(context);
+  }
+
   @override
   Widget build(BuildContext context) {
     final colors = ShiaColors.of(context);
@@ -307,6 +328,14 @@ class _RecitationTrackSheetState extends State<_RecitationTrackSheet> {
           filled: true,
           onPressed: _save,
         ),
+        if (_isEditing) ...[
+          const SizedBox(height: 10),
+          PageButton(
+            label: l10n.trackDelete,
+            danger: true,
+            onPressed: _delete,
+          ),
+        ],
       ],
     );
   }
