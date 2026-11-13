@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shia_companion/pages/prayer_counter_page.dart';
@@ -9,6 +9,7 @@ import 'package:shia_companion/theme/app_theme.dart';
 import 'package:shia_companion/utils/shared_preferences.dart';
 import 'package:wakelock_plus/wakelock_plus.dart' as wakelock;
 import 'package:wakelock_plus_platform_interface/wakelock_plus_platform_interface.dart';
+import 'helpers/finders.dart';
 
 class _FakeWakelockPlatform extends WakelockPlusPlatformInterface {
   @override
@@ -175,7 +176,7 @@ void main() {
     expect(find.text(_dimHint), findsOneWidget);
 
     // The × brightens too.
-    await tester.tap(find.byTooltip('Leave dim mode'));
+    await tester.tap(findTooltip('Leave dim mode'));
     await tester.pump();
     expect(find.text(_dimHint), findsNothing);
   });

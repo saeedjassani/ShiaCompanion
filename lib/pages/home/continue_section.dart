@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 import '../../constants.dart';
 import '../../data/uid_title_data.dart';
@@ -65,7 +65,7 @@ class ContinueEntry {
     'A' => (s.homeCategoryQuran, HomeGlyphType.surahs),
     'C' => (s.homeCategoryAamaal, HomeGlyphType.aamaal),
     'D' => (s.homeCategoryTaqibaat, HomeGlyphType.taqeebat),
-    'E' => (s.homeCategoryDua, HomeGlyphType.duas),
+    'E' || 'AS' => (s.homeCategoryDua, HomeGlyphType.duas),
     'F' => (s.homeCategoryNamaz, HomeGlyphType.namaz),
     'G' => (s.homeCategoryZiyarat, HomeGlyphType.ziyaraat),
     'H' => (s.homeCategoryMunajat, HomeGlyphType.munajaat),

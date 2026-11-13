@@ -1,5 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 TextStyle whiteColor = new TextStyle(color: Colors.white);
 TextStyle whiteColor70 = new TextStyle(color: Colors.white70);

@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'dart:ui' as ui;
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -16,6 +16,7 @@ import 'package:shia_companion/utils/shared_preferences.dart';
 import 'package:shia_companion/widgets/reader_content.dart';
 
 import 'firebase_test_doubles.dart';
+import '../helpers/finders.dart';
 
 /// Drives the reader itself — the real [ChapterPage], not a stand-in for it —
 /// over real chapter markdown, turning pages and checking that every line on
@@ -273,7 +274,7 @@ void main() {
     // still just another page of this chapter. The controls are matched by
     // tooltip — the chapter handoff page carries the same words in its text.
     expect(
-        find.byTooltip('Previous chapter: The Chapter Before'), findsOneWidget);
+        findTooltip('Previous chapter: The Chapter Before'), findsOneWidget);
     expect(
       find.descendant(
         of: find.byType(TextButton),
@@ -282,8 +283,8 @@ void main() {
       findsOneWidget,
       reason: 'the control should name the chapter it leads to',
     );
-    expect(find.byTooltip('Next page'), findsOneWidget);
-    expect(find.byTooltip('Next chapter: The Chapter After'), findsNothing);
+    expect(findTooltip('Next page'), findsOneWidget);
+    expect(findTooltip('Next chapter: The Chapter After'), findsNothing);
 
     // Read to the last page, where it is the other way round.
     final total = readCounter(tester).total;
@@ -293,7 +294,7 @@ void main() {
     }
     expect(readCounter(tester).page, total);
 
-    expect(find.byTooltip('Next chapter: The Chapter After'), findsOneWidget);
+    expect(findTooltip('Next chapter: The Chapter After'), findsOneWidget);
     expect(
       find.descendant(
         of: find.byType(TextButton),
@@ -301,9 +302,9 @@ void main() {
       ),
       findsOneWidget,
     );
-    expect(find.byTooltip('Previous page'), findsOneWidget);
+    expect(findTooltip('Previous page'), findsOneWidget);
     expect(
-        find.byTooltip('Previous chapter: The Chapter Before'), findsNothing);
+        findTooltip('Previous chapter: The Chapter Before'), findsNothing);
 
     expect(tester.takeException(), isNull);
   }, timeout: const Timeout(Duration(minutes: 5)));

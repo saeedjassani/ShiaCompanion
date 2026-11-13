@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:geolocator/geolocator.dart';
@@ -32,7 +32,7 @@ import 'package:shia_companion/utils/timezone_database.dart';
 import 'package:timezone/timezone.dart' as tz;
 import 'package:shia_companion/utils/prayer_time_entries.dart';
 import 'package:shia_companion/utils/prayer_times.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:cupertino_ui/cupertino_ui.dart';
 import 'l10n/l10n.dart';
 
 export 'utils/slug_registry.dart';

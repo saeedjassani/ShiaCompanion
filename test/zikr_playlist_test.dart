@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/gestures.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shia_companion/constants.dart';
@@ -12,6 +12,7 @@ import 'package:shia_companion/services/playlist_audio_service.dart';
 import 'package:shia_companion/services/zikr_audio_index.dart';
 import 'package:shia_companion/services/zikr_playlist_store.dart';
 import 'package:shia_companion/utils/shared_preferences.dart';
+import 'helpers/finders.dart';
 
 /// A store with [values] in storage and, unless a test says otherwise, the
 /// starter playlists already handed out - so it starts empty.
@@ -390,7 +391,7 @@ void main() {
       // One or two zikr go by name; more, by how many.
       expect(find.text('Dua e Ahad, Ziyarat Ashura'), findsOneWidget);
       expect(find.text('3 zikr'), findsOneWidget);
-      expect(find.byTooltip('Play'), findsNWidgets(2));
+      expect(findTooltip('Play'), findsNWidgets(2));
       expect(find.bySemanticsLabel('Play Morning'), findsOneWidget);
     });
 

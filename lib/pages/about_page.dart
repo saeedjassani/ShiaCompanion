@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:shia_companion/constants.dart';
 import 'package:shia_companion/utils/external_launch.dart';
 import 'package:shia_companion/widgets/responsive_content.dart'

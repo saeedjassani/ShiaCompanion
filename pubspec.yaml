@@ -3,13 +3,18 @@ description: All the features needed by the lovers of Ahle Bayt (may Allah's pea
 
 version: 4.2.0+140
 environment:
-  sdk: ^3.4.0
+  sdk: ^3.13.0
+  flutter: ">=3.47.0"
 
 dependencies:
   flutter:
     sdk: flutter
   flutter_localizations:
     sdk: flutter
+  # Material and Cupertino left the framework in Flutter 3.47; these are
+  # their new homes (package:flutter/material.dart is deprecated).
+  material_ui: ^1.11.0
+  cupertino_ui: ^1.1.6
   provider: ^6.0.5
   app_links: ^7.1.1
   auth_buttons: ^3.0.0

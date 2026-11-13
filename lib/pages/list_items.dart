@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:shia_companion/data/uid_title_data.dart';
 import 'package:shia_companion/data/universal_data.dart';
 import 'package:shia_companion/pages/quran/go_to_verse_sheet.dart'
@@ -61,6 +61,9 @@ class _ItemListState extends State<ItemList> {
 
   bool get _isSurahList => widget.item == 'A';
 
+  /// The list's uid prefix: a group row opens its list by a uid ("AS0").
+  String get _list => widget.item.replaceAll(RegExp('[0-9].*'), '');
+
   /// The rows the find field leaves: the whole list until something is
   /// typed, then what matches, best match first (as search ranks them).
   List<UidTitleData> get _shownItems {
@@ -82,9 +85,10 @@ class _ItemListState extends State<ItemList> {
     final count = _isSurahList
         ? workingItems.where((e) => surahForUid(e.uid) != null).length
         : workingItems.length;
-    return switch (widget.item) {
+    return switch (_list) {
       'A' => l10n.listCountSurahs(count),
-      'E' => l10n.listCountDuas(count),
+      // Sahifa Sajjadiya, a group of Duas (`E~AS0`).
+      'E' || 'AS' => l10n.listCountDuas(count),
       'G' => l10n.listCountZiyarats(count),
       'F' => l10n.listCountPrayers(count),
       'H' => l10n.listCountMunajat(count),
@@ -92,9 +96,9 @@ class _ItemListState extends State<ItemList> {
     };
   }
 
-  String _findHint(AppLocalizations l10n) => switch (widget.item) {
+  String _findHint(AppLocalizations l10n) => switch (_list) {
         'A' => l10n.listFindSurah,
-        'E' => l10n.listFindDua,
+        'E' || 'AS' => l10n.listFindDua,
         'G' => l10n.listFindZiyarat,
         'F' => l10n.listFindPrayer,
         'H' => l10n.listFindMunajat,

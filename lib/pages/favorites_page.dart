@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:shia_companion/constants.dart';
 import 'package:shia_companion/data/universal_data.dart';
 import 'package:shia_companion/models/saved_verse.dart';

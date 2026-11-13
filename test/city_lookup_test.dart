@@ -1,5 +1,5 @@
 import 'package:date_format/date_format.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -16,6 +16,7 @@ import 'package:shia_companion/utils/shared_preferences.dart';
 import 'package:shia_companion/utils/timezone_database.dart';
 import 'package:shia_companion/widgets/prayer_times_widget.dart';
 import 'package:timezone/timezone.dart' as tz;
+import 'helpers/finders.dart';
 
 /// Picking a city as the location, looking one up, and the Home card asking
 /// whether a city chosen on a trip is still right. The suite runs in whatever
@@ -203,7 +204,7 @@ void main() {
       expect(find.text(header(today)), findsOneWidget);
       expect(find.text('Today in Karbala'), findsNothing);
 
-      await tester.tap(find.byTooltip('Next day'));
+      await tester.tap(findTooltip('Next day'));
       await tester.pump();
       final tomorrow = DateTime(today.year, today.month, today.day + 1);
       expect(find.text(header(tomorrow)), findsOneWidget);

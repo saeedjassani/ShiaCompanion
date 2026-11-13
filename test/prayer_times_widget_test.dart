@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart' as http;
@@ -18,6 +18,7 @@ import 'package:shia_companion/utils/timezone_database.dart';
 import 'package:shia_companion/widgets/outline_icon.dart';
 import 'package:shia_companion/widgets/prayer_times_widget.dart';
 import 'package:timezone/timezone.dart' as tz;
+import 'helpers/finders.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -107,7 +108,7 @@ void main() {
     });
 
     expect(find.byType(CircularProgressIndicator), findsNothing);
-    expect(find.byTooltip('Change city'), findsOneWidget);
+    expect(findTooltip('Change city'), findsOneWidget);
   });
 
   testWidgets(
@@ -128,7 +129,7 @@ void main() {
     expect(find.text('Fajr'), findsOneWidget);
     expect(find.text('Location services are off · 1 day ago'), findsOneWidget);
     expect(find.text('Turn on'), findsOneWidget);
-    expect(find.byTooltip('Change city'), findsOneWidget);
+    expect(findTooltip('Change city'), findsOneWidget);
     // In the header, under the city - not on the prayer card.
     expect(
       find.descendant(
@@ -357,7 +358,7 @@ void main() {
     expect(find.text('1445 AH'), findsOneWidget);
     expect(find.text('Najaf'), findsOneWidget);
     expect(find.text('Salamun Alaikum'), findsNothing);
-    expect(find.byTooltip('Settings and account'), findsOneWidget);
+    expect(findTooltip('Settings and account'), findsOneWidget);
   });
 
   testWidgets('after Maghrib the header shows the eve of the next day',

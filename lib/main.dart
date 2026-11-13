@@ -3,10 +3,9 @@ import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'widgets/azan_playing_banner.dart';
 import 'widgets/now_playing_capsule.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_web_plugins/url_strategy.dart';
 import 'package:just_audio_background/just_audio_background.dart';
 import 'package:provider/provider.dart';
@@ -232,25 +231,33 @@ class MyApp extends StatelessWidget {
           supportedLocales: AppLocalizations.supportedLocales,
           localizationsDelegates: const [
             AppLocalizations.delegate,
-            GlobalMaterialLocalizations.delegate,
-            GlobalWidgetsLocalizations.delegate,
-            GlobalCupertinoLocalizations.delegate,
+            // Cupertino, Material and widgets, from package:material_ui.
+            ...GlobalMaterialLocalizations.delegates,
             // After Material's, whose first load resets intl's date symbols.
             IntlSymbolsDelegate(),
           ],
           // The in-app Text size setting, layered over the system's own
           // text scale for every route, dialog and sheet under the navigator.
           builder: (context, child) => BackOnEscape(
-            // The Azan's controls and a playing playlist float over every
-            // page until they are stopped.
-            child: textScaleProvider.apply(
-              context,
-              Stack(
-                children: [
-                  Positioned.fill(child: child ?? const SizedBox()),
-                  const NowPlayingCapsule(),
-                  const AzanPlayingBanner(),
-                ],
+            // flutter_markdown_plus (the reader) and fl_chart still read
+            // package:flutter/material.dart's Theme, a different class from
+            // material_ui's since Flutter 3.47. The bridge mirrors the app's
+            // colours and text styles into it - without it they'd get the
+            // light fallback theme even in dark mode. Drop it once they move
+            // to material_ui.
+            // ignore: deprecated_member_use
+            child: MaterialUiCompatibilityBridge(
+              child: textScaleProvider.apply(
+                context,
+                // The Azan's controls and a playing playlist float over every
+                // page until they are stopped.
+                Stack(
+                  children: [
+                    Positioned.fill(child: child ?? const SizedBox()),
+                    const NowPlayingCapsule(),
+                    const AzanPlayingBanner(),
+                  ],
+                ),
               ),
             ),
           ),

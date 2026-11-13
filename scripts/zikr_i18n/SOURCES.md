@@ -226,6 +226,121 @@ From https://mafatih.duas.co, taken from the scraped page text rather than retyp
 - **L3:** two typos fixed (`حا ضر`, `خداکے`). Item 9 of the Fatimah ziyarat has one verb for both of its clauses, so it divides between segments 33 and 34 at `اور`, in reading order.
 - **E19:** the page prints the opening with `فلان بن فلان` and tells the reader to say `الحجۃ بن الحسن` instead; segment 0 joins the two as the reader would say them.
 
+### Urdu Mafatih al-Jinan — the most recited (2026-11-06)
+
+The most recited zikrs (Home's `homeFamousRecitations` and the weekly
+`public/community` top list) that still had no Urdu. From
+https://mafatih.duas.co, scraped with `web_source.py duasco` and aligned
+with `deck_source.py align`. Every segment was then read against our
+Arabic. One source line covering several segments was divided at the
+Arabic clause boundary, in order. ؑ/ؐ are written (ع)/(ص), and (س) for
+Lady Fatimah and Lady Maryam. Each draft's full notes (every correction,
+before and after) were kept with the work; the ones worth knowing are here.
+
+| uid | Zikr | Source | Segments |
+| --- | --- | --- | --- |
+| AC12 | Dua Arafah | https://mafatih.duas.co/dua-arafa | 681 of 691 |
+| E29 | Dua Jawshan Kabir | https://mafatih.duas.co/dua-joshan-kabir | 705 of 706 |
+| AA12 | Dua Abu Hamza Thumali | https://mafatih.duas.co/dua-thumali | 643 of 648 |
+| E27 | Dua Mashlool | https://mafatih.duas.co/dua-mashlool | all 257 |
+| G14 | Ziyarat of Imam Husayn (a.s.) on the Nights of Qadr | https://mafatih.duas.co/ziarat-qadr | all 24 |
+| X4 | Ziyarat Rajabiyah | https://mafatih.duas.co/ziarat-rajabiya | 22 of 27 |
+
+The standalone Basmala (AA12 1, X4 0, E27 1) is the corpus-standard
+published Urdu Basmala, as in D2 and I74; these pages have none of their own.
+
+- **AC12 Arafah:**
+  - Segment 0 is the corpus-standard Basmala; the page has none.
+  - Our own (a short phrase the page drops or garbles): 32, 117 (اجل,
+    "ہاں"), 202 (وهوانی), 538 (the third "اے میرے رب"), 547, 587, 594
+    (بخدمة), 611 (منك), 662 (بمنك).
+  - About 60 corrections, among them: 83 (the harms averted are *more
+    than* the comfort, not "most of them"); 133 یضادّه as "ہمکار"
+    (helper), now "مخالف"; 148 خِرْ لی; 155 الوارثین as "obedient"; 196-198
+    قریب/بعید read as time, they are a near and a distant person; 306
+    سترت as "پرورش کی", now "پردہ پوشی کی" (the page's own word at 160);
+    474 اقلبنا; 484 آمّین; 547 السکون الی عطاء (the page says nearly the
+    opposite); 644 استبانت as "grew distant", now "became clear"; 669
+    ارکزتنی as "remembered". Dropped و/اگر, شر (525), عزماً (590), بعد
+    (370) restored; the refrain لا اله الا انت سبحانک worded alike in all
+    12 places.
+  - Blank: 28, 82, 340, 552 (the Urdu puts the phrase elsewhere; the row
+    sits whole on its neighbour); 585 (the page doesn't translate وحالة
+    شیدتها); 603-604, 606-607 and 621 (mistranslated: بکسوة الانوار,
+    عن النظر الیها / عن الاعتماد علیها, مراکز اضطراری).
+  - The Ibn Tawus addition (541 onward) is the loosest part of the page;
+    630, 685, 388 and 489 are kept as printed but loose.
+- **E29 Jawshan Kabir:**
+  - The page gives one "اے ..." phrase per يا; each section's rows were
+    joined and divided at each يا.
+  - The refrain (1-2) is the page's closing pair, whose Arabic matches ours.
+  - Our own: 281 (the page prints "اے وہ کہ" on the row before), 455
+    (a dropped اے), 494 (the page skips یا حی).
+  - 333: the page reverses يَسْأَلُ وَلَا يُسْأَلُ ("مسئول ہے اور سائل
+    نہیں"). It now reads "اے وہ جو باز پرس کرتا ہے اور اس سے باز پرس نہیں
+    ہوتی", the sense and wording of our Urdu Quran's 21:23 (ours).
+  - 262-263: the page prints section 41's four phrases in another order;
+    each phrase's own Urdu sits with its Arabic.
+  - Other fixes: 645 یا مرضی read as from مرض ("بیماری دینے والے"), now
+    "راضی کرنے والے"; 185 لا یضام made active, now "جس پر ظلم نہیں
+    ہوتا"; 681 مرتب as تربیت, now ترتیب; 682 مذکر, now "یاد دلانے
+    والے"; 359 قفار, now "بیابانوں"; 315 restores "ہر"; typos in 67, 99,
+    101, 154, 218, 666.
+  - 71-72: our Arabic had منوّر and طبیب swapped against its own
+    transliteration and English; fixed in `assets/zikr/E29`.
+  - Blank: 50. Our Arabic reads الْفَضْلِ, the page الفصل, and its Urdu
+    "فیصلے" translates that. Check a printed Mafatih.
+- **AA12 Abu Hamza Thumali:**
+  - Our own: 57 (the page drops لا اله الا انت), 195 (it skips حثنا على
+    الرغبة اليك), 514 (a missing verb), 585 (it drops أعني).
+  - 424: the page drops بيني and turns the clause into a request; rebuilt
+    from the page's own words.
+  - 465: ذل موقفي as "میرے بیان کو نرم فرما", now "میرے کھڑے ہونے کی ذلت
+    پر رحم فرما".
+  - Other fixes: 142 مفضل, 185 آمالنا, 407 شکرك, 507 ("what I know and
+    what I don't"), 641 یقبل الیسیر (the page's own words from 642); words
+    restored in 508, 645; typos.
+  - 292 uses the page's own rendering of the same Arabic at 101; the page
+    fuses 292 with 293.
+  - Editorial insertions dropped: ﴿کعبہ﴾ (224), "(اس میں نہ آنے دے)"
+    (524), an added "اے اللہ!" (232).
+  - Blank: 207 (the page reads مَلَكٌ كَرِيْمٌ as مَلِك, king); 78, 97,
+    551-552, where the page packs several of our lines into one clause in
+    another order, so its row sits whole on the first.
+  - 149: our Arabic had تَنْشُرُ twice; the second is تَسْتُرُ, as the
+    page, its Urdu and our English have. Fixed in `assets/zikr/AA12`.
+- **E27 Mashlool:**
+  - Our own: 222 ("تمام" for اجمعين, which the page drops).
+  - 198-199: the page reads الْمُؤْتَفِكَةَ as from افک ("دین میں افترا کرنے
+    والے"); 199 uses our Urdu Quran's 53:53.
+  - 243: سَأَلَكَ عِبَادِيْ عَنِّيْ as "مجھے پکاریں", now our Urdu Quran's
+    2:186 wording.
+  - 256: a repeated محمدؐ after آلؑ removed; dropped "اور" restored in
+    233, 234, 250, 252.
+  - 31: our Arabic had كَبِيْلُ for كَفِيْلُ; fixed in `assets/zikr/E27`.
+- **G14:** the rows joined in order; two grammar fixes (11, 17). Tab 4
+  (al-Abbas) matches G6, from the same page.
+- **X4 Rajabiyah:**
+  - Our own: 9 ("دار القرار میں", which the page skips) and 25 ("اور سلام
+    ہو آپ پر", in the page's wording from 7 and 10).
+  - Blank: 15 (وَاِبْرَاحِهَا as "یا ناکام کرے"); 18-20 (the page reads
+    the return home to a fertile place as returning to the shrine); 22
+    (وَعَلٍّ وَّنَهَلٍ as "may this month come again"). A second Urdu
+    translation (e.g. Jawadi's) would fill these.
+
+Left for a human to check, in our Arabic (not changed):
+- E29: 2 خَلِصَّنَا, 292 مَنْ كُلَّ, 315 مُقَدِّرًا, 358 الثِّمَارِیَا
+  (no space), 575 second یُضِلُّ (یُذِلُّ?).
+- AA12: 360 (يا سيدي) and 545 اضدادي, which the page lacks.
+- E27: 46 اَحَدٌا, 176 غِیَاثَا … لَاغِیَاثَ, 218 الَّعْنَۃَ, 246
+  تَقْنَطَوُاْ.
+- X4: 3 مُحَمَّدِ نِالْمُنْتَجَبِ, 10 عُقْبَ (Quran 13:24 has عُقْبَى).
+- AC12: 22 مِنَ تُّرَابِ, 23 لِرَیْبَ الْمَنُوْنَ, 130 مُوْقِیًا (مُوْقِنًا),
+  204 (سِوَاكَ lost?), 244 يعَلْمُ, 262 مَنِ سْتَنْقَذَ, 263 غَدَوْ, 274
+  یَا مِنْ, 322 فَاغْفِرْ هَالِیْ, 401 وَسُبُوْعِهَا (وَسُبُوْغِهَا), 475
+  تَجْعَلْنَ, 534 یَنْفَعُنِیْ / اَعْطَیْنَتِیْ, 228 كهيعص in Urdu letters,
+  missing spaces in 359, 571, 593.
+
 ### The Quran translation, reused
 
 - **A4 Ayat al-Kursi** (ur, fa, gu): segments 1-3 are 2:255-257, copied from
@@ -751,11 +866,145 @@ Not to use, for the same reason: "Muntakhab Mafateehul Jinan" (Jafri 5859,
 Allama Haji Naji, 2,077 pp). Its "Gujarati" column is likewise Urdu
 written in Gujarati script throughout (checked on page renders of the
 Thursday supplication, Dua Simat and Dua Ihtijab sections, 2026-10). So
-E26 (Dua Simat) and E154 (Dua Ihtijab) stay untranslated in Gujarati until
-a genuine Gujarati source turns up. Q1 (Thursday supplication) is now our
+E154 (Dua Ihtijab) stays untranslated in Gujarati until a genuine Gujarati
+source turns up. E26 (Dua Simat) now has one: mafatihuljinan.org (see
+"mafatihuljinan.org — the most recited" above). Q1 (Thursday supplication) is now our
 own Gujarati; see "Our own Gujarati" below. The
 Salawat of Abul Hasan al-Zarrab (E144) is not in the book at all, and no
 other Gujarati source for it is known.
+
+### mafatihuljinan.org — the most recited (2026-11-06)
+
+The site Dua Tawassul (E24) came from. Its pages print timed blocks of
+Arabic, a Gujarati transliteration and the Gujarati translation;
+`web_source.py mafatihuljinan` turns a saved page into rows for
+`deck_source.py align`. Every segment was read against our Arabic; one
+block covering several segments was divided at the Arabic clause
+boundary, in order. Its text came from a legacy-font conversion, so
+spelling slips (અન્લીયા for અવલીયા, the digit ૫ for the letter પ) were
+corrected throughout.
+
+| uid | Zikr | Page | Segments |
+| --- | --- | --- | --- |
+| E34 | Dua Nudba | daily-dua-gujarati/dua-e-nudba/ | 282 of 284 |
+| AA10 | Dua Iftitah | amaal-namaz-gujarati/dua-iftitah/ (rows 1-237) | 188 of 189 |
+| G11 | Ziyarat Nahiya | ziyarat-gujarati/ziyarat-nahiya/ | 372 of 493 |
+| G14 | Ziyarat of Imam Husayn (a.s.) on the Nights of Qadr | daily-dua-gujarati/imam-hussainlayatul-qadrshab-e-jummaziyarat/ | 23 of 24 |
+| Y4 | Munajat Shabaniyah | amaal-namaz-gujarati/મુનાજાતે-શાઅબાનીય્યાહ/ (rows 1-124) | 131 of 140 |
+| E28 | Dua Mujeer | amaal-namaz-gujarati/dua-mujeer/ | all 96 |
+| E26 | Dua Simat | daily-dua-gujarati/duasimatfriday/ | 182 of 194 |
+| AC12 | Dua Arafah | amaal-namaz-gujarati/દોઆએ-અરફા-ઈમામ-હુસૈન-અ-સ/ | 635 of 691 |
+
+- **E34 Nudba:**
+  - Our own: 169 («નજીબોના», for النجباء, which the page drops).
+  - Fixes: 109 (a letter missing in «કતએ રહેમ»), 170 «અને» -> «અય» for
+    يا, 237 plural -> singular (عبيدك), 242 «તમે» -> «અમે», 106 an
+    editor's stray Latin «check spelling» dropped.
+  - Blank: 35 and 108, whose rows put their clauses in another order;
+    each row sits whole on its neighbour (34, 107).
+- **AA10 Iftitah:**
+  - The page prints the dua twice; its second copy (rows 238-441) is Urdu
+    in Gujarati script («ઔર તૂ અપને એહસાન સે…») and was not used.
+  - Fixes: 4-5 (the page's lines run one phrase off the Arabic), 18-19
+    (بجميع محامده moved back to 18), 125 and 151 (a line printed twice),
+    178 «તારા નબી» -> «અમારા નબી» (نبينا).
+  - Blank: 110 (Gujarati word order puts its salawat after 109's epithets).
+- **G11 Nahiya:**
+  - The page ends at the ziyarat's last line (368); it has no Gujarati for
+    the prayer and qunut after it (371-486, 488, 491).
+  - Our own (each a correction or a few missing words): 6 تَوَّجَهُ read
+    as تَوَجَّهَ («turned towards»), now «crowned»; 51 المضرّجات as «torn»,
+    now blood-stained; 67 the salam was on «him whose brother was
+    poisoned», now on the poisoned brother; 136 تحوط الهدى as «had control
+    over guidance», now «guarded»; 189 مجالدا as «eager» and «Ali of the
+    age» for علي المختار; 351 خاشعا as «clear», now «humble»; rows cut
+    off in the page completed in 60, 99-100, 118, 242, 256, 275, 362.
+  - 295 uses our Gujarati Quran's 26:84 (A30); the page's row is cut off.
+  - Blank: 208 and 210 (the page mistranslates them), 217 (its rows cross
+    the Arabic; the row sits whole on 216).
+  - 324: our Arabic had a stray غ in اَللّٰهُمَّ; fixed in `assets/zikr/G11`.
+  - To check: 248 «સુનાની સંભળાવનારે સુનાની સંભળાવી» (a real phrase or a
+    conversion slip?).
+- **G14:**
+  - Our own: 5 («સવાબની ઉમ્મીદ રાખીને», for محتسبا, which the page skips)
+    and 22 (the page states where they are in Hell; the Arabic asks Allah
+    to send them there).
+  - Fixes: 6 (the curse on those who opposed him), 20 «અને» -> «અય».
+  - Blank: 13, the salam to Ali ibn al-Husayn, which the page has no
+    Gujarati for.
+
+- **Y4 Munajat Shabaniyah:**
+  - Rows 125-260 repeat the munajat in Urdu in Gujarati script («જબ મૈં
+    તુઝ સે દુઆ કરૂં»); not used.
+  - Our own: 59 (أبدا أبدا دائما سرمدا, which the page skips).
+  - Fixes: 48 بسط أملي («greater than my hope», now «expanded»); 63 «I
+    was Your lover», now «I am» (أحبك); 116-117 two statements the page
+    turns into requests; 137 a garbled «સુબ્હાનલ્લાહ વ તઆલા» dropped. Rows
+    running half a line ahead moved back (4, 14-19, 126-127, 134-135).
+  - Blank: 6 and 25 (fused into 5 and 24); 29, 74-75, 79, 82-83, 114
+    (the page drops أتنصل, reverses who calls whom, or renders صعق as a
+    cry).
+- **E28 Mujeer:**
+  - Our own: 18 «કદરદાન» (شكور; the page has «worthy of thanks») and 46
+    «આગળ કરનાર / પાછળ રાખનાર» (مقدم/مؤخر; the page repeats 47's First/Last).
+  - Fixes: 6 عزيز and 70 شريف («giver of honour», now «ઇઝ્ઝતવાળા»), 53
+    (no «my» in يا سيد), 89 (a stray «તું પાક છે»), 94 «તેં» -> «તે».
+- **E26 Simat:**
+  - Real Gujarati, but loose, and often a clause ahead of or behind its
+    Arabic; realigned throughout (e.g. 26-32, 158-161, 174-175). Two Urdu
+    instruction tails («ફીર યે પડોઃ») dropped.
+  - Our own: 1 (the verb «સવાલ કરૂં છું»), 15 («તારી રજા વગર», إلا
+    بإذنك), 122 («પોતાના હબીબ», حبيبك).
+  - Fixes: 74 «Bayt al-Muqaddas» for بيت إيل, now «બયતે ઈલ»; 48 and 55
+    rebuilt from the garbled «મુકસવાદીના»; 140-141 تأويل and ظاهر, which
+    our Arabic lacks, dropped; 147-148 use the page's clean wording of the
+    same Arabic at its rows 140-143; 92 «કદર» -> «કુદરત» (جبروت); «તે» ->
+    «તેં» in about 14 places.
+  - Blank: 52 («above» the pillar of fire), 70 and 83 (fused into their
+    neighbours), 100 (خفقت), 104 (garbled, drops وذريته بالرحمة),
+    184-185 and 188-192 (no Gujarati on the page).
+
+- **AC12 Arafah:** the loosest of these. The page is a free, often
+  explanatory paraphrase in long paragraphs, each covering many of our
+  segments. Gujarati puts the verb last, so some segments end on a
+  fragment whose verb is in the next (e.g. 27-29, 125-130). A native
+  reader should go through it.
+  - Our own: 50 («દર વર્ષે»), 107 («અને તમામ અંગો»), 223 (Ishaq, whom
+    the page drops from the prophets), 288 (فلك الحمد والشكر, in the
+    page's wording from 319-320), 458 (the Prophet's name, which the page
+    leaves out), 536 (لك الملك), 619 («તારી»), 416 (below).
+  - The refrain لا اله الا انت سبحانك: the page's repeats (375-395) read
+    «તું એકલો અને બેનિયાઝ છે» (You are One and Self-sufficient). All take
+    its own wording at 373, without its added «બેનિયાઝ»: «તારા સિવાય કોઈ
+    ખુદા નથી, તું પાક છે»; 416 (the two phrases reversed) matches.
+  - About 70 lines differ from the page: typos (હજ્જત, અચ્યુબ, ઝબ્ડ,
+    મબ્લુકો, અર્થ for અર્શ) and meaning fixes, among them 189 (the page
+    asks not to be made low in myself; the Arabic asks for humility), 533
+    (a missing "not"), 557 فبعدلك, 372 جود read as وجود, 217 حلم as
+    God's "humility", 201 غربتي as "poverty", 455, 655 اولياء as
+    "prophets", 665 العوالم as "sorrows", 581 القاهرة as "gracious"; 590
+    (printed twice, once wrongly) kept once.
+  - Blank (56): lines the page skips (17, 82, 144, 222, 242, 263, 272,
+    278-279, 322, 363, 389-390, 413, 436, 504, 615-616, 658); lines whose
+    Gujarati doesn't match the Arabic (24-26, 87-88, the list of limbs
+    91-104, 147, 180-181, 187, 193, 245, 303, 329, 408-410, 438, 457,
+    559, 596, 635, 643, 675-676); and lines fused into a neighbour (56,
+    58, 251, 254, 340, 445, 466).
+  - Kept as printed but worth a look: 206, 212, 523; from 415 on the page
+    often says "me" for the Arabic's "us" (and the reverse in 520-525).
+
+Turned down on the same site:
+- **E8 Dua Alqama** (dua-gujarati/દુઆ-એ-અલ્કમાં/): Urdu in Gujarati script
+  («ઓર અય વોહ જો ઝિયાદા કરીબ હય મુજસે»).
+- **E29 Jawshan Kabir and E27 Mashlool:** their pages print only the
+  transliteration (and, for E29, each section's benefit), no translation.
+- **AA12 Abu Hamza** (amaal-namaz-gujarati/દુઆ-અબુ-હમઝા-તુમાલી/): real
+  Gujarati, but the page prints the translation alone, in long timed
+  blocks with no Arabic, so it could only be aligned by meaning. Not
+  attempted yet.
+- **AC12 Arafah, X4 Rajabiyah, G3 Arbaeen** under `dua-gujarati/`,
+  `sahifas-gujarati/` and `date-gujarati/`: these pages render empty
+  without signing in. AC12's `amaal-namaz-gujarati/` page does load.
 
 ### Our own Gujarati — Q1 (2026-11-05)
 

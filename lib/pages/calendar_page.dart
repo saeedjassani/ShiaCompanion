@@ -1,5 +1,5 @@
 import 'package:flutter/foundation.dart' show kIsWeb;
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:hijri/hijri_calendar.dart';
 import 'package:intl/intl.dart' show DateFormat;
 import 'package:shia_companion/pages/city_picker.dart';

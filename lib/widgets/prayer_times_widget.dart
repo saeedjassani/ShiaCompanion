@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:shia_companion/pages/city_picker.dart';
 import 'package:shia_companion/services/analytics_service.dart';
 import 'package:shia_companion/services/azaan_opt_in_service.dart';
