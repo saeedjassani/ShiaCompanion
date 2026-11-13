@@ -674,19 +674,58 @@ The list as found in session 1:
 - Urdu: the Jamkaran tahiyyat label reads `تحیۃ المسجد` while tips say
   `نماز تحیت مسجد`; left as it is.
 
-**Next:**
+**Session 5 (2026-11-13): merged to master, still admin-only.**
 
-1. The owner tries the plans and the restored ziyarats on a device as an
-   admin, and reviews the flagged lines above.
-2. Phase 4 is done but for merits (any key added to the guide later
-   needs translating in all four: `guide_keys.py check`; any entry
-   restored later needs its labels and instructions translated in
-   `assets/zikr_i18n/<code>/`, segment-keyed; see `docs/TRANSLATIONS.md`).
-3. Phase 3, what is left in "Missing ziyarats" (Samarra, Kazimayn,
-   Mada'in, Karbala, Najaf occasions, Madinah's mosques and other graves).
-4. Phase 5: point the Ziyarats list's `G0~B` row at the guide, ungate
-   `ziyaratGuideMenuItem` (move it into `homeMenuItems` after Ziyarats,
-   update `test/widget_test.dart`), What's New note, ship.
+- Session 4 ran out of usage while its agents were restoring the Najaf,
+  Kufa and Mada'in ziyarats; none of that work was committed, so those
+  batches start from scratch (they are in "Missing ziyarats" below).
+- Master merged in (Sahifa Sajjadiya titles in the four `index.json`s, the
+  move to `material_ui`: the guide's files import it now and its tests use
+  `findTooltip`). Full suite passed; PR #421 merged once CI was green.
+- The owner is trying the guide on a device next.
+
+**What's left (start here):**
+
+1. **The owner's device check** (as an admin): the three pages, the ten
+   shrine plans (tap a gate or tomb, its card opens the ziyarat), the
+   restored entries. Anything found comes first.
+2. **Reviews waiting on the owner or a native reader:**
+   - "Restored in session 3: for the owner to review" - every item there:
+     AE3's izn ending (لِذٰلِكَ?), al-Jawadiyya resting on duas.org alone,
+     the fresh English lines, and the vague "glorify Allah" instruction
+     (if the source means the Tasbih of Lady Fatimah (s.a.), say so and
+     link it, then fix the four translations); AQ5's four titles, its
+     الْمُزَوَّجَةِ fatha and a possible second tab; AP13's "send
+     blessings" line; transliteration of all of them (`translit.py`
+     output, not native-checked).
+   - "Corpus problems found": the "Still open from these" list (G82's
+     `day`s, G78's untranslated line and tasbih lines, the Ruqayya
+     spellings, G63's variants, heading-like lines in AG14/AI5/AL1) and
+     the session-1 items not decided yet (AK8 = G2, AK13 = AK5 tab 7,
+     G7/G57/AG18, G6 in AG14, G55/G56, H17's label, G51's source).
+   - "Shrine plans": the Esri-read and typed `location`s (confirm or
+     replace), Bab Muslim ibn Aqil's position in Najaf, Sahn Fatimah.
+   - "Unverified, left out of phase 1": add any the owner can confirm.
+   - "For the owner (translations)" above: the Urdu Jamkaran label.
+3. **Translations still missing:** merits and verses of AE3, AP8, AQ2,
+   AQ5, AM3 and AE17, and AP2's Arabic lines (verses need a published
+   source, `scripts/zikr_i18n/SOURCES.md`). Any guide key added later
+   needs all four (`python3 -I scripts/ziyarat_maps/guide_keys.py check
+   <code>`); any entry restored later needs its labels and instructions
+   in `assets/zikr_i18n/<code>/`, segment-keyed (`docs/TRANSLATIONS.md`),
+   each language read by an independent agent.
+4. **Phase 3, the rest of "Missing ziyarats"**: Najaf (AK17, AK19, the
+   First Ziyarat's izn, al-Hannanah), Kufa (AI13/AI14/AI17), Mada'in
+   (AJ3, AJ4, AJ1), Samarra (AL8, AL9, AL4, AL10, AL16), Kazimayn (AH3,
+   AH1, AH11), Karbala (AG21, AG20, AG15, G31, B5), Baghdad (AM1, AM4),
+   Madinah (AP12, AP5/AP6, the graves without uids), Makkah, Iran (Imam
+   Reza's other forms, AE14, G28). One batch per city, each checked
+   against an online copy, `source_check.py` baselined, linked from its
+   site and plan feature, counts recounted in
+   `scripts/RESTORING_MISSING_ZIKRS.md`.
+5. **Phase 5, ship:** point the Ziyarats list's `G0~B` row at the
+   guide, ungate `ziyaratGuideMenuItem` (move it into `homeMenuItems`
+   after Ziyarats, update `test/widget_test.dart`), What's New note.
 
 Re-running a region's content: the agents' brief is below; they write
 `{"regions": [...]}` fragments that merge into the asset (Iraq's cities in

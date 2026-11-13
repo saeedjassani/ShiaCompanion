@@ -23,13 +23,16 @@
 
 ## TODO / follow-ups
 
-- **Ziyarat Guide: in progress (admin-only).** A home feature listing the
-  places pilgrims visit (regions -> cities -> shrines), each shrine linking
-  its ziyarats in the zikr corpus, with about, burials, tips and
-  directions. Schema, rules, phases and where to resume:
-  `docs/ZIYARAT_GUIDE.md` ("Status and resume here"). Ungate it in
-  `visibleHomeMenuItems` only after the owner's content review and the
-  four translations.
+- **Ziyarat Guide: on master, admin-only, not shipped.** A home feature
+  listing the places pilgrims visit (regions -> cities -> shrines), each
+  shrine linking its ziyarats in the zikr corpus, with about, burials,
+  tips, directions and tappable shrine plans; the guide's text is in all
+  four languages. Left: the owner's device check, the review items the
+  doc lists, translations of the restored entries' merits and verses, the
+  remaining missing ziyarats (Najaf, Kufa, Mada'in, Samarra, Kazimayn,
+  Karbala, Madinah...), then ungating it. The checklist is "What's left"
+  under "Status and resume here" in `docs/ZIYARAT_GUIDE.md`; read it
+  before resuming.
 
 - **Missing-zikr restoration is mid-way.** 118 unfavorited uids are still
   missing from the corpus. Before resuming, read the "Resume here" section at
