@@ -1,9 +1,12 @@
+import 'dart:async';
+
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shia_companion/constants.dart';
 import 'package:shia_companion/data/quran_ali_verses.dart';
 import 'package:shia_companion/data/quran_mahdi_verses.dart';
+import 'package:shia_companion/models/recitation_tracker_state.dart';
 import 'package:shia_companion/pages/quran/quran_page.dart';
 import 'package:shia_companion/pages/quran/recitation_track_sheet.dart';
 import 'package:shia_companion/widgets/page_chrome.dart';
@@ -77,16 +80,27 @@ void main() {
     // Tracks made by earlier tests can push the card past the screen's edge.
     // (Dragged rather than ensureVisible'd, which would also scroll the page
     // and leave the card under the folded title bar.)
-    await tester.drag(find.text('My reading'), const Offset(-600, 0));
+    await tester.drag(find.text('Continue reading'), const Offset(-600, 0));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('New Khatm'));
+    // "Start a Khatm" until the first is made, "New Khatm" after.
+    final newKhatm = find.text('New Khatm');
+    await tester.tap(newKhatm.evaluate().isEmpty
+        ? find.text('Start a Khatm')
+        : newKhatm);
+    await tester.pumpAndSettle();
+  }
+
+  /// Opens a new Khatm's "More options": reading by juz, and counting the
+  /// verses before a mid-way start.
+  Future<void> tapMoreOptions(WidgetTester tester) async {
+    await tester.tap(find.text('More options'));
     await tester.pumpAndSettle();
   }
 
   testWidgets('lists every surah with its verse count', (tester) async {
     await pump(tester);
 
-    // Once in the list, once as where My reading starts.
+    // Once in the list, once as where Continue reading starts.
     expect(find.text('Surah1'), findsNWidgets(2));
     expect(find.text('7 verses'), findsOneWidget);
     // Ayat al Kursi is not a surah and must not appear among the 114.
@@ -94,9 +108,8 @@ void main() {
   });
 
   group('the tracking hint', () {
-    const hint = 'Everything you read in the Quran is saved to My reading. '
-        'To keep a separate Khatm, like one with family, add a new Khatm and '
-        'tap its card to carry on where it left off.';
+    const hint = 'Your place is kept as you read. '
+        'To read for a Khatm, open it from its card.';
     const viewsKey = 'quran_tracking_hint_views';
 
     testWidgets('shows on the first open and counts it', (tester) async {
@@ -198,12 +211,39 @@ void main() {
   });
 
   testWidgets(
-      'the default track always shows as My reading, with nothing to resume '
-      'yet', (tester) async {
+      'the default track shows as Continue reading, with nothing to resume '
+      'yet, beside a card that says what a Khatm is', (tester) async {
     await pump(tester);
 
-    expect(find.text('My reading'), findsOneWidget);
+    expect(find.text('Continue reading'), findsOneWidget);
     expect(find.text('Start reading'), findsWidgets);
+    expect(find.text('Start a Khatm'), findsOneWidget);
+    expect(find.text('Keep your place in a full reading of the Quran'),
+        findsOneWidget);
+    expect(find.text('New Khatm'), findsNothing);
+  });
+
+  testWidgets(
+      'everyday reading shows where it left off, never a share of the Quran',
+      (tester) async {
+    // Not awaited: the save queues behind the screen's earlier writes, which
+    // only finish as the test's clock is pumped - as the sheet's own do.
+    unawaited(RecitationTrackerManager.instance.logRecitation(
+      id: 'everyday',
+      label: unlabeledRecitationLabel,
+      surah: 2,
+      fromAyah: 1,
+      toAyah: 141,
+      syncRemote: false,
+    ));
+    await pump(tester);
+
+    expect(find.text('Continue reading'), findsOneWidget);
+    expect(find.text('Surah2 141'), findsOneWidget);
+    expect(find.textContaining('% of the Quran'), findsNothing);
+
+    unawaited(RecitationTrackerManager.instance.removeEntry('everyday'));
+    await tester.pumpAndSettle();
   });
 
   testWidgets('the Saved collection says so when nothing is kept',
@@ -357,6 +397,10 @@ void main() {
 
     await tapNewTrack(tester);
     await tester.enterText(find.widgetWithText(TextField, 'Name'), 'Khatm');
+    // Reading by juz waits under More options.
+    expect(find.text('Juz (Para)'), findsNothing);
+    await tapMoreOptions(tester);
+    expect(find.text('More options'), findsNothing);
     await tester.tap(find.text('Juz (Para)'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('The beginning'));
@@ -447,6 +491,7 @@ void main() {
 
     await tapNewTrack(tester);
     await tester.enterText(find.widgetWithText(TextField, 'Name'), 'Ahzab');
+    await tapMoreOptions(tester);
     await tester.tap(find.text('Juz (Para)'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('The beginning'));

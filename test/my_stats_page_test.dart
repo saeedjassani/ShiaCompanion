@@ -3,7 +3,9 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shia_companion/constants.dart';
+import 'package:shia_companion/models/recitation_tracker_state.dart';
 import 'package:shia_companion/pages/my_stats_page.dart';
+import 'package:shia_companion/pages/stats/quran_progress_section.dart';
 import 'package:shia_companion/pages/stats/stats_charts.dart';
 import 'package:shia_companion/pages/stats/stats_widgets.dart';
 import 'package:shia_companion/services/activity_stats_store.dart';
@@ -194,5 +196,48 @@ void main() {
             of: find.byType(StatsBarChart), matching: find.byType(Container))
         .first);
     expect(ten.right, lessThanOrEqualTo(bar.left));
+  });
+
+  testWidgets(
+      'Reading outside a Khatm shows as totals, with no ring or khatm to '
+      'complete', (tester) async {
+    await tester.binding.setSurfaceSize(const Size(430, 3200));
+    addTearDown(() => tester.binding.setSurfaceSize(null));
+    final at = DateTime.now();
+    final state = RecitationTrackerState({
+      // A Khatm read from its card...
+      'family': RecitationEntry(
+          id: 'family',
+          label: 'Family',
+          recitedAt: at,
+          surah: 2,
+          fromAyah: 1,
+          toAyah: 160),
+      // ...and Ya-Sin read from the surah list, for no Khatm.
+      'yasin': RecitationEntry(
+          id: 'yasin',
+          label: unlabeledRecitationLabel,
+          recitedAt: at,
+          surah: 36,
+          fromAyah: 1,
+          toAyah: 83),
+    }, {
+      'Family'
+    });
+
+    await tester.pumpWidget(MaterialApp(
+      home: Scaffold(
+        body: SingleChildScrollView(
+          child: QuranProgressSection(state: state),
+        ),
+      ),
+    ));
+
+    expect(find.text('My reading'), findsOneWidget);
+    expect(find.textContaining('83 verses'), findsOneWidget);
+    // Only the Family Khatm has a ring, a place and khatm progress.
+    expect(find.byType(ProgressRing), findsOneWidget);
+    expect(find.text('Recited till'), findsOneWidget);
+    expect(find.textContaining('to complete a khatm'), findsOneWidget);
   });
 }

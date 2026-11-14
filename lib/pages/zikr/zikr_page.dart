@@ -2559,6 +2559,11 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
   /// reader is ("12% read" - before they start, how long it takes), led on a
   /// multi-part zikr by which part is open ("Part 3 of 4 · 12% read"). The
   /// progress is the open part's, like the line under the part chips.
+  ///
+  /// Quran opened from a Khatm's card is led by the Khatm it counts for
+  /// ("Khatm: Family · 12% read"): which Khatm a reading goes to depends on
+  /// where it was opened from, so the reader says so rather than leaving
+  /// it to be remembered. Without it, the reading is everyday reading.
   Widget _buildSubtitle({
     required int tabCount,
     required int selectedTabIndex,
@@ -2567,6 +2572,11 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
     final l10n = context.l10n;
     final part =
         tabCount > 1 ? l10n.readerPartOf(selectedTabIndex + 1, tabCount) : null;
+    final label = widget.recitationLabel;
+    final khatm = _isQuran && label != null && label != unlabeledRecitationLabel
+        ? l10n.readerKhatmFor(recitationTrackName(label, l10n))
+        : null;
+    final lead = [?khatm, ?part].join(' · ');
     return ValueListenableBuilder<double>(
       valueListenable: _readingProgress,
       builder: (context, progress, _) {
@@ -2578,8 +2588,8 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
           status =
               percent == 0 ? readingTimeLabel : l10n.readerPercentRead(percent);
         }
-        if (part == null) return Text(status);
-        return Text('$part · $status');
+        if (lead.isEmpty) return Text(status);
+        return Text('$lead · $status');
       },
     );
   }

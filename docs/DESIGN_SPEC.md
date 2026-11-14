@@ -247,8 +247,12 @@ are tabs), My Stats added, Preferences renamed Settings. A small check on
 items already on Home; "Edit shortcuts" top-right.
 
 ### Quran (tab 2)
-Large title + Recent sessions and My Stats buttons; reading-track cards
-(default track shown as "My reading"); **Go to a verse** button (opens the
+Large title + Recent sessions and My Stats buttons; reading cards: first
+"Continue reading" (everyday reading, where it left off, no % of the Quran),
+then one card per Khatm the reader started (with its %), then "Start a Khatm"
+(with a line on what one is) or, once one exists, "New Khatm". Only a Khatm
+measures progress; reading counts for one only when opened from its card;
+**Go to a verse** button (opens the
 two-step picker: surah list with quick picks → verse number grid in
 groups of 50); Surahs / Juz / Collections as a segmented switcher; surah
 list.
@@ -323,7 +327,8 @@ bar. Results scroll behind it under the same fade.
 
 ### Reading (zikr and Quran)
 - Top bar: round back button, one-line title, small sub-line ("12% read",
-  "Part 3 of 4 · 12% read", "Verse 255 of 286 · My reading"), reminder bell (the
+  "Part 3 of 4 · 12% read", "Khatm: Family · 12% read" when opened from a
+  Khatm's card), reminder bell (the
   favourite heart on web, where reminders can't fire), 3 px progress line
   along the bottom edge.
 - Multi-part zikrs: parts as chips under the title; swiping still changes

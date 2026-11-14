@@ -227,13 +227,15 @@ class _QuranPageState extends State<QuranPage>
 /// The three ways the Quran screen lists the Quran.
 enum _QuranView { surahs, juz, collections }
 
-/// One resume card per recitation track - the default track first, as "My
-/// reading" - and a card to start a new one.
+/// "Continue reading" - where the reader's everyday reading left off - then
+/// one card per Khatm they started, and a card to start one.
 ///
-/// This is what replaced the old single "Continue reciting" card: instead of
-/// one global place to resume, every track keeps its own, since where you
-/// left off reading with family and where you left off reading alone are not
-/// the same place.
+/// The everyday reading (the [unlabeledRecitationLabel] track, "My reading"
+/// elsewhere) is everything opened from the lists, search or a link: a surah
+/// on Thursday night, another on Friday. It is a place to pick up, not a
+/// khatm, so its card shows no share of the Quran - only Khatms, which are
+/// read through deliberately from their own cards, measure progress. Until
+/// someone starts one, the card that would has room to say what a Khatm is.
 class _RecitationTrackCards extends StatelessWidget {
   const _RecitationTrackCards({required this.gutter});
 
@@ -260,7 +262,10 @@ class _RecitationTrackCards extends StatelessWidget {
                     _TrackCard(label: label, state: state),
                     const SizedBox(width: 10),
                   ],
-                  _AddTrackCard(onTap: () => showRecitationTrackSheet(context)),
+                  _AddTrackCard(
+                    first: state.labels.isEmpty,
+                    onTap: () => showRecitationTrackSheet(context),
+                  ),
                 ],
               ),
             ),
@@ -282,7 +287,8 @@ class _TrackCard extends StatelessWidget {
     final colors = ShiaColors.of(context);
     final isDefault = label == unlabeledRecitationLabel;
     final target = state.resumeTargetFor(label);
-    final percent = state.percentCompleteFor(label);
+    // Only a Khatm measures how much of the Quran it has covered.
+    final percent = isDefault ? 0.0 : state.percentCompleteFor(label);
     final position = describeRecitationPosition(
       target.verse,
       byJuz: target.inJuz,
@@ -294,7 +300,9 @@ class _TrackCard extends StatelessWidget {
         : target.isStart
             ? context.l10n.quranStartReading
             : null;
-    final name = recitationTrackName(label, context.l10n);
+    final name = isDefault
+        ? context.l10n.quranContinueReading
+        : recitationTrackName(label, context.l10n);
 
     // The default track is the one most people only ever use, so it is the
     // dark card; the rest sit on the surface.
@@ -381,7 +389,8 @@ class _TrackCard extends StatelessWidget {
       openRecitationTrack(context, label);
 }
 
-/// A short note under the track cards that the place is kept on its own.
+/// A short note under the track cards that the place is kept on its own,
+/// and that reading counts for a Khatm only when opened from its card.
 ///
 /// The surah reader used to have a bookmark button, and the Quran reader has
 /// none - so someone used to bookmarking needs telling, once or twice, that
@@ -462,9 +471,13 @@ class _TrackingHintState extends State<_TrackingHint> {
   }
 }
 
+/// Starts a Khatm. Before the first one it is as wide as a track card and
+/// says in a line what a Khatm is for; after, a plain "New Khatm".
 class _AddTrackCard extends StatelessWidget {
-  const _AddTrackCard({required this.onTap});
+  const _AddTrackCard({required this.first, required this.onTap});
 
+  /// Whether no Khatm has been started yet.
+  final bool first;
   final VoidCallback onTap;
 
   @override
@@ -472,7 +485,7 @@ class _AddTrackCard extends StatelessWidget {
     final colors = ShiaColors.of(context);
 
     return SizedBox(
-      width: 120,
+      width: first ? 200 : 120,
       child: Material(
         color: colors.surface,
         shape: RoundedRectangleBorder(
@@ -491,13 +504,23 @@ class _AddTrackCard extends StatelessWidget {
                     size: 22, color: colors.accent, strokeWidth: 2),
                 const SizedBox(height: 4),
                 Text(
-                  context.l10n.quranNewTrack,
+                  first
+                      ? context.l10n.quranStartKhatm
+                      : context.l10n.quranNewTrack,
                   textAlign: TextAlign.center,
                   style: ShiaText.caption.copyWith(
                     color: colors.accent,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
+                if (first) ...[
+                  const SizedBox(height: 2),
+                  Text(
+                    context.l10n.quranStartKhatmHint,
+                    textAlign: TextAlign.center,
+                    style: ShiaText.caption.copyWith(color: colors.textMuted),
+                  ),
+                ],
               ],
             ),
           ),

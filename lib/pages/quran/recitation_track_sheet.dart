@@ -50,6 +50,10 @@ String describeRecitationPosition(
 /// from the app is the same tap as choosing where a new one begins. Editing
 /// also offers to delete the track, after asking.
 ///
+/// A new Khatm asks only for a name and a start; reading by juz and counting
+/// the verses before a mid-way start wait under "More options", already set
+/// to what most people want (by surah; earlier verses counted).
+///
 /// "Start Khatm" opens the reader at the new track's start straight away.
 Future<void> showRecitationTrackSheet(
   BuildContext context, {
@@ -113,6 +117,10 @@ class _RecitationTrackSheetState extends State<_RecitationTrackSheet> {
   /// start as already read - see [RecitationTrackSettings.readBefore].
   bool _markEarlierRead = true;
   String? _nameError;
+
+  /// Whether a new track's "More options" are open. Editing always shows
+  /// them: by then the reader knows what a Khatm is.
+  bool _showMore = false;
 
   bool get _isEditing => widget.label != null;
 
@@ -244,7 +252,20 @@ class _RecitationTrackSheetState extends State<_RecitationTrackSheet> {
     final positionText = position == null
         ? l10n.trackBeginning
         : describeRecitationPosition(position, byJuz: _readByJuz);
-    final canMarkEarlierRead = !_isEditing && !_startsAtBeginning;
+    final showMore = _isEditing || _showMore;
+    final canMarkEarlierRead = showMore && !_isEditing && !_startsAtBeginning;
+    final readBy = [
+      GroupLabel(l10n.trackReadBy),
+      const SizedBox(height: 8),
+      SegmentedSwitcher<bool>(
+        segments: [
+          Segment(false, l10n.trackBySurah),
+          Segment(true, l10n.trackByJuz),
+        ],
+        selected: _readByJuz,
+        onChanged: _setReadByJuz,
+      ),
+    ];
 
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -270,17 +291,7 @@ class _RecitationTrackSheetState extends State<_RecitationTrackSheet> {
           ),
           const SizedBox(height: 18),
         ],
-        GroupLabel(l10n.trackReadBy),
-        const SizedBox(height: 8),
-        SegmentedSwitcher<bool>(
-          segments: [
-            Segment(false, l10n.trackBySurah),
-            Segment(true, l10n.trackByJuz),
-          ],
-          selected: _readByJuz,
-          onChanged: _setReadByJuz,
-        ),
-        const SizedBox(height: 18),
+        if (_isEditing) ...[...readBy, const SizedBox(height: 18)],
         GroupLabel(_isEditing ? l10n.trackContinueFrom : l10n.trackStartFrom),
         const SizedBox(height: 8),
         CardList(children: [
@@ -311,6 +322,11 @@ class _RecitationTrackSheetState extends State<_RecitationTrackSheet> {
           ),
           if (canMarkEarlierRead) _buildMarkEarlierReadRow(l10n),
         ]),
+        if (!_isEditing && _showMore) ...[
+          const SizedBox(height: 18),
+          ...readBy,
+        ],
+        if (!showMore) _buildMoreOptions(colors, l10n),
         const SizedBox(height: 10),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 4),
@@ -337,6 +353,35 @@ class _RecitationTrackSheetState extends State<_RecitationTrackSheet> {
           ),
         ],
       ],
+    );
+  }
+
+  /// The link that opens a new track's [_showMore] options.
+  Widget _buildMoreOptions(ShiaColors colors, AppLocalizations l10n) {
+    return Align(
+      alignment: AlignmentDirectional.centerStart,
+      child: InkWell(
+        onTap: () => setState(() => _showMore = true),
+        borderRadius: BorderRadius.circular(8),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 10),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                l10n.trackMoreOptions,
+                style: ShiaText.caption.copyWith(
+                  color: colors.accent,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              const SizedBox(width: 4),
+              OutlineIcon(OutlineGlyph.chevronDown,
+                  size: 14, color: colors.accent, strokeWidth: 2),
+            ],
+          ),
+        ),
+      ),
     );
   }
 

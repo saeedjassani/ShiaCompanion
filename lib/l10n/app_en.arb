@@ -1011,6 +1011,10 @@
   "trackStartAt": "Start at",
   "trackEditNote": "This Khatm moves on by itself as you read. Change this only to pick up somewhere else.",
   "trackNewNote": "You can change these anytime from the Khatm's card.",
+  "trackMoreOptions": "More options",
+  "@trackMoreOptions": {
+    "description": "Link on the New Khatm sheet that shows its other options (read by surah or juz, count earlier verses)."
+  },
   "trackMarkEarlierRead": "Count earlier verses towards progress",
   "trackMarkEarlierReadHint": "Everything before this counts as read for this Khatm. Your stats only count what you read in the app.",
   "trackCreate": "Start Khatm",
@@ -1489,7 +1493,7 @@
     }
   },
   "statsQuranProgress": "Quran progress",
-  "statsQuranEmpty": "Open a surah and start reading - the verses you recite are tracked here automatically, with your progress towards a full khatm.",
+  "statsQuranEmpty": "Open a surah and start reading - the verses you read are counted here. To follow a full reading of the Quran, start a Khatm on the Quran screen.",
   "statsRecitedTill": "Recited till",
   "statsNotStarted": "Not started",
   "statsKhatmComplete": "Khatm complete - may it be accepted",
@@ -2670,15 +2674,37 @@
   },
   "quranMyReading": "My reading",
   "@quranMyReading": {
-    "description": "The default Quran reading track's card on the Quran screen."
+    "description": "The name of everyday Quran reading - anything not read for a Khatm - in Recent sessions and on My Stats. On the Quran screen its card says quranContinueReading instead."
   },
-  "quranTrackingHint": "Everything you read in the Quran is saved to My reading. To keep a separate Khatm, like one with family, add a new Khatm and tap its card to carry on where it left off.",
+  "quranTrackingHint": "Your place is kept as you read. To read for a Khatm, open it from its card.",
   "@quranTrackingHint": {
-    "description": "Dismissible note under the reading track cards on the Quran screen, shown the first few times it opens."
+    "description": "Dismissible note under the reading cards on the Quran screen, shown the first few times it opens. Reading counts for a Khatm only when opened from that Khatm's card."
   },
-  "quranBookmarkRetired": "Surah bookmarks are retired: the Quran now saves your place as you read. Pick up again from My reading on the Quran screen.",
+  "quranBookmarkRetired": "Surah bookmarks are retired: the Quran now saves your place as you read. Pick up again from Continue reading on the Quran screen.",
   "@quranBookmarkRetired": {
-    "description": "Shown once a surah opens at a bookmark made in an older version, which is then removed. 'My reading' is the quranMyReading track card."
+    "description": "Shown once a surah opens at a bookmark made in an older version, which is then removed. 'Continue reading' is the quranContinueReading card."
+  },
+  "quranContinueReading": "Continue reading",
+  "@quranContinueReading": {
+    "description": "Caption of the first card on the Quran screen: where the reader's everyday reading (anything opened from the surah or juz lists, search or a link, not from a Khatm) left off. Under it is the surah and verse."
+  },
+  "quranStartKhatm": "Start a Khatm",
+  "@quranStartKhatm": {
+    "description": "Card on the Quran screen that starts a Khatm, shown before the reader has started any (after that it says quranNewTrack)."
+  },
+  "quranStartKhatmHint": "Keep your place in a full reading of the Quran",
+  "@quranStartKhatmHint": {
+    "description": "Line under quranStartKhatm on that card: what a Khatm is for. The card is narrow, about 200 points."
+  },
+  "readerKhatmFor": "Khatm: {track}",
+  "@readerKhatmFor": {
+    "description": "Start of the line under a surah's title in the reader when it was opened from a Khatm's card, saying which Khatm the reading counts for, e.g. 'Khatm: Family · 12% read'.",
+    "placeholders": {
+      "track": {
+        "type": "String",
+        "example": "Family"
+      }
+    }
   },
   "favoriteToggleLabel": "Favorite {title}",
   "@favoriteToggleLabel": {
