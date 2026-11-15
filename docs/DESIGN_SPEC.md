@@ -247,11 +247,13 @@ are tabs), My Stats added, Preferences renamed Settings. A small check on
 items already on Home; "Edit shortcuts" top-right.
 
 ### Quran (tab 2)
-Large title + Recent sessions and My Stats buttons; reading cards: first
-"Continue reading" (everyday reading, where it left off, no % of the Quran),
-then one card per Khatm the reader started (with its %), then "Start a Khatm"
-(with a line on what one is) or, once one exists, "New Khatm". Only a Khatm
-measures progress; reading counts for one only when opened from its card;
+Large title + Recent sessions and My Stats buttons; Khatm cards only: one
+per Khatm the reader started (with its %), the one read last first and dark,
+then "Start a Khatm" (with a line on what one is) or, once one exists, "New
+Khatm". Reading counts for a Khatm only when opened from its card; anything
+else is "Other reading", with no card here (Home's Continue picks up a surah
+left part-way). Readers who read straight through the old "My reading" card
+had it turned into a Khatm of that name, once, with an Undo note;
 **Go to a verse** button (opens the
 two-step picker: surah list with quick picks → verse number grid in
 groups of 50); Surahs / Juz / Collections as a segmented switcher; surah

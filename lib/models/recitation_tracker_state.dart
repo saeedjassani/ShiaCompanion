@@ -15,22 +15,24 @@ import 'activity_stats.dart';
 const String unlabeledRecitationLabel = 'Unlabeled';
 
 /// [label] as a track is called on screen: [unlabeledRecitationLabel] is
-/// "My reading", every other label is its own name.
+/// "Other reading", every other label is its own name.
 ///
-/// The stored key stays 'Unlabeled' - it is in every reader's history and
-/// sync - so this is the one place the two names meet.
+/// The everyday reading was shown as "My reading" until Khatms had to be
+/// started; that name now belongs to the Khatm its reading moved into
+/// ([planMyReadingPort]). The stored key stays 'Unlabeled' - it is in every
+/// reader's history and sync - so this is the one place the two names meet.
 String recitationTrackName(String label, [AppLocalizations? l10n]) =>
     label == unlabeledRecitationLabel
-        ? (l10n ?? L10n.current).quranMyReading
+        ? (l10n ?? L10n.current).quranOtherReading
         : label;
 
 /// Whether [name], as someone typed it, means the default track - its stored
 /// key or the name it is shown under, in any case. Such a name cannot be
-/// given to a track of its own: there would be two "My reading"s.
+/// given to a track of its own: there would be two "Other reading"s.
 bool isDefaultRecitationTrackName(String name, [AppLocalizations? l10n]) {
   final typed = name.trim().toLowerCase();
   return typed == unlabeledRecitationLabel.toLowerCase() ||
-      typed == (l10n ?? L10n.current).quranMyReading.toLowerCase();
+      typed == (l10n ?? L10n.current).quranOtherReading.toLowerCase();
 }
 
 /// Days of recitation kept session by session. Older sessions are folded
@@ -1057,6 +1059,15 @@ class RecitationTrackerState {
       }
     }
     return latest == null ? null : VerseKey(latest.surah, latest.toAyah);
+  }
+
+  /// Whether [verse] counts as read for [label] - recited under it, or set
+  /// up as read before it started.
+  bool trackIncludes(String label, VerseKey verse) {
+    final ayah = verse.ayah ?? 1;
+    return _mergedRangesForLabel(label)[verse.surah]
+            ?.any((range) => range.$1 <= ayah && ayah <= range.$2) ??
+        false;
   }
 
   /// Merged, non-overlapping ayah ranges ever recited under [label], by

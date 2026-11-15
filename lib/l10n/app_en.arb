@@ -2674,19 +2674,29 @@
   },
   "quranMyReading": "My reading",
   "@quranMyReading": {
-    "description": "The name of everyday Quran reading - anything not read for a Khatm - in Recent sessions and on My Stats. On the Quran screen its card says quranContinueReading instead."
+    "description": "Name of the Khatm the app makes, once, for a reader who read the Quran straight through under the old 'My reading' card, so that reading carries on under the same name. From then on it is a Khatm like any other."
   },
-  "quranTrackingHint": "Your place is kept as you read. To read for a Khatm, open it from its card.",
+  "quranTrackingHint": "There's no bookmark to set: a Khatm keeps your place as you read. Open it from its card to carry on.",
   "@quranTrackingHint": {
-    "description": "Dismissible note under the reading cards on the Quran screen, shown the first few times it opens. Reading counts for a Khatm only when opened from that Khatm's card."
+    "description": "Dismissible note under the Khatm cards on the Quran screen, shown the first few times it opens. The Quran reader has no bookmark button; reading counts for a Khatm only when opened from that Khatm's card."
   },
-  "quranBookmarkRetired": "Surah bookmarks are retired: the Quran now saves your place as you read. Pick up again from Continue reading on the Quran screen.",
+  "quranBookmarkRetired": "Surah bookmarks are retired. To keep your place in a full reading of the Quran, start a Khatm on the Quran screen.",
   "@quranBookmarkRetired": {
-    "description": "Shown once a surah opens at a bookmark made in an older version, which is then removed. 'Continue reading' is the quranContinueReading card."
+    "description": "Shown once a surah opens at a bookmark made in an older version, which is then removed."
   },
-  "quranContinueReading": "Continue reading",
-  "@quranContinueReading": {
-    "description": "Caption of the first card on the Quran screen: where the reader's everyday reading (anything opened from the surah or juz lists, search or a link, not from a Khatm) left off. Under it is the surah and verse."
+  "quranOtherReading": "Other reading",
+  "@quranOtherReading": {
+    "description": "Name of Quran reading done outside any Khatm (opened from the surah or juz lists, search or a link), in Recent sessions and on My Stats."
+  },
+  "quranMyReadingPorted": "\"{name}\" is now a Khatm, so it keeps your place as before. Reading opened from the surah list no longer counts towards it.",
+  "@quranMyReadingPorted": {
+    "description": "Shown once on the Quran screen, with Undo, after the app turned the reader's straight-through reading under the old 'My reading' card into a Khatm of the same name. {name} is that Khatm's name (quranMyReading).",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "My reading"
+      }
+    }
   },
   "quranStartKhatm": "Start a Khatm",
   "@quranStartKhatm": {

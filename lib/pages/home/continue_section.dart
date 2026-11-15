@@ -17,6 +17,7 @@ import '../../utils/quran_index.dart';
 import '../../widgets/home_glyph.dart';
 import '../library_page.dart';
 import '../quran/quran_navigation.dart';
+import '../quran/recitation_track_sheet.dart' show openRecitationTrack;
 import '../zikr/zikr_page.dart';
 import 'home_section.dart';
 import '../../widgets/responsive_content.dart' show MouseDragScroll;
@@ -74,6 +75,81 @@ class ContinueEntry {
   };
 }
 
+/// The Quran card: where the Khatm read (or started) most recently picks
+/// up, or a surah left part-way outside any Khatm - whichever is newer.
+///
+/// Outside a Khatm, only a surah left part-way: reading opened from the list
+/// is a surah here and there, so after one is finished, "the next surah" is
+/// a guess - Ya-Sin read on Thursday night is no reason to offer As-Saffat.
+/// Surahs from the list open at their top, so without this a half-read
+/// al-Baqarah would have no way back.
+ContinueEntry? _quranEntry(
+  RecitationTrackerState recitations,
+  AppLocalizations s,
+) {
+  ContinueEntry? entryFor({
+    required String? label,
+    required VerseKey verse,
+    required DateTime updatedAt,
+  }) {
+    final info = surahInfoFor(verse.surah);
+    if (info == null) return null;
+    final ayah = verse.ayah ?? 1;
+    return ContinueEntry(
+      kind: ContinueKind.quran,
+      caption:
+          label == null ? s.homeCategoryQuran : s.homeContinueQuranTrack(label),
+      glyph: HomeGlyphType.surahs,
+      // "2: Al-Baqarah", numbered like the surah's zikr title.
+      title: '${localizeDigits('${info.number}', s)}: ${info.displayName}',
+      subtitle: s.homeContinueVerseOf(ayah, info.ayahCount),
+      progress: ayah / info.ayahCount,
+      updatedAt: updatedAt,
+      recitationLabel: label,
+      verse: verse,
+    );
+  }
+
+  ContinueEntry? best;
+  void consider(ContinueEntry? entry) {
+    if (entry != null &&
+        (best == null || entry.updatedAt.isAfter(best!.updatedAt))) {
+      best = entry;
+    }
+  }
+
+  for (final label in recitations.labels) {
+    final read = recitations.lastRecitedFor(label);
+    final started = recitations.settingsFor(label).startSetAt;
+    // A Khatm made but neither started part-way nor read yet has nothing
+    // to pick up.
+    final at = read == null || (started != null && started.isAfter(read))
+        ? started
+        : read;
+    if (at == null) continue;
+    consider(entryFor(
+      label: label,
+      verse: recitations.resumeTargetFor(label).verse,
+      updatedAt: at,
+    ));
+  }
+
+  final everyday = recitations.mostRecentFirst
+      .where((entry) => entry.label == unlabeledRecitationLabel)
+      .firstOrNull;
+  if (everyday != null &&
+      everyday.surah >= 1 &&
+      everyday.surah <= surahAyahCounts.length &&
+      everyday.toAyah < surahAyahCounts[everyday.surah - 1]) {
+    consider(entryFor(
+      label: null,
+      verse: VerseKey(everyday.surah, everyday.toAyah),
+      updatedAt: everyday.recitedAt,
+    ));
+  }
+  return best;
+}
+
 /// Up to three cards, newest first: the most recent Quran track, zikr
 /// bookmark and library book - one of each, so a busy week in one never
 /// pushes the other two off Home. The first is also what the app icon's
@@ -89,30 +165,8 @@ List<ContinueEntry> continueEntries({
   final s = l10n ?? L10n.current;
   final entries = <ContinueEntry>[];
 
-  final latestRecitation =
-      includeQuran ? recitations.mostRecentFirst.firstOrNull : null;
-  if (latestRecitation != null) {
-    final label = latestRecitation.label;
-    final resume = recitations.resumePositionFor(label);
-    final info = resume == null ? null : surahInfoFor(resume.surah);
-    if (resume != null && info != null) {
-      final ayah = resume.ayah ?? 1;
-      entries.add(ContinueEntry(
-        kind: ContinueKind.quran,
-        caption: label == unlabeledRecitationLabel
-            ? s.homeCategoryQuran
-            : s.homeContinueQuranTrack(label),
-        glyph: HomeGlyphType.surahs,
-        // "2: Al-Baqarah", numbered like the surah's zikr title.
-        title: '${localizeDigits('${info.number}', s)}: ${info.displayName}',
-        subtitle: s.homeContinueVerseOf(ayah, info.ayahCount),
-        progress: ayah / info.ayahCount,
-        updatedAt: latestRecitation.recitedAt,
-        recitationLabel: label,
-        verse: resume,
-      ));
-    }
-  }
+  final quran = includeQuran ? _quranEntry(recitations, s) : null;
+  if (quran != null) entries.add(quran);
 
   ZikrBookmark? latestBookmark;
   for (final bookmark in bookmarks) {
@@ -171,12 +225,17 @@ Future<void> openContinueEntry(
 }) async {
   switch (entry.kind) {
     case ContinueKind.quran:
-      await openQuranVerse(
-        context,
-        entry.verse!,
-        source: ZikrOpenSource.quranResume,
-        recitationLabel: entry.recitationLabel,
-      );
+      final label = entry.recitationLabel;
+      if (label != null) {
+        // A Khatm opens as from its card, in its own view (surah or juz).
+        await openRecitationTrack(context, label);
+      } else {
+        await openQuranVerse(
+          context,
+          entry.verse!,
+          source: ZikrOpenSource.quranResume,
+        );
+      }
     case ContinueKind.bookmark:
       final bookmark = entry.bookmark!;
       // The reader resumes at the bookmark on its own (ZikrPage reads it).

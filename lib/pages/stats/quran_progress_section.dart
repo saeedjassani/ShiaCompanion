@@ -19,7 +19,7 @@ String _percentText(double percent) => localizeDigits(
 /// everyday reading done outside any Khatm as plain totals. The sessions
 /// behind them are listed on the Quran screen (see RecentRecitationsPage).
 ///
-/// The everyday reading ([unlabeledRecitationLabel], "My reading") is
+/// The everyday reading ([unlabeledRecitationLabel], "Other reading") is
 /// whatever was opened from the lists - Ya-Sin one night, al-Kahf on Friday
 /// - so a ring, a juz map and "verses left to complete a khatm" over it read
 /// as a khatm nobody started. Its verses still count in the totals and the
@@ -242,17 +242,22 @@ class QuranTrackCard extends StatelessWidget {
           const SizedBox(height: 14),
           _JuzMap(coverage: coverage),
           const SizedBox(height: 12),
-          Text(
-            [
-              context.l10n.statsSessionCount(sessions, _count.format(sessions)),
-              context.l10n.statsVersesRecited(verses, _count.format(verses)),
-              if (lastAt != null)
+          // Not "0 sessions · 0 verses" over a Khatm whose progress so far
+          // was all read before it (counted earlier verses, or the reading
+          // moved in from "My reading").
+          if (sessions > 0)
+            Text(
+              [
                 context.l10n
-                    .statsLastOn(DateFormat('MMM d').format(lastAt.toLocal())),
-            ].join(' · '),
-            style: theme.textTheme.bodySmall
-                ?.copyWith(color: colorScheme.onSurfaceVariant),
-          ),
+                    .statsSessionCount(sessions, _count.format(sessions)),
+                context.l10n.statsVersesRecited(verses, _count.format(verses)),
+                if (lastAt != null)
+                  context.l10n.statsLastOn(
+                      DateFormat('MMM d').format(lastAt.toLocal())),
+              ].join(' · '),
+              style: theme.textTheme.bodySmall
+                  ?.copyWith(color: colorScheme.onSurfaceVariant),
+            ),
           if (distinct > 0 && remaining > 0) ...[
             const SizedBox(height: 2),
             Text(

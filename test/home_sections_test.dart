@@ -231,6 +231,67 @@ void main() {
       expect(entries[2].title, 'A Book');
     });
 
+    test('offers no "next surah" after everyday reading finished one', () {
+      final finished = RecitationTrackerState({
+        'r1': RecitationEntry(
+          id: 'r1',
+          label: unlabeledRecitationLabel,
+          recitedAt: DateTime(2026, 10, 3),
+          surah: 2,
+          fromAyah: 1,
+          toAyah: 286,
+        ),
+      });
+      final entries = continueEntries(
+        recitations: finished,
+        bookmarks: const [],
+        library: const [],
+      );
+      expect(entries, isEmpty);
+    });
+
+    test('picks up the Khatm read most recently, where it carries on', () {
+      final withKhatm = RecitationTrackerState({
+        ...recitations.entries,
+        'k1': RecitationEntry(
+          id: 'k1',
+          label: 'Family',
+          recitedAt: DateTime(2026, 10, 5),
+          surah: 2,
+          fromAyah: 1,
+          toAyah: 20,
+        ),
+      }, {
+        'Family'
+      });
+      final entries = continueEntries(
+        recitations: withKhatm,
+        bookmarks: const [],
+        library: const [],
+      );
+      expect(entries.single.caption, 'Quran · Family');
+      expect(entries.single.recitationLabel, 'Family');
+      expect(entries.single.subtitle, 'Verse 20 of 286');
+    });
+
+    test('a Khatm started part-way and not read yet waits at its start', () {
+      final started = RecitationTrackerState({}, {
+        'Ramazan'
+      }, {
+        'Ramazan': RecitationTrackSettings(
+          startAt: const VerseKey(2, 142),
+          startSetAt: DateTime(2026, 10, 6),
+        ),
+      });
+      final entries = continueEntries(
+        recitations: started,
+        bookmarks: const [],
+        library: const [],
+      );
+      expect(entries.single.caption, 'Quran · Ramazan');
+      expect(entries.single.subtitle, 'Verse 142 of 286');
+    });
+
     test('keeps the Quran card for whoever has the Quran screen', () {
       final entries = continueEntries(
         recitations: recitations,

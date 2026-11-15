@@ -5,6 +5,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 
+import '../l10n/l10n.dart';
+import '../models/continuous_reading.dart';
 import '../models/recitation_tracker_state.dart';
 import '../services/analytics_service.dart';
 import '../services/recitation_tracker_sync_policy.dart';
@@ -130,6 +132,7 @@ class RecitationTrackerManager extends ChangeNotifier {
       _updateState(guestState);
       _loadedUserId = null;
       await _compactOldSessions();
+      await _maybePortMyReading(null);
       debugPrint('RecitationTrackerManager: Loaded guest state');
       return;
     }
@@ -192,7 +195,11 @@ class RecitationTrackerManager extends ChangeNotifier {
     // works from what every device has synced. Not while a guest import is
     // still to go up: its sessions would be summarised here and then arrive
     // raw as well, and be counted twice.
-    if (_pendingGuestImportUserId != user.uid) await _compactOldSessions();
+    if (_pendingGuestImportUserId != user.uid) {
+      await _compactOldSessions();
+      // Here too, for the same reason: it decides from the whole account.
+      await _maybePortMyReading(user.uid);
+    }
 
     _loadedUserId = user.uid;
     setupRealtimeListener();
@@ -213,6 +220,87 @@ class RecitationTrackerManager extends ChangeNotifier {
       'compact_${DateTime.now().microsecondsSinceEpoch}',
       compaction,
     ));
+  }
+
+  /// Where [_maybePortMyReading] notes, per account, that it has decided.
+  static String _myReadingPortDecidedKey(String? userId) =>
+      'recitation_my_reading_port_v1_${userId ?? 'guest'}';
+
+  /// The name of the Khatm [_maybePortMyReading] made, until the Quran
+  /// screen has said so (see [myReadingPortNotice]).
+  static const String myReadingPortNoticeKey =
+      'recitation_my_reading_port_notice';
+
+  /// Once per account: when its everyday reading was read straight through
+  /// the Quran ([planMyReadingPort]) - as it was by most who read a khatm
+  /// through the old "My reading" card - moves it into a Khatm called "My
+  /// reading", which carries on where it stopped.
+  ///
+  /// The reading is copied, not moved: the Khatm gets the verses as its
+  /// progress (like a Khatm's "count earlier verses"), and the everyday
+  /// reading keeps its history, so no total counts anything twice. Only
+  /// straight after the account was read in full, so it decides from what
+  /// every device has synced; a second device finds the Khatm already there
+  /// and leaves it.
+  Future<void> _maybePortMyReading(String? userId) async {
+    final decidedKey = _myReadingPortDecidedKey(userId);
+    if (SP.prefs.getBool(decidedKey) == true) return;
+    await SP.prefs.setBool(decidedKey, true);
+
+    final name = L10n.current.quranMyReading;
+    final reading = planMyReadingPort(_state, name);
+    if (reading == null) return;
+    debugPrint(
+      'RecitationTrackerManager: Moving everyday reading '
+      '${reading.start.surah}:${reading.start.ayah}-'
+      '${reading.end.surah}:${reading.end.ayah} into a Khatm',
+    );
+    await _applyOperation(PendingRecitationOperation.setTrackSettings(
+      name,
+      RecitationTrackSettings(
+        readByJuz: reading.readInJuz,
+        startAt: reading.resumeAt,
+        startSetAt: DateTime.now(),
+      ),
+    ));
+    await _applyOperation(PendingRecitationOperation.compact(
+      'port_my_reading_${DateTime.now().microsecondsSinceEpoch}',
+      RecitationCompaction(
+        removedEntryIds: const {},
+        summaries: const {},
+        coverage: {name: reading.ranges},
+      ),
+    ));
+    await SP.prefs.setString(myReadingPortNoticeKey, name);
+    unawaited(AnalyticsService.feature(
+      'my_reading_ported',
+      label: 'My reading moved into a Khatm',
+      parameters: {
+        'continuations': '${reading.continuations}',
+        'days': '${reading.days}',
+      },
+    ));
+  }
+
+  /// The Khatm the everyday reading was just moved into, for the Quran
+  /// screen to say so once; null once said, or if it was since deleted.
+  String? get myReadingPortNotice {
+    final name = SP.prefs.getString(myReadingPortNoticeKey);
+    if (name == null || !_state.customLabels.contains(name)) return null;
+    return name;
+  }
+
+  /// Done with the notice: kept, or - with [undo] - the Khatm deleted.
+  Future<void> dismissMyReadingPortNotice({bool undo = false}) async {
+    final name = SP.prefs.getString(myReadingPortNoticeKey);
+    await SP.prefs.remove(myReadingPortNoticeKey);
+    notifyListeners();
+    if (!undo || name == null) return;
+    unawaited(AnalyticsService.feature(
+      'my_reading_port_undone',
+      label: 'My reading Khatm undone',
+    ));
+    await removeTrack(name);
   }
 
   void _setLoading(bool value) {

@@ -233,7 +233,7 @@ void main() {
       ),
     ));
 
-    expect(find.text('My reading'), findsOneWidget);
+    expect(find.text('Other reading'), findsOneWidget);
     expect(find.textContaining('83 verses'), findsOneWidget);
     // Only the Family Khatm has a ring, a place and khatm progress.
     expect(find.byType(ProgressRing), findsOneWidget);

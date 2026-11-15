@@ -80,13 +80,16 @@ void main() {
     // Tracks made by earlier tests can push the card past the screen's edge.
     // (Dragged rather than ensureVisible'd, which would also scroll the page
     // and leave the card under the folded title bar.)
-    await tester.drag(find.text('Continue reading'), const Offset(-600, 0));
-    await tester.pumpAndSettle();
     // "Start a Khatm" until the first is made, "New Khatm" after.
     final newKhatm = find.text('New Khatm');
-    await tester.tap(newKhatm.evaluate().isEmpty
-        ? find.text('Start a Khatm')
-        : newKhatm);
+    final card =
+        newKhatm.evaluate().isEmpty ? find.text('Start a Khatm') : newKhatm;
+    await tester.drag(
+      find.ancestor(of: card, matching: find.byType(Scrollable)).first,
+      const Offset(-600, 0),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(card);
     await tester.pumpAndSettle();
   }
 
@@ -100,16 +103,15 @@ void main() {
   testWidgets('lists every surah with its verse count', (tester) async {
     await pump(tester);
 
-    // Once in the list, once as where Continue reading starts.
-    expect(find.text('Surah1'), findsNWidgets(2));
+    expect(find.text('Surah1'), findsOneWidget);
     expect(find.text('7 verses'), findsOneWidget);
     // Ayat al Kursi is not a surah and must not appear among the 114.
     expect(find.text('Ayat al Kursi'), findsNothing);
   });
 
   group('the tracking hint', () {
-    const hint = 'Your place is kept as you read. '
-        'To read for a Khatm, open it from its card.';
+    const hint = "There's no bookmark to set: a Khatm keeps your place as "
+        'you read. Open it from its card to carry on.';
     const viewsKey = 'quran_tracking_hint_views';
 
     testWidgets('shows on the first open and counts it', (tester) async {
@@ -211,20 +213,18 @@ void main() {
   });
 
   testWidgets(
-      'the default track shows as Continue reading, with nothing to resume '
-      'yet, beside a card that says what a Khatm is', (tester) async {
+      'before any Khatm there is only a card to start one, saying what a '
+      'Khatm is', (tester) async {
     await pump(tester);
 
-    expect(find.text('Continue reading'), findsOneWidget);
-    expect(find.text('Start reading'), findsWidgets);
+    expect(find.text('Start reading'), findsNothing);
     expect(find.text('Start a Khatm'), findsOneWidget);
     expect(find.text('Keep your place in a full reading of the Quran'),
         findsOneWidget);
     expect(find.text('New Khatm'), findsNothing);
   });
 
-  testWidgets(
-      'everyday reading shows where it left off, never a share of the Quran',
+  testWidgets('everyday reading has no card among the Khatms',
       (tester) async {
     // Not awaited: the save queues behind the screen's earlier writes, which
     // only finish as the test's clock is pumped - as the sheet's own do.
@@ -238,9 +238,9 @@ void main() {
     ));
     await pump(tester);
 
-    expect(find.text('Continue reading'), findsOneWidget);
-    expect(find.text('Surah2 141'), findsOneWidget);
+    expect(find.text('Surah2 141'), findsNothing);
     expect(find.textContaining('% of the Quran'), findsNothing);
+    expect(find.text('Start a Khatm'), findsOneWidget);
 
     unawaited(RecitationTrackerManager.instance.removeEntry('everyday'));
     await tester.pumpAndSettle();
@@ -537,12 +537,42 @@ void main() {
     await pump(tester);
 
     await tapNewTrack(tester);
-    await tester.enterText(find.byType(TextField).first, 'my reading');
+    await tester.enterText(find.byType(TextField).first, 'other reading');
     await tester.tap(find.text('Start Khatm'));
     await tester.pumpAndSettle();
 
-    expect(find.text('There is already a Khatm called "my reading"'),
+    expect(find.text('There is already a Khatm called "other reading"'),
         findsOneWidget);
+  });
+
+  testWidgets(
+      'says once that My reading became a Khatm, and Undo deletes it',
+      (tester) async {
+    final manager = RecitationTrackerManager.instance;
+    unawaited(manager.addLabel(
+      'My reading',
+      settings: RecitationTrackSettings(
+        startAt: const VerseKey(2, 201),
+        startSetAt: DateTime.now(),
+      ),
+    ));
+    await SP.prefs
+        .setString(RecitationTrackerManager.myReadingPortNoticeKey, 'My reading');
+    await pump(tester);
+
+    const notice = '"My reading" is now a Khatm, so it keeps your place as '
+        'before. Reading opened from the surah list no longer counts towards '
+        'it.';
+    expect(find.text(notice), findsOneWidget);
+    expect(find.text('Surah2 201'), findsOneWidget);
+
+    await tester.tap(find.text('Undo'));
+    await tester.pumpAndSettle();
+
+    expect(find.text(notice), findsNothing);
+    expect(manager.state.labels, isNot(contains('My reading')));
+    expect(SP.prefs.getString(RecitationTrackerManager.myReadingPortNoticeKey),
+        isNull);
   });
 
   testWidgets('the Collections view remembers the collection last picked',
