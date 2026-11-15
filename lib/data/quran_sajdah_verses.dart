@@ -85,16 +85,16 @@ _SajdahTexts _texts(String? languageCode) {
 
 const Map<String, _SajdahTexts> _translations = {
   'en': _SajdahTexts(
-    titleWajib: 'Obligatory Prostration (Wajib Sajdah)',
-    titleMustahabb: 'Recommended Prostration (Mustahabb Sajdah)',
-    badgeWajib: 'Wajib Sajdah',
-    badgeMustahabb: 'Mustahabb Sajdah',
-    wajibPill: 'WAJIB',
+    titleWajib: 'Obligatory Prostration',
+    titleMustahabb: 'Recommended Prostration',
+    badgeWajib: 'Obligatory Sajdah',
+    badgeMustahabb: 'Recommended Sajdah',
+    wajibPill: 'OBLIGATORY',
     rulingWajib:
-        'Performing prostration (sajdah) is obligatory upon reciting or hearing this verse. (Reciting this surah in obligatory prayers is not permitted in Fiqh-e-Jafria).',
+        'Prostrating (sajdah) is obligatory on reciting or hearing this verse. In Shia (Ja\'fari) jurisprudence, this surah may not be recited in an obligatory prayer.',
     rulingMustahabb:
-        'According to Fiqh-e-Jafria, prostration upon this verse is recommended (mustahabb), not obligatory.',
-    duaHeading: 'Recommended Supplication in Sajdah:',
+        'In Shia (Ja\'fari) jurisprudence, prostrating on this verse is recommended, not obligatory.',
+    duaHeading: 'Supplication to Recite in Sajdah:',
     duaTranslation:
         'There is no god but Allah, truly and truly! There is no god but Allah, in faith and belief! There is no god but Allah, in servitude and bondage! I have prostrated to You, my Lord, in devotion and servitude, neither disdaining nor proud; rather I am a humble, weak, fearful servant seeking refuge.',
   ),
