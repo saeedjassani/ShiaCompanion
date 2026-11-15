@@ -1037,6 +1037,9 @@
   "AK17": {
     "title": "Ziyarat of Imam Ali (a.s.) on the Prophet's (s.a.w.a.) Birthday — Najaf",
     "slug": "ziyarat-on-the-holy-prophets-birthday",
+    "slugAliases": [
+      "the-holy-prophet-and-imam-ali"
+    ],
     "day": "03-17"
   },
   "AK5": {

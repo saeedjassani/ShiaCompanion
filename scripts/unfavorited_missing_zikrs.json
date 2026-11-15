@@ -4,9 +4,9 @@
  "counts": {
   "total": 209,
   "menuCategory": 7,
-  "retired": 58,
-  "restored": 27,
-  "toRestoreHasArabic": 65,
+  "retired": 59,
+  "restored": 28,
+  "toRestoreHasArabic": 63,
   "toRestoreProseOnly": 52
  },
  "uids": [
@@ -440,14 +440,15 @@
   {
    "uid": "AK17",
    "title": "Ziyarat on The Holy Prophet's Birthday",
-   "kind": "has-arabic",
+   "kind": "restored",
    "itemsBytes": 22793
   },
   {
    "uid": "AK18",
    "title": "The Holy Prophet And Imam Ali",
-   "kind": "has-arabic",
-   "itemsBytes": 6496
+   "kind": "retired",
+   "itemsBytes": 6496,
+   "retiredTo": "AK17"
   },
   {
    "uid": "AK19",

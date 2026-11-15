@@ -455,4 +455,9 @@ const Map<String, RetiredZikrRedirect> retiredZikrRedirects = {
   /// Sa'sa'ah, beside Masjid Zayd in Kufa, with nothing to recite; AI16's
   /// merits carry it word for word.
   'AI17': RetiredZikrRedirect('AI16'),
+
+  /// AK18 (The Holy Prophet and Imam Ali) was Mafatih al-Jinan's prose on
+  /// why Imam Ali (a.s.) is visited on the Prophet's days, with nothing to
+  /// recite; it is in the merits of AK17, the birthday ziyarat.
+  'AK18': RetiredZikrRedirect('AK17'),
 };
