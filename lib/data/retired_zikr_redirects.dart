@@ -460,4 +460,9 @@ const Map<String, RetiredZikrRedirect> retiredZikrRedirects = {
   /// why Imam Ali (a.s.) is visited on the Prophet's days, with nothing to
   /// recite; it is in the merits of AK17, the birthday ziyarat.
   'AK18': RetiredZikrRedirect('AK17'),
+
+  /// AK1 (Merits of Visiting the Tomb of Imam Ali) was Mafatih al-Jinan's
+  /// prose on the reward of the ziyarat, with nothing to recite; it is in
+  /// the merits of AK4, the rites on the way to the shrine.
+  'AK1': RetiredZikrRedirect('AK4'),
 };

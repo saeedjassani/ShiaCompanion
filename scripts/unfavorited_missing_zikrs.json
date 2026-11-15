@@ -4,10 +4,10 @@
  "counts": {
   "total": 209,
   "menuCategory": 7,
-  "retired": 59,
-  "restored": 28,
+  "retired": 60,
+  "restored": 29,
   "toRestoreHasArabic": 63,
-  "toRestoreProseOnly": 52
+  "toRestoreProseOnly": 50
  },
  "uids": [
   {
@@ -375,8 +375,9 @@
   {
    "uid": "AK1",
    "title": "Merits and Method of Visiting the Tomb of Imam Ali - Ameerul Momeneen",
-   "kind": "prose-only",
-   "itemsBytes": 2996
+   "kind": "retired",
+   "itemsBytes": 2996,
+   "retiredTo": "AK4"
   },
   {
    "uid": "AK2",
@@ -393,7 +394,7 @@
   {
    "uid": "AK4",
    "title": "Method of visiting Ameerul Momeneen's (a)Tomb",
-   "kind": "prose-only",
+   "kind": "restored",
    "itemsBytes": 495
   },
   {
