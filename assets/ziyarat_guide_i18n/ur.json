@@ -916,5 +916,8 @@
   "plan.damascus_old_city.umayyad_gate_barid.name": "باب البرید",
   "plan.damascus_old_city.umayyad_gate_barid.note": "مغربی دروازہ، بازار حمیدیہ کے آخر میں۔",
   "plan.damascus_old_city.umayyad_gate_ziyada.name": "باب الزیادہ",
-  "plan.damascus_old_city.umayyad_gate_ziyada.note": "جنوبی دروازہ، واحد دروازہ جو سیدھا نماز ہال میں کھلتا ہے۔"
+  "plan.damascus_old_city.umayyad_gate_ziyada.note": "جنوبی دروازہ، واحد دروازہ جو سیدھا نماز ہال میں کھلتا ہے۔",
+  "site.masjid_al_hannanah.ziyarat.0.label": "امام حسین (ع) کے سرِ مبارک کی زیارت",
+  "site.masjid_al_hannanah.ziyarat.0.note": "امام صادق (ع) نے یہ زیارت یہاں بھی پڑھی، اور چار رکعت نماز ادا کی۔",
+  "site.masjid_al_hannanah.ziyarat.1.label": "مسجد حنانہ کی دعا"
 }

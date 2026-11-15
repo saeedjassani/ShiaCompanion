@@ -916,5 +916,8 @@
   "plan.damascus_old_city.umayyad_gate_barid.name": "બાબુલ બરીદ",
   "plan.damascus_old_city.umayyad_gate_barid.note": "પશ્ચિમી દરવાજો, હમીદિય્યા બજારના છેડે.",
   "plan.damascus_old_city.umayyad_gate_ziyada.name": "બાબુઝ્ઝિયાદા",
-  "plan.damascus_old_city.umayyad_gate_ziyada.note": "દક્ષિણી દરવાજો, એકમાત્ર દરવાજો જે સીધો નમાઝના હૉલમાં ખૂલે છે."
+  "plan.damascus_old_city.umayyad_gate_ziyada.note": "દક્ષિણી દરવાજો, એકમાત્ર દરવાજો જે સીધો નમાઝના હૉલમાં ખૂલે છે.",
+  "site.masjid_al_hannanah.ziyarat.0.label": "ઇમામ હુસૈન (અ.સ.)ના સરે મુબારકની ઝિયારત",
+  "site.masjid_al_hannanah.ziyarat.0.note": "ઇમામ સાદિક (અ.સ.)એ આ ઝિયારત અહીં પણ પઢી, ચાર રકાત નમાઝ સાથે.",
+  "site.masjid_al_hannanah.ziyarat.1.label": "મસ્જિદે હન્નાનાની દુઆ"
 }

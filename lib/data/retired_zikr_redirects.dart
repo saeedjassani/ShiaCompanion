@@ -450,4 +450,9 @@ const Map<String, RetiredZikrRedirect> retiredZikrRedirects = {
   'AE6': RetiredZikrRedirect('AE3', tabIndex: 3),
   'AE7': RetiredZikrRedirect('AE3', tabIndex: 3),
   'AE8': RetiredZikrRedirect('AE3', tabIndex: 4),
+
+  /// AI17 (Zayd and Sa'sa'ah) was Mafatih al-Jinan's prose on Masjid
+  /// Sa'sa'ah, beside Masjid Zayd in Kufa, with nothing to recite; AI16's
+  /// merits carry it word for word.
+  'AI17': RetiredZikrRedirect('AI16'),
 };

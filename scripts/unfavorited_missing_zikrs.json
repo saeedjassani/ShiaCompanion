@@ -4,10 +4,10 @@
  "counts": {
   "total": 209,
   "menuCategory": 7,
-  "retired": 57,
+  "retired": 58,
   "restored": 27,
   "toRestoreHasArabic": 65,
-  "toRestoreProseOnly": 53
+  "toRestoreProseOnly": 52
  },
  "uids": [
   {
@@ -349,9 +349,10 @@
   {
    "uid": "AI17",
    "title": "Zayd and Sasah",
-   "kind": "prose-only",
+   "kind": "retired",
    "itemsBytes": 2699,
-   "note": "NOT a duplicate: its end overlaps AI16 (Masjid Zayd) but its Masjid Sa'sa'ah section is not live anywhere - restore."
+   "note": "AI16's merits carry its Masjid Sa'sa'ah text word for word (2026-11-15).",
+   "retiredTo": "AI16"
   },
   {
    "uid": "AJ1",

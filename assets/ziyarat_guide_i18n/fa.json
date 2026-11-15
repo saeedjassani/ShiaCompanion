@@ -916,5 +916,8 @@
   "plan.damascus_old_city.umayyad_gate_barid.name": "باب البرید",
   "plan.damascus_old_city.umayyad_gate_barid.note": "درِ غربی، در انتهای بازار حمیدیه.",
   "plan.damascus_old_city.umayyad_gate_ziyada.name": "باب الزیاده",
-  "plan.damascus_old_city.umayyad_gate_ziyada.note": "درِ جنوبی، تنها دری که مستقیم به شبستان باز می‌شود."
+  "plan.damascus_old_city.umayyad_gate_ziyada.note": "درِ جنوبی، تنها دری که مستقیم به شبستان باز می‌شود.",
+  "site.masjid_al_hannanah.ziyarat.0.label": "زیارت سر مبارک امام حسین (ع)",
+  "site.masjid_al_hannanah.ziyarat.0.note": "امام صادق (ع) این زیارت را اینجا نیز خواند، همراه با چهار رکعت نماز.",
+  "site.masjid_al_hannanah.ziyarat.1.label": "دعای مسجد حنانه"
 }

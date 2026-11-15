@@ -1002,7 +1002,10 @@
   },
   "AI16": {
     "title": "Recommended Acts (Aamal) of Masjid Zayd",
-    "slug": "aamal-masjid-zayd"
+    "slug": "aamal-masjid-zayd",
+    "slugAliases": [
+      "zayd-and-sasah"
+    ]
   },
   "AI3": {
     "title": "Recommended Acts (Aamal) of Masjid al-Kufah",

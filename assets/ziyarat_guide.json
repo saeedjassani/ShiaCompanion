@@ -1074,7 +1074,19 @@
                 44.3345
               ],
               "about": "A mosque on the old road between Najaf and Kufa, also called Masjid al-Ras. By narration the column here bowed as Imam Ali (a.s.)'s body was carried past to his grave, and the head of Imam Husayn (a.s.) was set down here on its way to Ibn Ziyad in Kufa. Imam al-Sadiq (a.s.) is reported to have stopped and prayed here, and pilgrims pray and recite the ziyarat of Imam Husayn (a.s.).",
-              "ziyarat": [],
+              "ziyarat": [
+                {
+                  "uid": "AK7",
+                  "tab": 1,
+                  "label": "Ziyarat of the Head of Imam Husayn (a.s.)",
+                  "note": "Imam al-Sadiq (a.s.) recited it here too, with a four-unit prayer."
+                },
+                {
+                  "uid": "AK7",
+                  "tab": 2,
+                  "label": "Dua at Masjid al-Hannanah"
+                }
+              ],
               "tips": [
                 "It is a few hundred metres from the tomb of Kumayl ibn Ziyad, and the two are usually visited together on the way to Kufa."
               ],

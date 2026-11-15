@@ -916,5 +916,8 @@
   "plan.damascus_old_city.umayyad_gate_barid.name": "باب البريد",
   "plan.damascus_old_city.umayyad_gate_barid.note": "الباب الغربي، عند نهاية سوق الحميدية.",
   "plan.damascus_old_city.umayyad_gate_ziyada.name": "باب الزيادة",
-  "plan.damascus_old_city.umayyad_gate_ziyada.note": "الباب الجنوبي، وهو الوحيد الذي يُفتح مباشرة على حرم الصلاة."
+  "plan.damascus_old_city.umayyad_gate_ziyada.note": "الباب الجنوبي، وهو الوحيد الذي يُفتح مباشرة على حرم الصلاة.",
+  "site.masjid_al_hannanah.ziyarat.0.label": "زيارة رأس الإمام الحسين (ع)",
+  "site.masjid_al_hannanah.ziyarat.0.note": "قرأها الإمام الصادق (ع) هنا أيضًا، مع صلاة أربع ركعات.",
+  "site.masjid_al_hannanah.ziyarat.1.label": "دعاء مسجد الحنانة"
 }
