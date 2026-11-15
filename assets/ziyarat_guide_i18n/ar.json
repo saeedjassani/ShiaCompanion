@@ -919,5 +919,9 @@
   "plan.damascus_old_city.umayyad_gate_ziyada.note": "الباب الجنوبي، وهو الوحيد الذي يُفتح مباشرة على حرم الصلاة.",
   "site.masjid_al_hannanah.ziyarat.0.label": "زيارة رأس الإمام الحسين (ع)",
   "site.masjid_al_hannanah.ziyarat.0.note": "قرأها الإمام الصادق (ع) هنا أيضًا، مع صلاة أربع ركعات.",
-  "site.masjid_al_hannanah.ziyarat.1.label": "دعاء مسجد الحنانة"
+  "site.masjid_al_hannanah.ziyarat.1.label": "دعاء مسجد الحنانة",
+  "site.imam_ali_shrine.ziyarat.10.note": "في 17 ربيع الأول، يوم مولد النبي (ص).",
+  "site.imam_ali_shrine.ziyarat.11.note": "في ليلة المبعث ويومه، 27 رجب.",
+  "plan.najaf_haram.ali_tomb.ziyarat.8.note": "في 17 ربيع الأول، يوم مولد النبي (ص).",
+  "plan.najaf_haram.ali_tomb.ziyarat.9.note": "في ليلة المبعث ويومه، 27 رجب."
 }

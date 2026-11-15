@@ -919,5 +919,9 @@
   "plan.damascus_old_city.umayyad_gate_ziyada.note": "درِ جنوبی، تنها دری که مستقیم به شبستان باز می‌شود.",
   "site.masjid_al_hannanah.ziyarat.0.label": "زیارت سر مبارک امام حسین (ع)",
   "site.masjid_al_hannanah.ziyarat.0.note": "امام صادق (ع) این زیارت را اینجا نیز خواند، همراه با چهار رکعت نماز.",
-  "site.masjid_al_hannanah.ziyarat.1.label": "دعای مسجد حنانه"
+  "site.masjid_al_hannanah.ziyarat.1.label": "دعای مسجد حنانه",
+  "site.imam_ali_shrine.ziyarat.10.note": "در ۱۷ ربیع‌الاول، روز ولادت پیامبر (ص).",
+  "site.imam_ali_shrine.ziyarat.11.note": "در شب و روز مبعث، ۲۷ رجب.",
+  "plan.najaf_haram.ali_tomb.ziyarat.8.note": "در ۱۷ ربیع‌الاول، روز ولادت پیامبر (ص).",
+  "plan.najaf_haram.ali_tomb.ziyarat.9.note": "در شب و روز مبعث، ۲۷ رجب."
 }

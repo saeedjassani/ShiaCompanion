@@ -919,5 +919,9 @@
   "plan.damascus_old_city.umayyad_gate_ziyada.note": "جنوبی دروازہ، واحد دروازہ جو سیدھا نماز ہال میں کھلتا ہے۔",
   "site.masjid_al_hannanah.ziyarat.0.label": "امام حسین (ع) کے سرِ مبارک کی زیارت",
   "site.masjid_al_hannanah.ziyarat.0.note": "امام صادق (ع) نے یہ زیارت یہاں بھی پڑھی، اور چار رکعت نماز ادا کی۔",
-  "site.masjid_al_hannanah.ziyarat.1.label": "مسجد حنانہ کی دعا"
+  "site.masjid_al_hannanah.ziyarat.1.label": "مسجد حنانہ کی دعا",
+  "site.imam_ali_shrine.ziyarat.10.note": "۱۷ ربیع الاول کو، رسول اکرم (ص) کے یوم ولادت پر۔",
+  "site.imam_ali_shrine.ziyarat.11.note": "شب و روزِ مبعث، ۲۷ رجب کو۔",
+  "plan.najaf_haram.ali_tomb.ziyarat.8.note": "۱۷ ربیع الاول کو، رسول اکرم (ص) کے یوم ولادت پر۔",
+  "plan.najaf_haram.ali_tomb.ziyarat.9.note": "شب و روزِ مبعث، ۲۷ رجب کو۔"
 }

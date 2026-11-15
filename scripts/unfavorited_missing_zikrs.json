@@ -5,8 +5,8 @@
   "total": 209,
   "menuCategory": 7,
   "retired": 62,
-  "restored": 29,
-  "toRestoreHasArabic": 61,
+  "restored": 30,
+  "toRestoreHasArabic": 60,
   "toRestoreProseOnly": 50
  },
  "uids": [
@@ -456,7 +456,7 @@
   {
    "uid": "AK19",
    "title": "Ziyarat on the Day & Night of Be'asat (Proclamation)",
-   "kind": "has-arabic",
+   "kind": "restored",
    "itemsBytes": 31569
   },
   {
