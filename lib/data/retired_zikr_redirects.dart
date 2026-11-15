@@ -465,4 +465,11 @@ const Map<String, RetiredZikrRedirect> retiredZikrRedirects = {
   /// prose on the reward of the ziyarat, with nothing to recite; it is in
   /// the merits of AK4, the rites on the way to the shrine.
   'AK1': RetiredZikrRedirect('AK4'),
+
+  /// Kufa: AI13 and AI14 were Mafatih al-Jinan's full ziyarats of Muslim ibn
+  /// Aqil and Hani ibn Urwah, while G60 and G61 had shipped cut down. G60 and
+  /// G61 now carry the full texts, checked against duas.org and
+  /// mafatih.duas.co.
+  'AI13': RetiredZikrRedirect('G60'),
+  'AI14': RetiredZikrRedirect('G61'),
 };

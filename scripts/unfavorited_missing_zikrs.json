@@ -4,9 +4,9 @@
  "counts": {
   "total": 209,
   "menuCategory": 7,
-  "retired": 60,
+  "retired": 62,
   "restored": 29,
-  "toRestoreHasArabic": 63,
+  "toRestoreHasArabic": 61,
   "toRestoreProseOnly": 50
  },
  "uids": [
@@ -337,14 +337,16 @@
   {
    "uid": "AI13",
    "title": "The Ziyarah of Muslim Ibn Aqil",
-   "kind": "has-arabic",
-   "itemsBytes": 10860
+   "kind": "retired",
+   "itemsBytes": 10860,
+   "retiredTo": "G60"
   },
   {
    "uid": "AI14",
    "title": "The Ziyarah of Hani Ibn Urwah",
-   "kind": "has-arabic",
-   "itemsBytes": 2798
+   "kind": "retired",
+   "itemsBytes": 2798,
+   "retiredTo": "G61"
   },
   {
    "uid": "AI17",
