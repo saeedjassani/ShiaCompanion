@@ -30,8 +30,12 @@ class QuranSajdahVerse {
 
   /// Supplication recommended in sajdah al-tilawa (Sistani, al-Ta'liqa
   /// 'ala al-Urwa al-Wuthqa, sajdah chapter, ruling 18).
+  ///
+  /// Spelled the way the zikr corpus spells it (`لَا`, `اِلٰهَ`, `اللّٰهُ`,
+  /// `حَقًّا`), not in the Arab-world style (`لاَ`, `إِلَهَ`, `اللَّهُ`, `حَقّاً`),
+  /// so it reads like every other dua in the app.
   static const String duaArabic =
-      'لاَ إِلَهَ إِلَّا اللَّهُ حَقّاً حَقّاً، لاَ إِلَهَ إِلَّا اللَّهُ إِيْمَاناً وَتَصْدِيْقاً، لاَ إِلَهَ إِلَّا اللَّهُ عُبُوْدِيَّةً وَرِقّاً، سَجَدْتُ لَكَ يَا رَبِّ تَعَبُّداً وَرِقّاً، لاَ مُسْتَنْكِفاً وَلاَ مُسْتَكْبِراً، بَلْ أَنَا عَبْدٌ ذَلِيْلٌ ضَعِيْفٌ خَائِفٌ مُسْتَجِيْرٌ';
+      'لَا اِلٰهَ اِلَّا اللّٰهُ حَقًّا حَقًّا، لَا اِلٰهَ اِلَّا اللّٰهُ اِيْمَانًا وَتَصْدِيْقًا، لَا اِلٰهَ اِلَّا اللّٰهُ عُبُوْدِيَّةً وَرِقًّا، سَجَدْتُ لَكَ يَا رَبِّ تَعَبُّدًا وَرِقًّا، لَا مُسْتَنْكِفًا وَلَا مُسْتَكْبِرًا، بَلْ اَنَا عَبْدٌ ذَلِيْلٌ ضَعِيْفٌ خَائِفٌ مُسْتَجِيْرٌ';
 
   String title([String? languageCode]) =>
       isWajib ? _texts(languageCode).titleWajib : _texts(languageCode).titleMustahabb;
