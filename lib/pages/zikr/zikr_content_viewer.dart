@@ -3875,10 +3875,15 @@ class SajdahInstructionCard extends StatelessWidget {
                   QuranSajdahVerse.duaArabic,
                   textAlign: TextAlign.center,
                   textDirection: TextDirection.rtl,
+                  // Drawn like the reader's Arabic: the selected font at its
+                  // one weight (Qalam and Scheherazade have no bold, so asking
+                  // for one smears the letters with a synthetic bold), with
+                  // Qalam as the fallback.
                   style: TextStyle(
                     fontFamily: arabicFont,
+                    fontFamilyFallback: const ['Qalam'],
                     fontSize: math.max(arabicFontSize * 0.72, 18),
-                    fontWeight: FontWeight.w600,
+                    letterSpacing: 0,
                     color: colors.text,
                     height: 1.6,
                   ),

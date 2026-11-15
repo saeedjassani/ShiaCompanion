@@ -91,7 +91,7 @@ void main() {
 
     test('Arabic dua is non-empty and authentic', () {
       expect(QuranSajdahVerse.duaArabic.trim(), isNotEmpty);
-      expect(QuranSajdahVerse.duaArabic.startsWith('لاَ إِلَهَ إِلَّا اللَّهُ'), isTrue);
+      expect(QuranSajdahVerse.duaArabic.startsWith('لَا اِلٰهَ اِلَّا اللّٰهُ'), isTrue);
       expect(QuranSajdahVerse.duaArabic.contains('ضَعِيْفٌ'), isTrue);
     });
 
