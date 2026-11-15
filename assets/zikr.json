@@ -2539,11 +2539,17 @@
   "G60": {
     "title": "Ziyarat of Muslim ibn Aqeel (a.s.)",
     "slug": "ziyarate-janabe-muslim-a-s",
+    "slugAliases": [
+      "the-ziyarah-of-muslim-ibn-aqil"
+    ],
     "day": "12-09"
   },
   "G61": {
     "title": "Ziyarat of Hani ibn Urwah (a.s.)",
     "slug": "ziyarate-janabe-hani-ibn-urwah-a-s",
+    "slugAliases": [
+      "the-ziyarah-of-hani-ibn-urwah"
+    ],
     "day": "12-09"
   },
   "G62": {
