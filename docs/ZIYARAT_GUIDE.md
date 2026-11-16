@@ -797,7 +797,7 @@ The list as found in session 1:
   the entries' translations were not committed (only AK7's rebase and
   the guide keys were).
 
-**Session 7 (2026-11-16): session 6's translations.**
+**Session 7 (2026-11-16): session 6's translations; Mada'in.**
 
 - Titles of AK4, AK17 and AK19 and the instruction lines of AK4, AK17,
   AK19, G60 and G61 (33 segments) translated in all four languages,
@@ -806,11 +806,13 @@ The list as found in session 1:
 - Mada'in batch (phase 3): AJ3 Prayer at Taq Kasra restored; AJ1 and AJ4
   retired into AJ2's merits, AJ2 gains Mafatih's closing line; Taq
   Kasra links AJ3 and the Mada'in tips were corrected. Review items:
-  "Restored in session 7". Not yet translated: AJ3's title and its
-  instruction lines (segments 0, 1, 7), AJ2's segment 73, and four
-  guide keys (`site.taq_kasra.ziyarat.0.note`,
-  `site.salman_al_farsi_shrine.tips.2` new; `site.taq_kasra.tips.0`,
-  `city.madain.tips.1` changed, their overlays stale).
+  "Restored in session 7". Translated in all four languages, each read
+  by an independent reviewer: AJ3's title and instruction lines
+  (segments 0, 1, 7), AJ2's segment 73, and the four Mada'in guide keys
+  (two new, two changed). AJ3's Quran lines carry the app's own Quran
+  translations (Urdu's 44:27-28 is one sentence, so 44:28's line shows
+  the Arabic alone); the Imam's words (8-10) and the merits are not
+  translated (mafatih.duas.co has Urdu for the Imam's words).
 
 **What's left (start here):**
 
@@ -837,12 +839,10 @@ The list as found in session 1:
      replace), Bab Muslim ibn Aqil's position in Najaf, Sahn Fatimah.
    - "Unverified, left out of phase 1": add any the owner can confirm.
    - "For the owner (translations)" above: the Urdu Jamkaran label.
-3. **Translations still missing:** AJ3's title and instruction lines,
-   AJ2's new closing line and the four Mada'in guide keys (session 7's
-   bullet above); merits and verses of AE3, AP8, AQ2, AQ5, AM3, AE17,
-   AK4, AK17, AK19, G60, G61, AJ3 (`zikr_i18n.py template` pre-fills its
-   Quran verses from A48's translations; Urdu gives 44:27 and 44:28 one
-   shared line) and AJ2's new merits (and AK7's Hannanah dua),
+3. **Translations still missing:** merits and verses of AE3, AP8, AQ2,
+   AQ5, AM3, AE17, AK4, AK17, AK19, G60, G61, AJ3 (its Quran lines are
+   done; the Imam's words are not) and AJ2's new merits (and AK7's
+   Hannanah dua),
    and AP2's Arabic lines - mafatih.duas.co's Urdu pages for the session-6
    entries are in "Najaf"/"Kufa" there and scrape with
    `scripts/zikr_i18n/web_source.py duasco` (verses need a published
