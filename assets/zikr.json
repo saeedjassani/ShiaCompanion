@@ -1002,7 +1002,10 @@
   },
   "AI16": {
     "title": "Recommended Acts (Aamal) of Masjid Zayd",
-    "slug": "aamal-masjid-zayd"
+    "slug": "aamal-masjid-zayd",
+    "slugAliases": [
+      "zayd-and-sasah"
+    ]
   },
   "AI3": {
     "title": "Recommended Acts (Aamal) of Masjid al-Kufah",
@@ -1030,6 +1033,29 @@
   "AK15": {
     "title": "Bidding Farewell to Imam Ali (a.s.) — Najaf",
     "slug": "farewell-imam-ali-najaf"
+  },
+  "AK17": {
+    "title": "Ziyarat of Imam Ali (a.s.) on the Prophet's (s.a.w.a.) Birthday — Najaf",
+    "slug": "ziyarat-on-the-holy-prophets-birthday",
+    "slugAliases": [
+      "the-holy-prophet-and-imam-ali"
+    ],
+    "day": "03-17"
+  },
+  "AK19": {
+    "title": "Ziyarat of Imam Ali (a.s.) on the Mab'ath — Najaf",
+    "slug": "ziyarat-on-the-day-and-night-of-beasat",
+    "day": [
+      "N07-27",
+      "07-27"
+    ]
+  },
+  "AK4": {
+    "title": "Rites on the Way to the Shrine of Imam Ali (a.s.) and Permission to Enter — Najaf",
+    "slug": "method-of-visiting-ameerul-momeneens-tomb",
+    "slugAliases": [
+      "merits-and-method-of-visiting-the-tomb-of-imam-ali"
+    ]
   },
   "AK5": {
     "title": "Ziyarat of Imam Ali (a.s.) — Najaf (All Forms)",
@@ -2521,11 +2547,17 @@
   "G60": {
     "title": "Ziyarat of Muslim ibn Aqeel (a.s.)",
     "slug": "ziyarate-janabe-muslim-a-s",
+    "slugAliases": [
+      "the-ziyarah-of-muslim-ibn-aqil"
+    ],
     "day": "12-09"
   },
   "G61": {
     "title": "Ziyarat of Hani ibn Urwah (a.s.)",
     "slug": "ziyarate-janabe-hani-ibn-urwah-a-s",
+    "slugAliases": [
+      "the-ziyarah-of-hani-ibn-urwah"
+    ],
     "day": "12-09"
   },
   "G62": {

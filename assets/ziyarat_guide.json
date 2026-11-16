@@ -802,7 +802,7 @@
               "about": "The tomb of Amir al-Mu'minin Imam Ali ibn Abi Talib (a.s.), martyred in Kufa on 21 Ramazan 40 AH and buried by his sons at night outside the city. Its place was kept hidden until the Imams revealed it, and Imam al-Sadiq (a.s.) visited it with his companions. By narration Prophets Adam and Nuh (a.s.) lie with him, and the ziyarat greets them as his two companions. The building took its present form under the Safavids; around its courtyard lie many of the great scholars of the Shia.",
               "ziyarat": [
                 {
-                  "uid": "B6"
+                  "uid": "AK4"
                 },
                 {
                   "uid": "AK5",
@@ -837,6 +837,14 @@
                 },
                 {
                   "uid": "AK15"
+                },
+                {
+                  "uid": "AK17",
+                  "note": "On 17 Rabi al-Awwal, the birthday of the Prophet (s.a.w.a.)."
+                },
+                {
+                  "uid": "AK19",
+                  "note": "On the night and day of the Mab'ath, 27 Rajab."
                 }
               ],
               "buried": [
@@ -1074,7 +1082,19 @@
                 44.3345
               ],
               "about": "A mosque on the old road between Najaf and Kufa, also called Masjid al-Ras. By narration the column here bowed as Imam Ali (a.s.)'s body was carried past to his grave, and the head of Imam Husayn (a.s.) was set down here on its way to Ibn Ziyad in Kufa. Imam al-Sadiq (a.s.) is reported to have stopped and prayed here, and pilgrims pray and recite the ziyarat of Imam Husayn (a.s.).",
-              "ziyarat": [],
+              "ziyarat": [
+                {
+                  "uid": "AK7",
+                  "tab": 1,
+                  "label": "Ziyarat of the Head of Imam Husayn (a.s.)",
+                  "note": "Imam al-Sadiq (a.s.) recited it here too, with a four-unit prayer."
+                },
+                {
+                  "uid": "AK7",
+                  "tab": 2,
+                  "label": "Dua at Masjid al-Hannanah"
+                }
+              ],
               "tips": [
                 "It is a few hundred metres from the tomb of Kumayl ibn Ziyad, and the two are usually visited together on the way to Kufa."
               ],
@@ -1167,6 +1187,14 @@
                     },
                     {
                       "uid": "AK15"
+                    },
+                    {
+                      "uid": "AK17",
+                      "note": "On 17 Rabi al-Awwal, the birthday of the Prophet (s.a.w.a.)."
+                    },
+                    {
+                      "uid": "AK19",
+                      "note": "On the night and day of the Mab'ath, 27 Rajab."
                     }
                   ],
                   "location": [
@@ -1225,7 +1253,7 @@
                   "note": "The Clock Gate, the largest gate of the courtyard, in the middle of its east side under the clock tower. Also called Bab al-Imam al-Reza (a.s.), a name it took when it reopened, restored and gilded, in 2023.",
                   "ziyarat": [
                     {
-                      "uid": "B6"
+                      "uid": "AK4"
                     }
                   ],
                   "location": [
@@ -1243,7 +1271,7 @@
                   "note": "A smaller gate on the east side, just north of Bab al-Sa'a. Opened in 1252 AH; once called Bab al-Abayjiyya.",
                   "ziyarat": [
                     {
-                      "uid": "B6"
+                      "uid": "AK4"
                     }
                   ],
                   "location": [
@@ -1261,7 +1289,7 @@
                   "note": "The north gate, on the way to the tomb of Shaykh al-Tusi. Beside it is the great northern iwan (the Yazdi Iwan), which was the gate in the Safavid plan.",
                   "ziyarat": [
                     {
-                      "uid": "B6"
+                      "uid": "AK4"
                     }
                   ],
                   "location": [
@@ -1278,7 +1306,7 @@
                   "site": "imam_ali_shrine",
                   "ziyarat": [
                     {
-                      "uid": "B6"
+                      "uid": "AK4"
                     }
                   ],
                   "location": [
@@ -1297,7 +1325,7 @@
                   "note": "The west gate, opened in Ottoman times; also called al-Bab al-Sultani and Bab al-Amara. It faces Sahn Fatimah al-Zahra (s.a.).",
                   "ziyarat": [
                     {
-                      "uid": "B6"
+                      "uid": "AK4"
                     }
                   ],
                   "location": [
