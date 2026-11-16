@@ -2676,9 +2676,9 @@
   "@quranMyReading": {
     "description": "Name of the Khatm the app makes, once, for a reader who read the Quran straight through under the old 'My reading' card, so that reading carries on under the same name. From then on it is a Khatm like any other."
   },
-  "quranTrackingHint": "There's no bookmark to set: a Khatm keeps your place as you read. Open it from its card to carry on.",
+  "quranTrackingHint": "No need for a bookmark: a Khatm remembers where you stopped. Tap its card above to carry on. Surahs opened from the list below don't count towards it.",
   "@quranTrackingHint": {
-    "description": "Dismissible note under the Khatm cards on the Quran screen, shown the first few times it opens. The Quran reader has no bookmark button; reading counts for a Khatm only when opened from that Khatm's card."
+    "description": "Dismissible note under the Khatm cards on the Quran screen, shown the first few times it opens. The Quran reader has no bookmark button; reading counts for a Khatm only when opened from that Khatm's card, which sits above this note, while the surah list sits below it. Shown whether or not the reader has started a Khatm yet."
   },
   "quranBookmarkRetired": "Surah bookmarks are retired. To keep your place in a full reading of the Quran, start a Khatm on the Quran screen.",
   "@quranBookmarkRetired": {
@@ -2702,9 +2702,9 @@
   "@quranStartKhatm": {
     "description": "Card on the Quran screen that starts a Khatm, shown before the reader has started any (after that it says quranNewTrack)."
   },
-  "quranStartKhatmHint": "Keep your place in a full reading of the Quran",
+  "quranStartKhatmHint": "Read the whole Quran from start to finish. Your place is saved as you go.",
   "@quranStartKhatmHint": {
-    "description": "Line under quranStartKhatm on that card: what a Khatm is for. The card is narrow, about 200 points."
+    "description": "Line under quranStartKhatm on that card: what a Khatm is for, in plain words for readers who are not technical. The card is narrow, about 200 points."
   },
   "readerKhatmFor": "Khatm: {track}",
   "@readerKhatmFor": {

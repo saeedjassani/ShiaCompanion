@@ -189,9 +189,10 @@ Top to bottom, each section hidden when it has nothing to show:
    Times; long-press → "Prayer times shown" picker (as today). No-location
    state = the round-1 "Which city are you in?" card (time-zone guess, Use
    my location, Choose city), with the event row under it too.
-3. **Continue** — up to 3 cards, newest first: Quran track
-   (`RecitationTrackerManager`), dua bookmark (`ZikrBookmarksManager`),
-   library chapter (`LibraryProgressStore`). Horizontal scroll on phone.
+3. **Continue** — up to 4 cards, newest first: the Khatm read last and a
+   surah left part-way outside any Khatm (`RecitationTrackerManager`, a
+   card each), dua bookmark (`ZikrBookmarksManager`), library chapter
+   (`LibraryProgressStore`). Horizontal scroll on phone.
 4. **Today** — today's recitations (`buildTodaysRecitationGroups`) as a
    sideways strip of cards, 164 wide so a phone shows two and the edge of
    a third: the dua, ziyarat, munajat or aamal glyph and the title, nothing
@@ -253,7 +254,9 @@ then "Start a Khatm" (with a line on what one is) or, once one exists, "New
 Khatm". Reading counts for a Khatm only when opened from its card; anything
 else is "Other reading", with no card here (Home's Continue picks up a surah
 left part-way). Readers who read straight through the old "My reading" card
-had it turned into a Khatm of that name, once, with an Undo note;
+had it turned into a Khatm of that name, once, with a note whose Undo
+shows only until something is read in it (after that it would take that
+reading with it);
 **Go to a verse** button (opens the
 two-step picker: surah list with quick picks → verse number grid in
 groups of 50); Surahs / Juz / Collections as a segmented switcher; surah

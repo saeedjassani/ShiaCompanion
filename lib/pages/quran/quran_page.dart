@@ -90,8 +90,10 @@ class _QuranPageState extends State<QuranPage>
     if (isUserAdmin) prewarmQuranTextIndex(bundle);
   }
 
-  Future<void> _open(VerseKey verse,
-      {String source = ZikrOpenSource.quran}) async {
+  Future<void> _open(
+    VerseKey verse, {
+    String source = ZikrOpenSource.quran,
+  }) async {
     await openQuranVerse(context, verse, source: source);
   }
 
@@ -137,8 +139,11 @@ class _QuranPageState extends State<QuranPage>
       actions: [
         RoundIconButton(
           label: context.l10n.quranRecentSessions,
-          icon:
-              OutlineIcon(OutlineGlyph.history, size: 22, color: colors.accent),
+          icon: OutlineIcon(
+            OutlineGlyph.history,
+            size: 22,
+            color: colors.accent,
+          ),
           onPressed: () =>
               pushPageRoute(context, const RecentRecitationsPage()),
         ),
@@ -160,65 +165,71 @@ class _QuranPageState extends State<QuranPage>
         SliverPadding(
           padding: gutter.copyWith(top: 14, bottom: 14),
           sliver: SliverToBoxAdapter(
-            child: LayoutBuilder(builder: (context, constraints) {
-              final goToVerse = _GoToVerseButton(onPressed: _goToVerse);
-              final switcher = SegmentedSwitcher<_QuranView>(
-                segments: [
-                  Segment(_QuranView.surahs, context.l10n.quranTabSurahs),
-                  Segment(_QuranView.juz, context.l10n.quranTabJuz),
-                  Segment(
-                      _QuranView.collections, context.l10n.quranTabCollections),
-                ],
-                selected: _view,
-                onChanged: (view) => setState(() => _view = view),
-              );
-              // Where the list goes two columns, neither needs the whole
-              // width: they share a line, the switcher over the list's
-              // first column.
-              if (WideColumns.splits(constraints.maxWidth)) {
-                return Row(
-                  children: [
-                    Expanded(child: switcher),
-                    const SizedBox(width: 32),
-                    Expanded(child: goToVerse),
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                final goToVerse = _GoToVerseButton(onPressed: _goToVerse);
+                final switcher = SegmentedSwitcher<_QuranView>(
+                  segments: [
+                    Segment(_QuranView.surahs, context.l10n.quranTabSurahs),
+                    Segment(_QuranView.juz, context.l10n.quranTabJuz),
+                    Segment(
+                      _QuranView.collections,
+                      context.l10n.quranTabCollections,
+                    ),
                   ],
+                  selected: _view,
+                  onChanged: (view) => setState(() => _view = view),
                 );
-              }
-              return Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [goToVerse, const SizedBox(height: 14), switcher],
-              );
-            }),
+                // Where the list goes two columns, neither needs the whole
+                // width: they share a line, the switcher over the list's
+                // first column.
+                if (WideColumns.splits(constraints.maxWidth)) {
+                  return Row(
+                    children: [
+                      Expanded(child: switcher),
+                      const SizedBox(width: 32),
+                      Expanded(child: goToVerse),
+                    ],
+                  );
+                }
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [goToVerse, const SizedBox(height: 14), switcher],
+                );
+              },
+            ),
           ),
         ),
         switch (_view) {
           _QuranView.surahs => SliverPadding(
-              padding: gutter,
-              sliver: _SurahList(surahs: _surahs, onOpen: _open),
-            ),
+            padding: gutter,
+            sliver: _SurahList(surahs: _surahs, onOpen: _open),
+          ),
           _QuranView.juz => SliverPadding(
-              padding: gutter,
-              sliver: _JuzList(juz: _juz, onOpenJuz: _openJuz),
-            ),
+            padding: gutter,
+            sliver: _JuzList(juz: _juz, onOpenJuz: _openJuz),
+          ),
           // Saved verses and notes sync, so the lists follow them -
           // including a verse saved on another device. The gutter is applied
           // inside, so the pills can scroll out from under the screen's edge.
           _QuranView.collections => ListenableBuilder(
-              listenable: Listenable.merge(
-                  [SavedVersesManager.instance, VerseNotesManager.instance]),
-              builder: (context, _) => QuranCollectionsSliver(
-                gutter: gutter,
-                selected: _collection,
-                onSelect: (collection) {
-                  setState(() => _collection = collection);
-                  collection.remember();
-                },
-                saved: SavedVersesManager.instance.state.inMushafOrder,
-                onOpenVerse: _open,
-                onRemoveSaved: _removeSaved,
-                notes: VerseNotesManager.instance.state.inMushafOrder,
-              ),
+            listenable: Listenable.merge([
+              SavedVersesManager.instance,
+              VerseNotesManager.instance,
+            ]),
+            builder: (context, _) => QuranCollectionsSliver(
+              gutter: gutter,
+              selected: _collection,
+              onSelect: (collection) {
+                setState(() => _collection = collection);
+                collection.remember();
+              },
+              saved: SavedVersesManager.instance.state.inMushafOrder,
+              onOpenVerse: _open,
+              onRemoveSaved: _removeSaved,
+              notes: VerseNotesManager.instance.state.inMushafOrder,
             ),
+          ),
         },
       ],
     );
@@ -335,11 +346,15 @@ class _TrackCard extends StatelessWidget {
       compact: true,
     );
     final progress = percent > 0
-        ? context.l10n.quranPercentRead(localizeDigits(
-            percent.toStringAsFixed(percent < 10 ? 1 : 0), context.l10n))
+        ? context.l10n.quranPercentRead(
+            localizeDigits(
+              percent.toStringAsFixed(percent < 10 ? 1 : 0),
+              context.l10n,
+            ),
+          )
         : target.isStart
-            ? context.l10n.quranStartReading
-            : null;
+        ? context.l10n.quranStartReading
+        : null;
     final name = recitationTrackName(label, context.l10n);
 
     // The Khatm read last is the likeliest to be picked up, so it is the
@@ -374,8 +389,10 @@ class _TrackCard extends StatelessWidget {
                         name,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: ShiaText.caption
-                            .copyWith(fontSize: 13, color: labelColor),
+                        style: ShiaText.caption.copyWith(
+                          fontSize: 13,
+                          color: labelColor,
+                        ),
                       ),
                       const SizedBox(height: 4),
                       Text(
@@ -386,8 +403,9 @@ class _TrackCard extends StatelessWidget {
                         const SizedBox(height: 2),
                         Text(
                           progress,
-                          style:
-                              ShiaText.caption.copyWith(color: progressColor),
+                          style: ShiaText.caption.copyWith(
+                            color: progressColor,
+                          ),
                         ),
                       ],
                     ],
@@ -408,8 +426,11 @@ class _TrackCard extends StatelessWidget {
                       radius: 20,
                       child: SizedBox.square(
                         dimension: 40,
-                        child: Icon(Icons.more_horiz,
-                            size: 20, color: labelColor),
+                        child: Icon(
+                          Icons.more_horiz,
+                          size: 20,
+                          color: labelColor,
+                        ),
                       ),
                     ),
                   ),
@@ -428,7 +449,8 @@ class _TrackCard extends StatelessWidget {
 
 /// Says, once, that the reading done straight through the old "My reading"
 /// card is now a Khatm of that name (RecitationTrackerManager's
-/// _maybePortMyReading), with an Undo that deletes it.
+/// _maybePortMyReading), with an Undo that deletes it - offered only until
+/// something is read in it, so an Undo can never take reading with it.
 ///
 /// Its reader had nothing to do with it, and from now on a surah opened
 /// from the list no longer moves their place on - the one change they could
@@ -454,8 +476,11 @@ class _MyReadingPortNotice extends StatelessWidget {
             children: [
               Padding(
                 padding: const EdgeInsets.only(top: 2),
-                child: OutlineIcon(OutlineGlyph.info,
-                    size: 16, color: colors.accent),
+                child: OutlineIcon(
+                  OutlineGlyph.info,
+                  size: 16,
+                  color: colors.accent,
+                ),
               ),
               const SizedBox(width: 8),
               Expanded(
@@ -466,22 +491,24 @@ class _MyReadingPortNotice extends StatelessWidget {
                       context.l10n.quranMyReadingPorted(name),
                       style: ShiaText.caption.copyWith(color: colors.text),
                     ),
-                    TextButton(
-                      onPressed: () => unawaited(
-                          manager.dismissMyReadingPortNotice(undo: true)),
-                      style: TextButton.styleFrom(
-                        padding: EdgeInsets.zero,
-                        minimumSize: const Size(0, 36),
-                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                      ),
-                      child: Text(
-                        context.l10n.commonUndo,
-                        style: ShiaText.caption.copyWith(
-                          color: colors.accent,
-                          fontWeight: FontWeight.w600,
+                    if (manager.canUndoMyReadingPort(name))
+                      TextButton(
+                        onPressed: () => unawaited(
+                          manager.dismissMyReadingPortNotice(undo: true),
+                        ),
+                        style: TextButton.styleFrom(
+                          padding: EdgeInsets.zero,
+                          minimumSize: const Size(0, 36),
+                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        ),
+                        child: Text(
+                          context.l10n.commonUndo,
+                          style: ShiaText.caption.copyWith(
+                            color: colors.accent,
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
                       ),
-                    ),
                   ],
                 ),
               ),
@@ -493,8 +520,11 @@ class _MyReadingPortNotice extends StatelessWidget {
                   child: SizedBox.square(
                     dimension: 40,
                     child: Center(
-                      child: OutlineIcon(OutlineGlyph.close,
-                          size: 16, color: colors.textMuted),
+                      child: OutlineIcon(
+                        OutlineGlyph.close,
+                        size: 16,
+                        color: colors.textMuted,
+                      ),
                     ),
                   ),
                 ),
@@ -541,10 +571,12 @@ class _TrackingHintState extends State<_TrackingHint> {
 
   void _dismiss() {
     setState(() => _visible = false);
-    unawaited(AnalyticsService.feature(
-      'quran_tracking_hint_dismissed',
-      label: 'Quran tracking hint dismissed',
-    ));
+    unawaited(
+      AnalyticsService.feature(
+        'quran_tracking_hint_dismissed',
+        label: 'Quran tracking hint dismissed',
+      ),
+    );
     unawaited(SP.prefs.setInt(_TrackingHint.viewsKey, _TrackingHint._maxViews));
   }
 
@@ -561,8 +593,11 @@ class _TrackingHintState extends State<_TrackingHint> {
         children: [
           Padding(
             padding: const EdgeInsets.only(top: 2),
-            child:
-                OutlineIcon(OutlineGlyph.info, size: 16, color: colors.accent),
+            child: OutlineIcon(
+              OutlineGlyph.info,
+              size: 16,
+              color: colors.accent,
+            ),
           ),
           const SizedBox(width: 8),
           Expanded(
@@ -579,8 +614,11 @@ class _TrackingHintState extends State<_TrackingHint> {
               child: SizedBox.square(
                 dimension: 40,
                 child: Center(
-                  child: OutlineIcon(OutlineGlyph.close,
-                      size: 16, color: colors.textMuted),
+                  child: OutlineIcon(
+                    OutlineGlyph.close,
+                    size: 16,
+                    color: colors.textMuted,
+                  ),
                 ),
               ),
             ),
@@ -620,8 +658,12 @@ class _AddTrackCard extends StatelessWidget {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                OutlineIcon(OutlineGlyph.plus,
-                    size: 22, color: colors.accent, strokeWidth: 2),
+                OutlineIcon(
+                  OutlineGlyph.plus,
+                  size: 22,
+                  color: colors.accent,
+                  strokeWidth: 2,
+                ),
                 const SizedBox(height: 4),
                 Text(
                   first
@@ -661,8 +703,12 @@ class _GoToVerseButton extends StatelessWidget {
     final colors = ShiaColors.of(context);
     return OutlinedButton.icon(
       onPressed: onPressed,
-      icon: OutlineIcon(OutlineGlyph.search,
-          size: 20, color: colors.accent, strokeWidth: 2),
+      icon: OutlineIcon(
+        OutlineGlyph.search,
+        size: 20,
+        color: colors.accent,
+        strokeWidth: 2,
+      ),
       label: Text(context.l10n.goToVerseTitle),
       style: OutlinedButton.styleFrom(
         minimumSize: const Size.fromHeight(50),
@@ -670,8 +716,10 @@ class _GoToVerseButton extends StatelessWidget {
         foregroundColor: colors.accent,
         side: BorderSide(color: colors.accent),
         shape: const StadiumBorder(),
-        textStyle: buttonTextStyle(context, ShiaText.body)
-            .copyWith(fontWeight: FontWeight.w600),
+        textStyle: buttonTextStyle(
+          context,
+          ShiaText.body,
+        ).copyWith(fontWeight: FontWeight.w600),
       ),
     );
   }
@@ -715,7 +763,8 @@ class _SurahList extends StatelessWidget {
                 // Capped, so a long name can never push the heart off.
                 ConstrainedBox(
                   constraints: BoxConstraints(
-                      maxWidth: MediaQuery.sizeOf(context).width * 0.4),
+                    maxWidth: MediaQuery.sizeOf(context).width * 0.4,
+                  ),
                   child: SurahArabicName(surah.arabicName),
                 ),
               FavoriteHeartButton(favorite: itemData),
@@ -756,7 +805,8 @@ class _JuzList extends StatelessWidget {
   }
 
   String _verseLabel(VerseKey verse) {
-    final name = surahInfoFor(verse.surah)?.displayName ??
+    final name =
+        surahInfoFor(verse.surah)?.displayName ??
         L10n.current.quranSurahNumber(verse.surah);
     return L10n.current.quranSurahAyah(name, verse.ayah ?? 1);
   }
