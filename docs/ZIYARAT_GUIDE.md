@@ -740,8 +740,16 @@ The list as found in session 1:
   AK18 -> AK17, AI13 -> G60, AI14 -> G61, AI17 -> AI16. Linked in the
   guide (Imam Ali's shrine, its zarih and gates; Masjid al-Hannanah).
   Review items: "Restored in session 6".
-- Titles and instruction lines translated in all four languages, each
-  read by an independent reviewer; verses and merits not.
+- The session ran out of usage while its translators were working, so
+  the entries' translations were not committed (only AK7's rebase and
+  the guide keys were).
+
+**Session 7 (2026-11-16): session 6's translations.**
+
+- Titles of AK4, AK17 and AK19 and the instruction lines of AK4, AK17,
+  AK19, G60 and G61 (33 segments) translated in all four languages,
+  each language then read by an independent reviewer (opus) and its
+  fixes applied. Verses and merits are not translated.
 
 **What's left (start here):**
 
