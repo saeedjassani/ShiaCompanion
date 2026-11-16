@@ -34,6 +34,15 @@
   under "Status and resume here" in `docs/ZIYARAT_GUIDE.md`; read it
   before resuming.
 
+- **Islamic centers: on the branch, admin-only, not shipped.** Home
+  suggests the nearest center from a directory (`islamic_centers/directory`
+  in Firestore, edited in the admin *Centers Directory*). Following a center
+  reads its public Google Calendar (iCal) on the device and shows its
+  programs on Home and in *Center Programs*. Left: deploy the rules, fill in
+  the directory, check it on a phone, then ungate `centerProgramsEnabled`.
+  The steps are under "Shipping it" in `docs/ISLAMIC_CENTERS.md`, with ideas
+  for later (reminders, account sync, a shareable center link).
+
 - **Missing-zikr restoration is mid-way.** 118 unfavorited uids are still
   missing from the corpus. Before resuming, read the "Resume here" section at
   the top of `scripts/RESTORING_MISSING_ZIKRS.md`: next batches (taweez and

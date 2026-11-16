@@ -115,12 +115,13 @@ class _ContentRequestFormState extends State<ContentRequestForm> {
         SegmentedSwitcher<ContentRequestType>(
           segments: [
             for (final type in ContentRequestType.values)
-              Segment(
-                type,
-                type == ContentRequestType.book
-                    ? l10n.requestTypeBook
-                    : l10n.requestTypeZikr,
-              ),
+              if (type != ContentRequestType.center)
+                Segment(
+                  type,
+                  type == ContentRequestType.book
+                      ? l10n.requestTypeBook
+                      : l10n.requestTypeZikr,
+                ),
           ],
           selected: _type,
           onChanged: (type) => setState(() => _type = type),

@@ -18,3 +18,15 @@ Uri mapsUriFor(GeoPoint point, String label, {TargetPlatform? platform}) {
   return Uri.https(
       'www.google.com', '/maps/search/', {'api': '1', 'query': ll});
 }
+
+/// A link that searches the platform's maps app for [query], an address
+/// or a place's name: for a place known only by its text, such as a
+/// calendar event's location.
+Uri mapsUriForQuery(String query, {TargetPlatform? platform}) {
+  final target = platform ?? (kIsWeb ? null : defaultTargetPlatform);
+  if (target == TargetPlatform.iOS || target == TargetPlatform.macOS) {
+    return Uri.https('maps.apple.com', '/', {'q': query});
+  }
+  return Uri.https(
+      'www.google.com', '/maps/search/', {'api': '1', 'query': query});
+}

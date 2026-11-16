@@ -4580,5 +4580,267 @@
         "example": "13 Rajab"
       }
     }
+  },
+  "menuCenterPrograms": "Center Programs",
+  "@menuCenterPrograms": {
+    "description": "Home menu item and page title: the programs (majalis, duas, classes) of the Islamic centers the reader follows, from each center's public calendar."
+  },
+  "menuCenterProgramsShort": "Programs",
+  "@menuCenterProgramsShort": {
+    "description": "Center Programs as a Home shortcut, where there is room for one short word."
+  },
+  "centerManage": "Manage centers",
+  "@centerManage": {
+    "description": "Button on Center Programs that opens the list of centers to follow or unfollow."
+  },
+  "centerEmptyTitle": "Follow your Islamic center",
+  "@centerEmptyTitle": {
+    "description": "Center Programs before the reader follows any center."
+  },
+  "centerEmptyBody": "See its majalis, duas and classes here, straight from the center's own calendar.",
+  "@centerEmptyBody": {
+    "description": "Under centerEmptyTitle."
+  },
+  "centerFind": "Find a center",
+  "@centerFind": {
+    "description": "Button under centerEmptyBody."
+  },
+  "centerNoProgramsTitle": "No programs coming up",
+  "@centerNoProgramsTitle": {
+    "description": "Center Programs when the followed centers' calendars have nothing in the next two months."
+  },
+  "centerNoProgramsBody": "Nothing is on the calendar for the next two months.",
+  "@centerNoProgramsBody": {
+    "description": "Under centerNoProgramsTitle."
+  },
+  "centerCount": "{count, plural, =1{1 center} other{{count} centers}}",
+  "@centerCount": {
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    },
+    "description": "Subtitle of Center Programs when the reader follows more than one center."
+  },
+  "centerUpdating": "Updating…",
+  "@centerUpdating": {
+    "description": "Shown while the centers' calendars are being fetched."
+  },
+  "centerRefresh": "Refresh",
+  "@centerRefresh": {
+    "description": "Button that fetches the centers' calendars again."
+  },
+  "centerUpdatedJustNow": "Updated just now",
+  "@centerUpdatedJustNow": {
+    "description": "When the programs shown were last fetched."
+  },
+  "centerUpdatedMinutesAgo": "{minutes, plural, =1{Updated 1 minute ago} other{Updated {minutes} minutes ago}}",
+  "@centerUpdatedMinutesAgo": {
+    "placeholders": {
+      "minutes": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    },
+    "description": "When the programs shown were last fetched."
+  },
+  "centerUpdatedHoursAgo": "{hours, plural, =1{Updated 1 hour ago} other{Updated {hours} hours ago}}",
+  "@centerUpdatedHoursAgo": {
+    "placeholders": {
+      "hours": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    },
+    "description": "When the programs shown were last fetched."
+  },
+  "centerUpdatedOn": "Updated {date}",
+  "@centerUpdatedOn": {
+    "placeholders": {
+      "date": {
+        "type": "String",
+        "example": "14 Nov"
+      }
+    },
+    "description": "When the programs shown were last fetched, over a day ago. {date} is like '14 Nov'."
+  },
+  "centerErrorNetwork": "Couldn't reach {name}'s calendar. Showing the programs saved earlier.",
+  "@centerErrorNetwork": {
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Islamic Education Center"
+      }
+    },
+    "description": "A followed center's calendar could not be fetched (no connection)."
+  },
+  "centerErrorNotPublic": "{name}'s calendar isn't public, so its programs can't be shown. The center can make it public in its Google Calendar settings.",
+  "@centerErrorNotPublic": {
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Islamic Education Center"
+      }
+    },
+    "description": "A followed center's calendar answered but is not shared publicly."
+  },
+  "centerErrorBadLink": "{name}'s calendar link isn't one the app can read.",
+  "@centerErrorBadLink": {
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Islamic Education Center"
+      }
+    },
+    "description": "A followed center's calendar link is not a Google Calendar or .ics address."
+  },
+  "centerHappeningNow": "Now",
+  "@centerHappeningNow": {
+    "description": "Before a program's time while it is under way: 'Now · 7:30 pm – 9:30 pm'."
+  },
+  "centerAllDay": "All day",
+  "@centerAllDay": {
+    "description": "A program that lasts the whole day, in place of its times."
+  },
+  "centerDirections": "Directions",
+  "@centerDirections": {
+    "description": "Opens the maps app with directions to where a program is held."
+  },
+  "centerDistanceKm": "{km} km away",
+  "@centerDistanceKm": {
+    "placeholders": {
+      "km": {
+        "type": "String",
+        "example": "12"
+      }
+    },
+    "description": "How far a center is from the reader. {km} is already formatted, like '12' or '3.5'."
+  },
+  "centerDistanceMetres": "{metres} m away",
+  "@centerDistanceMetres": {
+    "placeholders": {
+      "metres": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    },
+    "description": "How far a center is from the reader, under a kilometer."
+  },
+  "centerDirectoryTitle": "Islamic Centers",
+  "@centerDirectoryTitle": {
+    "description": "Title of the page listing centers to follow."
+  },
+  "centerFollowingLabel": "Following",
+  "@centerFollowingLabel": {
+    "description": "Group label over the centers the reader follows."
+  },
+  "centerNearbyLabel": "Near you",
+  "@centerNearbyLabel": {
+    "description": "Group label over the nearest centers; also the small heading of Home's suggestion card."
+  },
+  "centerAllLabel": "Centers",
+  "@centerAllLabel": {
+    "description": "Group label over the list of centers when none is close by, or while searching."
+  },
+  "centerFindHint": "Find a center or city",
+  "@centerFindHint": {
+    "description": "Search field on the centers page."
+  },
+  "centerDirectoryEmpty": "No centers are listed yet.",
+  "@centerDirectoryEmpty": {
+    "description": "The centers page when the directory is empty."
+  },
+  "centerFollow": "Follow",
+  "@centerFollow": {
+    "description": "Button: start seeing a center's programs in the app."
+  },
+  "centerUnfollow": "Unfollow",
+  "@centerUnfollow": {
+    "description": "Button: stop seeing a center's programs."
+  },
+  "centerUnfollowTitle": "Unfollow {name}?",
+  "@centerUnfollowTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Islamic Education Center"
+      }
+    },
+    "description": "Confirmation before unfollowing a center; also read out on its Unfollow button."
+  },
+  "centerFollowing": "Following {name}",
+  "@centerFollowing": {
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Islamic Education Center"
+      }
+    },
+    "description": "Toast after following a center."
+  },
+  "centerNotListedLabel": "Center not listed?",
+  "@centerNotListedLabel": {
+    "description": "Group label over adding a center by its calendar link."
+  },
+  "centerNotListedBody": "If your center shares its programs on Google Calendar, add it with the calendar's link.",
+  "@centerNotListedBody": {
+    "description": "Under centerNotListedLabel."
+  },
+  "centerAddByLink": "Add a calendar by link",
+  "@centerAddByLink": {
+    "description": "Button and sheet title: follow a center that is not listed, from its calendar link."
+  },
+  "centerAddByLinkBody": "Paste the link to your center's public Google Calendar, its calendar ID, or any calendar address ending in .ics.",
+  "@centerAddByLinkBody": {
+    "description": "Top of the Add a calendar by link sheet."
+  },
+  "centerNameField": "Center name",
+  "@centerNameField": {
+    "description": "Text field label."
+  },
+  "centerLinkField": "Calendar link or ID",
+  "@centerLinkField": {
+    "description": "Text field label."
+  },
+  "centerLinkHelp": "Ask your center for it, or find it in Google Calendar's settings under Integrate calendar.",
+  "@centerLinkHelp": {
+    "description": "Help under the calendar link field."
+  },
+  "centerLinkInvalid": "That isn't a calendar link the app can read.",
+  "@centerLinkInvalid": {
+    "description": "Error under the calendar link field."
+  },
+  "centerSuggestToggle": "Suggest it so others nearby can find it",
+  "@centerSuggestToggle": {
+    "description": "Switch on the Add a calendar by link sheet: also send the center to the app's team to add to the list."
+  },
+  "centerSuggestionTitle": "Programs at {name}",
+  "@centerSuggestionTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Islamic Education Center"
+      }
+    },
+    "description": "Home card offering to follow the nearest Islamic center."
+  },
+  "centerSuggestionBody": "{distance}. Get updates on its majalis, duas and classes here in the app?",
+  "@centerSuggestionBody": {
+    "placeholders": {
+      "distance": {
+        "type": "String",
+        "example": "3 km away"
+      }
+    },
+    "description": "Under centerSuggestionTitle. {distance} is centerDistanceKm or centerDistanceMetres, like '3 km away'."
+  },
+  "centerHomeTitle": "At your centers",
+  "@centerHomeTitle": {
+    "description": "Home section title over the next programs, when the reader follows more than one center (with one, the center's name is the title)."
+  },
+  "centerSeeAllPrograms": "See all center programs",
+  "@centerSeeAllPrograms": {
+    "description": "Read out by screen readers for the See all button of Home's center section."
   }
 }

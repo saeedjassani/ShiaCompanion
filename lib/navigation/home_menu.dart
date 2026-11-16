@@ -6,10 +6,13 @@ import 'package:material_ui/material_ui.dart';
 import '../constants.dart';
 import '../services/analytics_service.dart';
 import '../services/azan_playback_service.dart';
+import '../services/islamic_center_service.dart';
 import '../pages/admin/content_requests_page.dart';
 import '../pages/admin/mistake_reports_page.dart';
 import '../pages/admin/usage_dashboard_page.dart';
+import '../pages/admin/center_directory_admin_page.dart';
 import '../pages/calendar_page.dart';
+import '../pages/centers/center_programs_page.dart';
 import '../pages/favorites_page.dart';
 import '../pages/flights_page.dart';
 import '../pages/library_page.dart';
@@ -341,6 +344,19 @@ final HomeMenuItem ziyaratGuideMenuItem = HomeMenuItem(
   pageBuilder: () => const ZiyaratGuidePage(),
 );
 
+/// The programmes of the reader's Islamic centre (docs/ISLAMIC_CENTERS.md).
+/// Admin-only while it is checked on devices: [visibleHomeMenuItems] adds
+/// it after Calendar while [centerProgramsEnabled]. To ship it, move it
+/// into [homeMenuItems] there and drop the gate.
+final HomeMenuItem centerProgramsMenuItem = HomeMenuItem(
+  label: 'Center Programs',
+  shortLabel: 'Programs',
+  analyticsId: 'center_programs',
+  outlineGlyph: OutlineGlyph.pin,
+  icon: Icons.mosque_rounded,
+  pageBuilder: () => const CenterProgramsPage(),
+);
+
 /// Menu entries only an admin sees, added on top of the regular grid rather
 /// than replacing anything in it. Kept out of [homeMenuItems] so the grid
 /// every user gets stays a compile-time constant, and so admin state — which
@@ -367,6 +383,13 @@ final List<HomeMenuItem> adminHomeMenuItems = List.unmodifiable([
     pageBuilder: () => const ContentRequestsPage(),
     countsAsFeatureUse: false,
   ),
+  HomeMenuItem(
+    label: 'Centers Directory',
+    analyticsId: 'centers_directory',
+    icon: Icons.mosque_outlined,
+    pageBuilder: () => const CenterDirectoryAdminPage(),
+    countsAsFeatureUse: false,
+  ),
 ]);
 
 /// Every menu screen there is, dark-launched and admin-gated ones included,
@@ -378,6 +401,7 @@ final List<HomeMenuItem> allHomeMenuItems = List.unmodifiable(
     ...homeMenuItems,
     quranMenuItem,
     ziyaratGuideMenuItem,
+    centerProgramsMenuItem,
     ...adminHomeMenuItems
   ],
 );
@@ -390,6 +414,8 @@ List<HomeMenuItem> get visibleHomeMenuItems {
     for (final item in homeMenuItems) ...[
       if (item.label == 'Surahs') quranMenuItem else item,
       if (item.label == 'Ziyarats' && isUserAdmin) ziyaratGuideMenuItem,
+      if (item == calendarMenuItem && centerProgramsEnabled)
+        centerProgramsMenuItem,
     ],
     if (isUserAdmin) ...adminHomeMenuItems,
   ]);
@@ -494,6 +520,8 @@ String homeMenuDisplayLabel(String label) {
     'My Stats' => L10n.current.menuMyStats,
     'News' => L10n.current.menuNews,
     'Play Azan' => L10n.current.menuPlayAzan,
+    'Center Programs' => L10n.current.menuCenterPrograms,
+    'Programs' => L10n.current.menuCenterProgramsShort,
     _ => label,
   };
 }

@@ -38,6 +38,7 @@ import 'package:shia_companion/services/synced_data.dart';
 import 'package:shia_companion/services/zikr_bookmarks_manager.dart';
 import 'package:shia_companion/services/zikr_reminder_service.dart';
 import 'package:shia_companion/services/event_notification_service.dart';
+import 'package:shia_companion/services/islamic_center_service.dart';
 import 'package:shia_companion/utils/deep_links.dart';
 import 'package:shia_companion/utils/font_preferences.dart';
 import 'package:shia_companion/utils/hadith_loader.dart';
@@ -46,6 +47,7 @@ import 'package:shia_companion/utils/islamic_day.dart';
 import 'package:shia_companion/utils/shared_preferences.dart';
 
 import 'package:shia_companion/pages/all_features_page.dart';
+import 'package:shia_companion/pages/home/center_card.dart';
 import 'package:shia_companion/pages/home/color_card.dart';
 import 'package:shia_companion/pages/home/coming_up_section.dart';
 import 'package:shia_companion/pages/home/continue_section.dart';
@@ -589,6 +591,17 @@ class _MyHomePageState extends State<MyHomePage>
             ),
           )
         : const SizedBox.shrink();
+    // The reader's Islamic centre: a nearby one to follow, or the next
+    // programmes at theirs. Nothing for anyone without one.
+    final centerCard = ValueListenableBuilder<bool>(
+      valueListenable: adminState,
+      builder: (context, _, __) => centerProgramsEnabled
+          ? HomeCenterCard(
+              topSpacing: gap,
+              onOpenPrograms: () => _openHomeMenuItem(centerProgramsMenuItem),
+            )
+          : const SizedBox.shrink(),
+    );
     final getApp = kIsWeb
         ? Padding(padding: EdgeInsets.only(top: gap), child: const GetAppCard())
         : const SizedBox.shrink();
@@ -613,6 +626,7 @@ class _MyHomePageState extends State<MyHomePage>
               start: [
                 prayerCard,
                 colorCard,
+                centerCard,
                 ContinueSection(topSpacing: gap, horizontalPadding: 0),
                 today(horizontalPadding: 0, grid: true),
               ],
@@ -631,6 +645,7 @@ class _MyHomePageState extends State<MyHomePage>
           SizedBox(height: gap),
           Padding(padding: pad, child: prayerCard),
           Padding(padding: pad, child: colorCard),
+          Padding(padding: pad, child: centerCard),
           // These two draw their own gutter: their cards scroll to the
           // screen's edge.
           ContinueSection(topSpacing: gap, horizontalPadding: gutter),

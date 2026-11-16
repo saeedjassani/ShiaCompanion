@@ -56,6 +56,13 @@ service cloud.firestore {
       allow read, update: if _isAdmin();
       allow delete: if false;
     }
+    // The Islamic centre directory (IslamicCenterService): one public doc,
+    // islamic_centers/directory, that every install reads and only an admin
+    // edits (CenterDirectoryAdminPage). See docs/ISLAMIC_CENTERS.md.
+    match /islamic_centers/{docId} {
+      allow read: if true;
+      allow write: if _isAdmin();
+    }
     // You can add more collections here...
   }
 
@@ -78,7 +85,7 @@ service cloud.firestore {
   function _isValidContentRequestCreate(data) {
     return data.keys().hasOnly(['type', 'title', 'details', 'status', 'createdAt']) &&
            data.status == 'open' &&
-           data.type in ['zikr', 'book'] &&
+           data.type in ['zikr', 'book', 'center'] &&
            data.title is string && data.title.size() > 0 && data.title.size() <= 200 &&
            data.details is string && data.details.size() <= 1000 &&
            data.createdAt == request.time;

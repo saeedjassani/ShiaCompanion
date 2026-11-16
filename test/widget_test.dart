@@ -69,10 +69,12 @@ void main() {
         'Settings': 'preferences',
         'Quran': 'quran',
         'Ziyarat Guide': 'ziyarat_guide',
+        'Center Programs': 'center_programs',
         'Usage': 'usage',
         'My Stats': 'my_stats',
         'Mistake Reports': 'mistake_reports',
         'Content Requests': 'content_requests',
+        'Centers Directory': 'centers_directory',
       },
     );
   });

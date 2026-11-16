@@ -152,9 +152,11 @@ class _ContentRequestCard extends StatelessWidget {
             Row(
               children: [
                 Icon(
-                  request.type == ContentRequestType.book
-                      ? Icons.local_library_outlined
-                      : Icons.menu_book_outlined,
+                  switch (request.type) {
+                    ContentRequestType.book => Icons.local_library_outlined,
+                    ContentRequestType.center => Icons.mosque_outlined,
+                    ContentRequestType.zikr => Icons.menu_book_outlined,
+                  },
                   size: 18,
                   color: colorScheme.primary,
                 ),

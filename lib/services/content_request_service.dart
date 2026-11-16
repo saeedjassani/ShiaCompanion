@@ -9,7 +9,11 @@ import '../utils/shared_preferences.dart';
 /// value forks the queue - add new values rather than renaming old ones.
 enum ContentRequestType {
   zikr('Zikr'),
-  book('Book');
+  book('Book'),
+
+  /// An Islamic centre to add to the directory, from "Add a calendar by
+  /// link" (docs/ISLAMIC_CENTERS.md). Not offered in the request form.
+  center('Center');
 
   const ContentRequestType(this.label);
 
