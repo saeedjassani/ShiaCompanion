@@ -3818,7 +3818,7 @@
           "about": "Mada'in, the old Sasanian capital Ctesiphon on the Tigris about 30 km south-east of Baghdad, was governed for the second caliph by Salman al-Farsi, who died and was buried here; the town around his shrine is called Salman Pak after him. Hudhayfah ibn al-Yaman, also governor of Mada'in, and other companions lie in the same complex, and the ruined arch of the Sasanian palace (Taq Kasra) stands nearby.",
           "tips": [
             "Mada'in is a half-day trip from Kazimayn or Baghdad; the shrine complex and Taq Kasra are a short walk apart.",
-            "Recite [Surah Al-Qadr](A101) seven times at Salman's tomb, as his ziyarat instructs, then pray and gift it to him.",
+            "Recite [Surah Al-Qadr](A101) seven times at Salman's tomb, as his ziyarat instructs, then offer whatever voluntary prayers you wish.",
             "The tombs of Hudhayfah and the others are in separate buildings of the same complex; visit them after Salman."
           ],
           "sites": [
@@ -3867,7 +3867,8 @@
               ],
               "tips": [
                 "Stand at Salman's tomb facing the qiblah for [his ziyarat](AJ2), as it instructs.",
-                "Hudhayfah's tomb is in the second building of the complex, and the graves of Jabir and Tahir in the third."
+                "Hudhayfah's tomb is in the second building of the complex, and the graves of Jabir and Tahir in the third.",
+                "Mafatih al-Jinan recommends visiting Hudhayfah's tomb too, and praying two rak'ats in the mosque of al-Mada'in near Salman's tomb, ascribed to Imam al-Hasan al-Askari (a.s.); the merits of [Salman's ziyarat](AJ2) tell of both."
               ],
               "sources": [
                 "https://en.wikipedia.org/wiki/Salman_Al-Farsi_Mosque",
@@ -3886,10 +3887,15 @@
                 44.5808
               ],
               "about": "The great brick arch of the Sasanian palace at Ctesiphon, a short walk south of Salman's shrine. Imam Ali (a.s.) prayed there by narration, and Mafatih al-Jinan recommends praying at the site in his memory and reflecting on the passing of earthly power.",
-              "ziyarat": [],
+              "ziyarat": [
+                {
+                  "uid": "AJ3",
+                  "note": "Mafatih al-Jinan's prayer at the ruins, with the verses of Surah Ad-Dukhan and the words Imam Ali (a.s.) said should be recited here."
+                }
+              ],
               "buried": [],
               "tips": [
-                "Pray two rak'ats here as Imam Ali (a.s.) did; the app does not yet have Mafatih's section on it."
+                "Pray two rak'ats or more here as Imam Ali (a.s.) did, then recite the verses and his words in [the prayer at Taq Kasra](AJ3)."
               ],
               "sources": [
                 "https://www.al-islam.org/ziyarat/iraq.htm",
