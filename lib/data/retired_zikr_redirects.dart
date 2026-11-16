@@ -472,4 +472,12 @@ const Map<String, RetiredZikrRedirect> retiredZikrRedirects = {
   /// mafatih.duas.co.
   'AI13': RetiredZikrRedirect('G60'),
   'AI14': RetiredZikrRedirect('G61'),
+
+  /// Mada'in: AJ1 (Merits of Visiting the Tomb of Salman) and AJ4 (Visiting
+  /// the Tomb of Hudhayfah al-Yamani) were Mafatih al-Jinan's prose, with
+  /// nothing to recite - Salman's merits, and Hudhayfah's life, his will to
+  /// his son and the mosque of al-Mada'in. Both are in the merits of AJ2,
+  /// Salman's ziyarat, whose slugAliases keep their slugs.
+  'AJ1': RetiredZikrRedirect('AJ2'),
+  'AJ4': RetiredZikrRedirect('AJ2'),
 };

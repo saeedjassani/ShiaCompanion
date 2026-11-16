@@ -4,10 +4,10 @@
  "counts": {
   "total": 209,
   "menuCategory": 7,
-  "retired": 62,
-  "restored": 30,
-  "toRestoreHasArabic": 60,
-  "toRestoreProseOnly": 50
+  "retired": 64,
+  "restored": 31,
+  "toRestoreHasArabic": 59,
+  "toRestoreProseOnly": 48
  },
  "uids": [
   {
@@ -359,20 +359,24 @@
   {
    "uid": "AJ1",
    "title": "Merits of visiting the tomb of Salman",
-   "kind": "prose-only",
-   "itemsBytes": 3027
+   "kind": "retired",
+   "itemsBytes": 3027,
+   "note": "Salman's merits, now in AJ2's merits (2026-11-16).",
+   "retiredTo": "AJ2"
   },
   {
    "uid": "AJ3",
    "title": "Offering Prayer at Taq Kasra",
-   "kind": "has-arabic",
+   "kind": "restored",
    "itemsBytes": 3659
   },
   {
    "uid": "AJ4",
    "title": "Visting the tomb of Hudhayfah Al Yamani",
-   "kind": "prose-only",
-   "itemsBytes": 2240
+   "kind": "retired",
+   "itemsBytes": 2240,
+   "note": "Hudhayfah's life, his will and the mosque of al-Mada'in, now in AJ2's merits (2026-11-16).",
+   "retiredTo": "AJ2"
   },
   {
    "uid": "AK1",

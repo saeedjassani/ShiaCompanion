@@ -11,18 +11,19 @@ memory note for the bug-report side of this.
 This doc is the restoration process for bringing an individual UID back with
 real, correctly-formatted content — not just a title.
 
-## Resume here (status as of 2026-11-15)
+## Resume here (status as of 2026-11-16)
 
 **Done:** every favorited missing uid (the eight passes below). Of the 209
 *unfavorited* missing uids listed in
 [unfavorited_missing_zikrs.json](unfavorited_missing_zikrs.json), 7 are
-old menu nodes (skip), 62 are retired, 30 are restored (F16-F65,
+old menu nodes (skip), 64 are retired, 31 are restored (F16-F65,
 E131-E136, P1; and for the Ziyarat Guide, 2026-11-09: AE3, AE17, AM3,
 AP8, AQ2 as tabbed shrine entries, with AE4-AE8, AE16, AM2, AP9, AP11,
 AP13, AQ1, AQ3, AQ4 retired into them; 2026-11-15, Najaf and Kufa: AK4,
 AK17, AK19, with AK1, AK18 retired into them, AI13/AI14 into the
-completed G60/G61, AI17 into AI16 - see `docs/ZIYARAT_GUIDE.md`).
-**110 remain** (60 with Arabic, 50 prose-only),
+completed G60/G61, AI17 into AI16; 2026-11-16, Mada'in: AJ3, with AJ1 and
+AJ4 retired into AJ2's merits - see `docs/ZIYARAT_GUIDE.md`).
+**107 remain** (59 with Arabic, 48 prose-only),
 each still marked `has-arabic`/`prose-only` in that JSON. When a batch
 ships, set its uids' `kind` to `restored`/`retired` there and recount
 `counts`.
