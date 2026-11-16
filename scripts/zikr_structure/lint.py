@@ -236,16 +236,25 @@ def lint_entry(uid, entry, index, redirects, live):
     return out
 
 
-def merged_web_slugs():
-    """MERGED_ZIKR_SLUGS from the web build: same-content slug pairs that
-    already collapse to one indexable page, so an alias keeping its own
-    slug there is deliberate."""
+def _merged_web_slug_pairs():
     path = os.path.join(corpus.ROOT, 'scripts', 'generate_zikr_seo_pages.js')
     with open(path, encoding='utf-8') as f:
         src = f.read()
     block = src[src.index('MERGED_ZIKR_SLUGS = {'):]
     block = block[:block.index('};')]
-    return {frozenset(p) for p in re.findall(r"'([^']+)':\s*'([^']+)'", block)}
+    return re.findall(r"'([^']+)':\s*'([^']+)'", block)
+
+
+def merged_web_slugs():
+    """MERGED_ZIKR_SLUGS from the web build: same-content slug pairs that
+    already collapse to one indexable page, so an alias keeping its own
+    slug there is deliberate."""
+    return {frozenset(p) for p in _merged_web_slug_pairs()}
+
+
+def merged_web_slug_keys():
+    """MERGED_ZIKR_SLUGS' keys: the slugs the web build turns into redirects."""
+    return {k for k, _ in _merged_web_slug_pairs()}
 
 
 def title_slug(title):
@@ -271,6 +280,21 @@ def lint_index(index, redirects, live):
                   and frozenset((tmeta.get('slug'), meta.get('slug'))) not in merged):
                 out.append(Finding(alias, 'error', 'ALIAS_SLUG', 'zikr.json',
                                    f"same title as {target} but slug {meta.get('slug')!r} != {tmeta.get('slug')!r}"))
+    # One indexable web page per text: an alias with a title (and slug) of
+    # its own gets a page per slug, so all but one slug must be a
+    # MERGED_ZIKR_SLUGS key (test/zikr_slugs_test.dart checks the same).
+    redirected = merged_web_slug_keys()
+    slugs_by_text = collections.defaultdict(set)
+    for key, meta in index.items():
+        if '~' in key or 'tabs' in meta:
+            continue
+        slugs_by_text[key.split('|')[-1]].add(meta.get('slug'))
+    for text, slugs in slugs_by_text.items():
+        indexed = sorted(s for s in slugs if s not in redirected)
+        if len(indexed) > 1:
+            out.append(Finding(text, 'error', 'WEB_SPLIT', 'generate_zikr_seo_pages.js',
+                               f'{len(indexed)} indexable pages for one text ({", ".join(indexed)});'
+                               ' add all but one to MERGED_ZIKR_SLUGS'))
     bases = collections.Counter(k.split('|')[0] for k in index)
     for base, n in bases.items():
         # Two aliases sharing a listing number only tie in sort order; a
