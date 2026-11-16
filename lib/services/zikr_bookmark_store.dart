@@ -21,7 +21,7 @@ class ZikrBookmark {
       version: json['version'] is int
           ? json['version'] as int
           : int.tryParse(json['version']?.toString() ?? '') ??
-              ZikrBookmarkStore.schemaVersion,
+                ZikrBookmarkStore.schemaVersion,
       uid: json['uid']?.toString() ?? '',
       title: json['title']?.toString() ?? '',
       tabIndex: json['tabIndex'] is int
@@ -34,7 +34,8 @@ class ZikrBookmark {
       lineIndex: json['lineIndex'] is int
           ? json['lineIndex'] as int
           : int.tryParse(json['lineIndex']?.toString() ?? ''),
-      updatedAt: DateTime.tryParse(json['updatedAt']?.toString() ?? '') ??
+      updatedAt:
+          DateTime.tryParse(json['updatedAt']?.toString() ?? '') ??
           DateTime.fromMillisecondsSinceEpoch(0, isUtc: true),
     );
   }

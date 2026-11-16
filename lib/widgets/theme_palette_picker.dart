@@ -23,11 +23,7 @@ Future<void> showThemePalettePicker(BuildContext context) async {
     current: current,
     choices: [
       for (final palette in AppPalette.values)
-        Choice(
-          palette,
-          palette.label(l10n),
-          leading: PaletteSwatch(palette),
-        ),
+        Choice(palette, palette.label(l10n), leading: PaletteSwatch(palette)),
     ],
   );
 
@@ -46,11 +42,13 @@ Future<void> choosePalette(
   final provider = context.read<ThemePaletteProvider>();
   if (provider.palette == palette) return;
   await provider.setPalette(palette);
-  unawaited(AnalyticsService.feature(
-    'theme_palette_changed',
-    label: 'Color changed',
-    parameters: {'theme_palette': palette.name, 'source': source},
-  ));
+  unawaited(
+    AnalyticsService.feature(
+      'theme_palette_changed',
+      label: 'Color changed',
+      parameters: {'theme_palette': palette.name, 'source': source},
+    ),
+  );
 }
 
 /// [palette] as a circle, in the brightness on screen: its page ground on

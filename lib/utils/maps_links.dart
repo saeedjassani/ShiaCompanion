@@ -9,12 +9,15 @@ import 'geo_utils.dart';
 /// A link rather than an in-app map: no SDK, no tiles to license or cache,
 /// and the maps app gives walking directions from where the pilgrim stands.
 Uri mapsUriFor(GeoPoint point, String label, {TargetPlatform? platform}) {
-  final ll = '${point.latitude.toStringAsFixed(5)},'
+  final ll =
+      '${point.latitude.toStringAsFixed(5)},'
       '${point.longitude.toStringAsFixed(5)}';
   final target = platform ?? (kIsWeb ? null : defaultTargetPlatform);
   if (target == TargetPlatform.iOS || target == TargetPlatform.macOS) {
     return Uri.https('maps.apple.com', '/', {'ll': ll, 'q': label});
   }
-  return Uri.https(
-      'www.google.com', '/maps/search/', {'api': '1', 'query': ll});
+  return Uri.https('www.google.com', '/maps/search/', {
+    'api': '1',
+    'query': ll,
+  });
 }

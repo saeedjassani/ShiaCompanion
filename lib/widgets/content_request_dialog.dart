@@ -46,11 +46,13 @@ Future<void> showContentRequestDialog(
   );
   if (draft == null) return; // Cancelled.
 
-  unawaited(AnalyticsService.feature(
-    'content_requested',
-    label: 'Zikr or book requested',
-    parameters: {'request_type': draft.type.name, 'source': source},
-  ));
+  unawaited(
+    AnalyticsService.feature(
+      'content_requested',
+      label: 'Zikr or book requested',
+      parameters: {'request_type': draft.type.name, 'source': source},
+    ),
+  );
 
   final submitted = await ContentRequestService.submit(
     type: draft.type,
@@ -59,7 +61,8 @@ Future<void> showContentRequestDialog(
   );
 
   showToast(
-      submitted ? L10n.current.requestThanks : L10n.current.requestFailed);
+    submitted ? L10n.current.requestThanks : L10n.current.requestFailed,
+  );
 }
 
 /// The request form [showContentRequestDialog] opens in a sheet: zikr or
@@ -81,8 +84,9 @@ class ContentRequestForm extends StatefulWidget {
 
 class _ContentRequestFormState extends State<ContentRequestForm> {
   late ContentRequestType _type = widget.initialType;
-  late final TextEditingController _title =
-      TextEditingController(text: widget.initialTitle);
+  late final TextEditingController _title = TextEditingController(
+    text: widget.initialTitle,
+  );
   final TextEditingController _details = TextEditingController();
 
   @override
@@ -96,11 +100,13 @@ class _ContentRequestFormState extends State<ContentRequestForm> {
 
   void _submit() {
     if (!_canSubmit) return;
-    Navigator.of(context).pop(ContentRequestDraft(
-      type: _type,
-      title: _title.text.trim(),
-      details: _details.text.trim(),
-    ));
+    Navigator.of(context).pop(
+      ContentRequestDraft(
+        type: _type,
+        title: _title.text.trim(),
+        details: _details.text.trim(),
+      ),
+    );
   }
 
   @override

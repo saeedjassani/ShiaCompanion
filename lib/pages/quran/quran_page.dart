@@ -19,6 +19,7 @@ import '../../utils/web_route_sync.dart';
 import '../../theme/shia_colors.dart';
 import '../../widgets/favorite_icon.dart';
 import '../../widgets/outline_icon.dart';
+import '../../widgets/app_toast.dart';
 import '../../widgets/page_chrome.dart';
 import 'go_to_verse_sheet.dart';
 import 'listen_and_follow_sheet.dart';
@@ -90,8 +91,10 @@ class _QuranPageState extends State<QuranPage>
     if (isUserAdmin) prewarmQuranTextIndex(bundle);
   }
 
-  Future<void> _open(VerseKey verse,
-      {String source = ZikrOpenSource.quran}) async {
+  Future<void> _open(
+    VerseKey verse, {
+    String source = ZikrOpenSource.quran,
+  }) async {
     await openQuranVerse(context, verse, source: source);
   }
 
@@ -118,8 +121,26 @@ class _QuranPageState extends State<QuranPage>
     await _open(verse);
   }
 
-  Future<void> _openJuz(int juz) async {
-    await openQuranJuz(context, juz);
+  /// A surah or juz tapped in the lists, opened where it starts. If a
+  /// Khatm is up to it, a toast says where the Khatm is, with a button to
+  /// carry it on ([offerKhatmPlace]): opened from the list, the reading
+  /// does not count towards it.
+  Future<void> _openFromList({int? surah, int? juz}) async {
+    final label = khatmToOffer(
+      RecitationTrackerManager.instance.state,
+      surah: surah,
+      juz: juz,
+    );
+    // Once the reader is on screen, so the toast belongs to it.
+    void offer() {
+      if (label != null) offerKhatmPlace(label);
+    }
+
+    if (surah != null) {
+      await openQuranVerse(context, VerseKey(surah), onOpened: offer);
+    } else {
+      await openQuranJuz(context, juz!, onOpened: offer);
+    }
   }
 
   Future<void> _removeSaved(SavedVerse saved) {
@@ -137,8 +158,11 @@ class _QuranPageState extends State<QuranPage>
       actions: [
         RoundIconButton(
           label: context.l10n.quranRecentSessions,
-          icon:
-              OutlineIcon(OutlineGlyph.history, size: 22, color: colors.accent),
+          icon: OutlineIcon(
+            OutlineGlyph.history,
+            size: 22,
+            color: colors.accent,
+          ),
           onPressed: () =>
               pushPageRoute(context, const RecentRecitationsPage()),
         ),
@@ -155,69 +179,82 @@ class _QuranPageState extends State<QuranPage>
         // Runs to the screen's edge, so the cards scroll out from under the
         // gutter rather than being cut off at it.
         SliverToBoxAdapter(child: _RecitationTrackCards(gutter: gutter)),
+        const SliverToBoxAdapter(child: _MyReadingPortNotice()),
         const SliverToBoxAdapter(child: _TrackingHint()),
         SliverPadding(
           padding: gutter.copyWith(top: 14, bottom: 14),
           sliver: SliverToBoxAdapter(
-            child: LayoutBuilder(builder: (context, constraints) {
-              final goToVerse = _GoToVerseButton(onPressed: _goToVerse);
-              final switcher = SegmentedSwitcher<_QuranView>(
-                segments: [
-                  Segment(_QuranView.surahs, context.l10n.quranTabSurahs),
-                  Segment(_QuranView.juz, context.l10n.quranTabJuz),
-                  Segment(
-                      _QuranView.collections, context.l10n.quranTabCollections),
-                ],
-                selected: _view,
-                onChanged: (view) => setState(() => _view = view),
-              );
-              // Where the list goes two columns, neither needs the whole
-              // width: they share a line, the switcher over the list's
-              // first column.
-              if (WideColumns.splits(constraints.maxWidth)) {
-                return Row(
-                  children: [
-                    Expanded(child: switcher),
-                    const SizedBox(width: 32),
-                    Expanded(child: goToVerse),
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                final goToVerse = _GoToVerseButton(onPressed: _goToVerse);
+                final switcher = SegmentedSwitcher<_QuranView>(
+                  segments: [
+                    Segment(_QuranView.surahs, context.l10n.quranTabSurahs),
+                    Segment(_QuranView.juz, context.l10n.quranTabJuz),
+                    Segment(
+                      _QuranView.collections,
+                      context.l10n.quranTabCollections,
+                    ),
                   ],
+                  selected: _view,
+                  onChanged: (view) => setState(() => _view = view),
                 );
-              }
-              return Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [goToVerse, const SizedBox(height: 14), switcher],
-              );
-            }),
+                // Where the list goes two columns, neither needs the whole
+                // width: they share a line, the switcher over the list's
+                // first column.
+                if (WideColumns.splits(constraints.maxWidth)) {
+                  return Row(
+                    children: [
+                      Expanded(child: switcher),
+                      const SizedBox(width: 32),
+                      Expanded(child: goToVerse),
+                    ],
+                  );
+                }
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [goToVerse, const SizedBox(height: 14), switcher],
+                );
+              },
+            ),
           ),
         ),
         switch (_view) {
           _QuranView.surahs => SliverPadding(
-              padding: gutter,
-              sliver: _SurahList(surahs: _surahs, onOpen: _open),
+            padding: gutter,
+            sliver: _SurahList(
+              surahs: _surahs,
+              onOpen: (verse) => _openFromList(surah: verse.surah),
             ),
+          ),
           _QuranView.juz => SliverPadding(
-              padding: gutter,
-              sliver: _JuzList(juz: _juz, onOpenJuz: _openJuz),
+            padding: gutter,
+            sliver: _JuzList(
+              juz: _juz,
+              onOpenJuz: (juz) => _openFromList(juz: juz),
             ),
+          ),
           // Saved verses and notes sync, so the lists follow them -
           // including a verse saved on another device. The gutter is applied
           // inside, so the pills can scroll out from under the screen's edge.
           _QuranView.collections => ListenableBuilder(
-              listenable: Listenable.merge(
-                  [SavedVersesManager.instance, VerseNotesManager.instance]),
-              builder: (context, _) => QuranCollectionsSliver(
-                gutter: gutter,
-                selected: _collection,
-                onSelect: (collection) {
-                  setState(() => _collection = collection);
-                  collection.remember();
-                },
-                saved: SavedVersesManager.instance.state.inMushafOrder,
-                onOpenVerse: _open,
-                onRemoveSaved: _removeSaved,
-                notes: VerseNotesManager.instance.state.inMushafOrder,
-              ),
+            listenable: Listenable.merge([
+              SavedVersesManager.instance,
+              VerseNotesManager.instance,
+            ]),
+            builder: (context, _) => QuranCollectionsSliver(
+              gutter: gutter,
+              selected: _collection,
+              onSelect: (collection) {
+                setState(() => _collection = collection);
+                collection.remember();
+              },
+              saved: SavedVersesManager.instance.state.inMushafOrder,
+              onOpenVerse: _open,
+              onRemoveSaved: _removeSaved,
+              notes: VerseNotesManager.instance.state.inMushafOrder,
             ),
+          ),
         },
       ],
     );
@@ -227,13 +264,16 @@ class _QuranPageState extends State<QuranPage>
 /// The three ways the Quran screen lists the Quran.
 enum _QuranView { surahs, juz, collections }
 
-/// One resume card per recitation track - the default track first, as "My
-/// reading" - and a card to start a new one.
+/// One card per Khatm the reader started, the one read most recently first,
+/// and a card to start one.
 ///
-/// This is what replaced the old single "Continue reciting" card: instead of
-/// one global place to resume, every track keeps its own, since where you
-/// left off reading with family and where you left off reading alone are not
-/// the same place.
+/// Only Khatms: the everyday reading (the [unlabeledRecitationLabel] track,
+/// "Other reading" elsewhere) is everything opened from the lists, search
+/// or a link - a surah on Thursday night, another on Friday - and a card for
+/// it beside the Khatms read as one more Khatm, with a "next surah" that was
+/// only a guess. A surah left part-way is picked up from Home instead
+/// (continueEntries). Until someone starts a Khatm, the card that would has
+/// room to say what one is.
 class _RecitationTrackCards extends StatelessWidget {
   const _RecitationTrackCards({required this.gutter});
 
@@ -245,7 +285,7 @@ class _RecitationTrackCards extends StatelessWidget {
       listenable: RecitationTrackerManager.instance,
       builder: (context, _) {
         final state = RecitationTrackerManager.instance.state;
-        final labels = [unlabeledRecitationLabel, ...state.labels];
+        final labels = _byRecency(state);
 
         return MouseDragScroll(
           child: SingleChildScrollView(
@@ -257,10 +297,17 @@ class _RecitationTrackCards extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   for (final label in labels) ...[
-                    _TrackCard(label: label, state: state),
+                    _TrackCard(
+                      label: label,
+                      state: state,
+                      prominent: label == labels.first,
+                    ),
                     const SizedBox(width: 10),
                   ],
-                  _AddTrackCard(onTap: () => showRecitationTrackSheet(context)),
+                  _AddTrackCard(
+                    first: state.labels.isEmpty,
+                    onTap: () => showRecitationTrackSheet(context),
+                  ),
                 ],
               ),
             ),
@@ -271,16 +318,100 @@ class _RecitationTrackCards extends StatelessWidget {
   }
 }
 
+/// How long [offerKhatmPlace]'s toast stays: a little longer than most,
+/// as it is read while the surah opens.
+const Duration khatmToastDuration = Duration(seconds: 6);
+
+/// The Khatm to offer when [surah] (or [juz]) is opened from the Quran
+/// screen's lists: the one read most recently whose next verse is in it,
+/// unless it is finished.
+@visibleForTesting
+String? khatmToOffer(RecitationTrackerState state, {int? surah, int? juz}) {
+  for (final label in _byRecency(state)) {
+    if (state.percentCompleteFor(label) >= 100) continue;
+    final target = state.resumeTargetFor(label);
+    if (surah != null ? target.verse.surah == surah : target.juz == juz) {
+      return label;
+    }
+  }
+  return null;
+}
+
+/// Says, in a toast over the surah just opened from the list, where the
+/// Khatm [label] is up to, with "Continue Khatm" to swap this reading for
+/// the Khatm's - opened from the list, a surah does not count towards it,
+/// which a reader carrying on their Khatm that way would otherwise find
+/// out only when it has not moved. A toast rather than a question, so
+/// someone just reading the surah is not stopped.
+void offerKhatmPlace(String label) {
+  final l10n = L10n.current;
+  final target = RecitationTrackerManager.instance.state.resumeTargetFor(label);
+  showToast(
+    l10n.quranKhatmToast(
+      recitationTrackName(label, l10n),
+      describeRecitationPosition(target.verse, byJuz: target.inJuz),
+    ),
+    actionLabel: l10n.quranKhatmToastContinue,
+    duration: khatmToastDuration,
+    onAction: () {
+      unawaited(
+        AnalyticsService.feature(
+          'quran_khatm_toast_continued',
+          label: 'Quran list toast continued a Khatm',
+        ),
+      );
+      final navigator = appNavigatorKey.currentContext;
+      if (navigator == null) return;
+      unawaited(openRecitationTrack(navigator, label, replace: true));
+    },
+  );
+}
+
+/// The Khatms, the one read (or started) most recently first; the rest keep
+/// the order they were made in.
+List<String> _byRecency(RecitationTrackerState state) {
+  DateTime? lastActive(String label) {
+    final read = state.lastRecitedFor(label);
+    final started = state.settingsFor(label).startSetAt;
+    if (read == null) return started;
+    if (started == null) return read;
+    return started.isAfter(read) ? started : read;
+  }
+
+  final labels = state.labels.toList();
+  String? latest;
+  DateTime? latestAt;
+  for (final label in labels) {
+    final at = lastActive(label);
+    if (at != null && (latestAt == null || at.isAfter(latestAt))) {
+      latest = label;
+      latestAt = at;
+    }
+  }
+  if (latest != null) {
+    labels
+      ..remove(latest)
+      ..insert(0, latest);
+  }
+  return labels;
+}
+
 class _TrackCard extends StatelessWidget {
-  const _TrackCard({required this.label, required this.state});
+  const _TrackCard({
+    required this.label,
+    required this.state,
+    required this.prominent,
+  });
 
   final String label;
   final RecitationTrackerState state;
 
+  /// The Khatm read most recently, which is the dark card.
+  final bool prominent;
+
   @override
   Widget build(BuildContext context) {
     final colors = ShiaColors.of(context);
-    final isDefault = label == unlabeledRecitationLabel;
     final target = state.resumeTargetFor(label);
     final percent = state.percentCompleteFor(label);
     final position = describeRecitationPosition(
@@ -289,20 +420,24 @@ class _TrackCard extends StatelessWidget {
       compact: true,
     );
     final progress = percent > 0
-        ? context.l10n.quranPercentRead(localizeDigits(
-            percent.toStringAsFixed(percent < 10 ? 1 : 0), context.l10n))
+        ? context.l10n.quranPercentRead(
+            localizeDigits(
+              percent.toStringAsFixed(percent < 10 ? 1 : 0),
+              context.l10n,
+            ),
+          )
         : target.isStart
-            ? context.l10n.quranStartReading
-            : null;
+        ? context.l10n.quranStartReading
+        : null;
     final name = recitationTrackName(label, context.l10n);
 
-    // The default track is the one most people only ever use, so it is the
+    // The Khatm read last is the likeliest to be picked up, so it is the
     // dark card; the rest sit on the surface.
-    final fill = isDefault ? colors.prayerCard : colors.surface;
-    final border = isDefault ? colors.prayerCardBorder : colors.line;
-    final labelColor = isDefault ? colors.onPrayerCardMuted : colors.textMuted;
-    final titleColor = isDefault ? colors.onPrayerCard : colors.text;
-    final progressColor = isDefault ? colors.gold : colors.textMuted;
+    final fill = prominent ? colors.prayerCard : colors.surface;
+    final border = prominent ? colors.prayerCardBorder : colors.line;
+    final labelColor = prominent ? colors.onPrayerCardMuted : colors.textMuted;
+    final titleColor = prominent ? colors.onPrayerCard : colors.text;
+    final progressColor = prominent ? colors.gold : colors.textMuted;
 
     return SizedBox(
       width: 200,
@@ -328,8 +463,10 @@ class _TrackCard extends StatelessWidget {
                         name,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: ShiaText.caption
-                            .copyWith(fontSize: 13, color: labelColor),
+                        style: ShiaText.caption.copyWith(
+                          fontSize: 13,
+                          color: labelColor,
+                        ),
                       ),
                       const SizedBox(height: 4),
                       Text(
@@ -340,35 +477,38 @@ class _TrackCard extends StatelessWidget {
                         const SizedBox(height: 2),
                         Text(
                           progress,
-                          style:
-                              ShiaText.caption.copyWith(color: progressColor),
+                          style: ShiaText.caption.copyWith(
+                            color: progressColor,
+                          ),
                         ),
                       ],
                     ],
                   ),
                 ),
-                if (!isDefault)
-                  Tooltip(
-                    message: context.l10n.quranEditTrack(label),
-                    excludeFromSemantics: true,
-                    child: Semantics(
-                      button: true,
-                      label: context.l10n.quranEditTrack(label),
-                      excludeSemantics: true,
+                Tooltip(
+                  message: context.l10n.quranEditTrack(label),
+                  excludeFromSemantics: true,
+                  child: Semantics(
+                    button: true,
+                    label: context.l10n.quranEditTrack(label),
+                    excludeSemantics: true,
+                    onTap: () =>
+                        showRecitationTrackSheet(context, label: label),
+                    child: InkResponse(
                       onTap: () =>
                           showRecitationTrackSheet(context, label: label),
-                      child: InkResponse(
-                        onTap: () =>
-                            showRecitationTrackSheet(context, label: label),
-                        radius: 20,
-                        child: SizedBox.square(
-                          dimension: 40,
-                          child: Icon(Icons.more_horiz,
-                              size: 20, color: labelColor),
+                      radius: 20,
+                      child: SizedBox.square(
+                        dimension: 40,
+                        child: Icon(
+                          Icons.more_horiz,
+                          size: 20,
+                          color: labelColor,
                         ),
                       ),
                     ),
                   ),
+                ),
               ],
             ),
           ),
@@ -381,7 +521,98 @@ class _TrackCard extends StatelessWidget {
       openRecitationTrack(context, label);
 }
 
-/// A short note under the track cards that the place is kept on its own.
+/// Says, once, that the reading done straight through the old "My reading"
+/// card is now a Khatm of that name (RecitationTrackerManager's
+/// _maybePortMyReading), with an Undo that deletes it - offered only until
+/// something is read in it, so an Undo can never take reading with it.
+///
+/// Its reader had nothing to do with it, and from now on a surah opened
+/// from the list no longer moves their place on - the one change they could
+/// trip over, so it is the one the note spells out.
+class _MyReadingPortNotice extends StatelessWidget {
+  const _MyReadingPortNotice();
+
+  @override
+  Widget build(BuildContext context) {
+    final manager = RecitationTrackerManager.instance;
+    return ListenableBuilder(
+      listenable: manager,
+      builder: (context, _) {
+        final name = manager.myReadingPortNotice;
+        if (name == null) return const SizedBox.shrink();
+        final colors = ShiaColors.of(context);
+        final gutter = pageGutter(context, maxWidth: widePageWidth);
+
+        return Padding(
+          padding: gutter.copyWith(top: 10),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(top: 2),
+                child: OutlineIcon(
+                  OutlineGlyph.info,
+                  size: 16,
+                  color: colors.accent,
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      context.l10n.quranMyReadingPorted(name),
+                      style: ShiaText.caption.copyWith(color: colors.text),
+                    ),
+                    if (manager.canUndoMyReadingPort(name))
+                      TextButton(
+                        onPressed: () => unawaited(
+                          manager.dismissMyReadingPortNotice(undo: true),
+                        ),
+                        style: TextButton.styleFrom(
+                          padding: EdgeInsets.zero,
+                          minimumSize: const Size(0, 36),
+                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        ),
+                        child: Text(
+                          context.l10n.commonUndo,
+                          style: ShiaText.caption.copyWith(
+                            color: colors.accent,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+              Tooltip(
+                message: context.l10n.commonClose,
+                child: InkResponse(
+                  onTap: () => unawaited(manager.dismissMyReadingPortNotice()),
+                  radius: 20,
+                  child: SizedBox.square(
+                    dimension: 40,
+                    child: Center(
+                      child: OutlineIcon(
+                        OutlineGlyph.close,
+                        size: 16,
+                        color: colors.textMuted,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+}
+
+/// A short note under the track cards that the place is kept on its own,
+/// and that reading counts for a Khatm only when opened from its card.
 ///
 /// The surah reader used to have a bookmark button, and the Quran reader has
 /// none - so someone used to bookmarking needs telling, once or twice, that
@@ -406,16 +637,20 @@ class _TrackingHintState extends State<_TrackingHint> {
     if (!SP.isInitialized) return;
     final views = SP.prefs.getInt(_TrackingHint.viewsKey) ?? 0;
     if (views >= _TrackingHint._maxViews) return;
+    // Not beside the note that "My reading" became a Khatm, which says more.
+    if (RecitationTrackerManager.instance.myReadingPortNotice != null) return;
     _visible = true;
     unawaited(SP.prefs.setInt(_TrackingHint.viewsKey, views + 1));
   }
 
   void _dismiss() {
     setState(() => _visible = false);
-    unawaited(AnalyticsService.feature(
-      'quran_tracking_hint_dismissed',
-      label: 'Quran tracking hint dismissed',
-    ));
+    unawaited(
+      AnalyticsService.feature(
+        'quran_tracking_hint_dismissed',
+        label: 'Quran tracking hint dismissed',
+      ),
+    );
     unawaited(SP.prefs.setInt(_TrackingHint.viewsKey, _TrackingHint._maxViews));
   }
 
@@ -432,8 +667,11 @@ class _TrackingHintState extends State<_TrackingHint> {
         children: [
           Padding(
             padding: const EdgeInsets.only(top: 2),
-            child:
-                OutlineIcon(OutlineGlyph.info, size: 16, color: colors.accent),
+            child: OutlineIcon(
+              OutlineGlyph.info,
+              size: 16,
+              color: colors.accent,
+            ),
           ),
           const SizedBox(width: 8),
           Expanded(
@@ -450,8 +688,11 @@ class _TrackingHintState extends State<_TrackingHint> {
               child: SizedBox.square(
                 dimension: 40,
                 child: Center(
-                  child: OutlineIcon(OutlineGlyph.close,
-                      size: 16, color: colors.textMuted),
+                  child: OutlineIcon(
+                    OutlineGlyph.close,
+                    size: 16,
+                    color: colors.textMuted,
+                  ),
                 ),
               ),
             ),
@@ -462,9 +703,13 @@ class _TrackingHintState extends State<_TrackingHint> {
   }
 }
 
+/// Starts a Khatm. Before the first one it is as wide as a track card and
+/// says in a line what a Khatm is for; after, a plain "New Khatm".
 class _AddTrackCard extends StatelessWidget {
-  const _AddTrackCard({required this.onTap});
+  const _AddTrackCard({required this.first, required this.onTap});
 
+  /// Whether no Khatm has been started yet.
+  final bool first;
   final VoidCallback onTap;
 
   @override
@@ -472,7 +717,7 @@ class _AddTrackCard extends StatelessWidget {
     final colors = ShiaColors.of(context);
 
     return SizedBox(
-      width: 120,
+      width: first ? 200 : 120,
       child: Material(
         color: colors.surface,
         shape: RoundedRectangleBorder(
@@ -487,17 +732,31 @@ class _AddTrackCard extends StatelessWidget {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                OutlineIcon(OutlineGlyph.plus,
-                    size: 22, color: colors.accent, strokeWidth: 2),
+                OutlineIcon(
+                  OutlineGlyph.plus,
+                  size: 22,
+                  color: colors.accent,
+                  strokeWidth: 2,
+                ),
                 const SizedBox(height: 4),
                 Text(
-                  context.l10n.quranNewTrack,
+                  first
+                      ? context.l10n.quranStartKhatm
+                      : context.l10n.quranNewTrack,
                   textAlign: TextAlign.center,
                   style: ShiaText.caption.copyWith(
                     color: colors.accent,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
+                if (first) ...[
+                  const SizedBox(height: 2),
+                  Text(
+                    context.l10n.quranStartKhatmHint,
+                    textAlign: TextAlign.center,
+                    style: ShiaText.caption.copyWith(color: colors.textMuted),
+                  ),
+                ],
               ],
             ),
           ),
@@ -518,8 +777,12 @@ class _GoToVerseButton extends StatelessWidget {
     final colors = ShiaColors.of(context);
     return OutlinedButton.icon(
       onPressed: onPressed,
-      icon: OutlineIcon(OutlineGlyph.search,
-          size: 20, color: colors.accent, strokeWidth: 2),
+      icon: OutlineIcon(
+        OutlineGlyph.search,
+        size: 20,
+        color: colors.accent,
+        strokeWidth: 2,
+      ),
       label: Text(context.l10n.goToVerseTitle),
       style: OutlinedButton.styleFrom(
         minimumSize: const Size.fromHeight(50),
@@ -527,8 +790,10 @@ class _GoToVerseButton extends StatelessWidget {
         foregroundColor: colors.accent,
         side: BorderSide(color: colors.accent),
         shape: const StadiumBorder(),
-        textStyle: buttonTextStyle(context, ShiaText.body)
-            .copyWith(fontWeight: FontWeight.w600),
+        textStyle: buttonTextStyle(
+          context,
+          ShiaText.body,
+        ).copyWith(fontWeight: FontWeight.w600),
       ),
     );
   }
@@ -572,7 +837,8 @@ class _SurahList extends StatelessWidget {
                 // Capped, so a long name can never push the heart off.
                 ConstrainedBox(
                   constraints: BoxConstraints(
-                      maxWidth: MediaQuery.sizeOf(context).width * 0.4),
+                    maxWidth: MediaQuery.sizeOf(context).width * 0.4,
+                  ),
                   child: SurahArabicName(surah.arabicName),
                 ),
               FavoriteHeartButton(favorite: itemData),
@@ -613,7 +879,8 @@ class _JuzList extends StatelessWidget {
   }
 
   String _verseLabel(VerseKey verse) {
-    final name = surahInfoFor(verse.surah)?.displayName ??
+    final name =
+        surahInfoFor(verse.surah)?.displayName ??
         L10n.current.quranSurahNumber(verse.surah);
     return L10n.current.quranSurahAyah(name, verse.ayah ?? 1);
   }

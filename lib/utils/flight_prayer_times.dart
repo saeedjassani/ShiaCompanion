@@ -251,17 +251,19 @@ class FlightPrayerPlan {
   Duration get duration => arrivalUtc.difference(departureUtc);
 
   /// Events that come in while airborne, in chronological order.
-  List<FlightPrayerEvent> get eventsDuringFlight => events
-      .where((event) => event.status == FlightPrayerStatus.duringFlight)
-      .toList()
-    ..sort((a, b) => a.instantUtc!.compareTo(b.instantUtc!));
+  List<FlightPrayerEvent> get eventsDuringFlight =>
+      events
+          .where((event) => event.status == FlightPrayerStatus.duringFlight)
+          .toList()
+        ..sort((a, b) => a.instantUtc!.compareTo(b.instantUtc!));
 
   List<FlightPrayerEvent> get eventsOutsideFlight => events
       .where((event) => event.status != FlightPrayerStatus.duringFlight)
       .toList();
 
-  bool get hasUncomputablePrayer => events
-      .any((event) => event.status == FlightPrayerStatus.sunAngleNeverReached);
+  bool get hasUncomputablePrayer => events.any(
+    (event) => event.status == FlightPrayerStatus.sunAngleNeverReached,
+  );
 }
 
 /// Computes when each prayer comes in over the course of a flight.
@@ -285,8 +287,10 @@ FlightPrayerPlan computeFlightPrayerPlan({
   double cruiseAltitudeFeet = defaultCruiseAltitudeFeet,
   bool useAircraftHorizon = true,
 }) {
-  assert(departureUtc.isUtc && arrivalUtc.isUtc,
-      'Flight endpoints must be UTC instants');
+  assert(
+    departureUtc.isUtc && arrivalUtc.isUtc,
+    'Flight endpoints must be UTC instants',
+  );
 
   final names = [...prayerTime.getTimeNames(), 'Midnight'];
   final originalFormat = prayerTime.getTimeFormat();
@@ -378,7 +382,7 @@ FlightPrayerPlan computeFlightPrayerPlan({
         ? origin.latitude.abs()
         : destination.latitude.abs();
 
-    for (var elapsedMs = stepMs;; elapsedMs += stepMs) {
+    for (var elapsedMs = stepMs; ; elapsedMs += stepMs) {
       final clampedMs = elapsedMs > durationMs ? durationMs : elapsedMs;
       final instant = departureUtc.add(Duration(milliseconds: clampedMs));
       final latitude = positionAt(instant).latitude.abs();
@@ -394,14 +398,16 @@ FlightPrayerPlan computeFlightPrayerPlan({
         // A downward crossing of zero is the prayer coming in. Rising
         // crossings are the solar date rolling over to the next day's prayer.
         if (previous > 0 && current <= 0) {
-          crossings[index]!.add(_refineCrossing(
-            prayerIndex: index,
-            prayerTime: prayerTime,
-            lower: previousInstant,
-            upper: instant,
-            positionAt: positionAt,
-            dipAt: dipAt,
-          ));
+          crossings[index]!.add(
+            _refineCrossing(
+              prayerIndex: index,
+              prayerTime: prayerTime,
+              lower: previousInstant,
+              upper: instant,
+              positionAt: positionAt,
+              dipAt: dipAt,
+            ),
+          );
         }
       }
 
@@ -437,30 +443,34 @@ FlightPrayerPlan computeFlightPrayerPlan({
       final prayerCrossings = crossings[index]!;
       if (prayerCrossings.isNotEmpty) {
         final ground = groundCrossings[index];
-        for (var occurrence = 0;
-            occurrence < prayerCrossings.length;
-            occurrence++) {
+        for (
+          var occurrence = 0;
+          occurrence < prayerCrossings.length;
+          occurrence++
+        ) {
           final crossing = prayerCrossings[occurrence];
           final position = positionAt(crossing);
-          events.add(FlightPrayerEvent(
-            prayerIndex: index,
-            name: names[index],
-            status: FlightPrayerStatus.duringFlight,
-            instantUtc: crossing,
-            position: position,
-            altitudeFeet: altitudeAt(crossing),
-            groundHorizonInstantUtc:
-                ground != null && occurrence < ground.length
-                    ? ground[occurrence]
-                    : null,
-            qiblaBearingDegrees: qiblaBearingDegrees(position),
-            courseBearingDegrees: _courseAt(
-              crossing: crossing,
-              departureUtc: departureUtc,
-              arrivalUtc: arrivalUtc,
-              positionAt: positionAt,
+          events.add(
+            FlightPrayerEvent(
+              prayerIndex: index,
+              name: names[index],
+              status: FlightPrayerStatus.duringFlight,
+              instantUtc: crossing,
+              position: position,
+              altitudeFeet: altitudeAt(crossing),
+              groundHorizonInstantUtc:
+                  ground != null && occurrence < ground.length
+                  ? ground[occurrence]
+                  : null,
+              qiblaBearingDegrees: qiblaBearingDegrees(position),
+              courseBearingDegrees: _courseAt(
+                crossing: crossing,
+                departureUtc: departureUtc,
+                arrivalUtc: arrivalUtc,
+                positionAt: positionAt,
+              ),
             ),
-          ));
+          );
         }
         continue;
       }
@@ -474,11 +484,13 @@ FlightPrayerPlan computeFlightPrayerPlan({
         status = FlightPrayerStatus.afterArrival;
       }
 
-      events.add(FlightPrayerEvent(
-        prayerIndex: index,
-        name: names[index],
-        status: status,
-      ));
+      events.add(
+        FlightPrayerEvent(
+          prayerIndex: index,
+          name: names[index],
+          status: status,
+        ),
+      );
     }
 
     return FlightPrayerPlan(
@@ -615,17 +627,28 @@ DateTime? _midnightInstantUtc({
   required Duration solarOffset,
 }) {
   final nightAnchor = solarNow.subtract(const Duration(hours: 12));
-  final eveningDate =
-      DateTime.utc(nightAnchor.year, nightAnchor.month, nightAnchor.day);
+  final eveningDate = DateTime.utc(
+    nightAnchor.year,
+    nightAnchor.month,
+    nightAnchor.day,
+  );
   final morningDate = eveningDate.add(const Duration(days: 1));
 
   final sunsetHours = double.tryParse(
-    _solarHours(prayerTime, eveningDate, position, solarOffsetHours)[
-        prayerIndexSunset],
+    _solarHours(
+      prayerTime,
+      eveningDate,
+      position,
+      solarOffsetHours,
+    )[prayerIndexSunset],
   );
   final fajrHours = double.tryParse(
-    _solarHours(prayerTime, morningDate, position, solarOffsetHours)[
-        prayerIndexFajr],
+    _solarHours(
+      prayerTime,
+      morningDate,
+      position,
+      solarOffsetHours,
+    )[prayerIndexFajr],
   );
 
   if (sunsetHours == null ||
@@ -670,8 +693,8 @@ DateTime? _solarHoursToUtc(
   if (hours == null || hours.isNaN || hours.isInfinite) return null;
 
   return solarDate
-      .add(Duration(
-        milliseconds: (hours * Duration.millisecondsPerHour).round(),
-      ))
+      .add(
+        Duration(milliseconds: (hours * Duration.millisecondsPerHour).round()),
+      )
       .subtract(solarOffset);
 }

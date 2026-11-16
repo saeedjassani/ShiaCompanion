@@ -4,9 +4,9 @@ enum VerseNoteOperationKind { save, remove }
 
 extension VerseNoteOperationKindInfo on VerseNoteOperationKind {
   String get key => switch (this) {
-        VerseNoteOperationKind.save => 'save',
-        VerseNoteOperationKind.remove => 'remove',
-      };
+    VerseNoteOperationKind.save => 'save',
+    VerseNoteOperationKind.remove => 'remove',
+  };
 }
 
 VerseNoteOperationKind? verseNoteOperationKindFromKey(String key) {
@@ -64,11 +64,11 @@ class PendingVerseNoteOperation {
   String get id => 'note_$verseKey';
 
   Map<String, Object> toJson() => {
-        'kind': kind.key,
-        'verseKey': verseKey,
-        'at': at.toUtc().toIso8601String(),
-        if (note != null) 'note': note!.toJson(),
-      };
+    'kind': kind.key,
+    'verseKey': verseKey,
+    'at': at.toUtc().toIso8601String(),
+    if (note != null) 'note': note!.toJson(),
+  };
 
   static PendingVerseNoteOperation? fromJson(dynamic value) {
     if (value is! Map) return null;
@@ -110,7 +110,9 @@ VerseNotesState applyPendingVerseNoteOperation(
   return switch (operation.kind) {
     VerseNoteOperationKind.save =>
       operation.note == null ? state : state.save(operation.note!),
-    VerseNoteOperationKind.remove =>
-      state.remove(operation.verseKey, operation.at),
+    VerseNoteOperationKind.remove => state.remove(
+      operation.verseKey,
+      operation.at,
+    ),
   };
 }

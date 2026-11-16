@@ -57,7 +57,10 @@ Map<String, String> zikrLocations(
       locations.putIfAbsent(entry.uid, () => path);
       if (isZikrGroup(entry)) {
         visit(
-            entry.uid.split('~')[1], join(path, entry.displayTitle), depth + 1);
+          entry.uid.split('~')[1],
+          join(path, entry.displayTitle),
+          depth + 1,
+        );
       }
     }
   }

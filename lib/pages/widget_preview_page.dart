@@ -102,7 +102,8 @@ class _WidgetPreviewPageState extends State<WidgetPreviewPage> {
                   _ListWidgetPreview(
                     width: 340,
                     height: 180,
-                    title: data[HomeScreenWidgetService.favoritesTitleKey] ??
+                    title:
+                        data[HomeScreenWidgetService.favoritesTitleKey] ??
                         'Favorites',
                     items: [
                       ..._itemsFromSnapshot(
@@ -115,7 +116,8 @@ class _WidgetPreviewPageState extends State<WidgetPreviewPage> {
                   _ListWidgetPreview(
                     width: 340,
                     height: 220,
-                    title: data[HomeScreenWidgetService.recitationTitleKey] ??
+                    title:
+                        data[HomeScreenWidgetService.recitationTitleKey] ??
                         "Today's Recitations",
                     items: [
                       ..._itemsFromSnapshot(
@@ -128,7 +130,8 @@ class _WidgetPreviewPageState extends State<WidgetPreviewPage> {
                   _PrayerWidgetPreview(
                     width: 180,
                     height: 180,
-                    title: data[HomeScreenWidgetService.prayerTitleKey] ??
+                    title:
+                        data[HomeScreenWidgetService.prayerTitleKey] ??
                         'Up Next',
                     name:
                         data[HomeScreenWidgetService.prayerNameKey] ?? 'Prayer',
@@ -137,10 +140,10 @@ class _WidgetPreviewPageState extends State<WidgetPreviewPage> {
                         data[HomeScreenWidgetService.prayerLocationKey] ?? '',
                     secondaryName:
                         data[HomeScreenWidgetService.prayerSecondaryNameKey] ??
-                            '',
+                        '',
                     secondaryTime:
                         data[HomeScreenWidgetService.prayerSecondaryTimeKey] ??
-                            '',
+                        '',
                   ),
                   _DailyPrayerTimesWidgetPreview(
                     width: 340,
@@ -149,10 +152,12 @@ class _WidgetPreviewPageState extends State<WidgetPreviewPage> {
                         data[HomeScreenWidgetService.prayerLocationKey] ?? '',
                     nextPrayer: _nextPrayerFromSnapshot(data),
                     items: [
-                      for (var index = 0;
-                          index <
-                              HomeScreenWidgetService.dailyPrayerTimesItemCount;
-                          index++)
+                      for (
+                        var index = 0;
+                        index <
+                            HomeScreenWidgetService.dailyPrayerTimesItemCount;
+                        index++
+                      )
                         _PreviewPrayerTime(
                           data[HomeScreenWidgetService
                                   .dailyPrayerNameKeys[index]] ??
@@ -269,11 +274,12 @@ class _ListWidgetPreview extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style:
-                  const TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
+          Text(
+            title,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+          ),
           const SizedBox(height: 8),
           if (visibleItems.length == 1 && visibleItems.first.url.isEmpty)
             Expanded(
@@ -383,22 +389,22 @@ class _PrayerWidgetPreview extends StatelessWidget {
             name,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: const TextStyle(
-              fontSize: 17,
-              fontWeight: FontWeight.w700,
-            ),
+            style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w700),
           ),
           const SizedBox(height: 8),
-          Text(time,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style:
-                  const TextStyle(fontSize: 28, fontWeight: FontWeight.w800)),
+          Text(
+            time,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(fontSize: 28, fontWeight: FontWeight.w800),
+          ),
           const Spacer(),
-          Text(footer,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: TextStyle(fontSize: 11, color: palette.secondaryText)),
+          Text(
+            footer,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(fontSize: 11, color: palette.secondaryText),
+          ),
         ],
       ),
     );
@@ -498,22 +504,28 @@ class _DailyPrayerTimesWidgetPreview extends StatelessWidget {
                         iconSize: 13,
                       ),
                       const SizedBox(height: 4),
-                      Text(visibleItems[i].name,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                              fontSize: 10,
-                              fontWeight: FontWeight.w700,
-                              color: palette.secondaryText)),
-                      Text(visibleItems[i].time,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                              fontSize: 10,
-                              fontWeight: FontWeight.w700,
-                              color: palette.bodyText)),
+                      Text(
+                        visibleItems[i].name,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.w700,
+                          color: palette.secondaryText,
+                        ),
+                      ),
+                      Text(
+                        visibleItems[i].time,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.w700,
+                          color: palette.bodyText,
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -557,11 +569,7 @@ class _PrayerIconBadge extends StatelessWidget {
         color: palette.iconBackground,
         shape: BoxShape.circle,
       ),
-      child: PrayerGlyph(
-        name: name,
-        size: iconSize,
-        color: palette.accentText,
-      ),
+      child: PrayerGlyph(name: name, size: iconSize, color: palette.accentText),
     );
   }
 }

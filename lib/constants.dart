@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:material_ui/material_ui.dart';
@@ -20,6 +21,7 @@ import 'package:shia_companion/pages/zikr/zikr_page.dart';
 import 'package:shia_companion/services/zikr_reminder_service.dart';
 import 'package:shia_companion/services/event_notification_service.dart';
 import 'package:shia_companion/pages/calendar_page.dart';
+
 import 'data/live_streaming_data.dart';
 import 'data/uid_title_data.dart';
 import 'pages/chapter_list_page.dart';
@@ -28,11 +30,13 @@ import 'pages/video_player.dart';
 import 'utils/geo_utils.dart';
 import 'utils/hijri_date.dart';
 import 'utils/shared_preferences.dart';
+
 import 'package:shia_companion/utils/timezone_database.dart';
 import 'package:timezone/timezone.dart' as tz;
 import 'package:shia_companion/utils/prayer_time_entries.dart';
 import 'package:shia_companion/utils/prayer_times.dart';
 import 'package:cupertino_ui/cupertino_ui.dart';
+
 import 'l10n/l10n.dart';
 
 export 'utils/slug_registry.dart';
@@ -249,30 +253,32 @@ bool hasPrayerScheduleLocationMoved() {
 }
 
 List<String> getPrayerNotificationPrayerNames() {
-  return [
-    ...getPrayerTimeObject().getTimeNames(),
-    'Midnight',
-  ];
+  return [...getPrayerTimeObject().getTimeNames(), 'Midnight'];
 }
 
 String buildPrayerNotificationScheduleFingerprint({DateTime? scheduleDate}) {
   final prayerNames = getPrayerNotificationPrayerNames();
-  final enabledPrayerKeys = prayerNames.map((prayerName) {
-    final key = notificationPreferenceKeyForPrayer(prayerName);
-    final soundKey = soundPreferenceKeyForPrayer(prayerName);
-    final soundId = SP.prefs.getString(soundKey) ?? '';
-    // The file a custom prayer points at is part of what the schedule was
-    // built from: swapping the file without swapping the option would
-    // otherwise leave the old sound scheduled.
-    final customPath = soundId == 'custom'
-        ? (SP.prefs.getString(customAudioPathKeyForPrayer(prayerName)) ?? '')
-        : '';
-    return '$key:${SP.prefs.getBool(key) == true ? 1 : 0}:$soundId:$customPath';
-  }).join(',');
+  final enabledPrayerKeys = prayerNames
+      .map((prayerName) {
+        final key = notificationPreferenceKeyForPrayer(prayerName);
+        final soundKey = soundPreferenceKeyForPrayer(prayerName);
+        final soundId = SP.prefs.getString(soundKey) ?? '';
+        // The file a custom prayer points at is part of what the schedule was
+        // built from: swapping the file without swapping the option would
+        // otherwise leave the old sound scheduled.
+        final customPath = soundId == 'custom'
+            ? (SP.prefs.getString(customAudioPathKeyForPrayer(prayerName)) ??
+                  '')
+            : '';
+        return '$key:${SP.prefs.getBool(key) == true ? 1 : 0}:$soundId:$customPath';
+      })
+      .join(',');
   final azaanId = resolveAzaanPreferenceIdForCurrentPlatform(
-      SP.prefs.getString(azaanPreferenceKey));
-  final customAudioPath =
-      azaanId == 'custom' ? SP.prefs.getString(azaanCustomFilePathKey) : null;
+    SP.prefs.getString(azaanPreferenceKey),
+  );
+  final customAudioPath = azaanId == 'custom'
+      ? SP.prefs.getString(azaanCustomFilePathKey)
+      : null;
 
   // Raw coordinates are deliberately absent: they are tracked by the schedule
   // anchor via hasPrayerScheduleLocationMoved(), which applies a distance
@@ -310,7 +316,8 @@ String _scheduledPrayerMinutes(DateTime scheduleDate) {
   if (lat == null || long == null) return '';
   final prayers = getPrayerTimeObject();
   final days = prayerNotificationScheduleDays(
-      enabledPrayerNotificationCount(getPrayerNotificationPrayerNames()));
+    enabledPrayerNotificationCount(getPrayerNotificationPrayerNames()),
+  );
   return [
     for (var day = 0; day < days; day++)
       for (final entry in buildPrayerNotificationEntriesForDay(
@@ -329,7 +336,8 @@ bool _hasFreshScheduleReminder(List<PendingNotificationRequest>? pending) {
   for (final request in pending) {
     if (request.id != 786 || request.payload == null) continue;
 
-    final reminderDate = DateTime.tryParse(request.payload!) ??
+    final reminderDate =
+        DateTime.tryParse(request.payload!) ??
         DateTime.fromMillisecondsSinceEpoch(
           int.tryParse(request.payload!) ?? 0,
         );
@@ -342,12 +350,14 @@ bool _hasFreshScheduleReminder(List<PendingNotificationRequest>? pending) {
 }
 
 bool shouldRefreshPrayerNotificationSchedule(
-    List<PendingNotificationRequest>? pending) {
+  List<PendingNotificationRequest>? pending,
+) {
   if (!SP.isInitialized) return true;
 
   final expectedFingerprint = buildPrayerNotificationScheduleFingerprint();
-  final storedFingerprint =
-      SP.prefs.getString(prayerNotificationScheduleFingerprintKey);
+  final storedFingerprint = SP.prefs.getString(
+    prayerNotificationScheduleFingerprintKey,
+  );
   if (storedFingerprint != expectedFingerprint) {
     return true;
   }
@@ -406,10 +416,9 @@ List<PrayerNotificationScheduleEntry> buildPrayerNotificationEntriesForDay({
     for (var index = 0; index < names.length; index++) {
       final dateTime = dateTimeForTime24(date, times[index]);
       if (dateTime == null) continue;
-      entries.add(PrayerNotificationScheduleEntry(
-        name: names[index],
-        dateTime: dateTime,
-      ));
+      entries.add(
+        PrayerNotificationScheduleEntry(name: names[index], dateTime: dateTime),
+      );
     }
     final midnight = shiaMidnightForDate(
       prayerTime: prayerTime,
@@ -418,10 +427,9 @@ List<PrayerNotificationScheduleEntry> buildPrayerNotificationEntriesForDay({
       longitude: longitude,
     );
     if (midnight != null) {
-      entries.add(PrayerNotificationScheduleEntry(
-        name: 'Midnight',
-        dateTime: midnight,
-      ));
+      entries.add(
+        PrayerNotificationScheduleEntry(name: 'Midnight', dateTime: midnight),
+      );
     }
     return entries;
   } finally {
@@ -465,14 +473,17 @@ double getItemOrderValue(String uid) {
   final custom = itemOrder[uid];
   if (custom != null) return custom;
   final left = uid.split("|").first;
-  final digits =
-      left.replaceAll(RegExp("[A-Z].*~"), "").replaceAll(RegExp("[A-Z]"), "");
+  final digits = left
+      .replaceAll(RegExp("[A-Z].*~"), "")
+      .replaceAll(RegExp("[A-Z]"), "");
   return double.tryParse(digits) ?? 999999.0;
 }
 
 Future<void> handleUniversalDataClick(
-    BuildContext context, UniversalData itemData,
-    {String source = ZikrOpenSource.unknown}) async {
+  BuildContext context,
+  UniversalData itemData, {
+  String source = ZikrOpenSource.unknown,
+}) async {
   Widget? routeToPush;
   String contentType = 'universal';
   switch (itemData.type) {
@@ -487,21 +498,23 @@ Future<void> handleUniversalDataClick(
       break;
     case 2:
       contentType = 'live-streaming';
-      routeToPush =
-          VideoPlayer(LiveStreamingData(itemData.uid, itemData.title));
+      routeToPush = VideoPlayer(
+        LiveStreamingData(itemData.uid, itemData.title),
+      );
       break;
     default:
   }
   if (contentType == 'library') {
-    unawaited(AnalyticsService.libraryView(
-      bookUid: itemData.uid,
-      bookTitle: itemData.title,
-    ));
+    unawaited(
+      AnalyticsService.libraryView(
+        bookUid: itemData.uid,
+        bookTitle: itemData.title,
+      ),
+    );
   } else if (contentType == 'live-streaming') {
-    unawaited(AnalyticsService.streamView(
-      title: itemData.title,
-      link: itemData.uid,
-    ));
+    unawaited(
+      AnalyticsService.streamView(title: itemData.title, link: itemData.uid),
+    );
   }
   // Zikr is not logged here: ZikrPage logs its own view so the count is the
   // same whether the tap came from a list, the home grid, a shared link or a
@@ -525,8 +538,10 @@ Future<bool> hasLocationPermission() async {
   }
 }
 
-Future<bool> initializeLocation(
-    {bool force = false, BuildContext? context}) async {
+Future<bool> initializeLocation({
+  bool force = false,
+  BuildContext? context,
+}) async {
   // If we are not forcing a refresh and we already have lat/long, just return.
   if (!force && lat != null && long != null) {
     return true;
@@ -572,8 +587,9 @@ Future<bool> initializeLocation(
     // Use a time limit so we don't hang indefinitely on a cold/failing fetch,
     // and keep a last-known fix as a fallback when a fresh one can't be obtained.
     // getLastKnownPosition is unsupported on web, so skip it there.
-    final Position? lastKnownPosition =
-        kIsWeb ? null : await Geolocator.getLastKnownPosition();
+    final Position? lastKnownPosition = kIsWeb
+        ? null
+        : await Geolocator.getLastKnownPosition();
 
     Position currentLocation;
     try {
@@ -720,8 +736,11 @@ Future<bool> refreshLocationLabel() async {
   final http.Response response;
   try {
     response = await http
-        .get(Uri.parse(
-            "https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=$latitude&longitude=$longitude&localityLanguage=$language"))
+        .get(
+          Uri.parse(
+            "https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=$latitude&longitude=$longitude&localityLanguage=$language",
+          ),
+        )
         // Bounded like every other network read on the startup path:
         // without it a stalled connection held up everything awaiting
         // this location refresh indefinitely.
@@ -746,11 +765,13 @@ Future<bool> refreshLocationLabel() async {
     // without a charset, which would garble every name outside English.
     final data = jsonDecode(utf8.decode(response.bodyBytes));
     final resolvedCity = _geocodeLocality(data, language);
-    final resolvedLabel = _validateGeocodeResult(data, resolvedCity) ??
+    final resolvedLabel =
+        _validateGeocodeResult(data, resolvedCity) ??
         _validateGeocodeResult(data, _geocodeFallbackLabel(data));
     if (resolvedLabel == null) {
       debugPrint(
-          "Geocode did not resolve a usable label ('$resolvedCity'); keeping ${city ?? 'no label'}.");
+        "Geocode did not resolve a usable label ('$resolvedCity'); keeping ${city ?? 'no label'}.",
+      );
       return false;
     }
     return await _storeLocationLabel(
@@ -777,14 +798,19 @@ Future<bool> refreshLocationLabel() async {
 /// than the list's nearest big city. The next refresh made online asks the
 /// geocoder again.
 Future<bool> _nameFromCityList(
-    double latitude, double longitude, String language) async {
+  double latitude,
+  double longitude,
+  String language,
+) async {
   if (city != null && SP.isInitialized && cityLabelLanguage == language) {
     final labelLat = SP.prefs.getDouble(cityLabelLatKey);
     final labelLong = SP.prefs.getDouble(cityLabelLongKey);
     if (labelLat != null &&
         labelLong != null &&
         greatCircleDistanceKm(
-                GeoPoint(labelLat, labelLong), GeoPoint(latitude, longitude)) <=
+              GeoPoint(labelLat, labelLong),
+              GeoPoint(latitude, longitude),
+            ) <=
             cityLabelReuseRadiusKm) {
       return false;
     }
@@ -887,17 +913,23 @@ Future<void> applyChosenPrayerLocation({
 /// on top of that rejected perfectly good names in city-states and small
 /// territories, where the admin hierarchy is sparse.
 String? _validateGeocodeResult(
-    Map<String, dynamic> data, String? resolvedCity) {
+  Map<String, dynamic> data,
+  String? resolvedCity,
+) {
   if (resolvedCity == null || resolvedCity.trim().isEmpty) return null;
 
   final trimmed = resolvedCity.trim();
 
-  final countryCode =
-      (data['countryCode'] ?? '').toString().trim().toUpperCase();
+  final countryCode = (data['countryCode'] ?? '')
+      .toString()
+      .trim()
+      .toUpperCase();
   if (countryCode.length != 2) return null;
 
-  if (RegExp(r'^\d+\.?\d*\s*[ns]\s*\d+\.?\d*\s*[ew]$', caseSensitive: false)
-      .hasMatch(trimmed)) {
+  if (RegExp(
+    r'^\d+\.?\d*\s*[ns]\s*\d+\.?\d*\s*[ew]$',
+    caseSensitive: false,
+  ).hasMatch(trimmed)) {
     return null;
   }
 
@@ -929,9 +961,7 @@ void _showLocationServiceDialog(BuildContext context) {
     builder: (BuildContext dialogContext) {
       return AlertDialog(
         title: Text(L10n.current.locationServicesDisabledTitle),
-        content: Text(
-          L10n.current.locationServicesDisabledBody,
-        ),
+        content: Text(L10n.current.locationServicesDisabledBody),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialogContext),
@@ -951,7 +981,9 @@ void _showLocationServiceDialog(BuildContext context) {
 }
 
 void _showPermissionDeniedDialog(
-    BuildContext context, LocationPermission status) {
+  BuildContext context,
+  LocationPermission status,
+) {
   String message;
   if (status == LocationPermission.deniedForever) {
     message = L10n.current.locationPermissionDeniedForever;
@@ -993,9 +1025,7 @@ void _showLocationTimeoutDialog(BuildContext context) {
     builder: (BuildContext dialogContext) {
       return AlertDialog(
         title: Text(L10n.current.locationTimeoutTitle),
-        content: Text(
-          L10n.current.locationTimeoutBody,
-        ),
+        content: Text(L10n.current.locationTimeoutBody),
         actions: [
           ElevatedButton(
             onPressed: () => Navigator.pop(dialogContext),
@@ -1045,9 +1075,11 @@ bool areAnyPrayerNotificationsEnabled(List<String> prayerNames) {
 List<String> enabledPrayerNotificationNames(List<String> prayerNames) {
   if (!SP.isInitialized) return const [];
   return prayerNames
-      .where((prayerName) =>
-          SP.prefs.getBool(notificationPreferenceKeyForPrayer(prayerName)) ==
-          true)
+      .where(
+        (prayerName) =>
+            SP.prefs.getBool(notificationPreferenceKeyForPrayer(prayerName)) ==
+            true,
+      )
       .toList(growable: false);
 }
 
@@ -1068,8 +1100,10 @@ int prayerNotificationScheduleDays(int enabledPrayerCount) {
   return iosDays.clamp(1, defaultScheduleDays).toInt();
 }
 
-Iterable<int> prayerNotificationIds(
-    {int days = 12, int prayerCount = 8}) sync* {
+Iterable<int> prayerNotificationIds({
+  int days = 12,
+  int prayerCount = 8,
+}) sync* {
   for (int dayOffset = 0; dayOffset < days; dayOffset++) {
     for (int prayerIndex = 0; prayerIndex < prayerCount; prayerIndex++) {
       yield (100 * (prayerIndex + 1)) + dayOffset;
@@ -1141,12 +1175,14 @@ Future<void> setUpNotifications() async {
     );
     entries.asMap().forEach((index, entry) {
       final prayerAzaan = getAzaanOptionForPrayer(entry.name);
-      schedulingTasks.add(schedulePrayerTimeNotification(
-        (100 * (index + 1)) + i,
-        entry.dateTime,
-        entry.name,
-        azaanId: prayerAzaan.id,
-      ));
+      schedulingTasks.add(
+        schedulePrayerTimeNotification(
+          (100 * (index + 1)) + i,
+          entry.dateTime,
+          entry.name,
+          azaanId: prayerAzaan.id,
+        ),
+      );
     });
   }
   final azanAlarms = await Future.wait(schedulingTasks);
@@ -1163,29 +1199,35 @@ Future<void> setUpNotifications() async {
   }
   AndroidNotificationDetails androidPlatformChannelSpecifics =
       AndroidNotificationDetails(
-          "general", L10n.current.notificationChannelGeneral);
+        "general",
+        L10n.current.notificationChannelGeneral,
+      );
   DarwinNotificationDetails iOSPlatformChannelSpecifics =
       DarwinNotificationDetails();
   NotificationDetails platformChannelSpecifics = NotificationDetails(
-      android: androidPlatformChannelSpecifics,
-      iOS: iOSPlatformChannelSpecifics);
+    android: androidPlatformChannelSpecifics,
+    iOS: iOSPlatformChannelSpecifics,
+  );
   await plugin.zonedSchedule(
-      id: 786,
-      title: L10n.current.notificationReopenAppTitle,
-      body: L10n.current.notificationReopenAppBody(scheduleDays),
-      scheduledDate:
-          tz.TZDateTime.now(tz.local).add(Duration(days: scheduleDays - 1)),
-      notificationDetails: platformChannelSpecifics,
-      androidScheduleMode: AndroidScheduleMode.inexact,
-      payload: now.add(Duration(days: scheduleDays - 1)).toIso8601String());
+    id: 786,
+    title: L10n.current.notificationReopenAppTitle,
+    body: L10n.current.notificationReopenAppBody(scheduleDays),
+    scheduledDate: tz.TZDateTime.now(tz.local)
+        .add(Duration(days: scheduleDays - 1)),
+    notificationDetails: platformChannelSpecifics,
+    androidScheduleMode: AndroidScheduleMode.inexact,
+    payload: now.add(Duration(days: scheduleDays - 1)).toIso8601String(),
+  );
   if (azanScheduled) await _storePrayerScheduleAnchor(scheduleFingerprint);
 }
 
 /// Records what this schedule was built from: the fingerprint, and the position
 /// that future moves are measured against.
 Future<void> _storePrayerScheduleAnchor(String scheduleFingerprint) async {
-  await SP.prefs
-      .setString(prayerNotificationScheduleFingerprintKey, scheduleFingerprint);
+  await SP.prefs.setString(
+    prayerNotificationScheduleFingerprintKey,
+    scheduleFingerprint,
+  );
   if (lat != null && long != null) {
     await SP.prefs.setDouble(_scheduleAnchorLatKey, lat!);
     await SP.prefs.setDouble(_scheduleAnchorLongKey, long!);
@@ -1218,9 +1260,10 @@ Future<void> refreshLegacyAndroidPrayerNotificationChannelsIfNeeded() async {
       SP.prefs.getInt(_androidPrayerChannelMigrationKey) ?? 0;
   if (previousMigration >= _androidPrayerChannelMigrationVersion) return;
 
-  final androidImplementation =
-      flutterLocalNotificationsPlugin?.resolvePlatformSpecificImplementation<
-          AndroidFlutterLocalNotificationsPlugin>();
+  final androidImplementation = flutterLocalNotificationsPlugin
+      ?.resolvePlatformSpecificImplementation<
+        AndroidFlutterLocalNotificationsPlugin
+      >();
   if (androidImplementation == null) return;
 
   final legacyChannelIds = <String>{
@@ -1282,8 +1325,9 @@ String _androidPrayerChannelName(AzaanOption azaan) {
 }
 
 Future<AndroidNotificationDetails> _androidPrayerNotificationDetails(
-    AzaanOption azaan,
-    {String? prayerName}) async {
+  AzaanOption azaan, {
+  String? prayerName,
+}) async {
   if (azaan.id == 'silent') {
     return AndroidNotificationDetails(
       _androidPrayerChannelId(azaan),
@@ -1333,9 +1377,7 @@ Future<AndroidNotificationDetails> _androidPrayerNotificationDetails(
 
 DarwinNotificationDetails _iosPrayerNotificationDetails(AzaanOption azaan) {
   if (azaan.id == 'silent') {
-    return const DarwinNotificationDetails(
-      presentSound: false,
-    );
+    return const DarwinNotificationDetails(presentSound: false);
   }
   if (azaan.id == 'system_default' || azaan.id == 'custom') {
     return DarwinNotificationDetails();
@@ -1374,10 +1416,15 @@ String prayerNotificationTitle(DateTime dateTime, String prayerName) =>
     '${DateFormat('hh:mm a').format(dateTime)} : '
     '${localizedPrayerName(prayerName)}';
 
-String prayerNotificationBody(String prayerName, AzaanOption azaan,
-    {bool? isIOS, bool? playsAutomatically}) {
-  final body = L10n.current
-      .notificationPrayerTime(localizedPrayerName(prayerName).toLowerCase());
+String prayerNotificationBody(
+  String prayerName,
+  AzaanOption azaan, {
+  bool? isIOS,
+  bool? playsAutomatically,
+}) {
+  final body = L10n.current.notificationPrayerTime(
+    localizedPrayerName(prayerName).toLowerCase(),
+  );
   final onIOS = isIOS ?? (!kIsWeb && Platform.isIOS);
   final autoplays = playsAutomatically ?? (!onIOS && azanPlaysAutomatically());
   if (autoplays || !azanUsesPlaybackService(azaan)) return body;
@@ -1396,11 +1443,12 @@ bool azanUsesPlaybackService(AzaanOption azaan) =>
 /// can't start by themselves (see [azanPlaysAutomatically]), rather than
 /// leaving a notification that was only ever meant to be silent alongside
 /// the real player.
-AzaanOption androidNotificationSoundOption(AzaanOption azaan,
-        {required bool playsAutomatically}) =>
-    azanUsesPlaybackService(azaan) && !playsAutomatically
-        ? AzaanOptions.takbir
-        : azaan;
+AzaanOption androidNotificationSoundOption(
+  AzaanOption azaan, {
+  required bool playsAutomatically,
+}) => azanUsesPlaybackService(azaan) && !playsAutomatically
+    ? AzaanOptions.takbir
+    : azaan;
 
 /// Whether Full Azan / Custom Audio can start by itself at prayer time.
 ///
@@ -1415,8 +1463,11 @@ bool azanPlaysAutomatically() =>
 /// should play with it, if any - setUpNotifications hands those to Android
 /// all at once.
 Future<AzanAlarm?> schedulePrayerTimeNotification(
-    int id, DateTime dateTime, String prayerName,
-    {String? azaanId}) async {
+  int id,
+  DateTime dateTime,
+  String prayerName, {
+  String? azaanId,
+}) async {
   if (dateTime.difference(DateTime.now()).isNegative) return null;
   if (SP.prefs.getBool(notificationPreferenceKeyForPrayer(prayerName)) ==
       true) {
@@ -1424,19 +1475,22 @@ Future<AzanAlarm?> schedulePrayerTimeNotification(
         ? resolveAzaanOptionForCurrentPlatform(azaanId)
         : getSelectedAzaan();
 
-    final platformChannelSpecifics =
-        await prayerNotificationDetails(azaan, prayerName: prayerName);
+    final platformChannelSpecifics = await prayerNotificationDetails(
+      azaan,
+      prayerName: prayerName,
+    );
 
     await flutterLocalNotificationsPlugin?.zonedSchedule(
-        id: id,
-        scheduledDate: tz.TZDateTime.from(dateTime, tz.local),
-        notificationDetails: platformChannelSpecifics,
-        androidScheduleMode: canScheduleExactPrayerNotifications
-            ? AndroidScheduleMode.exactAllowWhileIdle
-            : AndroidScheduleMode.inexactAllowWhileIdle,
-        title: prayerNotificationTitle(dateTime, prayerName),
-        body: prayerNotificationBody(prayerName, azaan),
-        payload: dateTime.toIso8601String());
+      id: id,
+      scheduledDate: tz.TZDateTime.from(dateTime, tz.local),
+      notificationDetails: platformChannelSpecifics,
+      androidScheduleMode: canScheduleExactPrayerNotifications
+          ? AndroidScheduleMode.exactAllowWhileIdle
+          : AndroidScheduleMode.inexactAllowWhileIdle,
+      title: prayerNotificationTitle(dateTime, prayerName),
+      body: prayerNotificationBody(prayerName, azaan),
+      payload: dateTime.toIso8601String(),
+    );
 
     // Android with exact alarms only: the notification above is then silent
     // for Full Azan and Custom Audio (see _androidPrayerNotificationDetails),
@@ -1515,7 +1569,8 @@ bool isZikrReminderNotificationResponse(NotificationResponse response) =>
 /// [handlePrayerNotificationResponseBackground] - flutter_local_notifications
 /// invokes whichever one matches where the tap arrived.
 Future<void> handlePrayerNotificationResponse(
-    NotificationResponse response) async {
+  NotificationResponse response,
+) async {
   // The same tap can arrive twice: from the plugin's callback and from the
   // check Home runs on every resume (see handleNotificationThatOpenedApp).
   // Once is enough - and a later resume must not replay an Azan the reader
@@ -1527,8 +1582,9 @@ Future<void> handlePrayerNotificationResponse(
     );
     return;
   }
-  final eventDate =
-      EventNotificationService.eventDateOfPayload(response.payload);
+  final eventDate = EventNotificationService.eventDateOfPayload(
+    response.payload,
+  );
   if (eventDate != null) {
     // The Calendar on the event's day, with its events shown in full. No
     // navigator from the background isolate: the launch path in Home picks
@@ -1577,8 +1633,9 @@ final Set<String> _handledNotificationTaps = {};
 @visibleForTesting
 bool markNotificationTapHandled(NotificationResponse response) {
   if (response.id == null) return true;
-  return _handledNotificationTaps
-      .add('${response.id}|${response.payload}|${response.actionId}');
+  return _handledNotificationTaps.add(
+    '${response.id}|${response.payload}|${response.actionId}',
+  );
 }
 
 /// Acts on the notification tap that opened the app, when it was never
@@ -1632,10 +1689,9 @@ Future<void> _openZikrReminderNotification(String reminderId) async {
   final zikrUid = reminder.zikrUid;
   final title = zikrUid == null ? null : items[zikrUid];
   if (zikrUid != null && title is String && title.isNotEmpty) {
-    pushRootPageRoute(ZikrPage(
-      UidTitleData(zikrUid, title),
-      source: ZikrOpenSource.reminder,
-    ));
+    pushRootPageRoute(
+      ZikrPage(UidTitleData(zikrUid, title), source: ZikrOpenSource.reminder),
+    );
     return;
   }
 
@@ -1685,9 +1741,10 @@ AzaanOption azaanOptionForPreview({String? azaanId, String? prayerName}) {
 /// Takbir Only played nothing. Only System Default, whose sound is whatever
 /// the device plays for a notification, still posts one.
 Future<void> previewPrayerSound(
-    FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin,
-    {String? azaanId,
-    String? prayerName}) async {
+  FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin, {
+  String? azaanId,
+  String? prayerName,
+}) async {
   final azaan = azaanOptionForPreview(azaanId: azaanId, prayerName: prayerName);
   final playbackName = prayerName ?? 'Prayer';
 
@@ -1709,11 +1766,14 @@ Future<void> previewPrayerSound(
   }
 
   await flutterLocalNotificationsPlugin.show(
-      id: 999,
-      title: L10n.current.notificationTestTitle,
-      body: L10n.current.notificationTestBody,
-      notificationDetails:
-          await prayerNotificationDetails(azaan, prayerName: prayerName));
+    id: 999,
+    title: L10n.current.notificationTestTitle,
+    body: L10n.current.notificationTestBody,
+    notificationDetails: await prayerNotificationDetails(
+      azaan,
+      prayerName: prayerName,
+    ),
+  );
 }
 
 /// The one spelling every per-prayer preference key is built from.
@@ -1782,7 +1842,9 @@ String? getCustomAudioFilePathForPrayer(String prayerName) {
 
 /// Records the custom audio file for one prayer.
 Future<void> saveCustomAudioFilePathForPrayer(
-    String prayerName, String filePath) async {
+  String prayerName,
+  String filePath,
+) async {
   if (!SP.isInitialized) return;
   await SP.prefs.setString(customAudioPathKeyForPrayer(prayerName), filePath);
 }
@@ -1799,7 +1861,9 @@ bool hasCustomAzaanPreferenceForPrayer(String prayerName) {
 /// Saves the sound preference for a specific prayer time.
 /// Pass 'app_default' to reset to following the global setting.
 Future<void> saveAzaanPreferenceForPrayer(
-    String prayerName, String soundId) async {
+  String prayerName,
+  String soundId,
+) async {
   if (!SP.isInitialized) return;
   final key = soundPreferenceKeyForPrayer(prayerName);
   if (soundId == 'app_default') {
@@ -1820,29 +1884,30 @@ Future<FlutterLocalNotificationsPlugin>? _notificationsPluginSetup;
 /// asks, and only for someone who has turned on azan or a reminder.
 Future<FlutterLocalNotificationsPlugin?> ensureNotificationsPlugin() async {
   if (kIsWeb) return null;
-  return _notificationsPluginSetup ??= () async {
-    final plugin = FlutterLocalNotificationsPlugin();
-    await plugin.initialize(
-      settings: const InitializationSettings(
-        android: AndroidInitializationSettings('ic_notification'),
-        iOS: DarwinInitializationSettings(
-          requestAlertPermission: false,
-          requestBadgePermission: false,
-          requestSoundPermission: false,
-        ),
-      ),
-      onDidReceiveNotificationResponse: handlePrayerNotificationResponse,
-      onDidReceiveBackgroundNotificationResponse:
-          handlePrayerNotificationResponseBackground,
-    );
-    flutterLocalNotificationsPlugin = plugin;
-    return plugin;
-  }()
+  return _notificationsPluginSetup ??=
+      () async {
+        final plugin = FlutterLocalNotificationsPlugin();
+        await plugin.initialize(
+          settings: const InitializationSettings(
+            android: AndroidInitializationSettings('ic_notification'),
+            iOS: DarwinInitializationSettings(
+              requestAlertPermission: false,
+              requestBadgePermission: false,
+              requestSoundPermission: false,
+            ),
+          ),
+          onDidReceiveNotificationResponse: handlePrayerNotificationResponse,
+          onDidReceiveBackgroundNotificationResponse:
+              handlePrayerNotificationResponseBackground,
+        );
+        flutterLocalNotificationsPlugin = plugin;
+        return plugin;
+      }()
       // A failed start is tried again by the next caller, not remembered.
       .catchError((Object error) {
-    _notificationsPluginSetup = null;
-    throw error;
-  });
+        _notificationsPluginSetup = null;
+        throw error;
+      });
 }
 
 /// Asks the OS for permission to post notifications.
@@ -1854,25 +1919,28 @@ Future<FlutterLocalNotificationsPlugin?> ensureNotificationsPlugin() async {
 Future<void> requestNotificationPermissions() async {
   if (flutterLocalNotificationsPlugin == null) return;
 
-  final iosImplementation =
-      flutterLocalNotificationsPlugin?.resolvePlatformSpecificImplementation<
-          IOSFlutterLocalNotificationsPlugin>();
+  final iosImplementation = flutterLocalNotificationsPlugin
+      ?.resolvePlatformSpecificImplementation<
+        IOSFlutterLocalNotificationsPlugin
+      >();
   await iosImplementation?.requestPermissions(
     alert: true,
     badge: true,
     sound: true,
   );
 
-  final androidImplementation =
-      flutterLocalNotificationsPlugin?.resolvePlatformSpecificImplementation<
-          AndroidFlutterLocalNotificationsPlugin>();
+  final androidImplementation = flutterLocalNotificationsPlugin
+      ?.resolvePlatformSpecificImplementation<
+        AndroidFlutterLocalNotificationsPlugin
+      >();
   await androidImplementation?.requestNotificationsPermission();
 }
 
 Future<bool> requestExactPrayerAlarmPermissionIfNeeded() async {
-  final androidImplementation =
-      flutterLocalNotificationsPlugin?.resolvePlatformSpecificImplementation<
-          AndroidFlutterLocalNotificationsPlugin>();
+  final androidImplementation = flutterLocalNotificationsPlugin
+      ?.resolvePlatformSpecificImplementation<
+        AndroidFlutterLocalNotificationsPlugin
+      >();
   if (androidImplementation == null) {
     return canScheduleExactPrayerNotifications;
   }
@@ -1889,9 +1957,10 @@ Future<bool> requestExactPrayerAlarmPermissionIfNeeded() async {
 }
 
 Future<bool> refreshExactPrayerAlarmPermissionStatus() async {
-  final androidImplementation =
-      flutterLocalNotificationsPlugin?.resolvePlatformSpecificImplementation<
-          AndroidFlutterLocalNotificationsPlugin>();
+  final androidImplementation = flutterLocalNotificationsPlugin
+      ?.resolvePlatformSpecificImplementation<
+        AndroidFlutterLocalNotificationsPlugin
+      >();
   if (androidImplementation == null) {
     return canScheduleExactPrayerNotifications;
   }
@@ -1906,7 +1975,8 @@ AzaanOption getSelectedAzaan() {
   if (!SP.isInitialized) return resolveAzaanOptionForCurrentPlatform(null);
 
   return resolveAzaanOptionForCurrentPlatform(
-      SP.prefs.getString(azaanPreferenceKey));
+    SP.prefs.getString(azaanPreferenceKey),
+  );
 }
 
 /// Get custom audio file path (if user selected custom)
@@ -1923,12 +1993,16 @@ String? getCustomAudioFilePath() {
 /// Save the user's azaan preference
 Future<void> saveAzaanPreference(String azaanId) async {
   await SP.prefs.setString(
-      azaanPreferenceKey, resolveAzaanPreferenceIdForCurrentPlatform(azaanId));
-  unawaited(AnalyticsService.feature(
-    'azaan_selected',
-    label: 'Azaan changed',
-    parameters: {'azaan_id': azaanId},
-  ));
+    azaanPreferenceKey,
+    resolveAzaanPreferenceIdForCurrentPlatform(azaanId),
+  );
+  unawaited(
+    AnalyticsService.feature(
+      'azaan_selected',
+      label: 'Azaan changed',
+      parameters: {'azaan_id': azaanId},
+    ),
+  );
 }
 
 /// Copies a just-picked custom audio file somewhere it will last, and returns
@@ -1949,11 +2023,13 @@ Future<String> keepCustomAudioFile(File picked, {required String scope}) async {
     '${(await getApplicationSupportDirectory()).path}/custom_azan/'
     '${scope.replaceAll(RegExp(r'[^A-Za-z0-9]'), '_')}',
   );
-  final pickDir =
-      Directory('${scopeDir.path}/${DateTime.now().millisecondsSinceEpoch}');
+  final pickDir = Directory(
+    '${scopeDir.path}/${DateTime.now().millisecondsSinceEpoch}',
+  );
   await pickDir.create(recursive: true);
-  final kept =
-      await picked.copy('${pickDir.path}/${picked.path.split('/').last}');
+  final kept = await picked.copy(
+    '${pickDir.path}/${picked.path.split('/').last}',
+  );
 
   await for (final entity in scopeDir.list()) {
     if (entity.path != pickDir.path) {
@@ -1974,15 +2050,10 @@ Future<void> saveCustomAudioFilePath(String filePath) async {
 }
 
 AppBar getAppBar() {
-  return AppBar(
-    title: Text(appName),
-  );
+  return AppBar(title: Text(appName));
 }
 
-Future<void> trackScreen(
-  String screenName, {
-  bool deferOnWeb = false,
-}) {
+Future<void> trackScreen(String screenName, {bool deferOnWeb = false}) {
   // Screens call this unawaited from initState, so the missing-Firebase guard
   // and the swallowed failures both live in AnalyticsService — no app, no
   // analytics, rather than an unhandled async error taking the screen down.

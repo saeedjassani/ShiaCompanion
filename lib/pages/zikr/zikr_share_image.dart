@@ -100,18 +100,19 @@ Future<Uint8List?> buildZikrShareImage(ZikrShareImageRequest request) async {
 
   // Parsed as the reader parses it, so the segments a translation is keyed
   // by line up; a first line that only repeats the title is skipped below.
-  final parsed = ZikrContentParser.parseContent(
-    request.content,
-    hideHeaderLine: request.hideHeaderLine,
-  ).localizedTo(
-    request.language,
-    request.translation,
-    firstSegment: request.firstSegment,
-  );
+  final parsed =
+      ZikrContentParser.parseContent(
+        request.content,
+        hideHeaderLine: request.hideHeaderLine,
+      ).localizedTo(
+        request.language,
+        request.translation,
+        firstSegment: request.firstSegment,
+      );
   final repeatedHeaderLine =
       !request.hideHeaderLine && _startsWithVisibleHeader(request)
-          ? parsed.lines.indexWhere((line) => line.isNotEmpty)
-          : -1;
+      ? parsed.lines.indexWhere((line) => line.isNotEmpty)
+      : -1;
   final shareLines = <_ShareImageLine>[];
 
   for (var i = 0; i < parsed.lines.length; i++) {
@@ -206,7 +207,8 @@ Future<Uint8List?> buildZikrShareImage(ZikrShareImageRequest request) async {
       textDirection: shareLine.textDirection,
     );
     final hasMoreContent = i < shareLines.length - 1;
-    final shouldEndWithEllipsis = hasMoreContent &&
+    final shouldEndWithEllipsis =
+        hasMoreContent &&
         contentBottom - (lineTop + naturalHeight + shareLine.bottomPadding) <
             _minReadableHeight;
     final result = _paintContentLine(
@@ -309,10 +311,7 @@ class _PaintedLineResult {
   final double bottom;
   final bool truncated;
 
-  const _PaintedLineResult({
-    required this.bottom,
-    required this.truncated,
-  });
+  const _PaintedLineResult({required this.bottom, required this.truncated});
 }
 
 double _measureTextHeight(
@@ -344,8 +343,9 @@ _PaintedLineResult? _paintContentLine(
     return null;
   }
 
-  final displayText =
-      forceEllipsis ? _withTrailingEllipsis(text, textDirection) : text;
+  final displayText = forceEllipsis
+      ? _withTrailingEllipsis(text, textDirection)
+      : text;
   final painter = TextPainter(
     text: TextSpan(text: displayText, style: style),
     textAlign: textAlign,

@@ -25,9 +25,9 @@ Future<void> _prefs([Map<String, Object> values = const {}]) async {
 }
 
 Widget _app(Widget child) => MaterialApp(
-      theme: buildAppTheme(Brightness.light),
-      home: Scaffold(body: SingleChildScrollView(child: child)),
-    );
+  theme: buildAppTheme(Brightness.light),
+  home: Scaffold(body: SingleChildScrollView(child: child)),
+);
 
 void main() {
   group('HomeShortcutsStore', () {
@@ -35,10 +35,14 @@ void main() {
 
     test('starts with the agreed defaults', () {
       expect(HomeShortcutsStore.instance.ids, HomeShortcutsStore.defaultIds);
-      expect(HomeShortcutsStore.instance.idsFor(wide: true),
-          HomeShortcutsStore.wideDefaultIds);
-      expect(HomeShortcutsStore.wideDefaultIds,
-          hasLength(HomeShortcutsStore.maxShortcuts));
+      expect(
+        HomeShortcutsStore.instance.idsFor(wide: true),
+        HomeShortcutsStore.wideDefaultIds,
+      );
+      expect(
+        HomeShortcutsStore.wideDefaultIds,
+        hasLength(HomeShortcutsStore.maxShortcuts),
+      );
       expect(HomeShortcutsStore.instance.isCustomized, isFalse);
     });
 
@@ -69,11 +73,22 @@ void main() {
         'i',
         'j',
         'k',
-        'l'
+        'l',
       ]);
 
-      expect(HomeShortcutsStore.instance.ids,
-          ['duas', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j']);
+      expect(HomeShortcutsStore.instance.ids, [
+        'duas',
+        'a',
+        'b',
+        'c',
+        'd',
+        'e',
+        'f',
+        'g',
+        'h',
+        'i',
+        'j',
+      ]);
       expect(HomeShortcutsStore.instance.isCustomized, isTrue);
       expect(notified, 1);
     });
@@ -92,15 +107,17 @@ void main() {
   group('splitHadith', () {
     test('takes the reference off its own last line', () {
       final parts = splitHadith(
-          "Imam Ali (AS) said, 'Be patient.'\n[Ghurar al-Hikam, no. 2746]");
+        "Imam Ali (AS) said, 'Be patient.'\n[Ghurar al-Hikam, no. 2746]",
+      );
       expect(parts.text, "Imam Ali (AS) said, 'Be patient.'");
       expect(parts.source, 'Ghurar al-Hikam, no. 2746');
     });
 
     test('takes an inline reference that has a number in it', () {
       final parts = splitHadith(
-          "Imam Ali (AS) said, ‘Cheerfulness is the trait of the free.’ "
-          '[Ghurar al-Hikam, no. 656]');
+        "Imam Ali (AS) said, ‘Cheerfulness is the trait of the free.’ "
+        '[Ghurar al-Hikam, no. 656]',
+      );
       expect(parts.source, 'Ghurar al-Hikam, no. 656');
       expect(parts.text, endsWith('free.’'));
     });
@@ -129,10 +146,14 @@ void main() {
     test('says Tonight once the event\'s eve has begun at Maghrib', () {
       // Thursday 8 pm, after Maghrib: Friday's Islamic day has begun.
       final now = DateTime(2026, 10, 15, 20);
-      final eve =
-          IslamicDay(day: LunarDay(DateTime(2026, 10, 16)), isEve: true);
-      final day =
-          IslamicDay(day: LunarDay(DateTime(2026, 10, 16)), isEve: false);
+      final eve = IslamicDay(
+        day: LunarDay(DateTime(2026, 10, 16)),
+        isEve: true,
+      );
+      final day = IslamicDay(
+        day: LunarDay(DateTime(2026, 10, 16)),
+        isEve: false,
+      );
       ComingUpEvent on(DateTime date) =>
           ComingUpEvent(date: date, title: '', hijri: '');
       expect(on(DateTime(2026, 10, 16)).whenFrom(now, null, eve), 'Tonight');
@@ -165,14 +186,17 @@ void main() {
         offsetDays: 0,
         events: {
           '03-17': {
-            'content': 'Birth of Prophet Muhammad(sawaw)\n\n'
+            'content':
+                'Birth of Prophet Muhammad(sawaw)\n\n'
                 'Birth of Imam Jafer Sadiq(a.s.)',
             'color': 1,
           },
         },
       );
-      expect(events.single.title,
-          'Birth of Prophet Muhammad (sawaw) · Imam Jafer Sadiq (a.s.)');
+      expect(
+        events.single.title,
+        'Birth of Prophet Muhammad (sawaw) · Imam Jafer Sadiq (a.s.)',
+      );
     });
   });
 
@@ -231,6 +255,103 @@ void main() {
       expect(entries[2].title, 'A Book');
     });
 
+    test('offers no "next surah" after everyday reading finished one', () {
+      final finished = RecitationTrackerState({
+        'r1': RecitationEntry(
+          id: 'r1',
+          label: unlabeledRecitationLabel,
+          recitedAt: DateTime(2026, 10, 3),
+          surah: 2,
+          fromAyah: 1,
+          toAyah: 286,
+        ),
+      });
+      final entries = continueEntries(
+        recitations: finished,
+        bookmarks: const [],
+        library: const [],
+      );
+      expect(entries, isEmpty);
+    });
+
+    test('picks up the Khatm read most recently, where it carries on', () {
+      final withKhatm = RecitationTrackerState(
+        {
+          ...recitations.entries,
+          'k1': RecitationEntry(
+            id: 'k1',
+            label: 'Family',
+            recitedAt: DateTime(2026, 10, 5),
+            surah: 2,
+            fromAyah: 1,
+            toAyah: 20,
+          ),
+        },
+        {'Family'},
+      );
+      final entries = continueEntries(
+        recitations: withKhatm,
+        bookmarks: const [],
+        library: const [],
+      );
+      expect(entries.first.caption, 'Quran · Family');
+      expect(entries.first.recitationLabel, 'Family');
+      expect(entries.first.subtitle, 'Verse 20 of 286');
+    });
+
+    test('a Khatm and a surah left part-way are two cards, newest first', () {
+      final withKhatm = RecitationTrackerState(
+        {
+          ...recitations.entries,
+          'k1': RecitationEntry(
+            id: 'k1',
+            label: 'Family',
+            recitedAt: DateTime(2026, 10, 2),
+            surah: 18,
+            fromAyah: 1,
+            toAyah: 30,
+          ),
+        },
+        {'Family'},
+      );
+      final entries = continueEntries(
+        recitations: withKhatm,
+        bookmarks: [bookmark],
+        library: [library],
+      );
+      expect(entries.map((e) => (e.kind, e.recitationLabel)), [
+        (ContinueKind.bookmark, null),
+        // The everyday surah (Oct 3) is newer than the Khatm (Oct 2).
+        (ContinueKind.quran, null),
+        (ContinueKind.quran, 'Family'),
+        (ContinueKind.library, null),
+      ]);
+      expect(entries[1].title, '2: Al-Baqarah');
+      expect(entries[1].caption, 'Quran');
+      expect(entries[2].caption, 'Quran · Family');
+      expect(entries[2].subtitle, 'Verse 30 of 110');
+    });
+
+    test('a Khatm started part-way and not read yet waits at its start', () {
+      final started = RecitationTrackerState(
+        {},
+        {'Ramazan'},
+        {
+          'Ramazan': RecitationTrackSettings(
+            startAt: const VerseKey(2, 142),
+            startSetAt: DateTime(2026, 10, 6),
+          ),
+        },
+      );
+      final entries = continueEntries(
+        recitations: started,
+        bookmarks: const [],
+        library: const [],
+      );
+      expect(entries.single.caption, 'Quran · Ramazan');
+      expect(entries.single.subtitle, 'Verse 142 of 286');
+    });
+
     test('keeps the Quran card for whoever has the Quran screen', () {
       final entries = continueEntries(
         recitations: recitations,
@@ -261,10 +382,14 @@ void main() {
       tester.view.devicePixelRatio = 1;
       addTearDown(tester.view.reset);
       var allFeatures = 0;
-      await tester.pumpWidget(_app(ShortcutsSection(
-        onOpen: (_) {},
-        onOpenAllFeatures: () => allFeatures++,
-      )));
+      await tester.pumpWidget(
+        _app(
+          ShortcutsSection(
+            onOpen: (_) {},
+            onOpenAllFeatures: () => allFeatures++,
+          ),
+        ),
+      );
 
       for (final label in [
         'Duas',
@@ -282,8 +407,9 @@ void main() {
       expect(allFeatures, 1);
     });
 
-    testWidgets('has no heading and grows to a third row past seven',
-        (tester) async {
+    testWidgets('has no heading and grows to a third row past seven', (
+      tester,
+    ) async {
       await HomeShortcutsStore.instance.save([
         'duas',
         'ziyarats',
@@ -294,10 +420,9 @@ void main() {
         'qibla_finder',
         'library',
       ]);
-      await tester.pumpWidget(_app(ShortcutsSection(
-        onOpen: (_) {},
-        onOpenAllFeatures: () {},
-      )));
+      await tester.pumpWidget(
+        _app(ShortcutsSection(onOpen: (_) {}, onOpenAllFeatures: () {})),
+      );
 
       expect(find.text('Shortcuts'), findsNothing);
       expect(find.text('Edit'), findsNothing);
@@ -310,15 +435,15 @@ void main() {
       expect(allFeatures.dx, closeTo(duas.dx, 1));
     });
 
-    testWidgets('a wide screen starts with eleven, in three rows',
-        (tester) async {
+    testWidgets('a wide screen starts with eleven, in three rows', (
+      tester,
+    ) async {
       tester.view.physicalSize = const Size(1366, 768);
       tester.view.devicePixelRatio = 1;
       addTearDown(tester.view.reset);
-      await tester.pumpWidget(_app(ShortcutsSection(
-        onOpen: (_) {},
-        onOpenAllFeatures: () {},
-      )));
+      await tester.pumpWidget(
+        _app(ShortcutsSection(onOpen: (_) {}, onOpenAllFeatures: () {})),
+      );
 
       for (final label in ['Qaza', 'Playlists', 'Library', 'My Stats']) {
         expect(find.text(label), findsOneWidget, reason: label);
@@ -336,50 +461,62 @@ void main() {
     });
 
     testWidgets(
-        'a wide screen with room shows every feature, the picks first in '
-        'their order', (tester) async {
-      tester.view.physicalSize = const Size(820, 1180);
-      tester.view.devicePixelRatio = 1;
-      addTearDown(tester.view.reset);
-      await HomeShortcutsStore.instance.save(['qibla_finder', 'news', 'duas']);
-      await tester.pumpWidget(_app(ShortcutsSection(
-        onOpen: (_) {},
-        onOpenAllFeatures: () {},
-      )));
+      'a wide screen with room shows every feature, the picks first in '
+      'their order',
+      (tester) async {
+        tester.view.physicalSize = const Size(820, 1180);
+        tester.view.devicePixelRatio = 1;
+        addTearDown(tester.view.reset);
+        await HomeShortcutsStore.instance.save([
+          'qibla_finder',
+          'news',
+          'duas',
+        ]);
+        await tester.pumpWidget(
+          _app(ShortcutsSection(onOpen: (_) {}, onOpenAllFeatures: () {})),
+        );
 
-      for (final item in shortcutCandidateMenuItems) {
-        expect(find.text(item.displayShortLabel), findsOneWidget,
-            reason: item.analyticsId);
-      }
-      expect(find.text('All features'), findsNothing);
-      expect(find.text('Edit shortcuts'), findsNothing);
+        for (final item in shortcutCandidateMenuItems) {
+          expect(
+            find.text(item.displayShortLabel),
+            findsOneWidget,
+            reason: item.analyticsId,
+          );
+        }
+        expect(find.text('All features'), findsNothing);
+        expect(find.text('Edit shortcuts'), findsNothing);
 
-      // Qibla, News, Duas lead the first row, in the reader's order.
-      final qibla = tester.getCenter(find.text('Qibla'));
-      final news = tester.getCenter(find.text('News'));
-      final duas = tester.getCenter(find.text('Duas'));
-      expect(news.dy, closeTo(qibla.dy, 1));
-      expect(duas.dy, closeTo(qibla.dy, 1));
-      expect(qibla.dx, lessThan(news.dx));
-      expect(news.dx, lessThan(duas.dx));
-    });
+        // Qibla, News, Duas lead the first row, in the reader's order.
+        final qibla = tester.getCenter(find.text('Qibla'));
+        final news = tester.getCenter(find.text('News'));
+        final duas = tester.getCenter(find.text('Duas'));
+        expect(news.dy, closeTo(qibla.dy, 1));
+        expect(duas.dy, closeTo(qibla.dy, 1));
+        expect(qibla.dx, lessThan(news.dx));
+        expect(news.dx, lessThan(duas.dx));
+      },
+    );
 
     Future<void> pumpEditor(WidgetTester tester) async {
       tester.view.physicalSize = const Size(390, 1600);
       tester.view.devicePixelRatio = 1;
       addTearDown(tester.view.reset);
 
-      await tester.pumpWidget(_app(Builder(
-        builder: (context) => Column(
-          children: [
-            ShortcutsSection(onOpen: (_) {}, onOpenAllFeatures: () {}),
-            TextButton(
-              onPressed: () => showShortcutsEditor(context),
-              child: const Text('Open editor'),
+      await tester.pumpWidget(
+        _app(
+          Builder(
+            builder: (context) => Column(
+              children: [
+                ShortcutsSection(onOpen: (_) {}, onOpenAllFeatures: () {}),
+                TextButton(
+                  onPressed: () => showShortcutsEditor(context),
+                  child: const Text('Open editor'),
+                ),
+              ],
             ),
-          ],
+          ),
         ),
-      )));
+      );
       await tester.tap(find.text('Open editor'));
       await tester.pumpAndSettle();
     }
@@ -430,14 +567,14 @@ void main() {
       );
     });
 
-    testWidgets('an admin tool appears once the admin claim lands',
-        (tester) async {
+    testWidgets('an admin tool appears once the admin claim lands', (
+      tester,
+    ) async {
       addTearDown(() => adminState.value = false);
       await HomeShortcutsStore.instance.save(['duas', 'usage']);
-      await tester.pumpWidget(_app(ShortcutsSection(
-        onOpen: (_) {},
-        onOpenAllFeatures: () {},
-      )));
+      await tester.pumpWidget(
+        _app(ShortcutsSection(onOpen: (_) {}, onOpenAllFeatures: () {})),
+      );
       expect(find.text('Usage'), findsNothing);
 
       // Read after Home is up, and nothing rebuilds Home for it.
@@ -479,10 +616,12 @@ void main() {
       tester.view.devicePixelRatio = 1;
       addTearDown(tester.view.reset);
 
-      await tester.pumpWidget(MaterialApp(
-        theme: buildAppTheme(Brightness.light),
-        home: const AllFeaturesPage(),
-      ));
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: buildAppTheme(Brightness.light),
+          home: const AllFeaturesPage(),
+        ),
+      );
 
       // The large title, and the bar it folds into on scrolling.
       expect(find.text('All features'), findsWidgets);
@@ -492,8 +631,11 @@ void main() {
       expect(find.text('Favorites'), findsNothing);
       // Every feature on the page, so none is lost with the old grid.
       for (final item in allFeaturesMenuItems) {
-        expect(find.text(item.shortLabel), findsOneWidget,
-            reason: item.shortLabel);
+        expect(
+          find.text(item.shortLabel),
+          findsOneWidget,
+          reason: item.shortLabel,
+        );
       }
     });
   });
@@ -507,10 +649,12 @@ void main() {
       tester.view.devicePixelRatio = 1;
       addTearDown(tester.view.reset);
 
-      await tester.pumpWidget(MaterialApp(
-        theme: buildAppTheme(Brightness.light),
-        home: const AllFeaturesPage(),
-      ));
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: buildAppTheme(Brightness.light),
+          home: const AllFeaturesPage(),
+        ),
+      );
       expect(find.text('Usage'), findsNothing);
 
       adminState.value = true;
@@ -526,7 +670,9 @@ void main() {
 
       expect(find.text('Get the app'), findsOneWidget);
       expect(
-          find.bySemanticsLabel('Download on the App Store'), findsOneWidget);
+        find.bySemanticsLabel('Download on the App Store'),
+        findsOneWidget,
+      );
       expect(find.bySemanticsLabel('Get it on Google Play'), findsOneWidget);
       expect(
         tester

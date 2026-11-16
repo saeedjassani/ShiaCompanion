@@ -1,11 +1,15 @@
+import 'dart:async';
+
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shia_companion/constants.dart';
 import 'package:shia_companion/data/quran_ali_verses.dart';
 import 'package:shia_companion/data/quran_mahdi_verses.dart';
+import 'package:shia_companion/models/recitation_tracker_state.dart';
 import 'package:shia_companion/pages/quran/quran_page.dart';
 import 'package:shia_companion/pages/quran/recitation_track_sheet.dart';
+import 'package:shia_companion/widgets/app_toast.dart';
 import 'package:shia_companion/widgets/page_chrome.dart';
 import 'package:shia_companion/services/recitation_tracker_manager.dart';
 import 'package:shia_companion/services/saved_verses_manager.dart';
@@ -61,8 +65,9 @@ void main() {
     // The row is dragged rather than the pill ensureVisible'd, which would
     // also scroll the page.
     final pill = find.widgetWithText(ChoicePill, chip);
-    final row =
-        find.ancestor(of: pill, matching: find.byType(Scrollable)).first;
+    final row = find
+        .ancestor(of: pill, matching: find.byType(Scrollable))
+        .first;
     final screenWidth =
         tester.view.physicalSize.width / tester.view.devicePixelRatio;
     while (tester.getRect(pill).right > screenWidth) {
@@ -77,26 +82,41 @@ void main() {
     // Tracks made by earlier tests can push the card past the screen's edge.
     // (Dragged rather than ensureVisible'd, which would also scroll the page
     // and leave the card under the folded title bar.)
-    await tester.drag(find.text('My reading'), const Offset(-600, 0));
+    // "Start a Khatm" until the first is made, "New Khatm" after.
+    final newKhatm = find.text('New Khatm');
+    final card = newKhatm.evaluate().isEmpty
+        ? find.text('Start a Khatm')
+        : newKhatm;
+    await tester.drag(
+      find.ancestor(of: card, matching: find.byType(Scrollable)).first,
+      const Offset(-600, 0),
+    );
     await tester.pumpAndSettle();
-    await tester.tap(find.text('New Khatm'));
+    await tester.tap(card);
+    await tester.pumpAndSettle();
+  }
+
+  /// Opens a new Khatm's "More options": reading by juz, and counting the
+  /// verses before a mid-way start.
+  Future<void> tapMoreOptions(WidgetTester tester) async {
+    await tester.tap(find.text('More options'));
     await tester.pumpAndSettle();
   }
 
   testWidgets('lists every surah with its verse count', (tester) async {
     await pump(tester);
 
-    // Once in the list, once as where My reading starts.
-    expect(find.text('Surah1'), findsNWidgets(2));
+    expect(find.text('Surah1'), findsOneWidget);
     expect(find.text('7 verses'), findsOneWidget);
     // Ayat al Kursi is not a surah and must not appear among the 114.
     expect(find.text('Ayat al Kursi'), findsNothing);
   });
 
   group('the tracking hint', () {
-    const hint = 'Everything you read in the Quran is saved to My reading. '
-        'To keep a separate Khatm, like one with family, add a new Khatm and '
-        'tap its card to carry on where it left off.';
+    const hint =
+        'No need for a bookmark: a Khatm remembers where you '
+        'stopped. Tap its card above to carry on. Surahs opened from the '
+        "list below don't count towards it.";
     const viewsKey = 'quran_tracking_hint_views';
 
     testWidgets('shows on the first open and counts it', (tester) async {
@@ -156,12 +176,15 @@ void main() {
     await tester.tap(find.text('Surah2').last);
     await tester.pumpAndSettle();
     expect(
-        find.text('Step 2 of 2 · Choose a verse (1 to 286)'), findsOneWidget);
+      find.text('Step 2 of 2 · Choose a verse (1 to 286)'),
+      findsOneWidget,
+    );
     // Nothing is chosen until a verse is tapped.
     expect(
       tester
           .widget<FilledButton>(
-              find.widgetWithText(FilledButton, 'Choose a verse'))
+            find.widgetWithText(FilledButton, 'Choose a verse'),
+          )
           .onPressed,
       isNull,
     );
@@ -198,16 +221,50 @@ void main() {
   });
 
   testWidgets(
-      'the default track always shows as My reading, with nothing to resume '
-      'yet', (tester) async {
+    'before any Khatm there is only a card to start one, saying what a '
+    'Khatm is',
+    (tester) async {
+      await pump(tester);
+
+      expect(find.text('Start reading'), findsNothing);
+      expect(find.text('Start a Khatm'), findsOneWidget);
+      expect(
+        find.text(
+          'Read the whole Quran from start to finish. '
+          'Your place is saved as you go.',
+        ),
+        findsOneWidget,
+      );
+      expect(find.text('New Khatm'), findsNothing);
+    },
+  );
+
+  testWidgets('everyday reading has no card among the Khatms', (tester) async {
+    // Not awaited: the save queues behind the screen's earlier writes, which
+    // only finish as the test's clock is pumped - as the sheet's own do.
+    unawaited(
+      RecitationTrackerManager.instance.logRecitation(
+        id: 'everyday',
+        label: unlabeledRecitationLabel,
+        surah: 2,
+        fromAyah: 1,
+        toAyah: 141,
+        syncRemote: false,
+      ),
+    );
     await pump(tester);
 
-    expect(find.text('My reading'), findsOneWidget);
-    expect(find.text('Start reading'), findsWidgets);
+    expect(find.text('Surah2 141'), findsNothing);
+    expect(find.textContaining('% of the Quran'), findsNothing);
+    expect(find.text('Start a Khatm'), findsOneWidget);
+
+    unawaited(RecitationTrackerManager.instance.removeEntry('everyday'));
+    await tester.pumpAndSettle();
   });
 
-  testWidgets('the Saved collection says so when nothing is kept',
-      (tester) async {
+  testWidgets('the Saved collection says so when nothing is kept', (
+    tester,
+  ) async {
     await pump(tester);
     await openCollection(tester, 'Saved');
 
@@ -230,6 +287,12 @@ void main() {
     });
     await pump(tester);
     await openCollection(tester, 'Saved');
+    // The hint above the lists can leave the second row below the fold.
+    await tester.scrollUntilVisible(
+      find.text('Surah36 9'),
+      200,
+      scrollable: _verticalScrollable,
+    );
 
     expect(find.text('Surah2 255'), findsOneWidget);
     expect(find.text('Surah36 9'), findsOneWidget);
@@ -262,8 +325,9 @@ void main() {
     expect(SavedVersesManager.instance.state.verses, isEmpty);
   });
 
-  testWidgets('verses saved on the device before syncing move into the list',
-      (tester) async {
+  testWidgets('verses saved on the device before syncing move into the list', (
+    tester,
+  ) async {
     await SP.prefs.setString(
       'quran_saved_verses_v1',
       '[{"surah":2,"ayah":255,"surahName":"Surah2",'
@@ -285,60 +349,83 @@ void main() {
   });
 
   testWidgets(
-      'the Duas collection leaves Ayat al Kursi and the Quran zikrs to the '
-      'Duas list', (tester) async {
-    items = {
-      ...items,
-      'A2': 'Dua after reciting Holy Quran',
-      'A4': 'Ayat al Kursi',
-    };
+    'the Duas collection leaves Ayat al Kursi and the Quran zikrs to the '
+    'Duas list',
+    (tester) async {
+      items = {
+        ...items,
+        'A2': 'Dua after reciting Holy Quran',
+        'A4': 'Ayat al Kursi',
+      };
+      await pump(tester);
+      await openCollection(tester, 'Duas');
+
+      expect(find.text('Ayat al Kursi'), findsNothing);
+      expect(find.text('Dua after reciting Holy Quran'), findsNothing);
+    },
+  );
+
+  testWidgets('the Duas collection lists the duas of the Quran', (
+    tester,
+  ) async {
     await pump(tester);
     await openCollection(tester, 'Duas');
-
-    expect(find.text('Ayat al Kursi'), findsNothing);
-    expect(find.text('Dua after reciting Holy Quran'), findsNothing);
-  });
-
-  testWidgets('the Duas collection lists the duas of the Quran',
-      (tester) async {
-    await pump(tester);
-    await openCollection(tester, 'Duas');
+    await tester.scrollUntilVisible(
+      find.text('Rabbana Atina fid-Dunya Hasanah'),
+      200,
+      scrollable: _verticalScrollable,
+    );
 
     expect(find.text('Rabbana Atina fid-Dunya Hasanah'), findsOneWidget);
-    expect(find.text('Surah2 201 · For good in this world and the hereafter'),
-        findsOneWidget);
+    expect(
+      find.text('Surah2 201 · For good in this world and the hereafter'),
+      findsOneWidget,
+    );
   });
 
-  testWidgets('the Imam Ali collection lists the curated verses',
-      (tester) async {
+  testWidgets('the Imam Ali collection lists the curated verses', (
+    tester,
+  ) async {
     await pump(tester);
     await openCollection(tester, 'Imam Ali (a.s.)');
 
     // The list is lazy and runs well past one screen, so bring the verse
     // into view before looking for it.
-    await tester.scrollUntilVisible(find.text('Surah5 55'), 200,
-        scrollable: _verticalScrollable);
+    await tester.scrollUntilVisible(
+      find.text('Surah5 55'),
+      200,
+      scrollable: _verticalScrollable,
+    );
 
     expect(find.text('Surah5 55'), findsOneWidget);
     expect(
-        find.text(aliRelatedNoteFor(const VerseKey(5, 55))!), findsOneWidget);
+      find.text(aliRelatedNoteFor(const VerseKey(5, 55))!),
+      findsOneWidget,
+    );
   });
 
-  testWidgets('the Imam al-Mahdi collection lists the curated verses',
-      (tester) async {
+  testWidgets('the Imam al-Mahdi collection lists the curated verses', (
+    tester,
+  ) async {
     await pump(tester);
     await openCollection(tester, 'Imam al-Mahdi (a.t.f.s.)');
 
-    await tester.scrollUntilVisible(find.text('Surah11 86'), 200,
-        scrollable: _verticalScrollable);
+    await tester.scrollUntilVisible(
+      find.text('Surah11 86'),
+      200,
+      scrollable: _verticalScrollable,
+    );
 
     expect(find.text('Surah11 86'), findsOneWidget);
-    expect(find.text(mahdiRelatedNoteFor(const VerseKey(11, 86))!),
-        findsOneWidget);
+    expect(
+      find.text(mahdiRelatedNoteFor(const VerseKey(11, 86))!),
+      findsOneWidget,
+    );
   });
 
-  testWidgets('the Prophets collection groups stories under each prophet',
-      (tester) async {
+  testWidgets('the Prophets collection groups stories under each prophet', (
+    tester,
+  ) async {
     await pump(tester);
     await openCollection(tester, 'Prophets');
 
@@ -346,17 +433,25 @@ void main() {
     expect(find.text('The creation of Adam and the fall'), findsOneWidget);
     expect(find.text('Surah2 30-39'), findsOneWidget);
 
-    await tester.scrollUntilVisible(find.text('Musa and al-Khidr'), 200,
-        scrollable: _verticalScrollable);
+    await tester.scrollUntilVisible(
+      find.text('Musa and al-Khidr'),
+      200,
+      scrollable: _verticalScrollable,
+    );
     expect(find.text('Surah18 60-82'), findsOneWidget);
   });
 
-  testWidgets('a new track can read by juz from a chosen start',
-      (tester) async {
+  testWidgets('a new track can read by juz from a chosen start', (
+    tester,
+  ) async {
     await pump(tester);
 
     await tapNewTrack(tester);
     await tester.enterText(find.widgetWithText(TextField, 'Name'), 'Khatm');
+    // Reading by juz waits under More options.
+    expect(find.text('Juz (Para)'), findsNothing);
+    await tapMoreOptions(tester);
+    expect(find.text('More options'), findsNothing);
     await tester.tap(find.text('Juz (Para)'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('The beginning'));
@@ -364,8 +459,11 @@ void main() {
     // Opens on the list, with the beginning already chosen.
     expect(find.text('Choose a verse'), findsOneWidget);
     expect(find.text('Juz 1'), findsWidgets);
-    await tester.scrollUntilVisible(find.text('Juz 12'), 200,
-        scrollable: find.byType(Scrollable).last);
+    await tester.scrollUntilVisible(
+      find.text('Juz 12'),
+      200,
+      scrollable: find.byType(Scrollable).last,
+    );
     await tester.tap(find.text('Juz 12'));
     await tester.pumpAndSettle();
     // Opening a juz readies its first verse.
@@ -382,8 +480,9 @@ void main() {
     expect(find.text('Juz 12'), findsOneWidget);
     // Starting it opens the reader at its start.
     expect(openedTracks, ['Khatm']);
-    final target =
-        RecitationTrackerManager.instance.state.resumeTargetFor('Khatm');
+    final target = RecitationTrackerManager.instance.state.resumeTargetFor(
+      'Khatm',
+    );
     expect(target.inJuz, isTrue);
     expect(target.juz, 12);
   });
@@ -436,8 +535,10 @@ void main() {
     await tester.tap(find.text('Delete'));
     await tester.pumpAndSettle();
 
-    expect(RecitationTrackerManager.instance.state.labels,
-        isNot(contains('Gone')));
+    expect(
+      RecitationTrackerManager.instance.state.labels,
+      isNot(contains('Gone')),
+    );
     expect(find.text('Gone'), findsNothing);
     expect(find.text('Delete Khatm'), findsNothing);
   });
@@ -447,6 +548,7 @@ void main() {
 
     await tapNewTrack(tester);
     await tester.enterText(find.widgetWithText(TextField, 'Name'), 'Ahzab');
+    await tapMoreOptions(tester);
     await tester.tap(find.text('Juz (Para)'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('The beginning'));
@@ -454,7 +556,9 @@ void main() {
 
     // The picker's own search box, not the Quran screen's behind it.
     await tester.enterText(
-        find.widgetWithIcon(TextField, Icons.search).last, '33:33');
+      find.widgetWithIcon(TextField, Icons.search).last,
+      '33:33',
+    );
     await tester.testTextInput.receiveAction(TextInputAction.go);
     await tester.pumpAndSettle();
     expect(find.text('Juz 22 · Surah33 33'), findsOneWidget);
@@ -470,8 +574,9 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Juz 22 · 33:35'), findsOneWidget);
-    final target =
-        RecitationTrackerManager.instance.state.resumeTargetFor('Ahzab');
+    final target = RecitationTrackerManager.instance.state.resumeTargetFor(
+      'Ahzab',
+    );
     expect(target.verse, const VerseKey(33, 35));
     expect(target.inJuz, isTrue);
   });
@@ -487,21 +592,117 @@ void main() {
     expect(openedTracks, isEmpty);
   });
 
-  testWidgets('a new track cannot take the default track\'s name',
-      (tester) async {
+  testWidgets('a new track cannot take the default track\'s name', (
+    tester,
+  ) async {
     await pump(tester);
 
     await tapNewTrack(tester);
-    await tester.enterText(find.byType(TextField).first, 'my reading');
+    await tester.enterText(find.byType(TextField).first, 'other reading');
     await tester.tap(find.text('Start Khatm'));
     await tester.pumpAndSettle();
 
-    expect(find.text('There is already a Khatm called "my reading"'),
-        findsOneWidget);
+    expect(
+      find.text('There is already a Khatm called "other reading"'),
+      findsOneWidget,
+    );
   });
 
-  testWidgets('the Collections view remembers the collection last picked',
-      (tester) async {
+  testWidgets('says once that My reading became a Khatm, and Undo deletes it', (
+    tester,
+  ) async {
+    final manager = RecitationTrackerManager.instance;
+    unawaited(
+      manager.addLabel(
+        'My reading',
+        settings: RecitationTrackSettings(
+          startAt: const VerseKey(2, 201),
+          startSetAt: DateTime.now(),
+        ),
+      ),
+    );
+    await SP.prefs.setString(
+      RecitationTrackerManager.myReadingPortNoticeKey,
+      'My reading',
+    );
+    await pump(tester);
+
+    const notice =
+        '"My reading" is now a Khatm, so it keeps your place as '
+        'before. Reading opened from the surah list no longer counts towards '
+        'it.';
+    expect(find.text(notice), findsOneWidget);
+    expect(find.text('Surah2 201'), findsOneWidget);
+
+    await tester.tap(find.text('Undo'));
+    await tester.pumpAndSettle();
+
+    expect(find.text(notice), findsNothing);
+    expect(manager.state.labels, isNot(contains('My reading')));
+    expect(
+      SP.prefs.getString(RecitationTrackerManager.myReadingPortNoticeKey),
+      isNull,
+    );
+  });
+
+  group('opening from the list while a Khatm is up to it', () {
+    // Not awaited, as elsewhere here: the state changes at once, and the
+    // backup it then waits on never answers in a test.
+    void addFamilyAt(VerseKey verse) {
+      unawaited(
+        RecitationTrackerManager.instance.addLabel(
+          'Family',
+          settings: RecitationTrackSettings(
+            startAt: verse,
+            startSetAt: DateTime.now(),
+          ),
+        ),
+      );
+    }
+
+    testWidgets('offers the Khatm only where it is up to', (tester) async {
+      addFamilyAt(const VerseKey(2, 201));
+      await tester.pump();
+      final state = RecitationTrackerManager.instance.state;
+
+      expect(khatmToOffer(state, surah: 2), 'Family');
+      expect(khatmToOffer(state, juz: juzOf(2, 201)), 'Family');
+      expect(khatmToOffer(state, surah: 3), isNull);
+      expect(khatmToOffer(state, juz: 30), isNull);
+    });
+
+    testWidgets('a toast says where the Khatm is, with a way to it', (
+      tester,
+    ) async {
+      addFamilyAt(const VerseKey(2, 201));
+      await tester.pumpWidget(
+        MaterialApp(
+          navigatorKey: appNavigatorKey,
+          navigatorObservers: [toastRouteObserver],
+          home: const Scaffold(body: SizedBox()),
+        ),
+      );
+
+      offerKhatmPlace('Family');
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 300));
+
+      expect(
+        find.text('Your Khatm "Family" has reached Surah2 201.'),
+        findsOneWidget,
+      );
+      expect(find.text('Continue Khatm'), findsOneWidget);
+      // No question to answer: it goes by itself.
+      expect(find.byType(Dialog), findsNothing);
+      await tester.pump(khatmToastDuration);
+      await tester.pumpAndSettle();
+      expect(find.text('Continue Khatm'), findsNothing);
+    });
+  });
+
+  testWidgets('the Collections view remembers the collection last picked', (
+    tester,
+  ) async {
     await pump(tester);
     await openCollection(tester, 'Saved');
 
@@ -514,13 +715,17 @@ void main() {
     // Scrolled into view, though it is the last pill of the row.
     final screenWidth =
         tester.view.physicalSize.width / tester.view.devicePixelRatio;
-    expect(tester.getRect(find.widgetWithText(ChoicePill, 'Saved')).right,
-        lessThanOrEqualTo(screenWidth));
+    expect(
+      tester.getRect(find.widgetWithText(ChoicePill, 'Saved')).right,
+      lessThanOrEqualTo(screenWidth),
+    );
   });
 }
 
 // The track cards scroll sideways too, so pick the vertical list.
 final _verticalScrollable = find
-    .byWidgetPredicate((widget) =>
-        widget is Scrollable && widget.axisDirection == AxisDirection.down)
+    .byWidgetPredicate(
+      (widget) =>
+          widget is Scrollable && widget.axisDirection == AxisDirection.down,
+    )
     .last;

@@ -109,7 +109,8 @@ class _QiblaFinderState extends State<QiblaFinder> {
     super.initState();
     unawaited(trackScreen('Qibla Finder'));
     _compass = widget.compassSource ?? const PlatformCompassSource();
-    _target = widget.initialTarget ??
+    _target =
+        widget.initialTarget ??
         holySiteById(
           SP.isInitialized ? SP.prefs.getString(_targetPreferenceKey) : null,
         );
@@ -201,7 +202,8 @@ class _QiblaFinderState extends State<QiblaFinder> {
     final bearing = _targetBearing;
     if (bearing == null) return;
 
-    final aligned = relativeBearingDegrees(_heading.value, bearing).abs() <=
+    final aligned =
+        relativeBearingDegrees(_heading.value, bearing).abs() <=
         _alignmentToleranceDegrees;
     if (aligned == _wasAligned) return;
     _wasAligned = aligned;
@@ -258,11 +260,13 @@ class _QiblaFinderState extends State<QiblaFinder> {
     if (SP.isInitialized) {
       unawaited(SP.prefs.setString(_targetPreferenceKey, chosen.id));
     }
-    unawaited(AnalyticsService.feature(
-      'qibla_target_changed',
-      label: 'Qibla target changed',
-      parameters: {'target': chosen.id},
-    ));
+    unawaited(
+      AnalyticsService.feature(
+        'qibla_target_changed',
+        label: 'Qibla target changed',
+        parameters: {'target': chosen.id},
+      ),
+    );
   }
 
   Future<void> _chooseCity() async {
@@ -326,14 +330,14 @@ class _QiblaFinderState extends State<QiblaFinder> {
     );
 
     Widget column(List<Widget> children, {double spacing = 14}) => Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            for (var i = 0; i < children.length; i++) ...[
-              if (i > 0) SizedBox(height: spacing),
-              children[i],
-            ],
-          ],
-        );
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        for (var i = 0; i < children.length; i++) ...[
+          if (i > 0) SizedBox(height: spacing),
+          children[i],
+        ],
+      ],
+    );
 
     return LargeTitlePage(
       title: context.l10n.qiblaPageTitle,
@@ -354,47 +358,55 @@ class _QiblaFinderState extends State<QiblaFinder> {
         SliverPadding(
           padding: gutter,
           sliver: SliverToBoxAdapter(
-            child: LayoutBuilder(builder: (context, constraints) {
-              // A desktop or a tablet on its side: the dial and what it
-              // says on the left, the rest beside it.
-              if (WideColumns.splits(constraints.maxWidth)) {
-                return Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(
-                      child: column([
-                        Center(
-                          child: ConstrainedBox(
-                            constraints: const BoxConstraints(maxWidth: 380),
-                            child: dial,
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                // A desktop or a tablet on its side: the dial and what it
+                // says on the left, the rest beside it.
+                if (WideColumns.splits(constraints.maxWidth)) {
+                  return Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: column([
+                          Center(
+                            child: ConstrainedBox(
+                              constraints: const BoxConstraints(maxWidth: 380),
+                              child: dial,
+                            ),
                           ),
-                        ),
-                        instruction,
-                      ]),
+                          instruction,
+                        ]),
+                      ),
+                      const SizedBox(width: 32),
+                      Expanded(
+                        child: column([
+                          target,
+                          ...notices,
+                          stats,
+                          locationStrip,
+                        ]),
+                      ),
+                    ],
+                  );
+                }
+                return column([
+                  target,
+                  ...notices,
+                  Center(
+                    child: ConstrainedBox(
+                      // Bigger on a tablet, which has the room.
+                      constraints: BoxConstraints(
+                        maxWidth: ScreenClass.of(context).isPhone ? 300 : 380,
+                      ),
+                      child: dial,
                     ),
-                    const SizedBox(width: 32),
-                    Expanded(
-                      child: column([target, ...notices, stats, locationStrip]),
-                    ),
-                  ],
-                );
-              }
-              return column([
-                target,
-                ...notices,
-                Center(
-                  child: ConstrainedBox(
-                    // Bigger on a tablet, which has the room.
-                    constraints: BoxConstraints(
-                        maxWidth: ScreenClass.of(context).isPhone ? 300 : 380),
-                    child: dial,
                   ),
-                ),
-                instruction,
-                stats,
-                locationStrip,
-              ]);
-            }),
+                  instruction,
+                  stats,
+                  locationStrip,
+                ]);
+              },
+            ),
           ),
         ),
       ],
@@ -417,8 +429,9 @@ class _QiblaFinderState extends State<QiblaFinder> {
           icon: Icons.location_off_outlined,
           title: context.l10n.qiblaLocationNeeded,
           body: context.l10n.qiblaLocationNeededBody,
-          action:
-              _location.isRefreshing ? null : context.l10n.qiblaUseMyLocation,
+          action: _location.isRefreshing
+              ? null
+              : context.l10n.qiblaUseMyLocation,
           onAction: _refreshLocation,
           // For someone who would rather not share their location at all.
           secondaryAction: context.l10n.prayerChooseCity,
@@ -491,17 +504,20 @@ class _LocationStrip extends StatelessWidget {
     final colors = ShiaColors.of(context);
     final label = here == null
         ? context.l10n.qiblaLocationUnknown
-        : [city, formatCoordinates(here!)]
-            .whereType<String>()
-            .where((part) => part.isNotEmpty)
-            .join(' · ');
+        : [
+            city,
+            formatCoordinates(here!),
+          ].whereType<String>().where((part) => part.isNotEmpty).join(' · ');
 
     return Row(
       children: [
         Padding(
           padding: const EdgeInsetsDirectional.only(start: 4),
-          child:
-              OutlineIcon(OutlineGlyph.pin, size: 18, color: colors.textMuted),
+          child: OutlineIcon(
+            OutlineGlyph.pin,
+            size: 18,
+            color: colors.textMuted,
+          ),
         ),
         const SizedBox(width: 8),
         Expanded(
@@ -547,7 +563,8 @@ class _TargetCard extends StatelessWidget {
 
     return Semantics(
       button: true,
-      label: '${l10n.qiblaPointingTowards} '
+      label:
+          '${l10n.qiblaPointingTowards} '
           '${l10n.qiblaTargetIn(target.displayName(l10n), target.displayCity(l10n))}',
       hint: l10n.qiblaChangeTarget,
       excludeSemantics: true,
@@ -568,7 +585,9 @@ class _TargetCard extends StatelessWidget {
                 const SizedBox(height: 1),
                 Text(
                   l10n.qiblaTargetIn(
-                      target.displayName(l10n), target.displayCity(l10n)),
+                    target.displayName(l10n),
+                    target.displayCity(l10n),
+                  ),
                   style: ShiaText.cardTitle.copyWith(color: colors.text),
                 ),
               ],
@@ -622,7 +641,9 @@ class _TurnInstruction extends StatelessWidget {
       color = colors.textMuted;
     } else if (!isLive) {
       message = l10n.qiblaBearingFromNorth(
-          target.displayName(l10n), formatBearing(bearing));
+        target.displayName(l10n),
+        formatBearing(bearing),
+      );
       color = colors.text;
     } else if (isAligned) {
       message = l10n.qiblaFacing(target.displayName(l10n));
@@ -696,8 +717,9 @@ class _StatsRow extends StatelessWidget {
         Expanded(
           child: _Stat(
             label: l10n.qiblaYouFace,
-            value:
-                headingDegrees == null ? '—' : formatBearing(headingDegrees!),
+            value: headingDegrees == null
+                ? '—'
+                : formatBearing(headingDegrees!),
           ),
         ),
       ],
@@ -813,8 +835,9 @@ class _NoticeCard extends StatelessWidget {
                       if (action != null)
                         PageButton(
                           label: action!,
-                          onPressed:
-                              onAction == null ? null : () => onAction!(),
+                          onPressed: onAction == null
+                              ? null
+                              : () => onAction!(),
                         ),
                       if (secondaryAction != null)
                         TextButton(
@@ -848,27 +871,32 @@ class _HolySitePicker extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        CardList(children: [
-          _SiteTile(
+        CardList(
+          children: [
+            _SiteTile(
               site: kaaba,
               selected: selected,
               from: from,
               first: true,
-              last: true),
-        ]),
+              last: true,
+            ),
+          ],
+        ),
         const SizedBox(height: 18),
         GroupLabel(context.l10n.menuZiyarats),
         const SizedBox(height: 8),
-        CardList(children: [
-          for (final (i, site) in others.indexed)
-            _SiteTile(
-              site: site,
-              selected: selected,
-              from: from,
-              first: i == 0,
-              last: i == others.length - 1,
-            ),
-        ]),
+        CardList(
+          children: [
+            for (final (i, site) in others.indexed)
+              _SiteTile(
+                site: site,
+                selected: selected,
+                from: from,
+                first: i == 0,
+                last: i == others.length - 1,
+              ),
+          ],
+        ),
       ],
     );
   }
@@ -911,8 +939,12 @@ class _SiteTile extends StatelessWidget {
               shape: BoxShape.circle,
             ),
             child: isSelected
-                ? OutlineIcon(OutlineGlyph.check,
-                    size: 20, color: colors.onAccent, strokeWidth: 2.4)
+                ? OutlineIcon(
+                    OutlineGlyph.check,
+                    size: 20,
+                    color: colors.onAccent,
+                    strokeWidth: 2.4,
+                  )
                 : OutlineIcon(OutlineGlyph.pin, size: 20, color: colors.accent),
           ),
           title: Text(
@@ -932,7 +964,8 @@ class _SiteTile extends StatelessWidget {
                     children: [
                       Text(
                         formatDistanceKm(
-                            greatCircleDistanceKm(origin, site.location)),
+                          greatCircleDistanceKm(origin, site.location),
+                        ),
                         style: ShiaText.caption.copyWith(
                           fontWeight: FontWeight.w600,
                           color: colors.text,
@@ -940,9 +973,11 @@ class _SiteTile extends StatelessWidget {
                       ),
                       Text(
                         compassLabel(
-                            initialBearingDegrees(origin, site.location)),
-                        style:
-                            ShiaText.caption.copyWith(color: colors.textMuted),
+                          initialBearingDegrees(origin, site.location),
+                        ),
+                        style: ShiaText.caption.copyWith(
+                          color: colors.textMuted,
+                        ),
                       ),
                     ],
                   ),
@@ -981,10 +1016,12 @@ class _AboutCompassDialog extends StatelessWidget {
               declination == null
                   ? context.l10n.qiblaDeclinationUnknownBody
                   : declination >= 0
-                      ? context.l10n.qiblaDeclinationEast(
-                          localizeDigits(declination.abs().toStringAsFixed(1)))
-                      : context.l10n.qiblaDeclinationWest(
-                          localizeDigits(declination.abs().toStringAsFixed(1))),
+                  ? context.l10n.qiblaDeclinationEast(
+                      localizeDigits(declination.abs().toStringAsFixed(1)),
+                    )
+                  : context.l10n.qiblaDeclinationWest(
+                      localizeDigits(declination.abs().toStringAsFixed(1)),
+                    ),
               style: theme.textTheme.bodyMedium?.copyWith(height: 1.45),
             ),
             const SizedBox(height: 14),
@@ -1009,6 +1046,7 @@ class _AboutCompassDialog extends StatelessWidget {
 /// better than the width of a city and a decimal would imply otherwise.
 String formatDistanceKm(double kilometres) {
   if (kilometres < 1) return L10n.current.qiblaDistanceHere;
-  return L10n.current
-      .distanceKm(NumberFormat.decimalPattern().format(kilometres.round()));
+  return L10n.current.distanceKm(
+    NumberFormat.decimalPattern().format(kilometres.round()),
+  );
 }

@@ -51,13 +51,13 @@ class QuranPortion {
   /// The reader's payload, in the same shape `_applyZikrData` takes from an
   /// asset - so a portion needs no separate loading path in the page.
   Map<String, dynamic> toZikrData() => {
-        'title': title,
-        'data': data,
-        if (script != null) ...{
-          arabicFontFamilyKey: script!.fontFamily,
-          quranScriptFontKey: script!.font,
-        },
-      };
+    'title': title,
+    'data': data,
+    if (script != null) ...{
+      arabicFontFamilyKey: script!.fontFamily,
+      quranScriptFontKey: script!.font,
+    },
+  };
 }
 
 /// The identity a juz reads under.

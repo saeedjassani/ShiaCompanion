@@ -83,10 +83,7 @@ const String playlistDeepLinkPath = '/playlist';
 /// silently doing nothing.
 bool webLaunchDeepLinkHandled = false;
 
-String buildDeepLinkPath({
-  required int type,
-  required List<String> segments,
-}) {
+String buildDeepLinkPath({required int type, required List<String> segments}) {
   final encodedSegments = segments.map(Uri.encodeComponent).join('/');
   return '/$type/$encodedSegments';
 }
@@ -282,8 +279,9 @@ DeepLinkTarget? extractZikrLinkTarget(String href) {
     return _zikrOnly(parseDeepLinkUri(uri));
   }
 
-  final appTarget =
-      _zikrOnly(_isAppDeepLinkHost(uri.host) ? parseDeepLinkUri(uri) : null);
+  final appTarget = _zikrOnly(
+    _isAppDeepLinkHost(uri.host) ? parseDeepLinkUri(uri) : null,
+  );
   if (appTarget != null) {
     return appTarget;
   }
@@ -480,8 +478,9 @@ int? _extractTab(Uri uri) {
 Uri? _fragmentPathUri(Uri uri) {
   if (uri.fragment.isEmpty) return null;
 
-  final normalizedFragment =
-      uri.fragment.startsWith('/') ? uri.fragment : '/${uri.fragment}';
+  final normalizedFragment = uri.fragment.startsWith('/')
+      ? uri.fragment
+      : '/${uri.fragment}';
   return Uri.tryParse(normalizedFragment);
 }
 
@@ -489,14 +488,8 @@ bool _isReservedNonZikrPath(String segment) {
   return _reservedNonZikrPaths.contains(segment.toLowerCase());
 }
 
-String buildDeepLinkUrl({
-  required int type,
-  required List<String> segments,
-}) {
-  return '$appWebOrigin${buildDeepLinkPath(
-    type: type,
-    segments: segments,
-  )}';
+String buildDeepLinkUrl({required int type, required List<String> segments}) {
+  return '$appWebOrigin${buildDeepLinkPath(type: type, segments: segments)}';
 }
 
 String buildZikrDeepLinkUrl({
@@ -504,21 +497,14 @@ String buildZikrDeepLinkUrl({
   String? slug,
   int? tabIndex,
 }) {
-  return '$appWebOrigin${buildZikrDeepLinkPath(
-    uid: uid,
-    slug: slug,
-    tabIndex: tabIndex,
-  )}';
+  return '$appWebOrigin${buildZikrDeepLinkPath(uid: uid, slug: slug, tabIndex: tabIndex)}';
 }
 
 String buildLibraryDeepLinkUrl({
   required String bookSlug,
   String? chapterSlug,
 }) {
-  return '$appWebOrigin${buildLibraryDeepLinkPath(
-    bookSlug: bookSlug,
-    chapterSlug: chapterSlug,
-  )}';
+  return '$appWebOrigin${buildLibraryDeepLinkPath(bookSlug: bookSlug, chapterSlug: chapterSlug)}';
 }
 
 String buildCalendarDeepLinkUrl() {
@@ -534,8 +520,5 @@ String buildPlaylistDeepLinkUrl(String playlistId) {
 }
 
 String buildQuranDeepLinkUrl({required int surah, int? ayah}) {
-  return '$appWebOrigin${buildQuranDeepLinkPath(
-    surah: surah,
-    ayah: ayah,
-  )}';
+  return '$appWebOrigin${buildQuranDeepLinkPath(surah: surah, ayah: ayah)}';
 }

@@ -13,13 +13,13 @@ enum RecitationOperationKind {
 
 extension RecitationOperationKindInfo on RecitationOperationKind {
   String get key => switch (this) {
-        RecitationOperationKind.add => 'add',
-        RecitationOperationKind.remove => 'remove',
-        RecitationOperationKind.addLabel => 'add_label',
-        RecitationOperationKind.setTrackSettings => 'set_track_settings',
-        RecitationOperationKind.compact => 'compact',
-        RecitationOperationKind.removeTrack => 'remove_track',
-      };
+    RecitationOperationKind.add => 'add',
+    RecitationOperationKind.remove => 'remove',
+    RecitationOperationKind.addLabel => 'add_label',
+    RecitationOperationKind.setTrackSettings => 'set_track_settings',
+    RecitationOperationKind.compact => 'compact',
+    RecitationOperationKind.removeTrack => 'remove_track',
+  };
 }
 
 RecitationOperationKind? recitationOperationKindFromKey(String key) {
@@ -137,39 +137,40 @@ class PendingRecitationOperation {
   final Set<String> trackDays;
 
   Map<String, Object> toJson() => {
-        'id': id,
-        'kind': kind.key,
-        if (entryId != null) 'entryId': entryId!,
-        if (entry != null) 'entry': entry!.toJson(),
-        if (labelName != null) 'labelName': labelName!,
-        if (settings != null) 'settings': settings!.toJson(),
-        if (kind == RecitationOperationKind.removeTrack) ...{
-          'entryIds': trackEntryIds.toList(),
-          'days': trackDays.toList(),
-        },
-        if (compaction != null) ...{
-          'removedEntryIds': compaction!.removedEntryIds.toList(),
-          'summaries': {
-            for (final day in compaction!.summaries.entries)
-              day.key: {
-                for (final summary in day.value.entries)
-                  summary.key: summary.value.encode(),
-              },
+    'id': id,
+    'kind': kind.key,
+    if (entryId != null) 'entryId': entryId!,
+    if (entry != null) 'entry': entry!.toJson(),
+    if (labelName != null) 'labelName': labelName!,
+    if (settings != null) 'settings': settings!.toJson(),
+    if (kind == RecitationOperationKind.removeTrack) ...{
+      'entryIds': trackEntryIds.toList(),
+      'days': trackDays.toList(),
+    },
+    if (compaction != null) ...{
+      'removedEntryIds': compaction!.removedEntryIds.toList(),
+      'summaries': {
+        for (final day in compaction!.summaries.entries)
+          day.key: {
+            for (final summary in day.value.entries)
+              summary.key: summary.value.encode(),
           },
-          if (compaction!.coverage.isNotEmpty)
-            'coverage': {
-              for (final track in compaction!.coverage.entries)
-                track.key: encodeAyahRanges(track.value),
-            },
+      },
+      if (compaction!.coverage.isNotEmpty)
+        'coverage': {
+          for (final track in compaction!.coverage.entries)
+            track.key: encodeAyahRanges(track.value),
         },
-      };
+    },
+  };
 
   static PendingRecitationOperation? fromJson(dynamic value) {
     if (value is! Map) return null;
 
     final id = value['id']?.toString().trim() ?? '';
-    final kind =
-        recitationOperationKindFromKey(value['kind']?.toString() ?? '');
+    final kind = recitationOperationKindFromKey(
+      value['kind']?.toString() ?? '',
+    );
     if (id.isEmpty || kind == null) return null;
 
     switch (kind) {
@@ -232,9 +233,7 @@ class PendingRecitationOperation {
         return PendingRecitationOperation.compact(
           id,
           RecitationCompaction(
-            removedEntryIds: {
-              for (final entryId in rawIds) entryId.toString(),
-            },
+            removedEntryIds: {for (final entryId in rawIds) entryId.toString()},
             summaries: summaries,
             coverage: coverage,
           ),
@@ -431,18 +430,21 @@ RecitationTrackerState applyPendingRecitationOperation(
       operation.entry == null ? state : state.setEntry(operation.entry!),
     RecitationOperationKind.remove =>
       operation.entryId == null ? state : state.removeEntry(operation.entryId!),
-    RecitationOperationKind.addLabel => operation.labelName == null
-        ? state
-        : state.addCustomLabel(operation.labelName!),
+    RecitationOperationKind.addLabel =>
+      operation.labelName == null
+          ? state
+          : state.addCustomLabel(operation.labelName!),
     RecitationOperationKind.setTrackSettings =>
       operation.labelName == null || operation.settings == null
           ? state
           : state.setTrackSettings(operation.labelName!, operation.settings!),
-    RecitationOperationKind.compact => operation.compaction == null
-        ? state
-        : state.applyCompaction(operation.compaction!),
-    RecitationOperationKind.removeTrack => operation.labelName == null
-        ? state
-        : state.removeTrack(operation.labelName!),
+    RecitationOperationKind.compact =>
+      operation.compaction == null
+          ? state
+          : state.applyCompaction(operation.compaction!),
+    RecitationOperationKind.removeTrack =>
+      operation.labelName == null
+          ? state
+          : state.removeTrack(operation.labelName!),
   };
 }

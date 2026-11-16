@@ -73,10 +73,8 @@ class DefaultFirebaseOptions {
     projectId: 'shia-comapnion',
     databaseURL: 'https://shia-comapnion.firebaseio.com',
     storageBucket: 'shia-comapnion.firebasestorage.app',
-    androidClientId:
-        '1001420856250-26dbel6vu7gachlntmo6decth4epcg6l.apps.googleusercontent.com',
-    iosClientId:
-        '1001420856250-clrf0hrb1jgpuv0avehouki158r6lccc.apps.googleusercontent.com',
+    androidClientId: '1001420856250-26dbel6vu7gachlntmo6decth4epcg6l.apps.googleusercontent.com',
+    iosClientId: '1001420856250-clrf0hrb1jgpuv0avehouki158r6lccc.apps.googleusercontent.com',
     iosBundleId: 'com.developer110.shiacompanion',
   );
 }

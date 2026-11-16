@@ -41,7 +41,7 @@ class ReaderGlassBand extends StatelessWidget {
 
 /// The reader's top bar (docs/DESIGN_SPEC.md, "Reading"): the round Back
 /// button, a one-line title with a small sub-line under it ("12% read",
-/// "Part 3 of 4", "Verse 255 of 286 · My reading"), an optional round action
+/// "Part 3 of 4", "Khatm: Family · 12% read"), an optional round action
 /// on the right (the reminder bell), and a 3 px progress line along its bottom
 /// edge.
 ///
@@ -117,7 +117,8 @@ class ReaderTopBar extends StatelessWidget {
                             // too wherever the UI font is not registered.
                             child: Text.rich(
                               TextSpan(
-                                children: arabicRunSpans(shownTitle) ??
+                                children:
+                                    arabicRunSpans(shownTitle) ??
                                     [TextSpan(text: shownTitle)],
                               ),
                               semanticsLabel: title,

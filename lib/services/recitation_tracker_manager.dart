@@ -5,6 +5,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 
+import '../l10n/l10n.dart';
+import '../models/continuous_reading.dart';
 import '../models/recitation_tracker_state.dart';
 import '../services/analytics_service.dart';
 import '../services/recitation_tracker_sync_policy.dart';
@@ -130,6 +132,7 @@ class RecitationTrackerManager extends ChangeNotifier {
       _updateState(guestState);
       _loadedUserId = null;
       await _compactOldSessions();
+      await _maybePortMyReading(null);
       debugPrint('RecitationTrackerManager: Loaded guest state');
       return;
     }
@@ -138,7 +141,8 @@ class RecitationTrackerManager extends ChangeNotifier {
     if (!cachedState.isEmpty) _updateState(cachedState);
 
     final remoteRead = await _loadRemoteState(user.uid);
-    final shouldImportGuestState = (isGuestToUserTransition ||
+    final shouldImportGuestState =
+        (isGuestToUserTransition ||
             SP.prefs.getBool(_guestImportPendingKey) == true) &&
         !guestState.isEmpty;
     final pendingOperations = _loadPendingOperations(user.uid);
@@ -182,7 +186,8 @@ class RecitationTrackerManager extends ChangeNotifier {
         _pendingGuestImportUserId = user.uid;
         _pendingGuestImportState = guestState;
         debugPrint(
-            'RecitationTrackerManager: Error importing guest state: $error');
+          'RecitationTrackerManager: Error importing guest state: $error',
+        );
       }
     }
 
@@ -192,7 +197,11 @@ class RecitationTrackerManager extends ChangeNotifier {
     // works from what every device has synced. Not while a guest import is
     // still to go up: its sessions would be summarised here and then arrive
     // raw as well, and be counted twice.
-    if (_pendingGuestImportUserId != user.uid) await _compactOldSessions();
+    if (_pendingGuestImportUserId != user.uid) {
+      await _compactOldSessions();
+      // Here too, for the same reason: it decides from the whole account.
+      await _maybePortMyReading(user.uid);
+    }
 
     _loadedUserId = user.uid;
     setupRealtimeListener();
@@ -209,10 +218,109 @@ class RecitationTrackerManager extends ChangeNotifier {
       '${compaction.removedEntryIds.length} old sessions into day summaries, '
       '${compaction.coverage.length} tracks\' old ranges into coverage',
     );
-    await _applyOperation(PendingRecitationOperation.compact(
-      'compact_${DateTime.now().microsecondsSinceEpoch}',
-      compaction,
-    ));
+    await _applyOperation(
+      PendingRecitationOperation.compact(
+        'compact_${DateTime.now().microsecondsSinceEpoch}',
+        compaction,
+      ),
+    );
+  }
+
+  /// Where [_maybePortMyReading] notes, per account, that it has decided.
+  static String _myReadingPortDecidedKey(String? userId) =>
+      'recitation_my_reading_port_v1_${userId ?? 'guest'}';
+
+  /// The name of the Khatm [_maybePortMyReading] made, until the Quran
+  /// screen has said so (see [myReadingPortNotice]).
+  static const String myReadingPortNoticeKey =
+      'recitation_my_reading_port_notice';
+
+  /// Once per account: when its everyday reading was read straight through
+  /// the Quran ([planMyReadingPort]) - as it was by most who read a khatm
+  /// through the old "My reading" card - moves it into a Khatm called "My
+  /// reading", which carries on where it stopped.
+  ///
+  /// The reading is copied, not moved: the Khatm gets the verses as its
+  /// progress (like a Khatm's "count earlier verses"), and the everyday
+  /// reading keeps its history, so no total counts anything twice. Only
+  /// straight after the account was read in full, so it decides from what
+  /// every device has synced; a second device finds the Khatm already there
+  /// and leaves it.
+  Future<void> _maybePortMyReading(String? userId) async {
+    final decidedKey = _myReadingPortDecidedKey(userId);
+    if (SP.prefs.getBool(decidedKey) == true) return;
+    await SP.prefs.setBool(decidedKey, true);
+
+    final name = L10n.current.quranMyReading;
+    final reading = planMyReadingPort(_state, name);
+    if (reading == null) return;
+    debugPrint(
+      'RecitationTrackerManager: Moving everyday reading '
+      '${reading.start.surah}:${reading.start.ayah}-'
+      '${reading.end.surah}:${reading.end.ayah} into a Khatm',
+    );
+    await _applyOperation(
+      PendingRecitationOperation.setTrackSettings(
+        name,
+        RecitationTrackSettings(
+          readByJuz: reading.readInJuz,
+          startAt: reading.resumeAt,
+          startSetAt: DateTime.now(),
+        ),
+      ),
+    );
+    await _applyOperation(
+      PendingRecitationOperation.compact(
+        'port_my_reading_${DateTime.now().microsecondsSinceEpoch}',
+        RecitationCompaction(
+          removedEntryIds: const {},
+          summaries: const {},
+          coverage: {name: reading.ranges},
+        ),
+      ),
+    );
+    await SP.prefs.setString(myReadingPortNoticeKey, name);
+    unawaited(
+      AnalyticsService.feature(
+        'my_reading_ported',
+        label: 'My reading moved into a Khatm',
+        parameters: {
+          'continuations': '${reading.continuations}',
+          'days': '${reading.days}',
+        },
+      ),
+    );
+  }
+
+  /// The Khatm the everyday reading was just moved into, for the Quran
+  /// screen to say so once; null once said, or if it was since deleted.
+  String? get myReadingPortNotice {
+    final name = SP.prefs.getString(myReadingPortNoticeKey);
+    if (name == null || !_state.customLabels.contains(name)) return null;
+    return name;
+  }
+
+  /// Whether the notice's Undo can still delete the Khatm [name] without
+  /// losing anything: only until something has been read in it. Until then
+  /// all it holds is the reading copied in, which everyday reading keeps;
+  /// after, an Undo days later would take that reading with it, so the
+  /// Khatm is deleted the usual way (its sheet, which asks first).
+  bool canUndoMyReadingPort(String name) => _state.lastRecitedFor(name) == null;
+
+  /// Done with the notice: kept, or - with [undo] - the Khatm deleted, if
+  /// that loses nothing ([canUndoMyReadingPort]).
+  Future<void> dismissMyReadingPortNotice({bool undo = false}) async {
+    final name = SP.prefs.getString(myReadingPortNoticeKey);
+    await SP.prefs.remove(myReadingPortNoticeKey);
+    notifyListeners();
+    if (!undo || name == null || !canUndoMyReadingPort(name)) return;
+    unawaited(
+      AnalyticsService.feature(
+        'my_reading_port_undone',
+        label: 'My reading Khatm undone',
+      ),
+    );
+    await removeTrack(name);
   }
 
   void _setLoading(bool value) {
@@ -291,14 +399,16 @@ class RecitationTrackerManager extends ChangeNotifier {
 
   Future<_RemoteRecitationRead> _loadRemoteState(String userId) async {
     try {
-      final snapshot =
-          await _doc(userId).get().timeout(const Duration(seconds: 8));
+      final snapshot = await _doc(userId)
+          .get()
+          .timeout(const Duration(seconds: 8));
       return _RemoteRecitationRead.success(
         state: RecitationTrackerState.fromJson(snapshot.data()?['state']),
       );
     } catch (error) {
       debugPrint(
-          'RecitationTrackerManager: Error loading remote state: $error');
+        'RecitationTrackerManager: Error loading remote state: $error',
+      );
       return _RemoteRecitationRead.failure();
     }
   }
@@ -358,8 +468,9 @@ class RecitationTrackerManager extends ChangeNotifier {
           operation.id: jsonEncode(operation.toJson()),
       };
       final operations = _loadPendingOperations(userId)
-          .where((pending) =>
-              syncedById[pending.id] != jsonEncode(pending.toJson()))
+          .where(
+            (pending) => syncedById[pending.id] != jsonEncode(pending.toJson()),
+          )
           .toList(growable: false);
       await _writePendingOperations(userId, operations);
     });
@@ -506,16 +617,11 @@ class RecitationTrackerManager extends ChangeNotifier {
     // deleted track's label comes out in a write of its own, committed with
     // the rest as one batch.
     return (_firestore.batch()
-          ..set(
-            doc,
-            {
-              'state': {
-                'labels':
-                    FieldValue.arrayRemove(changes.removedLabels.toList()),
-              },
+          ..set(doc, {
+            'state': {
+              'labels': FieldValue.arrayRemove(changes.removedLabels.toList()),
             },
-            SetOptions(merge: true),
-          )
+          }, SetOptions(merge: true))
           ..set(doc, write, SetOptions(merge: true)))
         .commit();
   }
@@ -593,8 +699,8 @@ class RecitationTrackerManager extends ChangeNotifier {
       _pushAgain = true;
       return inFlight;
     }
-    return _pushInFlight =
-        _pushPendingNow(userId).whenComplete(() => _pushInFlight = null);
+    return _pushInFlight = _pushPendingNow(userId)
+        .whenComplete(() => _pushInFlight = null);
   }
 
   Future<void> _pushPendingNow(String userId) async {
@@ -688,10 +794,12 @@ class RecitationTrackerManager extends ChangeNotifier {
 
   Future<void> removeEntry(String entryId) {
     if (!_state.entries.containsKey(entryId)) return Future.value();
-    unawaited(AnalyticsService.feature(
-      'recitation_entry_removed',
-      label: 'Recitation entry removed',
-    ));
+    unawaited(
+      AnalyticsService.feature(
+        'recitation_entry_removed',
+        label: 'Recitation entry removed',
+      ),
+    );
     return _applyOperation(PendingRecitationOperation.remove(entryId));
   }
 
@@ -707,14 +815,16 @@ class RecitationTrackerManager extends ChangeNotifier {
       return Future.value();
     }
     if (_state.customLabels.contains(trimmed)) return Future.value();
-    unawaited(AnalyticsService.feature(
-      'recitation_track_added',
-      label: 'Recitation track added',
-      parameters: {
-        if (settings != null) 'read_by': settings.readByJuz ? 'juz' : 'surah',
-        if (settings?.startAt != null) 'has_start': 'true',
-      },
-    ));
+    unawaited(
+      AnalyticsService.feature(
+        'recitation_track_added',
+        label: 'Recitation track added',
+        parameters: {
+          if (settings != null) 'read_by': settings.readByJuz ? 'juz' : 'surah',
+          if (settings?.startAt != null) 'has_start': 'true',
+        },
+      ),
+    );
     if (settings != null) {
       return _applyOperation(
         PendingRecitationOperation.setTrackSettings(trimmed, settings),
@@ -733,11 +843,13 @@ class RecitationTrackerManager extends ChangeNotifier {
       return Future.value();
     }
     if (_state.trackSettings[trimmed] == settings) return Future.value();
-    unawaited(AnalyticsService.feature(
-      'recitation_track_settings_changed',
-      label: 'Recitation track settings changed',
-      parameters: {'read_by': settings.readByJuz ? 'juz' : 'surah'},
-    ));
+    unawaited(
+      AnalyticsService.feature(
+        'recitation_track_settings_changed',
+        label: 'Recitation track settings changed',
+        parameters: {'read_by': settings.readByJuz ? 'juz' : 'surah'},
+      ),
+    );
     return _applyOperation(
       PendingRecitationOperation.setTrackSettings(trimmed, settings),
     );
@@ -752,15 +864,19 @@ class RecitationTrackerManager extends ChangeNotifier {
       return Future.value();
     }
     final (entryIds, days) = _state.trackFootprint(trimmed);
-    unawaited(AnalyticsService.feature(
-      'recitation_track_removed',
-      label: 'Recitation track removed',
-    ));
-    return _applyOperation(PendingRecitationOperation.removeTrack(
-      trimmed,
-      entryIds: entryIds,
-      days: days,
-    ));
+    unawaited(
+      AnalyticsService.feature(
+        'recitation_track_removed',
+        label: 'Recitation track removed',
+      ),
+    );
+    return _applyOperation(
+      PendingRecitationOperation.removeTrack(
+        trimmed,
+        entryIds: entryIds,
+        days: days,
+      ),
+    );
   }
 
   String _newEntryId() => 'r_${DateTime.now().microsecondsSinceEpoch}';
@@ -825,8 +941,8 @@ class _RemoteRecitationRead {
   _RemoteRecitationRead.success({required this.state}) : succeeded = true;
 
   _RemoteRecitationRead.failure()
-      : succeeded = false,
-        state = RecitationTrackerState.empty;
+    : succeeded = false,
+      state = RecitationTrackerState.empty;
 
   final bool succeeded;
   final RecitationTrackerState state;

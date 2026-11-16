@@ -25,7 +25,7 @@ class _ScheduledNotificationsPageState
   Future<List<PendingNotificationRequest>> _loadScheduledNotifications() async {
     final requests =
         await flutterLocalNotificationsPlugin?.pendingNotificationRequests() ??
-            <PendingNotificationRequest>[];
+        <PendingNotificationRequest>[];
     requests.sort((a, b) {
       final aDate = _scheduledDate(a);
       final bDate = _scheduledDate(b);
@@ -75,12 +75,7 @@ class _ScheduledNotificationsPageState
     return Scaffold(
       appBar: AppBar(
         title: Text(context.l10n.settingsScheduledNotifications),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.refresh),
-            onPressed: _refresh,
-          ),
-        ],
+        actions: [IconButton(icon: Icon(Icons.refresh), onPressed: _refresh)],
       ),
       body: FutureBuilder<List<PendingNotificationRequest>>(
         future: _scheduledNotifications,

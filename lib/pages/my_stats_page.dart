@@ -50,12 +50,14 @@ class _MyStatsPageState extends State<MyStatsPage> {
     setState(() => _metric = metric);
     final history = _historyKey.currentContext;
     if (history != null) {
-      unawaited(Scrollable.ensureVisible(
-        history,
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeOutCubic,
-        alignmentPolicy: ScrollPositionAlignmentPolicy.keepVisibleAtEnd,
-      ));
+      unawaited(
+        Scrollable.ensureVisible(
+          history,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeOutCubic,
+          alignmentPolicy: ScrollPositionAlignmentPolicy.keepVisibleAtEnd,
+        ),
+      );
     }
   }
 
@@ -145,14 +147,18 @@ class _MyStatsPageState extends State<MyStatsPage> {
                             title: l10n.statsYourMostRecited,
                             onSeeAll: summary.zikrCounts.length > _topCount
                                 ? () => pushPageRoute(
-                                    context, const _AllRecitedPage())
+                                    context,
+                                    const _AllRecitedPage(),
+                                  )
                                 : null,
                           ),
                           const SizedBox(height: 8),
-                          _RankedZikrList(entries: [
-                            for (final entry in summary.topZikrs(_topCount))
-                              (entry.key, _titleFor(entry.key), entry.value),
-                          ]),
+                          _RankedZikrList(
+                            entries: [
+                              for (final entry in summary.topZikrs(_topCount))
+                                (entry.key, _titleFor(entry.key), entry.value),
+                            ],
+                          ),
                         ],
                       ),
                     Column(
@@ -172,7 +178,7 @@ class _MyStatsPageState extends State<MyStatsPage> {
                             (
                               zikr.uid,
                               _titleFor(zikr.uid, zikr.title),
-                              zikr.recitations
+                              zikr.recitations,
                             ),
                         ],
                       ),
@@ -254,11 +260,14 @@ class _AllRecitedPage extends StatelessWidget {
             SliverPadding(
               padding: gutter,
               sliver: SliverToBoxAdapter(
-                child: _RankedZikrList(entries: [
-                  for (final entry
-                      in summary.topZikrs(summary.zikrCounts.length))
-                    (entry.key, _titleFor(entry.key), entry.value),
-                ]),
+                child: _RankedZikrList(
+                  entries: [
+                    for (final entry in summary.topZikrs(
+                      summary.zikrCounts.length,
+                    ))
+                      (entry.key, _titleFor(entry.key), entry.value),
+                  ],
+                ),
               ),
             ),
           ],
@@ -293,11 +302,16 @@ class _RankedZikrList extends StatelessWidget {
             minHeight: 48,
             leading: ConstrainedBox(
               constraints: const BoxConstraints(minWidth: 20),
-              child: Text(localizeDigits('${i + 1}', context.l10n),
-                  style: muted.copyWith(fontWeight: FontWeight.w700)),
+              child: Text(
+                localizeDigits('${i + 1}', context.l10n),
+                style: muted.copyWith(fontWeight: FontWeight.w700),
+              ),
             ),
-            title: textWithArabicRuns(entries[i].$2,
-                maxLines: 2, overflow: TextOverflow.ellipsis),
+            title: textWithArabicRuns(
+              entries[i].$2,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
             trailing: Padding(
               padding: const EdgeInsetsDirectional.only(start: 8, end: 8),
               child: Text(
@@ -307,8 +321,10 @@ class _RankedZikrList extends StatelessWidget {
             ),
             onTap: () => pushPageRoute(
               context,
-              ZikrPage(UidTitleData(entries[i].$1, entries[i].$2),
-                  source: ZikrOpenSource.myStats),
+              ZikrPage(
+                UidTitleData(entries[i].$1, entries[i].$2),
+                source: ZikrOpenSource.myStats,
+              ),
             ),
           ),
       ],
@@ -337,7 +353,9 @@ class _TotalsTiles extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     String number(int value) => localizeDigits(
-        value < 10000 ? _count.format(value) : _compact.format(value), l10n);
+      value < 10000 ? _count.format(value) : _compact.format(value),
+      l10n,
+    );
 
     final tiles = [
       for (final metric in metrics)
@@ -357,16 +375,16 @@ class _TotalsTiles extends StatelessWidget {
     ];
 
     Widget row(List<Widget> tiles) => IntrinsicHeight(
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              for (var i = 0; i < tiles.length; i++) ...[
-                if (i > 0) const SizedBox(width: 12),
-                Expanded(child: tiles[i]),
-              ],
-            ],
-          ),
-        );
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          for (var i = 0; i < tiles.length; i++) ...[
+            if (i > 0) const SizedBox(width: 12),
+            Expanded(child: tiles[i]),
+          ],
+        ],
+      ),
+    );
 
     if (tiles.length < 4) return row(tiles);
     return Column(
@@ -420,8 +438,12 @@ class _StreakCard extends StatelessWidget {
         children: [
           Padding(
             padding: const EdgeInsets.only(top: 1),
-            child: OutlineIcon(OutlineGlyph.check,
-                size: 18, color: colors.success, strokeWidth: 2.4),
+            child: OutlineIcon(
+              OutlineGlyph.check,
+              size: 18,
+              color: colors.success,
+              strokeWidth: 2.4,
+            ),
           ),
           const SizedBox(width: 8),
           Expanded(
@@ -464,8 +486,11 @@ class _StreakCard extends StatelessWidget {
                   color: colors.well,
                   borderRadius: BorderRadius.circular(16),
                 ),
-                child: OutlineIcon(OutlineGlyph.flame,
-                    size: 28, color: colors.accent),
+                child: OutlineIcon(
+                  OutlineGlyph.flame,
+                  size: 28,
+                  color: colors.accent,
+                ),
               ),
               const SizedBox(width: 14),
               Expanded(
@@ -487,10 +512,11 @@ class _StreakCard extends StatelessWidget {
                         firstDay
                             ? l10n.statsYourBest(best)
                             : best > streak
-                                ? l10n.statsStreakInARowBest(best)
-                                : l10n.statsStreakInARow,
-                        style: ShiaText.secondary
-                            .copyWith(color: colors.textMuted),
+                            ? l10n.statsStreakInARowBest(best)
+                            : l10n.statsStreakInARow,
+                        style: ShiaText.secondary.copyWith(
+                          color: colors.textMuted,
+                        ),
                       ),
                   ],
                 ),
@@ -547,8 +573,9 @@ class _CommunitySection extends StatelessWidget {
     if (age.inHours < 24) {
       return L10n.current.statsUpdatedHoursAgo(age.inHours);
     }
-    return L10n.current
-        .statsUpdatedOn(DateFormat('MMM d').format(stats.updatedAt));
+    return L10n.current.statsUpdatedOn(
+      DateFormat('MMM d').format(stats.updatedAt),
+    );
   }
 
   @override
@@ -598,10 +625,11 @@ class _CommunitySection extends StatelessWidget {
                   highlightLast: false,
                   barArea: 56,
                   format: (value) => localizeDigits(
-                      value < 1000
-                          ? format.format(value)
-                          : NumberFormat.compact().format(value),
-                      l10n),
+                    value < 1000
+                        ? format.format(value)
+                        : NumberFormat.compact().format(value),
+                    l10n,
+                  ),
                 ),
               ],
               if (stats.allTimeRecitations > 0) ...[

@@ -16,6 +16,7 @@ import 'package:shia_companion/utils/prayer_time_entries.dart';
 import 'package:shia_companion/widgets/outline_icon.dart';
 import 'package:shia_companion/widgets/page_chrome.dart';
 import 'package:shia_companion/widgets/prayer_glyph.dart';
+
 import '../l10n/l10n.dart';
 import '../widgets/app_toast.dart';
 
@@ -139,7 +140,8 @@ class _PrayerNotificationsPageState extends State<PrayerNotificationsPage> {
     if (value) await requestNotificationPermissions();
 
     unawaited(
-        PrayerPreferencesSyncService.instance.pushNotificationToggle(key));
+      PrayerPreferencesSyncService.instance.pushNotificationToggle(key),
+    );
     _scheduleReschedule();
     if (!mounted) return;
     setState(() {});
@@ -177,8 +179,10 @@ class _PrayerNotificationsPageState extends State<PrayerNotificationsPage> {
           latitude: latitude,
           longitude: longitude,
         ))
-          entry.name: localizeClockTime(formatPrayerDateTime12(entry.dateTime)
-              .replaceFirst(RegExp(r'^0(?=\d)'), '')),
+          entry.name: localizeClockTime(
+            formatPrayerDateTime12(entry.dateTime)
+                .replaceFirst(RegExp(r'^0(?=\d)'), ''),
+          ),
       };
     } catch (_) {
       return const {};
@@ -219,8 +223,11 @@ class _PrayerNotificationsPageState extends State<PrayerNotificationsPage> {
                     first: true,
                     last: true,
                     leading: _IconTile(
-                      child: OutlineIcon(OutlineGlyph.pin,
-                          size: 20, color: colors.accent),
+                      child: OutlineIcon(
+                        OutlineGlyph.pin,
+                        size: 20,
+                        color: colors.accent,
+                      ),
                     ),
                     title: Text(l10n.azanNeedsCity),
                     trailing: const _Chevron(),
@@ -239,8 +246,11 @@ class _PrayerNotificationsPageState extends State<PrayerNotificationsPage> {
                   first: true,
                   last: true,
                   leading: _IconTile(
-                    child: OutlineIcon(OutlineGlyph.speaker,
-                        size: 20, color: colors.accent),
+                    child: OutlineIcon(
+                      OutlineGlyph.speaker,
+                      size: 20,
+                      color: colors.accent,
+                    ),
                   ),
                   title: Text(l10n.notifDefaultSound),
                   subtitle: Text(l10n.azanDefaultSoundBody),
@@ -249,20 +259,24 @@ class _PrayerNotificationsPageState extends State<PrayerNotificationsPage> {
                     children: [
                       ConstrainedBox(
                         constraints: BoxConstraints(
-                            maxWidth: MediaQuery.sizeOf(context).width * 0.35),
-                        child: Builder(builder: (context) {
-                          final name = _defaultSoundName();
-                          return Text(
-                            name,
-                            // A file name is one long word: cut it short
-                            // rather than split it across lines.
-                            maxLines: name.contains(' ') ? 2 : 1,
-                            overflow: TextOverflow.ellipsis,
-                            textAlign: TextAlign.end,
-                            style:
-                                ShiaText.body.copyWith(color: colors.textMuted),
-                          );
-                        }),
+                          maxWidth: MediaQuery.sizeOf(context).width * 0.35,
+                        ),
+                        child: Builder(
+                          builder: (context) {
+                            final name = _defaultSoundName();
+                            return Text(
+                              name,
+                              // A file name is one long word: cut it short
+                              // rather than split it across lines.
+                              maxLines: name.contains(' ') ? 2 : 1,
+                              overflow: TextOverflow.ellipsis,
+                              textAlign: TextAlign.end,
+                              style: ShiaText.body.copyWith(
+                                color: colors.textMuted,
+                              ),
+                            );
+                          },
+                        ),
                       ),
                       const _Chevron(),
                     ],
@@ -275,8 +289,9 @@ class _PrayerNotificationsPageState extends State<PrayerNotificationsPage> {
         ),
         SliverPadding(
           padding: gutter.copyWith(bottom: 8),
-          sliver:
-              SliverToBoxAdapter(child: GroupLabel(l10n.azanTimesOn(onCount))),
+          sliver: SliverToBoxAdapter(
+            child: GroupLabel(l10n.azanTimesOn(onCount)),
+          ),
         ),
         SliverPadding(
           padding: gutter.copyWith(bottom: 14),
@@ -311,8 +326,10 @@ class _PrayerNotificationsPageState extends State<PrayerNotificationsPage> {
                 isIOS
                     ? '${l10n.azanFootnote} ${l10n.azanFootnoteIos}'
                     : l10n.azanFootnote,
-                style: ShiaText.caption
-                    .copyWith(height: 18 / 13, color: colors.textMuted),
+                style: ShiaText.caption.copyWith(
+                  height: 18 / 13,
+                  color: colors.textMuted,
+                ),
               ),
             ),
           ),
@@ -324,8 +341,9 @@ class _PrayerNotificationsPageState extends State<PrayerNotificationsPage> {
   String _defaultSoundName() {
     final azaan = getSelectedAzaan();
     if (azaan.id == 'custom') {
-      final path =
-          SP.isInitialized ? SP.prefs.getString(azaanCustomFilePathKey) : null;
+      final path = SP.isInitialized
+          ? SP.prefs.getString(azaanCustomFilePathKey)
+          : null;
       if (path != null && path.isNotEmpty) {
         return context.l10n.notifCustomSound(path.split('/').last);
       }
@@ -362,8 +380,12 @@ class _Chevron extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsetsDirectional.only(start: 6, end: 2),
-      child: OutlineIcon(OutlineGlyph.chevronRight,
-          size: 16, color: ShiaColors.of(context).chevron, strokeWidth: 2.4),
+      child: OutlineIcon(
+        OutlineGlyph.chevronRight,
+        size: 16,
+        color: ShiaColors.of(context).chevron,
+        strokeWidth: 2.4,
+      ),
     );
   }
 }
@@ -427,15 +449,22 @@ class _PrayerRow extends StatelessWidget {
                   child: ConstrainedBox(
                     constraints: const BoxConstraints(minHeight: 58),
                     child: Padding(
-                      padding:
-                          const EdgeInsetsDirectional.fromSTEB(14, 6, 8, 6),
+                      padding: const EdgeInsetsDirectional.fromSTEB(
+                        14,
+                        6,
+                        8,
+                        6,
+                      ),
                       child: Row(
                         children: [
                           SizedBox(
                             width: 26,
                             child: Center(
                               child: PrayerGlyph(
-                                  name: prayer, size: 22, color: colors.accent),
+                                name: prayer,
+                                size: 22,
+                                color: colors.accent,
+                              ),
                             ),
                           ),
                           const SizedBox(width: 12),
@@ -470,8 +499,8 @@ class _PrayerRow extends StatelessWidget {
                                   !enabled
                                       ? l10n.azanOff
                                       : overridden
-                                          ? l10n.azanOwnSound(soundLabel)
-                                          : soundLabel,
+                                      ? l10n.azanOwnSound(soundLabel)
+                                      : soundLabel,
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
                                   style: ShiaText.caption.copyWith(
@@ -511,10 +540,7 @@ class _PrayerRow extends StatelessWidget {
                 // that doesn't match.
                 child: Semantics(
                   label: l10n.azanNotifyAt(name),
-                  child: Switch(
-                    value: enabled,
-                    onChanged: onToggle,
-                  ),
+                  child: Switch(value: enabled, onChanged: onToggle),
                 ),
               ),
             ),
@@ -545,8 +571,9 @@ class _SoundPickerPageState extends State<_SoundPickerPage> {
   String get _currentSelection {
     if (!SP.isInitialized) return 'app_default';
     if (!_isPerPrayer) return getSelectedAzaan().id;
-    final stored =
-        SP.prefs.getString(soundPreferenceKeyForPrayer(widget.prayerName!));
+    final stored = SP.prefs.getString(
+      soundPreferenceKeyForPrayer(widget.prayerName!),
+    );
     if (stored == null || stored.isEmpty) return 'app_default';
     return stored;
   }
@@ -560,8 +587,9 @@ class _SoundPickerPageState extends State<_SoundPickerPage> {
     } else if (_isPerPrayer) {
       await saveAzaanPreferenceForPrayer(widget.prayerName!, soundId);
       unawaited(
-        PrayerPreferencesSyncService.instance
-            .pushPrayerSound(widget.prayerName!),
+        PrayerPreferencesSyncService.instance.pushPrayerSound(
+          widget.prayerName!,
+        ),
       );
     } else {
       await saveAzaanPreference(soundId);
@@ -569,14 +597,16 @@ class _SoundPickerPageState extends State<_SoundPickerPage> {
     }
 
     _changed = true;
-    unawaited(AnalyticsService.feature(
-      'prayer_sound_set',
-      label: 'Prayer notification sound set',
-      parameters: {
-        'scope': _isPerPrayer ? 'prayer' : 'default',
-        'sound_id': soundId,
-      },
-    ));
+    unawaited(
+      AnalyticsService.feature(
+        'prayer_sound_set',
+        label: 'Prayer notification sound set',
+        parameters: {
+          'scope': _isPerPrayer ? 'prayer' : 'default',
+          'sound_id': soundId,
+        },
+      ),
+    );
     if (mounted) setState(() {});
   }
 
@@ -606,8 +636,9 @@ class _SoundPickerPageState extends State<_SoundPickerPage> {
         await saveCustomAudioFilePathForPrayer(widget.prayerName!, path);
         await saveAzaanPreferenceForPrayer(widget.prayerName!, 'custom');
         unawaited(
-          PrayerPreferencesSyncService.instance
-              .pushPrayerSound(widget.prayerName!),
+          PrayerPreferencesSyncService.instance.pushPrayerSound(
+            widget.prayerName!,
+          ),
         );
       } else {
         await saveCustomAudioFilePath(path);
@@ -674,8 +705,9 @@ class _SoundPickerPageState extends State<_SoundPickerPage> {
       },
       child: LargeTitlePage(
         title: _isPerPrayer
-            ? l10n
-                .notifPrayerSound(localizedPrayerName(widget.prayerName!, l10n))
+            ? l10n.notifPrayerSound(
+                localizedPrayerName(widget.prayerName!, l10n),
+              )
             : l10n.notifDefaultSound,
         slivers: [
           SliverPadding(
@@ -696,8 +728,10 @@ class _SoundPickerPageState extends State<_SoundPickerPage> {
                 padding: const EdgeInsets.symmetric(horizontal: 4),
                 child: Text(
                   _footnote(),
-                  style: ShiaText.caption
-                      .copyWith(height: 18 / 13, color: colors.textMuted),
+                  style: ShiaText.caption.copyWith(
+                    height: 18 / 13,
+                    color: colors.textMuted,
+                  ),
                 ),
               ),
             ),
@@ -775,17 +809,23 @@ class _SoundOptionRow extends StatelessWidget {
           decoration: BoxDecoration(
             shape: BoxShape.circle,
             color: selected ? colors.accent : null,
-            border:
-                selected ? null : Border.all(color: colors.chevron, width: 1.5),
+            border: selected
+                ? null
+                : Border.all(color: colors.chevron, width: 1.5),
           ),
           child: selected
-              ? OutlineIcon(OutlineGlyph.check,
-                  size: 16, color: colors.onAccent, strokeWidth: 2.6)
+              ? OutlineIcon(
+                  OutlineGlyph.check,
+                  size: 16,
+                  color: colors.onAccent,
+                  strokeWidth: 2.6,
+                )
               : null,
         ),
         title: Text(title),
-        titleStyle: ShiaText.body
-            .copyWith(fontWeight: selected ? FontWeight.w600 : FontWeight.w400),
+        titleStyle: ShiaText.body.copyWith(
+          fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
+        ),
         subtitle: Text(subtitle),
         trailing: onPreview == null
             ? null
@@ -804,8 +844,12 @@ class _SoundOptionRow extends StatelessWidget {
                     child: SizedBox.square(
                       dimension: 44,
                       child: Center(
-                        child: OutlineIcon(OutlineGlyph.play,
-                            size: 20, color: colors.accent, filled: true),
+                        child: OutlineIcon(
+                          OutlineGlyph.play,
+                          size: 20,
+                          color: colors.accent,
+                          filled: true,
+                        ),
                       ),
                     ),
                   ),

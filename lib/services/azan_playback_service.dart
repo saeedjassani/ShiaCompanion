@@ -9,6 +9,7 @@ import 'package:just_audio/just_audio.dart';
 import 'package:just_audio_background/just_audio_background.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
 import '../l10n/l10n.dart';
 import 'exclusive_audio.dart';
 
@@ -33,12 +34,12 @@ class AzanAlarm {
   final String? customFilePath;
 
   Map<String, Object?> toChannelMap() => {
-        'id': id,
-        'fireAtMillis': fireTime.millisecondsSinceEpoch,
-        'prayerName': prayerName,
-        ..._titles(prayerName),
-        'customFilePath': customFilePath,
-      };
+    'id': id,
+    'fireAtMillis': fireTime.millisecondsSinceEpoch,
+    'prayerName': prayerName,
+    ..._titles(prayerName),
+    'customFilePath': customFilePath,
+  };
 }
 
 /// Plays the full Azan - or, on Android, a user's Custom Audio choice - as
@@ -191,11 +192,11 @@ class AzanPlaybackService {
   }
 
   static Map<String, String> _labels() => {
-        'pause': L10n.current.commonPause,
-        'resume': L10n.current.playlistResume,
-        'stop': L10n.current.commonStop,
-        'channel': L10n.current.notificationChannelAzanPlayback,
-      };
+    'pause': L10n.current.commonPause,
+    'resume': L10n.current.playlistResume,
+    'stop': L10n.current.commonStop,
+    'channel': L10n.current.notificationChannelAzanPlayback,
+  };
 
   static Future<Map<Object?, Object?>> _nativeState() async =>
       await _invoke<Map<Object?, Object?>>('state') ?? const {};
@@ -303,9 +304,11 @@ class AzanPlaybackService {
     }
 
     try {
-      await player.setAudioSource(customFilePath != null
-          ? AudioSource.uri(Uri.file(customFilePath), tag: tag)
-          : AudioSource.asset('assets/sounds/full_azan.mp3', tag: tag));
+      await player.setAudioSource(
+        customFilePath != null
+            ? AudioSource.uri(Uri.file(customFilePath), tag: tag)
+            : AudioSource.asset('assets/sounds/full_azan.mp3', tag: tag),
+      );
       await player.play();
     } catch (e) {
       debugPrint('Azan playback failed: $e');

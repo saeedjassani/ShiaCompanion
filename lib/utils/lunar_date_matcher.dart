@@ -15,9 +15,9 @@ import 'hijri_date.dart';
 /// a [LunarDay], so there is no way to hand it a bare, shifted Hijri date.
 class LunarDay {
   LunarDay(DateTime date, {int hijriOffsetDays = 0})
-      : civilDate = date.isUtc
-            ? DateTime.utc(date.year, date.month, date.day)
-            : DateTime(date.year, date.month, date.day) {
+    : civilDate = date.isUtc
+          ? DateTime.utc(date.year, date.month, date.day)
+          : DateTime(date.year, date.month, date.day) {
     hijri = hijriForCivilDate(civilDate, offsetDays: hijriOffsetDays);
   }
 
@@ -180,9 +180,11 @@ Map<String, int> matchTodaysZikrs(
   Map<String, dynamic> zikrData, {
   required LunarDay day,
   LunarDay? night,
-}) =>
-    matchTodaysZikrPatterns(zikrData, day: day, night: night)
-        .map((uid, pattern) => MapEntry(uid, lunarPatternSpecificity(pattern)));
+}) => matchTodaysZikrPatterns(
+  zikrData,
+  day: day,
+  night: night,
+).map((uid, pattern) => MapEntry(uid, lunarPatternSpecificity(pattern)));
 
 /// [matchTodaysZikrs], with the most specific matching pattern itself rather
 /// than its specificity, so it can tell a night ("N09-19") from a day.

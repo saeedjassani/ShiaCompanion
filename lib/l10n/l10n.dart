@@ -40,20 +40,22 @@ String localizeDigits(String text, [AppLocalizations? l10n]) =>
 /// 0-9, for parsing what someone typed ("۳۳:۳۳") on a keyboard in their own
 /// script.
 String asciiDigits(String text) => String.fromCharCodes([
-      for (final unit in text.codeUnits)
-        if (unit >= 0x0660 && unit <= 0x0669)
-          unit - 0x0660 + 0x30
-        else if (unit >= 0x06F0 && unit <= 0x06F9)
-          unit - 0x06F0 + 0x30
-        else if (unit >= 0x0AE6 && unit <= 0x0AEF)
-          unit - 0x0AE6 + 0x30
-        else
-          unit,
-    ]);
+  for (final unit in text.codeUnits)
+    if (unit >= 0x0660 && unit <= 0x0669)
+      unit - 0x0660 + 0x30
+    else if (unit >= 0x06F0 && unit <= 0x06F9)
+      unit - 0x06F0 + 0x30
+    else if (unit >= 0x0AE6 && unit <= 0x0AEF)
+      unit - 0x0AE6 + 0x30
+    else
+      unit,
+]);
 
 /// An "am"/"pm" at the end of a clock time the app wrote itself.
-final RegExp _clockSuffix =
-    RegExp(r'\s*\b([ap])\.?m\.?$', caseSensitive: false);
+final RegExp _clockSuffix = RegExp(
+  r'\s*\b([ap])\.?m\.?$',
+  caseSensitive: false,
+);
 
 /// A clock time the app wrote itself ("05:12 pm", from the prayer-time
 /// code) in the app language: its digits, and its am/pm the language's own
@@ -62,10 +64,10 @@ String localizeClockTime(String time, [AppLocalizations? l10n]) {
   final strings = l10n ?? L10n.current;
   if (strings.localeName == 'en') return time;
   final localized = time.trim().replaceFirstMapped(
-        _clockSuffix,
-        (match) =>
-            ' ${match.group(1)!.toLowerCase() == 'a' ? strings.timeAm : strings.timePm}',
-      );
+    _clockSuffix,
+    (match) =>
+        ' ${match.group(1)!.toLowerCase() == 'a' ? strings.timeAm : strings.timePm}',
+  );
   return localizeDigits(localized, strings);
 }
 

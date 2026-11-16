@@ -63,8 +63,10 @@ class _ChapterListPageState extends State<ChapterListPage> with RouteAware {
   Future<void> _loadAuthor() async {
     try {
       final books = await LibraryService.loadBooks();
-      final author =
-          books.where((book) => book.uid == widget.slug).firstOrNull?.author;
+      final author = books
+          .where((book) => book.uid == widget.slug)
+          .firstOrNull
+          ?.author;
       if (mounted && author != null) setState(() => _author = author);
     } catch (_) {
       // The author is a nicety; the chapters are what the page is for.
@@ -137,11 +139,13 @@ class _ChapterListPageState extends State<ChapterListPage> with RouteAware {
       await SharePlus.instance.share(
         ShareParams(text: '${widget.title}\n$deepLink'),
       );
-      unawaited(AnalyticsService.feature(
-        'library_shared',
-        label: 'Library shared',
-        parameters: {'book_uid': widget.slug, 'scope': 'book'},
-      ));
+      unawaited(
+        AnalyticsService.feature(
+          'library_shared',
+          label: 'Library shared',
+          parameters: {'book_uid': widget.slug, 'scope': 'book'},
+        ),
+      );
     } finally {
       if (mounted) setState(() => _isSharing = false);
     }
@@ -166,21 +170,25 @@ class _ChapterListPageState extends State<ChapterListPage> with RouteAware {
     try {
       if (_isSaved) {
         await LibraryService.removeSavedBook(widget.slug);
-        unawaited(AnalyticsService.feature(
-          'library_offline_removed',
-          label: 'Offline copy removed',
-          parameters: {'book_uid': widget.slug},
-        ));
+        unawaited(
+          AnalyticsService.feature(
+            'library_offline_removed',
+            label: 'Offline copy removed',
+            parameters: {'book_uid': widget.slug},
+          ),
+        );
         if (mounted) {
           showToast(context.l10n.libraryOfflineRemoved);
         }
       } else {
         await LibraryService.saveBookForOffline(widget.slug, widget.title);
-        unawaited(AnalyticsService.feature(
-          'library_offline_saved',
-          label: 'Saved for offline',
-          parameters: {'book_uid': widget.slug},
-        ));
+        unawaited(
+          AnalyticsService.feature(
+            'library_offline_saved',
+            label: 'Saved for offline',
+            parameters: {'book_uid': widget.slug},
+          ),
+        );
         if (mounted) {
           showToast(context.l10n.librarySavedForOffline(widget.title));
         }
@@ -231,8 +239,9 @@ class _ChapterListPageState extends State<ChapterListPage> with RouteAware {
         chapters[index].uid == progress.chapterSlug) {
       return index;
     }
-    final found =
-        chapters.indexWhere((chapter) => chapter.uid == progress.chapterSlug);
+    final found = chapters.indexWhere(
+      (chapter) => chapter.uid == progress.chapterSlug,
+    );
     return found < 0 ? null : found;
   }
 
@@ -248,8 +257,9 @@ class _ChapterListPageState extends State<ChapterListPage> with RouteAware {
         final chapters = snapshot.data ?? const <UidTitleData>[];
         final loaded = snapshot.connectionState != ConnectionState.waiting;
         final current = _currentChapter(chapters);
-        final chapterCount =
-            chapters.isEmpty ? null : l10n.libraryChapterCount(chapters.length);
+        final chapterCount = chapters.isEmpty
+            ? null
+            : l10n.libraryChapterCount(chapters.length);
         final author = _author;
 
         final List<Widget> content;
@@ -298,18 +308,24 @@ class _ChapterListPageState extends State<ChapterListPage> with RouteAware {
                       label: current == null || progress == null
                           ? l10n.libraryStartReading
                           : progress.hasPage
-                              ? l10n.libraryContinueAt(
-                                  current + 1, progress.displayPage)
-                              : l10n.libraryContinueReading,
+                          ? l10n.libraryContinueAt(
+                              current + 1,
+                              progress.displayPage,
+                            )
+                          : l10n.libraryContinueReading,
                       onPressed: () => current != null && progress != null
-                          ? _openChapter(chapters, current,
-                              blockIndex: progress.blockIndex)
+                          ? _openChapter(
+                              chapters,
+                              current,
+                              blockIndex: progress.blockIndex,
+                            )
                           : _openChapter(chapters, 0),
                     ),
                     const SizedBox(height: 8),
                     PageButton(
-                      glyph:
-                          _isSaved ? OutlineGlyph.trash : OutlineGlyph.download,
+                      glyph: _isSaved
+                          ? OutlineGlyph.trash
+                          : OutlineGlyph.download,
                       label: _isSaved
                           ? l10n.libraryRemoveOffline
                           : l10n.librarySaveForOffline,
@@ -322,8 +338,9 @@ class _ChapterListPageState extends State<ChapterListPage> with RouteAware {
             ),
             SliverPadding(
               padding: gutter.copyWith(bottom: 8),
-              sliver:
-                  SliverToBoxAdapter(child: GroupLabel(l10n.libraryChapters)),
+              sliver: SliverToBoxAdapter(
+                child: GroupLabel(l10n.libraryChapters),
+              ),
             ),
             SliverPadding(
               padding: gutter,
@@ -337,26 +354,38 @@ class _ChapterListPageState extends State<ChapterListPage> with RouteAware {
                     leading: NumberWell(index + 1, selected: reading, size: 32),
                     title: Text(chapters[index].title),
                     titleStyle: ShiaText.body.copyWith(
-                        fontWeight:
-                            reading ? FontWeight.w600 : FontWeight.w400),
+                      fontWeight: reading ? FontWeight.w600 : FontWeight.w400,
+                    ),
                     subtitle: reading && progress.hasPage
                         ? Text(
                             l10n.libraryReadingAt(
-                                progress.displayPage, progress.pageCount),
+                              progress.displayPage,
+                              progress.pageCount,
+                            ),
                             style: ShiaText.caption.copyWith(
-                                color: colors.accent,
-                                fontWeight: FontWeight.w600),
+                              color: colors.accent,
+                              fontWeight: FontWeight.w600,
+                            ),
                           )
                         : null,
                     trailing: Padding(
-                      padding:
-                          const EdgeInsetsDirectional.only(start: 8, end: 8),
-                      child: OutlineIcon(OutlineGlyph.chevronRight,
-                          size: 16, color: colors.chevron, strokeWidth: 2.4),
+                      padding: const EdgeInsetsDirectional.only(
+                        start: 8,
+                        end: 8,
+                      ),
+                      child: OutlineIcon(
+                        OutlineGlyph.chevronRight,
+                        size: 16,
+                        color: colors.chevron,
+                        strokeWidth: 2.4,
+                      ),
                     ),
                     onTap: reading
-                        ? () => _openChapter(chapters, index,
-                            blockIndex: progress.blockIndex)
+                        ? () => _openChapter(
+                            chapters,
+                            index,
+                            blockIndex: progress.blockIndex,
+                          )
                         : () => _openChapter(chapters, index),
                   );
                 },
@@ -374,8 +403,11 @@ class _ChapterListPageState extends State<ChapterListPage> with RouteAware {
           actions: [
             RoundIconButton(
               label: l10n.libraryShareBook,
-              icon: OutlineIcon(OutlineGlyph.share,
-                  size: 20, color: colors.accent),
+              icon: OutlineIcon(
+                OutlineGlyph.share,
+                size: 20,
+                color: colors.accent,
+              ),
               onPressed: _isSharing ? null : _shareBook,
             ),
           ],

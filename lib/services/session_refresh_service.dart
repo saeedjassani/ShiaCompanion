@@ -28,15 +28,17 @@ class SessionRefreshService {
     if (user != null) {
       var admin = false;
       try {
-        final idTokenResult =
-            await user!.getIdTokenResult().timeout(const Duration(seconds: 4));
+        final idTokenResult = await user!.getIdTokenResult().timeout(
+          const Duration(seconds: 4),
+        );
         final claims = idTokenResult.claims;
         if (claims != null && claims['admin'] == true) {
           admin = true;
         }
       } catch (error) {
         debugPrint(
-            'Unable to refresh admin claim, using bundled index: $error');
+          'Unable to refresh admin claim, using bundled index: $error',
+        );
       }
       isUserAdmin = admin;
       unawaited(_refreshAdminClaim(user!));
@@ -58,10 +60,9 @@ class SessionRefreshService {
   static Future<void> _restore() async {
     if (Firebase.apps.isEmpty) return;
     try {
-      await FirebaseAuth.instance
-          .authStateChanges()
-          .first
-          .timeout(const Duration(seconds: 5));
+      await FirebaseAuth.instance.authStateChanges().first.timeout(
+        const Duration(seconds: 5),
+      );
     } catch (error) {
       debugPrint('Auth state not restored, going on without it: $error');
     }
@@ -125,8 +126,9 @@ class SessionRefreshService {
           setLocalSlugData(
             key.toString(),
             slug: value['slug']?.toString(),
-            aliases:
-                value['slugAliases'] is Iterable ? value['slugAliases'] : null,
+            aliases: value['slugAliases'] is Iterable
+                ? value['slugAliases']
+                : null,
           );
         } else {
           final title = value?.toString() ?? '';

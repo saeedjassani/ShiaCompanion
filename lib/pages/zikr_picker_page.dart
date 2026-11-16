@@ -26,11 +26,14 @@ class ZikrPickerPage extends StatefulWidget {
 }
 
 class _ZikrPickerPageState extends State<ZikrPickerPage> {
-  late final List<UidTitleData> _allZikr = items.entries
-      .map((entry) => UidTitleData(entry.key, entry.value))
-      .where((entry) => !entry.uid.contains('|') && !isZikrGroup(entry))
-      .toList(growable: false)
-    ..sort((a, b) => a.title.toLowerCase().compareTo(b.title.toLowerCase()));
+  late final List<UidTitleData> _allZikr =
+      items.entries
+          .map((entry) => UidTitleData(entry.key, entry.value))
+          .where((entry) => !entry.uid.contains('|') && !isZikrGroup(entry))
+          .toList(growable: false)
+        ..sort(
+          (a, b) => a.title.toLowerCase().compareTo(b.title.toLowerCase()),
+        );
 
   final TextEditingController _controller = TextEditingController();
 
@@ -47,19 +50,16 @@ class _ZikrPickerPageState extends State<ZikrPickerPage> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     final l10n = context.l10n;
-    _locations ??= zikrLocations(
-      [
-        ('E', l10n.menuDuas),
-        ('G', l10n.menuZiyarats),
-        ('C', l10n.menuAamaal),
-        ('D', l10n.menuTaqeebat),
-        ('F', l10n.menuNamaz),
-        ('H', l10n.menuMunajaat),
-        ('I', l10n.menuBaaqeyaat),
-        ('A', l10n.shellTabQuran),
-      ],
-      join: l10n.searchLocation,
-    );
+    _locations ??= zikrLocations([
+      ('E', l10n.menuDuas),
+      ('G', l10n.menuZiyarats),
+      ('C', l10n.menuAamaal),
+      ('D', l10n.menuTaqeebat),
+      ('F', l10n.menuNamaz),
+      ('H', l10n.menuMunajaat),
+      ('I', l10n.menuBaaqeyaat),
+      ('A', l10n.shellTabQuran),
+    ], join: l10n.searchLocation);
   }
 
   @override
@@ -119,10 +119,16 @@ class _ZikrPickerPageState extends State<ZikrPickerPage> {
                       title: highlightedText(parts.text, query),
                       subtitle: location == null ? null : Text(location),
                       trailing: Padding(
-                        padding:
-                            const EdgeInsetsDirectional.only(start: 8, end: 8),
-                        child: OutlineIcon(OutlineGlyph.chevronRight,
-                            size: 16, color: colors.chevron, strokeWidth: 2.4),
+                        padding: const EdgeInsetsDirectional.only(
+                          start: 8,
+                          end: 8,
+                        ),
+                        child: OutlineIcon(
+                          OutlineGlyph.chevronRight,
+                          size: 16,
+                          color: colors.chevron,
+                          strokeWidth: 2.4,
+                        ),
                       ),
                       onTap: () => Navigator.pop(context, entry),
                     );

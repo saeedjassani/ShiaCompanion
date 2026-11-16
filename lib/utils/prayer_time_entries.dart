@@ -34,8 +34,12 @@ List<PrayerTimeDisplayEntry> buildExtendedPrayerTimeEntries({
   try {
     prayerTime.setTimeFormat(prayerTime.getTime12());
     final names = prayerTime.getTimeNames();
-    final times =
-        prayerTime.getPrayerTimes(date, latitude, longitude, timeZone);
+    final times = prayerTime.getPrayerTimes(
+      date,
+      latitude,
+      longitude,
+      timeZone,
+    );
     final entries = <PrayerTimeDisplayEntry>[
       for (var index = 0; index < names.length; index++)
         PrayerTimeDisplayEntry(
@@ -52,11 +56,13 @@ List<PrayerTimeDisplayEntry> buildExtendedPrayerTimeEntries({
       longitude: longitude,
     );
     if (midnight != null) {
-      entries.add(PrayerTimeDisplayEntry(
-        name: 'Midnight',
-        time: formatPrayerDateTime12(midnight),
-        notificationPrayerName: 'Midnight',
-      ));
+      entries.add(
+        PrayerTimeDisplayEntry(
+          name: 'Midnight',
+          time: formatPrayerDateTime12(midnight),
+          notificationPrayerName: 'Midnight',
+        ),
+      );
     }
 
     return entries;
@@ -77,7 +83,13 @@ DateTime? shiaMidnightForDate({
     // Not `date.add(Duration(days: 1))`: across a daylight-saving change a
     // day is 23 or 25 hours, and 24 from midnight can land on the same date.
     final nextDate = dateTimeOnClockOf(
-        date, date.year, date.month, date.day + 1, date.hour, date.minute);
+      date,
+      date.year,
+      date.month,
+      date.day + 1,
+      date.hour,
+      date.minute,
+    );
     final todayTimes = prayerTime.getPrayerTimes(
       date,
       latitude,
@@ -91,10 +103,7 @@ DateTime? shiaMidnightForDate({
       prayerTimeZoneFor(nextDate),
     );
     final sunset = dateTimeForTime24(date, todayTimes[prayerIndexSunset]);
-    final nextFajr = dateTimeForTime24(
-      nextDate,
-      nextDayTimes[prayerIndexFajr],
-    );
+    final nextFajr = dateTimeForTime24(nextDate, nextDayTimes[prayerIndexFajr]);
     if (sunset == null || nextFajr == null || !nextFajr.isAfter(sunset)) {
       return null;
     }
@@ -125,9 +134,13 @@ DateTime? dateTimeForTime24(DateTime date, String time24) {
 /// clocks change at 1-3 am, so on the day daylight saving starts or ends that
 /// put every prayer an hour out. Every other day the two are the same.
 double prayerTimeZoneFor(DateTime date) =>
-    dateTimeOnClockOf(date, date.year, date.month, date.day, 12)
-        .timeZoneOffset
-        .inMinutes /
+    dateTimeOnClockOf(
+      date,
+      date.year,
+      date.month,
+      date.day,
+      12,
+    ).timeZoneOffset.inMinutes /
     60.0;
 
 /// [year]-[month]-[day] [hour]:[minute] on the same clock as [like]: UTC, a

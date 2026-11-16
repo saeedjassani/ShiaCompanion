@@ -125,7 +125,8 @@ class VerseNotesManager extends ChangeNotifier {
     if (!cachedState.isEmpty) _updateState(cachedState);
 
     final remoteRead = await _loadRemoteState(user.uid);
-    final shouldImportGuestState = (isGuestToUserTransition ||
+    final shouldImportGuestState =
+        (isGuestToUserTransition ||
             SP.prefs.getBool(_guestImportPendingKey) == true) &&
         !guestState.isEmpty;
     final pendingOperations = _loadPendingOperations(user.uid);
@@ -147,8 +148,10 @@ class VerseNotesManager extends ChangeNotifier {
 
     var visibleState = remoteRead.state;
     if (shouldImportGuestState) visibleState = visibleState.plus(guestState);
-    visibleState =
-        applyPendingVerseNoteOperations(visibleState, pendingOperations);
+    visibleState = applyPendingVerseNoteOperations(
+      visibleState,
+      pendingOperations,
+    );
 
     _updateState(visibleState);
     await _saveUserState(user.uid, visibleState);
@@ -227,8 +230,9 @@ class VerseNotesManager extends ChangeNotifier {
 
   Future<_RemoteVerseNotesRead> _loadRemoteState(String userId) async {
     try {
-      final snapshot =
-          await _doc(userId).get().timeout(const Duration(seconds: 8));
+      final snapshot = await _doc(userId)
+          .get()
+          .timeout(const Duration(seconds: 8));
       return _RemoteVerseNotesRead.success(
         VerseNotesState.fromJson(snapshot.data()?['state']),
       );
@@ -257,7 +261,8 @@ class VerseNotesManager extends ChangeNotifier {
       return operations.values.toList(growable: false);
     } catch (error) {
       debugPrint(
-          'VerseNotesManager: Error decoding pending operations: $error');
+        'VerseNotesManager: Error decoding pending operations: $error',
+      );
       return const [];
     }
   }
@@ -286,9 +291,11 @@ class VerseNotesManager extends ChangeNotifier {
       // operation still has to go up.
       final synced = jsonEncode(operation.toJson());
       final operations = _loadPendingOperations(userId)
-          .where((pending) =>
-              pending.id != operation.id ||
-              jsonEncode(pending.toJson()) != synced)
+          .where(
+            (pending) =>
+                pending.id != operation.id ||
+                jsonEncode(pending.toJson()) != synced,
+          )
           .toList(growable: false);
       await _writePendingOperations(userId, operations);
     });
@@ -369,9 +376,11 @@ class VerseNotesManager extends ChangeNotifier {
     return _writeRemote(
       userId,
       stillWanted: onlyIfPending
-          ? () => _loadPendingOperations(userId).any((pending) =>
-              pending.id == operation.id &&
-              jsonEncode(pending.toJson()) == synced)
+          ? () => _loadPendingOperations(userId).any(
+              (pending) =>
+                  pending.id == operation.id &&
+                  jsonEncode(pending.toJson()) == synced,
+            )
           : null,
       (current) => applyPendingVerseNoteOperation(current, operation),
     );
@@ -412,8 +421,10 @@ class VerseNotesManager extends ChangeNotifier {
 
         await _storageWriteQueue;
         final pendingOperations = _loadPendingOperations(user.uid);
-        final visibleState =
-            applyPendingVerseNoteOperations(remoteState, pendingOperations);
+        final visibleState = applyPendingVerseNoteOperations(
+          remoteState,
+          pendingOperations,
+        );
         _updateState(visibleState);
         await _saveUserState(user.uid, visibleState);
 
@@ -471,8 +482,8 @@ class VerseNotesManager extends ChangeNotifier {
     // Written here, now, it is the newest note, even if another device with
     // its clock running ahead stamped the one it replaces later.
     final existing = _state.notes[note.key];
-    final stamped = existing != null &&
-            !note.updatedAt.isAfter(existing.updatedAt)
+    final stamped =
+        existing != null && !note.updatedAt.isAfter(existing.updatedAt)
         ? note.copyWith(
             updatedAt: existing.updatedAt.add(const Duration(milliseconds: 1)),
           )
@@ -488,10 +499,12 @@ class VerseNotesManager extends ChangeNotifier {
     // Never earlier than the note itself, or a deletion made here could lose
     // to a note another device's fast clock dated in the future.
     final now = DateTime.now().toUtc();
-    await _applyOperation(PendingVerseNoteOperation.remove(
-      existing.key,
-      existing.updatedAt.isAfter(now) ? existing.updatedAt : now,
-    ));
+    await _applyOperation(
+      PendingVerseNoteOperation.remove(
+        existing.key,
+        existing.updatedAt.isAfter(now) ? existing.updatedAt : now,
+      ),
+    );
   }
 
   Future<void> _applyOperation(PendingVerseNoteOperation operation) async {
@@ -558,8 +571,8 @@ class _RemoteVerseNotesRead {
   _RemoteVerseNotesRead.success(this.state) : succeeded = true;
 
   _RemoteVerseNotesRead.failure()
-      : succeeded = false,
-        state = VerseNotesState.empty;
+    : succeeded = false,
+      state = VerseNotesState.empty;
 
   final bool succeeded;
   final VerseNotesState state;

@@ -17,6 +17,7 @@ import '../../utils/quran_index.dart';
 import '../../widgets/home_glyph.dart';
 import '../library_page.dart';
 import '../quran/quran_navigation.dart';
+import '../quran/recitation_track_sheet.dart' show openRecitationTrack;
 import '../zikr/zikr_page.dart';
 import 'home_section.dart';
 import '../../widgets/responsive_content.dart' show MouseDragScroll;
@@ -74,9 +75,90 @@ class ContinueEntry {
   };
 }
 
-/// Up to three cards, newest first: the most recent Quran track, zikr
-/// bookmark and library book - one of each, so a busy week in one never
-/// pushes the other two off Home. The first is also what the app icon's
+/// The Quran cards: where the Khatm read (or started) most recently picks
+/// up, and a surah left part-way outside any Khatm - each its own card, so
+/// a reader with a Khatm on the go and a half-read surah on the side can
+/// pick up either.
+///
+/// Outside a Khatm, only a surah left part-way: reading opened from the list
+/// is a surah here and there, so after one is finished, "the next surah" is
+/// a guess - Ya-Sin read on Thursday night is no reason to offer As-Saffat.
+/// Surahs from the list open at their top, so without this a half-read
+/// al-Baqarah would have no way back.
+List<ContinueEntry> _quranEntries(
+  RecitationTrackerState recitations,
+  AppLocalizations s,
+) {
+  ContinueEntry? entryFor({
+    required String? label,
+    required VerseKey verse,
+    required DateTime updatedAt,
+  }) {
+    final info = surahInfoFor(verse.surah);
+    if (info == null) return null;
+    final ayah = verse.ayah ?? 1;
+    return ContinueEntry(
+      kind: ContinueKind.quran,
+      caption: label == null
+          ? s.homeCategoryQuran
+          : s.homeContinueQuranTrack(label),
+      glyph: HomeGlyphType.surahs,
+      // "2: Al-Baqarah", numbered like the surah's zikr title.
+      title: '${localizeDigits('${info.number}', s)}: ${info.displayName}',
+      subtitle: s.homeContinueVerseOf(ayah, info.ayahCount),
+      progress: ayah / info.ayahCount,
+      updatedAt: updatedAt,
+      recitationLabel: label,
+      verse: verse,
+    );
+  }
+
+  ContinueEntry? khatm;
+  void consider(ContinueEntry? entry) {
+    if (entry != null &&
+        (khatm == null || entry.updatedAt.isAfter(khatm!.updatedAt))) {
+      khatm = entry;
+    }
+  }
+
+  for (final label in recitations.labels) {
+    final read = recitations.lastRecitedFor(label);
+    final started = recitations.settingsFor(label).startSetAt;
+    // A Khatm made but neither started part-way nor read yet has nothing
+    // to pick up.
+    final at = read == null || (started != null && started.isAfter(read))
+        ? started
+        : read;
+    if (at == null) continue;
+    consider(
+      entryFor(
+        label: label,
+        verse: recitations.resumeTargetFor(label).verse,
+        updatedAt: at,
+      ),
+    );
+  }
+
+  ContinueEntry? partWay;
+  final everyday = recitations.mostRecentFirst
+      .where((entry) => entry.label == unlabeledRecitationLabel)
+      .firstOrNull;
+  if (everyday != null &&
+      everyday.surah >= 1 &&
+      everyday.surah <= surahAyahCounts.length &&
+      everyday.toAyah < surahAyahCounts[everyday.surah - 1]) {
+    partWay = entryFor(
+      label: null,
+      verse: VerseKey(everyday.surah, everyday.toAyah),
+      updatedAt: everyday.recitedAt,
+    );
+  }
+  return [?khatm, ?partWay];
+}
+
+/// Up to four cards, newest first: the most recent Khatm, a surah left
+/// part-way outside one, the latest zikr bookmark and library book - one of
+/// each, so a busy week in one never pushes the others off Home. The first is also what the app icon's
 /// "Continue reading" shortcut opens (AppShortcutsService).
 List<ContinueEntry> continueEntries({
   required RecitationTrackerState recitations,
@@ -88,31 +170,7 @@ List<ContinueEntry> continueEntries({
 }) {
   final s = l10n ?? L10n.current;
   final entries = <ContinueEntry>[];
-
-  final latestRecitation =
-      includeQuran ? recitations.mostRecentFirst.firstOrNull : null;
-  if (latestRecitation != null) {
-    final label = latestRecitation.label;
-    final resume = recitations.resumePositionFor(label);
-    final info = resume == null ? null : surahInfoFor(resume.surah);
-    if (resume != null && info != null) {
-      final ayah = resume.ayah ?? 1;
-      entries.add(ContinueEntry(
-        kind: ContinueKind.quran,
-        caption: label == unlabeledRecitationLabel
-            ? s.homeCategoryQuran
-            : s.homeContinueQuranTrack(label),
-        glyph: HomeGlyphType.surahs,
-        // "2: Al-Baqarah", numbered like the surah's zikr title.
-        title: '${localizeDigits('${info.number}', s)}: ${info.displayName}',
-        subtitle: s.homeContinueVerseOf(ayah, info.ayahCount),
-        progress: ayah / info.ayahCount,
-        updatedAt: latestRecitation.recitedAt,
-        recitationLabel: label,
-        verse: resume,
-      ));
-    }
-  }
+  if (includeQuran) entries.addAll(_quranEntries(recitations, s));
 
   ZikrBookmark? latestBookmark;
   for (final bookmark in bookmarks) {
@@ -126,37 +184,45 @@ List<ContinueEntry> continueEntries({
     final (word, glyph) = _bookmarkCategory(prefix, s);
     final tab = latestBookmark.tabTitle?.trim() ?? '';
     final englishTitle = titles[latestBookmark.uid]?.toString() ?? '';
-    final title = zikrDisplayTitle(latestBookmark.uid,
-        englishTitle.isEmpty ? latestBookmark.title : englishTitle);
-    entries.add(ContinueEntry(
-      kind: ContinueKind.bookmark,
-      caption: s.homeContinueBookmarkCaption(word),
-      glyph: glyph,
-      title: title,
-      subtitle:
-          tab.isEmpty ? s.homeContinueAtBookmark : s.homeContinueInTab(tab),
-      updatedAt: latestBookmark.updatedAt,
-      bookmark: latestBookmark,
-    ));
+    final title = zikrDisplayTitle(
+      latestBookmark.uid,
+      englishTitle.isEmpty ? latestBookmark.title : englishTitle,
+    );
+    entries.add(
+      ContinueEntry(
+        kind: ContinueKind.bookmark,
+        caption: s.homeContinueBookmarkCaption(word),
+        glyph: glyph,
+        title: title,
+        subtitle: tab.isEmpty
+            ? s.homeContinueAtBookmark
+            : s.homeContinueInTab(tab),
+        updatedAt: latestBookmark.updatedAt,
+        bookmark: latestBookmark,
+      ),
+    );
   }
 
   final latestBook = library.firstOrNull;
   if (latestBook != null) {
     final book = latestBook.bookTitle.trim();
-    entries.add(ContinueEntry(
-      kind: ContinueKind.library,
-      caption: s.menuLibrary,
-      glyph: HomeGlyphType.library,
-      title: book.isEmpty ? latestBook.chapterTitle : book,
-      subtitle:
-          book.isEmpty ? s.homeContinueWhereStopped : latestBook.chapterTitle,
-      updatedAt: latestBook.updatedAt,
-      library: latestBook,
-    ));
+    entries.add(
+      ContinueEntry(
+        kind: ContinueKind.library,
+        caption: s.menuLibrary,
+        glyph: HomeGlyphType.library,
+        title: book.isEmpty ? latestBook.chapterTitle : book,
+        subtitle: book.isEmpty
+            ? s.homeContinueWhereStopped
+            : latestBook.chapterTitle,
+        updatedAt: latestBook.updatedAt,
+        library: latestBook,
+      ),
+    );
   }
 
   entries.sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
-  return entries.take(3).toList(growable: false);
+  return entries;
 }
 
 /// Opens what [entry] continues: the Quran at the track's verse, the zikr at
@@ -171,12 +237,17 @@ Future<void> openContinueEntry(
 }) async {
   switch (entry.kind) {
     case ContinueKind.quran:
-      await openQuranVerse(
-        context,
-        entry.verse!,
-        source: ZikrOpenSource.quranResume,
-        recitationLabel: entry.recitationLabel,
-      );
+      final label = entry.recitationLabel;
+      if (label != null) {
+        // A Khatm opens as from its card, in its own view (surah or juz).
+        await openRecitationTrack(context, label);
+      } else {
+        await openQuranVerse(
+          context,
+          entry.verse!,
+          source: ZikrOpenSource.quranResume,
+        );
+      }
     case ContinueKind.bookmark:
       final bookmark = entry.bookmark!;
       // The reader resumes at the bookmark on its own (ZikrPage reads it).

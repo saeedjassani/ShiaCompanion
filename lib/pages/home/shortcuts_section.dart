@@ -35,10 +35,12 @@ class ShortcutsSection extends StatelessWidget {
       listenable: Listenable.merge([HomeShortcutsStore.instance, adminState]),
       builder: (context, _) {
         final showAll = homeShowsAllFeatures(context);
-        final ids =
-            HomeShortcutsStore.instance.idsFor(wide: isHomeWide(context));
-        final shortcuts =
-            showAll ? allShortcutMenuItems(ids) : homeShortcutMenuItems(ids);
+        final ids = HomeShortcutsStore.instance.idsFor(
+          wide: isHomeWide(context),
+        );
+        final shortcuts = showAll
+            ? allShortcutMenuItems(ids)
+            : homeShortcutMenuItems(ids);
         final tiles = <Widget>[
           for (final item in shortcuts)
             ShortcutTile(
@@ -238,14 +240,14 @@ class _ShortcutsEditorSheetState extends State<ShortcutsEditorSheet> {
     if (_started) return;
     _started = true;
     _onHome = homeShortcutMenuItems(
-            HomeShortcutsStore.instance.idsFor(wide: isHomeWide(context)))
-        .toList();
+      HomeShortcutsStore.instance.idsFor(wide: isHomeWide(context)),
+    ).toList();
   }
 
   List<HomeMenuItem> get _more => [
-        for (final item in shortcutCandidateMenuItems)
-          if (!_onHome.contains(item)) item,
-      ];
+    for (final item in shortcutCandidateMenuItems)
+      if (!_onHome.contains(item)) item,
+  ];
 
   void _remove(HomeMenuItem item) => setState(() => _onHome.remove(item));
 
@@ -269,16 +271,19 @@ class _ShortcutsEditorSheetState extends State<ShortcutsEditorSheet> {
     };
     final ids = [
       for (final item in _onHome) item.analyticsId,
-      for (final id
-          in HomeShortcutsStore.instance.idsFor(wide: isHomeWide(context)))
+      for (final id in HomeShortcutsStore.instance.idsFor(
+        wide: isHomeWide(context),
+      ))
         if (!offered.contains(id)) id,
     ];
     await HomeShortcutsStore.instance.save(ids);
-    unawaited(AnalyticsService.feature(
-      'home_shortcuts_changed',
-      label: 'Home shortcuts changed',
-      parameters: {'count': ids.length, 'shortcuts': ids.join(',')},
-    ));
+    unawaited(
+      AnalyticsService.feature(
+        'home_shortcuts_changed',
+        label: 'Home shortcuts changed',
+        parameters: {'count': ids.length, 'shortcuts': ids.join(',')},
+      ),
+    );
     if (mounted) Navigator.of(context).pop();
   }
 
@@ -323,8 +328,10 @@ class _ShortcutsEditorSheetState extends State<ShortcutsEditorSheet> {
                   style: TextButton.styleFrom(
                     foregroundColor: colors.accent,
                     minimumSize: const Size(44, 44),
-                    textStyle: buttonTextStyle(context,
-                        ShiaText.body.copyWith(fontWeight: FontWeight.w700)),
+                    textStyle: buttonTextStyle(
+                      context,
+                      ShiaText.body.copyWith(fontWeight: FontWeight.w700),
+                    ),
                   ),
                   child: Text(context.l10n.commonDone),
                 ),
@@ -344,7 +351,9 @@ class _ShortcutsEditorSheetState extends State<ShortcutsEditorSheet> {
                 children: [
                   _ListLabel(
                     context.l10n.homeShortcutsOnHomeCount(
-                        _onHome.length, HomeShortcutsStore.maxShortcuts),
+                      _onHome.length,
+                      HomeShortcutsStore.maxShortcuts,
+                    ),
                   ),
                   const SizedBox(height: 8),
                   HomeCard(
@@ -371,11 +380,13 @@ class _ShortcutsEditorSheetState extends State<ShortcutsEditorSheet> {
                               label: item.displayShortLabel,
                               leading: _RoundAction(
                                 glyph: OutlineGlyph.minus,
-                                semanticsLabel: context.l10n
-                                    .homeShortcutRemove(item.displayShortLabel),
+                                semanticsLabel: context.l10n.homeShortcutRemove(
+                                  item.displayShortLabel,
+                                ),
                                 fill: Theme.of(context).colorScheme.error,
-                                iconColor:
-                                    Theme.of(context).colorScheme.onError,
+                                iconColor: Theme.of(context)
+                                    .colorScheme
+                                    .onError,
                                 onPressed: () => _remove(item),
                               ),
                               trailing: ExcludeSemantics(
@@ -426,9 +437,11 @@ class _ShortcutsEditorSheetState extends State<ShortcutsEditorSheet> {
                   ),
                   if (more.isNotEmpty) ...[
                     const SizedBox(height: 20),
-                    _ListLabel(_isFull
-                        ? context.l10n.homeShortcutsMoreFull
-                        : context.l10n.homeShortcutsMore),
+                    _ListLabel(
+                      _isFull
+                          ? context.l10n.homeShortcutsMoreFull
+                          : context.l10n.homeShortcutsMore,
+                    ),
                     const SizedBox(height: 8),
                     HomeCard(
                       radius: 16,
@@ -441,14 +454,19 @@ class _ShortcutsEditorSheetState extends State<ShortcutsEditorSheet> {
                               showDivider: i < more.length - 1,
                               leading: _RoundAction(
                                 glyph: OutlineGlyph.plus,
-                                semanticsLabel: context.l10n
-                                    .homeShortcutAdd(more[i].displayShortLabel),
+                                semanticsLabel: context.l10n.homeShortcutAdd(
+                                  more[i].displayShortLabel,
+                                ),
                                 fill: _isFull
                                     ? Color.lerp(
-                                        colors.line, colors.chevron, 0.4)!
+                                        colors.line,
+                                        colors.chevron,
+                                        0.4,
+                                      )!
                                     : colors.accent,
-                                iconColor:
-                                    _isFull ? colors.surface : colors.onAccent,
+                                iconColor: _isFull
+                                    ? colors.surface
+                                    : colors.onAccent,
                                 onPressed: _isFull ? null : () => _add(more[i]),
                               ),
                             ),
@@ -537,8 +555,9 @@ class _EditorRow extends StatelessWidget {
                     if (subtitle != null)
                       Text(
                         subtitle!,
-                        style:
-                            ShiaText.caption.copyWith(color: colors.textMuted),
+                        style: ShiaText.caption.copyWith(
+                          color: colors.textMuted,
+                        ),
                       ),
                   ],
                 ),

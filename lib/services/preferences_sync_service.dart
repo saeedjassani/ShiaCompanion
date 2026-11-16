@@ -78,8 +78,9 @@ class PreferencesSyncService {
     if (userId == null) return;
 
     try {
-      final snapshot =
-          await _doc(userId).get().timeout(const Duration(seconds: 8));
+      final snapshot = await _doc(userId)
+          .get()
+          .timeout(const Duration(seconds: 8));
       final data = snapshot.data();
       if (data == null || data.isEmpty) {
         await _write(userId, _currentValues());
@@ -93,9 +94,9 @@ class PreferencesSyncService {
   }
 
   Future<void> pushHijriDate() => _pushIfSignedIn({
-        _hijriDateOffsetField: hijriDate,
-        _hijriAutomaticField: hijriAutomatic,
-      });
+    _hijriDateOffsetField: hijriDate,
+    _hijriAutomaticField: hijriAutomatic,
+  });
 
   Future<void> pushArabicFontSize() =>
       _pushIfSignedIn({_arabicFontSizeField: arabicFontSize});
@@ -135,20 +136,19 @@ class PreferencesSyncService {
   }
 
   Map<String, Object?> _currentValues() => {
-        _hijriDateOffsetField: hijriDate,
-        _hijriAutomaticField: hijriAutomatic,
-        _arabicFontSizeField: arabicFontSize,
-        _englishFontSizeField: englishFontSize,
-        _arabicFontField: arabicFont,
-        _audioTracksField: {
-          for (final key in SP.prefs.getKeys())
-            if (key.startsWith(_audioTrackPrefPrefix))
-              key.substring(_audioTrackPrefPrefix.length):
-                  SP.prefs.getString(key),
-        },
-        if (HomeShortcutsStore.instance.isCustomized)
-          _homeShortcutsField: HomeShortcutsStore.instance.ids,
-      };
+    _hijriDateOffsetField: hijriDate,
+    _hijriAutomaticField: hijriAutomatic,
+    _arabicFontSizeField: arabicFontSize,
+    _englishFontSizeField: englishFontSize,
+    _arabicFontField: arabicFont,
+    _audioTracksField: {
+      for (final key in SP.prefs.getKeys())
+        if (key.startsWith(_audioTrackPrefPrefix))
+          key.substring(_audioTrackPrefPrefix.length): SP.prefs.getString(key),
+    },
+    if (HomeShortcutsStore.instance.isCustomized)
+      _homeShortcutsField: HomeShortcutsStore.instance.ids,
+  };
 
   Future<void> _applyRemote(Map<String, dynamic> data) async {
     final hijriBefore = (hijriDate, hijriAutomatic);
@@ -164,8 +164,8 @@ class PreferencesSyncService {
     final remoteAutomatic = automatic is bool
         ? automatic
         : hijri is num && hijri != 0
-            ? false
-            : null;
+        ? false
+        : null;
     if (remoteAutomatic != null) {
       hijriAutomatic = remoteAutomatic;
       await SP.prefs.setBool('hijri_automatic', hijriAutomatic);
@@ -205,8 +205,9 @@ class PreferencesSyncService {
 
     final shortcuts = data[_homeShortcutsField];
     if (shortcuts is List) {
-      await HomeShortcutsStore.instance
-          .applySynced(shortcuts.whereType<String>().toList());
+      await HomeShortcutsStore.instance.applySynced(
+        shortcuts.whereType<String>().toList(),
+      );
     } else if (HomeShortcutsStore.instance.isCustomized) {
       // Chosen on this device before shortcuts synced at all: share it.
       await pushHomeShortcuts(HomeShortcutsStore.instance.ids);

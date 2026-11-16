@@ -40,11 +40,13 @@ Future<User?> signInFromButton(
       SignInProvider.google => await AccountService.signInWithGoogle(),
       SignInProvider.apple => await AccountService.signInWithApple(),
     };
-    unawaited(AnalyticsService.feature(
-      'account_signed_in',
-      label: 'Signed in',
-      parameters: {'method': provider.name},
-    ));
+    unawaited(
+      AnalyticsService.feature(
+        'account_signed_in',
+        label: 'Signed in',
+        parameters: {'method': provider.name},
+      ),
+    );
     if (context.mounted) {
       showToast(context.l10n.settingsLoginSuccessful);
     }
@@ -57,11 +59,12 @@ Future<User?> signInFromButton(
     debugPrint('Google sign-in failed: $error');
     if (!context.mounted) return null;
     _showFailure(
-        context,
-        provider,
-        error.code == GoogleSignInExceptionCode.uiUnavailable
-            ? context.l10n.settingsGoogleUnavailable
-            : null);
+      context,
+      provider,
+      error.code == GoogleSignInExceptionCode.uiUnavailable
+          ? context.l10n.settingsGoogleUnavailable
+          : null,
+    );
   } on SignInWithAppleAuthorizationException catch (error) {
     if (error.code == AuthorizationErrorCode.canceled) {
       debugPrint('User cancelled apple sign-in');
@@ -79,16 +82,13 @@ Future<User?> signInFromButton(
     }
     debugPrint('Sign-in failed: ${error.code} ${error.message}');
     if (!context.mounted) return null;
-    _showFailure(
-        context,
-        provider,
-        switch (error.code) {
-          'network-request-failed' => context.l10n.commonNetworkError,
-          // The email is already on an account made with the other provider.
-          'account-exists-with-different-credential' =>
-            context.l10n.settingsAccountExistsOtherProvider,
-          _ => null,
-        });
+    _showFailure(context, provider, switch (error.code) {
+      'network-request-failed' => context.l10n.commonNetworkError,
+      // The email is already on an account made with the other provider.
+      'account-exists-with-different-credential' =>
+        context.l10n.settingsAccountExistsOtherProvider,
+      _ => null,
+    });
   } catch (error) {
     debugPrint('Sign-in failed: $error');
     if (context.mounted) _showFailure(context, provider, null);
@@ -102,9 +102,11 @@ void _showFailure(
   String? message,
 ) {
   final l10n = context.l10n;
-  showToast(message ??
-      switch (provider) {
-        SignInProvider.google => l10n.settingsGoogleFailed,
-        SignInProvider.apple => l10n.settingsAppleFailed,
-      });
+  showToast(
+    message ??
+        switch (provider) {
+          SignInProvider.google => l10n.settingsGoogleFailed,
+          SignInProvider.apple => l10n.settingsAppleFailed,
+        },
+  );
 }

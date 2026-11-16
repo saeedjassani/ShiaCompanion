@@ -109,14 +109,19 @@ const List<String> homeFamousRecitations = [
 List<TodayPick> todayPicks(List<TodaysRecitationGroup> groups) {
   bool isRecitation(UidTitleData entry) =>
       todayRecitationType(entry) != TodayRecitationType.other;
-  bool isCatalogued(UidTitleData entry) => const {'E', 'AS', 'G', 'H'}
-      .contains(_leadingLetters.stringMatch(entry.uid));
+  bool isCatalogued(UidTitleData entry) => const {
+    'E',
+    'AS',
+    'G',
+    'H',
+  }.contains(_leadingLetters.stringMatch(entry.uid));
   bool isOccasion(TodaysRecitationKind kind) =>
       kind == TodaysRecitationKind.night || kind == TodaysRecitationKind.date;
   int fame(UidTitleData entry) => homeFamousRecitations.indexOf(entry.uid);
 
-  final occasionHasRecitation = groups
-      .any((group) => isOccasion(group.kind) && group.items.any(isRecitation));
+  final occasionHasRecitation = groups.any(
+    (group) => isOccasion(group.kind) && group.items.any(isRecitation),
+  );
 
   final shown = <TodayPick>[];
   final ziyaratOfTheDay = <TodayPick>[];
@@ -136,20 +141,28 @@ List<TodayPick> todayPicks(List<TodaysRecitationGroup> groups) {
       ...famous,
       ...rest.where((pick) => isCatalogued(pick.entry)),
       ...rest.where(
-          (pick) => isRecitation(pick.entry) && !isCatalogued(pick.entry)),
+        (pick) => isRecitation(pick.entry) && !isCatalogued(pick.entry),
+      ),
       ...rest.where((pick) => !isRecitation(pick.entry)),
     ];
     if (group.kind == TodaysRecitationKind.weekday) {
-      ziyaratOfTheDay.addAll(ordered.where((pick) =>
-          !homeRoutineRecitations.contains(pick.entry.uid) &&
-          todayRecitationType(pick.entry) == TodayRecitationType.ziyarat));
+      ziyaratOfTheDay.addAll(
+        ordered.where(
+          (pick) =>
+              !homeRoutineRecitations.contains(pick.entry.uid) &&
+              todayRecitationType(pick.entry) == TodayRecitationType.ziyarat,
+        ),
+      );
     }
     shown.addAll(switch (group.kind) {
       TodaysRecitationKind.night || TodaysRecitationKind.date => ordered,
-      TodaysRecitationKind.month =>
-        ordered.where((pick) => isRecitation(pick.entry)),
-      TodaysRecitationKind.weekday || TodaysRecitationKind.everyDay => ordered
-          .where((pick) => homeRoutineRecitations.contains(pick.entry.uid)),
+      TodaysRecitationKind.month => ordered.where(
+        (pick) => isRecitation(pick.entry),
+      ),
+      TodaysRecitationKind.weekday ||
+      TodaysRecitationKind.everyDay => ordered.where(
+        (pick) => homeRoutineRecitations.contains(pick.entry.uid),
+      ),
     });
   }
   return [...shown, ...ziyaratOfTheDay];
@@ -230,9 +243,9 @@ class _TodaySectionState extends State<TodaySection> {
   }
 
   static String _signature(({List<TodayPick> picks, int total}) today) => [
-        today.total,
-        for (final pick in today.picks) '${pick.kind.name}:${pick.entry.uid}',
-      ].join(',');
+    today.total,
+    for (final pick in today.picks) '${pick.kind.name}:${pick.entry.uid}',
+  ].join(',');
 
   @override
   Widget build(BuildContext context) {
@@ -252,8 +265,9 @@ class _TodaySectionState extends State<TodaySection> {
         if (rows.isEmpty) return const SizedBox.shrink();
         // Only when Home leaves some of today's recitations out.
         final more = today.total > rows.length;
-        final gutter =
-            EdgeInsets.symmetric(horizontal: widget.horizontalPadding);
+        final gutter = EdgeInsets.symmetric(
+          horizontal: widget.horizontalPadding,
+        );
 
         return Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -270,7 +284,10 @@ class _TodaySectionState extends State<TodaySection> {
             ),
             const SizedBox(height: 10),
             if (widget.grid)
-              Padding(padding: gutter, child: _TodayGrid(rows: rows))
+              Padding(
+                padding: gutter,
+                child: _TodayGrid(rows: rows),
+              )
             else
               MouseDragScroll(
                 child: SingleChildScrollView(
@@ -312,39 +329,40 @@ class _TodayGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(builder: (context, constraints) {
-      final fit = ((constraints.maxWidth + _spacing) /
-              (TodaySection.cardWidth + _spacing))
-          .floor()
-          .clamp(1, rows.length);
-      final rowCount = (rows.length / fit).ceil();
-      final sizes = todayGridRowSizes(rows.length, rowCount);
-      final starts = [0];
-      for (final size in sizes) {
-        starts.add(starts.last + size);
-      }
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          for (var r = 0; r < sizes.length; r++) ...[
-            if (r > 0) const SizedBox(height: _spacing),
-            IntrinsicHeight(
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  for (var i = 0; i < sizes[r]; i++) ...[
-                    if (i > 0) const SizedBox(width: _spacing),
-                    Expanded(
-                      child: _TodayCard(pick: rows[starts[r] + i]),
-                    ),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final fit =
+            ((constraints.maxWidth + _spacing) /
+                    (TodaySection.cardWidth + _spacing))
+                .floor()
+                .clamp(1, rows.length);
+        final rowCount = (rows.length / fit).ceil();
+        final sizes = todayGridRowSizes(rows.length, rowCount);
+        final starts = [0];
+        for (final size in sizes) {
+          starts.add(starts.last + size);
+        }
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            for (var r = 0; r < sizes.length; r++) ...[
+              if (r > 0) const SizedBox(height: _spacing),
+              IntrinsicHeight(
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    for (var i = 0; i < sizes[r]; i++) ...[
+                      if (i > 0) const SizedBox(width: _spacing),
+                      Expanded(child: _TodayCard(pick: rows[starts[r] + i])),
+                    ],
                   ],
-                ],
+                ),
               ),
-            ),
+            ],
           ],
-        ],
-      );
-    });
+        );
+      },
+    );
   }
 }
 
@@ -380,8 +398,8 @@ class _TodayCard extends StatelessWidget {
     final colors = ShiaColors.of(context);
     final entry = pick.entry;
     final title = splitTrailingArabic(
-            UniversalData(entry.uid, entry.title, 0).displayTitle)
-        .text;
+      UniversalData(entry.uid, entry.title, 0).displayTitle,
+    ).text;
     final tag = switch (pick.kind) {
       TodaysRecitationKind.night => context.l10n.homeEventTonight,
       TodaysRecitationKind.date => context.l10n.commonToday,
@@ -390,8 +408,11 @@ class _TodayCard extends StatelessWidget {
 
     return HomeCard(
       child: InkWell(
-        onTap: () => openTodaysRecitation(context, entry,
-            source: ZikrOpenSource.homeToday),
+        onTap: () => openTodaysRecitation(
+          context,
+          entry,
+          source: ZikrOpenSource.homeToday,
+        ),
         child: Padding(
           padding: const EdgeInsets.fromLTRB(14, 12, 14, 14),
           child: Column(
@@ -400,11 +421,11 @@ class _TodayCard extends StatelessWidget {
               Row(
                 children: [
                   HomeGlyph(
-                      type: _glyph(entry), size: 22, color: colors.accent),
-                  if (tag != null) ...[
-                    const Spacer(),
-                    _OccasionTag(tag),
-                  ],
+                    type: _glyph(entry),
+                    size: 22,
+                    color: colors.accent,
+                  ),
+                  if (tag != null) ...[const Spacer(), _OccasionTag(tag)],
                 ],
               ),
               const SizedBox(height: 8),

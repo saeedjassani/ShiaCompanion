@@ -26,13 +26,15 @@ ThemeData buildAppTheme(
   final fontFamilyFallback = kIsWeb
       ? const ['Roboto', 'Scheherazade']
       : fontFamily == null
-          ? null
-          : [_systemFontFamily];
+      ? null
+      : [_systemFontFamily];
   // For the component styles below, which don't come from the text theme.
   TextStyle withFont(TextStyle style) => fontFamily == null
       ? style
       : style.copyWith(
-          fontFamily: fontFamily, fontFamilyFallback: fontFamilyFallback);
+          fontFamily: fontFamily,
+          fontFamilyFallback: fontFamilyFallback,
+        );
 
   return ThemeData(
     useMaterial3: true,
@@ -131,14 +133,16 @@ ThemeData buildAppTheme(
 /// Flutter's own Cupertino typography asks for), and Android's font list
 /// names Roboto `sans-serif`.
 String get _systemFontFamily => switch (defaultTargetPlatform) {
-      TargetPlatform.iOS || TargetPlatform.macOS => 'CupertinoSystemText',
-      _ => 'sans-serif',
-    };
+  TargetPlatform.iOS || TargetPlatform.macOS => 'CupertinoSystemText',
+  _ => 'sans-serif',
+};
 
 /// Status and navigation bar styling over the ground: transparent status bar
 /// with icons that read on it, and a navigation bar in the [ground] colour.
-SystemUiOverlayStyle systemOverlayStyleFor(Brightness brightness,
-    {required Color ground}) {
+SystemUiOverlayStyle systemOverlayStyleFor(
+  Brightness brightness, {
+  required Color ground,
+}) {
   final isDark = brightness == Brightness.dark;
   final iconBrightness = isDark ? Brightness.light : Brightness.dark;
   return SystemUiOverlayStyle(
@@ -176,8 +180,9 @@ ColorScheme _colorScheme(Brightness brightness, AppPalette palette) {
     error: c.danger,
     onError: isDark ? const Color(0xFF601410) : Colors.white,
     errorContainer: isDark ? const Color(0xFF8C1D18) : const Color(0xFFF9DEDC),
-    onErrorContainer:
-        isDark ? const Color(0xFFF9DEDC) : const Color(0xFF410E0B),
+    onErrorContainer: isDark
+        ? const Color(0xFFF9DEDC)
+        : const Color(0xFF410E0B),
     surface: c.ground,
     onSurface: c.text,
     onSurfaceVariant: c.textMuted,
@@ -195,8 +200,9 @@ ColorScheme _colorScheme(Brightness brightness, AppPalette palette) {
     scrim: Colors.black,
     inverseSurface: c.text,
     onInverseSurface: c.ground,
-    inversePrimary:
-        palette.colors(isDark ? Brightness.light : Brightness.dark).accent,
+    inversePrimary: palette
+        .colors(isDark ? Brightness.light : Brightness.dark)
+        .accent,
     // No elevation tint anywhere: it is what turned surfaces pink.
     surfaceTint: Colors.transparent,
   );

@@ -50,28 +50,31 @@ class _EventNotificationsPageState extends State<EventNotificationsPage> {
     final kinds = _service.kinds;
     final fallback = eventNotificationFallbackTime(DateTime(2000));
 
-    Widget kindRow(EventNotificationKind kind, String label,
-            {String? hint, bool last = false}) =>
-        CardSwitchRow(
-          label: label,
-          hint: hint,
-          value: kinds.contains(kind),
-          onChanged: enabled ? (on) => _service.setKind(kind, on) : null,
-          last: last,
-        );
+    Widget kindRow(
+      EventNotificationKind kind,
+      String label, {
+      String? hint,
+      bool last = false,
+    }) => CardSwitchRow(
+      label: label,
+      hint: hint,
+      value: kinds.contains(kind),
+      onChanged: enabled ? (on) => _service.setKind(kind, on) : null,
+      last: last,
+    );
 
     Widget note(String text, Color color) => SliverPadding(
-          padding: gutter.copyWith(bottom: 14),
-          sliver: SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 4),
-              child: Text(
-                text,
-                style: ShiaText.caption.copyWith(height: 18 / 13, color: color),
-              ),
-            ),
+      padding: gutter.copyWith(bottom: 14),
+      sliver: SliverToBoxAdapter(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 4),
+          child: Text(
+            text,
+            style: ShiaText.caption.copyWith(height: 18 / 13, color: color),
           ),
-        );
+        ),
+      ),
+    );
 
     return LargeTitlePage(
       title: l10n.eventNotificationsTitle,
@@ -102,8 +105,10 @@ class _EventNotificationsPageState extends State<EventNotificationsPage> {
           sliver: SliverToBoxAdapter(
             child: CardList(
               children: [
-                kindRow(EventNotificationKind.celebration,
-                    l10n.eventKindCelebration),
+                kindRow(
+                  EventNotificationKind.celebration,
+                  l10n.eventKindCelebration,
+                ),
                 kindRow(EventNotificationKind.mourning, l10n.eventKindMourning),
                 kindRow(
                   EventNotificationKind.other,
@@ -119,7 +124,8 @@ class _EventNotificationsPageState extends State<EventNotificationsPage> {
           note(l10n.eventKindsNoneChosen, colors.accent),
         note(
           l10n.eventNotificationsFootnote(
-              clockLabel(fallback.hour, fallback.minute)),
+            clockLabel(fallback.hour, fallback.minute),
+          ),
           colors.textMuted,
         ),
       ],

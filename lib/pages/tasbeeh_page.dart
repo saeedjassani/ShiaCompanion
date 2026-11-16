@@ -47,8 +47,10 @@ class _TasbeehPageState extends State<TasbeehPage> {
     super.initState();
     final prefs = SP.prefs;
     _freeCount = prefs.getInt(TasbeehPage.freeCountKey) ?? 0;
-    _zahraCount =
-        (prefs.getInt(TasbeehPage.zahraCountKey) ?? 0).clamp(0, zahraTotal);
+    _zahraCount = (prefs.getInt(TasbeehPage.zahraCountKey) ?? 0).clamp(
+      0,
+      zahraTotal,
+    );
     _mode = switch (prefs.getString(TasbeehPage.modeKey)) {
       'zahra' => TasbeehMode.zahra,
       'free' => TasbeehMode.free,
@@ -91,12 +93,14 @@ class _TasbeehPageState extends State<TasbeehPage> {
     });
     // Every change rather than once on leaving, so a count survives the app
     // being closed from the app switcher.
-    unawaited(SP.prefs.setInt(
-      _mode == TasbeehMode.zahra
-          ? TasbeehPage.zahraCountKey
-          : TasbeehPage.freeCountKey,
-      value,
-    ));
+    unawaited(
+      SP.prefs.setInt(
+        _mode == TasbeehMode.zahra
+            ? TasbeehPage.zahraCountKey
+            : TasbeehPage.freeCountKey,
+        value,
+      ),
+    );
   }
 
   void _countOne() {
@@ -157,8 +161,11 @@ class _TasbeehPageState extends State<TasbeehPage> {
         },
         onTargets: (targets) {
           setState(() => _targets = targets);
-          unawaited(SP.prefs.setStringList(
-              TasbeehPage.targetsKey, [for (final t in targets) '$t']));
+          unawaited(
+            SP.prefs.setStringList(TasbeehPage.targetsKey, [
+              for (final t in targets) '$t',
+            ]),
+          );
         },
       ),
     );
@@ -186,8 +193,11 @@ class _TasbeehPageState extends State<TasbeehPage> {
                       title: l10n.tasbeehTitle,
                       action: RoundIconButton(
                         label: l10n.tasbeehSettings,
-                        icon: OutlineIcon(OutlineGlyph.sliders,
-                            size: 22, color: colors.accent),
+                        icon: OutlineIcon(
+                          OutlineGlyph.sliders,
+                          size: 22,
+                          color: colors.accent,
+                        ),
                         onPressed: _openSettings,
                       ),
                     ),
@@ -278,8 +288,10 @@ class _PhaseBars extends StatelessWidget {
                 ),
                 const SizedBox(height: 6),
                 Text(
-                  context.l10n
-                      .tasbeehPhaseLabel(phrases[i], zahraPhases[i].size),
+                  context.l10n.tasbeehPhaseLabel(
+                    phrases[i],
+                    zahraPhases[i].size,
+                  ),
                   style: ShiaText.caption.copyWith(
                     fontWeight: !progress.isComplete && i == progress.phaseIndex
                         ? FontWeight.w700
@@ -299,10 +311,10 @@ class _PhaseBars extends StatelessWidget {
 }
 
 List<String> _zahraPhrases(BuildContext context) => [
-      context.l10n.tasbeehAllahuAkbar,
-      context.l10n.tasbeehAlhamdulillah,
-      context.l10n.tasbeehSubhanAllah,
-    ];
+  context.l10n.tasbeehAllahuAkbar,
+  context.l10n.tasbeehAlhamdulillah,
+  context.l10n.tasbeehSubhanAllah,
+];
 
 /// The big panel that counts one on every tap.
 class _CountPanel extends StatelessWidget {
@@ -332,8 +344,8 @@ class _CountPanel extends StatelessWidget {
     final ofText = zahra
         ? l10n.tasbeehOf(progress.phase.size)
         : nextTarget == null
-            ? l10n.tasbeehNoLimit
-            : l10n.tasbeehNextTarget(nextTarget!);
+        ? l10n.tasbeehNoLimit
+        : l10n.tasbeehNextTarget(nextTarget!);
 
     final Widget content;
     if (done) {
@@ -344,17 +356,26 @@ class _CountPanel extends StatelessWidget {
             width: 64,
             height: 64,
             alignment: Alignment.center,
-            decoration:
-                BoxDecoration(color: colors.accent, shape: BoxShape.circle),
-            child: OutlineIcon(OutlineGlyph.check,
-                size: 34, color: colors.onAccent, strokeWidth: 2.4),
+            decoration: BoxDecoration(
+              color: colors.accent,
+              shape: BoxShape.circle,
+            ),
+            child: OutlineIcon(
+              OutlineGlyph.check,
+              size: 34,
+              color: colors.onAccent,
+              strokeWidth: 2.4,
+            ),
           ),
           const SizedBox(height: 16),
           Text(
             l10n.tasbeehComplete,
             textAlign: TextAlign.center,
-            style: ShiaText.sectionTitle
-                .copyWith(fontSize: 24, height: 30 / 24, color: colors.text),
+            style: ShiaText.sectionTitle.copyWith(
+              fontSize: 24,
+              height: 30 / 24,
+              color: colors.text,
+            ),
           ),
           const SizedBox(height: 6),
           Text(
@@ -382,7 +403,10 @@ class _CountPanel extends StatelessWidget {
             Text(
               phrase,
               style: ShiaText.body.copyWith(
-                  fontSize: 18, height: 24 / 18, color: colors.textMuted),
+                fontSize: 18,
+                height: 24 / 18,
+                color: colors.textMuted,
+              ),
             ),
             const SizedBox(height: 8),
           ],
@@ -401,9 +425,10 @@ class _CountPanel extends StatelessWidget {
           Text(
             ofText,
             style: ShiaText.sectionTitle.copyWith(
-                height: 26 / 20,
-                fontWeight: FontWeight.w600,
-                color: colors.textMuted),
+              height: 26 / 20,
+              fontWeight: FontWeight.w600,
+              color: colors.textMuted,
+            ),
           ),
         ],
       );
@@ -415,9 +440,9 @@ class _CountPanel extends StatelessWidget {
       value: done
           ? l10n.tasbeehComplete
           : zahra
-              ? '$phrase, ${localizeDigits('$shown', l10n)} '
-                  '${l10n.tasbeehOf(progress.phase.size)}'
-              : localizeDigits('$shown', l10n),
+          ? '$phrase, ${localizeDigits('$shown', l10n)} '
+                '${l10n.tasbeehOf(progress.phase.size)}'
+          : localizeDigits('$shown', l10n),
       excludeSemantics: true,
       onTap: onTap,
       child: Material(
@@ -523,16 +548,20 @@ class _ResetConfirmation extends StatelessWidget {
             child: Text(
               l10n.tasbeehStartAgainQuestion,
               style: ShiaText.body.copyWith(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                  color: colors.text),
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+                color: colors.text,
+              ),
             ),
           ),
           const SizedBox(width: 8),
           PillButton(label: l10n.commonCancel, onPressed: onCancel),
           const SizedBox(width: 8),
           PillButton(
-              label: l10n.tasbeehReset, onPressed: onReset, filled: true),
+            label: l10n.tasbeehReset,
+            onPressed: onReset,
+            filled: true,
+          ),
         ],
       ),
     );
@@ -570,7 +599,8 @@ class _TasbeehSettingsState extends State<_TasbeehSettings> {
   late final List<TextEditingController> _controllers = [
     for (var i = 0; i < _fields; i++)
       TextEditingController(
-          text: i < widget.targets.length ? '${widget.targets[i]}' : ''),
+        text: i < widget.targets.length ? '${widget.targets[i]}' : '',
+      ),
   ];
 
   @override
@@ -596,25 +626,27 @@ class _TasbeehSettingsState extends State<_TasbeehSettings> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        CardList(children: [
-          CardSwitchRow(
-            label: l10n.tasbeehBeepAtTargets,
-            value: _beep,
-            onChanged: (value) {
-              setState(() => _beep = value);
-              widget.onBeep(value);
-            },
-          ),
-          CardSwitchRow(
-            label: l10n.tasbeehVibrateAtTargets,
-            value: _vibrate,
-            onChanged: (value) {
-              setState(() => _vibrate = value);
-              widget.onVibrate(value);
-            },
-            last: true,
-          ),
-        ]),
+        CardList(
+          children: [
+            CardSwitchRow(
+              label: l10n.tasbeehBeepAtTargets,
+              value: _beep,
+              onChanged: (value) {
+                setState(() => _beep = value);
+                widget.onBeep(value);
+              },
+            ),
+            CardSwitchRow(
+              label: l10n.tasbeehVibrateAtTargets,
+              value: _vibrate,
+              onChanged: (value) {
+                setState(() => _vibrate = value);
+                widget.onVibrate(value);
+              },
+              last: true,
+            ),
+          ],
+        ),
         const SizedBox(height: 18),
         GroupLabel(l10n.tasbeehTargetsLabel),
         const SizedBox(height: 8),

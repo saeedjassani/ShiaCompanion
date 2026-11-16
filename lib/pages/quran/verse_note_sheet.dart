@@ -16,7 +16,7 @@ String verseNoteReference(VerseKey verse, {String? surahName}) {
   final name = (surahName?.isNotEmpty ?? false)
       ? surahName!
       : surahInfoFor(verse.surah)?.displayName ??
-          L10n.current.quranSurahNumber(verse.surah);
+            L10n.current.quranSurahNumber(verse.surah);
   return L10n.current.quranSurahAyah(name, verse.ayah ?? 1);
 }
 
@@ -48,8 +48,9 @@ class _VerseNoteSheet extends StatefulWidget {
 }
 
 class _VerseNoteSheetState extends State<_VerseNoteSheet> {
-  late final VerseNote? _existing =
-      VerseNotesManager.instance.noteFor(widget.verse);
+  late final VerseNote? _existing = VerseNotesManager.instance.noteFor(
+    widget.verse,
+  );
   late final _controller = TextEditingController(text: _existing?.text ?? '');
 
   @override
@@ -73,21 +74,28 @@ class _VerseNoteSheetState extends State<_VerseNoteSheet> {
     }
 
     final verse = widget.verse;
-    unawaited(VerseNotesManager.instance.save(VerseNote(
-      surah: verse.surah,
-      ayah: verse.ayah ?? 1,
-      surahName: surahInfoFor(verse.surah)?.displayName ?? '',
-      // Keep an excerpt already stored when the page could not supply one.
-      excerpt:
-          widget.excerpt.isNotEmpty ? widget.excerpt : _existing?.excerpt ?? '',
-      text: text,
-      updatedAt: DateTime.now().toUtc(),
-    )));
-    unawaited(AnalyticsService.feature(
-      _existing == null ? 'quran_note_added' : 'quran_note_edited',
-      label: _existing == null ? 'Quran note added' : 'Quran note edited',
-      parameters: {'verse': verse.toString()},
-    ));
+    unawaited(
+      VerseNotesManager.instance.save(
+        VerseNote(
+          surah: verse.surah,
+          ayah: verse.ayah ?? 1,
+          surahName: surahInfoFor(verse.surah)?.displayName ?? '',
+          // Keep an excerpt already stored when the page could not supply one.
+          excerpt: widget.excerpt.isNotEmpty
+              ? widget.excerpt
+              : _existing?.excerpt ?? '',
+          text: text,
+          updatedAt: DateTime.now().toUtc(),
+        ),
+      ),
+    );
+    unawaited(
+      AnalyticsService.feature(
+        _existing == null ? 'quran_note_added' : 'quran_note_edited',
+        label: _existing == null ? 'Quran note added' : 'Quran note edited',
+        parameters: {'verse': verse.toString()},
+      ),
+    );
     final saved = context.l10n.quranNoteSaved;
     Navigator.pop(context);
     showToast(saved);
@@ -98,11 +106,13 @@ class _VerseNoteSheetState extends State<_VerseNoteSheet> {
     Navigator.pop(context);
     if (_existing != null) {
       unawaited(VerseNotesManager.instance.remove(widget.verse));
-      unawaited(AnalyticsService.feature(
-        'quran_note_deleted',
-        label: 'Quran note deleted',
-        parameters: {'verse': widget.verse.toString()},
-      ));
+      unawaited(
+        AnalyticsService.feature(
+          'quran_note_deleted',
+          label: 'Quran note deleted',
+          parameters: {'verse': widget.verse.toString()},
+        ),
+      );
       showToast(deleted);
     }
   }
@@ -128,11 +138,7 @@ class _VerseNoteSheetState extends State<_VerseNoteSheet> {
           decoration: revampFieldDecoration(context, hint: l10n.quranNoteHint),
         ),
         const SizedBox(height: 12),
-        PageButton(
-          label: l10n.commonSave,
-          filled: true,
-          onPressed: _save,
-        ),
+        PageButton(label: l10n.commonSave, filled: true, onPressed: _save),
         if (_existing != null) ...[
           const SizedBox(height: 10),
           PageButton(

@@ -16,26 +16,32 @@ enum StatsMetric {
   qaza;
 
   String get label => switch (this) {
-        StatsMetric.verses => L10n.current.statsMetricVerses,
-        StatsMetric.zikrs => L10n.current.statsMetricZikrs,
-        StatsMetric.qaza => L10n.current.statsMetricQaza,
-      };
+    StatsMetric.verses => L10n.current.statsMetricVerses,
+    StatsMetric.zikrs => L10n.current.statsMetricZikrs,
+    StatsMetric.qaza => L10n.current.statsMetricQaza,
+  };
 
   /// The metric in a caption ("verses in the last 7 days").
   String get plural => switch (this) {
-        StatsMetric.verses => L10n.current.statsMetricVersesLower,
-        StatsMetric.zikrs => L10n.current.statsMetricZikrsLower,
-        StatsMetric.qaza => L10n.current.statsMetricQazaLower,
-      };
+    StatsMetric.verses => L10n.current.statsMetricVersesLower,
+    StatsMetric.zikrs => L10n.current.statsMetricZikrsLower,
+    StatsMetric.qaza => L10n.current.statsMetricQazaLower,
+  };
 
   String count(int value, NumberFormat format) => switch (this) {
-        StatsMetric.verses =>
-          L10n.current.statsVerseCount(value, format.format(value)),
-        StatsMetric.zikrs =>
-          L10n.current.statsZikrCount(value, format.format(value)),
-        StatsMetric.qaza =>
-          L10n.current.statsQazaCount(value, format.format(value)),
-      };
+    StatsMetric.verses => L10n.current.statsVerseCount(
+      value,
+      format.format(value),
+    ),
+    StatsMetric.zikrs => L10n.current.statsZikrCount(
+      value,
+      format.format(value),
+    ),
+    StatsMetric.qaza => L10n.current.statsQazaCount(
+      value,
+      format.format(value),
+    ),
+  };
 }
 
 /// The window the history chart covers: a bar per day for the week and the
@@ -46,10 +52,10 @@ enum StatsPeriod {
   allTime;
 
   String get label => switch (this) {
-        StatsPeriod.week => L10n.current.statsPeriodWeek,
-        StatsPeriod.month => L10n.current.statsPeriodMonth,
-        StatsPeriod.allTime => L10n.current.statsPeriodAllTime,
-      };
+    StatsPeriod.week => L10n.current.statsPeriodWeek,
+    StatsPeriod.month => L10n.current.statsPeriodMonth,
+    StatsPeriod.allTime => L10n.current.statsPeriodAllTime,
+  };
 }
 
 /// Months of bars in the all-time view - a year, which the per-day history
@@ -106,15 +112,15 @@ class _StatsHistoryCardState extends State<StatsHistoryCard> {
   }
 
   int get _lifetimeTotal => switch (widget.metric) {
-        StatsMetric.verses => widget.summary.quranVersesTotal,
-        StatsMetric.zikrs => widget.summary.totalZikrs,
-        StatsMetric.qaza => widget.summary.totalQaza,
-      };
+    StatsMetric.verses => widget.summary.quranVersesTotal,
+    StatsMetric.zikrs => widget.summary.totalZikrs,
+    StatsMetric.qaza => widget.summary.totalQaza,
+  };
 
   List<_Bar> _dailyBars(DateTime now, int days) => [
-        for (var i = days - 1; i >= 0; i--)
-          (start: _day(now, -i), value: _valueOn(_day(now, -i))),
-      ];
+    for (var i = days - 1; i >= 0; i--)
+      (start: _day(now, -i), value: _valueOn(_day(now, -i))),
+  ];
 
   List<_Bar> _monthlyBars(DateTime now) {
     return [
@@ -123,9 +129,11 @@ class _StatsHistoryCardState extends State<StatsHistoryCard> {
           final start = DateTime(now.year, now.month - i);
           final next = DateTime(start.year, start.month + 1);
           var value = 0;
-          for (var day = start;
-              day.isBefore(next);
-              day = DateTime(day.year, day.month, day.day + 1)) {
+          for (
+            var day = start;
+            day.isBefore(next);
+            day = DateTime(day.year, day.month, day.day + 1)
+          ) {
             value += _valueOn(day);
           }
           return (start: start, value: value);
@@ -149,16 +157,16 @@ class _StatsHistoryCardState extends State<StatsHistoryCard> {
     final bestIndex = best == 0 ? -1 : values.lastIndexOf(best);
 
     String barLabel(DateTime start, bool last) => switch (_period) {
-          StatsPeriod.week =>
-            last ? l10n.statsToday : DateFormat('EEE').format(start),
-          StatsPeriod.month => DateFormat('d').format(start),
-          StatsPeriod.allTime => DateFormat('MMM').format(start),
-        };
+      StatsPeriod.week =>
+        last ? l10n.statsToday : DateFormat('EEE').format(start),
+      StatsPeriod.month => DateFormat('d').format(start),
+      StatsPeriod.allTime => DateFormat('MMM').format(start),
+    };
     String barName(DateTime start) => switch (_period) {
-          StatsPeriod.week => DateFormat('EEEE').format(start),
-          StatsPeriod.month => DateFormat('EEE d MMM').format(start),
-          StatsPeriod.allTime => DateFormat('MMMM y').format(start),
-        };
+      StatsPeriod.week => DateFormat('EEEE').format(start),
+      StatsPeriod.month => DateFormat('EEE d MMM').format(start),
+      StatsPeriod.allTime => DateFormat('MMMM y').format(start),
+    };
 
     final caption = switch (_period) {
       StatsPeriod.week => l10n.statsCaptionWeek(widget.metric.plural),
@@ -179,9 +187,11 @@ class _StatsHistoryCardState extends State<StatsHistoryCard> {
                   child: Text(
                     isAllTime
                         ? l10n.statsBestMonthShort(
-                            DateFormat('MMMM').format(bars[bestIndex].start))
-                        : l10n
-                            .statsBestDayShort(barName(bars[bestIndex].start)),
+                            DateFormat('MMMM').format(bars[bestIndex].start),
+                          )
+                        : l10n.statsBestDayShort(
+                            barName(bars[bestIndex].start),
+                          ),
                     textAlign: TextAlign.end,
                     style: ShiaText.caption.copyWith(color: colors.textMuted),
                   ),
@@ -219,18 +229,19 @@ class _StatsHistoryCardState extends State<StatsHistoryCard> {
                   // every third month, counted back from today so today -
                   // or this month - is always named.
                   switch (_period) {
-                    StatsPeriod.month => (bars.length - 1 - i) % 5 == 0,
-                    StatsPeriod.allTime => (bars.length - 1 - i) % 3 == 0,
-                    StatsPeriod.week => true,
-                  }
+                        StatsPeriod.month => (bars.length - 1 - i) % 5 == 0,
+                        StatsPeriod.allTime => (bars.length - 1 - i) % 3 == 0,
+                        StatsPeriod.week => true,
+                      }
                       ? barLabel(bars[i].start, i == bars.length - 1)
                       : '',
               ],
               // Thirty values would overlap too.
               showValues: _period != StatsPeriod.month,
               format: (value) => localizeDigits(
-                  value < 1000 ? _count.format(value) : _compact.format(value),
-                  l10n),
+                value < 1000 ? _count.format(value) : _compact.format(value),
+                l10n,
+              ),
             ),
           ),
           const SizedBox(height: 8),
@@ -291,9 +302,12 @@ class StatsBarChart extends StatelessWidget {
     while (magnitude * 10 <= rough) {
       magnitude *= 10;
     }
-    final step = [1, 2, 5, 10]
-        .map((m) => m * magnitude)
-        .firstWhere((step) => step >= rough);
+    final step = [
+      1,
+      2,
+      5,
+      10,
+    ].map((m) => m * magnitude).firstWhere((step) => step >= rough);
     final top = (best / step).ceil() * step;
     return [for (var tick = 0; tick <= top; tick += step) tick];
   }
@@ -440,8 +454,9 @@ class StatsBarChart extends StatelessWidget {
                       overflow: TextOverflow.visible,
                       textAlign: TextAlign.center,
                       style: style.copyWith(
-                        fontWeight:
-                            i == last ? FontWeight.w700 : FontWeight.w500,
+                        fontWeight: i == last
+                            ? FontWeight.w700
+                            : FontWeight.w500,
                         color: i == last ? colors.text : null,
                       ),
                     ),

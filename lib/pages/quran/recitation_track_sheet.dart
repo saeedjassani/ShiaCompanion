@@ -26,7 +26,8 @@ String describeRecitationPosition(
   bool compact = false,
 }) {
   final ayah = verse.ayah ?? 1;
-  final surahName = surahInfoFor(verse.surah)?.displayName ??
+  final surahName =
+      surahInfoFor(verse.surah)?.displayName ??
       L10n.current.quranSurahNumber(verse.surah);
   if (!byJuz) {
     return ayah == 1 ? surahName : L10n.current.quranSurahAyah(surahName, ayah);
@@ -38,8 +39,8 @@ String describeRecitationPosition(
   return juzStart == VerseKey(verse.surah, ayah)
       ? juzLabel
       : compact
-          ? '$juzLabel · ${localizeDigits('${verse.surah}:$ayah')}'
-          : '$juzLabel · ${L10n.current.quranSurahAyah(surahName, ayah)}';
+      ? '$juzLabel · ${localizeDigits('${verse.surah}:$ayah')}'
+      : '$juzLabel · ${L10n.current.quranSurahAyah(surahName, ayah)}';
 }
 
 /// Creates a recitation track, or - with [label] - changes an existing one.
@@ -49,6 +50,10 @@ String describeRecitationPosition(
 /// as "Continue from", so moving a khatm along after reading some of it away
 /// from the app is the same tap as choosing where a new one begins. Editing
 /// also offers to delete the track, after asking.
+///
+/// A new Khatm asks only for a name and a start; reading by juz and counting
+/// the verses before a mid-way start wait under "More options", already set
+/// to what most people want (by surah; earlier verses counted).
 ///
 /// "Start Khatm" opens the reader at the new track's start straight away.
 Future<void> showRecitationTrackSheet(
@@ -68,10 +73,16 @@ Future<void> showRecitationTrackSheet(
 /// What "Start Khatm" opens; tests swap in a stand-in for the reader.
 @visibleForTesting
 Future<void> Function(BuildContext context, String label)
-    openNewRecitationTrack = openRecitationTrack;
+openNewRecitationTrack = openRecitationTrack;
 
-/// Opens the reader where [label]'s track picks up, in its own view.
-Future<void> openRecitationTrack(BuildContext context, String label) async {
+/// Opens the reader where [label]'s track picks up, in its own view -
+/// with [replace], in place of the page on top (a surah opened from the
+/// list, swapped for the Khatm's reading of it).
+Future<void> openRecitationTrack(
+  BuildContext context,
+  String label, {
+  bool replace = false,
+}) async {
   final target = RecitationTrackerManager.instance.state.resumeTargetFor(label);
   if (target.inJuz) {
     await openQuranJuz(
@@ -80,6 +91,7 @@ Future<void> openRecitationTrack(BuildContext context, String label) async {
       at: target.verse,
       source: ZikrOpenSource.quranResume,
       recitationLabel: label,
+      replace: replace,
     );
     return;
   }
@@ -88,6 +100,7 @@ Future<void> openRecitationTrack(BuildContext context, String label) async {
     target.verse,
     source: ZikrOpenSource.quranResume,
     recitationLabel: label,
+    replace: replace,
   );
 }
 
@@ -113,6 +126,10 @@ class _RecitationTrackSheetState extends State<_RecitationTrackSheet> {
   /// start as already read - see [RecitationTrackSettings.readBefore].
   bool _markEarlierRead = true;
   String? _nameError;
+
+  /// Whether a new track's "More options" are open. Editing always shows
+  /// them: by then the reader knows what a Khatm is.
+  bool _showMore = false;
 
   bool get _isEditing => widget.label != null;
 
@@ -170,22 +187,24 @@ class _RecitationTrackSheetState extends State<_RecitationTrackSheet> {
     if (label != null) {
       final current = manager.state.settingsFor(label);
       final position = _position;
-      unawaited(manager.updateTrackSettings(
-        label,
-        _positionChanged && position != null
-            ? RecitationTrackSettings(
-                readByJuz: _readByJuz,
-                startAt: position,
-                startSetAt: DateTime.now(),
-                readBefore: current.readBefore,
-              )
-            : RecitationTrackSettings(
-                readByJuz: _readByJuz,
-                startAt: current.startAt,
-                startSetAt: current.startSetAt,
-                readBefore: current.readBefore,
-              ),
-      ));
+      unawaited(
+        manager.updateTrackSettings(
+          label,
+          _positionChanged && position != null
+              ? RecitationTrackSettings(
+                  readByJuz: _readByJuz,
+                  startAt: position,
+                  startSetAt: DateTime.now(),
+                  readBefore: current.readBefore,
+                )
+              : RecitationTrackSettings(
+                  readByJuz: _readByJuz,
+                  startAt: current.startAt,
+                  startSetAt: current.startSetAt,
+                  readBefore: current.readBefore,
+                ),
+        ),
+      );
       Navigator.pop(context);
       return;
     }
@@ -194,9 +213,9 @@ class _RecitationTrackSheetState extends State<_RecitationTrackSheet> {
     final error = name.isEmpty
         ? context.l10n.trackNameRequired
         : isDefaultRecitationTrackName(name, context.l10n) ||
-                manager.state.customLabels.contains(name)
-            ? context.l10n.trackNameTaken(name)
-            : null;
+              manager.state.customLabels.contains(name)
+        ? context.l10n.trackNameTaken(name)
+        : null;
     if (error != null) {
       setState(() => _nameError = error);
       return;
@@ -204,15 +223,17 @@ class _RecitationTrackSheetState extends State<_RecitationTrackSheet> {
 
     final position = _position;
     final startsAtBeginning = _startsAtBeginning;
-    unawaited(manager.addLabel(
-      name,
-      settings: RecitationTrackSettings(
-        readByJuz: _readByJuz,
-        startAt: startsAtBeginning ? null : position,
-        startSetAt: startsAtBeginning ? null : DateTime.now(),
-        readBefore: !startsAtBeginning && _markEarlierRead ? position : null,
+    unawaited(
+      manager.addLabel(
+        name,
+        settings: RecitationTrackSettings(
+          readByJuz: _readByJuz,
+          startAt: startsAtBeginning ? null : position,
+          startSetAt: startsAtBeginning ? null : DateTime.now(),
+          readBefore: !startsAtBeginning && _markEarlierRead ? position : null,
+        ),
       ),
-    ));
+    );
     Navigator.pop(context, name);
   }
 
@@ -244,7 +265,20 @@ class _RecitationTrackSheetState extends State<_RecitationTrackSheet> {
     final positionText = position == null
         ? l10n.trackBeginning
         : describeRecitationPosition(position, byJuz: _readByJuz);
-    final canMarkEarlierRead = !_isEditing && !_startsAtBeginning;
+    final showMore = _isEditing || _showMore;
+    final canMarkEarlierRead = showMore && !_isEditing && !_startsAtBeginning;
+    final readBy = [
+      GroupLabel(l10n.trackReadBy),
+      const SizedBox(height: 8),
+      SegmentedSwitcher<bool>(
+        segments: [
+          Segment(false, l10n.trackBySurah),
+          Segment(true, l10n.trackByJuz),
+        ],
+        selected: _readByJuz,
+        onChanged: _setReadByJuz,
+      ),
+    ];
 
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -270,47 +304,51 @@ class _RecitationTrackSheetState extends State<_RecitationTrackSheet> {
           ),
           const SizedBox(height: 18),
         ],
-        GroupLabel(l10n.trackReadBy),
-        const SizedBox(height: 8),
-        SegmentedSwitcher<bool>(
-          segments: [
-            Segment(false, l10n.trackBySurah),
-            Segment(true, l10n.trackByJuz),
-          ],
-          selected: _readByJuz,
-          onChanged: _setReadByJuz,
-        ),
-        const SizedBox(height: 18),
+        if (_isEditing) ...[...readBy, const SizedBox(height: 18)],
         GroupLabel(_isEditing ? l10n.trackContinueFrom : l10n.trackStartFrom),
         const SizedBox(height: 8),
-        CardList(children: [
-          CardListRow(
-            first: true,
-            last: !canMarkEarlierRead,
-            leading: Container(
-              width: 40,
-              height: 40,
-              alignment: Alignment.center,
-              decoration: BoxDecoration(
-                color: colors.well,
-                borderRadius: BorderRadius.circular(12),
+        CardList(
+          children: [
+            CardListRow(
+              first: true,
+              last: !canMarkEarlierRead,
+              leading: Container(
+                width: 40,
+                height: 40,
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  color: colors.well,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: OutlineIcon(
+                  OutlineGlyph.bookmark,
+                  size: 20,
+                  color: colors.accent,
+                ),
               ),
-              child: OutlineIcon(OutlineGlyph.bookmark,
-                  size: 20, color: colors.accent),
-            ),
-            title: Text(positionText),
-            titleStyle: ShiaText.cardTitle,
-            trailing: SizedBox.square(
-              dimension: 36,
-              child: Center(
-                child: OutlineIcon(OutlineGlyph.chevronRight,
-                    size: 18, color: colors.chevron, strokeWidth: 2),
+              title: Text(positionText),
+              titleStyle: ShiaText.cardTitle,
+              trailing: SizedBox.square(
+                dimension: 36,
+                child: Center(
+                  child: OutlineIcon(
+                    OutlineGlyph.chevronRight,
+                    size: 18,
+                    color: colors.chevron,
+                    strokeWidth: 2,
+                  ),
+                ),
               ),
+              onTap: _pickPosition,
             ),
-            onTap: _pickPosition,
-          ),
-          if (canMarkEarlierRead) _buildMarkEarlierReadRow(l10n),
-        ]),
+            if (canMarkEarlierRead) _buildMarkEarlierReadRow(l10n),
+          ],
+        ),
+        if (!_isEditing && _showMore) ...[
+          const SizedBox(height: 18),
+          ...readBy,
+        ],
+        if (!showMore) _buildMoreOptions(colors, l10n),
         const SizedBox(height: 10),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 4),
@@ -330,13 +368,42 @@ class _RecitationTrackSheetState extends State<_RecitationTrackSheet> {
         ),
         if (_isEditing) ...[
           const SizedBox(height: 10),
-          PageButton(
-            label: l10n.trackDelete,
-            danger: true,
-            onPressed: _delete,
-          ),
+          PageButton(label: l10n.trackDelete, danger: true, onPressed: _delete),
         ],
       ],
+    );
+  }
+
+  /// The link that opens a new track's [_showMore] options.
+  Widget _buildMoreOptions(ShiaColors colors, AppLocalizations l10n) {
+    return Align(
+      alignment: AlignmentDirectional.centerStart,
+      child: InkWell(
+        onTap: () => setState(() => _showMore = true),
+        borderRadius: BorderRadius.circular(8),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 10),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                l10n.trackMoreOptions,
+                style: ShiaText.caption.copyWith(
+                  color: colors.accent,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              const SizedBox(width: 4),
+              OutlineIcon(
+                OutlineGlyph.chevronDown,
+                size: 14,
+                color: colors.accent,
+                strokeWidth: 2,
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 

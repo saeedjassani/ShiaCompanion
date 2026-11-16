@@ -24,12 +24,15 @@ import 'shia_colors.dart';
 /// button, so nothing on the page is dark or strongly coloured.
 enum AppPalette {
   brown(null),
-  clear(_Tint(
+  clear(
+    _Tint(
       neutralHue: 250,
       neutral: 0,
       accentHue: 250,
       accent: 0.5,
-      plainCard: true)),
+      plainCard: true,
+    ),
+  ),
   gray(_Tint(neutralHue: 0, neutral: 0, accentHue: 0, accent: 0)),
   green(_Tint(neutralHue: 150, neutral: 0.7, accentHue: 148, accent: 1.5)),
   teal(_Tint(neutralHue: 195, neutral: 0.7, accentHue: 195, accent: 1.3)),
@@ -46,8 +49,8 @@ enum AppPalette {
   /// This palette's tokens for [brightness].
   ShiaColors colors(Brightness brightness) =>
       _cache[(this, brightness)] ??= _tint == null
-          ? ShiaColors.forBrightness(brightness)
-          : _tint.apply(ShiaColors.forBrightness(brightness));
+      ? ShiaColors.forBrightness(brightness)
+      : _tint.apply(ShiaColors.forBrightness(brightness));
 
   static AppPalette? parse(String? value) {
     for (final palette in values) {
@@ -113,7 +116,10 @@ class _Tint {
   }
 
   ShiaColors _recoloured(
-      ShiaColors c, Color Function(Color) n, Color Function(Color) a) {
+    ShiaColors c,
+    Color Function(Color) n,
+    Color Function(Color) a,
+  ) {
     return ShiaColors(
       ground: n(c.ground),
       readerGround: n(c.readerGround),
@@ -169,8 +175,12 @@ Color _recolour(Color color, double hue, double chroma) {
   }
   int channel(double linear) =>
       (_toSrgb(linear.clamp(0.0, 1.0)) * 255).round().clamp(0, 255);
-  return Color.fromARGB((color.a * 255).round(), channel(rgb.$1),
-      channel(rgb.$2), channel(rgb.$3));
+  return Color.fromARGB(
+    (color.a * 255).round(),
+    channel(rgb.$1),
+    channel(rgb.$2),
+    channel(rgb.$3),
+  );
 }
 
 bool _inGamut((double, double, double) rgb) {

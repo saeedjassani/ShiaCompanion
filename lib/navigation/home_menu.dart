@@ -373,14 +373,12 @@ final List<HomeMenuItem> adminHomeMenuItems = List.unmodifiable([
 /// so the render test covers a new entry the same day it is added — even one
 /// like Quran that never appears in [visibleHomeMenuItems] side by side with
 /// the item it replaces there.
-final List<HomeMenuItem> allHomeMenuItems = List.unmodifiable(
-  [
-    ...homeMenuItems,
-    quranMenuItem,
-    ziyaratGuideMenuItem,
-    ...adminHomeMenuItems
-  ],
-);
+final List<HomeMenuItem> allHomeMenuItems = List.unmodifiable([
+  ...homeMenuItems,
+  quranMenuItem,
+  ziyaratGuideMenuItem,
+  ...adminHomeMenuItems,
+]);
 
 /// What the home grid shows right now, which depends on who is signed in:
 /// 'Surahs' replaced by the Quran screen, plus admin-only tools appended
@@ -402,20 +400,20 @@ HomeMenuItem get quranTabMenuItem => quranMenuItem;
 /// order, except what has a tab of its own, and Today's Recitations, which
 /// Home shows as its Today section.
 List<HomeMenuItem> get allFeaturesMenuItems => List.unmodifiable([
-      for (final item in visibleHomeMenuItems)
-        if (item != favoritesMenuItem &&
-            item != surahsMenuItem &&
-            item != quranMenuItem &&
-            item != todaysRecitationsMenuItem)
-          item,
-    ]);
+  for (final item in visibleHomeMenuItems)
+    if (item != favoritesMenuItem &&
+        item != surahsMenuItem &&
+        item != quranMenuItem &&
+        item != todaysRecitationsMenuItem)
+      item,
+]);
 
 /// What can be one of Home's shortcuts: All features less Settings, which
 /// already has the profile button on Home.
 List<HomeMenuItem> get shortcutCandidateMenuItems => List.unmodifiable([
-      for (final item in allFeaturesMenuItems)
-        if (item != settingsMenuItem) item,
-    ]);
+  for (final item in allFeaturesMenuItems)
+    if (item != settingsMenuItem) item,
+]);
 
 /// The shortcuts [ids] name, in order, skipping any this build or this user
 /// cannot open (an Android-only tool on web, an admin tool after sign-out).
@@ -451,11 +449,13 @@ Widget getPage(String label) {
   return getHomeMenuItem(label)?.buildPage() ?? Container();
 }
 
-final List<String> zikr =
-    List.unmodifiable(homeMenuItems.map((item) => item.label));
+final List<String> zikr = List.unmodifiable(
+  homeMenuItems.map((item) => item.label),
+);
 
-final List<IconData> zikrIcons =
-    List.unmodifiable(homeMenuItems.map((item) => item.icon));
+final List<IconData> zikrIcons = List.unmodifiable(
+  homeMenuItems.map((item) => item.icon),
+);
 
 /// [label], one of the home menu's English item labels (or a short label,
 /// see [HomeMenuItem.shortLabel]), in the app language.

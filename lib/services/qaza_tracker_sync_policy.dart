@@ -10,12 +10,12 @@ enum QazaOperationKind {
 
 extension QazaOperationKindInfo on QazaOperationKind {
   String get key => switch (this) {
-        QazaOperationKind.addMissed => 'add_missed',
-        QazaOperationKind.markCompleted => 'mark_completed',
-        QazaOperationKind.undoCompleted => 'undo_completed',
-        QazaOperationKind.setCount => 'set_count',
-        QazaOperationKind.addCounts => 'add_counts',
-      };
+    QazaOperationKind.addMissed => 'add_missed',
+    QazaOperationKind.markCompleted => 'mark_completed',
+    QazaOperationKind.undoCompleted => 'undo_completed',
+    QazaOperationKind.setCount => 'set_count',
+    QazaOperationKind.addCounts => 'add_counts',
+  };
 }
 
 QazaOperationKind? qazaOperationKindFromKey(String key) {
@@ -102,11 +102,11 @@ class PendingQazaOperation {
   final QazaEntryCount? count;
 
   Map<String, Object> toJson() => {
-        'id': id,
-        'kind': kind.key,
-        'type': type.key,
-        if (count != null) 'count': count!.toJson(),
-      };
+    'id': id,
+    'kind': kind.key,
+    'type': type.key,
+    if (count != null) 'count': count!.toJson(),
+  };
 
   static PendingQazaOperation? fromJson(dynamic value) {
     if (value is! Map) return null;
@@ -118,25 +118,13 @@ class PendingQazaOperation {
 
     final count = QazaEntryCount.fromJson(value['count']);
     if (kind == QazaOperationKind.setCount) {
-      return PendingQazaOperation.setCount(
-        id: id,
-        type: type,
-        count: count,
-      );
+      return PendingQazaOperation.setCount(id: id, type: type, count: count);
     }
     if (kind == QazaOperationKind.addCounts) {
-      return PendingQazaOperation.addCounts(
-        id: id,
-        type: type,
-        count: count,
-      );
+      return PendingQazaOperation.addCounts(id: id, type: type, count: count);
     }
 
-    return PendingQazaOperation(
-      id: id,
-      kind: kind,
-      type: type,
-    );
+    return PendingQazaOperation(id: id, kind: kind, type: type);
   }
 }
 
@@ -159,24 +147,27 @@ QazaTrackerState applyPendingQazaOperation(
 
   final nextCount = switch (operation.kind) {
     QazaOperationKind.addMissed => count.copyWith(
-        remaining: count.remaining + 1,
-      ),
-    QazaOperationKind.markCompleted => count.remaining <= 0
-        ? count
-        : count.copyWith(
-            remaining: count.remaining - 1,
-            completed: count.completed + 1,
-          ),
-    QazaOperationKind.undoCompleted => count.completed <= 0
-        ? count
-        : count.copyWith(
-            remaining: count.remaining + 1,
-            completed: count.completed - 1,
-          ),
+      remaining: count.remaining + 1,
+    ),
+    QazaOperationKind.markCompleted =>
+      count.remaining <= 0
+          ? count
+          : count.copyWith(
+              remaining: count.remaining - 1,
+              completed: count.completed + 1,
+            ),
+    QazaOperationKind.undoCompleted =>
+      count.completed <= 0
+          ? count
+          : count.copyWith(
+              remaining: count.remaining + 1,
+              completed: count.completed - 1,
+            ),
     QazaOperationKind.setCount =>
       operation.count?.copyWith() ?? QazaEntryCount.zero,
-    QazaOperationKind.addCounts =>
-      count.plus(operation.count ?? QazaEntryCount.zero),
+    QazaOperationKind.addCounts => count.plus(
+      operation.count ?? QazaEntryCount.zero,
+    ),
   };
 
   if (nextCount.remaining == count.remaining &&
@@ -227,10 +218,10 @@ class QazaRemoteDoc {
       appliedOperationIds.contains(operationId);
 
   Map<String, Object> toData() => {
-        'version': 1,
-        'entries': state.toJson(),
-        'appliedOperationIds': appliedOperationIds,
-      };
+    'version': 1,
+    'entries': state.toJson(),
+    'appliedOperationIds': appliedOperationIds,
+  };
 }
 
 /// Folds [operations] into [doc] in order, skipping any already applied.
@@ -249,8 +240,9 @@ QazaRemoteDoc applyQazaOperationsToRemote(
   final overflow = appliedIds.length - qazaAppliedOperationIdLimit;
   return QazaRemoteDoc(
     state: state,
-    appliedOperationIds:
-        overflow > 0 ? appliedIds.sublist(overflow) : appliedIds,
+    appliedOperationIds: overflow > 0
+        ? appliedIds.sublist(overflow)
+        : appliedIds,
   );
 }
 

@@ -48,10 +48,12 @@ class HomeColorCard extends StatelessWidget {
 
   void _dismiss() {
     unawaited(markDismissed());
-    unawaited(AnalyticsService.feature(
-      'home_color_card_dismissed',
-      label: 'Home color card dismissed',
-    ));
+    unawaited(
+      AnalyticsService.feature(
+        'home_color_card_dismissed',
+        label: 'Home color card dismissed',
+      ),
+    );
     onDismiss();
   }
 
@@ -93,15 +95,17 @@ class HomeColorCard extends StatelessWidget {
                           header: true,
                           child: Text(
                             l10n.homeColorCardTitle,
-                            style:
-                                ShiaText.cardTitle.copyWith(color: colors.text),
+                            style: ShiaText.cardTitle.copyWith(
+                              color: colors.text,
+                            ),
                           ),
                         ),
                         const SizedBox(height: 4),
                         Text(
                           l10n.homeColorCardBody,
-                          style: ShiaText.secondary
-                              .copyWith(color: colors.textMuted),
+                          style: ShiaText.secondary.copyWith(
+                            color: colors.textMuted,
+                          ),
                         ),
                       ],
                     ),
@@ -110,8 +114,11 @@ class HomeColorCard extends StatelessWidget {
                 IconButton(
                   tooltip: l10n.commonClose,
                   onPressed: _dismiss,
-                  icon: OutlineIcon(OutlineGlyph.close,
-                      size: 18, color: colors.textMuted),
+                  icon: OutlineIcon(
+                    OutlineGlyph.close,
+                    size: 18,
+                    color: colors.textMuted,
+                  ),
                 ),
               ],
             ),
@@ -143,29 +150,32 @@ class _Swatches extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     const all = AppPalette.values;
-    return LayoutBuilder(builder: (context, constraints) {
-      const minGap = 6.0;
-      final oneRow = constraints.maxWidth >=
-          all.length * PaletteDot.size + (all.length - 1) * minGap;
-      final perRow = oneRow ? all.length : (all.length / 2).ceil();
-      return Column(
-        children: [
-          for (var start = 0; start < all.length; start += perRow) ...[
-            if (start > 0) const SizedBox(height: 6),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                for (final choice in all.skip(start).take(perRow))
-                  PaletteDot(
-                    palette: choice,
-                    selected: choice == selected,
-                    onTap: () => onTap(choice),
-                  ),
-              ],
-            ),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        const minGap = 6.0;
+        final oneRow =
+            constraints.maxWidth >=
+            all.length * PaletteDot.size + (all.length - 1) * minGap;
+        final perRow = oneRow ? all.length : (all.length / 2).ceil();
+        return Column(
+          children: [
+            for (var start = 0; start < all.length; start += perRow) ...[
+              if (start > 0) const SizedBox(height: 6),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  for (final choice in all.skip(start).take(perRow))
+                    PaletteDot(
+                      palette: choice,
+                      selected: choice == selected,
+                      onTap: () => onTap(choice),
+                    ),
+                ],
+              ),
+            ],
           ],
-        ],
-      );
-    });
+        );
+      },
+    );
   }
 }

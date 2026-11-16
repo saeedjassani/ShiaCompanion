@@ -58,10 +58,13 @@ class ZiyaratGuideRepository {
   }
 
   static Future<Map<String, String>> _overlay(
-      String code, AssetBundle bundle) async {
+    String code,
+    AssetBundle bundle,
+  ) async {
     try {
-      final decoded = json
-          .decode(await bundle.loadString(ziyaratGuideTranslationPath(code)));
+      final decoded = json.decode(
+        await bundle.loadString(ziyaratGuideTranslationPath(code)),
+      );
       if (decoded is! Map) return const {};
       return {
         for (final entry in decoded.entries)

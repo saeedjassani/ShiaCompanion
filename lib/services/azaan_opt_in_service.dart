@@ -109,9 +109,11 @@ class AzaanOptInService {
   /// Scheduling is left to the caller: setup runs before Home, whose start-up
   /// rebuilds the schedule anyway once it knows whether exact alarms are
   /// allowed, and the answer has already changed the fingerprint it checks.
-  static Future<void> answer(Iterable<String> prayerKeys) =>
-      _apply(prayerKeys.isNotEmpty,
-          reschedule: false, prayerKeys: prayerKeys.toSet());
+  static Future<void> answer(Iterable<String> prayerKeys) => _apply(
+    prayerKeys.isNotEmpty,
+    reschedule: false,
+    prayerKeys: prayerKeys.toSet(),
+  );
 
   /// Turns azan on or off from Settings, and reschedules to match.
   static Future<void> setEnabled(bool enabled) =>
@@ -130,7 +132,8 @@ class AzaanOptInService {
       // Overwriting with the defaults is what used to destroy a hand-picked
       // set the moment someone toggled the switch off and on again.
       final remembered = SP.prefs.getStringList(_restoreSetKey);
-      final toEnable = prayerKeys ??
+      final toEnable =
+          prayerKeys ??
           ((remembered == null || remembered.isEmpty)
               ? defaultEnabledPrayerKeys
               : remembered);

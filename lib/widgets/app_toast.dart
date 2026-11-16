@@ -38,13 +38,12 @@ void showToast(
   String? actionLabel,
   VoidCallback? onAction,
   Duration duration = toastDuration,
-}) =>
-    showToastContent(
-      Text(message),
-      actionLabel: actionLabel,
-      onAction: onAction,
-      duration: duration,
-    );
+}) => showToastContent(
+  Text(message),
+  actionLabel: actionLabel,
+  onAction: onAction,
+  duration: duration,
+);
 
 /// [showToast] with a widget for the message, for text that needs more than
 /// a plain string (an icon mid-sentence, Arabic set right to left).
@@ -235,7 +234,8 @@ class _ToastViewState extends State<_ToastView>
     final reduceMotion = MediaQuery.disableAnimationsOf(context);
     // Clear of the tab bar or a find field (62 px tall) wherever they float,
     // the keyboard included.
-    final bottom = MediaQuery.viewInsetsOf(context).bottom +
+    final bottom =
+        MediaQuery.viewInsetsOf(context).bottom +
         floatingBottomOffset(context) +
         62 +
         12;
@@ -280,8 +280,9 @@ class _ToastViewState extends State<_ToastView>
                   ),
                   child: Text(
                     widget.actionLabel!,
-                    style: ShiaText.secondary
-                        .copyWith(fontWeight: FontWeight.w700),
+                    style: ShiaText.secondary.copyWith(
+                      fontWeight: FontWeight.w700,
+                    ),
                   ),
                 ),
               ],
@@ -314,8 +315,10 @@ class _ToastViewState extends State<_ToastView>
     // Above a playing playlist's capsule and the Azan's controls, which
     // float there too.
     return ListenableBuilder(
-      listenable:
-          Listenable.merge([NowPlayingCapsule.layout, AzanPlayingBanner.top]),
+      listenable: Listenable.merge([
+        NowPlayingCapsule.layout,
+        AzanPlayingBanner.top,
+      ]),
       builder: (context, child) => Positioned(
         left: 16,
         right: 16,
@@ -335,10 +338,7 @@ class _ToastViewState extends State<_ToastView>
             child: Semantics(
               container: true,
               liveRegion: true,
-              child: Material(
-                type: MaterialType.transparency,
-                child: toast,
-              ),
+              child: Material(type: MaterialType.transparency, child: toast),
             ),
           ),
         ),

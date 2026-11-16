@@ -57,10 +57,13 @@ class ZikrAutoScrollController extends ChangeNotifier {
   bool get running => _active && !_paused;
 
   int get speed {
-    final stored =
-        SP.isInitialized ? SP.prefs.getInt(zikrAutoScrollSpeedKey) : null;
-    return _speed ??= (stored ?? defaultAutoScrollSpeed)
-        .clamp(minAutoScrollSpeed, maxAutoScrollSpeed);
+    final stored = SP.isInitialized
+        ? SP.prefs.getInt(zikrAutoScrollSpeedKey)
+        : null;
+    return _speed ??= (stored ?? defaultAutoScrollSpeed).clamp(
+      minAutoScrollSpeed,
+      maxAutoScrollSpeed,
+    );
   }
 
   double get pixelsPerSecond =>
@@ -70,11 +73,13 @@ class ZikrAutoScrollController extends ChangeNotifier {
     if (running) return;
     _active = true;
     _paused = false;
-    unawaited(AnalyticsService.feature(
-      'zikr_auto_scroll_started',
-      label: 'Auto-scroll started',
-      parameters: {'speed': '$speed'},
-    ));
+    unawaited(
+      AnalyticsService.feature(
+        'zikr_auto_scroll_started',
+        label: 'Auto-scroll started',
+        parameters: {'speed': '$speed'},
+      ),
+    );
     notifyListeners();
   }
 
@@ -133,8 +138,9 @@ class ZikrAutoScrollControls extends StatelessWidget {
       builder: (context, _) {
         final colors = ShiaColors.of(context);
         final l10n = context.l10n;
-        final playLabel =
-            controller.paused ? l10n.autoScrollResume : l10n.autoScrollPause;
+        final playLabel = controller.paused
+            ? l10n.autoScrollResume
+            : l10n.autoScrollPause;
         Color tint(bool enabled) =>
             enabled ? colors.accent : colors.accent.withValues(alpha: 0.38);
         return Row(
@@ -209,24 +215,32 @@ class ZikrAutoScrollControls extends StatelessWidget {
             ),
             PlayerIconButton(
               label: l10n.autoScrollSlower,
-              icon: OutlineIcon(OutlineGlyph.minus,
-                  size: 20,
-                  color: tint(controller.canGoSlower),
-                  strokeWidth: 2),
+              icon: OutlineIcon(
+                OutlineGlyph.minus,
+                size: 20,
+                color: tint(controller.canGoSlower),
+                strokeWidth: 2,
+              ),
               onPressed: controller.canGoSlower ? controller.slower : null,
             ),
             PlayerIconButton(
               label: l10n.autoScrollFaster,
-              icon: OutlineIcon(OutlineGlyph.plus,
-                  size: 20,
-                  color: tint(controller.canGoFaster),
-                  strokeWidth: 2),
+              icon: OutlineIcon(
+                OutlineGlyph.plus,
+                size: 20,
+                color: tint(controller.canGoFaster),
+                strokeWidth: 2,
+              ),
               onPressed: controller.canGoFaster ? controller.faster : null,
             ),
             PlayerIconButton(
               label: l10n.autoScrollStop,
-              icon: OutlineIcon(OutlineGlyph.close,
-                  size: 20, color: colors.textMuted, strokeWidth: 2),
+              icon: OutlineIcon(
+                OutlineGlyph.close,
+                size: 20,
+                color: colors.textMuted,
+                strokeWidth: 2,
+              ),
               onPressed: controller.stop,
             ),
           ],

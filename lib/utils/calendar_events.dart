@@ -44,8 +44,9 @@ class CalendarEvents {
   ) async {
     Map<String, dynamic> events;
     try {
-      final decoded =
-          json.decode(await bundle.loadString('assets/events.json'));
+      final decoded = json.decode(
+        await bundle.loadString('assets/events.json'),
+      );
       if (decoded is! Map<String, dynamic>) return const {};
       events = decoded;
     } catch (e) {
@@ -55,8 +56,9 @@ class CalendarEvents {
     if (code == 'en') return events;
     Map<String, dynamic> translations;
     try {
-      final decoded =
-          json.decode(await bundle.loadString('assets/events_i18n/$code.json'));
+      final decoded = json.decode(
+        await bundle.loadString('assets/events_i18n/$code.json'),
+      );
       if (decoded is! Map<String, dynamic>) return events;
       translations = decoded;
     } catch (_) {

@@ -104,7 +104,8 @@ class ReaderPagination {
   /// The page showing [blockIndex], or 0 if there is none.
   int pageForBlock(int blockIndex) {
     for (var i = 0; i < pages.length; i++) {
-      if (blockIndex >= pages[i].firstBlock && blockIndex <= pages[i].lastBlock) {
+      if (blockIndex >= pages[i].firstBlock &&
+          blockIndex <= pages[i].lastBlock) {
         return i;
       }
     }
@@ -217,7 +218,10 @@ ReaderPagination paginateColumn(
   required double pageHeight,
 }) {
   if (geometry.isEmpty || pageHeight <= 0) {
-    return ReaderPagination(pages: const [], columnHeight: geometry.columnHeight);
+    return ReaderPagination(
+      pages: const [],
+      columnHeight: geometry.columnHeight,
+    );
   }
 
   final breaks = _breakCandidates(geometry);

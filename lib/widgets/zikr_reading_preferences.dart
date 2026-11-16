@@ -137,11 +137,13 @@ class ReadingSwitch {
   Future<void> save(bool value) async {
     apply?.call(value);
     await SP.prefs.setBool(key, value);
-    unawaited(AnalyticsService.feature(
-      feature,
-      label: label,
-      parameters: {'enabled': value ? 'on' : 'off'},
-    ));
+    unawaited(
+      AnalyticsService.feature(
+        feature,
+        label: label,
+        parameters: {'enabled': value ? 'on' : 'off'},
+      ),
+    );
   }
 }
 
@@ -176,24 +178,34 @@ void setEnglishFontSizePref(double size) {
 }
 
 void commitArabicFontSize() {
-  unawaited(AnalyticsService.feature('arabic_font_size_changed',
-      label: 'Arabic font size changed'));
+  unawaited(
+    AnalyticsService.feature(
+      'arabic_font_size_changed',
+      label: 'Arabic font size changed',
+    ),
+  );
   unawaited(PreferencesSyncService.instance.pushArabicFontSize());
 }
 
 void commitEnglishFontSize() {
-  unawaited(AnalyticsService.feature('english_font_size_changed',
-      label: 'English font size changed'));
+  unawaited(
+    AnalyticsService.feature(
+      'english_font_size_changed',
+      label: 'English font size changed',
+    ),
+  );
   unawaited(PreferencesSyncService.instance.pushEnglishFontSize());
 }
 
 Future<void> saveArabicFontChoice(String font) async {
   arabicFont = font;
   await FontPreferences.setSelectedFont(font);
-  unawaited(AnalyticsService.feature(
-    'arabic_font_changed',
-    label: 'Arabic font changed',
-    parameters: {'font': font},
-  ));
+  unawaited(
+    AnalyticsService.feature(
+      'arabic_font_changed',
+      label: 'Arabic font changed',
+      parameters: {'font': font},
+    ),
+  );
   unawaited(PreferencesSyncService.instance.pushArabicFont());
 }

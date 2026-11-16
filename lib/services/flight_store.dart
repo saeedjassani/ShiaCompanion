@@ -45,10 +45,12 @@ class FlightStore extends ChangeNotifier {
     } else {
       next.add(flight);
     }
-    unawaited(AnalyticsService.feature(
-      index >= 0 ? 'flight_edited' : 'flight_added',
-      label: index >= 0 ? 'Flight edited' : 'Flight added',
-    ));
+    unawaited(
+      AnalyticsService.feature(
+        index >= 0 ? 'flight_edited' : 'flight_added',
+        label: index >= 0 ? 'Flight edited' : 'Flight added',
+      ),
+    );
     await _persist(next);
   }
 

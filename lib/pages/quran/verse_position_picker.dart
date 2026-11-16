@@ -80,8 +80,9 @@ class _OpenUnit {
 }
 
 final RegExp _juzQueryPattern = RegExp(
-    r'^(?:juz|para|parah|sipara|j|p)\s*(\d{1,2})$',
-    caseSensitive: false);
+  r'^(?:juz|para|parah|sipara|j|p)\s*(\d{1,2})$',
+  caseSensitive: false,
+);
 
 class _VersePositionPicker extends StatefulWidget {
   const _VersePositionPicker({
@@ -106,8 +107,10 @@ class _VersePositionPickerState extends State<_VersePositionPicker> {
   final _surahs = allSurahs();
 
   late bool _browseByJuz = widget.browseByJuz;
-  late VerseKey _selected =
-      VerseKey(widget.initial.surah, widget.initial.ayah ?? 1);
+  late VerseKey _selected = VerseKey(
+    widget.initial.surah,
+    widget.initial.ayah ?? 1,
+  );
 
   /// Always opens on the Surah / Juz list, with the unit holding the current
   /// choice highlighted and the choice itself - al-Fatihah on a new track -
@@ -126,10 +129,9 @@ class _VersePositionPickerState extends State<_VersePositionPicker> {
   }
 
   _OpenUnit _unitContaining(VerseKey verse) => _OpenUnit(
-        isJuz: _browseByJuz,
-        number:
-            _browseByJuz ? juzOf(verse.surah, verse.ayah ?? 1) : verse.surah,
-      );
+    isJuz: _browseByJuz,
+    number: _browseByJuz ? juzOf(verse.surah, verse.ayah ?? 1) : verse.surah,
+  );
 
   void _openUnitAt(_OpenUnit unit, {VerseKey? select}) {
     setState(() {
@@ -229,9 +231,13 @@ class _VersePositionPickerState extends State<_VersePositionPicker> {
               child: SegmentedButton<bool>(
                 segments: [
                   ButtonSegment(
-                      value: false, label: Text(context.l10n.trackBySurah)),
+                    value: false,
+                    label: Text(context.l10n.trackBySurah),
+                  ),
                   ButtonSegment(
-                      value: true, label: Text(context.l10n.trackByJuz)),
+                    value: true,
+                    label: Text(context.l10n.trackByJuz),
+                  ),
                 ],
                 selected: {_browseByJuz},
                 onSelectionChanged: (selection) =>
@@ -275,19 +281,26 @@ class _VersePositionPickerState extends State<_VersePositionPicker> {
       final juz = _juzList[unit.number - 1];
       title = context.l10n.quranJuzNumber(unit.number);
       subtitle = context.l10n.pickerJuzRange(
-          context.l10n
-              .quranSurahAyah(_surahName(juz.start.surah), juz.start.ayah ?? 1),
-          context.l10n
-              .quranSurahAyah(_surahName(juz.end.surah), juz.end.ayah ?? 1));
+        context.l10n.quranSurahAyah(
+          _surahName(juz.start.surah),
+          juz.start.ayah ?? 1,
+        ),
+        context.l10n.quranSurahAyah(
+          _surahName(juz.end.surah),
+          juz.end.ayah ?? 1,
+        ),
+      );
     } else {
       final info = _surahs[unit.number - 1];
       title = '${localizeDigits('${info.number}')}. ${info.displayName}';
       final firstJuz = juzOf(info.number, 1);
       final lastJuz = juzOf(info.number, info.ayahCount);
       subtitle = context.l10n.pickerSurahDetails(
-          context.l10n.quranAyahCount(info.ayahCount),
-          localizeDigits(
-              firstJuz == lastJuz ? '$firstJuz' : '$firstJuz–$lastJuz'));
+        context.l10n.quranAyahCount(info.ayahCount),
+        localizeDigits(
+          firstJuz == lastJuz ? '$firstJuz' : '$firstJuz–$lastJuz',
+        ),
+      );
     }
 
     return Padding(
@@ -428,8 +441,12 @@ class _UnitListState extends State<_UnitList> {
         if (byJuz) {
           final juz = _juzList[index];
           title = context.l10n.quranJuzNumber(juz.number);
-          subtitle = context.l10n.pickerJuzFrom(context.l10n.quranSurahAyah(
-              _surahNameOf(juz.start.surah), juz.start.ayah ?? 1));
+          subtitle = context.l10n.pickerJuzFrom(
+            context.l10n.quranSurahAyah(
+              _surahNameOf(juz.start.surah),
+              juz.start.ayah ?? 1,
+            ),
+          );
         } else {
           final surah = _surahs[index];
           title = surah.displayName;
@@ -438,17 +455,21 @@ class _UnitListState extends State<_UnitList> {
         }
         return ListTile(
           selected: isSelected,
-          selectedTileColor:
-              colorScheme.secondaryContainer.withValues(alpha: 0.6),
+          selectedTileColor: colorScheme.secondaryContainer.withValues(
+            alpha: 0.6,
+          ),
           leading: CircleAvatar(
             radius: 18,
             backgroundColor: isSelected
                 ? colorScheme.primary
                 : colorScheme.surfaceContainerHighest,
-            foregroundColor:
-                isSelected ? colorScheme.onPrimary : colorScheme.onSurface,
-            child: Text(localizeDigits('${index + 1}', context.l10n),
-                style: const TextStyle(fontSize: 13)),
+            foregroundColor: isSelected
+                ? colorScheme.onPrimary
+                : colorScheme.onSurface,
+            child: Text(
+              localizeDigits('${index + 1}', context.l10n),
+              style: const TextStyle(fontSize: 13),
+            ),
           ),
           title: Text(title),
           subtitle: Text(subtitle, maxLines: 1),
@@ -579,8 +600,10 @@ class _AyahGridState extends State<_AyahGrid> {
                           Text(
                             run.from == run.to
                                 ? context.l10n.pickerAyahSingle(run.from)
-                                : context.l10n
-                                    .pickerAyahRange(run.from, run.to),
+                                : context.l10n.pickerAyahRange(
+                                    run.from,
+                                    run.to,
+                                  ),
                             style: theme.textTheme.bodySmall?.copyWith(
                               color: colorScheme.onSurfaceVariant,
                             ),
@@ -591,8 +614,12 @@ class _AyahGridState extends State<_AyahGrid> {
                   ),
                 ),
               SliverPadding(
-                padding:
-                    const EdgeInsets.fromLTRB(_padding, 0, _padding, _padding),
+                padding: const EdgeInsets.fromLTRB(
+                  _padding,
+                  0,
+                  _padding,
+                  _padding,
+                ),
                 sliver: SliverGrid(
                   gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: columns,
@@ -600,17 +627,17 @@ class _AyahGridState extends State<_AyahGrid> {
                     mainAxisSpacing: _cellSpacing,
                     crossAxisSpacing: _cellSpacing,
                   ),
-                  delegate: SliverChildBuilderDelegate(
-                    childCount: run.length,
-                    (context, index) {
-                      final verse = VerseKey(run.surah, run.from + index);
-                      return _AyahCell(
-                        ayah: verse.ayah!,
-                        isSelected: verse == widget.selected,
-                        onTap: () => widget.onSelect(verse),
-                      );
-                    },
-                  ),
+                  delegate: SliverChildBuilderDelegate(childCount: run.length, (
+                    context,
+                    index,
+                  ) {
+                    final verse = VerseKey(run.surah, run.from + index);
+                    return _AyahCell(
+                      ayah: verse.ayah!,
+                      isSelected: verse == widget.selected,
+                      onTap: () => widget.onSelect(verse),
+                    );
+                  }),
                 ),
               ),
             ],
@@ -654,8 +681,9 @@ class _AyahCell extends StatelessWidget {
             child: Text(
               localizeDigits('$ayah', context.l10n),
               style: theme.textTheme.labelLarge?.copyWith(
-                color:
-                    isSelected ? colorScheme.onPrimary : colorScheme.onSurface,
+                color: isSelected
+                    ? colorScheme.onPrimary
+                    : colorScheme.onSurface,
                 fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
               ),
             ),

@@ -785,16 +785,20 @@ void main() {
   });
 
   group('the default track\'s name', () {
-    test('shows as My reading; other tracks keep their own name', () {
-      expect(recitationTrackName(unlabeledRecitationLabel), 'My reading');
+    test('shows as Other reading; other tracks keep their own name', () {
+      expect(recitationTrackName(unlabeledRecitationLabel), 'Other reading');
       expect(recitationTrackName('Family'), 'Family');
+      // The Khatm "My reading" moved into goes by its own name.
+      expect(recitationTrackName('My reading'), 'My reading');
     });
 
     test('is taken by both of its names, in any case', () {
-      expect(isDefaultRecitationTrackName('My reading'), isTrue);
-      expect(isDefaultRecitationTrackName('  my READING '), isTrue);
+      expect(isDefaultRecitationTrackName('Other reading'), isTrue);
+      expect(isDefaultRecitationTrackName('  other READING '), isTrue);
       expect(isDefaultRecitationTrackName('unlabeled'), isTrue);
-      expect(isDefaultRecitationTrackName('My reading list'), isFalse);
+      expect(isDefaultRecitationTrackName('Other reading list'), isFalse);
+      // Free now for the Khatm "My reading" moved into.
+      expect(isDefaultRecitationTrackName('My reading'), isFalse);
     });
   });
 

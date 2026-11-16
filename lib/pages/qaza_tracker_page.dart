@@ -59,8 +59,11 @@ class _QazaTrackerPageState extends State<QazaTrackerPage> {
             if (state.totalRemaining > 0)
               RoundIconButton(
                 label: l10n.qazaWorkOut,
-                icon: OutlineIcon(OutlineGlyph.calendar,
-                    size: 22, color: ShiaColors.of(context).accent),
+                icon: OutlineIcon(
+                  OutlineGlyph.calendar,
+                  size: 22,
+                  color: ShiaColors.of(context).accent,
+                ),
                 onPressed: () => unawaited(_showEstimateSheet()),
               ),
           ],
@@ -100,8 +103,9 @@ class _QazaTrackerPageState extends State<QazaTrackerPage> {
                             children: [
                               GroupLabel(l10n.qazaFasts),
                               const SizedBox(height: 8),
-                              _buildCard(
-                                  context, const [QazaEntryType.fast], state),
+                              _buildCard(context, const [
+                                QazaEntryType.fast,
+                              ], state),
                             ],
                           ),
                         ],
@@ -124,8 +128,9 @@ class _QazaTrackerPageState extends State<QazaTrackerPage> {
     final total = left + done;
     // A full day is one of each daily prayer, so it only makes sense while
     // every one of them still has something owed.
-    final canLogFullDay =
-        qazaDailyPrayers.every((type) => state.countFor(type).remaining > 0);
+    final canLogFullDay = qazaDailyPrayers.every(
+      (type) => state.countFor(type).remaining > 0,
+    );
 
     return StatsCard(
       child: Column(
@@ -148,8 +153,9 @@ class _QazaTrackerPageState extends State<QazaTrackerPage> {
                     ),
                     Text(
                       l10n.qazaLeftToMakeUp,
-                      style:
-                          ShiaText.secondary.copyWith(color: colors.textMuted),
+                      style: ShiaText.secondary.copyWith(
+                        color: colors.textMuted,
+                      ),
                     ),
                   ],
                 ),
@@ -352,10 +358,7 @@ class _QazaTrackerPageState extends State<QazaTrackerPage> {
     showToast(context.l10n.qazaAddedToList);
   }
 
-  Future<void> _showEditDialog(
-    QazaEntryType type,
-    QazaEntryCount count,
-  ) async {
+  Future<void> _showEditDialog(QazaEntryType type, QazaEntryCount count) async {
     final remainingController = TextEditingController(
       text: count.remaining.toString(),
     );
@@ -457,8 +460,12 @@ class _DoneButton extends StatelessWidget {
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                OutlineIcon(OutlineGlyph.check,
-                    size: 18, color: foreground, strokeWidth: 2.4),
+                OutlineIcon(
+                  OutlineGlyph.check,
+                  size: 18,
+                  color: foreground,
+                  strokeWidth: 2.4,
+                ),
                 const SizedBox(width: 6),
                 Text(
                   label,
@@ -478,10 +485,7 @@ class _DoneButton extends StatelessWidget {
 }
 
 class _QazaEditResult {
-  const _QazaEditResult({
-    required this.remaining,
-    required this.completed,
-  });
+  const _QazaEditResult({required this.remaining, required this.completed});
 
   final int remaining;
   final int completed;
@@ -525,13 +529,13 @@ class _QazaEstimateSheetState extends State<_QazaEstimateSheet> {
       int.tryParse(controller.text) ?? 0;
 
   _QazaEstimate get _estimate => _QazaEstimate(
-        prayerDays: qazaDaysForSpan(
-          years: _read(_yearsController),
-          months: _read(_monthsController),
-          days: _read(_daysController),
-        ),
-        fasts: _read(_fastsController),
-      );
+    prayerDays: qazaDaysForSpan(
+      years: _read(_yearsController),
+      months: _read(_monthsController),
+      days: _read(_daysController),
+    ),
+    fasts: _read(_fastsController),
+  );
 
   Widget _numberField(TextEditingController controller, String label) {
     return TextField(
@@ -552,21 +556,23 @@ class _QazaEstimateSheetState extends State<_QazaEstimateSheet> {
 
     final summaryLines = [
       if (estimate.prayerDays > 0)
-        l10n.qazaEstimatePrayers(_formatCount(estimate.prayerDays),
-            _formatCount(estimate.prayerDays * qazaDailyPrayers.length)),
+        l10n.qazaEstimatePrayers(
+          _formatCount(estimate.prayerDays),
+          _formatCount(estimate.prayerDays * qazaDailyPrayers.length),
+        ),
       if (estimate.fasts > 0)
         l10n.qazaEstimateFasts(estimate.fasts, _formatCount(estimate.fasts)),
     ];
     Widget note(String text) => Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 4),
-          child: Text(
-            text,
-            style: ShiaText.caption.copyWith(
-              height: 18 / 13,
-              color: colors.textMuted,
-            ),
-          ),
-        );
+      padding: const EdgeInsets.symmetric(horizontal: 4),
+      child: Text(
+        text,
+        style: ShiaText.caption.copyWith(
+          height: 18 / 13,
+          color: colors.textMuted,
+        ),
+      ),
+    );
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -625,8 +631,9 @@ class _QazaEstimateSheetState extends State<_QazaEstimateSheet> {
                       for (final line in summaryLines)
                         Text(
                           '• $line',
-                          style:
-                              ShiaText.secondary.copyWith(color: colors.text),
+                          style: ShiaText.secondary.copyWith(
+                            color: colors.text,
+                          ),
                         ),
                     ],
                   ),
@@ -636,8 +643,9 @@ class _QazaEstimateSheetState extends State<_QazaEstimateSheet> {
           label: l10n.qazaAddToList,
           glyph: OutlineGlyph.plus,
           filled: true,
-          onPressed:
-              estimate.isEmpty ? null : () => Navigator.pop(context, estimate),
+          onPressed: estimate.isEmpty
+              ? null
+              : () => Navigator.pop(context, estimate),
         ),
       ],
     );

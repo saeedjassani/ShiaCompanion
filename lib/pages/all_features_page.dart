@@ -39,7 +39,8 @@ class _AllFeaturesPageState extends State<AllFeaturesPage> {
       builder: (context, _) {
         final onHome = {
           for (final item in homeShortcutMenuItems(
-              HomeShortcutsStore.instance.idsFor(wide: isHomeWide(context))))
+            HomeShortcutsStore.instance.idsFor(wide: isHomeWide(context)),
+          ))
             item.analyticsId,
         };
         final features = allFeaturesMenuItems;
@@ -71,9 +72,7 @@ class _AllFeaturesPageState extends State<AllFeaturesPage> {
                       padding: const EdgeInsets.symmetric(horizontal: 4),
                       child: Row(
                         children: [
-                          const ExcludeSemantics(
-                            child: OnHomeBadge(size: 16),
-                          ),
+                          const ExcludeSemantics(child: OnHomeBadge(size: 16)),
                           const SizedBox(width: 8),
                           Expanded(
                             child: Text(
@@ -121,43 +120,48 @@ class _FeatureGrid extends StatelessWidget {
         borderRadius: BorderRadius.circular(20),
         border: Border.all(color: colors.line),
       ),
-      child: LayoutBuilder(builder: (context, constraints) {
-        // Three across on a phone, more as the width allows.
-        final columns = (constraints.maxWidth / 130).floor().clamp(3, 5);
-        return Column(
-          children: [
-            for (var start = 0; start < features.length; start += columns)
-              IntrinsicHeight(
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    for (var i = start; i < start + columns; i++)
-                      Expanded(
-                        child: i < features.length
-                            ? Padding(
-                                padding: const EdgeInsets.all(2),
-                                child: ShortcutTile(
-                                  label: features[i].displayShortLabel,
-                                  tileSize: 54,
-                                  onHome:
-                                      onHome.contains(features[i].analyticsId),
-                                  labelStyle: ShiaText.caption.copyWith(
-                                    fontSize: 14,
-                                    height: 18 / 14,
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          // Three across on a phone, more as the width allows.
+          final columns = (constraints.maxWidth / 130).floor().clamp(3, 5);
+          return Column(
+            children: [
+              for (var start = 0; start < features.length; start += columns)
+                IntrinsicHeight(
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      for (var i = start; i < start + columns; i++)
+                        Expanded(
+                          child: i < features.length
+                              ? Padding(
+                                  padding: const EdgeInsets.all(2),
+                                  child: ShortcutTile(
+                                    label: features[i].displayShortLabel,
+                                    tileSize: 54,
+                                    onHome: onHome.contains(
+                                      features[i].analyticsId,
+                                    ),
+                                    labelStyle: ShiaText.caption.copyWith(
+                                      fontSize: 14,
+                                      height: 18 / 14,
+                                    ),
+                                    icon: (color) => features[i].buildIcon(
+                                      size: 32,
+                                      color: color,
+                                    ),
+                                    onTap: () => onOpen(features[i]),
                                   ),
-                                  icon: (color) => features[i]
-                                      .buildIcon(size: 32, color: color),
-                                  onTap: () => onOpen(features[i]),
-                                ),
-                              )
-                            : const SizedBox.shrink(),
-                      ),
-                  ],
+                                )
+                              : const SizedBox.shrink(),
+                        ),
+                    ],
+                  ),
                 ),
-              ),
-          ],
-        );
-      }),
+            ],
+          );
+        },
+      ),
     );
   }
 }

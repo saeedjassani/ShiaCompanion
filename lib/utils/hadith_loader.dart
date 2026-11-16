@@ -24,10 +24,7 @@ class HadithManifest {
 }
 
 class HadithAssetLocation {
-  const HadithAssetLocation({
-    required this.path,
-    required this.itemIndex,
-  });
+  const HadithAssetLocation({required this.path, required this.itemIndex});
 
   final String path;
   final int itemIndex;

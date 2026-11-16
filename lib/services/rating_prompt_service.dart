@@ -101,8 +101,9 @@ class RatingPromptService {
       return;
     }
 
-    final backfilledFirstSeen =
-        DateTime.now().subtract(_minAgeSinceInstall).millisecondsSinceEpoch;
+    final backfilledFirstSeen = DateTime.now()
+        .subtract(_minAgeSinceInstall)
+        .millisecondsSinceEpoch;
     await SP.prefs.setInt(_firstSeenKey, backfilledFirstSeen);
     await SP.prefs.setInt(_completionCountKey, _minCompletions);
   }
@@ -125,8 +126,10 @@ class RatingPromptService {
   static Future<void> recordLaunch() async {
     if (!SP.isInitialized) return;
     if (!SP.prefs.containsKey(_firstSeenKey)) {
-      await SP.prefs
-          .setInt(_firstSeenKey, DateTime.now().millisecondsSinceEpoch);
+      await SP.prefs.setInt(
+        _firstSeenKey,
+        DateTime.now().millisecondsSinceEpoch,
+      );
     }
   }
 
@@ -179,17 +182,19 @@ class RatingPromptService {
 
     final enjoying = await prompt(context);
     await markAsked();
-    unawaited(AnalyticsService.feature(
-      'rating_prompt',
-      label: 'Rating prompt',
-      parameters: {
-        'choice': switch (enjoying) {
-          true => 'enjoying',
-          false => 'not_enjoying',
-          null => 'dismissed',
+    unawaited(
+      AnalyticsService.feature(
+        'rating_prompt',
+        label: 'Rating prompt',
+        parameters: {
+          'choice': switch (enjoying) {
+            true => 'enjoying',
+            false => 'not_enjoying',
+            null => 'dismissed',
+          },
         },
-      },
-    ));
+      ),
+    );
 
     if (enjoying == true) {
       await SP.prefs.setBool(_hasAcceptedKey, true);
@@ -198,11 +203,13 @@ class RatingPromptService {
     }
     if (enjoying == false && context.mounted) {
       final sendFeedback = await feedbackPrompt(context);
-      unawaited(AnalyticsService.feature(
-        'rating_prompt_feedback',
-        label: 'Rating prompt feedback follow-up',
-        parameters: {'choice': sendFeedback ? 'sent' : 'declined'},
-      ));
+      unawaited(
+        AnalyticsService.feature(
+          'rating_prompt_feedback',
+          label: 'Rating prompt feedback follow-up',
+          parameters: {'choice': sendFeedback ? 'sent' : 'declined'},
+        ),
+      );
       if (sendFeedback) {
         await launchSupportEmail(subject: 'Shia Companion | Feedback');
       }
@@ -272,25 +279,29 @@ class RatingPromptService {
   /// [settleDelay]) when no reader is open, otherwise held until the reader
   /// is left, same as a completion.
   static void recordPositiveAction(String action) {
-    unawaited(AnalyticsService.feature(
-      'rating_positive_action',
-      label: 'Rating positive action',
-      parameters: {'action': action},
-      // Fires alongside the share, bookmark or favorite that caused it,
-      // each already counted under its own key.
-      countOnDashboard: false,
-    ));
+    unawaited(
+      AnalyticsService.feature(
+        'rating_positive_action',
+        label: 'Rating positive action',
+        parameters: {'action': action},
+        // Fires alongside the share, bookmark or favorite that caused it,
+        // each already counted under its own key.
+        countOnDashboard: false,
+      ),
+    );
     if (!shouldAsk()) return;
     _pendingAsk = true;
     if (_openReaders == 0) _scheduleAskIfPending();
   }
 
   static void _scheduleAskIfPending() {
-    unawaited(Future<void>.delayed(settleDelay, () async {
-      final context = appNavigatorKey.currentState?.overlay?.context;
-      if (context == null) return;
-      await askIfPending(context);
-    }));
+    unawaited(
+      Future<void>.delayed(settleDelay, () async {
+        final context = appNavigatorKey.currentState?.overlay?.context;
+        if (context == null) return;
+        await askIfPending(context);
+      }),
+    );
   }
 
   /// Puts a pending ask to the user if nothing makes this a bad moment:

@@ -14,6 +14,7 @@ import 'package:shia_companion/utils/widget_prayer_time_selection.dart';
 import 'package:shia_companion/widgets/outline_icon.dart';
 import 'package:shia_companion/widgets/prayer_glyph.dart';
 import 'package:shia_companion/widgets/widget_prayer_times_dialog.dart';
+
 import '../constants.dart';
 import '../l10n/l10n.dart';
 import 'page_chrome.dart';
@@ -60,10 +61,12 @@ class PrayerTimesState extends State<HomePrayerTimesCard> {
       SP.isInitialized && (SP.prefs.getBool(cityPromptDismissedKey) ?? false);
 
   Future<void> _dismissCityPrompt() async {
-    unawaited(AnalyticsService.feature(
-      'city_prompt_dismissed',
-      label: 'City prompt dismissed',
-    ));
+    unawaited(
+      AnalyticsService.feature(
+        'city_prompt_dismissed',
+        label: 'City prompt dismissed',
+      ),
+    );
     if (SP.isInitialized) {
       await SP.prefs.setBool(cityPromptDismissedKey, true);
     }
@@ -143,20 +146,24 @@ class PrayerTimesState extends State<HomePrayerTimesCard> {
 
   /// The nudge's "Yes, still here": it stops asking until the city changes.
   Future<void> _stillInCity() async {
-    unawaited(AnalyticsService.feature(
-      'city_nudge_answered',
-      label: 'City nudge answered',
-      parameters: {'answer': 'still_there'},
-    ));
+    unawaited(
+      AnalyticsService.feature(
+        'city_nudge_answered',
+        label: 'City nudge answered',
+        parameters: {'answer': 'still_there'},
+      ),
+    );
     await _location.dismissZoneNudge();
   }
 
   Future<void> _changeCityFromNudge() async {
-    unawaited(AnalyticsService.feature(
-      'city_nudge_answered',
-      label: 'City nudge answered',
-      parameters: {'answer': 'change_city'},
-    ));
+    unawaited(
+      AnalyticsService.feature(
+        'city_nudge_answered',
+        label: 'City nudge answered',
+        parameters: {'answer': 'change_city'},
+      ),
+    );
     await _chooseCity();
   }
 
@@ -180,14 +187,16 @@ class PrayerTimesState extends State<HomePrayerTimesCard> {
       } else {
         await AzaanOptInService.answer(const []);
       }
-      unawaited(AnalyticsService.feature(
-        'azaan_opt_in',
-        label: 'Azan opt-in',
-        parameters: {
-          'choice': turnOn ? 'enabled' : 'declined',
-          'source': 'prayer_card',
-        },
-      ));
+      unawaited(
+        AnalyticsService.feature(
+          'azaan_opt_in',
+          label: 'Azan opt-in',
+          parameters: {
+            'choice': turnOn ? 'enabled' : 'declined',
+            'source': 'prayer_card',
+          },
+        ),
+      );
     } finally {
       _answeringAzan = false;
     }
@@ -229,8 +238,8 @@ class PrayerTimesState extends State<HomePrayerTimesCard> {
         onChooseCity: _chooseCity,
         onNotNow:
             PermissionExplainers.mustLeadToPrompt && _locationPromptPending
-                ? null
-                : _dismissCityPrompt,
+            ? null
+            : _dismissCityPrompt,
         footer: widget.footer,
       );
     }
@@ -248,7 +257,8 @@ class PrayerTimesState extends State<HomePrayerTimesCard> {
     // azan would follow depend on it. Not on the web, which has no azan; on
     // iOS only once notifications are allowed, since the question's Not now
     // may not stand before the OS prompt. Settings' Azan switch asks there.
-    final askAzan = !askStillInCity &&
+    final askAzan =
+        !askStillInCity &&
         !kIsWeb &&
         !FirstRunSetup.isPending &&
         !AzaanOptInService.hasBeenAsked &&
@@ -295,7 +305,8 @@ class PrayerTimesState extends State<HomePrayerTimesCard> {
                         children: [
                           for (final reading in later)
                             Expanded(
-                                child: _PrayerTimeColumn(reading: reading)),
+                              child: _PrayerTimeColumn(reading: reading),
+                            ),
                         ],
                       ),
                     ],
@@ -304,7 +315,8 @@ class PrayerTimesState extends State<HomePrayerTimesCard> {
                         padding: const EdgeInsets.symmetric(horizontal: 6),
                         child: _CardNudge(
                           title: context.l10n.prayerStillInCity(
-                              city ?? context.l10n.prayerTheCityYouChose),
+                            city ?? context.l10n.prayerTheCityYouChose,
+                          ),
                           body: context.l10n.prayerPhoneZoneDiffers,
                           primaryLabel: context.l10n.cityChangeCity,
                           onPrimary: _changeCityFromNudge,
@@ -364,7 +376,9 @@ class _CardNudge extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = ShiaColors.of(context);
     final buttonText = buttonTextStyle(
-        context, ShiaText.secondary.copyWith(fontWeight: FontWeight.w600));
+      context,
+      ShiaText.secondary.copyWith(fontWeight: FontWeight.w600),
+    );
     return Padding(
       padding: const EdgeInsets.fromLTRB(0, 10, 4, 4),
       child: Column(
@@ -444,7 +458,8 @@ class CityButton extends StatelessWidget {
     // there are coordinates, and the geocode that names them can fail or
     // still be running on its own.
     // A refresh only swaps the pin for a spinner; the name stays put.
-    final label = city ??
+    final label =
+        city ??
         (refreshing
             ? context.l10n.prayerLocating
             : context.l10n.prayerYourLocation);
@@ -571,7 +586,8 @@ class _PrayerTimeColumn extends StatelessWidget {
 
 /// "6:56 pm", not the widgets' zero-padded "06:56 pm".
 String _clockLabel(WidgetPrayerTimeReading reading) => localizeClockTime(
-    reading.displayTime.replaceFirst(RegExp(r'^0(?=\d)'), ''));
+  reading.displayTime.replaceFirst(RegExp(r'^0(?=\d)'), ''),
+);
 
 /// The next time, large: its glyph, "Up next" (or "Tomorrow") over its name,
 /// and its time over a countdown that ticks every second.
@@ -730,7 +746,10 @@ class _CountdownState extends State<_Countdown> {
     final minutes = left.inMinutes % 60;
     final text = left.inHours > 0
         ? context.l10n.prayerCountdownHours(
-            left.inHours, minutes.toString().padLeft(2, '0'), seconds)
+            left.inHours,
+            minutes.toString().padLeft(2, '0'),
+            seconds,
+          )
         : context.l10n.prayerCountdownMinutes(minutes, seconds);
     return Text(
       localizeDigits(text, context.l10n),
@@ -778,8 +797,8 @@ class _ChooseLocationCard extends StatelessWidget {
     final useLocationLabel = refreshing
         ? context.l10n.prayerFindingLocation
         : failed
-            ? context.l10n.commonTryAgain
-            : context.l10n.qiblaUseMyLocation;
+        ? context.l10n.commonTryAgain
+        : context.l10n.qiblaUseMyLocation;
     final useLocationIcon = refreshing
         ? SizedBox.square(
             dimension: 16,
@@ -863,9 +882,11 @@ class _ChooseLocationCard extends StatelessWidget {
                       style: TextButton.styleFrom(
                         foregroundColor: colors.onPrayerCardMuted,
                         textStyle: buttonTextStyle(
-                            context,
-                            ShiaText.secondary
-                                .copyWith(fontWeight: FontWeight.w600)),
+                          context,
+                          ShiaText.secondary.copyWith(
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
                       ),
                       child: Text(context.l10n.setupNotNow),
                     ),
@@ -928,8 +949,9 @@ class _SetCityRow extends StatelessWidget {
                         ),
                         Text(
                           context.l10n.prayerSetCityHint,
-                          style: ShiaText.secondary
-                              .copyWith(color: colors.onPrayerCardMuted),
+                          style: ShiaText.secondary.copyWith(
+                            color: colors.onPrayerCardMuted,
+                          ),
                         ),
                       ],
                     ),
@@ -971,7 +993,9 @@ class _GoldButton extends StatelessWidget {
         minimumSize: const Size.fromHeight(50),
         shape: const StadiumBorder(),
         textStyle: buttonTextStyle(
-            context, ShiaText.body.copyWith(fontWeight: FontWeight.w700)),
+          context,
+          ShiaText.body.copyWith(fontWeight: FontWeight.w700),
+        ),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -1009,7 +1033,9 @@ class _OutlineCardButton extends StatelessWidget {
         side: BorderSide(color: colors.onPrayerCard.withValues(alpha: 0.4)),
         shape: const StadiumBorder(),
         textStyle: buttonTextStyle(
-            context, ShiaText.secondary.copyWith(fontWeight: FontWeight.w600)),
+          context,
+          ShiaText.secondary.copyWith(fontWeight: FontWeight.w600),
+        ),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,

@@ -207,12 +207,12 @@ class AyahSpan {
   bool contains(int lineIndex) => lineIndex >= start && lineIndex < end;
 
   AyahSpan shifted(int lineOffset, {SurahInfo? startsSurah}) => AyahSpan(
-        surah: surah,
-        ayah: ayah,
-        start: start + lineOffset,
-        end: end + lineOffset,
-        startsSurah: startsSurah ?? this.startsSurah,
-      );
+    surah: surah,
+    ayah: ayah,
+    start: start + lineOffset,
+    end: end + lineOffset,
+    startsSurah: startsSurah ?? this.startsSurah,
+  );
 }
 
 /// The ayahs of a readable stretch of Quran, in reading order.
@@ -294,8 +294,8 @@ class AyahIndex {
   /// The verse showing at [spanIndex], or null when that span is a Bismillah.
   VerseKey? verseAtSpanIndex(int spanIndex) =>
       spanIndex >= 0 && spanIndex < spans.length
-          ? spans[spanIndex].verse
-          : null;
+      ? spans[spanIndex].verse
+      : null;
 
   static String _verseKey(VerseKey verse) => '${verse.surah}:${verse.ayah}';
 }
@@ -314,8 +314,9 @@ List<AyahSpan> spansOfParsedContent(
 
   for (var i = 0; i < arabicLines.length; i++) {
     final start = arabicLines[i];
-    final end =
-        i + 1 < arabicLines.length ? arabicLines[i + 1] : content.lines.length;
+    final end = i + 1 < arabicLines.length
+        ? arabicLines[i + 1]
+        : content.lines.length;
     spans.add(
       AyahSpan(
         surah: surah,
@@ -397,8 +398,9 @@ class VerseKey {
     return VerseKey(surah, ayah > maxAyah ? maxAyah : ayah);
   }
 
-  static final RegExp _versePattern =
-      RegExp(r'^(\d{1,3})(?:\s*[:/.\-\s]\s*(\d{1,3}))?$');
+  static final RegExp _versePattern = RegExp(
+    r'^(\d{1,3})(?:\s*[:/.\-\s]\s*(\d{1,3}))?$',
+  );
 
   @override
   String toString() => ayah == null ? '$surah' : '$surah:$ayah';
@@ -413,11 +415,7 @@ class VerseKey {
 
 /// One of the thirty parts the Quran is traditionally divided into.
 class Juz {
-  const Juz({
-    required this.number,
-    required this.start,
-    required this.end,
-  });
+  const Juz({required this.number, required this.start, required this.end});
 
   final int number;
 

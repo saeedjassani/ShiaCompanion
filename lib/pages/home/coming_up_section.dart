@@ -48,9 +48,11 @@ class ComingUpEvent {
     }
     // Counted on UTC dates so a day that holds a clock change, 23 or 25
     // hours long locally, still counts as one.
-    final days = DateTime.utc(date.year, date.month, date.day)
-        .difference(DateTime.utc(now.year, now.month, now.day))
-        .inDays;
+    final days = DateTime.utc(
+      date.year,
+      date.month,
+      date.day,
+    ).difference(DateTime.utc(now.year, now.month, now.day)).inDays;
     if (days <= 0) return strings.commonToday;
     if (days == 1) return strings.commonTomorrow;
     return strings.homeEventInDays(days);
@@ -86,7 +88,9 @@ List<ComingUpEvent> upcomingEvents({
         title: (event['kind'] as String).isEmpty
             ? event['title'] as String
             : L10n.current.homeEventKindOf(
-                event['kind'] as String, event['title'] as String),
+                event['kind'] as String,
+                event['title'] as String,
+              ),
         hijri: event['hijri'] as String,
       ),
   ];
@@ -162,8 +166,9 @@ class _EventRow extends StatelessWidget {
       excludeSemantics: true,
       onTap: onTap,
       child: Material(
-        color:
-            current ? colors.gold.withValues(alpha: 0.16) : Colors.transparent,
+        color: current
+            ? colors.gold.withValues(alpha: 0.16)
+            : Colors.transparent,
         child: InkWell(
           onTap: onTap,
           child: Container(
@@ -224,11 +229,13 @@ class _EventRow extends StatelessWidget {
                         style: ShiaText.caption.copyWith(
                           fontSize: 12,
                           height: 15 / 12,
-                          fontWeight:
-                              current ? FontWeight.w700 : FontWeight.w400,
+                          fontWeight: current
+                              ? FontWeight.w700
+                              : FontWeight.w400,
                           letterSpacing: current ? 0.3 : null,
-                          color:
-                              current ? colors.gold : colors.onPrayerCardMuted,
+                          color: current
+                              ? colors.gold
+                              : colors.onPrayerCardMuted,
                         ),
                       ),
                       const SizedBox(height: 1),

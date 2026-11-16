@@ -21,9 +21,11 @@ String formatPlaybackTime(Duration d) {
   final hours = d.inHours;
   final minutes = d.inMinutes.remainder(60);
   final seconds = d.inSeconds.remainder(60).toString().padLeft(2, '0');
-  return localizeDigits(hours > 0
-      ? '$hours:${minutes.toString().padLeft(2, '0')}:$seconds'
-      : '$minutes:$seconds');
+  return localizeDigits(
+    hours > 0
+        ? '$hours:${minutes.toString().padLeft(2, '0')}:$seconds'
+        : '$minutes:$seconds',
+  );
 }
 
 /// Marks a control that floats at the bottom of a page - the tab bar, a
@@ -127,8 +129,9 @@ class NowPlayingRouteObserver extends NavigatorObserver {
     // the navigator can't be rebuilt then.
     if (SchedulerBinding.instance.schedulerPhase ==
         SchedulerPhase.persistentCallbacks) {
-      SchedulerBinding.instance
-          .addPostFrameCallback((_) => popupOnTop.value = popup);
+      SchedulerBinding.instance.addPostFrameCallback(
+        (_) => popupOnTop.value = popup,
+      );
     } else {
       popupOnTop.value = popup;
     }
@@ -186,10 +189,10 @@ class NowPlayingCapsule extends StatefulWidget {
 
   /// What [top] depends on, for widgets that keep clear of the capsule.
   static Listenable get layout => Listenable.merge([
-        PlaylistAudioService.instance.visible,
-        FloatingBottomSlot.reserved,
-        nowPlayingRouteObserver.popupOnTop,
-      ]);
+    PlaylistAudioService.instance.visible,
+    FloatingBottomSlot.reserved,
+    nowPlayingRouteObserver.popupOnTop,
+  ]);
 
   static bool _shown(BuildContext context) =>
       PlaylistAudioService.instance.visible.value &&
@@ -250,21 +253,21 @@ class _NowPlayingCapsuleState extends State<NowPlayingCapsule> {
     _entry.markNeedsBuild();
     // A dua started on its own (a play link, Siri) has no playlist page.
     final zikrUid = audio.singleZikrUid;
-    await navigator.push(MaterialPageRoute(
-      builder: (_) => zikrUid == null
-          ? PlaylistDetailPage(playlistId: id)
-          : ZikrPage(
-              UidTitleData(zikrUid, items[zikrUid]?.toString() ?? zikrUid),
-              source: ZikrOpenSource.playlist,
-            ),
-    ));
+    await navigator.push(
+      MaterialPageRoute(
+        builder: (_) => zikrUid == null
+            ? PlaylistDetailPage(playlistId: id)
+            : ZikrPage(
+                UidTitleData(zikrUid, items[zikrUid]?.toString() ?? zikrUid),
+                source: ZikrOpenSource.playlist,
+              ),
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    return Positioned.fill(
-      child: Overlay(initialEntries: [_entry]),
-    );
+    return Positioned.fill(child: Overlay(initialEntries: [_entry]));
   }
 
   Widget _buildEntry(BuildContext context) {
@@ -274,12 +277,14 @@ class _NowPlayingCapsuleState extends State<NowPlayingCapsule> {
       builder: (context, _) {
         final player = audio.player;
         final current = audio.current;
-        final shown = NowPlayingCapsule._shown(context) &&
+        final shown =
+            NowPlayingCapsule._shown(context) &&
             player != null &&
             current != null;
         final reduceMotion = MediaQuery.disableAnimationsOf(context);
-        final duration =
-            reduceMotion ? Duration.zero : const Duration(milliseconds: 240);
+        final duration = reduceMotion
+            ? Duration.zero
+            : const Duration(milliseconds: 240);
 
         return Stack(
           children: [
@@ -293,8 +298,9 @@ class _NowPlayingCapsuleState extends State<NowPlayingCapsule> {
                 padding: pageGutter(context),
                 child: Center(
                   child: ConstrainedBox(
-                    constraints:
-                        const BoxConstraints(maxWidth: floatingControlWidth),
+                    constraints: const BoxConstraints(
+                      maxWidth: floatingControlWidth,
+                    ),
                     child: AnimatedSwitcher(
                       duration: duration,
                       switchInCurve: Curves.easeOutCubic,
@@ -363,8 +369,9 @@ class _CapsuleBody extends StatelessWidget {
     final summary = Semantics(
       button: true,
       expanded: expanded,
-      onTapHint:
-          expanded ? l10n.playlistHideControls : l10n.playlistShowControls,
+      onTapHint: expanded
+          ? l10n.playlistHideControls
+          : l10n.playlistShowControls,
       child: GestureDetector(
         behavior: HitTestBehavior.opaque,
         onTap: onToggleExpanded,
@@ -418,8 +425,12 @@ class _CapsuleBody extends StatelessWidget {
             onPressed: player.hasNext ? audio.next : null,
           ),
           IconButton(
-            icon: OutlineIcon(OutlineGlyph.close,
-                size: 20, color: colors.textMuted, strokeWidth: 2),
+            icon: OutlineIcon(
+              OutlineGlyph.close,
+              size: 20,
+              color: colors.textMuted,
+              strokeWidth: 2,
+            ),
             tooltip: l10n.commonStop,
             onPressed: audio.stop,
           ),
@@ -437,9 +448,11 @@ class _CapsuleBody extends StatelessWidget {
           Row(
             children: [
               IconButton(
-                icon: OutlineIcon(OutlineGlyph.repeat,
-                    size: 22,
-                    color: audio.isRepeating ? colors.accent : colors.chevron),
+                icon: OutlineIcon(
+                  OutlineGlyph.repeat,
+                  size: 22,
+                  color: audio.isRepeating ? colors.accent : colors.chevron,
+                ),
                 tooltip: audio.isRepeating
                     ? l10n.playlistRepeatOn
                     : l10n.playlistRepeat,
@@ -454,8 +467,11 @@ class _CapsuleBody extends StatelessWidget {
               const Spacer(),
               TextButton.icon(
                 onPressed: onOpenPlaylist,
-                icon: OutlineIcon(OutlineGlyph.playlist,
-                    size: 18, color: colors.accent),
+                icon: OutlineIcon(
+                  OutlineGlyph.playlist,
+                  size: 18,
+                  color: colors.accent,
+                ),
                 label: Text(
                   audio.singleZikrUid == null
                       ? l10n.playlistOpenPlaylist
@@ -491,10 +507,7 @@ class _CapsuleBody extends StatelessWidget {
               alignment: Alignment.bottomCenter,
               child: Column(
                 mainAxisSize: MainAxisSize.min,
-                children: [
-                  row,
-                  if (expanded) more,
-                ],
+                children: [row, if (expanded) more],
               ),
             ),
           ),
@@ -520,7 +533,8 @@ class _RingPlayButton extends StatelessWidget {
       initialData: player.playerState,
       builder: (context, snapshot) {
         final state = snapshot.data;
-        final loading = state?.processingState == ProcessingState.loading ||
+        final loading =
+            state?.processingState == ProcessingState.loading ||
             state?.processingState == ProcessingState.buffering;
         final playing = state?.playing ?? false;
         return Tooltip(
@@ -546,12 +560,13 @@ class _RingPlayButton extends StatelessWidget {
                           value: loading
                               ? null
                               : total <= 0
-                                  ? 0
-                                  : (position / total).clamp(0.0, 1.0),
+                              ? 0
+                              : (position / total).clamp(0.0, 1.0),
                           strokeWidth: 2.5,
                           color: colors.accent,
-                          backgroundColor:
-                              colors.accent.withValues(alpha: 0.16),
+                          backgroundColor: colors.accent.withValues(
+                            alpha: 0.16,
+                          ),
                         );
                       },
                     ),
@@ -613,7 +628,8 @@ class _SeekBarState extends State<_SeekBar> {
         final duration = player.duration ?? Duration.zero;
         final position = snapshot.data ?? Duration.zero;
         final total = duration.inMilliseconds.toDouble();
-        final value = _dragValue ??
+        final value =
+            _dragValue ??
             (total <= 0
                 ? 0.0
                 : position.inMilliseconds.clamp(0, total.toInt()).toDouble());
@@ -627,10 +643,12 @@ class _SeekBarState extends State<_SeekBar> {
               child: SliderTheme(
                 data: SliderTheme.of(context).copyWith(
                   trackHeight: 3,
-                  thumbShape:
-                      const RoundSliderThumbShape(enabledThumbRadius: 6),
-                  overlayShape:
-                      const RoundSliderOverlayShape(overlayRadius: 14),
+                  thumbShape: const RoundSliderThumbShape(
+                    enabledThumbRadius: 6,
+                  ),
+                  overlayShape: const RoundSliderOverlayShape(
+                    overlayRadius: 14,
+                  ),
                   activeTrackColor: colors.accent,
                   inactiveTrackColor: colors.accent.withValues(alpha: 0.16),
                   thumbColor: colors.accent,
@@ -644,8 +662,9 @@ class _SeekBarState extends State<_SeekBar> {
                   onChangeEnd: total <= 0
                       ? null
                       : (value) async {
-                          await widget.audio
-                              .seek(Duration(milliseconds: value.round()));
+                          await widget.audio.seek(
+                            Duration(milliseconds: value.round()),
+                          );
                           if (mounted) setState(() => _dragValue = null);
                         },
                 ),

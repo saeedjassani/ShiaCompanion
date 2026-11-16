@@ -62,11 +62,7 @@ const List<WidgetPrayerTime> widgetPrayerTimes = <WidgetPrayerTime>[
     timeIndex: prayerIndexAsr,
     offerBeforeId: 'sunset',
   ),
-  WidgetPrayerTime(
-    id: 'sunset',
-    name: 'Sunset',
-    timeIndex: prayerIndexSunset,
-  ),
+  WidgetPrayerTime(id: 'sunset', name: 'Sunset', timeIndex: prayerIndexSunset),
   WidgetPrayerTime(
     id: 'maghrib',
     name: 'Maghrib',
@@ -183,21 +179,25 @@ List<WidgetPrayerTimeReading> readWidgetPrayerTimes({
       final index = time.timeIndex;
       if (index == null) {
         if (midnight == null) continue;
-        readings.add(WidgetPrayerTimeReading(
-          time: time,
-          dateTime: midnight,
-          displayTime: formatPrayerDateTime12(midnight),
-        ));
+        readings.add(
+          WidgetPrayerTimeReading(
+            time: time,
+            dateTime: midnight,
+            displayTime: formatPrayerDateTime12(midnight),
+          ),
+        );
         continue;
       }
 
       final dateTime = dateTimeForTime24(date, times24[index]);
       if (dateTime == null) continue;
-      readings.add(WidgetPrayerTimeReading(
-        time: time,
-        dateTime: dateTime,
-        displayTime: displayTimes[index],
-      ));
+      readings.add(
+        WidgetPrayerTimeReading(
+          time: time,
+          dateTime: dateTime,
+          displayTime: displayTimes[index],
+        ),
+      );
     }
 
     return readings;
@@ -216,7 +216,11 @@ List<WidgetPrayerTimeReading> readWidgetPrayerTimes({
 /// lands on the intended calendar date in every zone.
 DateTime calendarDayFrom(DateTime start, int dayOffset) {
   return dateTimeOnClockOf(
-      start, start.year, start.month, start.day + dayOffset);
+    start,
+    start.year,
+    start.month,
+    start.day + dayOffset,
+  );
 }
 
 /// The next [count] occurrences of [times], soonest first, starting from
@@ -238,11 +242,19 @@ List<WidgetPrayerTimeReading> nextWidgetPrayerTimeReadings({
   // building a local midnight from a UTC moment (or vice versa) would
   // silently swap in the wrong timezone offset for every reading computed
   // below.
-  final startOfToday =
-      dateTimeOnClockOf(moment, moment.year, moment.month, moment.day);
+  final startOfToday = dateTimeOnClockOf(
+    moment,
+    moment.year,
+    moment.month,
+    moment.day,
+  );
 
   final upcoming = <WidgetPrayerTimeReading>[];
-  for (var dayOffset = 0; dayOffset < 2 && upcoming.length < count; dayOffset++) {
+  for (
+    var dayOffset = 0;
+    dayOffset < 2 && upcoming.length < count;
+    dayOffset++
+  ) {
     final date = calendarDayFrom(startOfToday, dayOffset);
     final readings = readWidgetPrayerTimes(
       prayerTime: prayerTime,
@@ -252,8 +264,9 @@ List<WidgetPrayerTimeReading> nextWidgetPrayerTimeReadings({
       timeZone: prayerTimeZoneFor(date),
       times: selected,
     );
-    upcoming
-        .addAll(readings.where((reading) => reading.dateTime.isAfter(moment)));
+    upcoming.addAll(
+      readings.where((reading) => reading.dateTime.isAfter(moment)),
+    );
   }
 
   upcoming.sort((a, b) => a.dateTime.compareTo(b.dateTime));

@@ -16,8 +16,10 @@ String? describeZikrOccasions(
   AppLocalizations? l10n,
 ]) {
   final s = l10n ?? L10n.current;
-  final occasions =
-      patterns.map(_Occasion.parse).whereType<_Occasion>().toList();
+  final occasions = patterns
+      .map(_Occasion.parse)
+      .whereType<_Occasion>()
+      .toList();
   if (occasions.isEmpty) return null;
 
   final clauses = <String>[];
@@ -30,34 +32,45 @@ String? describeZikrOccasions(
   }
 
   // Every week, whatever the month.
-  final weekly = _weekdays(occasions.where(
-      (o) => o.month == null && o.isWeekly && o.ordinal == null && !o.night));
+  final weekly = _weekdays(
+    occasions.where(
+      (o) => o.month == null && o.isWeekly && o.ordinal == null && !o.night,
+    ),
+  );
   if (weekly.isNotEmpty) {
-    clauses.add(joinList(
-        [for (final w in weekly) s.occasionWeekly(weekdayName(w))], s));
+    clauses.add(
+      joinList([for (final w in weekly) s.occasionWeekly(weekdayName(w))], s),
+    );
   }
-  final weeklyNights = _weekdays(occasions.where(
-      (o) => o.month == null && o.isWeekly && o.ordinal == null && o.night));
+  final weeklyNights = _weekdays(
+    occasions.where(
+      (o) => o.month == null && o.isWeekly && o.ordinal == null && o.night,
+    ),
+  );
   if (weeklyNights.isNotEmpty) {
-    clauses.add(joinList([
-      for (final w in weeklyNights)
-        s.occasionWeeklyNight(weekdayName(_dayBefore(w)))
-    ], s));
+    clauses.add(
+      joinList([
+        for (final w in weeklyNights)
+          s.occasionWeeklyNight(weekdayName(_dayBefore(w))),
+      ], s),
+    );
   }
-  for (final o
-      in occasions.where((o) => o.month == null && o.ordinal != null)) {
+  for (final o in occasions.where(
+    (o) => o.month == null && o.ordinal != null,
+  )) {
     final weekday = weekdayName(o.weekday!);
-    clauses.add(o.night
-        ? s.occasionNthWeekdayNightMonthly('${o.ordinal}', weekday)
-        : s.occasionNthWeekdayMonthly('${o.ordinal}', weekday));
+    clauses.add(
+      o.night
+          ? s.occasionNthWeekdayNightMonthly('${o.ordinal}', weekday)
+          : s.occasionNthWeekdayMonthly('${o.ordinal}', weekday),
+    );
   }
 
   // Within one month: the whole of it, or some of its weekdays.
   final months = {
     for (final o in occasions)
-      if (o.month != null && o.day == null) o.month!
-  }.toList()
-    ..sort();
+      if (o.month != null && o.day == null) o.month!,
+  }.toList()..sort();
   for (final month in months) {
     final name = zikrMonthName(month, s);
     final inMonth = occasions.where((o) => o.month == month && o.day == null);
@@ -68,19 +81,24 @@ String? describeZikrOccasions(
       clauses.add(s.occasionMonthNights(name));
     }
     for (final w in _weekdays(
-        inMonth.where((o) => o.isWeekly && o.ordinal == null && !o.night))) {
+      inMonth.where((o) => o.isWeekly && o.ordinal == null && !o.night),
+    )) {
       clauses.add(s.occasionWeeklyInMonth(weekdayName(w), name));
     }
     for (final w in _weekdays(
-        inMonth.where((o) => o.isWeekly && o.ordinal == null && o.night))) {
-      clauses
-          .add(s.occasionWeeklyNightInMonth(weekdayName(_dayBefore(w)), name));
+      inMonth.where((o) => o.isWeekly && o.ordinal == null && o.night),
+    )) {
+      clauses.add(
+        s.occasionWeeklyNightInMonth(weekdayName(_dayBefore(w)), name),
+      );
     }
     for (final o in inMonth.where((o) => o.ordinal != null)) {
       final weekday = weekdayName(o.weekday!);
-      clauses.add(o.night
-          ? s.occasionNthWeekdayNight('${o.ordinal}', weekday, name)
-          : s.occasionNthWeekday('${o.ordinal}', weekday, name));
+      clauses.add(
+        o.night
+            ? s.occasionNthWeekdayNight('${o.ordinal}', weekday, name)
+            : s.occasionNthWeekday('${o.ordinal}', weekday, name),
+      );
     }
   }
 
@@ -245,7 +263,11 @@ class _Occasion {
         if (ordinal == null || ordinal < 1 || ordinal > 5) return null;
       }
       return _Occasion(
-          night: night, month: month, weekday: weekday, ordinal: ordinal);
+        night: night,
+        month: month,
+        weekday: weekday,
+        ordinal: ordinal,
+      );
     }
 
     if (parts[1] == '*') return _Occasion(night: night, month: month);

@@ -95,10 +95,7 @@ ZikrTabReadingStats _analyzeTab(
     }
   }
 
-  return ZikrTabReadingStats(
-    arabicWords: arabicWords,
-    latinWords: latinWords,
-  );
+  return ZikrTabReadingStats(arabicWords: arabicWords, latinWords: latinWords);
 }
 
 int _countWords(String line) {

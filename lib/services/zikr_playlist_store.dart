@@ -124,18 +124,21 @@ class ZikrPlaylistStore extends ChangeNotifier {
     final stored = _readStored();
     if (SP.prefs.getBool(seededV2Key) ?? false) return stored;
 
-    final seeded =
-        List<ZikrPlaylist>.unmodifiable((SP.prefs.getBool(seededKey) ?? false)
-            ? upgradeFromFirstSet(stored)
-            : [
-                ...stored,
-                for (final playlist in defaultPlaylists)
-                  if (!stored.any((mine) => mine.id == playlist.id)) playlist,
-              ]);
-    unawaited(SP.prefs.setString(
-      storageKey,
-      jsonEncode(seeded.map((playlist) => playlist.toJson()).toList()),
-    ));
+    final seeded = List<ZikrPlaylist>.unmodifiable(
+      (SP.prefs.getBool(seededKey) ?? false)
+          ? upgradeFromFirstSet(stored)
+          : [
+              ...stored,
+              for (final playlist in defaultPlaylists)
+                if (!stored.any((mine) => mine.id == playlist.id)) playlist,
+            ],
+    );
+    unawaited(
+      SP.prefs.setString(
+        storageKey,
+        jsonEncode(seeded.map((playlist) => playlist.toJson()).toList()),
+      ),
+    );
     unawaited(SP.prefs.setBool(seededKey, true));
     unawaited(SP.prefs.setBool(seededV2Key, true));
     return seeded;
@@ -174,11 +177,15 @@ class ZikrPlaylistStore extends ChangeNotifier {
     try {
       final decoded = jsonDecode(encoded);
       if (decoded is! List) return const [];
-      return List.unmodifiable(decoded
-          .whereType<Map>()
-          .map((entry) =>
-              ZikrPlaylist.fromJson(Map<String, dynamic>.from(entry)))
-          .where((playlist) => playlist.id.isNotEmpty));
+      return List.unmodifiable(
+        decoded
+            .whereType<Map>()
+            .map(
+              (entry) =>
+                  ZikrPlaylist.fromJson(Map<String, dynamic>.from(entry)),
+            )
+            .where((playlist) => playlist.id.isNotEmpty),
+      );
     } catch (error) {
       debugPrint('Unable to read zikr playlists: $error');
       return const [];
@@ -231,7 +238,7 @@ class ZikrPlaylistStore extends ChangeNotifier {
             ? null
             : {
                 ...playlist.trackFiles,
-                uid: [trackFile]
+                uid: [trackFile],
               },
       );
     });
@@ -292,7 +299,7 @@ class ZikrPlaylistStore extends ChangeNotifier {
     final seen = <String>{};
     return [
       for (final uid in uids)
-        if (seen.add(uid)) uid
+        if (seen.add(uid)) uid,
     ];
   }
 }

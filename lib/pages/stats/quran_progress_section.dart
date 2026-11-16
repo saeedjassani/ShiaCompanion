@@ -12,11 +12,19 @@ String _surahName(int surah) =>
     surahInfoFor(surah)?.displayName ?? L10n.current.quranSurahNumber(surah);
 
 String _percentText(double percent) => localizeDigits(
-    '${percent.toStringAsFixed(percent > 0 && percent < 10 ? 1 : 0)}%');
+  '${percent.toStringAsFixed(percent > 0 && percent < 10 ? 1 : 0)}%',
+);
 
-/// Quran recitation as one card per track - how much of the Quran it has
-/// covered, where it was left, and which juz are done. The sessions behind
-/// it are listed on the Quran screen (see RecentRecitationsPage).
+/// Quran recitation as one card per Khatm - how much of the Quran it has
+/// covered, where it was left, and which juz are done - and, below them, the
+/// everyday reading done outside any Khatm as plain totals. The sessions
+/// behind them are listed on the Quran screen (see RecentRecitationsPage).
+///
+/// The everyday reading ([unlabeledRecitationLabel], "Other reading") is
+/// whatever was opened from the lists - Ya-Sin one night, al-Kahf on Friday
+/// - so a ring, a juz map and "verses left to complete a khatm" over it read
+/// as a khatm nobody started. Its verses still count in the totals and the
+/// history above.
 class QuranProgressSection extends StatelessWidget {
   const QuranProgressSection({super.key, required this.state});
 
@@ -24,25 +32,25 @@ class QuranProgressSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final labels = [
-      ...state.labels,
-      // The catch-all only earns a card once something is in it.
-      if ((state.sessionsByLabel[unlabeledRecitationLabel] ?? 0) > 0)
-        unlabeledRecitationLabel,
-    ];
+    final labels = state.labels;
+    // The everyday reading only earns a card once something is in it.
+    final hasEverydayReading =
+        (state.sessionsByLabel[unlabeledRecitationLabel] ?? 0) > 0;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         StatsSectionTitle(context.l10n.statsQuranProgress),
         const SizedBox(height: 10),
-        if (labels.isEmpty)
-          const _EmptyQuranCard()
-        else
-          for (final label in labels) ...[
-            QuranTrackCard(state: state, label: label),
-            const SizedBox(height: 12),
-          ],
+        if (labels.isEmpty && !hasEverydayReading) const _EmptyQuranCard(),
+        for (final label in labels) ...[
+          QuranTrackCard(state: state, label: label),
+          const SizedBox(height: 12),
+        ],
+        if (hasEverydayReading) ...[
+          _EverydayReadingCard(state: state),
+          const SizedBox(height: 12),
+        ],
       ],
     );
   }
@@ -75,7 +83,69 @@ class _EmptyQuranCard extends StatelessWidget {
   }
 }
 
-/// One recitation track: a ring for how much of the Quran it has covered,
+/// The reading done outside any Khatm, as totals: sessions, verses and when
+/// last - no ring and no juz map, since it is not read through in order.
+class _EverydayReadingCard extends StatelessWidget {
+  const _EverydayReadingCard({required this.state});
+
+  final RecitationTrackerState state;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    const label = unlabeledRecitationLabel;
+    final sessions = state.sessionsByLabel[label] ?? 0;
+    final verses = state.versesByLabel[label] ?? 0;
+    final lastAt = state.lastRecitedFor(label);
+
+    return StatsCard(
+      child: Row(
+        children: [
+          Icon(Icons.menu_book_outlined, size: 20, color: colorScheme.primary),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  recitationTrackName(label, context.l10n),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  [
+                    context.l10n.statsSessionCount(
+                      sessions,
+                      _count.format(sessions),
+                    ),
+                    context.l10n.statsVersesRecited(
+                      verses,
+                      _count.format(verses),
+                    ),
+                    if (lastAt != null)
+                      context.l10n.statsLastOn(
+                        DateFormat('MMM d').format(lastAt.toLocal()),
+                      ),
+                  ].join(' · '),
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: colorScheme.onSurfaceVariant,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// One Khatm: a ring for how much of the Quran it has covered,
 /// "recited till" for where it stopped, and a thirty-cell map of the juz.
 class QuranTrackCard extends StatelessWidget {
   const QuranTrackCard({super.key, required this.state, required this.label});
@@ -104,9 +174,7 @@ class QuranTrackCard extends StatelessWidget {
           Row(
             children: [
               Icon(
-                label == unlabeledRecitationLabel
-                    ? Icons.menu_book_outlined
-                    : Icons.menu_book_rounded,
+                Icons.menu_book_rounded,
                 size: 20,
                 color: colorScheme.primary,
               ),
@@ -116,8 +184,9 @@ class QuranTrackCard extends StatelessWidget {
                   recitationTrackName(label, context.l10n),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: theme.textTheme.titleMedium
-                      ?.copyWith(fontWeight: FontWeight.w700),
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w700,
+                  ),
                 ),
               ),
             ],
@@ -132,8 +201,9 @@ class QuranTrackCard extends StatelessWidget {
                 value: percent / 100,
                 center: Text(
                   _percentText(percent),
-                  style: theme.textTheme.titleMedium
-                      ?.copyWith(fontWeight: FontWeight.w800),
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w800,
+                  ),
                 ),
               ),
               const SizedBox(width: 16),
@@ -143,26 +213,30 @@ class QuranTrackCard extends StatelessWidget {
                   children: [
                     Text(
                       context.l10n.statsRecitedTill,
-                      style: theme.textTheme.labelMedium
-                          ?.copyWith(color: colorScheme.onSurfaceVariant),
+                      style: theme.textTheme.labelMedium?.copyWith(
+                        color: colorScheme.onSurfaceVariant,
+                      ),
                     ),
                     const SizedBox(height: 2),
                     Text(
                       last == null
                           ? context.l10n.statsNotStarted
                           : '${_surahName(last.surah)}: '
-                              '${localizeDigits('${last.ayah}')}',
+                                '${localizeDigits('${last.ayah}')}',
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
-                      style: theme.textTheme.titleMedium
-                          ?.copyWith(fontWeight: FontWeight.w700),
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w700,
+                      ),
                     ),
                     if (last != null)
                       Text(
-                        context.l10n
-                            .quranJuzNumber(juzOf(last.surah, last.ayah!)),
-                        style: theme.textTheme.bodyMedium
-                            ?.copyWith(color: colorScheme.onSurfaceVariant),
+                        context.l10n.quranJuzNumber(
+                          juzOf(last.surah, last.ayah!),
+                        ),
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                          color: colorScheme.onSurfaceVariant,
+                        ),
                       ),
                     const SizedBox(height: 8),
                     Text(
@@ -182,17 +256,26 @@ class QuranTrackCard extends StatelessWidget {
           const SizedBox(height: 14),
           _JuzMap(coverage: coverage),
           const SizedBox(height: 12),
-          Text(
-            [
-              context.l10n.statsSessionCount(sessions, _count.format(sessions)),
-              context.l10n.statsVersesRecited(verses, _count.format(verses)),
-              if (lastAt != null)
-                context.l10n
-                    .statsLastOn(DateFormat('MMM d').format(lastAt.toLocal())),
-            ].join(' · '),
-            style: theme.textTheme.bodySmall
-                ?.copyWith(color: colorScheme.onSurfaceVariant),
-          ),
+          // Not "0 sessions · 0 verses" over a Khatm whose progress so far
+          // was all read before it (counted earlier verses, or the reading
+          // moved in from "My reading").
+          if (sessions > 0)
+            Text(
+              [
+                context.l10n.statsSessionCount(
+                  sessions,
+                  _count.format(sessions),
+                ),
+                context.l10n.statsVersesRecited(verses, _count.format(verses)),
+                if (lastAt != null)
+                  context.l10n.statsLastOn(
+                    DateFormat('MMM d').format(lastAt.toLocal()),
+                  ),
+              ].join(' · '),
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: colorScheme.onSurfaceVariant,
+              ),
+            ),
           if (distinct > 0 && remaining > 0) ...[
             const SizedBox(height: 2),
             Text(
@@ -230,8 +313,9 @@ class _JuzMap extends StatelessWidget {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     return Semantics(
-      label:
-          context.l10n.statsJuzComplete(coverage.where((f) => f >= 1).length),
+      label: context.l10n.statsJuzComplete(
+        coverage.where((f) => f >= 1).length,
+      ),
       excludeSemantics: true,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -247,7 +331,9 @@ class _JuzMap extends StatelessWidget {
                         padding: const EdgeInsets.symmetric(horizontal: 1.5),
                         child: Tooltip(
                           message: context.l10n.statsJuzCoverage(
-                              i + 1, (coverage[i] * 100).floor()),
+                            i + 1,
+                            (coverage[i] * 100).floor(),
+                          ),
                           child: Container(
                             height: 18,
                             alignment: Alignment.center,
@@ -255,10 +341,12 @@ class _JuzMap extends StatelessWidget {
                               color: coverage[i] >= 1
                                   ? colorScheme.primary
                                   : coverage[i] > 0
-                                      ? colorScheme.primary.withValues(
-                                          alpha: 0.15 + 0.45 * coverage[i])
-                                      : colorScheme.onSurface
-                                          .withValues(alpha: 0.06),
+                                  ? colorScheme.primary.withValues(
+                                      alpha: 0.15 + 0.45 * coverage[i],
+                                    )
+                                  : colorScheme.onSurface.withValues(
+                                      alpha: 0.06,
+                                    ),
                               borderRadius: BorderRadius.circular(4),
                             ),
                             child: FittedBox(

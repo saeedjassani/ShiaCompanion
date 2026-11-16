@@ -283,26 +283,41 @@ class ShiaColors extends ThemeExtension<ShiaColors> {
 /// Colour is left unset so each style inherits the surrounding
 /// [DefaultTextStyle] (normally [ShiaColors.text]).
 abstract final class ShiaText {
-  static TextStyle _style(double size, double lineHeight, FontWeight weight,
-          {double? letterSpacing}) =>
-      TextStyle(
-        fontSize: size,
-        height: lineHeight / size,
-        fontWeight: weight,
-        letterSpacing: letterSpacing,
-      );
+  static TextStyle _style(
+    double size,
+    double lineHeight,
+    FontWeight weight, {
+    double? letterSpacing,
+  }) => TextStyle(
+    fontSize: size,
+    height: lineHeight / size,
+    fontWeight: weight,
+    letterSpacing: letterSpacing,
+  );
 
   /// "Favorites", "Quran", "Settings".
-  static final TextStyle largeTitle =
-      _style(34, 41, FontWeight.w700, letterSpacing: -0.4);
+  static final TextStyle largeTitle = _style(
+    34,
+    41,
+    FontWeight.w700,
+    letterSpacing: -0.4,
+  );
 
   /// Home's title, today's Hijri date, on phones.
-  static final TextStyle homeTitle =
-      _style(32, 38, FontWeight.w700, letterSpacing: -0.5);
+  static final TextStyle homeTitle = _style(
+    32,
+    38,
+    FontWeight.w700,
+    letterSpacing: -0.5,
+  );
 
   /// Home's title from tablet width up.
-  static final TextStyle homeTitleWide =
-      _style(36, 43, FontWeight.w700, letterSpacing: -0.5);
+  static final TextStyle homeTitleWide = _style(
+    36,
+    43,
+    FontWeight.w700,
+    letterSpacing: -0.5,
+  );
 
   /// "Shortcuts", "Coming up".
   static final TextStyle sectionTitle = _style(20, 24, FontWeight.w700);

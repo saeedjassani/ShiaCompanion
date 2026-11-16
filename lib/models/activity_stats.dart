@@ -35,10 +35,8 @@ class DayActivity {
 
   bool get isActive => zikrs > 0 || qaza > 0;
 
-  DayActivity copyWith({int? zikrs, int? qaza}) => DayActivity(
-        zikrs: zikrs ?? this.zikrs,
-        qaza: qaza ?? this.qaza,
-      );
+  DayActivity copyWith({int? zikrs, int? qaza}) =>
+      DayActivity(zikrs: zikrs ?? this.zikrs, qaza: qaza ?? this.qaza);
 
   DayActivity operator +(DayActivity other) =>
       DayActivity(zikrs: zikrs + other.zikrs, qaza: qaza + other.qaza);
@@ -47,14 +45,14 @@ class DayActivity {
   /// A device's own counts only ever grow within a day (an undo aside), so the
   /// larger one is the newer one.
   DayActivity max(DayActivity other) => DayActivity(
-        zikrs: math.max(zikrs, other.zikrs),
-        qaza: math.max(qaza, other.qaza),
-      );
+    zikrs: math.max(zikrs, other.zikrs),
+    qaza: math.max(qaza, other.qaza),
+  );
 
   Map<String, int> toJson() => {
-        if (zikrs > 0) 'z': zikrs,
-        if (qaza > 0) 'q': qaza,
-      };
+    if (zikrs > 0) 'z': zikrs,
+    if (qaza > 0) 'q': qaza,
+  };
 
   @override
   bool operator ==(Object other) =>
@@ -142,14 +140,13 @@ class DeviceActivity {
     DayActivity? archived,
     int? archivedActiveDays,
     int? bestStreak,
-  }) =>
-      DeviceActivity(
-        days: days ?? this.days,
-        zikrCounts: zikrCounts ?? this.zikrCounts,
-        archived: archived ?? this.archived,
-        archivedActiveDays: archivedActiveDays ?? this.archivedActiveDays,
-        bestStreak: bestStreak ?? this.bestStreak,
-      );
+  }) => DeviceActivity(
+    days: days ?? this.days,
+    zikrCounts: zikrCounts ?? this.zikrCounts,
+    archived: archived ?? this.archived,
+    archivedActiveDays: archivedActiveDays ?? this.archivedActiveDays,
+    bestStreak: bestStreak ?? this.bestStreak,
+  );
 
   DeviceActivity recordZikr(String uid, DateTime now) {
     final key = activityDayKey(now);
@@ -157,7 +154,10 @@ class DeviceActivity {
     final nextCounts = Map<String, int>.of(zikrCounts);
     if (uid.isNotEmpty) nextCounts[uid] = (nextCounts[uid] ?? 0) + 1;
     return copyWith(
-      days: {...days, key: today.copyWith(zikrs: today.zikrs + 1)},
+      days: {
+        ...days,
+        key: today.copyWith(zikrs: today.zikrs + 1),
+      },
       zikrCounts: _capZikrCounts(nextCounts),
     ).pruned(now);
   }
@@ -179,8 +179,11 @@ class DeviceActivity {
 
   /// Folds days older than [activityRetentionDays] into the archive.
   DeviceActivity pruned(DateTime now) {
-    final cutoff =
-        DateTime(now.year, now.month, now.day - (activityRetentionDays - 1));
+    final cutoff = DateTime(
+      now.year,
+      now.month,
+      now.day - (activityRetentionDays - 1),
+    );
     var archived = this.archived;
     var archivedDays = archivedActiveDays;
     final kept = <String, DayActivity>{};
@@ -222,23 +225,25 @@ class DeviceActivity {
       days: mergedDays,
       zikrCounts: _capZikrCounts(mergedZikrs),
       archived: archived.max(other.archived),
-      archivedActiveDays:
-          math.max(archivedActiveDays, other.archivedActiveDays),
+      archivedActiveDays: math.max(
+        archivedActiveDays,
+        other.archivedActiveDays,
+      ),
       bestStreak: math.max(bestStreak, other.bestStreak),
     );
   }
 
   Map<String, Object> toJson() => {
-        'v': 1,
-        'days': {
-          for (final entry in days.entries)
-            if (entry.value.isActive) entry.key: entry.value.toJson(),
-        },
-        'zikrs': zikrCounts,
-        'archived': archived.toJson(),
-        'archivedDays': archivedActiveDays,
-        'best': bestStreak,
-      };
+    'v': 1,
+    'days': {
+      for (final entry in days.entries)
+        if (entry.value.isActive) entry.key: entry.value.toJson(),
+    },
+    'zikrs': zikrCounts,
+    'archived': archived.toJson(),
+    'archivedDays': archivedActiveDays,
+    'best': bestStreak,
+  };
 
   @override
   bool operator ==(Object other) =>
@@ -251,14 +256,16 @@ class DeviceActivity {
 
   @override
   int get hashCode => Object.hash(
-        Object.hashAllUnordered(
-            days.entries.map((e) => Object.hash(e.key, e.value))),
-        Object.hashAllUnordered(
-            zikrCounts.entries.map((e) => Object.hash(e.key, e.value))),
-        archived,
-        archivedActiveDays,
-        bestStreak,
-      );
+    Object.hashAllUnordered(
+      days.entries.map((e) => Object.hash(e.key, e.value)),
+    ),
+    Object.hashAllUnordered(
+      zikrCounts.entries.map((e) => Object.hash(e.key, e.value)),
+    ),
+    archived,
+    archivedActiveDays,
+    bestStreak,
+  );
 }
 
 /// The account-wide (or, signed out, device-wide) view the stats screen shows:
@@ -287,8 +294,10 @@ class ActivitySummary {
         zikrCounts[uid] = (zikrCounts[uid] ?? 0) + count;
       });
       archived = archived + device.archived;
-      archivedActiveDays =
-          math.max(archivedActiveDays, device.archivedActiveDays);
+      archivedActiveDays = math.max(
+        archivedActiveDays,
+        device.archivedActiveDays,
+      );
       best = math.max(best, device.bestStreak);
     }
 

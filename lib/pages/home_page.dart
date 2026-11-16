@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:ui' as ui;
+
 import 'package:app_links/app_links.dart';
 import 'package:flutter/foundation.dart';
 import 'package:material_ui/material_ui.dart';
@@ -63,6 +64,7 @@ import 'package:shia_companion/widgets/responsive_content.dart';
 import 'package:shia_companion/widgets/prayer_times_widget.dart';
 import 'package:shia_companion/widgets/zikr_reading_preferences.dart';
 import 'package:shia_companion/services/analytics_service.dart';
+
 import '../l10n/l10n.dart';
 
 /// The Home tab: everything that used to be the home screen, under a
@@ -343,8 +345,10 @@ class _MyHomePageState extends State<MyHomePage>
     }
 
     if (target.type == playDeepLinkType) {
-      _startLinkedPlayback(() =>
-          PlaylistAudioService.instance.playZikr(resolvedItem.getFirstUId()));
+      _startLinkedPlayback(
+        () =>
+            PlaylistAudioService.instance.playZikr(resolvedItem.getFirstUId()),
+      );
     }
 
     final verse = zikrLinkVerse(target, resolvedItem);
@@ -385,10 +389,12 @@ class _MyHomePageState extends State<MyHomePage>
   /// opens the page, whose Play button is one tap away.
   void _startLinkedPlayback(Future<PlaylistStartResult> Function() start) {
     if (kIsWeb) return;
-    unawaited(start().then((result) {
-      final message = result.message;
-      if (message != null) showToast(message);
-    }));
+    unawaited(
+      start().then((result) {
+        final message = result.message;
+        if (message != null) showToast(message);
+      }),
+    );
   }
 
   Future<void> _resolveQuranDeepLink(DeepLinkTarget target) async {
@@ -458,8 +464,9 @@ class _MyHomePageState extends State<MyHomePage>
 
     // A retired duplicate's slug still resolves, to the copy that survived, so
     // old links and saved positions do not dead-end.
-    final bookSlug =
-        await LibraryService.resolveBookSlug(target.segments.first);
+    final bookSlug = await LibraryService.resolveBookSlug(
+      target.segments.first,
+    );
     final chapterSlug = target.segments.length > 1 ? target.segments[1] : null;
 
     final books = await LibraryService.loadBooks();
@@ -495,8 +502,9 @@ class _MyHomePageState extends State<MyHomePage>
     }
     if (!mounted) return;
 
-    final chapterIndex =
-        chapters.indexWhere((chapter) => chapter.uid == chapterSlug);
+    final chapterIndex = chapters.indexWhere(
+      (chapter) => chapter.uid == chapterSlug,
+    );
     if (chapterIndex == -1) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (!mounted) return;
@@ -532,9 +540,9 @@ class _MyHomePageState extends State<MyHomePage>
   void _openDeepLinkNotFound(String target) {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
-      Navigator.of(context).push(MaterialPageRoute(
-        builder: (_) => DeepLinkNotFoundPage(target: target),
-      ));
+      Navigator.of(context).push(
+        MaterialPageRoute(builder: (_) => DeepLinkNotFoundPage(target: target)),
+      );
     });
   }
 
@@ -565,13 +573,12 @@ class _MyHomePageState extends State<MyHomePage>
     TodaySection today({
       required double horizontalPadding,
       bool grid = false,
-    }) =>
-        TodaySection(
-          topSpacing: gap,
-          horizontalPadding: horizontalPadding,
-          grid: grid,
-          onSeeAll: () => _openHomeMenuItem(todaysRecitationsMenuItem),
-        );
+    }) => TodaySection(
+      topSpacing: gap,
+      horizontalPadding: horizontalPadding,
+      grid: grid,
+      onSeeAll: () => _openHomeMenuItem(todaysRecitationsMenuItem),
+    );
     final hadithCard = hadith.isEmpty && localizedHadith == null
         ? const SizedBox.shrink()
         : Padding(
@@ -590,7 +597,10 @@ class _MyHomePageState extends State<MyHomePage>
           )
         : const SizedBox.shrink();
     final getApp = kIsWeb
-        ? Padding(padding: EdgeInsets.only(top: gap), child: const GetAppCard())
+        ? Padding(
+            padding: EdgeInsets.only(top: gap),
+            child: const GetAppCard(),
+          )
         : const SizedBox.shrink();
 
     final Widget content;
@@ -677,10 +687,9 @@ class _MyHomePageState extends State<MyHomePage>
   }
 
   void _openAllFeatures() {
-    unawaited(AnalyticsService.feature(
-      'home_menu_all_features',
-      label: 'All features',
-    ));
+    unawaited(
+      AnalyticsService.feature('home_menu_all_features', label: 'All features'),
+    );
     pushPageRoute(context, const AllFeaturesPage());
   }
 
@@ -765,12 +774,14 @@ class _MyHomePageState extends State<MyHomePage>
 
       final List<PendingNotificationRequest>? pendingNotificationRequests =
           await flutterLocalNotificationsPlugin?.pendingNotificationRequests();
-      pendingNotificationRequests
-          ?.forEach((PendingNotificationRequest element) {
+      pendingNotificationRequests?.forEach((
+        PendingNotificationRequest element,
+      ) {
         debugPrint("${element.id} ${element.title} is scheduled");
       });
-      needToSchedule =
-          shouldRefreshPrayerNotificationSchedule(pendingNotificationRequests);
+      needToSchedule = shouldRefreshPrayerNotificationSchedule(
+        pendingNotificationRequests,
+      );
       if (needToSchedule) {
         await setUpNotifications();
       } else {
@@ -957,8 +968,10 @@ class _CompactTitleBar extends StatelessWidget {
         color: solid ? colors.ground : colors.ground.withValues(alpha: 0.88),
         border: Border(bottom: BorderSide(color: colors.line)),
       ),
-      child: Text(context.l10n.appTitle,
-          style: ShiaText.cardTitle.copyWith(color: colors.text)),
+      child: Text(
+        context.l10n.appTitle,
+        style: ShiaText.cardTitle.copyWith(color: colors.text),
+      ),
     );
     if (!solid) {
       bar = ClipRect(

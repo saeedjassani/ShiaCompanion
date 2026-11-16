@@ -34,8 +34,8 @@ import 'package:shia_companion/utils/night_window.dart';
 /// month, then a weekday, then every day - see [lunarPatternSpecificity]),
 /// and by each zikr's order value within that.
 List<UidTitleData> buildTodaysRecitationItems({DateTime? now}) => [
-      for (final group in buildTodaysRecitationGroups(now: now)) ...group.items,
-    ];
+  for (final group in buildTodaysRecitationGroups(now: now)) ...group.items,
+];
 
 /// What a group of today's recitations is for.
 enum TodaysRecitationKind {
@@ -70,8 +70,11 @@ class TodaysRecitationGroup {
 /// listed for that night rather than for Thursday.
 List<TodaysRecitationGroup> buildTodaysRecitationGroups({DateTime? now}) {
   final today = todaysLunarDays(now: now);
-  final matches =
-      matchTodaysZikrPatterns(itemMetadata, day: today.day, night: today.night);
+  final matches = matchTodaysZikrPatterns(
+    itemMetadata,
+    day: today.day,
+    night: today.night,
+  );
 
   final byKind = <TodaysRecitationKind, List<UidTitleData>>{};
   matches.forEach((uid, pattern) {
@@ -83,8 +86,8 @@ List<TodaysRecitationGroup> buildTodaysRecitationGroups({DateTime? now}) {
   });
 
   int compare(UidTitleData a, UidTitleData b) {
-    final byOrder =
-        getItemOrderValue(a.uid).compareTo(getItemOrderValue(b.uid));
+    final byOrder = getItemOrderValue(a.uid)
+        .compareTo(getItemOrderValue(b.uid));
     if (byOrder != 0) return byOrder;
     final byId = a.getId().compareTo(b.getId());
     if (byId != 0) return byId;
@@ -100,9 +103,10 @@ List<TodaysRecitationGroup> buildTodaysRecitationGroups({DateTime? now}) {
 
 TodaysRecitationKind _kindOf(String pattern) =>
     switch (lunarPatternSpecificity(pattern)) {
-      0 => pattern.trim().startsWith('N')
-          ? TodaysRecitationKind.night
-          : TodaysRecitationKind.date,
+      0 =>
+        pattern.trim().startsWith('N')
+            ? TodaysRecitationKind.night
+            : TodaysRecitationKind.date,
       1 => TodaysRecitationKind.month,
       2 => TodaysRecitationKind.weekday,
       _ => TodaysRecitationKind.everyDay,

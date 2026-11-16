@@ -31,8 +31,10 @@ final RegExp _trailingArabic = RegExp(
 
 /// A letter in any script but Arabic's: the "Dua al-Hujjah" a title leads
 /// with before its Arabic.
-final RegExp _nonArabicLetter =
-    RegExp(r'[^\P{L}\p{Script=Arabic}]', unicode: true);
+final RegExp _nonArabicLetter = RegExp(
+  r'[^\P{L}\p{Script=Arabic}]',
+  unicode: true,
+);
 
 /// A zikr's row in a list (docs/DESIGN_SPEC.md, "Lists"): the title, with
 /// the Arabic it ends in on a line of its own, right-aligned in the reader's
@@ -92,8 +94,9 @@ class ZikrListRow extends StatelessWidget {
               // title's is (see arabicFontForTitles).
               style: TextStyle(
                 fontFamily: arabicFontForTitles ? arabicFont : null,
-                fontFamilyFallback:
-                    arabicFontForTitles ? const ['Qalam'] : null,
+                fontFamilyFallback: arabicFontForTitles
+                    ? const ['Qalam']
+                    : null,
                 fontSize: 19,
                 height: 32 / 19,
                 color: colors.translation,
@@ -133,10 +136,12 @@ Widget highlightedText(String text, String? query) {
   if (lower.length != text.length) index = -1;
   while (index >= 0) {
     if (index > start) spans.addAll(_runs(text.substring(start, index)));
-    spans.addAll(_runs(
-      text.substring(index, index + needle.length),
-      const TextStyle(fontWeight: FontWeight.w700),
-    ));
+    spans.addAll(
+      _runs(
+        text.substring(index, index + needle.length),
+        const TextStyle(fontWeight: FontWeight.w700),
+      ),
+    );
     start = index + needle.length;
     index = lower.indexOf(needle, start);
   }
@@ -214,8 +219,12 @@ class ZikrGroupRow extends StatelessWidget {
       subtitle: subtitle == null ? null : Text(subtitle!),
       trailing: Padding(
         padding: const EdgeInsetsDirectional.only(start: 8, end: 8),
-        child: OutlineIcon(OutlineGlyph.chevronRight,
-            size: 16, color: colors.chevron, strokeWidth: 2.4),
+        child: OutlineIcon(
+          OutlineGlyph.chevronRight,
+          size: 16,
+          color: colors.chevron,
+          strokeWidth: 2.4,
+        ),
       ),
       onTap: onTap,
     );

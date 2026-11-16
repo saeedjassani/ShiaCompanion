@@ -49,9 +49,7 @@ class AirportRepository {
   void _adopt(List<Airport> airports) {
     _airports = List.unmodifiable(airports);
     _byIata = {for (final airport in airports) airport.iata: airport};
-    _haystacks = [
-      for (final airport in airports) airport.searchHaystack,
-    ];
+    _haystacks = [for (final airport in airports) airport.searchHaystack];
   }
 
   Airport? byIata(String? iata) {
@@ -99,9 +97,7 @@ class AirportRepository {
       return byScore != 0 ? byScore : a.airport.iata.compareTo(b.airport.iata);
     });
 
-    return [
-      for (final match in matches.take(limit)) match.airport,
-    ];
+    return [for (final match in matches.take(limit)) match.airport];
   }
 }
 

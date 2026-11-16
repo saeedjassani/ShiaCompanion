@@ -18,6 +18,7 @@ import 'package:shia_companion/utils/widget_prayer_time_selection.dart';
 import 'package:shia_companion/utils/prayer_time_entries.dart';
 import 'package:shia_companion/utils/shared_preferences.dart';
 import 'package:shia_companion/utils/theme_palette.dart';
+
 import '../l10n/l10n.dart';
 
 class HomeScreenWidgetService {
@@ -26,8 +27,9 @@ class HomeScreenWidgetService {
   static final HomeScreenWidgetService instance = HomeScreenWidgetService._();
 
   static const String appGroupId = 'group.com.developer110.shiacompanion';
-  static const MethodChannel _channel =
-      MethodChannel('shia_companion/home_widgets');
+  static const MethodChannel _channel = MethodChannel(
+    'shia_companion/home_widgets',
+  );
 
   static const String favoritesTitleKey = 'sc_favorites_title';
   static const String favoritesSubtitleKey = 'sc_favorites_subtitle';
@@ -195,7 +197,8 @@ class HomeScreenWidgetService {
   /// own alpha, so a transparent border would draw white. Light mode has no
   /// border, so it gets the surface there instead, which looks the same.
   Map<String, String> buildPaletteSnapshot([AppPalette? palette]) {
-    final chosen = palette ??
+    final chosen =
+        palette ??
         (SP.isInitialized
             ? ThemePaletteProvider.readStored()
             : AppPalette.brown);
@@ -212,13 +215,17 @@ class HomeScreenWidgetService {
         'secondary_text': c.onPrayerCardMuted,
         'divider': c.onPrayerCard.withAlpha(isDark ? 0x21 : 0x2E),
         'accent': c.gold,
-        'event_joy':
-            lightCard ? const Color(0xFF2F7A4A) : const Color(0xFF7FBF95),
-        'event_mourning':
-            lightCard ? const Color(0xFF1F2023) : const Color(0xFFC5C8CE),
+        'event_joy': lightCard
+            ? const Color(0xFF2F7A4A)
+            : const Color(0xFF7FBF95),
+        'event_mourning': lightCard
+            ? const Color(0xFF1F2023)
+            : const Color(0xFFC5C8CE),
       };
-      colors.forEach((token, color) =>
-          values[widgetColorKey(token, brightness)] = _hex(color));
+      colors.forEach(
+        (token, color) =>
+            values[widgetColorKey(token, brightness)] = _hex(color),
+      );
     }
     return values;
   }
@@ -249,16 +256,20 @@ class HomeScreenWidgetService {
     return {
       calendarTitleKey: L10n.current.widgetIslamicCalendar,
       calendarUrlKey: buildCalendarDeepLinkUrl(),
-      calendarDaysKey: jsonEncode(buildCalendarWidgetDays(
-        now: moment,
-        events: eventMap,
-        offsetDays: offset,
-      )),
-      calendarEventsKey: jsonEncode(buildUpcomingCalendarWidgetEvents(
-        now: moment,
-        events: eventMap,
-        offsetDays: offset,
-      )),
+      calendarDaysKey: jsonEncode(
+        buildCalendarWidgetDays(
+          now: moment,
+          events: eventMap,
+          offsetDays: offset,
+        ),
+      ),
+      calendarEventsKey: jsonEncode(
+        buildUpcomingCalendarWidgetEvents(
+          now: moment,
+          events: eventMap,
+          offsetDays: offset,
+        ),
+      ),
     };
   }
 
@@ -275,9 +286,9 @@ class HomeScreenWidgetService {
     final favoriteItems = (favorites ?? _favorites)
         .where((item) => _isLinkableFavorite(item))
         .toList(growable: false);
-    final topFavorites = favoriteItems.take(favoriteItemKeys.length).toList(
-          growable: false,
-        );
+    final topFavorites = favoriteItems
+        .take(favoriteItemKeys.length)
+        .toList(growable: false);
     final snapshot = <String, String>{
       favoritesTitleKey: L10n.current.widgetFavorites,
       favoritesSubtitleKey: '',
@@ -285,7 +296,8 @@ class HomeScreenWidgetService {
 
     for (var index = 0; index < favoriteItemKeys.length; index++) {
       final item = _itemAt(topFavorites, index);
-      snapshot[favoriteItemKeys[index]] = _widgetTitleForUniversalData(item) ??
+      snapshot[favoriteItemKeys[index]] =
+          _widgetTitleForUniversalData(item) ??
           (index == 0 ? L10n.current.widgetNoFavorites : '');
       snapshot[favoriteUrlKeys[index]] = _widgetUrlForUniversalData(item);
     }
@@ -304,7 +316,8 @@ class HomeScreenWidgetService {
 
     for (var index = 0; index < recitationItemKeys.length; index++) {
       final item = _itemAt(recitations, index);
-      snapshot[recitationItemKeys[index]] = _widgetTitleForRecitation(item) ??
+      snapshot[recitationItemKeys[index]] =
+          _widgetTitleForRecitation(item) ??
           (index == 0 ? L10n.current.widgetOpenAppToRefresh : '');
       snapshot[recitationUrlKeys[index]] = _widgetUrlForRecitation(item);
     }
@@ -322,10 +335,12 @@ class HomeScreenWidgetService {
       return {
         'start': date.millisecondsSinceEpoch,
         'items': items
-            .map((item) => {
-                  'title': _widgetTitleForRecitation(item) ?? '',
-                  'url': _widgetUrlForRecitation(item),
-                })
+            .map(
+              (item) => {
+                'title': _widgetTitleForRecitation(item) ?? '',
+                'url': _widgetUrlForRecitation(item),
+              },
+            )
             .where((item) => (item['title'] ?? '').isNotEmpty)
             .toList(),
       };
@@ -363,18 +378,21 @@ class HomeScreenWidgetService {
 
     if (lat == null || long == null) {
       for (var index = 0; index < dailyPrayerTimesItemCount; index++) {
-        snapshot[dailyPrayerNameKeys[index]] =
-            index == 0 ? L10n.current.widgetSetLocation : '';
-        snapshot[dailyPrayerTimeKeys[index]] =
-            index == 0 ? L10n.current.widgetOpenApp : '';
+        snapshot[dailyPrayerNameKeys[index]] = index == 0
+            ? L10n.current.widgetSetLocation
+            : '';
+        snapshot[dailyPrayerTimeKeys[index]] = index == 0
+            ? L10n.current.widgetOpenApp
+            : '';
       }
       return snapshot;
     }
 
     final today = now ?? DateTime.now();
     final prayers = _buildUpcomingPrayerTimes(today);
-    snapshot[dailyPrayerTimesScheduleKey] =
-        jsonEncode(_buildDailyPrayerTimesSchedule(today));
+    snapshot[dailyPrayerTimesScheduleKey] = jsonEncode(
+      _buildDailyPrayerTimesSchedule(today),
+    );
 
     for (var index = 0; index < dailyPrayerTimesItemCount; index++) {
       final prayer = _itemAt(prayers, index);
@@ -489,14 +507,16 @@ class HomeScreenWidgetService {
         if (reading == null) continue;
 
         final offerBefore = readings[time.offerBeforeId];
-        schedule.add(_PrayerScheduleEntry(
-          dateTime: reading.dateTime,
-          name: time.name,
-          displayTime: reading.displayTime,
-          dateLabel: dateLabel,
-          secondaryName: offerBefore == null ? '' : offerBefore.time.name,
-          secondaryTime: offerBefore == null ? '' : offerBefore.displayTime,
-        ));
+        schedule.add(
+          _PrayerScheduleEntry(
+            dateTime: reading.dateTime,
+            name: time.name,
+            displayTime: reading.displayTime,
+            dateLabel: dateLabel,
+            secondaryName: offerBefore == null ? '' : offerBefore.time.name,
+            secondaryTime: offerBefore == null ? '' : offerBefore.displayTime,
+          ),
+        );
       }
     }
 
@@ -569,11 +589,13 @@ class HomeScreenWidgetService {
         {
           'start': boundary.millisecondsSinceEpoch,
           'items': _buildUpcomingPrayerTimes(boundary)
-              .map((prayer) => {
-                    'title': prayer.time.name,
-                    'time': prayer.displayTime,
-                    'url': '',
-                  })
+              .map(
+                (prayer) => {
+                  'title': prayer.time.name,
+                  'time': prayer.displayTime,
+                  'url': '',
+                },
+              )
               .toList(),
         },
     ];
@@ -646,9 +668,9 @@ class HomeScreenWidgetService {
     if (url.isEmpty) return url;
     final uri = Uri.tryParse(url);
     if (uri == null) return url;
-    return uri.replace(
-      queryParameters: {...uri.queryParameters, 'src': source},
-    ).toString();
+    return uri
+        .replace(queryParameters: {...uri.queryParameters, 'src': source})
+        .toString();
   }
 
   T? _itemAt<T>(List<T> items, int index) {

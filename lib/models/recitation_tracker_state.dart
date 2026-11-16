@@ -15,22 +15,24 @@ import 'activity_stats.dart';
 const String unlabeledRecitationLabel = 'Unlabeled';
 
 /// [label] as a track is called on screen: [unlabeledRecitationLabel] is
-/// "My reading", every other label is its own name.
+/// "Other reading", every other label is its own name.
 ///
-/// The stored key stays 'Unlabeled' - it is in every reader's history and
-/// sync - so this is the one place the two names meet.
+/// The everyday reading was shown as "My reading" until Khatms had to be
+/// started; that name now belongs to the Khatm its reading moved into
+/// ([planMyReadingPort]). The stored key stays 'Unlabeled' - it is in every
+/// reader's history and sync - so this is the one place the two names meet.
 String recitationTrackName(String label, [AppLocalizations? l10n]) =>
     label == unlabeledRecitationLabel
-        ? (l10n ?? L10n.current).quranMyReading
-        : label;
+    ? (l10n ?? L10n.current).quranOtherReading
+    : label;
 
 /// Whether [name], as someone typed it, means the default track - its stored
 /// key or the name it is shown under, in any case. Such a name cannot be
-/// given to a track of its own: there would be two "My reading"s.
+/// given to a track of its own: there would be two "Other reading"s.
 bool isDefaultRecitationTrackName(String name, [AppLocalizations? l10n]) {
   final typed = name.trim().toLowerCase();
   return typed == unlabeledRecitationLabel.toLowerCase() ||
-      typed == (l10n ?? L10n.current).quranMyReading.toLowerCase();
+      typed == (l10n ?? L10n.current).quranOtherReading.toLowerCase();
 }
 
 /// Days of recitation kept session by session. Older sessions are folded
@@ -62,8 +64,10 @@ const int recitationDayRangesRetentionDays = 400;
 const int recitationMaxSummariesPerCompaction = 500;
 
 /// Total ayahs in the Quran, the denominator for "% of the Quran completed".
-final int quranTotalAyahCount =
-    surahAyahCounts.fold(0, (sum, count) => sum + count);
+final int quranTotalAyahCount = surahAyahCounts.fold(
+  0,
+  (sum, count) => sum + count,
+);
 
 /// One logged recitation — a real verse range someone read, under a label of
 /// their own choosing ("Family", "Personal", "Majlis"), so the same person
@@ -130,11 +134,7 @@ class RecitationEntry {
 
   int get versesRecited => toAyah - fromAyah + 1;
 
-  RecitationEntry copyWith({
-    String? label,
-    int? fromAyah,
-    int? toAyah,
-  }) {
+  RecitationEntry copyWith({String? label, int? fromAyah, int? toAyah}) {
     return RecitationEntry(
       id: id,
       label: label ?? this.label,
@@ -147,14 +147,14 @@ class RecitationEntry {
   }
 
   Map<String, Object> toJson() => {
-        'id': id,
-        'label': label,
-        'recitedAt': recitedAt.toUtc().toIso8601String(),
-        'surah': surah,
-        'fromAyah': fromAyah,
-        'toAyah': toAyah,
-        if (readInJuz) 'readInJuz': true,
-      };
+    'id': id,
+    'label': label,
+    'recitedAt': recitedAt.toUtc().toIso8601String(),
+    'surah': surah,
+    'fromAyah': fromAyah,
+    'toAyah': toAyah,
+    if (readInJuz) 'readInJuz': true,
+  };
 }
 
 /// One track's recitation on one day, kept once the day's sessions are
@@ -361,7 +361,8 @@ class RecitationTrackSettings {
     final surah = int.tryParse(value['startSurah']?.toString() ?? '');
     final ayah = int.tryParse(value['startAyah']?.toString() ?? '');
     final setAt = DateTime.tryParse(value['startSetAt']?.toString() ?? '');
-    final isValidStart = surah != null &&
+    final isValidStart =
+        surah != null &&
         surah >= 1 &&
         surah <= surahAyahCounts.length &&
         ayah != null &&
@@ -369,11 +370,14 @@ class RecitationTrackSettings {
         ayah <= surahAyahCounts[surah - 1] &&
         setAt != null;
 
-    final readBeforeSurah =
-        int.tryParse(value['readBeforeSurah']?.toString() ?? '');
-    final readBeforeAyah =
-        int.tryParse(value['readBeforeAyah']?.toString() ?? '');
-    final isValidReadBefore = readBeforeSurah != null &&
+    final readBeforeSurah = int.tryParse(
+      value['readBeforeSurah']?.toString() ?? '',
+    );
+    final readBeforeAyah = int.tryParse(
+      value['readBeforeAyah']?.toString() ?? '',
+    );
+    final isValidReadBefore =
+        readBeforeSurah != null &&
         readBeforeSurah >= 1 &&
         readBeforeSurah <= surahAyahCounts.length &&
         readBeforeAyah != null &&
@@ -384,8 +388,9 @@ class RecitationTrackSettings {
       readByJuz: value['readByJuz'] == true,
       startAt: isValidStart ? VerseKey(surah, ayah) : null,
       startSetAt: isValidStart ? setAt : null,
-      readBefore:
-          isValidReadBefore ? VerseKey(readBeforeSurah, readBeforeAyah) : null,
+      readBefore: isValidReadBefore
+          ? VerseKey(readBeforeSurah, readBeforeAyah)
+          : null,
     );
   }
 
@@ -411,17 +416,17 @@ class RecitationTrackSettings {
   }
 
   Map<String, Object> toJson() => {
-        'readByJuz': readByJuz,
-        if (startAt != null && startSetAt != null) ...{
-          'startSurah': startAt!.surah,
-          'startAyah': startAt!.ayah ?? 1,
-          'startSetAt': startSetAt!.toUtc().toIso8601String(),
-        },
-        if (readBefore != null) ...{
-          'readBeforeSurah': readBefore!.surah,
-          'readBeforeAyah': readBefore!.ayah ?? 1,
-        },
-      };
+    'readByJuz': readByJuz,
+    if (startAt != null && startSetAt != null) ...{
+      'startSurah': startAt!.surah,
+      'startAyah': startAt!.ayah ?? 1,
+      'startSetAt': startSetAt!.toUtc().toIso8601String(),
+    },
+    if (readBefore != null) ...{
+      'readBeforeSurah': readBefore!.surah,
+      'readBeforeAyah': readBefore!.ayah ?? 1,
+    },
+  };
 
   @override
   bool operator ==(Object other) =>
@@ -474,20 +479,19 @@ class RecitationTrackerState {
     Map<String, RecitationTrackSettings>? trackSettings,
     Map<String, Map<String, RecitationDaySummary>>? archive,
     Map<String, Map<int, List<(int, int)>>>? coverage,
-  ])  : entries = Map.unmodifiable(entries ?? const {}),
-        customLabels = Set.unmodifiable(customLabels ?? const {}),
-        trackSettings = Map.unmodifiable(trackSettings ?? const {}),
-        archive = Map.unmodifiable(<String, Map<String, RecitationDaySummary>>{
-          for (final day in (archive ?? const {}).entries)
-            if (day.value.isNotEmpty)
-              day.key:
-                  Map<String, RecitationDaySummary>.unmodifiable(day.value),
-        }),
-        coverage = Map.unmodifiable(<String, Map<int, List<(int, int)>>>{
-          for (final track in (coverage ?? const {}).entries)
-            if (track.value.isNotEmpty)
-              track.key: Map<int, List<(int, int)>>.unmodifiable(track.value),
-        });
+  ]) : entries = Map.unmodifiable(entries ?? const {}),
+       customLabels = Set.unmodifiable(customLabels ?? const {}),
+       trackSettings = Map.unmodifiable(trackSettings ?? const {}),
+       archive = Map.unmodifiable(<String, Map<String, RecitationDaySummary>>{
+         for (final day in (archive ?? const {}).entries)
+           if (day.value.isNotEmpty)
+             day.key: Map<String, RecitationDaySummary>.unmodifiable(day.value),
+       }),
+       coverage = Map.unmodifiable(<String, Map<int, List<(int, int)>>>{
+         for (final track in (coverage ?? const {}).entries)
+           if (track.value.isNotEmpty)
+             track.key: Map<int, List<(int, int)>>.unmodifiable(track.value),
+       });
 
   factory RecitationTrackerState.fromJson(dynamic value) {
     if (value is! Map) return empty;
@@ -622,7 +626,12 @@ class RecitationTrackerState {
     if (!entries.containsKey(id)) return this;
     final next = {...entries}..remove(id);
     return RecitationTrackerState(
-        next, customLabels, trackSettings, archive, coverage);
+      next,
+      customLabels,
+      trackSettings,
+      archive,
+      coverage,
+    );
   }
 
   RecitationTrackerState addCustomLabel(String label) {
@@ -644,7 +653,8 @@ class RecitationTrackerState {
   RecitationTrackerState removeTrack(String label) {
     final trimmed = label.trim();
     if (trimmed.isEmpty || trimmed == unlabeledRecitationLabel) return this;
-    final known = customLabels.contains(trimmed) ||
+    final known =
+        customLabels.contains(trimmed) ||
         trackSettings.containsKey(trimmed) ||
         coverage.containsKey(trimmed) ||
         entries.values.any((entry) => entry.label == trimmed) ||
@@ -666,15 +676,15 @@ class RecitationTrackerState {
   /// sessions and the days its summaries are under. Carried by the queued
   /// operation, so replaying it deletes exactly what the device knew of.
   (Set<String>, Set<String>) trackFootprint(String label) => (
-        {
-          for (final entry in entries.values)
-            if (entry.label == label) entry.id,
-        },
-        {
-          for (final day in archive.entries)
-            if (day.value.containsKey(label)) day.key,
-        },
-      );
+    {
+      for (final entry in entries.values)
+        if (entry.label == label) entry.id,
+    },
+    {
+      for (final day in archive.entries)
+        if (day.value.containsKey(label)) day.key,
+    },
+  );
 
   /// Sets how [label] reads, registering it as a track if it was not one.
   RecitationTrackerState setTrackSettings(
@@ -770,11 +780,7 @@ class RecitationTrackerState {
       for (final day in (sessions?.summaries ?? const {}).entries)
         day.key: {...day.value},
     };
-    final coverage = _rangesCompaction(
-      now,
-      maxSummaries,
-      summaries,
-    );
+    final coverage = _rangesCompaction(now, maxSummaries, summaries);
     if (sessions == null && coverage == null) return null;
     return RecitationCompaction(
       removedEntryIds: sessions?.removedEntryIds ?? const {},
@@ -798,7 +804,10 @@ class RecitationTrackerState {
       now.day - recitationDayRangesRetentionDays,
     );
     final graceCutoff = DateTime(
-        cutoff.year, cutoff.month, cutoff.day - recitationCompactionGraceDays);
+      cutoff.year,
+      cutoff.month,
+      cutoff.day - recitationCompactionGraceDays,
+    );
 
     final due = <(DateTime, String, String, RecitationDaySummary)>[];
     for (final day in {...archive.keys, ...summaries.keys}) {
@@ -831,18 +840,24 @@ class RecitationTrackerState {
       now.day - recitationSessionRetentionDays,
     );
     final graceCutoff = DateTime(
-        cutoff.year, cutoff.month, cutoff.day - recitationCompactionGraceDays);
+      cutoff.year,
+      cutoff.month,
+      cutoff.day - recitationCompactionGraceDays,
+    );
 
     final latestIds = <String>{
       for (final label in entries.values.map((entry) => entry.label).toSet())
         _latestEntryFor(label)!.id,
     };
-    final due = entries.values
-        .where((entry) =>
-            !latestIds.contains(entry.id) &&
-            entry.recitedAt.toLocal().isBefore(cutoff))
-        .toList()
-      ..sort((a, b) => a.recitedAt.compareTo(b.recitedAt));
+    final due =
+        entries.values
+            .where(
+              (entry) =>
+                  !latestIds.contains(entry.id) &&
+                  entry.recitedAt.toLocal().isBefore(cutoff),
+            )
+            .toList()
+          ..sort((a, b) => a.recitedAt.compareTo(b.recitedAt));
     if (due.isEmpty || !due.first.recitedAt.toLocal().isBefore(graceCutoff)) {
       return null;
     }
@@ -852,7 +867,8 @@ class RecitationTrackerState {
     for (final entry in due.take(maxSessions)) {
       final day = activityDayKey(entry.recitedAt);
       final byLabel = summaries[day] ??= {};
-      final current = byLabel[entry.label] ??
+      final current =
+          byLabel[entry.label] ??
           archive[day]?[entry.label] ??
           RecitationDaySummary.empty;
       byLabel[entry.label] = current.adding(entry);
@@ -886,29 +902,29 @@ class RecitationTrackerState {
   }
 
   Map<String, Object> toJson() => {
-        'entries': {
-          for (final entry in entries.entries) entry.key: entry.value.toJson(),
-        },
-        'labels': customLabels.toList(),
-        if (trackSettings.isNotEmpty)
-          'trackSettings': {
-            for (final setting in trackSettings.entries)
-              setting.key: setting.value.toJson(),
+    'entries': {
+      for (final entry in entries.entries) entry.key: entry.value.toJson(),
+    },
+    'labels': customLabels.toList(),
+    if (trackSettings.isNotEmpty)
+      'trackSettings': {
+        for (final setting in trackSettings.entries)
+          setting.key: setting.value.toJson(),
+      },
+    if (archive.isNotEmpty)
+      'archive': {
+        for (final day in archive.entries)
+          day.key: {
+            for (final summary in day.value.entries)
+              summary.key: summary.value.encode(),
           },
-        if (archive.isNotEmpty)
-          'archive': {
-            for (final day in archive.entries)
-              day.key: {
-                for (final summary in day.value.entries)
-                  summary.key: summary.value.encode(),
-              },
-          },
-        if (coverage.isNotEmpty)
-          'coverage': {
-            for (final track in coverage.entries)
-              track.key: encodeAyahRanges(track.value),
-          },
-      };
+      },
+    if (coverage.isNotEmpty)
+      'coverage': {
+        for (final track in coverage.entries)
+          track.key: encodeAyahRanges(track.value),
+      },
+  };
 
   // ---------------------------------------------------------------------
   // Stats — everything below is derived from the entries above, so the
@@ -918,11 +934,14 @@ class RecitationTrackerState {
   // ---------------------------------------------------------------------
 
   int get totalSessions => _archivedSummaries.fold(
-      entries.length, (sum, archived) => sum + archived.$2.sessions);
+    entries.length,
+    (sum, archived) => sum + archived.$2.sessions,
+  );
 
   int get totalVersesRecited => _archivedSummaries.fold(
-      entries.values.fold(0, (sum, entry) => sum + entry.versesRecited),
-      (sum, archived) => sum + archived.$2.verses);
+    entries.values.fold(0, (sum, entry) => sum + entry.versesRecited),
+    (sum, archived) => sum + archived.$2.verses,
+  );
 
   Map<String, int> get sessionsByLabel {
     final counts = <String, int>{};
@@ -1025,11 +1044,7 @@ class RecitationTrackerState {
         verse = juzList[juz % juzList.length].start;
       }
     }
-    return RecitationResumeTarget(
-      verse,
-      inJuz: inJuz,
-      isStart: latest == null,
-    );
+    return RecitationResumeTarget(verse, inJuz: inJuz, isStart: latest == null);
   }
 
   RecitationEntry? _latestEntryFor(String label) {
@@ -1057,6 +1072,16 @@ class RecitationTrackerState {
       }
     }
     return latest == null ? null : VerseKey(latest.surah, latest.toAyah);
+  }
+
+  /// Whether [verse] counts as read for [label] - recited under it, or set
+  /// up as read before it started.
+  bool trackIncludes(String label, VerseKey verse) {
+    final ayah = verse.ayah ?? 1;
+    return _mergedRangesForLabel(
+          label,
+        )[verse.surah]?.any((range) => range.$1 <= ayah && ayah <= range.$2) ??
+        false;
   }
 
   /// Merged, non-overlapping ayah ranges ever recited under [label], by
@@ -1167,11 +1192,10 @@ class RecitationTrackerState {
   }
 
   Set<DateTime> get _recitedLocalDays => {
-        for (final entry in entries.values)
-          _dateOnly(entry.recitedAt.toLocal()),
-        for (final day in archive.keys)
-          if (parseActivityDay(day) case final date?) date,
-      };
+    for (final entry in entries.values) _dateOnly(entry.recitedAt.toLocal()),
+    for (final day in archive.keys)
+      if (parseActivityDay(day) case final date?) date,
+  };
 
   /// Consecutive days up to and including today (or yesterday, so logging
   /// tonight's recitation tomorrow morning does not reset it to zero) on
@@ -1252,7 +1276,8 @@ class RecitationTrackerState {
     for (final archived in archive.entries) {
       final day = parseActivityDay(archived.key);
       if (day == null || day.isBefore(start) || day.isAfter(today)) continue;
-      counts[day] = (counts[day] ?? 0) +
+      counts[day] =
+          (counts[day] ?? 0) +
           archived.value.values.fold(0, (sum, summary) => sum + summary.verses);
     }
     return counts;

@@ -68,7 +68,9 @@ List<UidTitleData> filterDataSearchResults(
     var english = searchMatchRank(entry.title, normalizedQuery);
     if (joinedQuery.isNotEmpty) {
       english = min(
-          english, searchMatchRank(_joinHyphenated(entry.title), joinedQuery));
+        english,
+        searchMatchRank(_joinHyphenated(entry.title), joinedQuery),
+      );
     }
     final translated = foldedTranslatedTitle(entry);
     if (translated == null) return english;

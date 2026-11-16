@@ -98,16 +98,14 @@ void removeLocalSlugData(String uid) {
   }
 }
 
-void setLocalSlugData(
-  String uid, {
-  String? slug,
-  Iterable<dynamic>? aliases,
-}) {
+void setLocalSlugData(String uid, {String? slug, Iterable<dynamic>? aliases}) {
   removeLocalSlugData(uid);
 
   final normalizedSlug = normalizeSlug(slug ?? '');
-  final normalizedAliases =
-      normalizeSlugAliases(aliases, exclude: normalizedSlug);
+  final normalizedAliases = normalizeSlugAliases(
+    aliases,
+    exclude: normalizedSlug,
+  );
 
   if (normalizedSlug.isNotEmpty) {
     itemSlugs[uid] = normalizedSlug;

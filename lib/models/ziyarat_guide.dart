@@ -296,7 +296,7 @@ class GuidePlan {
       id: id,
       city: city,
       siteIds: [
-        for (final site in (json['sites'] as List? ?? const [])) site as String
+        for (final site in (json['sites'] as List? ?? const [])) site as String,
       ],
       features: [],
     );
@@ -340,14 +340,14 @@ enum PlanFeatureKind {
 
   /// Higher wins a label when two would overlap.
   int get labelPriority => switch (this) {
-        zarih => 6,
-        place => 5,
-        tomb => 4,
-        gate => 3,
-        maqam => 2,
-        landmark => 1,
-        door => 0,
-      };
+    zarih => 6,
+    place => 5,
+    tomb => 4,
+    gate => 3,
+    maqam => 2,
+    landmark => 1,
+    door => 0,
+  };
 }
 
 /// One tappable point of a [GuidePlan].

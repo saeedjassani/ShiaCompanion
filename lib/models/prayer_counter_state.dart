@@ -4,9 +4,9 @@ class PrayerCounterState {
   const PrayerCounterState({
     required this.totalRakaat,
     this.completedSajdahs = 0,
-  })  : assert(totalRakaat > 0),
-        assert(completedSajdahs >= 0),
-        assert(completedSajdahs <= totalRakaat * 2);
+  }) : assert(totalRakaat > 0),
+       assert(completedSajdahs >= 0),
+       assert(completedSajdahs <= totalRakaat * 2);
 
   final int totalRakaat;
   final int completedSajdahs;

@@ -66,8 +66,9 @@ class _AzanPlayingBannerState extends State<AzanPlayingBanner> {
 
   Future<void> _check() async {
     final playing = await AzanPlaybackService.isPlaying();
-    final prayerName =
-        playing ? await AzanPlaybackService.currentPrayerName() : null;
+    final prayerName = playing
+        ? await AzanPlaybackService.currentPrayerName()
+        : null;
     final paused = playing && await AzanPlaybackService.isPaused();
     if (!mounted) return;
     if (playing != _playing || paused != _paused || prayerName != _prayerName) {
@@ -121,10 +122,12 @@ class _AzanPlayingBannerState extends State<AzanPlayingBanner> {
         final base = keyboard > 0
             ? keyboard + floatingBottomOffset(context) + 62 + 12
             : reserved > 0
-                ? reserved + NowPlayingCapsule.gap
-                : floatingBottomOffset(context);
+            ? reserved + NowPlayingCapsule.gap
+            : floatingBottomOffset(context);
         final bottom = math.max(
-            base, NowPlayingCapsule.top(context) + NowPlayingCapsule.gap);
+          base,
+          NowPlayingCapsule.top(context) + NowPlayingCapsule.gap,
+        );
         return Positioned(
           left: 16,
           right: 16,
@@ -152,7 +155,11 @@ class _AzanPlayingBannerState extends State<AzanPlayingBanner> {
                     constraints: const BoxConstraints(minHeight: 52),
                     child: Padding(
                       padding: const EdgeInsetsDirectional.only(
-                          start: 20, end: 6, top: 4, bottom: 4),
+                        start: 20,
+                        end: 6,
+                        top: 4,
+                        bottom: 4,
+                      ),
                       child: Row(
                         children: [
                           Expanded(
@@ -169,37 +176,39 @@ class _AzanPlayingBannerState extends State<AzanPlayingBanner> {
                             ),
                           ),
                           Semantics(
-                              label: _paused
-                                  ? l10n.playlistResume
-                                  : l10n.commonPause,
-                              excludeSemantics: true,
-                              button: true,
-                              child: IconButton(
-                                icon: OutlineIcon(
-                                  _paused
-                                      ? OutlineGlyph.play
-                                      : OutlineGlyph.pause,
-                                  size: 22,
-                                  color: colors.accent,
-                                ),
-                                // No tooltip: this sits above the navigator,
-                                // where there is no Overlay to show one in.
-                                // (Hover/long-press would assert.)
-                                onPressed: _togglePause,
-                              )),
+                            label: _paused
+                                ? l10n.playlistResume
+                                : l10n.commonPause,
+                            excludeSemantics: true,
+                            button: true,
+                            child: IconButton(
+                              icon: OutlineIcon(
+                                _paused
+                                    ? OutlineGlyph.play
+                                    : OutlineGlyph.pause,
+                                size: 22,
+                                color: colors.accent,
+                              ),
+                              // No tooltip: this sits above the navigator,
+                              // where there is no Overlay to show one in.
+                              // (Hover/long-press would assert.)
+                              onPressed: _togglePause,
+                            ),
+                          ),
                           Semantics(
-                              label: l10n.commonStop,
-                              excludeSemantics: true,
-                              button: true,
-                              child: IconButton(
-                                icon: OutlineIcon(
-                                  OutlineGlyph.close,
-                                  size: 20,
-                                  color: colors.textMuted,
-                                  strokeWidth: 2,
-                                ),
-                                onPressed: _stop,
-                              )),
+                            label: l10n.commonStop,
+                            excludeSemantics: true,
+                            button: true,
+                            child: IconButton(
+                              icon: OutlineIcon(
+                                OutlineGlyph.close,
+                                size: 20,
+                                color: colors.textMuted,
+                                strokeWidth: 2,
+                              ),
+                              onPressed: _stop,
+                            ),
+                          ),
                         ],
                       ),
                     ),

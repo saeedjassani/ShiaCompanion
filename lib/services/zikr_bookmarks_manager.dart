@@ -126,7 +126,8 @@ class ZikrBookmarksManager extends ChangeNotifier {
     if (!cachedState.isEmpty) _updateState(cachedState);
 
     final remoteRead = await _loadRemoteState(user.uid);
-    final shouldImportGuestState = (isGuestToUserTransition ||
+    final shouldImportGuestState =
+        (isGuestToUserTransition ||
             SP.prefs.getBool(_guestImportPendingKey) == true) &&
         !guestState.isEmpty;
     final pendingOperations = _loadPendingOperations(user.uid);
@@ -148,8 +149,10 @@ class ZikrBookmarksManager extends ChangeNotifier {
 
     var visibleState = remoteRead.state;
     if (shouldImportGuestState) visibleState = visibleState.plus(guestState);
-    visibleState =
-        applyPendingZikrBookmarkOperations(visibleState, pendingOperations);
+    visibleState = applyPendingZikrBookmarkOperations(
+      visibleState,
+      pendingOperations,
+    );
 
     _updateState(visibleState);
     await _saveUserState(user.uid, visibleState);
@@ -228,8 +231,9 @@ class ZikrBookmarksManager extends ChangeNotifier {
 
   Future<_RemoteZikrBookmarksRead> _loadRemoteState(String userId) async {
     try {
-      final snapshot =
-          await _doc(userId).get().timeout(const Duration(seconds: 8));
+      final snapshot = await _doc(userId)
+          .get()
+          .timeout(const Duration(seconds: 8));
       return _RemoteZikrBookmarksRead.success(
         ZikrBookmarksState.fromJson(snapshot.data()?['state']),
       );
@@ -258,7 +262,8 @@ class ZikrBookmarksManager extends ChangeNotifier {
       return operations.values.toList(growable: false);
     } catch (error) {
       debugPrint(
-          'ZikrBookmarksManager: Error decoding pending operations: $error');
+        'ZikrBookmarksManager: Error decoding pending operations: $error',
+      );
       return const [];
     }
   }
@@ -287,9 +292,11 @@ class ZikrBookmarksManager extends ChangeNotifier {
       // operation still has to go up.
       final synced = jsonEncode(operation.toJson());
       final operations = _loadPendingOperations(userId)
-          .where((pending) =>
-              pending.id != operation.id ||
-              jsonEncode(pending.toJson()) != synced)
+          .where(
+            (pending) =>
+                pending.id != operation.id ||
+                jsonEncode(pending.toJson()) != synced,
+          )
           .toList(growable: false);
       await _writePendingOperations(userId, operations);
     });
@@ -370,9 +377,11 @@ class ZikrBookmarksManager extends ChangeNotifier {
     return _writeRemote(
       userId,
       stillWanted: onlyIfPending
-          ? () => _loadPendingOperations(userId).any((pending) =>
-              pending.id == operation.id &&
-              jsonEncode(pending.toJson()) == synced)
+          ? () => _loadPendingOperations(userId).any(
+              (pending) =>
+                  pending.id == operation.id &&
+                  jsonEncode(pending.toJson()) == synced,
+            )
           : null,
       (current) => applyPendingZikrBookmarkOperation(current, operation),
     );
@@ -391,8 +400,9 @@ class ZikrBookmarksManager extends ChangeNotifier {
           return;
         }
 
-        var remoteState =
-            ZikrBookmarksState.fromJson(snapshot.data()?['state']);
+        var remoteState = ZikrBookmarksState.fromJson(
+          snapshot.data()?['state'],
+        );
         if (_pendingGuestImportUserId == user.uid &&
             !_pendingGuestImportState.isEmpty &&
             !_isImportingGuestState) {
@@ -414,8 +424,10 @@ class ZikrBookmarksManager extends ChangeNotifier {
 
         await _storageWriteQueue;
         final pendingOperations = _loadPendingOperations(user.uid);
-        final visibleState =
-            applyPendingZikrBookmarkOperations(remoteState, pendingOperations);
+        final visibleState = applyPendingZikrBookmarkOperations(
+          remoteState,
+          pendingOperations,
+        );
         _updateState(visibleState);
         await _saveUserState(user.uid, visibleState);
 
@@ -446,7 +458,8 @@ class ZikrBookmarksManager extends ChangeNotifier {
       }
     } catch (error) {
       debugPrint(
-          'ZikrBookmarksManager: Pending operation replay failed: $error');
+        'ZikrBookmarksManager: Pending operation replay failed: $error',
+      );
     } finally {
       _isReplayingPendingOperations = false;
     }
@@ -486,8 +499,8 @@ class ZikrBookmarksManager extends ChangeNotifier {
     // Changed here, now, it is the newest bookmark, even if another device
     // with its clock running ahead stamped the one it replaces later.
     final existing = _state[bookmark.uid];
-    final stamped = existing != null &&
-            !bookmark.updatedAt.isAfter(existing.updatedAt)
+    final stamped =
+        existing != null && !bookmark.updatedAt.isAfter(existing.updatedAt)
         ? bookmark.copyWith(
             updatedAt: existing.updatedAt.add(const Duration(milliseconds: 1)),
           )
@@ -505,10 +518,12 @@ class ZikrBookmarksManager extends ChangeNotifier {
     // Never earlier than the bookmark itself, or a removal made here could
     // lose to a bookmark another device's fast clock dated in the future.
     final now = DateTime.now().toUtc();
-    await _applyOperation(PendingZikrBookmarkOperation.remove(
-      uid,
-      existing.updatedAt.isAfter(now) ? existing.updatedAt : now,
-    ));
+    await _applyOperation(
+      PendingZikrBookmarkOperation.remove(
+        uid,
+        existing.updatedAt.isAfter(now) ? existing.updatedAt : now,
+      ),
+    );
   }
 
   Future<void> _applyOperation(
@@ -605,8 +620,8 @@ class _RemoteZikrBookmarksRead {
   _RemoteZikrBookmarksRead.success(this.state) : succeeded = true;
 
   _RemoteZikrBookmarksRead.failure()
-      : succeeded = false,
-        state = ZikrBookmarksState.empty;
+    : succeeded = false,
+      state = ZikrBookmarksState.empty;
 
   final bool succeeded;
   final ZikrBookmarksState state;

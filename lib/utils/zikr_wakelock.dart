@@ -24,8 +24,9 @@ void syncZikrWakelockPreference({
     _forcedZikrWakelockOwners.remove(owner);
   }
 
-  final keepAwake =
-      SP.isInitialized ? SP.prefs.getBool('keep_awake') ?? true : false;
+  final keepAwake = SP.isInitialized
+      ? SP.prefs.getBool('keep_awake') ?? true
+      : false;
 
   if (_forcedZikrWakelockOwners.isNotEmpty ||
       (_activeZikrWakelockOwners.isNotEmpty && keepAwake)) {

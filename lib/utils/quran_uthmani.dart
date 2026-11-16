@@ -77,9 +77,9 @@ class UthmaniQuran {
         .loadString(uthmaniAsset)
         .then((raw) => compute(parse, raw))
         .catchError((Object error) {
-      _cached = null;
-      throw error;
-    });
+          _cached = null;
+          throw error;
+        });
   }
 }
 

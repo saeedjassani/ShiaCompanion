@@ -17,8 +17,8 @@ enum ScreenClass {
   static ScreenClass forWidth(double width) => width >= desktopBreakpoint
       ? ScreenClass.desktop
       : width >= tabletBreakpoint
-          ? ScreenClass.tablet
-          : ScreenClass.phone;
+      ? ScreenClass.tablet
+      : ScreenClass.phone;
 
   bool get isPhone => this == ScreenClass.phone;
 
@@ -42,15 +42,12 @@ const double compactContentWidth = 720.0;
 const double listContentWidth = 900.0;
 const double wideContentWidth = 1120.0;
 
-EdgeInsets responsivePagePadding(
-  double width, {
-  double vertical = 0.0,
-}) {
+EdgeInsets responsivePagePadding(double width, {double vertical = 0.0}) {
   final horizontal = width >= 1200
       ? 32.0
       : width >= 720
-          ? 24.0
-          : 16.0;
+      ? 24.0
+      : 16.0;
   return EdgeInsets.symmetric(horizontal: horizontal, vertical: vertical);
 }
 
@@ -77,32 +74,31 @@ class ResponsiveContent extends StatelessWidget {
         final textDirection =
             Directionality.maybeOf(context) ?? TextDirection.ltr;
         final resolvedPadding =
-            (padding ?? responsivePagePadding(constraints.maxWidth))
-                .resolve(textDirection);
-        final availableWidth =
-            math.max(0.0, constraints.maxWidth - resolvedPadding.horizontal);
+            (padding ?? responsivePagePadding(constraints.maxWidth)).resolve(
+              textDirection,
+            );
+        final availableWidth = math.max(
+          0.0,
+          constraints.maxWidth - resolvedPadding.horizontal,
+        );
         final contentWidth = math.min(maxWidth, availableWidth);
 
-        Widget content = SizedBox(
-          width: contentWidth,
-          child: child,
-        );
+        Widget content = SizedBox(width: contentWidth, child: child);
 
         if (fillHeight && constraints.hasBoundedHeight) {
           content = SizedBox(
             width: contentWidth,
-            height:
-                math.max(0.0, constraints.maxHeight - resolvedPadding.vertical),
+            height: math.max(
+              0.0,
+              constraints.maxHeight - resolvedPadding.vertical,
+            ),
             child: child,
           );
         }
 
         return Padding(
           padding: resolvedPadding,
-          child: Align(
-            alignment: alignment,
-            child: content,
-          ),
+          child: Align(alignment: alignment, child: content),
         );
       },
     );

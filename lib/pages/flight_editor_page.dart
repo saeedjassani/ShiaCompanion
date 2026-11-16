@@ -90,14 +90,17 @@ class _FlightEditorPageState extends State<FlightEditorPage> {
   Future<void> _pickDateTime({required bool isDeparture}) async {
     final airport = isDeparture ? _origin : _destination;
     if (airport == null) {
-      setState(() => _errorText = isDeparture
-          ? context.l10n.flightChooseDepartureFirst
-          : context.l10n.flightChooseArrivalFirst);
+      setState(
+        () => _errorText = isDeparture
+            ? context.l10n.flightChooseDepartureFirst
+            : context.l10n.flightChooseArrivalFirst,
+      );
       return;
     }
 
     final now = DateTime.now();
-    final initial = (isDeparture ? _departureLocal : _arrivalLocal) ??
+    final initial =
+        (isDeparture ? _departureLocal : _arrivalLocal) ??
         _departureLocal ??
         now;
 
@@ -122,8 +125,13 @@ class _FlightEditorPageState extends State<FlightEditorPage> {
     if (time == null || !mounted) return;
 
     setState(() {
-      final value =
-          DateTime(date.year, date.month, date.day, time.hour, time.minute);
+      final value = DateTime(
+        date.year,
+        date.month,
+        date.day,
+        time.hour,
+        time.minute,
+      );
       if (isDeparture) {
         _departureLocal = value;
         // Landing before take-off is almost always a stale arrival date, so
@@ -159,7 +167,8 @@ class _FlightEditorPageState extends State<FlightEditorPage> {
     }
 
     final flight = Flight(
-      id: widget.existing?.id ??
+      id:
+          widget.existing?.id ??
           DateTime.now().microsecondsSinceEpoch.toString(),
       origin: origin,
       destination: destination,
@@ -180,8 +189,11 @@ class _FlightEditorPageState extends State<FlightEditorPage> {
       return;
     }
     if (resolved.duration >= const Duration(hours: 24)) {
-      setState(() => _errorText = context.l10n
-          .flightDurationTooLong(formatFlightDuration(resolved.duration)));
+      setState(
+        () => _errorText = context.l10n.flightDurationTooLong(
+          formatFlightDuration(resolved.duration),
+        ),
+      );
       return;
     }
 
@@ -197,9 +209,9 @@ class _FlightEditorPageState extends State<FlightEditorPage> {
     final gutter = pageGutter(context, maxWidth: compactContentWidth);
 
     Widget section(Widget child, {double bottom = 14}) => SliverPadding(
-          padding: gutter.copyWith(bottom: bottom),
-          sliver: SliverToBoxAdapter(child: child),
-        );
+      padding: gutter.copyWith(bottom: bottom),
+      sliver: SliverToBoxAdapter(child: child),
+    );
 
     return LargeTitlePage(
       title: _isEditing ? l10n.flightEdit : l10n.flightAdd,
@@ -215,40 +227,44 @@ class _FlightEditorPageState extends State<FlightEditorPage> {
             ]
           : [
               section(
-                CardList(children: [
-                  _AirportRow(
-                    label: l10n.flightFrom,
-                    airport: _origin,
-                    first: true,
-                    onTap: () => _pickAirport(isOrigin: true),
-                  ),
-                  _AirportRow(
-                    label: l10n.flightTo,
-                    airport: _destination,
-                    last: true,
-                    onTap: () => _pickAirport(isOrigin: false),
-                  ),
-                ]),
+                CardList(
+                  children: [
+                    _AirportRow(
+                      label: l10n.flightFrom,
+                      airport: _origin,
+                      first: true,
+                      onTap: () => _pickAirport(isOrigin: true),
+                    ),
+                    _AirportRow(
+                      label: l10n.flightTo,
+                      airport: _destination,
+                      last: true,
+                      onTap: () => _pickAirport(isOrigin: false),
+                    ),
+                  ],
+                ),
               ),
               section(
-                CardList(children: [
-                  _DateTimeRow(
-                    label: l10n.flightDeparts,
-                    hint: l10n.flightDepartsHint,
-                    value: _departureLocal,
-                    airport: _origin,
-                    first: true,
-                    onTap: () => _pickDateTime(isDeparture: true),
-                  ),
-                  _DateTimeRow(
-                    label: l10n.flightArrives,
-                    hint: l10n.flightArrivesHint,
-                    value: _arrivalLocal,
-                    airport: _destination,
-                    last: true,
-                    onTap: () => _pickDateTime(isDeparture: false),
-                  ),
-                ]),
+                CardList(
+                  children: [
+                    _DateTimeRow(
+                      label: l10n.flightDeparts,
+                      hint: l10n.flightDepartsHint,
+                      value: _departureLocal,
+                      airport: _origin,
+                      first: true,
+                      onTap: () => _pickDateTime(isDeparture: true),
+                    ),
+                    _DateTimeRow(
+                      label: l10n.flightArrives,
+                      hint: l10n.flightArrivesHint,
+                      value: _arrivalLocal,
+                      airport: _destination,
+                      last: true,
+                      onTap: () => _pickDateTime(isDeparture: false),
+                    ),
+                  ],
+                ),
               ),
               section(
                 TextField(
@@ -321,8 +337,12 @@ class _RowChevron extends StatelessWidget {
     return SizedBox.square(
       dimension: 36,
       child: Center(
-        child: OutlineIcon(OutlineGlyph.chevronRight,
-            size: 18, color: ShiaColors.of(context).chevron, strokeWidth: 2),
+        child: OutlineIcon(
+          OutlineGlyph.chevronRight,
+          size: 18,
+          color: ShiaColors.of(context).chevron,
+          strokeWidth: 2,
+        ),
       ),
     );
   }
@@ -353,20 +373,24 @@ class _AirportRow extends StatelessWidget {
       last: last,
       minHeight: 64,
       leading: const _GlyphWell(OutlineGlyph.plane),
-      title: Text.rich(TextSpan(children: [
+      title: Text.rich(
         TextSpan(
-          text: '$label  ',
-          style: ShiaText.secondary.copyWith(color: colors.textMuted),
+          children: [
+            TextSpan(
+              text: '$label  ',
+              style: ShiaText.secondary.copyWith(color: colors.textMuted),
+            ),
+            TextSpan(
+              text: airport == null
+                  ? context.l10n.flightChooseAirport
+                  : '${airport.iata} · ${airport.locationLabel}',
+              style: airport == null
+                  ? TextStyle(color: colors.accent, fontWeight: FontWeight.w600)
+                  : const TextStyle(fontWeight: FontWeight.w600),
+            ),
+          ],
         ),
-        TextSpan(
-          text: airport == null
-              ? context.l10n.flightChooseAirport
-              : '${airport.iata} · ${airport.locationLabel}',
-          style: airport == null
-              ? TextStyle(color: colors.accent, fontWeight: FontWeight.w600)
-              : const TextStyle(fontWeight: FontWeight.w600),
-        ),
-      ])),
+      ),
       subtitle: airport == null ? null : Text(airport.name),
       trailing: const _RowChevron(),
       onTap: onTap,
@@ -404,23 +428,29 @@ class _DateTimeRow extends StatelessWidget {
       last: last,
       minHeight: 64,
       leading: const _GlyphWell(OutlineGlyph.clock),
-      title: Text.rich(TextSpan(children: [
+      title: Text.rich(
         TextSpan(
-          text: '$label  ',
-          style: ShiaText.secondary.copyWith(color: colors.textMuted),
+          children: [
+            TextSpan(
+              text: '$label  ',
+              style: ShiaText.secondary.copyWith(color: colors.textMuted),
+            ),
+            TextSpan(
+              text: value == null
+                  ? context.l10n.flightChooseDateTime
+                  : formatWallClock(value),
+              style: value == null
+                  ? TextStyle(color: colors.accent, fontWeight: FontWeight.w600)
+                  : const TextStyle(fontWeight: FontWeight.w600),
+            ),
+          ],
         ),
-        TextSpan(
-          text: value == null
-              ? context.l10n.flightChooseDateTime
-              : formatWallClock(value),
-          style: value == null
-              ? TextStyle(color: colors.accent, fontWeight: FontWeight.w600)
-              : const TextStyle(fontWeight: FontWeight.w600),
-        ),
-      ])),
-      subtitle: Text(airport == null
-          ? hint
-          : '$hint · ${context.l10n.flightAirportTime(airport.iata)}'),
+      ),
+      subtitle: Text(
+        airport == null
+            ? hint
+            : '$hint · ${context.l10n.flightAirportTime(airport.iata)}',
+      ),
       trailing: const _RowChevron(),
       onTap: onTap,
     );

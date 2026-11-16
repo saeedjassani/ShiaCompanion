@@ -30,28 +30,42 @@ class SyncedData {
     // Firestore write only completes once the server acknowledges it.
     unawaited(ActivityStatsStore.instance.pullAndMerge());
     await Future.wait([
-      _guarded('favorites',
-          () => FavoritesManager.instance.loadFavorites(force: force)),
       _guarded(
-          'qaza', () => QazaTrackerManager.instance.loadQaza(force: force)),
+        'favorites',
+        () => FavoritesManager.instance.loadFavorites(force: force),
+      ),
       _guarded(
-          'recitations',
-          () =>
-              RecitationTrackerManager.instance.loadRecitations(force: force)),
-      _guarded('saved verses',
-          () => SavedVersesManager.instance.loadSavedVerses(force: force)),
-      _guarded('bookmarks',
-          () => ZikrBookmarksManager.instance.loadBookmarks(force: force)),
-      _guarded('verse notes',
-          () => VerseNotesManager.instance.loadNotes(force: force)),
+        'qaza',
+        () => QazaTrackerManager.instance.loadQaza(force: force),
+      ),
+      _guarded(
+        'recitations',
+        () => RecitationTrackerManager.instance.loadRecitations(force: force),
+      ),
+      _guarded(
+        'saved verses',
+        () => SavedVersesManager.instance.loadSavedVerses(force: force),
+      ),
+      _guarded(
+        'bookmarks',
+        () => ZikrBookmarksManager.instance.loadBookmarks(force: force),
+      ),
+      _guarded(
+        'verse notes',
+        () => VerseNotesManager.instance.loadNotes(force: force),
+      ),
       _guarded('preferences', PreferencesSyncService.instance.pullOrSeed),
-      _guarded('prayer preferences',
-          PrayerPreferencesSyncService.instance.pullOrSeed),
+      _guarded(
+        'prayer preferences',
+        PrayerPreferencesSyncService.instance.pullOrSeed,
+      ),
     ]);
   }
 
   static Future<void> _guarded(
-      String name, Future<void> Function() load) async {
+    String name,
+    Future<void> Function() load,
+  ) async {
     try {
       await load();
     } catch (error) {

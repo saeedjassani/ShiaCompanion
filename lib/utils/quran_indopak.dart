@@ -66,8 +66,9 @@ class IndoPakQuran {
         // it cannot wrap onto a line of its own. The narrow one, U+202F: this
         // font draws U+00A0 with no width at all, and U+202F almost as wide
         // as an ordinary space.
-        verses.putIfAbsent(surah, () => {})[ayah] =
-            end.isEmpty ? words : '$words\u202F$end';
+        verses.putIfAbsent(surah, () => {})[ayah] = end.isEmpty
+            ? words
+            : '$words\u202F$end';
       }
     }
     return IndoPakQuran._(verses, bismillah);
@@ -81,9 +82,9 @@ class IndoPakQuran {
         .loadString(indoPakAsset)
         .then((raw) => compute(parse, raw))
         .catchError((Object error) {
-      _cached = null;
-      throw error;
-    });
+          _cached = null;
+          throw error;
+        });
   }
 }
 

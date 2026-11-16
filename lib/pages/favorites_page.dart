@@ -13,6 +13,7 @@ import 'package:shia_companion/services/analytics_service.dart';
 import 'package:shia_companion/theme/shia_colors.dart';
 import 'package:shia_companion/widgets/outline_icon.dart';
 import 'package:shia_companion/widgets/page_chrome.dart';
+
 import '../l10n/l10n.dart';
 import '../widgets/arabic_runs.dart';
 import '../widgets/app_toast.dart';
@@ -43,9 +44,9 @@ class _FavoritesPageState extends State<FavoritesPage> {
   }
 
   void _show(_FavoritesView view) => setState(() {
-        _view = view;
-        _editing = false;
-      });
+    _view = view;
+    _editing = false;
+  });
 
   /// A swipe towards the start of the line shows the next list (the one
   /// after it in the switcher), the other way the one before.
@@ -77,8 +78,10 @@ class _FavoritesPageState extends State<FavoritesPage> {
   @override
   Widget build(BuildContext context) {
     return ListenableBuilder(
-      listenable: Listenable.merge(
-          [FavoritesManager.instance, SavedVersesManager.instance]),
+      listenable: Listenable.merge([
+        FavoritesManager.instance,
+        SavedVersesManager.instance,
+      ]),
       builder: (context, _) {
         final favorites = FavoritesManager.instance.favorites;
         final view = _view;
@@ -89,50 +92,56 @@ class _FavoritesPageState extends State<FavoritesPage> {
         // Touch only: a mouse dragging sideways is selecting text. Off while
         // editing, where a drag reorders.
         return GestureDetector(
-            behavior: HitTestBehavior.translucent,
-            supportedDevices: const {
-              PointerDeviceKind.touch,
-              PointerDeviceKind.stylus,
-            },
-            onHorizontalDragEnd: editing ? null : _onSwipe,
-            child: LargeTitlePage(
-              maxWidth: widePageWidth,
-              title: context.l10n.menuFavorites,
-              actions: [
-                if (view == _FavoritesView.zikr && favorites.isNotEmpty)
-                  PageTextAction(
-                    label: editing
-                        ? context.l10n.commonDone
-                        : context.l10n.commonEdit,
-                    semanticsLabel: editing ? null : context.l10n.favoritesEdit,
-                    onPressed: () => setState(() => _editing = !editing),
-                  ),
-              ],
-              slivers: [
-                SliverPadding(
-                  padding: gutter.copyWith(bottom: 14),
-                  sliver: SliverToBoxAdapter(
-                    child: SegmentedSwitcher<_FavoritesView>(
-                      segments: [
-                        Segment(
-                            _FavoritesView.zikr, context.l10n.favoritesTabZikr),
-                        Segment(_FavoritesView.verses,
-                            context.l10n.favoritesTabVerses),
-                      ],
-                      selected: view,
-                      onChanged: _show,
-                    ),
+          behavior: HitTestBehavior.translucent,
+          supportedDevices: const {
+            PointerDeviceKind.touch,
+            PointerDeviceKind.stylus,
+          },
+          onHorizontalDragEnd: editing ? null : _onSwipe,
+          child: LargeTitlePage(
+            maxWidth: widePageWidth,
+            title: context.l10n.menuFavorites,
+            actions: [
+              if (view == _FavoritesView.zikr && favorites.isNotEmpty)
+                PageTextAction(
+                  label: editing
+                      ? context.l10n.commonDone
+                      : context.l10n.commonEdit,
+                  semanticsLabel: editing ? null : context.l10n.favoritesEdit,
+                  onPressed: () => setState(() => _editing = !editing),
+                ),
+            ],
+            slivers: [
+              SliverPadding(
+                padding: gutter.copyWith(bottom: 14),
+                sliver: SliverToBoxAdapter(
+                  child: SegmentedSwitcher<_FavoritesView>(
+                    segments: [
+                      Segment(
+                        _FavoritesView.zikr,
+                        context.l10n.favoritesTabZikr,
+                      ),
+                      Segment(
+                        _FavoritesView.verses,
+                        context.l10n.favoritesTabVerses,
+                      ),
+                    ],
+                    selected: view,
+                    onChanged: _show,
                   ),
                 ),
-                SliverPadding(
-                  padding: gutter,
-                  sliver: view == _FavoritesView.zikr
-                      ? _buildZikrList(favorites, editing)
-                      : _buildVerseList(
-                          SavedVersesManager.instance.state.inMushafOrder),
-                ),
-              ],
-            ));
+              ),
+              SliverPadding(
+                padding: gutter,
+                sliver: view == _FavoritesView.zikr
+                    ? _buildZikrList(favorites, editing)
+                    : _buildVerseList(
+                        SavedVersesManager.instance.state.inMushafOrder,
+                      ),
+              ),
+            ],
+          ),
+        );
       },
     );
   }
@@ -193,8 +202,11 @@ class _FavoritesPageState extends State<FavoritesPage> {
         verse: saved[index],
         first: index == 0,
         last: index == saved.length - 1,
-        onOpen: () => openQuranVerse(context, saved[index].verse,
-            source: ZikrOpenSource.favorites),
+        onOpen: () => openQuranVerse(
+          context,
+          saved[index].verse,
+          source: ZikrOpenSource.favorites,
+        ),
         onRemove: () => SavedVersesManager.instance.unsave(saved[index].verse),
       ),
     );
@@ -223,8 +235,9 @@ class _FavoriteRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = ShiaColors.of(context);
-    final title =
-        isUserAdmin ? '${item.uid} ${item.displayTitle}' : item.displayTitle;
+    final title = isUserAdmin
+        ? '${item.uid} ${item.displayTitle}'
+        : item.displayTitle;
 
     return CardListRow(
       first: first,
@@ -235,8 +248,12 @@ class _FavoriteRow extends StatelessWidget {
               label: context.l10n.favoritesRemove(item.displayTitle),
               onPressed: () => FavoritesManager.instance.toggleFavorite(item),
             )
-          : OutlineIcon(OutlineGlyph.heart,
-              size: 20, color: colors.accent, filled: true),
+          : OutlineIcon(
+              OutlineGlyph.heart,
+              size: 20,
+              color: colors.accent,
+              filled: true,
+            ),
       trailing: editing
           ? ReorderableDragStartListener(
               index: index,
@@ -246,8 +263,10 @@ class _FavoriteRow extends StatelessWidget {
                 child: SizedBox.square(
                   dimension: 44,
                   child: Center(
-                    child: OutlineIcon(OutlineGlyph.dragHandle,
-                        color: colors.chevron),
+                    child: OutlineIcon(
+                      OutlineGlyph.dragHandle,
+                      color: colors.chevron,
+                    ),
                   ),
                 ),
               ),
@@ -255,8 +274,11 @@ class _FavoriteRow extends StatelessWidget {
           : null,
       onTap: editing
           ? null
-          : () => handleUniversalDataClick(context, item,
-              source: ZikrOpenSource.favorites),
+          : () => handleUniversalDataClick(
+              context,
+              item,
+              source: ZikrOpenSource.favorites,
+            ),
     );
   }
 }

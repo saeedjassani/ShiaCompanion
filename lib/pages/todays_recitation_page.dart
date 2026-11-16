@@ -15,7 +15,9 @@ import 'package:shia_companion/widgets/page_chrome.dart';
 import 'package:shia_companion/widgets/zikr_list_row.dart';
 
 import '../constants.dart';
+
 import 'package:shia_companion/services/analytics_service.dart';
+
 import '../l10n/l10n.dart';
 
 /// Today's Recitations (docs/DESIGN_SPEC.md, "Lists"; mockup
@@ -43,7 +45,8 @@ class _TodaysRecitationPageState extends State<TodaysRecitationPage> {
       builder: (context, ready, _) {
         final today = todaysLunarDays();
         final hijri = today.day.hijri;
-        final dates = '${DateFormat('EEEE d MMMM').format(today.day.civilDate)}'
+        final dates =
+            '${DateFormat('EEEE d MMMM').format(today.day.civilDate)}'
             ' · ${localizeDigits('${hijri.hDay}', context.l10n)} '
             '${hijriMonthName(hijri.hMonth, context.l10n).replaceAll(' Al-', ' al-')} '
             '${localizeDigits('${hijri.hYear}', context.l10n)}';
@@ -94,8 +97,9 @@ class _TodaysRecitationPageState extends State<TodaysRecitationPage> {
         SliverPadding(
           padding: gutter.copyWith(bottom: 8),
           sliver: SliverToBoxAdapter(
-            child:
-                GroupLabel(todaysRecitationGroupLabel(group.kind, today, l10n)),
+            child: GroupLabel(
+              todaysRecitationGroupLabel(group.kind, today, l10n),
+            ),
           ),
         ),
         SliverPadding(
@@ -123,17 +127,21 @@ String todaysRecitationGroupLabel(
   AppLocalizations l10n,
 ) {
   String date(LunarDay lunarDay) => l10n.occasionDaysOfMonth(
-        localizeDigits('${lunarDay.hijri.hDay}', l10n),
-        zikrMonthName(lunarDay.hijri.hMonth, l10n),
-      );
+    localizeDigits('${lunarDay.hijri.hDay}', l10n),
+    zikrMonthName(lunarDay.hijri.hMonth, l10n),
+  );
   return switch (kind) {
-    TodaysRecitationKind.night =>
-      l10n.occasionNightsOf(1, date(today.night ?? today.day)),
+    TodaysRecitationKind.night => l10n.occasionNightsOf(
+      1,
+      date(today.night ?? today.day),
+    ),
     TodaysRecitationKind.date => date(today.day),
-    TodaysRecitationKind.month =>
-      l10n.todaysGroupMonth(zikrMonthName(today.day.hijri.hMonth, l10n)),
-    TodaysRecitationKind.weekday =>
-      l10n.todaysGroupWeekday(weekdayName(today.day.weekday)),
+    TodaysRecitationKind.month => l10n.todaysGroupMonth(
+      zikrMonthName(today.day.hijri.hMonth, l10n),
+    ),
+    TodaysRecitationKind.weekday => l10n.todaysGroupWeekday(
+      weekdayName(today.day.weekday),
+    ),
     TodaysRecitationKind.everyDay => l10n.occasionEveryDay,
   };
 }
@@ -200,7 +208,9 @@ void openTodaysRecitation(
   final itemData = UniversalData(entry.uid, entry.title, 0);
   if (isZikrGroup(entry)) {
     pushPageRoute(
-        context, ItemList(entry.getUId().split("~")[1], itemData.displayTitle));
+      context,
+      ItemList(entry.getUId().split("~")[1], itemData.displayTitle),
+    );
     return;
   }
   handleUniversalDataClick(context, itemData, source: source);

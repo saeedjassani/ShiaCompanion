@@ -25,6 +25,9 @@ import '../../l10n/l10n.dart';
 /// "Next surah" / "Previous surah" links use it so reading straight through
 /// does not pile up a back stack, carrying [returnBrowserUri] forward so back
 /// still lands where the chain started.
+///
+/// [onOpened] runs as soon as the reader is on the navigator - for a toast
+/// that belongs to it rather than to the page it was opened from.
 Future<void> openQuranVerse(
   BuildContext context,
   VerseKey verse, {
@@ -32,11 +35,12 @@ Future<void> openQuranVerse(
   String? recitationLabel,
   bool replace = false,
   Uri? returnBrowserUri,
+  VoidCallback? onOpened,
 }) async {
   final info = surahInfoFor(verse.surah);
   if (info == null) return;
 
-  await (replace ? replacePageRoute : pushPageRoute)(
+  final reading = (replace ? replacePageRoute : pushPageRoute)(
     context,
     ZikrPage(
       UidTitleData(info.uid, items[info.uid]?.toString() ?? info.fullTitle),
@@ -46,13 +50,16 @@ Future<void> openQuranVerse(
       returnBrowserUri: returnBrowserUri,
     ),
   );
+  onOpened?.call();
+  await reading;
 }
 
 /// Opens a juz as one continuous reading, optionally at a verse inside it.
 ///
 /// A juz is not a document in the corpus - 28 of the 30 run across two or more
 /// surahs - so it is assembled first and then handed to the reader whole. That
-/// is why this is async where [openQuranVerse] is not.
+/// is why this is async where [openQuranVerse] is not. [onOpened] is as
+/// there.
 Future<void> openQuranJuz(
   BuildContext context,
   int juz, {
@@ -61,11 +68,12 @@ Future<void> openQuranJuz(
   String? recitationLabel,
   bool replace = false,
   Uri? returnBrowserUri,
+  VoidCallback? onOpened,
 }) async {
   final portion = await loadJuzPortion(juz, DefaultAssetBundle.of(context));
   if (portion == null || portion.isEmpty || !context.mounted) return;
 
-  await (replace ? replacePageRoute : pushPageRoute)(
+  final reading = (replace ? replacePageRoute : pushPageRoute)(
     context,
     ZikrPage(
       UidTitleData(quranJuzUid(juz), portion.title),
@@ -76,6 +84,8 @@ Future<void> openQuranJuz(
       returnBrowserUri: returnBrowserUri,
     ),
   );
+  onOpened?.call();
+  await reading;
 }
 
 /// Dua Khatm al-Quran, offered where the Quran ends - after an-Nas and after
@@ -145,8 +155,8 @@ class QuranSequenceFooter extends StatelessWidget {
                       caption: !captionNext
                           ? null
                           : unit == null
-                              ? context.l10n.commonNext
-                              : context.l10n.quranNextUnit(unit!),
+                          ? context.l10n.commonNext
+                          : context.l10n.quranNextUnit(unit!),
                       label: next,
                       isNext: true,
                       onTap: onNext,
@@ -193,8 +203,9 @@ class _SequenceLink extends StatelessWidget {
             if (!isNext) ...[icon, const SizedBox(width: 8)],
             Flexible(
               child: Column(
-                crossAxisAlignment:
-                    isNext ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+                crossAxisAlignment: isNext
+                    ? CrossAxisAlignment.end
+                    : CrossAxisAlignment.start,
                 children: [
                   if (caption != null) ...[
                     Text(

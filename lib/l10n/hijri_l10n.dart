@@ -57,6 +57,7 @@ String formatHijri(
   // package formats the rest.
   const marker = '\u0000';
   return localizeDigits(
-          date.toFormat(pattern.replaceFirst('MMMM', marker)), l10n)
-      .replaceFirst(marker, hijriMonthName(date.hMonth, l10n));
+    date.toFormat(pattern.replaceFirst('MMMM', marker)),
+    l10n,
+  ).replaceFirst(marker, hijriMonthName(date.hMonth, l10n));
 }

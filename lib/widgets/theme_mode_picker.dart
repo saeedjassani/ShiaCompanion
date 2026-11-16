@@ -37,9 +37,11 @@ Future<void> showThemeModePicker(BuildContext context) async {
 
   if (selected == null || selected == current) return;
   await provider.setThemeMode(selected);
-  unawaited(AnalyticsService.feature(
-    'theme_mode_changed',
-    label: 'Theme changed',
-    parameters: {'theme_mode': selected.name},
-  ));
+  unawaited(
+    AnalyticsService.feature(
+      'theme_mode_changed',
+      label: 'Theme changed',
+      parameters: {'theme_mode': selected.name},
+    ),
+  );
 }

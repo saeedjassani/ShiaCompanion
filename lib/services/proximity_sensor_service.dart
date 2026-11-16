@@ -4,10 +4,12 @@ import 'package:flutter/services.dart';
 class ProximitySensorService {
   const ProximitySensorService();
 
-  static const MethodChannel _methodChannel =
-      MethodChannel('shia_companion/proximity_sensor');
-  static const EventChannel _eventChannel =
-      EventChannel('shia_companion/proximity_sensor_events');
+  static const MethodChannel _methodChannel = MethodChannel(
+    'shia_companion/proximity_sensor',
+  );
+  static const EventChannel _eventChannel = EventChannel(
+    'shia_companion/proximity_sensor_events',
+  );
 
   bool get supportsCurrentPlatform {
     if (kIsWeb) return false;

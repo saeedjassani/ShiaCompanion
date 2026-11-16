@@ -86,9 +86,11 @@ class HomeShortcutsStore extends ChangeNotifier {
   @visibleForTesting
   static List<String> normalize(Iterable<String> ids) {
     final seen = <String>{};
-    return List.unmodifiable([
-      for (final id in ids)
-        if (id.trim().isNotEmpty && seen.add(id)) id,
-    ].take(maxShortcuts));
+    return List.unmodifiable(
+      [
+        for (final id in ids)
+          if (id.trim().isNotEmpty && seen.add(id)) id,
+      ].take(maxShortcuts),
+    );
   }
 }

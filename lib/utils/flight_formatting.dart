@@ -8,7 +8,8 @@ String formatClock12(DateTime value) {
   final suffix = value.hour >= 12 ? 'pm' : 'am';
   final hour = ((value.hour + 11) % 12) + 1;
   return localizeClockTime(
-      '$hour:${value.minute.toString().padLeft(2, '0')} $suffix');
+    '$hour:${value.minute.toString().padLeft(2, '0')} $suffix',
+  );
 }
 
 /// `Thu 30 Jul`, in the app language.
@@ -37,8 +38,9 @@ DateTime toZone(DateTime instantUtc, tz.Location location) {
 }
 
 /// `10,766 km` with thousands separators, in the app language.
-String formatDistanceKm(double distanceKm) => L10n.current
-    .distanceKm(NumberFormat.decimalPattern().format(distanceKm.round()));
+String formatDistanceKm(double distanceKm) => L10n.current.distanceKm(
+  NumberFormat.decimalPattern().format(distanceKm.round()),
+);
 
 /// Describes a day offset relative to a reference date, e.g. `+1 day` when a
 /// prayer lands on the calendar day after departure in that time zone.

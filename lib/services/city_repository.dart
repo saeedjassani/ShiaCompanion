@@ -74,8 +74,10 @@ class CityRepository {
         debugPrint('No city names for $language: $e');
       }
     }
-    final (cities, keys) =
-        await compute(_parseAndIndex, (contents: contents, names: names));
+    final (cities, keys) = await compute(_parseAndIndex, (
+      contents: contents,
+      names: names,
+    ));
     // The language changed again while this was parsing.
     if (language != _appLanguage) return;
     _cities = cities;
@@ -93,8 +95,8 @@ class CityRepository {
   }
 
   static (List<City>, List<_SearchKeys>) _parseAndIndex(
-          ({String contents, String? names}) files) =>
-      _index(City.parseDatabase(files.contents, names: files.names));
+    ({String contents, String? names}) files,
+  ) => _index(City.parseDatabase(files.contents, names: files.names));
 
   static (List<City>, List<_SearchKeys>) _index(List<City> cities) {
     // Biggest first: ties in search, and the time-zone guess, both rely on
@@ -131,8 +133,9 @@ class CityRepository {
       final key = keys[i];
       final city = cities[i];
       var nameRank = _nameRank(key.name, folded);
-      final englishRank =
-          key.englishName.isEmpty ? null : _nameRank(key.englishName, folded);
+      final englishRank = key.englishName.isEmpty
+          ? null
+          : _nameRank(key.englishName, folded);
       if (englishRank != null && (nameRank == null || englishRank < nameRank)) {
         nameRank = englishRank;
       }
@@ -261,8 +264,10 @@ class CityRepository {
     City? best;
     var bestDistance = double.infinity;
     for (final city in cities) {
-      final distance =
-          greatCircleDistanceKm(here, GeoPoint(city.latitude, city.longitude));
+      final distance = greatCircleDistanceKm(
+        here,
+        GeoPoint(city.latitude, city.longitude),
+      );
       // Strictly closer: index order is population order, so a tie keeps
       // the bigger city, found first.
       if (distance < bestDistance) {
@@ -287,13 +292,13 @@ class CityRepository {
 
 class _SearchKeys {
   _SearchKeys(City city)
-      : name = city.englishName.isEmpty
-            ? _englishKey(city.asciiName, city.name)
-            : foldForSearch(city.name),
-        englishName = city.englishName.isEmpty
-            ? ''
-            : _englishKey(city.asciiName, city.englishName),
-        aliases = [for (final alias in city.aliases) foldForSearch(alias)];
+    : name = city.englishName.isEmpty
+          ? _englishKey(city.asciiName, city.name)
+          : foldForSearch(city.name),
+      englishName = city.englishName.isEmpty
+          ? ''
+          : _englishKey(city.asciiName, city.englishName),
+      aliases = [for (final alias in city.aliases) foldForSearch(alias)];
 
   static String _englishKey(String asciiName, String name) =>
       foldForSearch(asciiName.isNotEmpty ? asciiName : name);
@@ -418,5 +423,6 @@ const String _dropped = "'’‘ʻʼ`\u200C";
 /// Arabic vowel marks, hamza (as the press often leaves it off: كربلاء,
 /// كربلا) and tatweel.
 final RegExp _arabicMarks = RegExp('[\u064B-\u0652\u0670\u0640\u0621]');
-final RegExp _kept =
-    RegExp('^[a-z0-9\u0620-\u064A\u066E-\u06D3\u06D5\u0A80-\u0AFF]+\$');
+final RegExp _kept = RegExp(
+  '^[a-z0-9\u0620-\u064A\u066E-\u06D3\u06D5\u0A80-\u0AFF]+\$',
+);

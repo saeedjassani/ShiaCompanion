@@ -62,9 +62,7 @@ class HomeGlyph extends StatelessWidget {
     return SizedBox(
       width: size,
       height: size,
-      child: CustomPaint(
-        painter: _HomeGlyphPainter(type, color),
-      ),
+      child: CustomPaint(painter: _HomeGlyphPainter(type, color)),
     );
   }
 }
@@ -136,12 +134,7 @@ class _HomeGlyphPainter extends CustomPainter {
   }
 
   /// 1. NAMAZ: Muslim worshipper seated in prayer posture (Tashahhud / Jalsah).
-  void _paintNamaz(
-    Canvas canvas,
-    Paint stroke,
-    Paint detail,
-    Paint fill,
-  ) {
+  void _paintNamaz(Canvas canvas, Paint stroke, Paint detail, Paint fill) {
     final path = Path()
       ..fillType = PathFillType.evenOdd
       // Subpath 0
@@ -352,12 +345,7 @@ class _HomeGlyphPainter extends CustomPainter {
   }
 
   /// 2. DUAS: Cupped hands raised in supplication (Dua / Qunoot).
-  void _paintDuas(
-    Canvas canvas,
-    Paint stroke,
-    Paint detail,
-    Paint fill,
-  ) {
+  void _paintDuas(Canvas canvas, Paint stroke, Paint detail, Paint fill) {
     final handStroke = Paint()
       ..color = color
       ..style = PaintingStyle.stroke
@@ -423,12 +411,7 @@ class _HomeGlyphPainter extends CustomPainter {
   }
 
   /// 3. SURAHS: The Holy Quran resting on a traditional wooden Rihal stand.
-  void _paintSurahs(
-    Canvas canvas,
-    Paint stroke,
-    Paint detail,
-    Paint fill,
-  ) {
+  void _paintSurahs(Canvas canvas, Paint stroke, Paint detail, Paint fill) {
     // Rear crossing legs
     final rearLegs = Path()
       ..moveTo(6.4, 14.2)
@@ -475,12 +458,7 @@ class _HomeGlyphPainter extends CustomPainter {
   }
 
   /// 4. TASBEEH: Loop of prayer beads with an Imam bead and tassel.
-  void _paintTasbeeh(
-    Canvas canvas,
-    Paint stroke,
-    Paint detail,
-    Paint fill,
-  ) {
+  void _paintTasbeeh(Canvas canvas, Paint stroke, Paint detail, Paint fill) {
     const cx = 12.0;
     const cy = 8.5;
     const rx = 6.2;
@@ -488,8 +466,13 @@ class _HomeGlyphPainter extends CustomPainter {
 
     // Draw string loop
     final loop = Path()
-      ..addOval(Rect.fromCenter(
-          center: const Offset(cx, cy), width: rx * 2, height: ry * 2));
+      ..addOval(
+        Rect.fromCenter(
+          center: const Offset(cx, cy),
+          width: rx * 2,
+          height: ry * 2,
+        ),
+      );
     canvas.drawPath(loop, detail);
 
     // 10 beads around the loop
@@ -520,12 +503,7 @@ class _HomeGlyphPainter extends CustomPainter {
   }
 
   /// 5. AAMAAL: Traditional Islamic Lantern (Fanoos) for blessed night devotions.
-  void _paintAamaal(
-    Canvas canvas,
-    Paint stroke,
-    Paint detail,
-    Paint fill,
-  ) {
+  void _paintAamaal(Canvas canvas, Paint stroke, Paint detail, Paint fill) {
     // Hanging ring at top
     canvas.drawCircle(const Offset(12, 3.2), 1.6, detail);
 
@@ -568,12 +546,7 @@ class _HomeGlyphPainter extends CustomPainter {
   }
 
   /// 6. MUNAJAAT: Material Symbols moon_stars (night crescent with twin celestial stars).
-  void _paintMunajaat(
-    Canvas canvas,
-    Paint stroke,
-    Paint detail,
-    Paint fill,
-  ) {
+  void _paintMunajaat(Canvas canvas, Paint stroke, Paint detail, Paint fill) {
     final path = Path()
       ..fillType = PathFillType.evenOdd
       // Star 1 (upper diamond)
@@ -621,12 +594,7 @@ class _HomeGlyphPainter extends CustomPainter {
   }
 
   /// 7. RAKAAT COUNTER: Physical Sajdagah / Rakaat counter prayer device with empty readout window and sajdah Turbah.
-  void _paintRakaat(
-    Canvas canvas,
-    Paint stroke,
-    Paint detail,
-    Paint fill,
-  ) {
+  void _paintRakaat(Canvas canvas, Paint stroke, Paint detail, Paint fill) {
     // Outer pointed arch casing with subtle saddle-curve base
     final casing = Path()
       ..moveTo(12.0, 1.6)
@@ -663,12 +631,7 @@ class _HomeGlyphPainter extends CustomPainter {
   /// 10. ZIYARAAT: The Holy Shrine of Ahlulbayt: an onion dome over the shrine
   /// hall with its arched door, twin minarets, and the Alam (flag of Karbala)
   /// on the dome's pinnacle.
-  void _paintZiyaraat(
-    Canvas canvas,
-    Paint stroke,
-    Paint detail,
-    Paint fill,
-  ) {
+  void _paintZiyaraat(Canvas canvas, Paint stroke, Paint detail, Paint fill) {
     // Ground line
     canvas.drawLine(const Offset(1.8, 21.0), const Offset(22.2, 21.0), stroke);
 
@@ -732,12 +695,7 @@ class _HomeGlyphPainter extends CustomPainter {
   }
 
   /// 8. TAQEEBAT: Traditional Sajadah (prayer rug) with inner Mihrab arch.
-  void _paintTaqeebat(
-    Canvas canvas,
-    Paint stroke,
-    Paint detail,
-    Paint fill,
-  ) {
+  void _paintTaqeebat(Canvas canvas, Paint stroke, Paint detail, Paint fill) {
     final rugPaint = Paint()
       ..color = stroke.color
       ..style = PaintingStyle.stroke
@@ -767,7 +725,10 @@ class _HomeGlyphPainter extends CustomPainter {
 
     // Bottom border divider line
     canvas.drawLine(
-        const Offset(5.5, 20.4), const Offset(18.5, 20.4), divPaint);
+      const Offset(5.5, 20.4),
+      const Offset(18.5, 20.4),
+      divPaint,
+    );
 
     // Inner Mihrab arch shape
     final arch = Path()
@@ -862,12 +823,7 @@ class _HomeGlyphPainter extends CustomPainter {
   }
 
   /// 11. LIBRARY: Three library volumes on a shelf plinth with the right tome resting against the centerpiece.
-  void _paintLibrary(
-    Canvas canvas,
-    Paint stroke,
-    Paint detail,
-    Paint fill,
-  ) {
+  void _paintLibrary(Canvas canvas, Paint stroke, Paint detail, Paint fill) {
     // Shelf baseline plinth
     canvas.drawLine(const Offset(2.2, 21.0), const Offset(21.8, 21.0), stroke);
 
@@ -902,20 +858,21 @@ class _HomeGlyphPainter extends CustomPainter {
     );
     canvas.drawRRect(book3, stroke);
     canvas.drawLine(
-        const Offset(pivotX, 10.0), const Offset(pivotX + 4.0, 10.0), detail);
+      const Offset(pivotX, 10.0),
+      const Offset(pivotX + 4.0, 10.0),
+      detail,
+    );
     canvas.drawLine(
-        const Offset(pivotX, 17.6), const Offset(pivotX + 4.0, 17.6), detail);
+      const Offset(pivotX, 17.6),
+      const Offset(pivotX + 4.0, 17.6),
+      detail,
+    );
 
     canvas.restore();
   }
 
   /// 12. BAAQEYAAT AS SAALEHAAT: Classical leather-bound volume with ornate spine, cover medallion, and dangling silk ribbon bookmark.
-  void _paintBaqeyaat(
-    Canvas canvas,
-    Paint stroke,
-    Paint detail,
-    Paint fill,
-  ) {
+  void _paintBaqeyaat(Canvas canvas, Paint stroke, Paint detail, Paint fill) {
     final bookStroke = Paint()
       ..color = color
       ..style = PaintingStyle.stroke
@@ -946,14 +903,23 @@ class _HomeGlyphPainter extends CustomPainter {
 
     // Spine divider on the left
     canvas.drawLine(
-        const Offset(7.6, 3.2), const Offset(7.6, 20.8), bookStroke);
+      const Offset(7.6, 3.2),
+      const Offset(7.6, 20.8),
+      bookStroke,
+    );
 
     // Three spine embossed raised bands
     canvas.drawLine(const Offset(4.5, 6.8), const Offset(7.6, 6.8), bookDetail);
     canvas.drawLine(
-        const Offset(4.5, 12.0), const Offset(7.6, 12.0), bookDetail);
+      const Offset(4.5, 12.0),
+      const Offset(7.6, 12.0),
+      bookDetail,
+    );
     canvas.drawLine(
-        const Offset(4.5, 17.2), const Offset(7.6, 17.2), bookDetail);
+      const Offset(4.5, 17.2),
+      const Offset(7.6, 17.2),
+      bookDetail,
+    );
 
     // Inner decorative border frame on the cover
     final innerFrame = RRect.fromRectAndRadius(

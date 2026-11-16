@@ -127,8 +127,11 @@ class _GoToVersePickerState extends State<GoToVersePicker> {
               width: 40,
               height: 5,
               decoration: BoxDecoration(
-                color: Color.lerp(ShiaColors.of(context).line,
-                    ShiaColors.of(context).chevron, 0.25),
+                color: Color.lerp(
+                  ShiaColors.of(context).line,
+                  ShiaColors.of(context).chevron,
+                  0.25,
+                ),
                 borderRadius: BorderRadius.circular(3),
               ),
             ),
@@ -240,7 +243,8 @@ class _GoToVersePickerState extends State<GoToVersePicker> {
                 itemBuilder: (context, index) {
                   final surah = _surahs[GoToVersePicker.quickPicks[index] - 1];
                   return ChoicePill(
-                    label: '${localizeDigits('${surah.number}')} '
+                    label:
+                        '${localizeDigits('${surah.number}')} '
                         '${surah.displayName}',
                     onTap: () => _finish(VerseKey(surah.number)),
                   );
@@ -262,7 +266,11 @@ class _GoToVersePickerState extends State<GoToVersePicker> {
                 )
               : ListView.builder(
                   padding: EdgeInsets.fromLTRB(
-                      16, 0, 16, 16 + MediaQuery.paddingOf(context).bottom),
+                    16,
+                    0,
+                    16,
+                    16 + MediaQuery.paddingOf(context).bottom,
+                  ),
                   itemCount: matches.length + (typedVerse == null ? 0 : 1),
                   itemBuilder: (context, index) {
                     if (typedVerse != null) {
@@ -337,10 +345,13 @@ class _GoToVersePickerState extends State<GoToVersePicker> {
               minimumSize: const Size.fromHeight(46),
               foregroundColor: colors.text,
               side: BorderSide(
-                  color: Color.lerp(colors.line, colors.chevron, 0.25)!),
+                color: Color.lerp(colors.line, colors.chevron, 0.25)!,
+              ),
               shape: const StadiumBorder(),
-              textStyle: buttonTextStyle(context, ShiaText.body)
-                  .copyWith(fontSize: 16, fontWeight: FontWeight.w600),
+              textStyle: buttonTextStyle(
+                context,
+                ShiaText.body,
+              ).copyWith(fontSize: 16, fontWeight: FontWeight.w600),
             ),
             child: Text(context.l10n.goToVerseStartOfSurah),
           ),
@@ -374,8 +385,10 @@ class _GoToVersePickerState extends State<GoToVersePicker> {
           child: LayoutBuilder(
             builder: (context, constraints) {
               // Six across on a phone, as many 56 px columns as fit wider.
-              final columns =
-                  math.max(6, ((constraints.maxWidth - 32 + 8) / 64).floor());
+              final columns = math.max(
+                6,
+                ((constraints.maxWidth - 32 + 8) / 64).floor(),
+              );
               return GridView.builder(
                 padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
                 gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
@@ -408,14 +421,18 @@ class _GoToVersePickerState extends State<GoToVersePicker> {
               backgroundColor: colors.accent,
               foregroundColor: colors.onAccent,
               shape: const StadiumBorder(),
-              textStyle: buttonTextStyle(context, ShiaText.body)
-                  .copyWith(fontWeight: FontWeight.w700),
+              textStyle: buttonTextStyle(
+                context,
+                ShiaText.body,
+              ).copyWith(fontWeight: FontWeight.w700),
             ),
             child: Text(
               verse == null
                   ? context.l10n.pickerChooseVerse
-                  : context.l10n.goToVerseOpen(surah.displayName,
-                      localizeDigits('${surah.number}:$verse')),
+                  : context.l10n.goToVerseOpen(
+                      surah.displayName,
+                      localizeDigits('${surah.number}:$verse'),
+                    ),
               textAlign: TextAlign.center,
             ),
           ),
@@ -466,10 +483,16 @@ class _WellButton extends StatelessWidget {
                 width: 40,
                 height: 40,
                 alignment: Alignment.center,
-                decoration:
-                    BoxDecoration(color: colors.well, shape: BoxShape.circle),
-                child: OutlineIcon(glyph,
-                    size: 20, color: colors.accent, strokeWidth: 2),
+                decoration: BoxDecoration(
+                  color: colors.well,
+                  shape: BoxShape.circle,
+                ),
+                child: OutlineIcon(
+                  glyph,
+                  size: 20,
+                  color: colors.accent,
+                  strokeWidth: 2,
+                ),
               ),
             ),
           ),
@@ -504,8 +527,12 @@ class _SearchField extends StatelessWidget {
       ),
       child: Row(
         children: [
-          OutlineIcon(OutlineGlyph.search,
-              size: 20, color: colors.textMuted, strokeWidth: 2),
+          OutlineIcon(
+            OutlineGlyph.search,
+            size: 20,
+            color: colors.textMuted,
+            strokeWidth: 2,
+          ),
           const SizedBox(width: 8),
           Expanded(
             child: TextField(
@@ -567,16 +594,18 @@ class _SurahRow extends StatelessWidget {
                       surah.displayName,
                       style: ShiaText.body.copyWith(
                         color: colors.text,
-                        fontWeight:
-                            selected ? FontWeight.w600 : FontWeight.w400,
+                        fontWeight: selected
+                            ? FontWeight.w600
+                            : FontWeight.w400,
                       ),
                     ),
                     Text(
                       context.l10n.quranVerseCount(surah.ayahCount),
                       style: ShiaText.secondary.copyWith(
-                          fontSize: 14,
-                          height: 18 / 14,
-                          color: colors.textMuted),
+                        fontSize: 14,
+                        height: 18 / 14,
+                        color: colors.textMuted,
+                      ),
                     ),
                   ],
                 ),
@@ -646,18 +675,28 @@ class _TypedVerseRow extends StatelessWidget {
               width: 36,
               height: 36,
               alignment: Alignment.center,
-              decoration:
-                  BoxDecoration(color: colors.accent, shape: BoxShape.circle),
-              child: OutlineIcon(OutlineGlyph.chevronRight,
-                  size: 20, color: colors.onAccent, strokeWidth: 2.2),
+              decoration: BoxDecoration(
+                color: colors.accent,
+                shape: BoxShape.circle,
+              ),
+              child: OutlineIcon(
+                OutlineGlyph.chevronRight,
+                size: 20,
+                color: colors.onAccent,
+                strokeWidth: 2.2,
+              ),
             ),
             const SizedBox(width: 12),
             Expanded(
               child: Text(
-                context.l10n
-                    .goToVerseJump(surah.displayName, localizeDigits('$verse')),
+                context.l10n.goToVerseJump(
+                  surah.displayName,
+                  localizeDigits('$verse'),
+                ),
                 style: ShiaText.body.copyWith(
-                    color: colors.accent, fontWeight: FontWeight.w600),
+                  color: colors.accent,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
             ),
           ],

@@ -27,27 +27,27 @@ class AzaanOption {
   });
 
   String get name => switch (id) {
-        'takbir' => L10n.current.azaanTakbirName,
-        'azaan' => L10n.current.azaanFullName,
-        'system_default' => L10n.current.azaanSystemDefaultName,
-        'silent' => L10n.current.azaanSilentName,
-        'custom' => L10n.current.azaanCustomName,
-        _ => englishName,
-      };
+    'takbir' => L10n.current.azaanTakbirName,
+    'azaan' => L10n.current.azaanFullName,
+    'system_default' => L10n.current.azaanSystemDefaultName,
+    'silent' => L10n.current.azaanSilentName,
+    'custom' => L10n.current.azaanCustomName,
+    _ => englishName,
+  };
 
   String get description => switch (id) {
-        'takbir' => L10n.current.azaanTakbirDescription,
-        'azaan' => L10n.current.azaanFullDescription,
-        'system_default' => L10n.current.azaanSystemDefaultDescription,
-        'silent' => L10n.current.azaanSilentDescription,
-        'custom' => L10n.current.azaanCustomDescription,
-        _ => englishDescription,
-      };
+    'takbir' => L10n.current.azaanTakbirDescription,
+    'azaan' => L10n.current.azaanFullDescription,
+    'system_default' => L10n.current.azaanSystemDefaultDescription,
+    'silent' => L10n.current.azaanSilentDescription,
+    'custom' => L10n.current.azaanCustomDescription,
+    _ => englishDescription,
+  };
 
   String? get iosDescription => switch (id) {
-        'azaan' => L10n.current.azaanFullIosDescription,
-        _ => englishIosDescription,
-      };
+    'azaan' => L10n.current.azaanFullIosDescription,
+    _ => englishIosDescription,
+  };
 
   String descriptionFor({required bool isIOS}) =>
       isIOS ? iosDescription ?? description : description;
@@ -77,7 +77,8 @@ class AzaanOptions {
     id: 'azaan',
     englishName: 'Full Azan',
     englishDescription: 'Full azan, played automatically',
-    englishIosDescription: 'The notification plays the Takbir; '
+    englishIosDescription:
+        'The notification plays the Takbir; '
         'tap it to hear the full azan',
   );
 

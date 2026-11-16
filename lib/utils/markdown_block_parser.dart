@@ -103,8 +103,9 @@ class MarkdownBlockParser {
     if (headingMatch != null) {
       final level = headingMatch.group(1)!.length;
       final stripped = text.replaceFirst(_headingPattern, '');
-      final blockType = MarkdownBlockType.values
-          .firstWhere((t) => t.name == 'heading$level');
+      final blockType = MarkdownBlockType.values.firstWhere(
+        (t) => t.name == 'heading$level',
+      );
       return MarkdownBlock(
         rawText: text,
         strippedText: _collapseSoftLineBreaks(stripped),
@@ -221,5 +222,4 @@ class MarkdownBlockParser {
     }
     return TextDirection.ltr;
   }
-
 }

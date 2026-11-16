@@ -5,9 +5,10 @@ import 'prayer_time_entries.dart';
 import 'zikr_occasions.dart';
 
 /// A clock time the way the prayer card shows one: "7:00 am".
-String clockLabel(int hour, int minute) =>
-    localizeClockTime(formatPrayerDateTime12(DateTime(2000, 1, 1, hour, minute))
-        .replaceFirst(RegExp(r'^0(?=\d)'), ''));
+String clockLabel(int hour, int minute) => localizeClockTime(
+  formatPrayerDateTime12(DateTime(2000, 1, 1, hour, minute))
+      .replaceFirst(RegExp(r'^0(?=\d)'), ''),
+);
 
 /// [days] (`DateTime.monday` 1 ... `DateTime.sunday` 7) starting from
 /// [firstDayOfWeek] (0 = Sunday, as `MaterialLocalizations` counts).
@@ -39,8 +40,8 @@ String reminderDaysLabel(
 /// Maghrib".
 String reminderWhenLabel(ZikrReminder reminder) =>
     reminder.mode == ZikrReminderTimeMode.fixedTime
-        ? clockLabel(reminder.hour, reminder.minute)
-        : reminder.timeLabel;
+    ? clockLabel(reminder.hour, reminder.minute)
+    : reminder.timeLabel;
 
 /// What a reminder will do, in a sentence: "Thursdays, 15 minutes after
 /// Maghrib (about 6:56 pm this week)". The time a prayer-relative one will
@@ -56,19 +57,25 @@ String reminderSummary({
   required int firstDayOfWeek,
   DateTime? now,
 }) {
-  final daysText =
-      reminderDaysLabel(days, l10n, firstDayOfWeek: firstDayOfWeek, long: true);
+  final daysText = reminderDaysLabel(
+    days,
+    l10n,
+    firstDayOfWeek: firstDayOfWeek,
+    long: true,
+  );
   if (mode == ZikrReminderTimeMode.fixedTime) {
     return l10n.reminderSummary(
-        daysText, l10n.reminderAtTime(clockLabel(hour, minute)));
+      daysText,
+      l10n.reminderAtTime(clockLabel(hour, minute)),
+    );
   }
 
   final prayer = localizedPrayerName(prayerName, l10n);
   final when = offsetMinutes == 0
       ? l10n.reminderAtPrayerLong(prayer)
       : offsetMinutes > 0
-          ? l10n.reminderMinutesAfterLong(offsetMinutes, prayer)
-          : l10n.reminderMinutesBeforeLong(-offsetMinutes, prayer);
+      ? l10n.reminderMinutesAfterLong(offsetMinutes, prayer)
+      : l10n.reminderMinutesBeforeLong(-offsetMinutes, prayer);
   final summary = l10n.reminderSummary(daysText, when);
   final next = _nextPrayerRelativeTime(
     days: days,
@@ -78,7 +85,9 @@ String reminderSummary({
   );
   if (next == null) return summary;
   return l10n.reminderAboutThisWeek(
-      summary, clockLabel(next.hour, next.minute));
+    summary,
+    clockLabel(next.hour, next.minute),
+  );
 }
 
 /// The next time a prayer-relative reminder would fire, within a week; null

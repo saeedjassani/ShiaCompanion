@@ -30,9 +30,10 @@ String _monthShort(HijriCalendar date) => hijriMonthShortName(date.hMonth);
 /// The hijri date the Calendar page shows for [day], moon-sighting
 /// adjustment included. Both go through [hijriForCivilDate], so the widget
 /// and the page can never disagree about what day it is.
-HijriCalendar hijriDateForCalendarDay(DateTime day,
-        {required int offsetDays}) =>
-    hijriForCivilDate(day, offsetDays: offsetDays);
+HijriCalendar hijriDateForCalendarDay(
+  DateTime day, {
+  required int offsetDays,
+}) => hijriForCivilDate(day, offsetDays: offsetDays);
 
 /// The key events.json files an event under: "MM-DD", the same fixed-date
 /// format as a zikr's `day` pattern (see lunar_date_matcher.dart).
@@ -136,8 +137,9 @@ String _cleanEventLine(String line) {
 }
 
 /// " – (57 A.H.)", " - (36-37 A.H.)", " - 9 A.H." at the end of a line.
-final RegExp _trailingHijriYear =
-    RegExp(r'\s*[-–]\s*(?:\([^()]*A\.H\.?\)|[^()\-–]*A\.H\.?)\s*$');
+final RegExp _trailingHijriYear = RegExp(
+  r'\s*[-–]\s*(?:\([^()]*A\.H\.?\)|[^()\-–]*A\.H\.?)\s*$',
+);
 
 /// " - (30 Aamul Feel)", " – (53 years before Hijra)".
 final RegExp _trailingParenthetical = RegExp(r'\s*[-–]\s*\([^()]*\)\s*$');
@@ -152,7 +154,7 @@ final List<(RegExp, String)> _kindPrefixes = [
   (RegExp(r'^(?:Birth|Wiladat)\s+of\s+|^Wiladat\s+e\s+'), 'Birth'),
   (
     RegExp(r'^Martyrdom(?:\s+of\s+|:\s*)|^Shahadate?\s+(?:of\s+)?'),
-    'Martyrdom'
+    'Martyrdom',
   ),
   (RegExp(r'^(?:Death|Wafat)\s+of\s+'), 'Death'),
 ];
@@ -235,9 +237,11 @@ List<Map<String, Object>> buildUpcomingCalendarWidgetEvents({
 }) {
   final startOfToday = DateTime(now.year, now.month, now.day);
   final upcoming = <Map<String, Object>>[];
-  for (var dayOffset = 0;
-      dayOffset < horizonDays && upcoming.length < limit;
-      dayOffset++) {
+  for (
+    var dayOffset = 0;
+    dayOffset < horizonDays && upcoming.length < limit;
+    dayOffset++
+  ) {
     final date = calendarDayFrom(startOfToday, dayOffset);
     final hijri = hijriDateForCalendarDay(date, offsetDays: offsetDays);
     final event = _eventFor(events, hijri);

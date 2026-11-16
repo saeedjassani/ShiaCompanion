@@ -222,14 +222,17 @@ Future<QuranTextIndex> loadQuranTextIndex(AssetBundle bundle) {
   final cached = _cached;
   if (cached != null) return Future.value(cached);
 
-  return _inFlight ??= _build(bundle).then((index) {
-    _cached = index;
-    _inFlight = null;
-    return index;
-  }, onError: (Object error, StackTrace stack) {
-    _inFlight = null;
-    throw error;
-  });
+  return _inFlight ??= _build(bundle).then(
+    (index) {
+      _cached = index;
+      _inFlight = null;
+      return index;
+    },
+    onError: (Object error, StackTrace stack) {
+      _inFlight = null;
+      throw error;
+    },
+  );
 }
 
 /// Starts the build before anything asks for it, ignoring the result.
@@ -294,14 +297,17 @@ Future<Map<int, String>> _loadDocuments(AssetBundle bundle) async {
 
   for (var start = 0; start < surahs.length; start += _loadBatchSize) {
     final batch = surahs.skip(start).take(_loadBatchSize);
-    await Future.wait(batch.map((surah) async {
-      try {
-        documents[surah] =
-            await bundle.loadString('assets/zikr/${uids[surah]}');
-      } catch (error) {
-        debugPrint('QuranTextIndex: could not load ${uids[surah]}: $error');
-      }
-    }));
+    await Future.wait(
+      batch.map((surah) async {
+        try {
+          documents[surah] = await bundle.loadString(
+            'assets/zikr/${uids[surah]}',
+          );
+        } catch (error) {
+          debugPrint('QuranTextIndex: could not load ${uids[surah]}: $error');
+        }
+      }),
+    );
   }
 
   return documents;
@@ -374,12 +380,14 @@ List<IndexedVerse> _indexOneDocument(int surah, String raw) {
     final tokens = quranTokens(arabic);
     if (tokens.isEmpty) continue;
 
-    verses.add(IndexedVerse(
-      verse: verse,
-      arabic: arabic,
-      translation: _translationIn(content, span),
-      tokens: tokens,
-    ));
+    verses.add(
+      IndexedVerse(
+        verse: verse,
+        arabic: arabic,
+        translation: _translationIn(content, span),
+        tokens: tokens,
+      ),
+    );
   }
 
   return verses;

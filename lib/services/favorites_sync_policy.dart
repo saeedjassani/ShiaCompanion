@@ -40,8 +40,8 @@ FavoritesSyncDecision resolveSignedInFavorites({
       visibleFavorites: cachedFavorites.isNotEmpty
           ? cachedFavorites
           : shouldImportGuestFavorites
-              ? guestFavorites
-              : const [],
+          ? guestFavorites
+          : const [],
     );
   }
 
@@ -62,10 +62,7 @@ FavoritesSyncDecision resolveSignedInFavorites({
       ? _deduplicate(guestFavorites)
       : const <UniversalData>[];
   return FavoritesSyncDecision(
-    visibleFavorites: _deduplicate([
-      ...remoteFavorites,
-      ...guestImport,
-    ]),
+    visibleFavorites: _deduplicate([...remoteFavorites, ...guestImport]),
     guestFavoritesToImport: guestImport,
     canCleanUpLegacyData: true,
   );
@@ -94,10 +91,7 @@ class PendingFavoriteOrder {
 }
 
 String encodePendingFavoriteOrder(PendingFavoriteOrder order) {
-  return jsonEncode({
-    'version': order.version,
-    'keys': order.orderedKeys,
-  });
+  return jsonEncode({'version': order.version, 'keys': order.orderedKeys});
 }
 
 /// Returns null for anything that cannot be read back as an ordering, so a
@@ -154,15 +148,19 @@ List<UniversalData> applyFavoriteOrder(
   if (ranks.isEmpty) return entries;
 
   final unrankedOffset = ranks.length;
-  final decorated = [
-    for (var index = 0; index < entries.length; index++)
-      (
-        rank: ranks[entries[index].favoriteKey] ?? unrankedOffset + index,
-        index: index,
-        favorite: entries[index],
-      ),
-  ]..sort((a, b) =>
-      a.rank != b.rank ? a.rank.compareTo(b.rank) : a.index.compareTo(b.index));
+  final decorated =
+      [
+        for (var index = 0; index < entries.length; index++)
+          (
+            rank: ranks[entries[index].favoriteKey] ?? unrankedOffset + index,
+            index: index,
+            favorite: entries[index],
+          ),
+      ]..sort(
+        (a, b) => a.rank != b.rank
+            ? a.rank.compareTo(b.rank)
+            : a.index.compareTo(b.index),
+      );
 
   return [for (final entry in decorated) entry.favorite];
 }

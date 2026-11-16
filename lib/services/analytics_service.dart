@@ -67,10 +67,12 @@ class AnalyticsService {
       await WidgetsBinding.instance.endOfFrame;
       await Future<void>.delayed(const Duration(seconds: 5));
     }
-    await _guard(() => FirebaseAnalytics.instance.logScreenView(
-          screenName: screenName,
-          screenClass: screenName,
-        ));
+    await _guard(
+      () => FirebaseAnalytics.instance.logScreenView(
+        screenName: screenName,
+        screenClass: screenName,
+      ),
+    );
     _count(metricScreen, screenName, label: screenName);
   }
 
@@ -95,23 +97,30 @@ class AnalyticsService {
     if (canonicalUid.isEmpty) return;
     title = _zikrTitle(canonicalUid, title);
 
-    await _guard(() => FirebaseAnalytics.instance.logEvent(
-          name: 'zikr_view',
-          parameters: {
-            'zikr_uid': canonicalUid,
-            'zikr_title': title,
-            'source': source,
-          },
-        ));
+    await _guard(
+      () => FirebaseAnalytics.instance.logEvent(
+        name: 'zikr_view',
+        parameters: {
+          'zikr_uid': canonicalUid,
+          'zikr_title': title,
+          'source': source,
+        },
+      ),
+    );
     // select_content stays because GA4 gives it a built-in report, and it is
     // free now that it fires from one place with a stable id.
-    await _guard(() => FirebaseAnalytics.instance.logSelectContent(
-          contentType: 'zikr',
-          itemId: canonicalUid,
-        ));
+    await _guard(
+      () => FirebaseAnalytics.instance.logSelectContent(
+        contentType: 'zikr',
+        itemId: canonicalUid,
+      ),
+    );
     _count(metricZikr, canonicalUid, label: title);
-    _count(metricFeature, 'zikr_source_$source',
-        label: _sourceLabels[source] ?? 'Zikr opened via $source');
+    _count(
+      metricFeature,
+      'zikr_source_$source',
+      label: _sourceLabels[source] ?? 'Zikr opened via $source',
+    );
   }
 
   /// Dashboard names for the [ZikrOpenSource] ids.
@@ -126,7 +135,8 @@ class AnalyticsService {
     ZikrOpenSource.library: 'Zikr opened from the library',
     ZikrOpenSource.todaysRecitation: "Zikr opened from today's recitation",
     ZikrOpenSource.liveStreaming: 'Zikr opened from live streaming',
-    ZikrOpenSource.deepLink: 'Zikr opened from a shared link (from outside '
+    ZikrOpenSource.deepLink:
+        'Zikr opened from a shared link (from outside '
         'the app)',
     ZikrOpenSource.zikrLink: 'Zikr opened from a link inside another zikr',
     ZikrOpenSource.ziyaratGuide: 'Zikr opened from the Ziyarat Guide',
@@ -159,10 +169,12 @@ class AnalyticsService {
     if (canonicalUid.isEmpty) return;
     title = _zikrTitle(canonicalUid, title);
 
-    await _guard(() => FirebaseAnalytics.instance.logEvent(
-          name: 'zikr_completed',
-          parameters: {'zikr_uid': canonicalUid, 'zikr_title': title},
-        ));
+    await _guard(
+      () => FirebaseAnalytics.instance.logEvent(
+        name: 'zikr_completed',
+        parameters: {'zikr_uid': canonicalUid, 'zikr_title': title},
+      ),
+    );
     _count(metricZikr, '$canonicalUid~done', label: '$title (completed)');
   }
 
@@ -180,13 +192,18 @@ class AnalyticsService {
     if (canonicalUid.isEmpty) return;
     title = _zikrTitle(canonicalUid, title);
 
-    await _guard(() => FirebaseAnalytics.instance.logEvent(
-          name: 'zikr_playlist_track_play',
-          parameters: {'zikr_uid': canonicalUid, 'zikr_title': title},
-        ));
+    await _guard(
+      () => FirebaseAnalytics.instance.logEvent(
+        name: 'zikr_playlist_track_play',
+        parameters: {'zikr_uid': canonicalUid, 'zikr_title': title},
+      ),
+    );
     _count(metricZikr, '$canonicalUid~playlist', label: title);
-    _count(metricFeature, 'zikr_playlist_track_play',
-        label: 'Zikr played in a playlist');
+    _count(
+      metricFeature,
+      'zikr_playlist_track_play',
+      label: 'Zikr played in a playlist',
+    );
   }
 
   /// Records a zikr's recitation being played from its own page, once per
@@ -202,14 +219,16 @@ class AnalyticsService {
     if (canonicalUid.isEmpty) return;
     title = _zikrTitle(canonicalUid, title);
 
-    await _guard(() => FirebaseAnalytics.instance.logEvent(
-          name: 'feature_use',
-          parameters: {
-            'feature': 'zikr_audio_play',
-            'zikr_uid': canonicalUid,
-            'zikr_title': title,
-          },
-        ));
+    await _guard(
+      () => FirebaseAnalytics.instance.logEvent(
+        name: 'feature_use',
+        parameters: {
+          'feature': 'zikr_audio_play',
+          'zikr_uid': canonicalUid,
+          'zikr_title': title,
+        },
+      ),
+    );
     _count(metricZikr, '$canonicalUid~audio', label: title);
     _count(metricFeature, 'zikr_audio_play', label: 'Zikr audio played');
   }
@@ -233,30 +252,31 @@ class AnalyticsService {
     if (!_isLive) return;
     if (bookUid.trim().isEmpty) return;
 
-    await _guard(() => FirebaseAnalytics.instance.logEvent(
-          name: 'library_view',
-          parameters: {
-            'book_uid': bookUid,
-            'book_title': bookTitle,
-            if (chapterUid != null) 'chapter_uid': chapterUid,
-          },
-        ));
+    await _guard(
+      () => FirebaseAnalytics.instance.logEvent(
+        name: 'library_view',
+        parameters: {
+          'book_uid': bookUid,
+          'book_title': bookTitle,
+          if (chapterUid != null) 'chapter_uid': chapterUid,
+        },
+      ),
+    );
     _count(metricLibrary, bookUid, label: bookTitle);
   }
 
   /// Records a live stream or shrine channel being opened. Keyed by title
   /// because the uid is a URL, which is not a legal database key.
-  static Future<void> streamView({
-    required String title,
-    String? link,
-  }) async {
+  static Future<void> streamView({required String title, String? link}) async {
     if (!_isLive) return;
     if (title.trim().isEmpty) return;
 
-    await _guard(() => FirebaseAnalytics.instance.logEvent(
-          name: 'stream_view',
-          parameters: {'stream_title': title, if (link != null) 'link': link},
-        ));
+    await _guard(
+      () => FirebaseAnalytics.instance.logEvent(
+        name: 'stream_view',
+        parameters: {'stream_title': title, if (link != null) 'link': link},
+      ),
+    );
     _count(metricStream, title, label: title);
   }
 
@@ -281,10 +301,12 @@ class AnalyticsService {
     if (!_isLive) return;
     if (name.trim().isEmpty) return;
 
-    await _guard(() => FirebaseAnalytics.instance.logEvent(
-          name: 'feature_use',
-          parameters: {'feature': name, ...?parameters},
-        ));
+    await _guard(
+      () => FirebaseAnalytics.instance.logEvent(
+        name: 'feature_use',
+        parameters: {'feature': name, ...?parameters},
+      ),
+    );
     if (countOnDashboard) _count(metricFeature, name, label: label ?? name);
   }
 
@@ -296,10 +318,10 @@ class AnalyticsService {
   /// GA4, where the popular combinations are readable and a comma-separated
   /// list is not a problem the way it would be as a database key.
   static Future<void> prayerTimesSelectionChanged(List<String> ids) => feature(
-        'prayer_times_selection_changed',
-        label: 'Prayer times shown changed',
-        parameters: {'prayer_times': ids.join(',')},
-      );
+    'prayer_times_selection_changed',
+    label: 'Prayer times shown changed',
+    parameters: {'prayer_times': ids.join(',')},
+  );
 
   /// Records the search screen being opened.
   ///
@@ -308,10 +330,8 @@ class AnalyticsService {
   /// the honest measure of how much the feature is wanted, while [search]
   /// counts the searches actually typed. Together with `zikr_source_search`
   /// they read as a funnel — opened, searched, opened something.
-  static Future<void> searchOpened() => feature(
-        'search_opened',
-        label: 'Search opened',
-      );
+  static Future<void> searchOpened() =>
+      feature('search_opened', label: 'Search opened');
 
   /// Records a search. The term goes to GA4 only — free text does not belong in
   /// a database key, and GA4 already reports it.
@@ -352,9 +372,9 @@ class AnalyticsService {
           : trimmedLabel;
     }
 
-    unawaited(_guard(
-      () => FirebaseDatabase.instance.ref('usage').update(updates),
-    ));
+    unawaited(
+      _guard(() => FirebaseDatabase.instance.ref('usage').update(updates)),
+    );
   }
 
   /// Realtime Database keys may not contain `.`, `$`, `#`, `[`, `]`, `/` or

@@ -47,7 +47,8 @@ double _centralAngle(GeoPoint from, GeoPoint to) {
   final deltaLon = _toRadians(to.longitude - from.longitude);
 
   // Haversine — numerically stable for the small angles that dominate here.
-  final a = pow(sin(deltaLat / 2), 2) +
+  final a =
+      pow(sin(deltaLat / 2), 2) +
       cos(lat1) * cos(lat2) * pow(sin(deltaLon / 2), 2);
   return 2 * atan2(sqrt(a), sqrt(1 - a));
 }
@@ -146,13 +147,16 @@ String compassLabel(double bearingDegrees, [AppLocalizations? l10n]) {
 String formatCoordinates(GeoPoint point, [AppLocalizations? l10n]) {
   final strings = l10n ?? L10n.current;
   final english = strings.localeName == 'en';
-  final latHemisphere =
-      point.latitude >= 0 ? strings.compassNorth : strings.compassSouth;
-  final lonHemisphere =
-      point.longitude >= 0 ? strings.compassEast : strings.compassWest;
+  final latHemisphere = point.latitude >= 0
+      ? strings.compassNorth
+      : strings.compassSouth;
+  final lonHemisphere = point.longitude >= 0
+      ? strings.compassEast
+      : strings.compassWest;
   final gap = english ? '' : ' ';
   return localizeDigits(
-      '${point.latitude.abs().toStringAsFixed(1)}°$gap$latHemisphere '
-      '${point.longitude.abs().toStringAsFixed(1)}°$gap$lonHemisphere',
-      strings);
+    '${point.latitude.abs().toStringAsFixed(1)}°$gap$latHemisphere '
+    '${point.longitude.abs().toStringAsFixed(1)}°$gap$lonHemisphere',
+    strings,
+  );
 }

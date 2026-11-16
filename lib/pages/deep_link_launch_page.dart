@@ -14,6 +14,7 @@ import 'chapter_page.dart';
 import 'deep_link_not_found_page.dart';
 import 'quran/quran_page.dart';
 import 'zikr/zikr_page.dart';
+
 import 'package:shia_companion/services/analytics_service.dart';
 
 /// The route the web app boots into when someone opens a shared link.
@@ -52,14 +53,16 @@ class _DeepLinkLaunchPageState extends State<DeepLinkLaunchPage> {
     Widget destination;
     try {
       await SessionRefreshService.refreshSessionState();
-      destination = await _resolveDestination() ??
+      destination =
+          await _resolveDestination() ??
           DeepLinkNotFoundPage(target: widget.target.segments.join('/'));
     } catch (error) {
       // A shared link is often someone's first contact with the app. Failing
       // to a named page beats an error screen or an indefinite spinner.
       debugPrint('Unable to resolve launch deep link: $error');
-      destination =
-          DeepLinkNotFoundPage(target: widget.target.segments.join('/'));
+      destination = DeepLinkNotFoundPage(
+        target: widget.target.segments.join('/'),
+      );
     }
 
     if (!mounted) return;
@@ -126,10 +129,12 @@ class _DeepLinkLaunchPageState extends State<DeepLinkLaunchPage> {
 
     // A retired duplicate's slug still resolves, to the copy that survived, so
     // old links and saved positions do not dead-end.
-    final bookSlug =
-        await LibraryService.resolveBookSlug(widget.target.segments.first);
-    final chapterSlug =
-        widget.target.segments.length > 1 ? widget.target.segments[1] : null;
+    final bookSlug = await LibraryService.resolveBookSlug(
+      widget.target.segments.first,
+    );
+    final chapterSlug = widget.target.segments.length > 1
+        ? widget.target.segments[1]
+        : null;
 
     final books = await LibraryService.loadBooks();
     UidTitleData? book;
@@ -153,8 +158,9 @@ class _DeepLinkLaunchPageState extends State<DeepLinkLaunchPage> {
       chapters = const [];
     }
 
-    final chapterIndex =
-        chapters.indexWhere((chapter) => chapter.uid == chapterSlug);
+    final chapterIndex = chapters.indexWhere(
+      (chapter) => chapter.uid == chapterSlug,
+    );
     if (chapterIndex == -1) {
       // Same fallback the home page uses: an unknown chapter lands in the book
       // rather than on a not-found page.
@@ -179,8 +185,6 @@ class _DeepLinkLaunchPageState extends State<DeepLinkLaunchPage> {
       return destination;
     }
 
-    return const Scaffold(
-      body: Center(child: CircularProgressIndicator()),
-    );
+    return const Scaffold(body: Center(child: CircularProgressIndicator()));
   }
 }

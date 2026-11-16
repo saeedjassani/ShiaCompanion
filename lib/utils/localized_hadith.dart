@@ -39,10 +39,10 @@ class LocalizedHadith {
 
   /// What Share sends: everything the card shows.
   String get shareText => [
-        if (translation == null) '$attribution:\n$arabic' else arabic,
-        if (translation != null) '$attribution: $translation',
-        '[$source]',
-      ].join('\n\n');
+    if (translation == null) '$attribution:\n$arabic' else arabic,
+    if (translation != null) '$attribution: $translation',
+    '[$source]',
+  ].join('\n\n');
 }
 
 /// The collection in assets/hadith_i18n/hadith.json.

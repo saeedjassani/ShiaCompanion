@@ -66,10 +66,12 @@ class _OuterShadowPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     final rrect = borderRadius.toRRect(Offset.zero & size);
     canvas.save();
-    canvas.clipPath(Path()
-      ..fillType = PathFillType.evenOdd
-      ..addRect((Offset.zero & size).inflate(64))
-      ..addRRect(rrect));
+    canvas.clipPath(
+      Path()
+        ..fillType = PathFillType.evenOdd
+        ..addRect((Offset.zero & size).inflate(64))
+        ..addRRect(rrect),
+    );
     canvas.drawRRect(
       rrect.shift(const Offset(0, 8)),
       Paint()

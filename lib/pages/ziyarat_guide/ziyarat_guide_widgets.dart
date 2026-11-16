@@ -22,8 +22,10 @@ class GuideSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SliverPadding(
-      padding: pageGutter(context, maxWidth: widePageWidth)
-          .copyWith(top: 20, bottom: 0),
+      padding: pageGutter(
+        context,
+        maxWidth: widePageWidth,
+      ).copyWith(top: 20, bottom: 0),
       sliver: SliverMainAxisGroup(
         slivers: [
           SliverToBoxAdapter(
@@ -56,13 +58,13 @@ class GuideTextCard extends StatelessWidget {
       decoration: TextDecoration.underline,
     );
     Widget text(String raw) => Text.rich(
-          buildZikrTextSpanWithLinks(
-            rawLine: raw,
-            baseStyle: style,
-            linkStyle: linkStyle,
-            onLinkTap: (href) => openGuideZikrLink(context, href),
-          ),
-        );
+      buildZikrTextSpanWithLinks(
+        rawLine: raw,
+        baseStyle: style,
+        linkStyle: linkStyle,
+        onLinkTap: (href) => openGuideZikrLink(context, href),
+      ),
+    );
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
@@ -77,8 +79,9 @@ class GuideTextCard extends StatelessWidget {
           if (paragraph != null) text(paragraph!),
           for (var i = 0; i < bullets.length; i++)
             Padding(
-              padding:
-                  EdgeInsets.only(top: i == 0 && paragraph == null ? 0 : 10),
+              padding: EdgeInsets.only(
+                top: i == 0 && paragraph == null ? 0 : 10,
+              ),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
