@@ -624,8 +624,8 @@ accepted.
 
 **Still open after the owner's review (2026-11-03).** The owner went
 through these on a review page in the app's own links; the decisions above
-are done. Items 1-5 were then worked through on 2026-11-06 (below); 6-8
-are not done. Titles are as of PR #411; "tab N" counts from 1 as the reader
+are done. Items 1-5 were then worked through on 2026-11-06 (below) and
+item 1's question was settled on 2026-11-16 (PR #430); 6-8 are not done. Titles are as of PR #411; "tab N" counts from 1 as the reader
 shows the tabs (the number a `?tab=N` link carries).
 
 **Items 1-5, done 2026-11-06.** Checked against Iqbal al-A'mal (Qayyumi
@@ -637,14 +637,30 @@ below):
    words, spelling aside) the dua at Iqbal 1:118, which Ibn Tawus copies
    from a book in al-Sharif al-Radi's handwriting, "to be said when the
    month of Ramadan arrives". Its merits note now says so instead of "a
-   lengthy supplication". **One question is left for the owner:** it is
-   only half a page long, but Mafatih calls the dua it means "lengthy"
-   (الدعاء الطويل). It is still the only Iqbal dua that opens with
-   اللهم إن هذا شهر رمضان. The next one, at Iqbal 1:119-123, really is
-   long (five pages, from Imam al-Sadiq via al-Tal'ukbari, for the first
-   night or day). It opens اللهم هذا شهر رمضان المبارك الذي أنزلت فيه
-   القرآن, without إنّ, so Mafatih may have meant it. If so, add it as
-   another tab (it is not in the app); keep this one either way.
+   lengthy supplication". It is only half a page long, but Mafatih (item
+   14 of the night, mafatih.duas.co/ramadan-night1) calls the dua it means
+   "very long". **Settled 2026-11-16:** the owner asked for the next Iqbal
+   dua, which really is long, to be added too. It is now AA22 **tab 6**,
+   "Allahumma Hadha Shahru Ramadan al-Mubarak" (158 lines): Iqbal 1:119-124
+   (ablibrary.net book 2396, `?page=114`-`119`), al-Tal'ukbari from Imam
+   al-Sadiq, Bihar 97:326-330, ending at "تقولها ثلاثا". Iqbal's rite goes
+   on after that with more "ثم تقول" sections (to `?page=132`, Bihar
+   97:330-339); those are **not** in the app.
+   No vowelled or English copy exists online, so its vowelling and English
+   were written fresh by two agents from the unvowelled Qayyumi text and
+   its transliteration drafted by `translit.py`, then read. **For a human
+   with a printed Iqbal or Bihar 97** (letters kept as printed unless said):
+   - لِهَمٍّ for the print's لهم ("for a worry"), and وَالنِّفَاقِ added in
+     "الشقاق النفاق" - both corrected;
+   - doubtful but kept: وَالْاَمْرِ بِالْمَعْرُوْفِ وَالنَّهْيِ عَنِ الْمُنْكَرِ in
+     the list of sins (a dropped وَتَرْكِ? the English says "[failing in]");
+     وَقِلَّةِ الْعَدَدِ (الْعَدْلِ?); وَتَعَضُّدِ الظَّالِمِ (وَتَعْضِيْدِ?);
+     وَالْاِرْتِكَابِ اِلَى الظُّلْمِ (الْاِرْتِكَانِ?); وَالْاِسْتِرْجَاعِ فِي
+     الْمَعْصِيَةِ; وَالصُّدُوْدِ مِنْ كُلِّ شَيْءٍ;
+   - تُقَايِسَنِيْ kept over the variants تقايلني/تقاضني ("weigh
+     me in the balance"); وَلَا تَجْعَلْهُ read as jussive;
+   - "Recite three times" is put before the last sentence only
+     (اَللّٰهُمَّ اِنَّكَ تَشْكُرُ الْيَسِيْرَ...); it may mean more.
 2. **The English written fresh was read against the Arabic**, by four
    parallel reviews of E102, E112, E90, E103, F7, E42 (tabs 2-10), E41
    (tabs 2-6), E84 (tabs 2-5) and E63 (tabs 2, 4, 5). Of ~525 lines, 49
@@ -701,6 +717,17 @@ below):
    al-Mab'ath (27th Night)", AA22, AA43 "Last Night of Ramazan", E41, E42,
    E63, E84. Not translated at all: AC6 "Salat of وَ وَاعَدْنَا", and the new
    AA48/AA49 (Sahifa 44 and 45).
+   **Checked 2026-11-16: it is bigger than that.** None of these 15 has a
+   single translated segment in any language (their `assets/zikr_i18n/`
+   files are empty `{"segments": {}}` or missing), so the whole entry is
+   Arabic-only outside English, not just the rewritten lines. Segments per
+   language: AA22 339 (with the new tab 6), AA18 262, AA49 222, E42 187,
+   AA48 108, AA31 82, E84 67, E41 66, F15 58, X10 41, E146 39, AA43 33,
+   E63 28, X15 16, AC6 6 - about 1,550 each. List them with
+   `python3 scripts/zikr_i18n/zikr_i18n.py template <lang> --uids ...`.
+   Urdu for some can come from the Urdu Mafatih (mafatih.duas.co, e.g.
+   `ramadan-night1` for AA22's tabs 2-5 and 7); AA48/AA49 are Sahifa 44/45,
+   so whatever source serves the Sahifa group serves them.
 
 7. **Smaller gaps** (same check, corpus-wide, 2026-10-25) - the next batch
    of work, not owner questions:
@@ -723,9 +750,11 @@ below):
    marks a root hā (`تَتَشَابَهٗ`), and `apply_to_text` marks every copy of a
    word once one copy qualifies (E42's بِهِ before hamzat al-wasl).
 
-**Next:** the owner's one question in item 1 (add Iqbal's long dua to
-AA22?); 6 needs translators; 7 is ordinary restoration work
-with `source_check.py` (it is a test now - see "The check" above).
+**Next:** 7 is ordinary restoration work with `source_check.py` (it is a
+test now - see "The check" above) and can be done in a cloud session; then
+Urdu for 6 from the Urdu Mafatih; then 8. Persian and Gujarati for 6 need a
+source a cloud session can reach. AA22 tab 6's doubtful readings (item 1)
+wait for a human with the book.
 
 ## Full-corpus duplicate sweep (2026-09-17)
 

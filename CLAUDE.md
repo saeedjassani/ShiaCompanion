@@ -34,24 +34,27 @@
   under "Status and resume here" in `docs/ZIYARAT_GUIDE.md`; read it
   before resuming.
 
-- **Missing-zikr restoration is mid-way.** 118 unfavorited uids are still
+- **Missing-zikr restoration is mid-way.** 107 unfavorited uids are still
   missing from the corpus. Before resuming, read the "Resume here" section at
   the top of `scripts/RESTORING_MISSING_ZIKRS.md`: next batches (taweez and
   funeral rites `I40`-`I126`, then calendar pages, then ziyarat last and
   checked against online sources), the per-batch workflow, and the tools
   `scripts/zikr_arabic/duas_org.py` and `scripts/zikr_arabic/translit.py`.
 
-- **Restored zikrs that came back cut down: review done, one question
-  and translations left.** Pass 7 (`e72d1bb3`) and `4c29a341` shipped stubs;
+- **Restored zikrs that came back cut down: review done, translations
+  and small gaps left.** Pass 7 (`e72d1bb3`) and `4c29a341` shipped stubs;
   all 29 are rebuilt (PR #362, #382), the owner's decisions are applied (PR
-  #411), and review items 1-5 were checked against Iqbal al-A'mal and the
-  vowelled Mafatih and fixed on 2026-11-06. Still open, under "Still open
-  after the owner's review" in `scripts/RESTORING_MISSING_ZIKRS.md`:
-  - owner's call: should AA22 also carry Iqbal's long first-night dua
-    (1:119-123), which may be the one Mafatih calls "lengthy"?
-  - translations for the rewritten lines of 12 entries, and for AC6, AA48
-    and AA49;
-  - the smaller source gaps (AK5, AA21, D1, G52, ...).
+  #411), review items 1-5 were checked against Iqbal al-A'mal and the
+  vowelled Mafatih (PR #430), and Iqbal's long first-night dua is AA22 tab 6
+  (PR #430). Still open, under "Still open after the owner's review" in
+  `scripts/RESTORING_MISSING_ZIKRS.md`, in this order:
+  - the smaller source gaps (item 7: AK5, AA21, D1, G52, ...) - cloud-doable;
+  - translations (item 6): 15 entries (AA22, AA18, AA49, E42, AA48, AA31,
+    E84, E41, F15, X10, E146, AA43, E63, X15, AC6) have **no** translated
+    segment in any language, ~1,550 segments each; Urdu can come from the
+    Urdu Mafatih;
+  - `silah.py` edge cases (item 8);
+  - for a human with the book: AA22 tab 6's doubtful readings (item 1).
   Check any restored entry with
   `python3 -I scripts/zikr_arabic/source_check.py . <uids>` before shipping it;
   `test/zikr_source_check_test.dart` fails on anything new it flags until
