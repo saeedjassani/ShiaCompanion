@@ -34,30 +34,27 @@
   under "Status and resume here" in `docs/ZIYARAT_GUIDE.md`; read it
   before resuming.
 
-- **Missing-zikr restoration is mid-way.** 118 unfavorited uids are still
+- **Missing-zikr restoration is mid-way.** 107 unfavorited uids are still
   missing from the corpus. Before resuming, read the "Resume here" section at
   the top of `scripts/RESTORING_MISSING_ZIKRS.md`: next batches (taweez and
   funeral rites `I40`-`I126`, then calendar pages, then ziyarat last and
   checked against online sources), the per-batch workflow, and the tools
   `scripts/zikr_arabic/duas_org.py` and `scripts/zikr_arabic/translit.py`.
 
-- **Restored zikrs that came back cut down: owner's calls done, review
-  left.** Pass 7 (`e72d1bb3`) and `4c29a341` shipped stubs; all 29 are
-  rebuilt (PR #362, #382) and the owner's decisions are applied (PR #411:
-  retitles, X9 -> G74, Sahifa 44/45 as AA48/AA49, AC6 as the Wa Wa'adna
-  prayer alone). Still open, each with its entry title and tab under
-  "Still open after the owner's review" in `scripts/RESTORING_MISSING_ZIKRS.md`:
-  - confirm AA22's Iqbal dua (tab 5) against Iqbal al-A'mal;
-  - read the English written fresh for E102, E112, E90, E103, F7 and tabs
-    of E42, E41, E84, E63;
-  - three wrong-looking English lines in G77;
-  - 14 suspected Arabic typos (F15, E102, E41, E84, E42, E63), each with a
-    likely reading to check against a printed Mafatih;
-  - the F14 (يَا عَظِيْمُ ×4/6/7) and F15 (al-Tawhid in each unit or the
-    first) counts;
-  - translations for the rewritten lines of 12 entries, and for AC6, AA48
-    and AA49;
-  - the smaller source gaps (AK5, AA21, D1, G52, ...).
+- **Restored zikrs that came back cut down: review done, translations
+  and small gaps left.** Pass 7 (`e72d1bb3`) and `4c29a341` shipped stubs;
+  all 29 are rebuilt (PR #362, #382), the owner's decisions are applied (PR
+  #411), review items 1-5 were checked against Iqbal al-A'mal and the
+  vowelled Mafatih (PR #430), and Iqbal's long first-night dua is AA22 tab 6
+  (PR #430). Still open, under "Still open after the owner's review" in
+  `scripts/RESTORING_MISSING_ZIKRS.md`, in this order:
+  - the smaller source gaps (item 7: AK5, AA21, D1, G52, ...) - cloud-doable;
+  - translations (item 6): 15 entries (AA22, AA18, AA49, E42, AA48, AA31,
+    E84, E41, F15, X10, E146, AA43, E63, X15, AC6) have **no** translated
+    segment in any language, ~1,550 segments each; Urdu can come from the
+    Urdu Mafatih;
+  - `silah.py` edge cases (item 8);
+  - for a human with the book: AA22 tab 6's doubtful readings (item 1).
   Check any restored entry with
   `python3 -I scripts/zikr_arabic/source_check.py . <uids>` before shipping it;
   `test/zikr_source_check_test.dart` fails on anything new it flags until
