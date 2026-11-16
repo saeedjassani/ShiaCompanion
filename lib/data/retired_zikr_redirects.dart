@@ -450,4 +450,34 @@ const Map<String, RetiredZikrRedirect> retiredZikrRedirects = {
   'AE6': RetiredZikrRedirect('AE3', tabIndex: 3),
   'AE7': RetiredZikrRedirect('AE3', tabIndex: 3),
   'AE8': RetiredZikrRedirect('AE3', tabIndex: 4),
+
+  /// AI17 (Zayd and Sa'sa'ah) was Mafatih al-Jinan's prose on Masjid
+  /// Sa'sa'ah, beside Masjid Zayd in Kufa, with nothing to recite; AI16's
+  /// merits carry it word for word.
+  'AI17': RetiredZikrRedirect('AI16'),
+
+  /// AK18 (The Holy Prophet and Imam Ali) was Mafatih al-Jinan's prose on
+  /// why Imam Ali (a.s.) is visited on the Prophet's days, with nothing to
+  /// recite; it is in the merits of AK17, the birthday ziyarat.
+  'AK18': RetiredZikrRedirect('AK17'),
+
+  /// AK1 (Merits of Visiting the Tomb of Imam Ali) was Mafatih al-Jinan's
+  /// prose on the reward of the ziyarat, with nothing to recite; it is in
+  /// the merits of AK4, the rites on the way to the shrine.
+  'AK1': RetiredZikrRedirect('AK4'),
+
+  /// Kufa: AI13 and AI14 were Mafatih al-Jinan's full ziyarats of Muslim ibn
+  /// Aqil and Hani ibn Urwah, while G60 and G61 had shipped cut down. G60 and
+  /// G61 now carry the full texts, checked against duas.org and
+  /// mafatih.duas.co.
+  'AI13': RetiredZikrRedirect('G60'),
+  'AI14': RetiredZikrRedirect('G61'),
+
+  /// Mada'in: AJ1 (Merits of Visiting the Tomb of Salman) and AJ4 (Visiting
+  /// the Tomb of Hudhayfah al-Yamani) were Mafatih al-Jinan's prose, with
+  /// nothing to recite - Salman's merits, and Hudhayfah's life, his will to
+  /// his son and the mosque of al-Mada'in. Both are in the merits of AJ2,
+  /// Salman's ziyarat, whose slugAliases keep their slugs.
+  'AJ1': RetiredZikrRedirect('AJ2'),
+  'AJ4': RetiredZikrRedirect('AJ2'),
 };

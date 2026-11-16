@@ -4,10 +4,10 @@
  "counts": {
   "total": 209,
   "menuCategory": 7,
-  "retired": 57,
-  "restored": 27,
-  "toRestoreHasArabic": 65,
-  "toRestoreProseOnly": 53
+  "retired": 64,
+  "restored": 31,
+  "toRestoreHasArabic": 59,
+  "toRestoreProseOnly": 48
  },
  "uids": [
   {
@@ -337,45 +337,53 @@
   {
    "uid": "AI13",
    "title": "The Ziyarah of Muslim Ibn Aqil",
-   "kind": "has-arabic",
-   "itemsBytes": 10860
+   "kind": "retired",
+   "itemsBytes": 10860,
+   "retiredTo": "G60"
   },
   {
    "uid": "AI14",
    "title": "The Ziyarah of Hani Ibn Urwah",
-   "kind": "has-arabic",
-   "itemsBytes": 2798
+   "kind": "retired",
+   "itemsBytes": 2798,
+   "retiredTo": "G61"
   },
   {
    "uid": "AI17",
    "title": "Zayd and Sasah",
-   "kind": "prose-only",
+   "kind": "retired",
    "itemsBytes": 2699,
-   "note": "NOT a duplicate: its end overlaps AI16 (Masjid Zayd) but its Masjid Sa'sa'ah section is not live anywhere - restore."
+   "note": "AI16's merits carry its Masjid Sa'sa'ah text word for word (2026-11-15).",
+   "retiredTo": "AI16"
   },
   {
    "uid": "AJ1",
    "title": "Merits of visiting the tomb of Salman",
-   "kind": "prose-only",
-   "itemsBytes": 3027
+   "kind": "retired",
+   "itemsBytes": 3027,
+   "note": "Salman's merits, now in AJ2's merits (2026-11-16).",
+   "retiredTo": "AJ2"
   },
   {
    "uid": "AJ3",
    "title": "Offering Prayer at Taq Kasra",
-   "kind": "has-arabic",
+   "kind": "restored",
    "itemsBytes": 3659
   },
   {
    "uid": "AJ4",
    "title": "Visting the tomb of Hudhayfah Al Yamani",
-   "kind": "prose-only",
-   "itemsBytes": 2240
+   "kind": "retired",
+   "itemsBytes": 2240,
+   "note": "Hudhayfah's life, his will and the mosque of al-Mada'in, now in AJ2's merits (2026-11-16).",
+   "retiredTo": "AJ2"
   },
   {
    "uid": "AK1",
    "title": "Merits and Method of Visiting the Tomb of Imam Ali - Ameerul Momeneen",
-   "kind": "prose-only",
-   "itemsBytes": 2996
+   "kind": "retired",
+   "itemsBytes": 2996,
+   "retiredTo": "AK4"
   },
   {
    "uid": "AK2",
@@ -392,7 +400,7 @@
   {
    "uid": "AK4",
    "title": "Method of visiting Ameerul Momeneen's (a)Tomb",
-   "kind": "prose-only",
+   "kind": "restored",
    "itemsBytes": 495
   },
   {
@@ -439,19 +447,20 @@
   {
    "uid": "AK17",
    "title": "Ziyarat on The Holy Prophet's Birthday",
-   "kind": "has-arabic",
+   "kind": "restored",
    "itemsBytes": 22793
   },
   {
    "uid": "AK18",
    "title": "The Holy Prophet And Imam Ali",
-   "kind": "has-arabic",
-   "itemsBytes": 6496
+   "kind": "retired",
+   "itemsBytes": 6496,
+   "retiredTo": "AK17"
   },
   {
    "uid": "AK19",
    "title": "Ziyarat on the Day & Night of Be'asat (Proclamation)",
-   "kind": "has-arabic",
+   "kind": "restored",
    "itemsBytes": 31569
   },
   {

@@ -29,8 +29,8 @@
   tips, directions and tappable shrine plans; the guide's text is in all
   four languages. Left: the owner's device check, the review items the
   doc lists, translations of the restored entries' merits and verses, the
-  remaining missing ziyarats (Najaf, Kufa, Mada'in, Samarra, Kazimayn,
-  Karbala, Madinah...), then ungating it. The checklist is "What's left"
+  remaining missing ziyarats (Mada'in, Samarra, Kazimayn, Karbala,
+  Madinah...; Najaf and Kufa done 2026-11-15), then ungating it. The checklist is "What's left"
   under "Status and resume here" in `docs/ZIYARAT_GUIDE.md`; read it
   before resuming.
 
