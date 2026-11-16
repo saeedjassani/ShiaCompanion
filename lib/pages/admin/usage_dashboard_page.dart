@@ -274,6 +274,8 @@ const Set<String> _readingContentFeatureKeys = {
   'recitation_entry_removed',
   'recitation_track_settings_changed',
   'quran_tracking_hint_dismissed',
+  // A Khatm offered on a surah or juz opened from the lists.
+  'quran_khatm_prompt',
   'quran_surah_step',
   'quran_juz_step',
   // The end-of-surah offer to read Dua Khatm al-Quran.

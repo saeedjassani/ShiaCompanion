@@ -644,6 +644,110 @@ void main() {
     );
   });
 
+  group('opening from the list while a Khatm is up to it', () {
+    Future<void> addFamilyAt(VerseKey verse) async {
+      await RecitationTrackerManager.instance.addLabel(
+        'Family',
+        settings: RecitationTrackSettings(
+          startAt: verse,
+          startSetAt: DateTime.now(),
+        ),
+      );
+    }
+
+    /// Runs [askToContinueKhatm] from a bare screen; the result lands in
+    /// the returned list once answered.
+    Future<List<KhatmChoice?>> ask(WidgetTester tester, {int? surah}) async {
+      final answers = <KhatmChoice?>[];
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Builder(
+            builder: (context) => TextButton(
+              onPressed: () async =>
+                  answers.add(await askToContinueKhatm(context, surah: surah)),
+              child: const Text('open'),
+            ),
+          ),
+        ),
+      );
+      await tester.tap(find.text('open'));
+      await tester.pumpAndSettle();
+      return answers;
+    }
+
+    const body =
+        'Your Khatm "Family" has reached Surah2 201. Continue it '
+        'from there, so this reading counts towards it?';
+
+    testWidgets('offers the Khatm only where it is up to', (tester) async {
+      await tester.runAsync(() => addFamilyAt(const VerseKey(2, 201)));
+      final state = RecitationTrackerManager.instance.state;
+
+      expect(khatmToOffer(state, surah: 2), 'Family');
+      expect(khatmToOffer(state, juz: juzOf(2, 201)), 'Family');
+      expect(khatmToOffer(state, surah: 3), isNull);
+      expect(khatmToOffer(state, juz: 30), isNull);
+      expect(
+        khatmToOffer(
+          state,
+          surah: 2,
+          declined: {khatmPromptPlace('Family', const VerseKey(2, 201))},
+        ),
+        isNull,
+      );
+    });
+
+    testWidgets('tapping the surah asks first', (tester) async {
+      await tester.runAsync(() => addFamilyAt(const VerseKey(2, 201)));
+      await pump(tester);
+
+      await tester.tap(find.text('Surah2').last);
+      await tester.pumpAndSettle();
+      expect(find.text('Continue your Khatm?'), findsOneWidget);
+      expect(find.text(body), findsOneWidget);
+
+      // Closed without an answer: back on the list, nothing opened.
+      await tester.tapAt(const Offset(5, 5));
+      await tester.pumpAndSettle();
+      expect(find.text('Continue your Khatm?'), findsNothing);
+      expect(find.byType(QuranPage), findsOneWidget);
+    });
+
+    testWidgets('Continue Khatm hands back the Khatm', (tester) async {
+      await tester.runAsync(() => addFamilyAt(const VerseKey(2, 201)));
+      final answers = await ask(tester, surah: 2);
+
+      await tester.tap(find.text('Continue Khatm'));
+      await tester.pumpAndSettle();
+      expect(answers.single?.label, 'Family');
+    });
+
+    testWidgets('"No, just read" is not asked again at that place', (
+      tester,
+    ) async {
+      await tester.runAsync(() => addFamilyAt(const VerseKey(2, 201)));
+      var answers = await ask(tester, surah: 2);
+
+      await tester.tap(find.text('No, just read'));
+      await tester.pumpAndSettle();
+      expect(answers.single, isNotNull);
+      expect(answers.single!.label, isNull);
+
+      // Straight through the next time, without a question.
+      answers = await ask(tester, surah: 2);
+      expect(find.text('Continue your Khatm?'), findsNothing);
+      expect(answers.single!.label, isNull);
+    });
+
+    testWidgets('nothing to ask about another surah', (tester) async {
+      await tester.runAsync(() => addFamilyAt(const VerseKey(2, 201)));
+      final answers = await ask(tester, surah: 36);
+
+      expect(find.text('Continue your Khatm?'), findsNothing);
+      expect(answers.single!.label, isNull);
+    });
+  });
+
   testWidgets('the Collections view remembers the collection last picked', (
     tester,
   ) async {

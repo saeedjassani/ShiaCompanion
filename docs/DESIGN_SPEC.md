@@ -253,7 +253,10 @@ per Khatm the reader started (with its %), the one read last first and dark,
 then "Start a Khatm" (with a line on what one is) or, once one exists, "New
 Khatm". Reading counts for a Khatm only when opened from its card; anything
 else is "Other reading", with no card here (Home's Continue picks up a surah
-left part-way). Readers who read straight through the old "My reading" card
+left part-way). A surah or juz tapped in the lists while a Khatm is up to it
+first asks "Continue your Khatm?" (Continue Khatm opens the Khatm; "No, just
+read" opens what was tapped and is not asked again for that Khatm at that
+place). Readers who read straight through the old "My reading" card
 had it turned into a Khatm of that name, once, with a note whose Undo
 shows only until something is read in it (after that it would take that
 reading with it);
