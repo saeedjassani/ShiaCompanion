@@ -1,7 +1,7 @@
 name: shia_companion
 description: All the features needed by the lovers of Ahle Bayt (may Allah's peace and blessings be upon them) in one app
 
-version: 4.2.0+140
+version: 4.2.1+143
 environment:
   sdk: ^3.13.0
   flutter: ">=3.47.0"

@@ -30,8 +30,12 @@ class QuranSajdahVerse {
 
   /// Supplication recommended in sajdah al-tilawa (Sistani, al-Ta'liqa
   /// 'ala al-Urwa al-Wuthqa, sajdah chapter, ruling 18).
+  ///
+  /// Spelled the way the zikr corpus spells it (`لَا`, `اِلٰهَ`, `اللّٰهُ`,
+  /// `حَقًّا`), not in the Arab-world style (`لاَ`, `إِلَهَ`, `اللَّهُ`, `حَقّاً`),
+  /// so it reads like every other dua in the app.
   static const String duaArabic =
-      'لاَ إِلَهَ إِلَّا اللَّهُ حَقّاً حَقّاً، لاَ إِلَهَ إِلَّا اللَّهُ إِيْمَاناً وَتَصْدِيْقاً، لاَ إِلَهَ إِلَّا اللَّهُ عُبُوْدِيَّةً وَرِقّاً، سَجَدْتُ لَكَ يَا رَبِّ تَعَبُّداً وَرِقّاً، لاَ مُسْتَنْكِفاً وَلاَ مُسْتَكْبِراً، بَلْ أَنَا عَبْدٌ ذَلِيْلٌ ضَعِيْفٌ خَائِفٌ مُسْتَجِيْرٌ';
+      'لَا اِلٰهَ اِلَّا اللّٰهُ حَقًّا حَقًّا، لَا اِلٰهَ اِلَّا اللّٰهُ اِيْمَانًا وَتَصْدِيْقًا، لَا اِلٰهَ اِلَّا اللّٰهُ عُبُوْدِيَّةً وَرِقًّا، سَجَدْتُ لَكَ يَا رَبِّ تَعَبُّدًا وَرِقًّا، لَا مُسْتَنْكِفًا وَلَا مُسْتَكْبِرًا، بَلْ اَنَا عَبْدٌ ذَلِيْلٌ ضَعِيْفٌ خَائِفٌ مُسْتَجِيْرٌ';
 
   String title([String? languageCode]) =>
       isWajib ? _texts(languageCode).titleWajib : _texts(languageCode).titleMustahabb;
@@ -81,16 +85,16 @@ _SajdahTexts _texts(String? languageCode) {
 
 const Map<String, _SajdahTexts> _translations = {
   'en': _SajdahTexts(
-    titleWajib: 'Obligatory Prostration (Wajib Sajdah)',
-    titleMustahabb: 'Recommended Prostration (Mustahabb Sajdah)',
-    badgeWajib: 'Wajib Sajdah',
-    badgeMustahabb: 'Mustahabb Sajdah',
-    wajibPill: 'WAJIB',
+    titleWajib: 'Obligatory Prostration',
+    titleMustahabb: 'Recommended Prostration',
+    badgeWajib: 'Obligatory Sajdah',
+    badgeMustahabb: 'Recommended Sajdah',
+    wajibPill: 'OBLIGATORY',
     rulingWajib:
-        'Performing prostration (sajdah) is obligatory upon reciting or hearing this verse. (Reciting this surah in obligatory prayers is not permitted in Fiqh-e-Jafria).',
+        'Prostrating (sajdah) is obligatory on reciting or hearing this verse. In Shia (Ja\'fari) jurisprudence, this surah may not be recited in an obligatory prayer.',
     rulingMustahabb:
-        'According to Fiqh-e-Jafria, prostration upon this verse is recommended (mustahabb), not obligatory.',
-    duaHeading: 'Recommended Supplication in Sajdah:',
+        'In Shia (Ja\'fari) jurisprudence, prostrating on this verse is recommended, not obligatory.',
+    duaHeading: 'Supplication to Recite in Sajdah:',
     duaTranslation:
         'There is no god but Allah, truly and truly! There is no god but Allah, in faith and belief! There is no god but Allah, in servitude and bondage! I have prostrated to You, my Lord, in devotion and servitude, neither disdaining nor proud; rather I am a humble, weak, fearful servant seeking refuge.',
   ),

@@ -802,7 +802,7 @@
               "about": "The tomb of Amir al-Mu'minin Imam Ali ibn Abi Talib (a.s.), martyred in Kufa on 21 Ramazan 40 AH and buried by his sons at night outside the city. Its place was kept hidden until the Imams revealed it, and Imam al-Sadiq (a.s.) visited it with his companions. By narration Prophets Adam and Nuh (a.s.) lie with him, and the ziyarat greets them as his two companions. The building took its present form under the Safavids; around its courtyard lie many of the great scholars of the Shia.",
               "ziyarat": [
                 {
-                  "uid": "B6"
+                  "uid": "AK4"
                 },
                 {
                   "uid": "AK5",
@@ -837,6 +837,14 @@
                 },
                 {
                   "uid": "AK15"
+                },
+                {
+                  "uid": "AK17",
+                  "note": "On 17 Rabi al-Awwal, the birthday of the Prophet (s.a.w.a.)."
+                },
+                {
+                  "uid": "AK19",
+                  "note": "On the night and day of the Mab'ath, 27 Rajab."
                 }
               ],
               "buried": [
@@ -1074,7 +1082,19 @@
                 44.3345
               ],
               "about": "A mosque on the old road between Najaf and Kufa, also called Masjid al-Ras. By narration the column here bowed as Imam Ali (a.s.)'s body was carried past to his grave, and the head of Imam Husayn (a.s.) was set down here on its way to Ibn Ziyad in Kufa. Imam al-Sadiq (a.s.) is reported to have stopped and prayed here, and pilgrims pray and recite the ziyarat of Imam Husayn (a.s.).",
-              "ziyarat": [],
+              "ziyarat": [
+                {
+                  "uid": "AK7",
+                  "tab": 1,
+                  "label": "Ziyarat of the Head of Imam Husayn (a.s.)",
+                  "note": "Imam al-Sadiq (a.s.) recited it here too, with a four-unit prayer."
+                },
+                {
+                  "uid": "AK7",
+                  "tab": 2,
+                  "label": "Dua at Masjid al-Hannanah"
+                }
+              ],
               "tips": [
                 "It is a few hundred metres from the tomb of Kumayl ibn Ziyad, and the two are usually visited together on the way to Kufa."
               ],
@@ -1167,6 +1187,14 @@
                     },
                     {
                       "uid": "AK15"
+                    },
+                    {
+                      "uid": "AK17",
+                      "note": "On 17 Rabi al-Awwal, the birthday of the Prophet (s.a.w.a.)."
+                    },
+                    {
+                      "uid": "AK19",
+                      "note": "On the night and day of the Mab'ath, 27 Rajab."
                     }
                   ],
                   "location": [
@@ -1225,7 +1253,7 @@
                   "note": "The Clock Gate, the largest gate of the courtyard, in the middle of its east side under the clock tower. Also called Bab al-Imam al-Reza (a.s.), a name it took when it reopened, restored and gilded, in 2023.",
                   "ziyarat": [
                     {
-                      "uid": "B6"
+                      "uid": "AK4"
                     }
                   ],
                   "location": [
@@ -1243,7 +1271,7 @@
                   "note": "A smaller gate on the east side, just north of Bab al-Sa'a. Opened in 1252 AH; once called Bab al-Abayjiyya.",
                   "ziyarat": [
                     {
-                      "uid": "B6"
+                      "uid": "AK4"
                     }
                   ],
                   "location": [
@@ -1261,7 +1289,7 @@
                   "note": "The north gate, on the way to the tomb of Shaykh al-Tusi. Beside it is the great northern iwan (the Yazdi Iwan), which was the gate in the Safavid plan.",
                   "ziyarat": [
                     {
-                      "uid": "B6"
+                      "uid": "AK4"
                     }
                   ],
                   "location": [
@@ -1278,7 +1306,7 @@
                   "site": "imam_ali_shrine",
                   "ziyarat": [
                     {
-                      "uid": "B6"
+                      "uid": "AK4"
                     }
                   ],
                   "location": [
@@ -1297,7 +1325,7 @@
                   "note": "The west gate, opened in Ottoman times; also called al-Bab al-Sultani and Bab al-Amara. It faces Sahn Fatimah al-Zahra (s.a.).",
                   "ziyarat": [
                     {
-                      "uid": "B6"
+                      "uid": "AK4"
                     }
                   ],
                   "location": [
@@ -3790,7 +3818,7 @@
           "about": "Mada'in, the old Sasanian capital Ctesiphon on the Tigris about 30 km south-east of Baghdad, was governed for the second caliph by Salman al-Farsi, who died and was buried here; the town around his shrine is called Salman Pak after him. Hudhayfah ibn al-Yaman, also governor of Mada'in, and other companions lie in the same complex, and the ruined arch of the Sasanian palace (Taq Kasra) stands nearby.",
           "tips": [
             "Mada'in is a half-day trip from Kazimayn or Baghdad; the shrine complex and Taq Kasra are a short walk apart.",
-            "Recite [Surah Al-Qadr](A101) seven times at Salman's tomb, as his ziyarat instructs, then pray and gift it to him.",
+            "Recite [Surah Al-Qadr](A101) seven times at Salman's tomb, as his ziyarat instructs, then offer whatever voluntary prayers you wish.",
             "The tombs of Hudhayfah and the others are in separate buildings of the same complex; visit them after Salman."
           ],
           "sites": [
@@ -3839,7 +3867,8 @@
               ],
               "tips": [
                 "Stand at Salman's tomb facing the qiblah for [his ziyarat](AJ2), as it instructs.",
-                "Hudhayfah's tomb is in the second building of the complex, and the graves of Jabir and Tahir in the third."
+                "Hudhayfah's tomb is in the second building of the complex, and the graves of Jabir and Tahir in the third.",
+                "Mafatih al-Jinan recommends visiting Hudhayfah's tomb too, and praying two rak'ats in the mosque of al-Mada'in near Salman's tomb, ascribed to Imam al-Hasan al-Askari (a.s.); the merits of [Salman's ziyarat](AJ2) tell of both."
               ],
               "sources": [
                 "https://en.wikipedia.org/wiki/Salman_Al-Farsi_Mosque",
@@ -3858,10 +3887,15 @@
                 44.5808
               ],
               "about": "The great brick arch of the Sasanian palace at Ctesiphon, a short walk south of Salman's shrine. Imam Ali (a.s.) prayed there by narration, and Mafatih al-Jinan recommends praying at the site in his memory and reflecting on the passing of earthly power.",
-              "ziyarat": [],
+              "ziyarat": [
+                {
+                  "uid": "AJ3",
+                  "note": "Mafatih al-Jinan's prayer at the ruins, with the verses of Surah Ad-Dukhan and the words Imam Ali (a.s.) said should be recited here."
+                }
+              ],
               "buried": [],
               "tips": [
-                "Pray two rak'ats here as Imam Ali (a.s.) did; the app does not yet have Mafatih's section on it."
+                "Pray two rak'ats or more here as Imam Ali (a.s.) did, then recite the verses and his words in [the prayer at Taq Kasra](AJ3)."
               ],
               "sources": [
                 "https://www.al-islam.org/ziyarat/iraq.htm",
