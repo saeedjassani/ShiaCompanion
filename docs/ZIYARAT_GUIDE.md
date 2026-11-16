@@ -500,6 +500,55 @@ source disagreements and choices are in its commit message.
   WA FAA for وَفٰى, WA QAFT), BI-SAL for بِئْسَ, AN-NAASIHOO, final ح read as
   the pronoun (FAATIHEE).
 
+## Restored in session 7: for the owner to review
+
+The Mada'in batch, checked against our history (Ansariyan's English) and
+mafatih.duas.co's three Mada'in pages (`ziarat-salman-farsi`,
+`eewan-kisra-visit`, `ziarat-huzaifa-yamani`); duas.org's data store has
+no Mada'in page. Details are in commits `d53fa6cd` and `6ea6745c`.
+
+- **AJ3 Prayer at Taq Kasra (new).** What is recited: the prayer (an
+  instruction line), Surah Ad-Dukhan 44:25-29 and Imam Ali's words after
+  them («اِنَّ هٰؤُلَاۤءِ كَانُوْا وَارِثِيْنَ…»), the two things the Imam
+  said should be said at the ruins; the reports of the Imam with Dalaf
+  ibn Bujayr and of the line of poetry are merits. Check:
+  - the verses are A48's lines (its Arabic, transliteration and English,
+    so their transliteration is in the Quran's older style, not
+    `translit.py`'s); history had «وَنِعْمَةٍ», the Quran «وَنَعْمَةٍ»;
+  - «لَا تَحِلُّ بِكُمُ النِّقَمُ» (history) or «لَا تَحُلُّ» (mafatih.duas.co);
+  - the Imam's words in reworded English: "These people were
+    inheritors, then they became the inherited", "They were not grateful
+    for the blessing, so they were stripped of their world for their
+    disobedience", "Beware of ingratitude for blessings, lest punishments
+    befall you" (history's reworded to the Arabic);
+  - the poem is in English only ("Winds blew over the traces of their
+    homes, as if they had kept an appointment"; history: "flew");
+    Mafatih's Arabic, «جَرَتِ الرِّيَاحُ عَلٰى رُسُوْمِ دِيَارِهِمْ…», and
+    Khaqani's Persian verses on the Iwan are not in the corpus.
+- **AJ2 Salman: AJ1 and AJ4 retired into its merits.** Salman's
+  thirteen-point list is one paragraph, every point kept. Fresh English
+  where history was blank, from the Urdu Mafatih: the Prophet's "Salman
+  is a sea that does not run dry and a treasure that does not run out
+  ... he grants wisdom and gives proof" and Imam al-Sadiq's "Salman
+  attained the first knowledge and the last; he is a sea that does not
+  run dry, and he is one of us, the Ahl al-Bayt". Disagreements:
+  - Hudhayfah got al-Mada'in back when the second caliph died (history)
+    or when Salman died (Urdu); the merits say only that he governed it
+    again until Imam Ali's caliphate;
+  - the mosque near Salman's tomb is ascribed to Imam al-Hasan
+    al-Askari (a.s.) for no known reason (history, kept) or because he
+    built it and prayed in it (Urdu);
+  - the Ibn Tawus note: history (and so AJ2) says the *first* form is
+    also in Tahdhib al-Ahkam, the Urdu ties Tahdhib to the *fourth*,
+    the one in Hadiyyat al-Za'ir.
+  AJ2's data gains Mafatih's closing line, "Then supplicate Allah at
+  length before you leave." (segment 73), and "bid farewell farewell"
+  is fixed. Its Arabic (an unnormalized duas.org import) was not
+  touched; against the Urdu Mafatih it has «مَنْ اَعْنَتَكَ فِيْ اَهْلِ
+  بَيْتِ نَبِيِّكَ» for «اَهْلِ بَيْتِكَ» and an extra «صَلَّى اللّٰهُ عَلَيْهِ
+  وَآلِهِ» after «يَا صَاحِبَ رَسُوْلِ اللّٰهِ». Mafatih gives no text for
+  Hudhayfah's tomb.
+
 ## Missing ziyarats (phase 3 work list)
 
 Found while writing phase 1's content. Uids are from
@@ -536,7 +585,11 @@ see `scripts/RESTORING_MISSING_ZIKRS.md`); URLs hold a text to check against.
   it was left out); Masjid Buratha AM1, al-Kulayni AM4.
 - **Kazimayn:** AH3 (another ziyarat of Imam al-Kazim), AH1, AH11.
 - **Samarra:** Lady Narjis AL8, Lady Hakimah AL9, AL4, AL10, AL16.
-- **Mada'in:** prayer at Taq Kasra AJ3, Hudhayfah AJ4, AJ1.
+- **Mada'in: done (session 7)** - AJ3 (the prayer at Taq Kasra, linked
+  from its site); AJ1 (Salman's merits) and AJ4 (Hudhayfah, the mosque of
+  al-Mada'in) are AJ2's merits now and redirect there. Mafatih has no
+  text for Hudhayfah's tomb; not in the corpus: the Arabic of the poem
+  and Khaqani's Persian verses in the Taq Kasra narration (not recited).
 - **Najaf: restored (session 6)** - AK4 (the rites on the way and the
   permission at the door of the dome; the shrine and its gates link it
   instead of B6), AK17 (the Prophet's birthday), AK19 (the Mab'ath), and
@@ -750,6 +803,14 @@ The list as found in session 1:
   AK19, G60 and G61 (33 segments) translated in all four languages,
   each language then read by an independent reviewer (opus) and its
   fixes applied. Verses and merits are not translated.
+- Mada'in batch (phase 3): AJ3 Prayer at Taq Kasra restored; AJ1 and AJ4
+  retired into AJ2's merits, AJ2 gains Mafatih's closing line; Taq
+  Kasra links AJ3 and the Mada'in tips were corrected. Review items:
+  "Restored in session 7". Not yet translated: AJ3's title and its
+  instruction lines (segments 0, 1, 7), AJ2's segment 73, and four
+  guide keys (`site.taq_kasra.ziyarat.0.note`,
+  `site.salman_al_farsi_shrine.tips.2` new; `site.taq_kasra.tips.0`,
+  `city.madain.tips.1` changed, their overlays stale).
 
 **What's left (start here):**
 
@@ -776,8 +837,12 @@ The list as found in session 1:
      replace), Bab Muslim ibn Aqil's position in Najaf, Sahn Fatimah.
    - "Unverified, left out of phase 1": add any the owner can confirm.
    - "For the owner (translations)" above: the Urdu Jamkaran label.
-3. **Translations still missing:** merits and verses of AE3, AP8, AQ2,
-   AQ5, AM3, AE17, AK4, AK17, AK19, G60 and G61 (and AK7's Hannanah dua),
+3. **Translations still missing:** AJ3's title and instruction lines,
+   AJ2's new closing line and the four Mada'in guide keys (session 7's
+   bullet above); merits and verses of AE3, AP8, AQ2, AQ5, AM3, AE17,
+   AK4, AK17, AK19, G60, G61, AJ3 (`zikr_i18n.py template` pre-fills its
+   Quran verses from A48's translations; Urdu gives 44:27 and 44:28 one
+   shared line) and AJ2's new merits (and AK7's Hannanah dua),
    and AP2's Arabic lines - mafatih.duas.co's Urdu pages for the session-6
    entries are in "Najaf"/"Kufa" there and scrape with
    `scripts/zikr_i18n/web_source.py duasco` (verses need a published
@@ -788,8 +853,7 @@ The list as found in session 1:
    each language read by an independent agent.
 4. **Phase 3, the rest of "Missing ziyarats"** (Najaf and Kufa done in
    session 6, but for Hud and Salih and Maytham, which the corpus never
-   had): Mada'in
-   (AJ3, AJ4, AJ1), Samarra (AL8, AL9, AL4, AL10, AL16), Kazimayn (AH3,
+   had; Mada'in in session 7): Samarra (AL8, AL9, AL4, AL10, AL16), Kazimayn (AH3,
    AH1, AH11), Karbala (AG21, AG20, AG15, G31, B5), Baghdad (AM1, AM4),
    Madinah (AP12, AP5/AP6, the graves without uids), Makkah, Iran (Imam
    Reza's other forms, AE14, G28). One batch per city, each checked
