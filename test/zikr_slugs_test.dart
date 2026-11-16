@@ -18,7 +18,8 @@ import 'package:shia_companion/utils/slug_registry.dart';
 //
 // Pairs the web build already merges into one page (MERGED_ZIKR_SLUGS in
 // scripts/generate_zikr_seo_pages.js) are old links kept as they were. They
-// are the only exceptions. scripts/zikr_structure/lint.py's ALIAS_SLUG is the
+// are the only exceptions - and an alias with a title (and slug) of its own
+// must be one of them, so the web has one indexable page per text. scripts/zikr_structure/lint.py's ALIAS_SLUG is the
 // same check.
 
 const _indexPath = 'assets/zikr.json';
@@ -42,16 +43,26 @@ Map<String, Map<String, dynamic>> _loadIndex() {
 }
 
 /// MERGED_ZIKR_SLUGS' pairs, each as a two-slug set.
-Set<Set<String>> _mergedWebSlugPairs() {
+Set<Set<String>> _mergedWebSlugPairs() => {
+      for (final m in RegExp(r"'([^']+)':\s*'([^']+)'")
+          .allMatches(_mergedWebSlugBlock()))
+        {m.group(1)!, m.group(2)!},
+    };
+
+/// The MERGED_ZIKR_SLUGS object literal's source.
+String _mergedWebSlugBlock() {
   final src = File(_seoGeneratorPath).readAsStringSync();
   final start = src.indexOf('MERGED_ZIKR_SLUGS = {');
   if (start == -1) throw StateError('MERGED_ZIKR_SLUGS not found');
-  final block = src.substring(start, src.indexOf('};', start));
-  return {
-    for (final m in RegExp(r"'([^']+)':\s*'([^']+)'").allMatches(block))
-      {m.group(1)!, m.group(2)!},
-  };
+  return src.substring(start, src.indexOf('};', start));
 }
+
+/// MERGED_ZIKR_SLUGS' keys: the slugs the web build turns into redirects.
+Set<String> _mergedWebSlugKeys() => {
+      for (final m in RegExp(r"'([^']+)':\s*'[^']+'")
+          .allMatches(_mergedWebSlugBlock()))
+        m.group(1)!,
+    };
 
 String _slugOf(Map<String, dynamic> meta) => meta['slug']?.toString() ?? '';
 
@@ -91,6 +102,31 @@ void main() {
           !merged.any((p) => p.containsAll([slug, targetSlug]))) {
         bad.add('${e.key}: "$slug" - copy ${parts[1]}\'s "$targetSlug"'
             ' (and add "$slug" to ${parts[1]}\'s slugAliases if it shipped)');
+      }
+    }
+    expect(bad, isEmpty);
+  });
+
+  test('each full text has one indexable web page', () {
+    // A full-text alias with a title of its own keeps a slug of its own, so
+    // the web build writes a page for each slug - two indexable URLs for one
+    // text, splitting search ranking between them. Every slug but one must be
+    // a key of MERGED_ZIKR_SLUGS (redirected to the kept slug). PR #312's
+    // weekday ziyarat aliases slipped through before this test.
+    final mergedKeys = _mergedWebSlugKeys();
+    final slugsByText = <String, Set<String>>{};
+    for (final e in index.entries) {
+      if (e.key.contains('~') || _showsSomeTabs(e.value)) continue;
+      final parts = e.key.split('|');
+      final text = parts.length == 2 ? parts[1] : e.key;
+      slugsByText.putIfAbsent(text, () => {}).add(_slugOf(e.value));
+    }
+    final bad = <String>[];
+    for (final e in slugsByText.entries) {
+      final indexed = e.value.difference(mergedKeys);
+      if (indexed.length > 1) {
+        bad.add('${e.key}: ${indexed.join(', ')} - add all but one to'
+            ' MERGED_ZIKR_SLUGS, mapped to the one to keep');
       }
     }
     expect(bad, isEmpty);
