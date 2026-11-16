@@ -48,13 +48,28 @@ class ContinuousReading {
 }
 
 /// Picked up where they left off at least this many times...
-const int continuousReadingMinContinuations = 3;
-
-/// ...on at least this many days...
-const int continuousReadingMinDays = 2;
-
-/// ...covering at least one whole juz, in order.
 ///
+/// Kept low on purpose. A reader who was reading a khatm through the old
+/// "My reading" card and is not recognised here loses their place: nothing
+/// else points to where they got to. One recognised wrongly only gets a
+/// Khatm they can Undo (or delete), so the bar leans towards making one.
+const int continuousReadingMinContinuations = 1;
+
+/// ...and, picked up only once, either inside one surah and longer than
+/// [continuousReadingLongStretch] verses (al-Baqarah's first 150), or
+/// running into another surah with a sitting that stopped mid-surah
+/// (al-Fatihah, then al-Baqarah 1-20). Picked up this many times, it
+/// qualifies whatever it covers.
+///
+/// What is left out: Ya-Sin or al-Kahf, weekly favourites, read in two
+/// sittings, and ar-Rahman then al-Waqiah, a pair often read together -
+/// each whole in a sitting of its own.
+const int continuousReadingManyContinuations = 2;
+
+/// Verses read in order inside one surah that are more than a weekly
+/// favourite - al-Kahf, the longest of them, has 110.
+const int continuousReadingLongStretch = 120;
+
 /// A session may start this many verses past where the last one stopped and
 /// still carry on from it: the reader logs the verses on screen, so where a
 /// session is said to stop can fall a verse or two short of the last one
@@ -88,6 +103,7 @@ class _Chain {
   _Chain(this.start, this.frontier, String day, this.last, bool? inJuz) {
     days.add(day);
     _vote(inJuz);
+    _noteSitting(start, frontier);
   }
 
   int start;
@@ -112,6 +128,7 @@ class _Chain {
   }
 
   void extend(int from, int to, String day, DateTime at, bool? inJuz) {
+    _noteSitting(from, to);
     if (from < start) start = from;
     frontier = to;
     continuations++;
@@ -122,13 +139,30 @@ class _Chain {
 
   bool covers(int from, int to) => start <= from && to <= frontier;
 
-  bool coversWholeJuz() {
-    for (final juz in allJuz()) {
-      final first = _indexOf(juz.start.surah, juz.start.ayah ?? 1);
-      final lastVerse = _indexOf(juz.end.surah, juz.end.ayah ?? 1);
-      if (start <= first && lastVerse <= frontier) return true;
+  /// Whether this reads as a khatm under way rather than one or two
+  /// favourite surahs read in a couple of sittings - see
+  /// [continuousReadingMinContinuations].
+  bool get qualifies {
+    if (continuations < continuousReadingMinContinuations) return false;
+    if (continuations >= continuousReadingManyContinuations) return true;
+    final first = _verseAt(start);
+    final last = _verseAt(frontier);
+    if (first.surah == last.surah) {
+      return frontier - start + 1 > continuousReadingLongStretch;
     }
-    return false;
+    return _stoppedMidSurah;
+  }
+
+  /// Whether a sitting of this stretch began or ended part-way through a
+  /// surah.
+  bool _stoppedMidSurah = false;
+
+  void _noteSitting(int from, int to) {
+    final a = _verseAt(from);
+    final b = _verseAt(to);
+    if (a.ayah != 1 || b.ayah != surahAyahCounts[b.surah - 1]) {
+      _stoppedMidSurah = true;
+    }
   }
 }
 
@@ -148,8 +182,9 @@ typedef _Read = ({DateTime at, String day, int from, int to, bool? inJuz});
 /// the others where they were.
 ///
 /// The latest stretch to qualify wins: one picked up again at least
-/// [continuousReadingMinContinuations] times on at least
-/// [continuousReadingMinDays] days, covering a whole juz. A stretch that
+/// [continuousReadingMinContinuations] times that is more than a favourite
+/// surah or two read in a couple of sittings (see
+/// [continuousReadingManyContinuations]). A stretch that
 /// reached the end of an-Nas is a finished khatm, with no place left to
 /// keep, so it gives null.
 ContinuousReading? findContinuousReading(
@@ -196,7 +231,8 @@ ContinuousReading? findContinuousReading(
   for (final read in reads) {
     _Chain? carried;
     for (final chain in chains) {
-      final carriesOn = read.from <= chain.frontier + 1 + continuousReadingGap &&
+      final carriesOn =
+          read.from <= chain.frontier + 1 + continuousReadingGap &&
           read.to > chain.frontier;
       if (!carriesOn) continue;
       if (carried == null ||
@@ -213,11 +249,8 @@ ContinuousReading? findContinuousReading(
 
   _Chain? latest;
   for (final chain in chains) {
-    final qualifies =
-        chain.continuations >= continuousReadingMinContinuations &&
-            chain.days.length >= continuousReadingMinDays &&
-            chain.coversWholeJuz();
-    if (qualifies && (latest == null || chain.last.isAfter(latest.last))) {
+    if (chain.qualifies &&
+        (latest == null || chain.last.isAfter(latest.last))) {
       latest = chain;
     }
   }

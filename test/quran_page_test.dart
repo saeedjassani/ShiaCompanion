@@ -645,12 +645,16 @@ void main() {
   });
 
   group('opening from the list while a Khatm is up to it', () {
-    Future<void> addFamilyAt(VerseKey verse) async {
-      await RecitationTrackerManager.instance.addLabel(
-        'Family',
-        settings: RecitationTrackSettings(
-          startAt: verse,
-          startSetAt: DateTime.now(),
+    // Not awaited, as elsewhere here: the state changes at once, and the
+    // backup it then waits on never answers in a test.
+    void addFamilyAt(VerseKey verse) {
+      unawaited(
+        RecitationTrackerManager.instance.addLabel(
+          'Family',
+          settings: RecitationTrackSettings(
+            startAt: verse,
+            startSetAt: DateTime.now(),
+          ),
         ),
       );
     }
@@ -680,7 +684,8 @@ void main() {
         'from there, so this reading counts towards it?';
 
     testWidgets('offers the Khatm only where it is up to', (tester) async {
-      await tester.runAsync(() => addFamilyAt(const VerseKey(2, 201)));
+      addFamilyAt(const VerseKey(2, 201));
+      await tester.pump();
       final state = RecitationTrackerManager.instance.state;
 
       expect(khatmToOffer(state, surah: 2), 'Family');
@@ -698,7 +703,8 @@ void main() {
     });
 
     testWidgets('tapping the surah asks first', (tester) async {
-      await tester.runAsync(() => addFamilyAt(const VerseKey(2, 201)));
+      addFamilyAt(const VerseKey(2, 201));
+      await tester.pump();
       await pump(tester);
 
       await tester.tap(find.text('Surah2').last);
@@ -714,7 +720,8 @@ void main() {
     });
 
     testWidgets('Continue Khatm hands back the Khatm', (tester) async {
-      await tester.runAsync(() => addFamilyAt(const VerseKey(2, 201)));
+      addFamilyAt(const VerseKey(2, 201));
+      await tester.pump();
       final answers = await ask(tester, surah: 2);
 
       await tester.tap(find.text('Continue Khatm'));
@@ -725,7 +732,8 @@ void main() {
     testWidgets('"No, just read" is not asked again at that place', (
       tester,
     ) async {
-      await tester.runAsync(() => addFamilyAt(const VerseKey(2, 201)));
+      addFamilyAt(const VerseKey(2, 201));
+      await tester.pump();
       var answers = await ask(tester, surah: 2);
 
       await tester.tap(find.text('No, just read'));
@@ -740,7 +748,8 @@ void main() {
     });
 
     testWidgets('nothing to ask about another surah', (tester) async {
-      await tester.runAsync(() => addFamilyAt(const VerseKey(2, 201)));
+      addFamilyAt(const VerseKey(2, 201));
+      await tester.pump();
       final answers = await ask(tester, surah: 36);
 
       expect(find.text('Continue your Khatm?'), findsNothing);
