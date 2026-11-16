@@ -7,10 +7,7 @@ import '../theme/shia_colors.dart';
 import 'outline_icon.dart';
 
 class FavoriteIcon extends StatelessWidget {
-  const FavoriteIcon({
-    super.key,
-    required this.favorite,
-  });
+  const FavoriteIcon({super.key, required this.favorite});
 
   final UniversalData favorite;
 

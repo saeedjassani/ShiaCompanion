@@ -33,8 +33,9 @@ const List<Color> _categoricalDark = [
 /// [brightness]. Callers hand out one fixed slot per entity up front (see
 /// [UsageMetricSeries] and the feature-group share bar) rather than per rank.
 Color categoricalColor(int index, Brightness brightness) {
-  final palette =
-      brightness == Brightness.dark ? _categoricalDark : _categoricalLight;
+  final palette = brightness == Brightness.dark
+      ? _categoricalDark
+      : _categoricalLight;
   return palette[index % palette.length];
 }
 
@@ -74,8 +75,9 @@ FlTitlesData _trendTitles(
           if (value < 0 || value == meta.max) return const SizedBox.shrink();
           return Text(
             NumberFormat.compact().format(value),
-            style: theme.textTheme.bodySmall
-                ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+            style: theme.textTheme.bodySmall?.copyWith(
+              color: theme.colorScheme.onSurfaceVariant,
+            ),
           );
         },
       ),
@@ -92,8 +94,9 @@ FlTitlesData _trendTitles(
             padding: const EdgeInsets.only(top: 4),
             child: Text(
               _shortDay(days[index].key),
-              style: theme.textTheme.bodySmall
-                  ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
             ),
           );
         },
@@ -103,12 +106,12 @@ FlTitlesData _trendTitles(
 }
 
 FlGridData _trendGrid(ThemeData theme) => FlGridData(
-      drawVerticalLine: false,
-      getDrawingHorizontalLine: (_) => FlLine(
-        color: theme.colorScheme.outlineVariant.withValues(alpha: 0.4),
-        strokeWidth: 1,
-      ),
-    );
+  drawVerticalLine: false,
+  getDrawingHorizontalLine: (_) => FlLine(
+    color: theme.colorScheme.outlineVariant.withValues(alpha: 0.4),
+    strokeWidth: 1,
+  ),
+);
 
 /// Daily totals for one series, drawn as a smooth-lined area chart — the
 /// default form for "trend over time" (data-viz method: sequential/single
@@ -287,7 +290,8 @@ class MetricTrendChart extends StatelessWidget {
           spacing: 16,
           runSpacing: 6,
           children: [
-            for (final s in series) _LegendEntry(color: s.color, label: s.label)
+            for (final s in series)
+              _LegendEntry(color: s.color, label: s.label),
           ],
         ),
       ],
@@ -341,9 +345,10 @@ class ShareBar extends StatelessWidget {
                   if (i > 0)
                     Container(width: 2, color: theme.colorScheme.surface),
                   Expanded(
-                    flex: (segments[i].value * 1000 / total)
-                        .round()
-                        .clamp(1, 1000),
+                    flex: (segments[i].value * 1000 / total).round().clamp(
+                      1,
+                      1000,
+                    ),
                     child: Tooltip(
                       message:
                           '${segments[i].label}: ${percentFormat.format(segments[i].value / total)}',
@@ -398,8 +403,9 @@ class _LegendEntry extends StatelessWidget {
         Flexible(
           child: Text(
             label,
-            style: theme.textTheme.bodySmall
-                ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+            style: theme.textTheme.bodySmall?.copyWith(
+              color: theme.colorScheme.onSurfaceVariant,
+            ),
           ),
         ),
       ],

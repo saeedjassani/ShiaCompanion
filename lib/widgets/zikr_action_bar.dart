@@ -161,11 +161,8 @@ class ZikrActionBar extends StatelessWidget {
         ),
         Expanded(
           child: _ZikrAction(
-            icon: (color) => HomeGlyph(
-              type: HomeGlyphType.tasbeeh,
-              size: 22,
-              color: color,
-            ),
+            icon: (color) =>
+                HomeGlyph(type: HomeGlyphType.tasbeeh, size: 22, color: color),
             label: context.l10n.actionCounter,
             isActive: isCounterVisible,
             onTap: onCounter,
@@ -249,10 +246,12 @@ class _ZikrActionState extends State<_ZikrAction>
   Widget build(BuildContext context) {
     final colors = ShiaColors.of(context);
     final isEnabled = widget.onTap != null;
-    final iconColor =
-        isEnabled ? colors.accent : colors.accent.withValues(alpha: 0.38);
-    final labelColor =
-        isEnabled ? colors.text : colors.text.withValues(alpha: 0.38);
+    final iconColor = isEnabled
+        ? colors.accent
+        : colors.accent.withValues(alpha: 0.38);
+    final labelColor = isEnabled
+        ? colors.text
+        : colors.text.withValues(alpha: 0.38);
     final radius = BorderRadius.circular(27);
 
     return Semantics(
@@ -287,14 +286,15 @@ class _ZikrActionState extends State<_ZikrAction>
                   // the tab bar's do.
                   textScaler: MediaQuery.textScalerOf(context)
                       .clamp(maxScaleFactor: 1.3),
-                  style: (widget.isActive
-                          ? ShiaText.tabLabelSelected
-                          : ShiaText.tabLabel)
-                      .copyWith(
-                    color: widget.isActive && isEnabled
-                        ? colors.accent
-                        : labelColor,
-                  ),
+                  style:
+                      (widget.isActive
+                              ? ShiaText.tabLabelSelected
+                              : ShiaText.tabLabel)
+                          .copyWith(
+                            color: widget.isActive && isEnabled
+                                ? colors.accent
+                                : labelColor,
+                          ),
                 ),
               ],
             ),

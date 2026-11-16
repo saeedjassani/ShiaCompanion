@@ -34,8 +34,9 @@ class NewsPage extends StatefulWidget {
       // public CORS proxy.
       url = 'https://api.allorigins.win/raw?url=${Uri.encodeComponent(url)}';
     }
-    final response =
-        await http.get(Uri.parse(url)).timeout(const Duration(seconds: 20));
+    final response = await http
+        .get(Uri.parse(url))
+        .timeout(const Duration(seconds: 20));
     if (response.statusCode != 200) {
       throw http.ClientException('status ${response.statusCode}');
     }
@@ -67,10 +68,12 @@ class _NewsPageState extends State<NewsPage> {
     try {
       final feed = await (widget.loadFeed ?? NewsPage.fetchFeed)();
       if (!mounted) return;
-      setState(() => _items = [
-            for (final item in feed.items ?? const <RssItem>[])
-              if ((item.title ?? '').trim().isNotEmpty) item,
-          ]);
+      setState(
+        () => _items = [
+          for (final item in feed.items ?? const <RssItem>[])
+            if ((item.title ?? '').trim().isNotEmpty) item,
+        ],
+      );
     } catch (error) {
       debugPrint('News failed to load: $error');
       if (mounted) setState(() => _failed = true);
@@ -206,8 +209,9 @@ class _NewsCard extends StatelessWidget {
                         ],
                         Text(
                           newsPlainText(item.title ?? ''),
-                          style:
-                              ShiaText.cardTitle.copyWith(color: colors.text),
+                          style: ShiaText.cardTitle.copyWith(
+                            color: colors.text,
+                          ),
                         ),
                       ],
                     ),

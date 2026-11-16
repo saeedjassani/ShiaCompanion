@@ -98,8 +98,12 @@ class _FindFieldState extends State<FindField> {
             child: Row(
               children: [
                 ExcludeSemantics(
-                  child: OutlineIcon(OutlineGlyph.search,
-                      size: 22, color: colors.accent, strokeWidth: 2),
+                  child: OutlineIcon(
+                    OutlineGlyph.search,
+                    size: 22,
+                    color: colors.accent,
+                    strokeWidth: 2,
+                  ),
                 ),
                 const SizedBox(width: 10),
                 Expanded(
@@ -122,17 +126,20 @@ class _FindFieldState extends State<FindField> {
                         enabledBorder: InputBorder.none,
                         focusedBorder: InputBorder.none,
                         hintText: widget.hint,
-                        hintStyle:
-                            ShiaText.body.copyWith(color: colors.textMuted),
+                        hintStyle: ShiaText.body.copyWith(
+                          color: colors.textMuted,
+                        ),
                       ),
                     ),
                   ),
                 ),
                 if (hasText)
-                  _ClearButton(onPressed: () {
-                    widget.controller.clear();
-                    _focusNode.requestFocus();
-                  })
+                  _ClearButton(
+                    onPressed: () {
+                      widget.controller.clear();
+                      _focusNode.requestFocus();
+                    },
+                  )
                 else
                   const SizedBox(width: 10),
               ],
@@ -172,8 +179,12 @@ class _ClearButton extends StatelessWidget {
                 color: colors.textMuted,
                 shape: BoxShape.circle,
               ),
-              child: OutlineIcon(OutlineGlyph.close,
-                  size: 14, color: colors.surface, strokeWidth: 2.6),
+              child: OutlineIcon(
+                OutlineGlyph.close,
+                size: 14,
+                color: colors.surface,
+                strokeWidth: 2.6,
+              ),
             ),
           ),
         ),

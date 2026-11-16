@@ -4,8 +4,10 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:material_ui/material_ui.dart';
+
 import 'widgets/azan_playing_banner.dart';
 import 'widgets/now_playing_capsule.dart';
+
 import 'package:flutter_web_plugins/url_strategy.dart';
 import 'package:just_audio_background/just_audio_background.dart';
 import 'package:provider/provider.dart';
@@ -148,7 +150,8 @@ void main() async {
     await HomeColorCard.markDismissed();
   }
   await WhatsNewService.resolveOnLaunch(
-      freshInstall: FirstRunSetup.freshInstallThisLaunch);
+    freshInstall: FirstRunSetup.freshInstallThisLaunch,
+  );
   await zikrIndex;
   // A local asset, so on a device it is quick enough to wait for, and Urdu
   // doesn't open in the system font and then change. The web downloads it,
@@ -162,15 +165,12 @@ void main() async {
   runApp(MyApp(showFirstRunSetup: showFirstRunSetup));
 }
 
-enum _AppLaunchDestination {
-  home,
-  deleteAccount,
-  widgetPreview,
-}
+enum _AppLaunchDestination { home, deleteAccount, widgetPreview }
 
 _AppLaunchDestination _resolveLaunchDestination(Uri uri) {
-  final segments =
-      uri.pathSegments.where((segment) => segment.trim().isNotEmpty).toList();
+  final segments = uri.pathSegments
+      .where((segment) => segment.trim().isNotEmpty)
+      .toList();
   if (segments.length == 1 && segments.first == 'delete-account') {
     return _AppLaunchDestination.deleteAccount;
   }
@@ -203,10 +203,8 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    Widget buildHomePage() => FirstRunGate(
-          showSetup: showFirstRunSetup,
-          child: const AppShell(),
-        );
+    Widget buildHomePage() =>
+        FirstRunGate(showSetup: showFirstRunSetup, child: const AppShell());
 
     return MultiProvider(
       providers: [
@@ -215,110 +213,125 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (context) => AppTextScaleProvider()),
         ChangeNotifierProvider(create: (context) => LanguageProvider()),
       ],
-      child: Consumer4<ThemeModeProvider, ThemePaletteProvider,
-              AppTextScaleProvider, LanguageProvider>(
-          builder: (context, themeModeProvider, paletteProvider,
-              textScaleProvider, languageProvider, _) {
-        final palette = paletteProvider.palette;
-        final urdu = languageProvider.usesUrduFont;
-        return MaterialApp(
-          navigatorKey: appNavigatorKey,
-          title: appName,
-          // Always explicit, rather than left to Flutter's own resolution, so
-          // the language the UI is in is the one LanguageProvider reports
-          // (and L10n.current serves outside the widget tree).
-          locale: languageProvider.locale,
-          supportedLocales: AppLocalizations.supportedLocales,
-          localizationsDelegates: const [
-            AppLocalizations.delegate,
-            // Cupertino, Material and widgets, from package:material_ui.
-            ...GlobalMaterialLocalizations.delegates,
-            // After Material's, whose first load resets intl's date symbols.
-            IntlSymbolsDelegate(),
-          ],
-          // The in-app Text size setting, layered over the system's own
-          // text scale for every route, dialog and sheet under the navigator.
-          builder: (context, child) => BackOnEscape(
-            // flutter_markdown_plus (the reader) and fl_chart still read
-            // package:flutter/material.dart's Theme, a different class from
-            // material_ui's since Flutter 3.47. The bridge mirrors the app's
-            // colours and text styles into it - without it they'd get the
-            // light fallback theme even in dark mode. Drop it once they move
-            // to material_ui.
-            // ignore: deprecated_member_use
-            child: MaterialUiCompatibilityBridge(
-              child: textScaleProvider.apply(
-                context,
-                // The Azan's controls and a playing playlist float over every
-                // page until they are stopped.
-                Stack(
-                  children: [
-                    Positioned.fill(child: child ?? const SizedBox()),
-                    const NowPlayingCapsule(),
-                    const AzanPlayingBanner(),
-                  ],
-                ),
-              ),
-            ),
+      child:
+          Consumer4<
+            ThemeModeProvider,
+            ThemePaletteProvider,
+            AppTextScaleProvider,
+            LanguageProvider
+          >(
+            builder:
+                (
+                  context,
+                  themeModeProvider,
+                  paletteProvider,
+                  textScaleProvider,
+                  languageProvider,
+                  _,
+                ) {
+                  final palette = paletteProvider.palette;
+                  final urdu = languageProvider.usesUrduFont;
+                  return MaterialApp(
+                    navigatorKey: appNavigatorKey,
+                    title: appName,
+                    // Always explicit, rather than left to Flutter's own resolution, so
+                    // the language the UI is in is the one LanguageProvider reports
+                    // (and L10n.current serves outside the widget tree).
+                    locale: languageProvider.locale,
+                    supportedLocales: AppLocalizations.supportedLocales,
+                    localizationsDelegates: const [
+                      AppLocalizations.delegate,
+                      // Cupertino, Material and widgets, from package:material_ui.
+                      ...GlobalMaterialLocalizations.delegates,
+                      // After Material's, whose first load resets intl's date symbols.
+                      IntlSymbolsDelegate(),
+                    ],
+                    // The in-app Text size setting, layered over the system's own
+                    // text scale for every route, dialog and sheet under the navigator.
+                    builder: (context, child) => BackOnEscape(
+                      // flutter_markdown_plus (the reader) and fl_chart still read
+                      // package:flutter/material.dart's Theme, a different class from
+                      // material_ui's since Flutter 3.47. The bridge mirrors the app's
+                      // colours and text styles into it - without it they'd get the
+                      // light fallback theme even in dark mode. Drop it once they move
+                      // to material_ui.
+                      // ignore: deprecated_member_use
+                      child: MaterialUiCompatibilityBridge(
+                        child: textScaleProvider.apply(
+                          context,
+                          // The Azan's controls and a playing playlist float over every
+                          // page until they are stopped.
+                          Stack(
+                            children: [
+                              Positioned.fill(child: child ?? const SizedBox()),
+                              const NowPlayingCapsule(),
+                              const AzanPlayingBanner(),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                    theme: _themeFor(Brightness.light, palette, urdu),
+                    darkTheme: _themeFor(Brightness.dark, palette, urdu),
+                    themeMode: themeModeProvider.themeMode,
+                    home: switch (_resolveLaunchDestination(Uri.base)) {
+                      _AppLaunchDestination.deleteAccount =>
+                        const DeleteAccountPage(),
+                      _AppLaunchDestination.widgetPreview =>
+                        const WidgetPreviewPage(),
+                      _AppLaunchDestination.home => buildHomePage(),
+                    },
+                    onGenerateRoute: (settings) {
+                      if (settings.name == '/delete-account') {
+                        return MaterialPageRoute(
+                          builder: (_) => const DeleteAccountPage(),
+                          settings: settings,
+                        );
+                      }
+                      if (kDebugMode && settings.name == '/widget-preview') {
+                        return MaterialPageRoute(
+                          builder: (_) => const WidgetPreviewPage(),
+                          settings: settings,
+                        );
+                      }
+                      if (isReservedNonZikrRouteName(settings.name)) {
+                        return _ignoredPlatformRoute(
+                          settings,
+                          fallbackBuilder: (_) => buildHomePage(),
+                        );
+                      }
+                      // Web only: give a shared link a route of its own so the launch URL
+                      // survives start-up. Without this the name falls through to
+                      // onUnknownRoute, which mounts home and then removes itself,
+                      // rewriting the address bar to "/" on the way out. Native builds
+                      // report "/" here and receive their links through app_links, so
+                      // this never runs for them.
+                      if (kIsWeb) {
+                        final launchRoute = _launchDeepLinkRoute(settings);
+                        if (launchRoute != null) {
+                          return launchRoute;
+                        }
+                      }
+                      return null;
+                    },
+                    onUnknownRoute: (settings) {
+                      return _ignoredPlatformRoute(
+                        settings,
+                        fallbackBuilder: (_) => buildHomePage(),
+                      );
+                    },
+                    navigatorObservers: [
+                      // No FirebaseAnalyticsObserver: routes here are pushed without
+                      // names, so it logged blank screens on mobile and double-counted
+                      // every screen that also calls trackScreen. AnalyticsService.screen
+                      // is the single source of screen views, on every platform.
+                      routeObserver,
+                      toastRouteObserver,
+                      nowPlayingRouteObserver,
+                    ],
+                  );
+                },
           ),
-          theme: _themeFor(Brightness.light, palette, urdu),
-          darkTheme: _themeFor(Brightness.dark, palette, urdu),
-          themeMode: themeModeProvider.themeMode,
-          home: switch (_resolveLaunchDestination(Uri.base)) {
-            _AppLaunchDestination.deleteAccount => const DeleteAccountPage(),
-            _AppLaunchDestination.widgetPreview => const WidgetPreviewPage(),
-            _AppLaunchDestination.home => buildHomePage(),
-          },
-          onGenerateRoute: (settings) {
-            if (settings.name == '/delete-account') {
-              return MaterialPageRoute(
-                builder: (_) => const DeleteAccountPage(),
-                settings: settings,
-              );
-            }
-            if (kDebugMode && settings.name == '/widget-preview') {
-              return MaterialPageRoute(
-                builder: (_) => const WidgetPreviewPage(),
-                settings: settings,
-              );
-            }
-            if (isReservedNonZikrRouteName(settings.name)) {
-              return _ignoredPlatformRoute(
-                settings,
-                fallbackBuilder: (_) => buildHomePage(),
-              );
-            }
-            // Web only: give a shared link a route of its own so the launch URL
-            // survives start-up. Without this the name falls through to
-            // onUnknownRoute, which mounts home and then removes itself,
-            // rewriting the address bar to "/" on the way out. Native builds
-            // report "/" here and receive their links through app_links, so
-            // this never runs for them.
-            if (kIsWeb) {
-              final launchRoute = _launchDeepLinkRoute(settings);
-              if (launchRoute != null) {
-                return launchRoute;
-              }
-            }
-            return null;
-          },
-          onUnknownRoute: (settings) {
-            return _ignoredPlatformRoute(
-              settings,
-              fallbackBuilder: (_) => buildHomePage(),
-            );
-          },
-          navigatorObservers: [
-            // No FirebaseAnalyticsObserver: routes here are pushed without
-            // names, so it logged blank screens on mobile and double-counted
-            // every screen that also calls trackScreen. AnalyticsService.screen
-            // is the single source of screen views, on every platform.
-            routeObserver,
-            toastRouteObserver,
-            nowPlayingRouteObserver,
-          ],
-        );
-      }),
     );
   }
 }
@@ -350,16 +363,13 @@ Route<void> _ignoredPlatformRoute(
     opaque: false,
     transitionDuration: Duration.zero,
     reverseTransitionDuration: Duration.zero,
-    pageBuilder: (context, _, __) => _IgnoredPlatformRoutePage(
-      fallbackBuilder: fallbackBuilder,
-    ),
+    pageBuilder: (context, _, __) =>
+        _IgnoredPlatformRoutePage(fallbackBuilder: fallbackBuilder),
   );
 }
 
 class _IgnoredPlatformRoutePage extends StatefulWidget {
-  const _IgnoredPlatformRoutePage({
-    required this.fallbackBuilder,
-  });
+  const _IgnoredPlatformRoutePage({required this.fallbackBuilder});
 
   final WidgetBuilder fallbackBuilder;
 

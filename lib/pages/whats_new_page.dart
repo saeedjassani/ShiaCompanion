@@ -25,8 +25,9 @@ class WhatsNewPage extends StatefulWidget {
 }
 
 class _WhatsNewPageState extends State<WhatsNewPage> {
-  late final List<WhatsNewEntry> _entries =
-      WhatsNewService.entries(platform: widget.platform);
+  late final List<WhatsNewEntry> _entries = WhatsNewService.entries(
+    platform: widget.platform,
+  );
 
   /// Read before [WhatsNewService.markSeen] moves the mark, so what was new
   /// on the way in stays tagged while the page is open.
@@ -63,8 +64,9 @@ class _WhatsNewPageState extends State<WhatsNewPage> {
                     child: Row(
                       children: [
                         Flexible(
-                          child:
-                              GroupLabel(l10n.aboutVersion(entry.versionName)),
+                          child: GroupLabel(
+                            l10n.aboutVersion(entry.versionName),
+                          ),
                         ),
                         if (_unseen.contains(entry.buildNumber)) ...[
                           const SizedBox(width: 8),
@@ -77,8 +79,12 @@ class _WhatsNewPageState extends State<WhatsNewPage> {
                   CardList(
                     children: [
                       Padding(
-                        padding:
-                            const EdgeInsetsDirectional.fromSTEB(16, 14, 16, 6),
+                        padding: const EdgeInsetsDirectional.fromSTEB(
+                          16,
+                          14,
+                          16,
+                          6,
+                        ),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -89,15 +95,19 @@ class _WhatsNewPageState extends State<WhatsNewPage> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     ExcludeSemantics(
-                                      child: Text('•  ',
-                                          style: ShiaText.body
-                                              .copyWith(color: colors.accent)),
+                                      child: Text(
+                                        '•  ',
+                                        style: ShiaText.body.copyWith(
+                                          color: colors.accent,
+                                        ),
+                                      ),
                                     ),
                                     Expanded(
                                       child: Text(
                                         note(l10n),
-                                        style: ShiaText.body
-                                            .copyWith(color: colors.text),
+                                        style: ShiaText.body.copyWith(
+                                          color: colors.text,
+                                        ),
                                       ),
                                     ),
                                   ],

@@ -72,9 +72,11 @@ List<DateTime> upcomingPrayerRelativeOccurrences({
 }) {
   final results = <DateTime>[];
 
-  for (var offset = 0;
-      offset < maxDaysToScan && results.length < count;
-      offset++) {
+  for (
+    var offset = 0;
+    offset < maxDaysToScan && results.length < count;
+    offset++
+  ) {
     // By calendar day rather than 24-hour steps: the day the clocks go back
     // is 25 hours long, so stepping by 24 lands on it twice and schedules
     // that day's reminder twice.

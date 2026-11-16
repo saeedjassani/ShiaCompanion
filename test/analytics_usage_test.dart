@@ -414,7 +414,7 @@ void main() {
         'recitation_entry_removed': FeatureGroup.readingContent,
         'recitation_track_settings_changed': FeatureGroup.readingContent,
         'quran_tracking_hint_dismissed': FeatureGroup.readingContent,
-        'quran_khatm_prompt': FeatureGroup.readingContent,
+        'quran_khatm_toast_continued': FeatureGroup.readingContent,
         'quran_surah_step': FeatureGroup.readingContent,
         'quran_juz_step': FeatureGroup.readingContent,
         'quran_khatm_dua': FeatureGroup.readingContent,

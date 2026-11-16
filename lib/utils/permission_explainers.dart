@@ -51,7 +51,8 @@ class PermissionExplainers {
       final plugin = await ensureNotificationsPlugin();
       final options = await plugin
           ?.resolvePlatformSpecificImplementation<
-              IOSFlutterLocalNotificationsPlugin>()
+            IOSFlutterLocalNotificationsPlugin
+          >()
           ?.checkPermissions();
       return options?.isEnabled ?? false;
     } catch (e) {

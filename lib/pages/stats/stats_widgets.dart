@@ -48,8 +48,9 @@ class StatsSectionTitle extends StatelessWidget {
       header: true,
       child: Text(
         text,
-        style:
-            ShiaText.sectionTitle.copyWith(color: ShiaColors.of(context).text),
+        style: ShiaText.sectionTitle.copyWith(
+          color: ShiaColors.of(context).text,
+        ),
       ),
     );
   }

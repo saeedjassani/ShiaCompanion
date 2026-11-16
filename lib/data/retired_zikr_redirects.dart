@@ -16,7 +16,7 @@
 /// instead, [tabs] shows just those, and the rest of the target is hidden.
 class RetiredZikrRedirect {
   const RetiredZikrRedirect(this.targetUid, {this.tabIndex, this.tabs})
-      : assert(tabIndex == null || tabs == null);
+    : assert(tabIndex == null || tabs == null);
 
   /// The uid whose content now covers what this retired uid used to.
   final String targetUid;
@@ -433,9 +433,11 @@ const Map<String, RetiredZikrRedirect> retiredZikrRedirects = {
   /// three were never restored on their own. Their historic text, checked
   /// against duas.org's ziaratbaqi page, is AP8's tabs.
   'AP9': RetiredZikrRedirect('AP8', tabIndex: 0), // farewell to the Imams
-  'AP11': RetiredZikrRedirect('AP8', tabIndex: 1), // Ibrahim, son of the Prophet
+  'AP11': RetiredZikrRedirect(
+    'AP8',
+    tabIndex: 1,
+  ), // Ibrahim, son of the Prophet
   'AQ1': RetiredZikrRedirect('AP8', tabIndex: 2), // Fatimah bint Asad
-
   /// The farewell to the Holy Prophet (s.a.w.a.) is the second tab of his
   /// ziyarat in Madinah, AP2.
   'AP13': RetiredZikrRedirect('AP2', tabIndex: 0),

@@ -47,14 +47,14 @@ class LocationStatus {
     final action = switch (failure) {
       LocationFailure.permissionDenied => LocationStatusAction.allow,
       // Neither settings screen can be opened from a browser.
-      LocationFailure.permissionDeniedForever => kIsWeb
-          ? LocationStatusAction.tryAgain
-          : LocationStatusAction.openSettings,
+      LocationFailure.permissionDeniedForever =>
+        kIsWeb
+            ? LocationStatusAction.tryAgain
+            : LocationStatusAction.openSettings,
       LocationFailure.serviceDisabled =>
         kIsWeb ? LocationStatusAction.tryAgain : LocationStatusAction.turnOn,
       LocationFailure.timeout ||
-      LocationFailure.unknown =>
-        LocationStatusAction.tryAgain,
+      LocationFailure.unknown => LocationStatusAction.tryAgain,
     };
     return LocationStatus(
       message: '${location.failureMessage} · ${l10n.locationAgeDays(days)}',
@@ -112,11 +112,13 @@ class _LocationStatusLineState extends State<LocationStatusLine> {
   }
 
   Future<void> _act(LocationStatusAction action) async {
-    unawaited(AnalyticsService.feature(
-      'location_status_action',
-      label: 'Location status action',
-      parameters: {'action': action.name},
-    ));
+    unawaited(
+      AnalyticsService.feature(
+        'location_status_action',
+        label: 'Location status action',
+        parameters: {'action': action.name},
+      ),
+    );
     switch (action) {
       case LocationStatusAction.openSettings:
         _awaitingSettings = true;
@@ -178,8 +180,10 @@ class _LocationStatusLineState extends State<LocationStatusLine> {
                   foregroundColor: colors.accent,
                   visualDensity: VisualDensity.compact,
                   padding: const EdgeInsets.symmetric(horizontal: 8),
-                  textStyle: buttonTextStyle(context,
-                      ShiaText.caption.copyWith(fontWeight: FontWeight.w700)),
+                  textStyle: buttonTextStyle(
+                    context,
+                    ShiaText.caption.copyWith(fontWeight: FontWeight.w700),
+                  ),
                 ),
                 child: Text(_actionLabel(status.action)),
               ),

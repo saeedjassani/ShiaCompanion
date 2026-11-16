@@ -32,10 +32,7 @@ List<ZikrSection> zikrSectionsOf(ParsedZikrContent content) {
   return [
     for (final line in lines)
       if (!content.isHiddenEnglish(line))
-        ZikrSection(
-          lineIndex: line,
-          label: content.displayLine(line).trim(),
-        ),
+        ZikrSection(lineIndex: line, label: content.displayLine(line).trim()),
   ];
 }
 

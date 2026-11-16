@@ -19,6 +19,7 @@ import 'package:shia_companion/widgets/zikr_list_row.dart';
 
 import '../constants.dart';
 import '../l10n/l10n.dart';
+
 import 'package:shia_companion/services/analytics_service.dart';
 
 /// A zikr list - Duas, Ziyarats, Surahs and the rest, and the groups inside
@@ -97,24 +98,29 @@ class _ItemListState extends State<ItemList> {
   }
 
   String _findHint(AppLocalizations l10n) => switch (_list) {
-        'A' => l10n.listFindSurah,
-        'E' || 'AS' => l10n.listFindDua,
-        'G' => l10n.listFindZiyarat,
-        'F' => l10n.listFindPrayer,
-        'H' => l10n.listFindMunajat,
-        _ => l10n.listFindIn(widget.title),
-      };
+    'A' => l10n.listFindSurah,
+    'E' || 'AS' => l10n.listFindDua,
+    'G' => l10n.listFindZiyarat,
+    'F' => l10n.listFindPrayer,
+    'H' => l10n.listFindMunajat,
+    _ => l10n.listFindIn(widget.title),
+  };
 
   Future<void> _open(UidTitleData entry) async {
     if (isZikrGroup(entry)) {
       await pushPageRoute(
-          context,
-          ItemList(entry.getUId().split("~")[1],
-              UniversalData(entry.uid, entry.title, 0).displayTitle));
+        context,
+        ItemList(
+          entry.getUId().split("~")[1],
+          UniversalData(entry.uid, entry.title, 0).displayTitle,
+        ),
+      );
     } else {
       await handleUniversalDataClick(
-          context, UniversalData(entry.uid, entry.title, 0),
-          source: ZikrOpenSource.list);
+        context,
+        UniversalData(entry.uid, entry.title, 0),
+        source: ZikrOpenSource.list,
+      );
     }
     if (!mounted) return;
     setState(_refreshWorkingItems);
@@ -198,8 +204,10 @@ class _ItemListState extends State<ItemList> {
 
     // An alias carries no `day` of its own; its target's says when.
     final patterns = lunarPatternsFrom(
-        (itemMetadata[entry.uid] ?? itemMetadata[entry.getFirstUId()])?['day']);
-    final today = patterns.isNotEmpty &&
+      (itemMetadata[entry.uid] ?? itemMetadata[entry.getFirstUId()])?['day'],
+    );
+    final today =
+        patterns.isNotEmpty &&
         !isEveryDayOccasion(patterns) &&
         matchesAnyLunarPattern(patterns, day: _today.day, night: _today.night);
 
@@ -226,7 +234,9 @@ class _ItemListState extends State<ItemList> {
     if (names.isEmpty) return l10n.listCountSections(children.length);
     final shown = names.length > 3 ? [...names.take(3), '…'] : names;
     return l10n.listGroupContents(
-        shown.join(l10n.listSeparator), children.length);
+      shown.join(l10n.listSeparator),
+      children.length,
+    );
   }
 }
 
@@ -255,7 +265,8 @@ class _SurahRow extends StatelessWidget {
       minHeight: 60,
       leading: NumberWell(surah.number),
       title: Text(
-          isUserAdmin ? '${item.uid} ${surah.displayName}' : surah.displayName),
+        isUserAdmin ? '${item.uid} ${surah.displayName}' : surah.displayName,
+      ),
       subtitle: Text(context.l10n.quranVerseCount(surah.ayahCount)),
       trailing: Row(
         mainAxisSize: MainAxisSize.min,
@@ -264,7 +275,8 @@ class _SurahRow extends StatelessWidget {
             // Capped, so a long name can never push the heart off.
             ConstrainedBox(
               constraints: BoxConstraints(
-                  maxWidth: MediaQuery.sizeOf(context).width * 0.4),
+                maxWidth: MediaQuery.sizeOf(context).width * 0.4,
+              ),
               child: SurahArabicName(surah.arabicName),
             ),
           FavoriteHeartButton(favorite: item),

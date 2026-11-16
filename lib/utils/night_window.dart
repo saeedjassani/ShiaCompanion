@@ -38,7 +38,8 @@ LunarDay? resolveNightLunarDay({
   int hijriDateOffsetDays = 0,
 }) {
   final todayDateOnly = civilDateOf(now);
-  final bounds = fajrAndMaghribOn(
+  final bounds =
+      fajrAndMaghribOn(
         todayDateOnly,
         prayerTime: prayerTime,
         latitude: latitude,

@@ -53,14 +53,16 @@ class _ZiyaratCityPageState extends State<ZiyaratCityPage> {
         if (city.about != null)
           GuideSection(
             label: l10n.ziyaratGuideAbout,
-            sliver:
-                SliverToBoxAdapter(child: GuideTextCard(paragraph: city.about)),
+            sliver: SliverToBoxAdapter(
+              child: GuideTextCard(paragraph: city.about),
+            ),
           ),
         if (city.tips.isNotEmpty)
           GuideSection(
             label: l10n.ziyaratGuideTips,
-            sliver:
-                SliverToBoxAdapter(child: GuideTextCard(bullets: city.tips)),
+            sliver: SliverToBoxAdapter(
+              child: GuideTextCard(bullets: city.tips),
+            ),
           ),
         const SliverToBoxAdapter(child: SizedBox(height: 32)),
       ],
@@ -96,13 +98,19 @@ class _SiteRow extends StatelessWidget {
       ),
       title: Text(site.name),
       titleStyle: ShiaText.body.copyWith(fontWeight: FontWeight.w600),
-      subtitle: Text(site.ziyarat.isEmpty
-          ? kind
-          : '$kind · ${l10n.listCountZiyarats(site.ziyarat.length)}'),
+      subtitle: Text(
+        site.ziyarat.isEmpty
+            ? kind
+            : '$kind · ${l10n.listCountZiyarats(site.ziyarat.length)}',
+      ),
       trailing: Padding(
         padding: const EdgeInsetsDirectional.only(start: 8, end: 8),
-        child: OutlineIcon(OutlineGlyph.chevronRight,
-            size: 16, color: colors.chevron, strokeWidth: 2.4),
+        child: OutlineIcon(
+          OutlineGlyph.chevronRight,
+          size: 16,
+          color: colors.chevron,
+          strokeWidth: 2.4,
+        ),
       ),
       onTap: () {
         AnalyticsService.feature(

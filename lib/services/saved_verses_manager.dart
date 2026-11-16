@@ -122,7 +122,8 @@ class SavedVersesManager extends ChangeNotifier {
     if (!cachedState.isEmpty) _updateState(cachedState);
 
     final remoteRead = await _loadRemoteState(user.uid);
-    final shouldImportGuestState = (isGuestToUserTransition ||
+    final shouldImportGuestState =
+        (isGuestToUserTransition ||
             SP.prefs.getBool(_guestImportPendingKey) == true) &&
         !guestState.isEmpty;
     final pendingOperations = _loadPendingOperations(user.uid);
@@ -144,8 +145,10 @@ class SavedVersesManager extends ChangeNotifier {
 
     var visibleState = remoteRead.state;
     if (shouldImportGuestState) visibleState = visibleState.plus(guestState);
-    visibleState =
-        applyPendingSavedVerseOperations(visibleState, pendingOperations);
+    visibleState = applyPendingSavedVerseOperations(
+      visibleState,
+      pendingOperations,
+    );
 
     _updateState(visibleState);
     await _saveUserState(user.uid, visibleState);
@@ -224,8 +227,9 @@ class SavedVersesManager extends ChangeNotifier {
 
   Future<_RemoteSavedVersesRead> _loadRemoteState(String userId) async {
     try {
-      final snapshot =
-          await _doc(userId).get().timeout(const Duration(seconds: 8));
+      final snapshot = await _doc(userId)
+          .get()
+          .timeout(const Duration(seconds: 8));
       return _RemoteSavedVersesRead.success(
         SavedVersesState.fromJson(snapshot.data()?['state']),
       );
@@ -254,7 +258,8 @@ class SavedVersesManager extends ChangeNotifier {
       return operations.values.toList(growable: false);
     } catch (error) {
       debugPrint(
-          'SavedVersesManager: Error decoding pending operations: $error');
+        'SavedVersesManager: Error decoding pending operations: $error',
+      );
       return const [];
     }
   }
@@ -283,9 +288,11 @@ class SavedVersesManager extends ChangeNotifier {
       // still has to go up.
       final synced = jsonEncode(operation.toJson());
       final operations = _loadPendingOperations(userId)
-          .where((pending) =>
-              pending.id != operation.id ||
-              jsonEncode(pending.toJson()) != synced)
+          .where(
+            (pending) =>
+                pending.id != operation.id ||
+                jsonEncode(pending.toJson()) != synced,
+          )
           .toList(growable: false);
       await _writePendingOperations(userId, operations);
     });
@@ -366,9 +373,11 @@ class SavedVersesManager extends ChangeNotifier {
     return _writeRemote(
       userId,
       stillWanted: onlyIfPending
-          ? () => _loadPendingOperations(userId).any((pending) =>
-              pending.id == operation.id &&
-              jsonEncode(pending.toJson()) == synced)
+          ? () => _loadPendingOperations(userId).any(
+              (pending) =>
+                  pending.id == operation.id &&
+                  jsonEncode(pending.toJson()) == synced,
+            )
           : null,
       (current) => applyPendingSavedVerseOperation(current, operation),
     );
@@ -409,8 +418,10 @@ class SavedVersesManager extends ChangeNotifier {
 
         await _storageWriteQueue;
         final pendingOperations = _loadPendingOperations(user.uid);
-        final visibleState =
-            applyPendingSavedVerseOperations(remoteState, pendingOperations);
+        final visibleState = applyPendingSavedVerseOperations(
+          remoteState,
+          pendingOperations,
+        );
         _updateState(visibleState);
         await _saveUserState(user.uid, visibleState);
 
@@ -561,8 +572,8 @@ class _RemoteSavedVersesRead {
   _RemoteSavedVersesRead.success(this.state) : succeeded = true;
 
   _RemoteSavedVersesRead.failure()
-      : succeeded = false,
-        state = SavedVersesState.empty;
+    : succeeded = false,
+      state = SavedVersesState.empty;
 
   final bool succeeded;
   final SavedVersesState state;

@@ -27,13 +27,13 @@ enum QuranCollection {
   notes;
 
   String get label => switch (this) {
-        QuranCollection.duas => L10n.current.quranCollectionDuas,
-        QuranCollection.imamAli => L10n.current.quranCollectionImamAli,
-        QuranCollection.imamMahdi => L10n.current.quranCollectionImamMahdi,
-        QuranCollection.prophets => L10n.current.quranCollectionProphets,
-        QuranCollection.saved => L10n.current.quranCollectionSaved,
-        QuranCollection.notes => L10n.current.quranCollectionNotes,
-      };
+    QuranCollection.duas => L10n.current.quranCollectionDuas,
+    QuranCollection.imamAli => L10n.current.quranCollectionImamAli,
+    QuranCollection.imamMahdi => L10n.current.quranCollectionImamMahdi,
+    QuranCollection.prophets => L10n.current.quranCollectionProphets,
+    QuranCollection.saved => L10n.current.quranCollectionSaved,
+    QuranCollection.notes => L10n.current.quranCollectionNotes,
+  };
 
   /// Remembers the collection last picked, so someone who comes for their
   /// saved verses is not sent back to Duas every visit.
@@ -110,12 +110,19 @@ class QuranCollectionsSliver extends StatelessWidget {
         return _quranDuaSlivers(context, onOpenVerse);
       case QuranCollection.imamAli:
         return [
-          _notedVerseSliver(quranAliVerses.keys, aliRelatedNoteFor, onOpenVerse)
+          _notedVerseSliver(
+            quranAliVerses.keys,
+            aliRelatedNoteFor,
+            onOpenVerse,
+          ),
         ];
       case QuranCollection.imamMahdi:
         return [
           _notedVerseSliver(
-              quranMahdiVerses.keys, mahdiRelatedNoteFor, onOpenVerse)
+            quranMahdiVerses.keys,
+            mahdiRelatedNoteFor,
+            onOpenVerse,
+          ),
         ];
       case QuranCollection.prophets:
         return _prophetStorySlivers(onOpenVerse);
@@ -190,7 +197,7 @@ class _CollectionPillsState extends State<_CollectionPills> {
     final position = _scroll.position;
     final end =
         RenderAbstractViewport.of(pill).getOffsetToReveal(pill, 1.0).offset +
-            widget.gutter.right;
+        widget.gutter.right;
     if (end <= position.pixels) return;
     _scroll.jumpTo(end.clamp(0.0, position.maxScrollExtent));
   }
@@ -222,7 +229,8 @@ class _CollectionPillsState extends State<_CollectionPills> {
 }
 
 String _verseTitle(VerseKey verse) {
-  final name = surahInfoFor(verse.surah)?.displayName ??
+  final name =
+      surahInfoFor(verse.surah)?.displayName ??
       L10n.current.quranSurahNumber(verse.surah);
   return L10n.current.quranSurahAyah(name, verse.ayah ?? 1);
 }
@@ -238,7 +246,9 @@ String _verseTitle(VerseKey verse) {
 /// Outside English a dua goes by its Arabic opening words rather than their
 /// transliteration, which the app shows no one but English readers.
 List<Widget> _quranDuaSlivers(
-    BuildContext context, void Function(VerseKey verse) onOpenVerse) {
+  BuildContext context,
+  void Function(VerseKey verse) onOpenVerse,
+) {
   final arabicOpenings = context.l10n.localeName != 'en';
   final colors = ShiaColors.of(context);
   return [
@@ -277,13 +287,16 @@ List<Widget> _quranDuaSlivers(
 /// mushaf order, each with the note it is known by, in the app language
 /// ([noteFor]).
 Widget _notedVerseSliver(
-    Iterable<VerseKey> keys,
-    String? Function(VerseKey verse) noteFor,
-    void Function(VerseKey verse) onOpen) {
+  Iterable<VerseKey> keys,
+  String? Function(VerseKey verse) noteFor,
+  void Function(VerseKey verse) onOpen,
+) {
   final verses = keys.toList()
-    ..sort((a, b) => a.surah != b.surah
-        ? a.surah.compareTo(b.surah)
-        : (a.ayah ?? 0).compareTo(b.ayah ?? 0));
+    ..sort(
+      (a, b) => a.surah != b.surah
+          ? a.surah.compareTo(b.surah)
+          : (a.ayah ?? 0).compareTo(b.ayah ?? 0),
+    );
 
   return SliverCardList(
     itemCount: verses.length,
@@ -313,7 +326,9 @@ List<Widget> _prophetStorySlivers(void Function(VerseKey verse) onOpen) {
       SliverToBoxAdapter(
         child: Padding(
           padding: EdgeInsets.only(
-              top: entry.key == groups.keys.first ? 0 : 20, bottom: 8),
+            top: entry.key == groups.keys.first ? 0 : 20,
+            bottom: 8,
+          ),
           child: GroupLabel(entry.value.first.displayProphet, upperCase: false),
         ),
       ),
@@ -417,8 +432,12 @@ class SavedVerseRow extends StatelessWidget {
           child: SizedBox.square(
             dimension: 44,
             child: Center(
-              child: OutlineIcon(OutlineGlyph.close,
-                  size: 20, color: colors.chevron, strokeWidth: 2),
+              child: OutlineIcon(
+                OutlineGlyph.close,
+                size: 20,
+                color: colors.chevron,
+                strokeWidth: 2,
+              ),
             ),
           ),
         ),
@@ -452,11 +471,7 @@ class VerseNoteRow extends StatelessWidget {
       first: first,
       last: last,
       title: Text(verseNoteReference(note.verse, surahName: note.surahName)),
-      subtitle: Text(
-        note.text,
-        maxLines: 3,
-        overflow: TextOverflow.ellipsis,
-      ),
+      subtitle: Text(note.text, maxLines: 3, overflow: TextOverflow.ellipsis),
       trailing: Tooltip(
         message: context.l10n.quranEditNote,
         child: InkResponse(
@@ -469,8 +484,12 @@ class VerseNoteRow extends StatelessWidget {
           child: SizedBox.square(
             dimension: 44,
             child: Center(
-              child: OutlineIcon(OutlineGlyph.pencil,
-                  size: 20, color: colors.chevron, strokeWidth: 2),
+              child: OutlineIcon(
+                OutlineGlyph.pencil,
+                size: 20,
+                color: colors.chevron,
+                strokeWidth: 2,
+              ),
             ),
           ),
         ),

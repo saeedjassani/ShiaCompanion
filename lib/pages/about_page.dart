@@ -42,9 +42,9 @@ class _AboutPageState extends State<AboutPage> {
     final gutter = pageGutter(context, maxWidth: compactContentWidth);
 
     Widget section(Widget child, {double bottom = 14}) => SliverPadding(
-          padding: gutter.copyWith(bottom: bottom),
-          sliver: SliverToBoxAdapter(child: child),
-        );
+      padding: gutter.copyWith(bottom: bottom),
+      sliver: SliverToBoxAdapter(child: child),
+    );
 
     final credits = <(String, String, String)>[
       // duas.org permit use of their recitations on condition of credit -
@@ -55,7 +55,7 @@ class _AboutPageState extends State<AboutPage> {
       (
         l10n.aboutCreditScheherazade,
         'software.sil.org/scheherazade',
-        'https://software.sil.org/scheherazade/'
+        'https://software.sil.org/scheherazade/',
       ),
       // Tanzil's terms (CC BY 3.0) require the source to be named and linked
       // wherever its text is shown.
@@ -66,7 +66,7 @@ class _AboutPageState extends State<AboutPage> {
       (
         '${l10n.aboutCreditQuranWbw}\n\n${l10n.aboutCreditIndoPakFont}',
         'quranwbw.com',
-        'https://quranwbw.com'
+        'https://quranwbw.com',
       ),
       // GeoNames data is CC BY 4.0: credit and link wherever it is used. The
       // city picker names it too.
@@ -130,8 +130,11 @@ class _AboutPageState extends State<AboutPage> {
               CardListRow(
                 first: true,
                 last: true,
-                leading: OutlineIcon(OutlineGlyph.mail,
-                    size: 20, color: colors.accent),
+                leading: OutlineIcon(
+                  OutlineGlyph.mail,
+                  size: 20,
+                  color: colors.accent,
+                ),
                 title: Text(l10n.aboutContactUs),
                 subtitle: Text(
                   _supportEmail,
@@ -169,8 +172,11 @@ class _AboutPageState extends State<AboutPage> {
                   trailing: SizedBox.square(
                     dimension: 44,
                     child: Center(
-                      child: OutlineIcon(OutlineGlyph.link,
-                          size: 20, color: colors.accent),
+                      child: OutlineIcon(
+                        OutlineGlyph.link,
+                        size: 20,
+                        color: colors.accent,
+                      ),
                     ),
                   ),
                   onTap: () => launchExternalUri(Uri.parse(url)),

@@ -32,15 +32,15 @@ class ShrinePlan {
 
   /// [point] in the plan's metres.
   Offset project(GeoPoint point) => Offset(
-        (point.longitude - origin.longitude) * _mPerDegLng * _cosOrigin,
-        -(point.latitude - origin.latitude) * _mPerDegLat,
-      );
+    (point.longitude - origin.longitude) * _mPerDegLng * _cosOrigin,
+    -(point.latitude - origin.latitude) * _mPerDegLat,
+  );
 
   /// The point at [offset] metres from [origin].
   GeoPoint unproject(Offset offset) => GeoPoint(
-        origin.latitude - offset.dy / _mPerDegLat,
-        origin.longitude + offset.dx / (_mPerDegLng * _cosOrigin),
-      );
+    origin.latitude - offset.dy / _mPerDegLat,
+    origin.longitude + offset.dx / (_mPerDegLng * _cosOrigin),
+  );
 
   factory ShrinePlan.fromJson(Map<String, dynamic> json) {
     final origin = (json['origin'] as List).cast<num>();

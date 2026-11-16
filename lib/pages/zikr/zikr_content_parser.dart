@@ -165,8 +165,8 @@ class ZikrContentParser {
   /// [line] without its [headingMarker], if it has one.
   static String stripHeadingMarker(String line) =>
       line.startsWith(headingMarker)
-          ? line.substring(headingMarker.length).trimLeft()
-          : line;
+      ? line.substring(headingMarker.length).trimLeft()
+      : line;
 
   static ParsedZikrContent parseContent(
     String content, {
@@ -200,8 +200,9 @@ class ZikrContentParser {
     for (final arabicIndex in arabicCodes) {
       final members = <int>[arabicIndex];
       final transliIndex = hasTransliteration ? arabicIndex + 1 : null;
-      final translaIndex =
-          hasTransliteration ? arabicIndex + 2 : arabicIndex + 1;
+      final translaIndex = hasTransliteration
+          ? arabicIndex + 2
+          : arabicIndex + 1;
 
       // An index that is itself Arabic is another verse, not this one's
       // English: the renderer already treats Arabic first, and letting it
@@ -235,8 +236,9 @@ class ZikrContentParser {
         continue;
       }
       if (arabicCodes.contains(i)) {
-        segments
-            .add(ZikrSegment(anchorLine: i, slotLine: translationLineOf[i]));
+        segments.add(
+          ZikrSegment(anchorLine: i, slotLine: translationLineOf[i]),
+        );
       } else {
         segments.add(ZikrSegment(anchorLine: i, slotLine: i));
       }
@@ -374,9 +376,9 @@ class ZikrContentParser {
     var currentIndex = 0;
     for (final match in _markdownLinkPattern.allMatches(line)) {
       if (match.start > currentIndex) {
-        segments.add(ZikrLineSegment(
-          text: line.substring(currentIndex, match.start),
-        ));
+        segments.add(
+          ZikrLineSegment(text: line.substring(currentIndex, match.start)),
+        );
       }
       final linkText = match.group(1) ?? '';
       final href = match.group(2) ?? '';
@@ -447,8 +449,9 @@ class ZikrContentParser {
   // private-use glyph (U+E820 on 4:157, U+F500-U+F6FF everywhere else). The
   // ` (N)` after it is kept for [ayahNumberOf] and hidden here: drawn, it
   // would number the verse a second time.
-  static final RegExp _numberAfterQuranWbwMedallion =
-      RegExp('(?<=[\uE820\uF500-\uF6FF])\\s*\\(\\d+\\)\\s*\$');
+  static final RegExp _numberAfterQuranWbwMedallion = RegExp(
+    '(?<=[\uE820\uF500-\uF6FF])\\s*\\(\\d+\\)\\s*\$',
+  );
 
   /// The ayah number an Arabic line ends with, or null when it carries none -
   /// the Bismillah that heads every surah but at-Tawbah, and every line of a
@@ -476,8 +479,9 @@ class ZikrContentParser {
   static String formatArabicText(String str) {
     var result = str;
     _spaces.forEach((from, to) => result = result.replaceAll(from, to));
-    _privateUseMarks
-        .forEach((from, to) => result = result.replaceAll(from, to));
+    _privateUseMarks.forEach(
+      (from, to) => result = result.replaceAll(from, to),
+    );
     result = result.replaceFirst(_numberAfterQuranWbwMedallion, '');
 
     if (_endOfAyahFonts.contains(arabicFont)) {

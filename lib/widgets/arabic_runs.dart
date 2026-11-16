@@ -6,7 +6,8 @@ import '../l10n/l10n.dart';
 import '../services/zikr_translations.dart';
 
 /// Arabic script, as titles use it: letters, harakat and presentation forms.
-const String arabicScript = r'؀-ۿݐ-ݿࢠ-ࣿ'
+const String arabicScript =
+    r'؀-ۿݐ-ݿࢠ-ࣿ'
     r'ﭐ-﷿ﹰ-﻿';
 
 /// A run of Arabic words, with the spaces and joiners between them:
@@ -51,7 +52,8 @@ List<TextSpan>? arabicRunSpans(String text, {TextStyle? style}) {
   for (final match in matches) {
     if (match.start > start) {
       spans.add(
-          TextSpan(text: text.substring(start, match.start), style: style));
+        TextSpan(text: text.substring(start, match.start), style: style),
+      );
     }
     spans.add(TextSpan(text: match.group(0), style: arabic));
     start = match.end;
@@ -64,15 +66,21 @@ List<TextSpan>? arabicRunSpans(String text, {TextStyle? style}) {
 
 /// [text] with its Arabic in the reader's Arabic font (see
 /// [arabicRunSpans]); a plain [Text] when it has none.
-Text textWithArabicRuns(String text,
-    {TextStyle? style, int? maxLines, TextOverflow? overflow}) {
+Text textWithArabicRuns(
+  String text, {
+  TextStyle? style,
+  int? maxLines,
+  TextOverflow? overflow,
+}) {
   final spans = arabicRunSpans(text);
   if (spans == null) {
     return Text(text, style: style, maxLines: maxLines, overflow: overflow);
   }
-  return Text.rich(TextSpan(children: spans),
-      style: style,
-      maxLines: maxLines,
-      overflow: overflow,
-      semanticsLabel: text);
+  return Text.rich(
+    TextSpan(children: spans),
+    style: style,
+    maxLines: maxLines,
+    overflow: overflow,
+    semanticsLabel: text,
+  );
 }

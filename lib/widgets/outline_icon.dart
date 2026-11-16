@@ -94,7 +94,8 @@ class OutlineIcon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final flip = _directional.contains(glyph) &&
+    final flip =
+        _directional.contains(glyph) &&
         Directionality.of(context) == TextDirection.rtl;
     return Transform.flip(
       flipX: flip,
@@ -128,10 +129,11 @@ class _OutlinePainter extends CustomPainter {
     final path = _path(glyph);
     if (filled) {
       canvas.drawPath(
-          path,
-          Paint()
-            ..color = color
-            ..style = PaintingStyle.fill);
+        path,
+        Paint()
+          ..color = color
+          ..style = PaintingStyle.fill,
+      );
     }
     canvas.drawPath(path, paint);
   }
@@ -150,12 +152,15 @@ class _OutlinePainter extends CustomPainter {
     ..addPath(_line(16, 3, 16, 7), Offset.zero);
 
   /// Three puffs on a flat base, as one outline.
-  static Path _cloud() => [
+  static Path _cloud() =>
+      [
         _circle(16.5, 14.5, 4),
         _circle(12, 10.5, 5),
         Path()..addRect(const Rect.fromLTRB(8, 14.5, 16.5, 18.5)),
-      ].fold(_circle(8, 14.5, 4),
-          (cloud, part) => Path.combine(PathOperation.union, cloud, part));
+      ].fold(
+        _circle(8, 14.5, 4),
+        (cloud, part) => Path.combine(PathOperation.union, cloud, part),
+      );
 
   static Path _path(OutlineGlyph glyph) {
     switch (glyph) {
@@ -165,15 +170,19 @@ class _OutlinePainter extends CustomPainter {
           ..lineTo(12, 4)
           ..lineTo(20, 11)
           ..lineTo(20, 19.5)
-          ..arcToPoint(const Offset(18.5, 21),
-              radius: const Radius.circular(1.5))
+          ..arcToPoint(
+            const Offset(18.5, 21),
+            radius: const Radius.circular(1.5),
+          )
           ..lineTo(15, 21)
           ..lineTo(15, 15)
           ..lineTo(9, 15)
           ..lineTo(9, 21)
           ..lineTo(5.5, 21)
-          ..arcToPoint(const Offset(4, 19.5),
-              radius: const Radius.circular(1.5))
+          ..arcToPoint(
+            const Offset(4, 19.5),
+            radius: const Radius.circular(1.5),
+          )
           ..close();
       case OutlineGlyph.heart:
         return Path()
@@ -219,18 +228,26 @@ class _OutlinePainter extends CustomPainter {
           ..lineTo(16, 8)
           ..moveTo(5, 12)
           ..lineTo(5, 18)
-          ..arcToPoint(const Offset(7, 20),
-              radius: const Radius.circular(2), clockwise: false)
+          ..arcToPoint(
+            const Offset(7, 20),
+            radius: const Radius.circular(2),
+            clockwise: false,
+          )
           ..lineTo(17, 20)
-          ..arcToPoint(const Offset(19, 18),
-              radius: const Radius.circular(2), clockwise: false)
+          ..arcToPoint(
+            const Offset(19, 18),
+            radius: const Radius.circular(2),
+            clockwise: false,
+          )
           ..lineTo(19, 12);
       case OutlineGlyph.pin:
         return Path()
           ..moveTo(12, 21)
           ..cubicTo(12, 21, 5.5, 15, 5.5, 10)
-          ..arcToPoint(const Offset(18.5, 10),
-              radius: const Radius.circular(6.5))
+          ..arcToPoint(
+            const Offset(18.5, 10),
+            radius: const Radius.circular(6.5),
+          )
           ..cubicTo(18.5, 15, 12, 21, 12, 21)
           ..close()
           ..addPath(_circle(12, 10, 2.3), Offset.zero);
@@ -263,8 +280,11 @@ class _OutlinePainter extends CustomPainter {
           ..lineTo(21, 13.7)
           ..lineTo(13.5, 9)
           ..lineTo(13.5, 4.5)
-          ..arcToPoint(const Offset(10.5, 4.5),
-              radius: const Radius.circular(1.5), clockwise: false)
+          ..arcToPoint(
+            const Offset(10.5, 4.5),
+            radius: const Radius.circular(1.5),
+            clockwise: false,
+          )
           ..lineTo(10.5, 9)
           ..lineTo(3, 13.7)
           ..lineTo(3, 15.5)
@@ -345,8 +365,10 @@ class _OutlinePainter extends CustomPainter {
           ..moveTo(15.5, 9)
           ..arcToPoint(const Offset(15.5, 15), radius: const Radius.circular(4))
           ..moveTo(18, 6.5)
-          ..arcToPoint(const Offset(18, 17.5),
-              radius: const Radius.circular(7.5));
+          ..arcToPoint(
+            const Offset(18, 17.5),
+            radius: const Radius.circular(7.5),
+          );
       case OutlineGlyph.play:
         return Path()
           ..moveTo(8, 5.5)
@@ -411,26 +433,30 @@ class _OutlinePainter extends CustomPainter {
       case OutlineGlyph.alert:
         return Path()
           ..moveTo(10.3, 4.9)
-          ..arcToPoint(const Offset(13.7, 4.9),
-              radius: const Radius.circular(2))
+          ..arcToPoint(
+            const Offset(13.7, 4.9),
+            radius: const Radius.circular(2),
+          )
           ..lineTo(20.6, 17.1)
           ..arcToPoint(const Offset(18.9, 20), radius: const Radius.circular(2))
           ..lineTo(5.1, 20)
-          ..arcToPoint(const Offset(3.4, 17.1),
-              radius: const Radius.circular(2))
+          ..arcToPoint(
+            const Offset(3.4, 17.1),
+            radius: const Radius.circular(2),
+          )
           ..close()
           ..addPath(_line(12, 9.5, 12, 13.5), Offset.zero)
           ..addPath(_line(12, 16.5, 12.01, 16.5), Offset.zero);
       case OutlineGlyph.cloud:
         return _cloud();
       case OutlineGlyph.cloudCheck:
-        return _cloud()
-          ..addPath(
-              Path()
-                ..moveTo(9.6, 14.4)
-                ..lineTo(11.4, 16.2)
-                ..lineTo(14.8, 12.8),
-              Offset.zero);
+        return _cloud()..addPath(
+          Path()
+            ..moveTo(9.6, 14.4)
+            ..lineTo(11.4, 16.2)
+            ..lineTo(14.8, 12.8),
+          Offset.zero,
+        );
       case OutlineGlyph.logOut:
         return Path()
           ..moveTo(10, 4)
@@ -439,11 +465,12 @@ class _OutlinePainter extends CustomPainter {
           ..lineTo(10, 20)
           ..addPath(_line(10.5, 12, 20, 12), Offset.zero)
           ..addPath(
-              Path()
-                ..moveTo(16.5, 8.5)
-                ..lineTo(20, 12)
-                ..lineTo(16.5, 15.5),
-              Offset.zero);
+            Path()
+              ..moveTo(16.5, 8.5)
+              ..lineTo(20, 12)
+              ..lineTo(16.5, 15.5),
+            Offset.zero,
+          );
       case OutlineGlyph.bookmark:
         return Path()
           ..moveTo(6, 4)
@@ -457,30 +484,51 @@ class _OutlinePainter extends CustomPainter {
           ..addRRect(RRect.fromLTRBR(8, 8, 20, 20, const Radius.circular(2)))
           ..moveTo(16, 8)
           ..lineTo(16, 5)
-          ..arcToPoint(const Offset(15, 4),
-              radius: const Radius.circular(1), clockwise: false)
+          ..arcToPoint(
+            const Offset(15, 4),
+            radius: const Radius.circular(1),
+            clockwise: false,
+          )
           ..lineTo(5, 4)
-          ..arcToPoint(const Offset(4, 5),
-              radius: const Radius.circular(1), clockwise: false)
+          ..arcToPoint(
+            const Offset(4, 5),
+            radius: const Radius.circular(1),
+            clockwise: false,
+          )
           ..lineTo(4, 15)
-          ..arcToPoint(const Offset(5, 16),
-              radius: const Radius.circular(1), clockwise: false)
+          ..arcToPoint(
+            const Offset(5, 16),
+            radius: const Radius.circular(1),
+            clockwise: false,
+          )
           ..lineTo(8, 16);
       case OutlineGlyph.link:
         return Path()
           ..moveTo(10, 14)
-          ..arcToPoint(const Offset(15.7, 14),
-              radius: const Radius.circular(4), clockwise: false)
+          ..arcToPoint(
+            const Offset(15.7, 14),
+            radius: const Radius.circular(4),
+            clockwise: false,
+          )
           ..lineTo(18.7, 11)
-          ..arcToPoint(const Offset(13, 5.3),
-              radius: const Radius.circular(4), clockwise: false)
+          ..arcToPoint(
+            const Offset(13, 5.3),
+            radius: const Radius.circular(4),
+            clockwise: false,
+          )
           ..lineTo(12, 6.3)
           ..moveTo(14, 10)
-          ..arcToPoint(const Offset(8.3, 10),
-              radius: const Radius.circular(4), clockwise: false)
+          ..arcToPoint(
+            const Offset(8.3, 10),
+            radius: const Radius.circular(4),
+            clockwise: false,
+          )
           ..lineTo(5.3, 13)
-          ..arcToPoint(const Offset(11, 18.7),
-              radius: const Radius.circular(4), clockwise: false)
+          ..arcToPoint(
+            const Offset(11, 18.7),
+            radius: const Radius.circular(4),
+            clockwise: false,
+          )
           ..lineTo(12, 17.7);
       case OutlineGlyph.bell:
         return Path()
@@ -496,15 +544,18 @@ class _OutlinePainter extends CustomPainter {
         return Path()
           ..moveTo(19, 14.5)
           ..arcToPoint(const Offset(9.5, 5), radius: const Radius.circular(7.5))
-          ..arcToPoint(const Offset(19, 14.5),
-              radius: const Radius.circular(7.5),
-              largeArc: true,
-              clockwise: false);
+          ..arcToPoint(
+            const Offset(19, 14.5),
+            radius: const Radius.circular(7.5),
+            largeArc: true,
+            clockwise: false,
+          );
       case OutlineGlyph.globe:
         return _circle(12, 12, 8.5)
           ..addPath(_line(3.5, 12, 20.5, 12), Offset.zero)
-          ..addOval(Rect.fromCenter(
-              center: const Offset(12, 12), width: 8, height: 17));
+          ..addOval(
+            Rect.fromCenter(center: const Offset(12, 12), width: 8, height: 17),
+          );
       case OutlineGlyph.lines:
         return _line(4, 6, 20, 6)
           ..addPath(_line(4, 11, 20, 11), Offset.zero)
@@ -523,7 +574,8 @@ class _OutlinePainter extends CustomPainter {
       case OutlineGlyph.mail:
         return Path()
           ..addRRect(
-              RRect.fromLTRBR(3.5, 5.5, 20.5, 18.5, const Radius.circular(2)))
+            RRect.fromLTRBR(3.5, 5.5, 20.5, 18.5, const Radius.circular(2)),
+          )
           ..moveTo(4, 7)
           ..lineTo(12, 13)
           ..lineTo(20, 7);
@@ -549,10 +601,12 @@ class _OutlinePainter extends CustomPainter {
         // "M5 12a7 7 0 1 0 2.1-5" and "M5 4v4h4", as in the mockups.
         return Path()
           ..moveTo(5, 12)
-          ..arcToPoint(const Offset(7.1, 7),
-              radius: const Radius.circular(7),
-              largeArc: true,
-              clockwise: false)
+          ..arcToPoint(
+            const Offset(7.1, 7),
+            radius: const Radius.circular(7),
+            largeArc: true,
+            clockwise: false,
+          )
           ..moveTo(5, 4)
           ..lineTo(5, 8)
           ..lineTo(9, 8);
@@ -575,30 +629,36 @@ class _OutlinePainter extends CustomPainter {
           ..moveTo(4, 20)
           ..lineTo(4.8, 16)
           ..lineTo(15.5, 5.3)
-          ..arcToPoint(const Offset(18.7, 8.5),
-              radius: const Radius.circular(2.3))
+          ..arcToPoint(
+            const Offset(18.7, 8.5),
+            radius: const Radius.circular(2.3),
+          )
           ..lineTo(8, 19.2)
           ..close()
           ..addPath(_line(13.5, 7.3, 16.7, 10.5), Offset.zero);
       case OutlineGlyph.history:
         return Path()
           ..moveTo(4, 12)
-          ..arcToPoint(const Offset(6.3, 6.4),
-              radius: const Radius.circular(8),
-              largeArc: true,
-              clockwise: false)
+          ..arcToPoint(
+            const Offset(6.3, 6.4),
+            radius: const Radius.circular(8),
+            largeArc: true,
+            clockwise: false,
+          )
           ..addPath(
-              Path()
-                ..moveTo(4, 4)
-                ..lineTo(4, 8)
-                ..lineTo(8, 8),
-              Offset.zero)
+            Path()
+              ..moveTo(4, 4)
+              ..lineTo(4, 8)
+              ..lineTo(8, 8),
+            Offset.zero,
+          )
           ..addPath(
-              Path()
-                ..moveTo(12, 8)
-                ..lineTo(12, 12)
-                ..lineTo(15, 14),
-              Offset.zero);
+            Path()
+              ..moveTo(12, 8)
+              ..lineTo(12, 12)
+              ..lineTo(15, 14),
+            Offset.zero,
+          );
     }
   }
 

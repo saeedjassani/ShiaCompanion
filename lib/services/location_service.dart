@@ -8,6 +8,7 @@ import 'package:shia_companion/services/home_screen_widget_service.dart';
 import 'package:shia_companion/utils/city_clock.dart';
 import 'package:shia_companion/utils/timezone_database.dart';
 import 'package:shia_companion/utils/shared_preferences.dart';
+
 import '../l10n/l10n.dart';
 
 /// What the location layer is doing right now, so the UI can say so.
@@ -196,8 +197,7 @@ class LocationService extends ChangeNotifier {
   /// card offers both ways to set one.
   Future<bool> refreshIfAllowed({
     Future<bool> Function() permitted = hasLocationPermission,
-  }) =>
-      refreshIfStale(permitted: permitted);
+  }) => refreshIfStale(permitted: permitted);
 
   /// Fetches a new position.
   ///
@@ -227,10 +227,7 @@ class LocationService extends ChangeNotifier {
   Future<bool> _run({BuildContext? context}) async {
     bool success;
     try {
-      success = await initializeLocation(
-        force: true,
-        context: context,
-      );
+      success = await initializeLocation(force: true, context: context);
     } catch (e) {
       debugPrint('Location refresh failed: $e');
       lastLocationFailure = LocationFailure.unknown;
@@ -249,8 +246,10 @@ class LocationService extends ChangeNotifier {
       _updatedAt = lastLocationFixAt ?? DateTime.now();
       try {
         if (SP.isInitialized) {
-          await SP.prefs
-              .setInt(updatedAtKey, _updatedAt!.millisecondsSinceEpoch);
+          await SP.prefs.setInt(
+            updatedAtKey,
+            _updatedAt!.millisecondsSinceEpoch,
+          );
         }
         await HomeScreenWidgetService.instance.publishAll();
       } catch (e) {

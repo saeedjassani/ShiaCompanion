@@ -2698,13 +2698,9 @@
       }
     }
   },
-  "quranKhatmPromptTitle": "Continue your Khatm?",
-  "@quranKhatmPromptTitle": {
-    "description": "Title of the question asked when the reader opens a surah or juz from the Quran screen's lists and one of their Khatms has reached that surah or juz. Reading opened from the list does not count towards a Khatm; opening the Khatm does. Readers are not technical, so keep it plain."
-  },
-  "quranKhatmPromptBody": "Your Khatm \"{name}\" has reached {place}. Continue it from there, so this reading counts towards it?",
-  "@quranKhatmPromptBody": {
-    "description": "Body of that question. {name} is the Khatm's name (e.g. Family, My reading); {place} is where it has got to, e.g. 'Al-Baqarah 142' or 'Juz 5 · An-Nisa 30'.",
+  "quranKhatmToast": "Your Khatm \"{name}\" has reached {place}.",
+  "@quranKhatmToast": {
+    "description": "Toast over a surah or juz just opened from the Quran screen's lists, when one of the reader's Khatms has reached it. Reading opened from the list does not count towards a Khatm; the toast's button (quranKhatmToastContinue) opens the Khatm instead. {name} is the Khatm's name (e.g. Family, My reading); {place} is where it has got to, e.g. 'Al-Baqarah 142' or 'Juz 5 · An-Nisa 30'. Keep it short: it is a toast.",
     "placeholders": {
       "name": {
         "type": "String",
@@ -2716,13 +2712,9 @@
       }
     }
   },
-  "quranKhatmPromptContinue": "Continue Khatm",
-  "@quranKhatmPromptContinue": {
-    "description": "Answer to quranKhatmPromptTitle: opens the Khatm where it has got to, so the reading counts towards it."
-  },
-  "quranKhatmPromptJustRead": "No, just read",
-  "@quranKhatmPromptJustRead": {
-    "description": "Answer to quranKhatmPromptTitle: opens the surah or juz that was tapped, without counting it towards the Khatm. The question is not asked again for that Khatm at that place."
+  "quranKhatmToastContinue": "Continue Khatm",
+  "@quranKhatmToastContinue": {
+    "description": "Button on that toast: opens the Khatm where it has got to, in place of the surah opened from the list, so the reading counts towards it. Short: it sits beside the toast's text."
   },
   "quranStartKhatm": "Start a Khatm",
   "@quranStartKhatm": {

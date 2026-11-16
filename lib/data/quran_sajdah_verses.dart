@@ -17,10 +17,7 @@ import '../utils/quran_index.dart';
 ///
 /// The remaining 11 Sajdah verses in the Quran are MUSTAHABB (recommended).
 class QuranSajdahVerse {
-  const QuranSajdahVerse({
-    required this.verse,
-    required this.isWajib,
-  });
+  const QuranSajdahVerse({required this.verse, required this.isWajib});
 
   final VerseKey verse;
 
@@ -37,20 +34,24 @@ class QuranSajdahVerse {
   static const String duaArabic =
       'لَا اِلٰهَ اِلَّا اللّٰهُ حَقًّا حَقًّا، لَا اِلٰهَ اِلَّا اللّٰهُ اِيْمَانًا وَتَصْدِيْقًا، لَا اِلٰهَ اِلَّا اللّٰهُ عُبُوْدِيَّةً وَرِقًّا، سَجَدْتُ لَكَ يَا رَبِّ تَعَبُّدًا وَرِقًّا، لَا مُسْتَنْكِفًا وَلَا مُسْتَكْبِرًا، بَلْ اَنَا عَبْدٌ ذَلِيْلٌ ضَعِيْفٌ خَائِفٌ مُسْتَجِيْرٌ';
 
-  String title([String? languageCode]) =>
-      isWajib ? _texts(languageCode).titleWajib : _texts(languageCode).titleMustahabb;
+  String title([String? languageCode]) => isWajib
+      ? _texts(languageCode).titleWajib
+      : _texts(languageCode).titleMustahabb;
 
-  String badgeLabel([String? languageCode]) =>
-      isWajib ? _texts(languageCode).badgeWajib : _texts(languageCode).badgeMustahabb;
+  String badgeLabel([String? languageCode]) => isWajib
+      ? _texts(languageCode).badgeWajib
+      : _texts(languageCode).badgeMustahabb;
 
   String wajibPill([String? languageCode]) => _texts(languageCode).wajibPill;
 
-  String ruling([String? languageCode]) =>
-      isWajib ? _texts(languageCode).rulingWajib : _texts(languageCode).rulingMustahabb;
+  String ruling([String? languageCode]) => isWajib
+      ? _texts(languageCode).rulingWajib
+      : _texts(languageCode).rulingMustahabb;
 
   String duaHeading([String? languageCode]) => _texts(languageCode).duaHeading;
 
-  String duaTranslation([String? languageCode]) => _texts(languageCode).duaTranslation;
+  String duaTranslation([String? languageCode]) =>
+      _texts(languageCode).duaTranslation;
 }
 
 class _SajdahTexts {
@@ -78,8 +79,9 @@ class _SajdahTexts {
 }
 
 _SajdahTexts _texts(String? languageCode) {
-  final lang =
-      (languageCode ?? L10n.current.localeName).split(RegExp('[_-]')).first;
+  final lang = (languageCode ?? L10n.current.localeName)
+      .split(RegExp('[_-]'))
+      .first;
   return _translations[lang] ?? _translations['en']!;
 }
 
@@ -90,13 +92,10 @@ const Map<String, _SajdahTexts> _translations = {
     badgeWajib: 'Obligatory Sajdah',
     badgeMustahabb: 'Recommended Sajdah',
     wajibPill: 'OBLIGATORY',
-    rulingWajib:
-        'Prostrating (sajdah) is obligatory on reciting or hearing this verse. In Shia (Ja\'fari) jurisprudence, this surah may not be recited in an obligatory prayer.',
-    rulingMustahabb:
-        'In Shia (Ja\'fari) jurisprudence, prostrating on this verse is recommended, not obligatory.',
+    rulingWajib: 'Prostrating (sajdah) is obligatory on reciting or hearing this verse. In Shia (Ja\'fari) jurisprudence, this surah may not be recited in an obligatory prayer.',
+    rulingMustahabb: 'In Shia (Ja\'fari) jurisprudence, prostrating on this verse is recommended, not obligatory.',
     duaHeading: 'Supplication to Recite in Sajdah:',
-    duaTranslation:
-        'There is no god but Allah, truly and truly! There is no god but Allah, in faith and belief! There is no god but Allah, in servitude and bondage! I have prostrated to You, my Lord, in devotion and servitude, neither disdaining nor proud; rather I am a humble, weak, fearful servant seeking refuge.',
+    duaTranslation: 'There is no god but Allah, truly and truly! There is no god but Allah, in faith and belief! There is no god but Allah, in servitude and bondage! I have prostrated to You, my Lord, in devotion and servitude, neither disdaining nor proud; rather I am a humble, weak, fearful servant seeking refuge.',
   ),
   'ur': _SajdahTexts(
     titleWajib: 'سجدۂ واجبہ (فقہ جعفریہ)',
@@ -104,13 +103,11 @@ const Map<String, _SajdahTexts> _translations = {
     badgeWajib: 'سجدۂ واجبہ',
     badgeMustahabb: 'سجدۂ مستحب',
     wajibPill: 'واجب',
-    rulingWajib:
-        'اس آیت کی تلاوت کرنے یا سننے پر فوراً سجدہ کرنا واجب ہے۔ (فقہ جعفریہ کے مطابق واجب نماز میں اس سورہ کی تلاوت جائز نہیں ہے)۔',
+    rulingWajib: 'اس آیت کی تلاوت کرنے یا سننے پر فوراً سجدہ کرنا واجب ہے۔ (فقہ جعفریہ کے مطابق واجب نماز میں اس سورہ کی تلاوت جائز نہیں ہے)۔',
     rulingMustahabb:
         'فقہ جعفریہ کے مطابق اس آیت پر سجدہ کرنا مستحب ہے، واجب نہیں ہے۔',
     duaHeading: 'سجدۂ تلاوت کی مسنون دعا:',
-    duaTranslation:
-        'اللہ کے سوا کوئی معبود نہیں، حق ہے حق۔ اللہ کے سوا کوئی معبود نہیں، ایمان اور تصدیق کے ساتھ۔ اللہ کے سوا کوئی معبود نہیں، بندگی اور غلامی کے ساتھ۔ اے پروردگار! میں نے بندگی اور غلامی کے طور پر تجھے سجدہ کیا، نہ عار سمجھتے ہوئے اور نہ تکبر کرتے ہوئے، بلکہ میں ایک حقیر، کمزور، خوفزدہ اور پناہ کا طلبگار بندہ ہوں۔',
+    duaTranslation: 'اللہ کے سوا کوئی معبود نہیں، حق ہے حق۔ اللہ کے سوا کوئی معبود نہیں، ایمان اور تصدیق کے ساتھ۔ اللہ کے سوا کوئی معبود نہیں، بندگی اور غلامی کے ساتھ۔ اے پروردگار! میں نے بندگی اور غلامی کے طور پر تجھے سجدہ کیا، نہ عار سمجھتے ہوئے اور نہ تکبر کرتے ہوئے، بلکہ میں ایک حقیر، کمزور، خوفزدہ اور پناہ کا طلبگار بندہ ہوں۔',
   ),
   'fa': _SajdahTexts(
     titleWajib: 'سجده واجب (فقه جعفری)',
@@ -118,13 +115,10 @@ const Map<String, _SajdahTexts> _translations = {
     badgeWajib: 'سجده واجب',
     badgeMustahabb: 'سجده مستحب',
     wajibPill: 'واجب',
-    rulingWajib:
-        'با خواندن یا شنیدن این آیه، سجده کردن فوراً واجب می‌شود. (قرائت این سوره در نمازهای واجب جایز نیست).',
-    rulingMustahabb:
-        'بر اساس فقه جعفری، سجده بر این آیه مستحب است، نه واجب.',
+    rulingWajib: 'با خواندن یا شنیدن این آیه، سجده کردن فوراً واجب می‌شود. (قرائت این سوره در نمازهای واجب جایز نیست).',
+    rulingMustahabb: 'بر اساس فقه جعفری، سجده بر این آیه مستحب است، نه واجب.',
     duaHeading: 'دعای مستحب سجده تلاوت:',
-    duaTranslation:
-        'معبودی جز خدا نیست، به حق و راستی. معبودی جز خدا نیست، از روی ایمان و تصدیق. معبودی جز خدا نیست، از روی بندگی و عبودیت. پروردگارا! از روی بندگی و عبودیت برایت سجده کردم، نه از سر ننگ و نه از روی تکبر؛ بلکه من بنده‌ای خوار، ناتوان، ترسان و پناه‌جویم.',
+    duaTranslation: 'معبودی جز خدا نیست، به حق و راستی. معبودی جز خدا نیست، از روی ایمان و تصدیق. معبودی جز خدا نیست، از روی بندگی و عبودیت. پروردگارا! از روی بندگی و عبودیت برایت سجده کردم، نه از سر ننگ و نه از روی تکبر؛ بلکه من بنده‌ای خوار، ناتوان، ترسان و پناه‌جویم.',
   ),
   'ar': _SajdahTexts(
     titleWajib: 'سجدة واجبة (الفقه الجعفري)',
@@ -132,10 +126,8 @@ const Map<String, _SajdahTexts> _translations = {
     badgeWajib: 'سجدة واجبة',
     badgeMustahabb: 'سجدة مستحبة',
     wajibPill: 'واجب',
-    rulingWajib:
-        'السجود واجب فوراً عند قراءة هذه الآية أو استماعها. (لا تجوز قراءة هذه السورة في الصلاة الواجبة).',
-    rulingMustahabb:
-        'السجود عند هذه الآية مستحب في الفقه الجعفري وليس واجباً.',
+    rulingWajib: 'السجود واجب فوراً عند قراءة هذه الآية أو استماعها. (لا تجوز قراءة هذه السورة في الصلاة الواجبة).',
+    rulingMustahabb: 'السجود عند هذه الآية مستحب في الفقه الجعفري وليس واجباً.',
     duaHeading: 'دعاء سجود التلاوة المستحب:',
     duaTranslation: '',
   ),
@@ -145,13 +137,11 @@ const Map<String, _SajdahTexts> _translations = {
     badgeWajib: 'વાજિબ સજદો',
     badgeMustahabb: 'મુસ્તહબ સજદો',
     wajibPill: 'વાજિબ',
-    rulingWajib:
-        'આ આયતની તિલાવત કરવા કે સાંભળવા પર તરત જ સજદો કરવો વાજિબ છે. (વાજિબ નમાઝમાં આ સૂરહની તિલાવત કરવી જાયઝ નથી).',
+    rulingWajib: 'આ આયતની તિલાવત કરવા કે સાંભળવા પર તરત જ સજદો કરવો વાજિબ છે. (વાજિબ નમાઝમાં આ સૂરહની તિલાવત કરવી જાયઝ નથી).',
     rulingMustahabb:
         'ફિકહ-એ-જાફરિયા મુજબ આ આયત પર સજદો કરવો મુસ્તહબ છે, વાજિબ નથી.',
     duaHeading: 'સજદા-એ-તિલાવતની દુઆ:',
-    duaTranslation:
-        'અલ્લાહ સિવાય કોઈ માબૂદ નથી, આ હક છે, આ હક છે. અલ્લાહ સિવાય કોઈ માબૂદ નથી, ઈમાન અને તસ્દીક સાથે. અલ્લાહ સિવાય કોઈ માબૂદ નથી, બંદગી અને ગુલામી સાથે. હે પરવરદિગાર! મેં બંદગી અને ગુલામી રૂપે તને સજદો કર્યો, ન તો શરમ સમજીને અને ન તો ઘમંડથી, બલ્કે હું એક હકીર, કમજોર, ડરતો અને પનાહ માંગનારો બંદો છું.',
+    duaTranslation: 'અલ્લાહ સિવાય કોઈ માબૂદ નથી, આ હક છે, આ હક છે. અલ્લાહ સિવાય કોઈ માબૂદ નથી, ઈમાન અને તસ્દીક સાથે. અલ્લાહ સિવાય કોઈ માબૂદ નથી, બંદગી અને ગુલામી સાથે. હે પરવરદિગાર! મેં બંદગી અને ગુલામી રૂપે તને સજદો કર્યો, ન તો શરમ સમજીને અને ન તો ઘમંડથી, બલ્કે હું એક હકીર, કમજોર, ડરતો અને પનાહ માંગનારો બંદો છું.',
   ),
 };
 
@@ -159,23 +149,68 @@ const Map<String, _SajdahTexts> _translations = {
 /// as Mustahabb according to Shia Fiqh.
 final Map<VerseKey, QuranSajdahVerse> quranSajdahVerses = {
   // 11 Mustahabb Sajdah verses
-  VerseKey(7, 206): const QuranSajdahVerse(verse: VerseKey(7, 206), isWajib: false),
-  VerseKey(13, 15): const QuranSajdahVerse(verse: VerseKey(13, 15), isWajib: false),
-  VerseKey(16, 50): const QuranSajdahVerse(verse: VerseKey(16, 50), isWajib: false),
-  VerseKey(17, 109): const QuranSajdahVerse(verse: VerseKey(17, 109), isWajib: false),
-  VerseKey(19, 58): const QuranSajdahVerse(verse: VerseKey(19, 58), isWajib: false),
-  VerseKey(22, 18): const QuranSajdahVerse(verse: VerseKey(22, 18), isWajib: false),
-  VerseKey(22, 77): const QuranSajdahVerse(verse: VerseKey(22, 77), isWajib: false),
-  VerseKey(25, 60): const QuranSajdahVerse(verse: VerseKey(25, 60), isWajib: false),
-  VerseKey(27, 26): const QuranSajdahVerse(verse: VerseKey(27, 26), isWajib: false),
-  VerseKey(38, 24): const QuranSajdahVerse(verse: VerseKey(38, 24), isWajib: false),
-  VerseKey(84, 21): const QuranSajdahVerse(verse: VerseKey(84, 21), isWajib: false),
+  VerseKey(7, 206): const QuranSajdahVerse(
+    verse: VerseKey(7, 206),
+    isWajib: false,
+  ),
+  VerseKey(13, 15): const QuranSajdahVerse(
+    verse: VerseKey(13, 15),
+    isWajib: false,
+  ),
+  VerseKey(16, 50): const QuranSajdahVerse(
+    verse: VerseKey(16, 50),
+    isWajib: false,
+  ),
+  VerseKey(17, 109): const QuranSajdahVerse(
+    verse: VerseKey(17, 109),
+    isWajib: false,
+  ),
+  VerseKey(19, 58): const QuranSajdahVerse(
+    verse: VerseKey(19, 58),
+    isWajib: false,
+  ),
+  VerseKey(22, 18): const QuranSajdahVerse(
+    verse: VerseKey(22, 18),
+    isWajib: false,
+  ),
+  VerseKey(22, 77): const QuranSajdahVerse(
+    verse: VerseKey(22, 77),
+    isWajib: false,
+  ),
+  VerseKey(25, 60): const QuranSajdahVerse(
+    verse: VerseKey(25, 60),
+    isWajib: false,
+  ),
+  VerseKey(27, 26): const QuranSajdahVerse(
+    verse: VerseKey(27, 26),
+    isWajib: false,
+  ),
+  VerseKey(38, 24): const QuranSajdahVerse(
+    verse: VerseKey(38, 24),
+    isWajib: false,
+  ),
+  VerseKey(84, 21): const QuranSajdahVerse(
+    verse: VerseKey(84, 21),
+    isWajib: false,
+  ),
 
   // 4 Wajib Sajdah verses (Surahs of Aza'im)
-  VerseKey(32, 15): const QuranSajdahVerse(verse: VerseKey(32, 15), isWajib: true),
-  VerseKey(41, 38): const QuranSajdahVerse(verse: VerseKey(41, 38), isWajib: true),
-  VerseKey(53, 62): const QuranSajdahVerse(verse: VerseKey(53, 62), isWajib: true),
-  VerseKey(96, 19): const QuranSajdahVerse(verse: VerseKey(96, 19), isWajib: true),
+  VerseKey(32, 15): const QuranSajdahVerse(
+    verse: VerseKey(32, 15),
+    isWajib: true,
+  ),
+  VerseKey(41, 38): const QuranSajdahVerse(
+    verse: VerseKey(41, 38),
+    isWajib: true,
+  ),
+  VerseKey(53, 62): const QuranSajdahVerse(
+    verse: VerseKey(53, 62),
+    isWajib: true,
+  ),
+  VerseKey(96, 19): const QuranSajdahVerse(
+    verse: VerseKey(96, 19),
+    isWajib: true,
+  ),
 };
 
 /// The 4 Surahs of Aza'im containing Wajib Sajdah verses.

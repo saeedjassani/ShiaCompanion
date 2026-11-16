@@ -108,12 +108,12 @@ class _FirstRunSetupPageState extends State<FirstRunSetupPage> {
   /// The steps after the welcome, read afresh each time: the Azan step
   /// joins once the location step has set a location.
   List<_Setup> get _steps => [
-        _Setup.location,
-        if (LocationService.instance.hasLocation) _Setup.azan,
-        _Setup.font,
-        _Setup.theme,
-        _Setup.backup,
-      ];
+    _Setup.location,
+    if (LocationService.instance.hasLocation) _Setup.azan,
+    _Setup.font,
+    _Setup.theme,
+    _Setup.backup,
+  ];
   bool _finishing = false;
 
   /// Whether the Arabic font is the reader's own: picked in the font step, or
@@ -189,17 +189,19 @@ class _FirstRunSetupPageState extends State<FirstRunSetupPage> {
       await AzaanOptInService.answer(const []);
     }
     await FirstRunSetup.markDone();
-    unawaited(AnalyticsService.feature(
-      'first_run_setup',
-      label: 'First-run setup',
-      parameters: {
-        'outcome': skipped ? 'skipped' : 'finished',
-        'step': _step,
-      },
-      // Every new install passes through here, so the count is just
-      // installs; the skipped/finished split is what GA4 is for.
-      countOnDashboard: false,
-    ));
+    unawaited(
+      AnalyticsService.feature(
+        'first_run_setup',
+        label: 'First-run setup',
+        parameters: {
+          'outcome': skipped ? 'skipped' : 'finished',
+          'step': _step,
+        },
+        // Every new install passes through here, so the count is just
+        // installs; the skipped/finished split is what GA4 is for.
+        countOnDashboard: false,
+      ),
+    );
     widget.onDone();
   }
 
@@ -224,11 +226,15 @@ class _FirstRunSetupPageState extends State<FirstRunSetupPage> {
             child: switch (steps[_step - 1]) {
               _Setup.location => _LocationStep(onNext: _next),
               _Setup.azan => _AzanStep(onNext: _next),
-              _Setup.font =>
-                _FontStep(onNext: _next, onChosen: () => _fontChosen = true),
+              _Setup.font => _FontStep(
+                onNext: _next,
+                onChosen: () => _fontChosen = true,
+              ),
               _Setup.theme => _ThemeStep(onNext: _next),
-              _Setup.backup =>
-                _BackupStep(signIn: widget.signIn, onNext: _next),
+              _Setup.backup => _BackupStep(
+                signIn: widget.signIn,
+                onNext: _next,
+              ),
             },
           );
 
@@ -250,8 +256,9 @@ class _FirstRunSetupPageState extends State<FirstRunSetupPage> {
                     ? Duration.zero
                     : const Duration(milliseconds: 220),
                 child: KeyedSubtree(
-                    key: ValueKey(_step == 0 ? null : steps[_step - 1]),
-                    child: page),
+                  key: ValueKey(_step == 0 ? null : steps[_step - 1]),
+                  child: page,
+                ),
               ),
             ),
           ),
@@ -270,8 +277,11 @@ class _FirstRunSetupPageState extends State<FirstRunSetupPage> {
 Color _outline(ShiaColors colors) =>
     Color.lerp(colors.line, colors.chevron, 0.35)!;
 
-final TextStyle _titleStyle = ShiaText.largeTitle
-    .copyWith(fontSize: 30, height: 36 / 30, letterSpacing: -0.3);
+final TextStyle _titleStyle = ShiaText.largeTitle.copyWith(
+  fontSize: 30,
+  height: 36 / 30,
+  letterSpacing: -0.3,
+);
 
 enum _Setup { location, azan, font, theme, backup }
 
@@ -343,8 +353,11 @@ class _StepFrame extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(vertical: 14),
                 child: ConstrainedBox(
                   constraints: BoxConstraints(
-                      minHeight: (constraints.maxHeight - 28)
-                          .clamp(0, double.infinity)),
+                    minHeight: (constraints.maxHeight - 28).clamp(
+                      0,
+                      double.infinity,
+                    ),
+                  ),
                   child: Column(
                     mainAxisAlignment: centred
                         ? MainAxisAlignment.center
@@ -385,7 +398,9 @@ class _StepHeader extends StatelessWidget {
             child: Text(
               context.l10n.setupStepOf(step, total),
               style: ShiaText.secondary.copyWith(
-                  fontWeight: FontWeight.w600, color: colors.textMuted),
+                fontWeight: FontWeight.w600,
+                color: colors.textMuted,
+              ),
             ),
           ),
           const SizedBox(width: 10),
@@ -414,8 +429,10 @@ class _StepHeader extends StatelessWidget {
                 foregroundColor: colors.accent,
                 minimumSize: const Size(44, 44),
                 padding: const EdgeInsets.symmetric(horizontal: 6),
-                textStyle: buttonTextStyle(context, ShiaText.body)
-                    .copyWith(fontWeight: FontWeight.w600),
+                textStyle: buttonTextStyle(
+                  context,
+                  ShiaText.body,
+                ).copyWith(fontWeight: FontWeight.w600),
               ),
               child: Text(context.l10n.setupSkipAll),
             ),
@@ -447,8 +464,10 @@ class _Heading extends StatelessWidget {
           const SizedBox(height: 6),
           Text(
             body,
-            style: ShiaText.body
-                .copyWith(height: 24 / 17, color: colors.translation),
+            style: ShiaText.body.copyWith(
+              height: 24 / 17,
+              color: colors.translation,
+            ),
           ),
         ],
       ],
@@ -476,8 +495,12 @@ class _StepBadge extends StatelessWidget {
           shape: BoxShape.circle,
         ),
         alignment: Alignment.center,
-        child: OutlineIcon(glyph,
-            size: size, color: colors.accent, strokeWidth: 1.6),
+        child: OutlineIcon(
+          glyph,
+          size: size,
+          color: colors.accent,
+          strokeWidth: 1.6,
+        ),
       ),
     );
   }
@@ -519,13 +542,15 @@ class _SetupButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = ShiaColors.of(context);
     final primary = kind == _ButtonKind.primary;
-    final fg = foreground ??
+    final fg =
+        foreground ??
         switch (kind) {
           _ButtonKind.primary => colors.onAccent,
           _ButtonKind.secondary => colors.text,
           _ButtonKind.quiet => colors.accent,
         };
-    final bg = background ??
+    final bg =
+        background ??
         switch (kind) {
           _ButtonKind.primary => colors.accent,
           _ButtonKind.secondary => colors.surface,
@@ -639,8 +664,12 @@ class _Tick extends StatelessWidget {
       ),
       alignment: Alignment.center,
       child: selected
-          ? OutlineIcon(OutlineGlyph.check,
-              size: 16, color: colors.onAccent, strokeWidth: 3)
+          ? OutlineIcon(
+              OutlineGlyph.check,
+              size: 16,
+              color: colors.onAccent,
+              strokeWidth: 3,
+            )
           : null,
     );
   }
@@ -694,8 +723,12 @@ class _WelcomeStep extends StatelessWidget {
             child: OverflowBox(
               maxWidth: 134,
               maxHeight: 134,
-              child: Image.asset('assets/logo.png',
-                  width: 134, height: 134, excludeFromSemantics: true),
+              child: Image.asset(
+                'assets/logo.png',
+                width: 134,
+                height: 134,
+                excludeFromSemantics: true,
+              ),
             ),
           ),
         ),
@@ -712,15 +745,20 @@ class _WelcomeStep extends StatelessWidget {
         Text(
           l10n.setupWelcomeBody,
           textAlign: TextAlign.center,
-          style: ShiaText.body
-              .copyWith(fontSize: 19, height: 27 / 19, color: colors.text),
+          style: ShiaText.body.copyWith(
+            fontSize: 19,
+            height: 27 / 19,
+            color: colors.text,
+          ),
         ),
         const SizedBox(height: 18),
         Text(
           l10n.setupWelcomeHint,
           textAlign: TextAlign.center,
-          style:
-              ShiaText.body.copyWith(height: 24 / 17, color: colors.textMuted),
+          style: ShiaText.body.copyWith(
+            height: 24 / 17,
+            color: colors.textMuted,
+          ),
         ),
         const SizedBox(height: 28),
         const _ReadingBasics(),
@@ -773,8 +811,12 @@ class _ReadingBasics extends StatelessWidget {
                 ),
                 child: Row(
                   children: [
-                    OutlineIcon(OutlineGlyph.globe,
-                        size: 22, color: colors.accent, strokeWidth: 1.8),
+                    OutlineIcon(
+                      OutlineGlyph.globe,
+                      size: 22,
+                      color: colors.accent,
+                      strokeWidth: 1.8,
+                    ),
                     const SizedBox(width: 12),
                     Expanded(
                       child: Text(l10n.settingsAppLanguage, style: rowTitle),
@@ -789,13 +831,17 @@ class _ReadingBasics extends StatelessWidget {
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         textAlign: TextAlign.end,
-                        style: ShiaText.secondary
-                            .copyWith(color: colors.textMuted),
+                        style: ShiaText.secondary.copyWith(
+                          color: colors.textMuted,
+                        ),
                       ),
                     ),
                     const SizedBox(width: 4),
-                    OutlineIcon(OutlineGlyph.chevronRight,
-                        size: 18, color: colors.chevron),
+                    OutlineIcon(
+                      OutlineGlyph.chevronRight,
+                      size: 18,
+                      color: colors.chevron,
+                    ),
                   ],
                 ),
               ),
@@ -809,14 +855,16 @@ class _ReadingBasics extends StatelessWidget {
                     l10n.textSizeGlyph,
                     textScaler: TextScaler.noScaling,
                     style: TextStyle(
-                        fontSize: 17,
-                        fontWeight: FontWeight.w700,
-                        color: colors.accent),
+                      fontSize: 17,
+                      fontWeight: FontWeight.w700,
+                      color: colors.accent,
+                    ),
                   ),
                 ),
                 const SizedBox(width: 10),
                 Expanded(
-                    child: Text(l10n.settingsAppTextSize, style: rowTitle)),
+                  child: Text(l10n.settingsAppTextSize, style: rowTitle),
+                ),
                 _SizeButton(
                   text: '${l10n.textSizeLetter}−',
                   fontSize: 15,
@@ -870,16 +918,19 @@ class _LocationStepState extends State<_LocationStep> {
 
   Future<void> _useMyLocation() async {
     setState(() => _locating = true);
-    unawaited(AnalyticsService.feature(
-      'device_location_chosen',
-      label: 'Device location chosen',
-      parameters: {'source': 'setup'},
-    ));
+    unawaited(
+      AnalyticsService.feature(
+        'device_location_chosen',
+        label: 'Device location chosen',
+        parameters: {'source': 'setup'},
+      ),
+    );
     // With context: anything that goes wrong (location off, permission
     // refused) explains itself in a dialog, and the step stays put so the
     // city is still a tap away.
-    final found =
-        await LocationService.instance.useDeviceLocation(context: context);
+    final found = await LocationService.instance.useDeviceLocation(
+      context: context,
+    );
     if (!mounted) return;
     setState(() {
       _locating = false;
@@ -921,8 +972,12 @@ class _LocationStepState extends State<_LocationStep> {
           label: askedOnce ? l10n.setupUseMyLocation : l10n.commonContinue,
           onPressed: _useMyLocation,
           busy: _locating,
-          leading: OutlineIcon(OutlineGlyph.pin,
-              size: 20, color: colors.onAccent, strokeWidth: 2),
+          leading: OutlineIcon(
+            OutlineGlyph.pin,
+            size: 20,
+            color: colors.onAccent,
+            strokeWidth: 2,
+          ),
         ),
         if (askedOnce) ...[
           _SetupButton(
@@ -945,15 +1000,21 @@ class _LocationStepState extends State<_LocationStep> {
         const SizedBox(height: 16),
         Text(
           l10n.setupLocationBody,
-          style: ShiaText.body
-              .copyWith(fontSize: 18, height: 26 / 18, color: colors.text),
+          style: ShiaText.body.copyWith(
+            fontSize: 18,
+            height: 26 / 18,
+            color: colors.text,
+          ),
         ),
         if (askedOnce) ...[
           const SizedBox(height: 16),
           Text(
             l10n.setupLocationAlternative,
             style: ShiaText.body.copyWith(
-                fontSize: 16, height: 22 / 16, color: colors.textMuted),
+              fontSize: 16,
+              height: 22 / 16,
+              color: colors.textMuted,
+            ),
           ),
         ],
       ],
@@ -972,7 +1033,7 @@ class _AzanStep extends StatefulWidget {
     'Zuhr',
     'Asr',
     'Maghrib',
-    'Isha'
+    'Isha',
   ];
 
   @override
@@ -983,8 +1044,9 @@ class _AzanStepState extends State<_AzanStep> {
   /// On to start with: the three the app has always suggested.
   final Set<String> _on = {
     for (final prayer in _AzanStep.prayers)
-      if (AzaanOptInService.defaultEnabledPrayerKeys
-          .contains(notificationPreferenceKeyForPrayer(prayer)))
+      if (AzaanOptInService.defaultEnabledPrayerKeys.contains(
+        notificationPreferenceKeyForPrayer(prayer),
+      ))
         prayer,
   };
   bool _samplePlaying = false;
@@ -1060,14 +1122,16 @@ class _AzanStepState extends State<_AzanStep> {
       if (turnOn)
         for (final prayer in _on) notificationPreferenceKeyForPrayer(prayer),
     ]);
-    unawaited(AnalyticsService.feature(
-      'azaan_opt_in',
-      label: 'Azan opt-in',
-      parameters: {
-        'choice': turnOn ? 'enabled' : 'declined',
-        'source': 'setup',
-      },
-    ));
+    unawaited(
+      AnalyticsService.feature(
+        'azaan_opt_in',
+        label: 'Azan opt-in',
+        parameters: {
+          'choice': turnOn ? 'enabled' : 'declined',
+          'source': 'setup',
+        },
+      ),
+    );
     if (!mounted) return;
     setState(() => _saving = false);
     widget.onNext();
@@ -1146,7 +1210,8 @@ class _AzanStepState extends State<_AzanStep> {
                 filled: _samplePlaying,
               ),
               label: Text(
-                  _samplePlaying ? l10n.setupStopSample : l10n.setupPlaySample),
+                _samplePlaying ? l10n.setupStopSample : l10n.setupPlaySample,
+              ),
               style: OutlinedButton.styleFrom(
                 minimumSize: const Size(44, 44),
                 padding: const EdgeInsets.symmetric(horizontal: 14),
@@ -1154,8 +1219,10 @@ class _AzanStepState extends State<_AzanStep> {
                 backgroundColor: colors.surface,
                 side: BorderSide(color: _outline(colors)),
                 shape: const StadiumBorder(),
-                textStyle: buttonTextStyle(context, ShiaText.secondary)
-                    .copyWith(fontWeight: FontWeight.w600),
+                textStyle: buttonTextStyle(
+                  context,
+                  ShiaText.secondary,
+                ).copyWith(fontWeight: FontWeight.w600),
               ),
             ),
             if (isIOS)
@@ -1201,16 +1268,19 @@ class _PrayerSwitchRow extends StatelessWidget {
           constraints: const BoxConstraints(minHeight: 56),
           padding: const EdgeInsetsDirectional.fromSTEB(14, 4, 10, 4),
           decoration: BoxDecoration(
-            border:
-                last ? null : Border(bottom: BorderSide(color: colors.divider)),
+            border: last
+                ? null
+                : Border(bottom: BorderSide(color: colors.divider)),
           ),
           child: Row(
             children: [
               PrayerGlyph(name: prayer, size: 22, color: colors.accent),
               const SizedBox(width: 12),
               Expanded(
-                child: Text(name,
-                    style: ShiaText.cardTitle.copyWith(color: colors.text)),
+                child: Text(
+                  name,
+                  style: ShiaText.cardTitle.copyWith(color: colors.text),
+                ),
               ),
               if (time != null) ...[
                 Text(
@@ -1288,16 +1358,18 @@ class _FontStepState extends State<_FontStep> {
                           Text(
                             font,
                             style: ShiaText.cardTitle.copyWith(
-                                fontWeight: FontWeight.w700,
-                                color: colors.text),
+                              fontWeight: FontWeight.w700,
+                              color: colors.text,
+                            ),
                           ),
                           const SizedBox(height: 1),
                           Text(
                             hintFor(font),
                             style: ShiaText.caption.copyWith(
-                                fontSize: 14,
-                                height: 18 / 14,
-                                color: colors.textMuted),
+                              fontSize: 14,
+                              height: 18 / 14,
+                              color: colors.textMuted,
+                            ),
                           ),
                         ],
                       ),
@@ -1393,11 +1465,13 @@ class _ThemeStepState extends State<_ThemeStep> {
     final provider = context.read<ThemeModeProvider>();
     if (provider.themeMode == mode) return;
     await provider.setThemeMode(mode);
-    unawaited(AnalyticsService.feature(
-      'theme_mode_changed',
-      label: 'Theme changed',
-      parameters: {'theme_mode': mode.name},
-    ));
+    unawaited(
+      AnalyticsService.feature(
+        'theme_mode_changed',
+        label: 'Theme changed',
+        parameters: {'theme_mode': mode.name},
+      ),
+    );
   }
 
   @override
@@ -1417,8 +1491,10 @@ class _ThemeStepState extends State<_ThemeStep> {
         Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            for (final (i, choice)
-                in [ThemeMode.light, ThemeMode.dark].indexed) ...[
+            for (final (i, choice) in [
+              ThemeMode.light,
+              ThemeMode.dark,
+            ].indexed) ...[
               if (i > 0) const SizedBox(width: 12),
               Expanded(
                 child: _ChoiceCard(
@@ -1429,9 +1505,11 @@ class _ThemeStepState extends State<_ThemeStep> {
                   child: Column(
                     children: [
                       _ThemePreview(
-                        colors: palette.colors(choice == ThemeMode.dark
-                            ? Brightness.dark
-                            : Brightness.light),
+                        colors: palette.colors(
+                          choice == ThemeMode.dark
+                              ? Brightness.dark
+                              : Brightness.light,
+                        ),
                       ),
                       const SizedBox(height: 10),
                       Row(
@@ -1448,8 +1526,9 @@ class _ThemeStepState extends State<_ThemeStep> {
                           Flexible(
                             child: Text(
                               ThemeModeProvider.label(choice, l10n),
-                              style: ShiaText.cardTitle
-                                  .copyWith(color: colors.text),
+                              style: ShiaText.cardTitle.copyWith(
+                                color: colors.text,
+                              ),
                             ),
                           ),
                         ],
@@ -1481,11 +1560,15 @@ class _ThemeStepState extends State<_ThemeStep> {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     Expanded(
-                        child: Container(
-                            color: palette.colors(Brightness.light).ground)),
+                      child: Container(
+                        color: palette.colors(Brightness.light).ground,
+                      ),
+                    ),
                     Expanded(
-                        child: Container(
-                            color: palette.colors(Brightness.dark).ground)),
+                      child: Container(
+                        color: palette.colors(Brightness.dark).ground,
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -1497,15 +1580,18 @@ class _ThemeStepState extends State<_ThemeStep> {
                     Text(
                       l10n.setupThemeSameAsPhone,
                       style: ShiaText.cardTitle.copyWith(
-                          fontWeight: FontWeight.w700, color: colors.text),
+                        fontWeight: FontWeight.w700,
+                        color: colors.text,
+                      ),
                     ),
                     const SizedBox(height: 1),
                     Text(
                       l10n.setupThemeSameAsPhoneHint,
                       style: ShiaText.caption.copyWith(
-                          fontSize: 14,
-                          height: 18 / 14,
-                          color: colors.textMuted),
+                        fontSize: 14,
+                        height: 18 / 14,
+                        color: colors.textMuted,
+                      ),
                     ),
                   ],
                 ),
@@ -1518,8 +1604,10 @@ class _ThemeStepState extends State<_ThemeStep> {
         const SizedBox(height: 22),
         Text(
           l10n.settingsColor,
-          style: ShiaText.cardTitle
-              .copyWith(fontWeight: FontWeight.w700, color: colors.text),
+          style: ShiaText.cardTitle.copyWith(
+            fontWeight: FontWeight.w700,
+            color: colors.text,
+          ),
         ),
         const SizedBox(height: 10),
         Wrap(
@@ -1549,13 +1637,13 @@ class _ThemePreview extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Widget bar(double width, double height, Color color) => Container(
-          width: width,
-          height: height,
-          decoration: BoxDecoration(
-            color: color,
-            borderRadius: BorderRadius.circular(height / 2),
-          ),
-        );
+      width: width,
+      height: height,
+      decoration: BoxDecoration(
+        color: color,
+        borderRadius: BorderRadius.circular(height / 2),
+      ),
+    );
     final faint = Color.lerp(colors.line, colors.chevron, 0.2)!;
 
     return ExcludeSemantics(
@@ -1650,8 +1738,12 @@ class _BackupStepState extends State<_BackupStep> {
           busy: _signingIn == SignInProvider.google,
           kind: _ButtonKind.secondary,
           height: 54,
-          leading: Image.asset('assets/images/google_logo.png',
-              width: 20, height: 20, excludeFromSemantics: true),
+          leading: Image.asset(
+            'assets/images/google_logo.png',
+            width: 20,
+            height: 20,
+            excludeFromSemantics: true,
+          ),
         ),
         if (appleSignInOffered)
           _SetupButton(
@@ -1663,11 +1755,13 @@ class _BackupStepState extends State<_BackupStep> {
             background: appleBackground,
             foreground: appleForeground,
             outlined: false,
-            leading: Image.asset('assets/images/apple_logo.png',
-                width: 20,
-                height: 20,
-                color: appleForeground,
-                excludeFromSemantics: true),
+            leading: Image.asset(
+              'assets/images/apple_logo.png',
+              width: 20,
+              height: 20,
+              color: appleForeground,
+              excludeFromSemantics: true,
+            ),
           ),
         _SetupButton(
           label: l10n.setupMaybeLater,
@@ -1684,8 +1778,11 @@ class _BackupStepState extends State<_BackupStep> {
         const SizedBox(height: 14),
         Text(
           l10n.setupBackupBody,
-          style: ShiaText.body
-              .copyWith(fontSize: 18, height: 26 / 18, color: colors.text),
+          style: ShiaText.body.copyWith(
+            fontSize: 18,
+            height: 26 / 18,
+            color: colors.text,
+          ),
         ),
         const SizedBox(height: 14),
         for (final (i, item) in [
@@ -1696,12 +1793,18 @@ class _BackupStepState extends State<_BackupStep> {
           if (i > 0) const SizedBox(height: 10),
           Row(
             children: [
-              OutlineIcon(OutlineGlyph.check,
-                  size: 22, color: colors.success, strokeWidth: 2.2),
+              OutlineIcon(
+                OutlineGlyph.check,
+                size: 22,
+                color: colors.success,
+                strokeWidth: 2.2,
+              ),
               const SizedBox(width: 10),
               Expanded(
-                child: Text(item,
-                    style: ShiaText.body.copyWith(color: colors.text)),
+                child: Text(
+                  item,
+                  style: ShiaText.body.copyWith(color: colors.text),
+                ),
               ),
             ],
           ),

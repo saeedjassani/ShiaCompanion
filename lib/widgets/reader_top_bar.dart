@@ -117,7 +117,8 @@ class ReaderTopBar extends StatelessWidget {
                             // too wherever the UI font is not registered.
                             child: Text.rich(
                               TextSpan(
-                                children: arabicRunSpans(shownTitle) ??
+                                children:
+                                    arabicRunSpans(shownTitle) ??
                                     [TextSpan(text: shownTitle)],
                               ),
                               semanticsLabel: title,

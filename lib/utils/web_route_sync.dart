@@ -4,26 +4,17 @@ import 'package:flutter/services.dart';
 
 import '../constants.dart' show routeObserver;
 
-Future<void> syncWebRoutePath(
-  String path, {
-  bool replace = false,
-}) async {
+Future<void> syncWebRoutePath(String path, {bool replace = false}) async {
   if (!kIsWeb) return;
 
   final normalizedPath = path.startsWith('/') ? path : '/$path';
   await syncWebRouteUri(Uri.parse(normalizedPath), replace: replace);
 }
 
-Future<void> syncWebRouteUri(
-  Uri uri, {
-  bool replace = false,
-}) async {
+Future<void> syncWebRouteUri(Uri uri, {bool replace = false}) async {
   if (!kIsWeb) return;
 
-  await SystemNavigator.routeInformationUpdated(
-    uri: uri,
-    replace: replace,
-  );
+  await SystemNavigator.routeInformationUpdated(uri: uri, replace: replace);
 }
 
 /// Keeps the browser's address on [webRoutePath] while this page's route is on

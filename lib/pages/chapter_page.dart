@@ -1,4 +1,5 @@
 import 'dart:async';
+
 import 'package:flutter/gestures.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter/rendering.dart';
@@ -132,8 +133,9 @@ class _ChapterPageState extends State<ChapterPage>
 
   /// Holds the keyboard for the reader, so the arrow keys turn pages on web and
   /// desktop instead of walking focus around the controls.
-  final FocusNode _keyboardFocusNode =
-      FocusNode(debugLabel: 'ChapterPage keyboard');
+  final FocusNode _keyboardFocusNode = FocusNode(
+    debugLabel: 'ChapterPage keyboard',
+  );
 
   @override
   void initState() {
@@ -142,13 +144,17 @@ class _ChapterPageState extends State<ChapterPage>
     trackScreen('Chapter Page');
     // Ranks books by chapters actually read, which is a truer signal than the
     // book list tap that ChapterListPage already records.
-    unawaited(AnalyticsService.libraryView(
-      bookUid: widget.bookSlug ?? widget.slug,
-      bookTitle: widget.bookTitle ?? widget.title,
-      chapterUid: widget.slug,
-    ));
-    _readerFontSize = (widget.initialFontSize ?? englishFontSize)
-        .clamp(_minFontSize, _maxFontSize);
+    unawaited(
+      AnalyticsService.libraryView(
+        bookUid: widget.bookSlug ?? widget.slug,
+        bookTitle: widget.bookTitle ?? widget.title,
+        chapterUid: widget.slug,
+      ),
+    );
+    _readerFontSize = (widget.initialFontSize ?? englishFontSize).clamp(
+      _minFontSize,
+      _maxFontSize,
+    );
     _slug = widget.slug;
     _title = widget.title;
     _chapterIndex = widget.chapterIndex;
@@ -265,18 +271,18 @@ class _ChapterPageState extends State<ChapterPage>
         bookSlug: bookSlug,
         chapterSlug: chapterSlug,
       );
-      await SharePlus.instance.share(
-        ShareParams(text: '$_title\n$deepLink'),
+      await SharePlus.instance.share(ShareParams(text: '$_title\n$deepLink'));
+      unawaited(
+        AnalyticsService.feature(
+          'library_shared',
+          label: 'Library shared',
+          parameters: {
+            'book_uid': bookSlug,
+            'chapter_uid': chapterSlug,
+            'scope': 'chapter',
+          },
+        ),
       );
-      unawaited(AnalyticsService.feature(
-        'library_shared',
-        label: 'Library shared',
-        parameters: {
-          'book_uid': bookSlug,
-          'chapter_uid': chapterSlug,
-          'scope': 'chapter',
-        },
-      ));
     } finally {
       if (mounted) setState(() => _isSharing = false);
     }
@@ -539,7 +545,7 @@ class _ChapterPageState extends State<ChapterPage>
       _blocks = MarkdownBlockParser.parse(chapterMarkdown);
       _measureColumnKey = GlobalKey();
       _measureBlockKeys = [
-        for (var i = 0; i < _blocks.length; i++) GlobalKey()
+        for (var i = 0; i < _blocks.length; i++) GlobalKey(),
       ];
 
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -589,8 +595,10 @@ class _ChapterPageState extends State<ChapterPage>
                   columnKey: _measureColumnKey!,
                   blocks: _blocks,
                   blockKeys: _measureBlockKeys,
-                  styleSheet:
-                      readerStyleSheet(context, fontSize: _readerFontSize),
+                  styleSheet: readerStyleSheet(
+                    context,
+                    fontSize: _readerFontSize,
+                  ),
                 ),
               ),
             ),
@@ -834,14 +842,13 @@ class _ChapterPageState extends State<ChapterPage>
   /// chapter altogether, so the arrow becomes a labelled button naming the
   /// chapter it lands in — nobody should have to guess that a chevron is about
   /// to take them somewhere else.
-  Widget _buildPageNavControl({
-    required bool forward,
-    required int pageCount,
-  }) {
-    final atEdge = _paginationReady &&
+  Widget _buildPageNavControl({required bool forward, required int pageCount}) {
+    final atEdge =
+        _paginationReady &&
         (forward ? _currentPageIndex >= pageCount - 1 : _currentPageIndex == 0);
-    final chapterTitle =
-        atEdge ? _adjacentChapterTitle(forward: forward) : null;
+    final chapterTitle = atEdge
+        ? _adjacentChapterTitle(forward: forward)
+        : null;
     final onPressed = forward
         ? (_canGoForward ? _goToNextPage : null)
         : (_canGoBack ? _goToPreviousPage : null);
@@ -894,13 +901,18 @@ class _ChapterPageState extends State<ChapterPage>
   }
 
   /// A bottom-bar glyph in the accent, faded while its button is disabled.
-  Widget _barGlyph(OutlineGlyph glyph,
-      {required bool enabled, double size = 22}) {
+  Widget _barGlyph(
+    OutlineGlyph glyph, {
+    required bool enabled,
+    double size = 22,
+  }) {
     final accent = ShiaColors.of(context).accent;
-    return OutlineIcon(glyph,
-        size: size,
-        color: enabled ? accent : accent.withValues(alpha: 0.38),
-        strokeWidth: 2);
+    return OutlineIcon(
+      glyph,
+      size: size,
+      color: enabled ? accent : accent.withValues(alpha: 0.38),
+      strokeWidth: 2,
+    );
   }
 
   Widget _buildMessage({
@@ -939,19 +951,23 @@ class _ChapterPageState extends State<ChapterPage>
     final hasBook = bookSlug != null && bookSlug.trim().isNotEmpty;
 
     Widget spinner() => SizedBox.square(
-          dimension: 20,
-          child:
-              CircularProgressIndicator(strokeWidth: 2, color: colors.accent),
-        );
+      dimension: 20,
+      child: CircularProgressIndicator(strokeWidth: 2, color: colors.accent),
+    );
 
     final topBar = ReaderTopBar(
       title: _title,
       subtitle: !_paginationReady
           ? (bookTitle == null ? null : Text(bookTitle))
-          : Text(bookTitle == null
-              ? l10n.libraryPageOf(_currentPageIndex + 1, pageCount)
-              : l10n.libraryChapterPage(
-                  bookTitle, _currentPageIndex + 1, pageCount)),
+          : Text(
+              bookTitle == null
+                  ? l10n.libraryPageOf(_currentPageIndex + 1, pageCount)
+                  : l10n.libraryChapterPage(
+                      bookTitle,
+                      _currentPageIndex + 1,
+                      pageCount,
+                    ),
+            ),
       trailing: hasBook
           ? Row(
               mainAxisSize: MainAxisSize.min,
@@ -975,15 +991,19 @@ class _ChapterPageState extends State<ChapterPage>
                   label: l10n.libraryShareChapter,
                   icon: _isSharing
                       ? spinner()
-                      : OutlineIcon(OutlineGlyph.share,
-                          size: 20, color: colors.accent),
+                      : OutlineIcon(
+                          OutlineGlyph.share,
+                          size: 20,
+                          color: colors.accent,
+                        ),
                   onPressed: _isSharing ? null : _shareChapter,
                 ),
               ],
             )
           : null,
-      progress:
-          _paginationReady ? AlwaysStoppedAnimation<double>(progress) : null,
+      progress: _paginationReady
+          ? AlwaysStoppedAnimation<double>(progress)
+          : null,
     );
 
     return Focus(
@@ -1054,17 +1074,15 @@ class _ChapterPageState extends State<ChapterPage>
                           padding: const EdgeInsets.symmetric(horizontal: 4),
                           child: Text(
                             localizeDigits(
-                                '${_currentPageIndex + 1} / $pageCount',
-                                context.l10n),
+                              '${_currentPageIndex + 1} / $pageCount',
+                              context.l10n,
+                            ),
                             style: theme.textTheme.bodyMedium,
                           ),
                         )
                       else
                         const SizedBox(width: 48),
-                      _buildPageNavControl(
-                        forward: true,
-                        pageCount: pageCount,
-                      ),
+                      _buildPageNavControl(forward: true, pageCount: pageCount),
                     ],
                   ),
                 ),

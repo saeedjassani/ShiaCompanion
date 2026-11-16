@@ -29,14 +29,18 @@ Future<void> openCityPrayerTimes(
   required String source,
   DateTime? date,
 }) {
-  unawaited(AnalyticsService.feature(
-    'city_times_viewed',
-    label: 'City times viewed',
-    parameters: {'source': source, 'country': city.countryCode},
-  ));
-  return Navigator.of(context).push(MaterialPageRoute<void>(
-    builder: (context) => CityPrayerTimesPage(city: city, initialDate: date),
-  ));
+  unawaited(
+    AnalyticsService.feature(
+      'city_times_viewed',
+      label: 'City times viewed',
+      parameters: {'source': source, 'country': city.countryCode},
+    ),
+  );
+  return Navigator.of(context).push(
+    MaterialPageRoute<void>(
+      builder: (context) => CityPrayerTimesPage(city: city, initialDate: date),
+    ),
+  );
 }
 
 /// Another city's prayer times, just to look at: "what will the times be
@@ -90,7 +94,8 @@ class _CityPrayerTimesPageState extends State<CityPrayerTimesPage> {
     final city = widget.city;
     final zone = _zone;
     final today = _today();
-    final isToday = _day.year == today.year &&
+    final isToday =
+        _day.year == today.year &&
         _day.month == today.month &&
         _day.day == today.day;
     // Today, after Maghrib in the city, is already the next Islamic day's
@@ -102,13 +107,15 @@ class _CityPrayerTimesPageState extends State<CityPrayerTimesPage> {
             longitude: city.longitude,
           )
         : null;
-    final hijri = islamicDay?.day.hijri ??
+    final hijri =
+        islamicDay?.day.hijri ??
         hijriForCivilDate(_day, offsetDays: hijriOffsetInEffect);
     final hijriLabel = localizeDigits(
-        '${hijri.hDay} '
-        '${hijriMonthName(hijri.hMonth, context.l10n).replaceAll(' Al-', ' al-')} '
-        '${hijri.hYear}',
-        context.l10n);
+      '${hijri.hDay} '
+      '${hijriMonthName(hijri.hMonth, context.l10n).replaceAll(' Al-', ' al-')} '
+      '${hijri.hYear}',
+      context.l10n,
+    );
     // Midday, so a day the clocks change on compares the hours that count.
     final difference = zone == null
         ? null
@@ -168,8 +175,9 @@ class _CityPrayerTimesPageState extends State<CityPrayerTimesPage> {
                               Text(
                                 DateFormat('EEEE d MMMM').format(_day),
                                 textAlign: TextAlign.center,
-                                style: ShiaText.cardTitle
-                                    .copyWith(color: colors.text),
+                                style: ShiaText.cardTitle.copyWith(
+                                  color: colors.text,
+                                ),
                               ),
                               const SizedBox(height: 2),
                               Text(
@@ -177,8 +185,9 @@ class _CityPrayerTimesPageState extends State<CityPrayerTimesPage> {
                                     ? context.l10n.hijriEveOfDate(hijriLabel)
                                     : hijriLabel,
                                 textAlign: TextAlign.center,
-                                style: ShiaText.secondary
-                                    .copyWith(color: colors.textMuted),
+                                style: ShiaText.secondary.copyWith(
+                                  color: colors.textMuted,
+                                ),
                               ),
                             ],
                           ),
@@ -204,10 +213,13 @@ class _CityPrayerTimesPageState extends State<CityPrayerTimesPage> {
                       Padding(
                         padding: const EdgeInsets.fromLTRB(8, 8, 8, 0),
                         child: Text(
-                          context.l10n
-                              .cityTimeDifference(city.name, clockLabel),
-                          style: ShiaText.caption
-                              .copyWith(color: colors.textMuted),
+                          context.l10n.cityTimeDifference(
+                            city.name,
+                            clockLabel,
+                          ),
+                          style: ShiaText.caption.copyWith(
+                            color: colors.textMuted,
+                          ),
                         ),
                       ),
                     Padding(

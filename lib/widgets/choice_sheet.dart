@@ -40,7 +40,9 @@ Future<T?> showAdaptiveSheet<T>(
             maxHeight: math.min(760, MediaQuery.sizeOf(context).height * 0.88),
           ),
           child: SheetPresentation(
-              inDialog: true, child: Builder(builder: builder)),
+            inDialog: true,
+            child: Builder(builder: builder),
+          ),
         ),
       ),
     );
@@ -92,7 +94,10 @@ Future<T?> showRevampSheet<T>(
   return showAdaptiveSheet<T>(
     context,
     builder: (context) => SheetFrame(
-        title: title, closeLabel: closeLabel, child: builder(context)),
+      title: title,
+      closeLabel: closeLabel,
+      child: builder(context),
+    ),
   );
 }
 
@@ -126,7 +131,8 @@ class SheetFrame extends StatelessWidget {
               16,
               16 +
                   MediaQuery.paddingOf(context).bottom +
-                  MediaQuery.viewInsetsOf(context).bottom),
+                  MediaQuery.viewInsetsOf(context).bottom,
+            ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -249,16 +255,19 @@ Future<T?> showChoiceSheet<T>(
                       last: i == choices.length - 1,
                       leading: choice.leading,
                       title: Text(choice.label),
-                      subtitle: choice.sample ??
+                      subtitle:
+                          choice.sample ??
                           (choice.hint == null ? null : Text(choice.hint!)),
                       trailing: SizedBox.square(
                         dimension: 44,
                         child: choice.value == current
                             ? Center(
-                                child: OutlineIcon(OutlineGlyph.check,
-                                    size: 22,
-                                    color: colors.accent,
-                                    strokeWidth: 2.4),
+                                child: OutlineIcon(
+                                  OutlineGlyph.check,
+                                  size: 22,
+                                  color: colors.accent,
+                                  strokeWidth: 2.4,
+                                ),
                               )
                             : null,
                       ),

@@ -21,9 +21,9 @@ class BalancedColumns extends MultiChildRenderObjectWidget {
     this.startFlex = 1,
     this.endFlex = 1,
     this.gap = 0,
-  })  : startCount = start.length,
-        endCount = end.length,
-        super(children: [...start, ...end, ...floating]);
+  }) : startCount = start.length,
+       endCount = end.length,
+       super(children: [...start, ...end, ...floating]);
 
   final int startCount;
   final int endCount;
@@ -44,7 +44,9 @@ class BalancedColumns extends MultiChildRenderObjectWidget {
 
   @override
   void updateRenderObject(
-      BuildContext context, RenderBalancedColumns renderObject) {
+    BuildContext context,
+    RenderBalancedColumns renderObject,
+  ) {
     renderObject
       ..startCount = startCount
       ..endCount = endCount
@@ -68,12 +70,12 @@ class RenderBalancedColumns extends RenderBox
     required int endFlex,
     required double gap,
     required TextDirection textDirection,
-  })  : _startCount = startCount,
-        _endCount = endCount,
-        _startFlex = startFlex,
-        _endFlex = endFlex,
-        _gap = gap,
-        _textDirection = textDirection;
+  }) : _startCount = startCount,
+       _endCount = endCount,
+       _startFlex = startFlex,
+       _endFlex = endFlex,
+       _gap = gap,
+       _textDirection = textDirection;
 
   int _startCount;
   set startCount(int value) {
@@ -127,8 +129,10 @@ class RenderBalancedColumns extends RenderBox
   @override
   void performLayout() {
     final width = constraints.maxWidth;
-    final startWidth =
-        math.max(0.0, (width - _gap) * _startFlex / (_startFlex + _endFlex));
+    final startWidth = math.max(
+      0.0,
+      (width - _gap) * _startFlex / (_startFlex + _endFlex),
+    );
     final endWidth = math.max(0.0, width - _gap - startWidth);
     final rtl = _textDirection == TextDirection.rtl;
     final startX = rtl ? width - startWidth : 0.0;
@@ -148,8 +152,10 @@ class RenderBalancedColumns extends RenderBox
         inStart = startHeight <= endHeight;
       }
       final columnWidth = inStart ? startWidth : endWidth;
-      child.layout(BoxConstraints.tightFor(width: columnWidth),
-          parentUsesSize: true);
+      child.layout(
+        BoxConstraints.tightFor(width: columnWidth),
+        parentUsesSize: true,
+      );
       final parentData = child.parentData! as _BalancedColumnsParentData;
       if (inStart) {
         parentData.offset = Offset(startX, startHeight);

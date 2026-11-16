@@ -44,9 +44,7 @@ class RecitationMatches {
     required this.matchedTokens,
   });
 
-  const RecitationMatches.none()
-      : candidates = const [],
-        matchedTokens = 0;
+  const RecitationMatches.none() : candidates = const [], matchedTokens = 0;
 
   /// Best first.
   final List<VerseMatch> candidates;
@@ -65,7 +63,8 @@ class RecitationMatches {
   /// A wide margin is what distinguishes "this is the verse" from "it is one of
   /// these".
   double get margin {
-    if (candidates.length < 2) return candidates.isEmpty ? 0 : candidates.first.score;
+    if (candidates.length < 2)
+      return candidates.isEmpty ? 0 : candidates.first.score;
     return candidates[0].score - candidates[1].score;
   }
 
@@ -75,7 +74,9 @@ class RecitationMatches {
   /// wrong ar-Rahman refrain, and a wide margin alone would jump on the
   /// strength of one lucky rare word.
   bool get isConfident =>
-      best != null && best!.score >= _confidentScore && margin >= _confidentMargin;
+      best != null &&
+      best!.score >= _confidentScore &&
+      margin >= _confidentMargin;
 }
 
 const double _confidentScore = 0.55;
@@ -135,7 +136,10 @@ RecitationMatches matchRecitation(
   }
 
   if (matchedTokens < _minimumTokens || totalWeight <= 0) {
-    return RecitationMatches(candidates: const [], matchedTokens: matchedTokens);
+    return RecitationMatches(
+      candidates: const [],
+      matchedTokens: matchedTokens,
+    );
   }
 
   final ranked = coverage.keys.toList()
@@ -148,7 +152,8 @@ RecitationMatches matchRecitation(
   for (final verseIndex in shortlist) {
     final indexed = index.verses[verseIndex];
     final ordered = _orderedSimilarity(tokens, indexed.tokens);
-    var score = _coverageWeight * (coverage[verseIndex]! / totalWeight) +
+    var score =
+        _coverageWeight * (coverage[verseIndex]! / totalWeight) +
         _orderWeight * ordered +
         _lengthWeight * _lengthAgreement(tokens.length, indexed.tokens.length);
 
@@ -156,12 +161,14 @@ RecitationMatches matchRecitation(
       score += _sameSurahBonus;
     }
 
-    scored.add(VerseMatch(
-      verse: indexed.verse,
-      score: score.clamp(0.0, 1.0),
-      arabic: indexed.arabic,
-      translation: indexed.translation,
-    ));
+    scored.add(
+      VerseMatch(
+        verse: indexed.verse,
+        score: score.clamp(0.0, 1.0),
+        arabic: indexed.arabic,
+        translation: indexed.translation,
+      ),
+    );
   }
 
   scored.sort((a, b) {

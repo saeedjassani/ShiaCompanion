@@ -78,30 +78,36 @@ class City {
           if (latitude == null || longitude == null) continue;
           final country = fields[3];
           final admin1Code = '$country.${fields[4]}';
-          cities.add(City(
-            name: localName.isNotEmpty ? localName : fields[1],
-            englishName: localName.isNotEmpty ? fields[1] : '',
-            asciiName: fields[2],
-            countryCode: country,
-            countryName: _nonEmpty(local?.countries[country]) ??
-                countries[country] ??
-                country,
-            admin1Name: _nonEmpty(local?.admin1[admin1Code]) ??
-                admin1[admin1Code] ??
-                '',
-            latitude: latitude,
-            longitude: longitude,
-            population: int.tryParse(fields[7]) ?? 0,
-            timeZone: _zone(zones, fields[8]),
-            aliases: fields.length > 9 && fields[9].isNotEmpty
-                ? fields[9].split('|')
-                : const [],
-          ));
+          cities.add(
+            City(
+              name: localName.isNotEmpty ? localName : fields[1],
+              englishName: localName.isNotEmpty ? fields[1] : '',
+              asciiName: fields[2],
+              countryCode: country,
+              countryName:
+                  _nonEmpty(local?.countries[country]) ??
+                  countries[country] ??
+                  country,
+              admin1Name:
+                  _nonEmpty(local?.admin1[admin1Code]) ??
+                  admin1[admin1Code] ??
+                  '',
+              latitude: latitude,
+              longitude: longitude,
+              population: int.tryParse(fields[7]) ?? 0,
+              timeZone: _zone(zones, fields[8]),
+              aliases: fields.length > 9 && fields[9].isNotEmpty
+                  ? fields[9].split('|')
+                  : const [],
+            ),
+          );
       }
     }
     if (local != null && local.placeCount != placeIndex) {
-      debugPrint('City names file has ${local.placeCount} places, the list '
-          '$placeIndex; showing English.');
+      debugPrint(
+        'City names file has ${local.placeCount} places, the list '
+        '$placeIndex; showing English.',
+      );
       return parseDatabase(contents);
     }
     return cities;
@@ -146,8 +152,11 @@ class _LocalNames {
     }
     // Declared and found must agree, or the lines are not the list's.
     return _LocalNames(
-        placeCount == places.length ? placeCount : -1, countries, admin1,
-        places);
+      placeCount == places.length ? placeCount : -1,
+      countries,
+      admin1,
+      places,
+    );
   }
 
   /// How many places it names, -1 when it is not well formed.

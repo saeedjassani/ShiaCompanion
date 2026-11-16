@@ -14,10 +14,10 @@ enum EventNotificationKind {
   other;
 
   static EventNotificationKind ofColor(Object? color) => switch (color) {
-        1 => celebration,
-        0 => mourning,
-        _ => other,
-      };
+    1 => celebration,
+    0 => mourning,
+    _ => other,
+  };
 }
 
 /// One event the planner picked, and when to tell the reader about it.
@@ -114,16 +114,18 @@ List<PlannedEventNotification> planEventNotifications({
     // By calendar day: the day the clocks go back is 25 hours long.
     final fireAt = notifyAt(calendarDayFrom(date, -1));
     if (!fireAt.isAfter(now)) continue;
-    candidates.add(PlannedEventNotification(
-      fireAt: fireAt,
-      eventDate: date,
-      hijriDay: hijri.hDay,
-      hijriMonth: hijri.hMonth,
-      hijriYear: hijri.hYear,
-      event: event,
-      kind: kind,
-      major: event['major'] == true,
-    ));
+    candidates.add(
+      PlannedEventNotification(
+        fireAt: fireAt,
+        eventDate: date,
+        hijriDay: hijri.hDay,
+        hijriMonth: hijri.hMonth,
+        hijriYear: hijri.hYear,
+        event: event,
+        kind: kind,
+        major: event['major'] == true,
+      ),
+    );
   }
   if (candidates.length <= budget) return candidates;
 
@@ -133,9 +135,11 @@ List<PlannedEventNotification> planEventNotifications({
   }
 
   // 1. What is next.
-  for (var i = 0;
-      i < candidates.length && i < eventNotificationSoonestKept;
-      i++) {
+  for (
+    var i = 0;
+    i < candidates.length && i < eventNotificationSoonestKept;
+    i++
+  ) {
     take(i);
   }
 
@@ -159,9 +163,7 @@ List<PlannedEventNotification> planEventNotifications({
     take(i);
   }
 
-  return [
-    for (final index in chosen.toList()..sort()) candidates[index],
-  ];
+  return [for (final index in chosen.toList()..sort()) candidates[index]];
 }
 
 /// When an event is told without a location to work out Maghrib from:

@@ -67,7 +67,8 @@ Map<int, int> predictedHijriMonthStarts({
   var previous = table[first];
   var seam = first;
   for (var index = first + 1; index <= last; index++) {
-    final predicted = predictMonthStart(
+    final predicted =
+        predictMonthStart(
           ummAlQuraStart: table[index],
           latitude: latitude,
           longitude: longitude,
@@ -156,14 +157,17 @@ double? yallopQ({
   final moonAltitude = _altitude(moon, best, latitude, longitude);
 
   final arcv = moonAltitude - sunAltitude;
-  final arcl = _degrees(math.acos(
-    (math.cos(_radians(moon.latitude)) *
-            math.cos(_radians(moon.longitude - sun.longitude)))
-        .clamp(-1.0, 1.0),
-  ));
+  final arcl = _degrees(
+    math.acos(
+      (math.cos(_radians(moon.latitude)) *
+              math.cos(_radians(moon.longitude - sun.longitude)))
+          .clamp(-1.0, 1.0),
+    ),
+  );
   // The topocentric width of the crescent, in arcminutes.
   final semiDiameter = 0.27245 * moon.parallax * 60;
-  final topocentricSemiDiameter = semiDiameter *
+  final topocentricSemiDiameter =
+      semiDiameter *
       (1 +
           math.sin(_radians(moonAltitude)) * math.sin(_radians(moon.parallax)));
   final width = topocentricSemiDiameter * (1 - math.cos(_radians(arcl)));
@@ -219,8 +223,8 @@ SkyPosition sunPosition(double jd) {
   final anomaly = _radians(357.52911 + 35999.05029 * t - 0.0001537 * t * t);
   final centre =
       (1.914602 - 0.004817 * t - 0.000014 * t * t) * math.sin(anomaly) +
-          (0.019993 - 0.000101 * t) * math.sin(2 * anomaly) +
-          0.000289 * math.sin(3 * anomaly);
+      (0.019993 - 0.000101 * t) * math.sin(2 * anomaly) +
+      0.000289 * math.sin(3 * anomaly);
   final longitude = _wrap360(meanLongitude + centre - 0.00569);
   return _fromEcliptic(longitude, 0, t);
 }
@@ -229,24 +233,28 @@ SkyPosition sunPosition(double jd) {
 SkyPosition moonPosition(double jd) {
   final t = _centuries(jd);
   final t2 = t * t, t3 = t2 * t, t4 = t3 * t;
-  final meanLongitude = 218.3164477 +
+  final meanLongitude =
+      218.3164477 +
       481267.88123421 * t -
       0.0015786 * t2 +
       t3 / 538841 -
       t4 / 65194000;
-  final elongation = 297.8501921 +
+  final elongation =
+      297.8501921 +
       445267.1114034 * t -
       0.0018819 * t2 +
       t3 / 545868 -
       t4 / 113065000;
   final sunAnomaly =
       357.5291092 + 35999.0502909 * t - 0.0001536 * t2 + t3 / 24490000;
-  final moonAnomaly = 134.9633964 +
+  final moonAnomaly =
+      134.9633964 +
       477198.8675055 * t +
       0.0087414 * t2 +
       t3 / 69699 -
       t4 / 14712000;
-  final argument = 93.2720950 +
+  final argument =
+      93.2720950 +
       483202.0175233 * t -
       0.0036539 * t2 -
       t3 / 3526000 +
@@ -256,29 +264,39 @@ SkyPosition moonPosition(double jd) {
   final a3 = 313.45 + 481266.484 * t;
   final e = 1 - 0.002516 * t - 0.0000074 * t2;
 
-  double eccentricity(int m) => switch (m.abs()) { 1 => e, 2 => e * e, _ => 1 };
+  double eccentricity(int m) => switch (m.abs()) {
+    1 => e,
+    2 => e * e,
+    _ => 1,
+  };
 
   var sumL = 0.0, sumR = 0.0, sumB = 0.0;
   for (final row in _moonLongitudeTerms) {
-    final angle = _radians(row[0] * elongation +
-        row[1] * sunAnomaly +
-        row[2] * moonAnomaly +
-        row[3] * argument);
+    final angle = _radians(
+      row[0] * elongation +
+          row[1] * sunAnomaly +
+          row[2] * moonAnomaly +
+          row[3] * argument,
+    );
     final factor = eccentricity(row[1]);
     sumL += row[4] * factor * math.sin(angle);
     sumR += row[5] * factor * math.cos(angle);
   }
   for (final row in _moonLatitudeTerms) {
-    final angle = _radians(row[0] * elongation +
-        row[1] * sunAnomaly +
-        row[2] * moonAnomaly +
-        row[3] * argument);
+    final angle = _radians(
+      row[0] * elongation +
+          row[1] * sunAnomaly +
+          row[2] * moonAnomaly +
+          row[3] * argument,
+    );
     sumB += row[4] * eccentricity(row[1]) * math.sin(angle);
   }
-  sumL += 3958 * math.sin(_radians(a1)) +
+  sumL +=
+      3958 * math.sin(_radians(a1)) +
       1962 * math.sin(_radians(meanLongitude - argument)) +
       318 * math.sin(_radians(a2));
-  sumB += -2235 * math.sin(_radians(meanLongitude)) +
+  sumB +=
+      -2235 * math.sin(_radians(meanLongitude)) +
       382 * math.sin(_radians(a3)) +
       175 * math.sin(_radians(a1 - argument)) +
       175 * math.sin(_radians(a1 + argument)) +
@@ -317,8 +335,10 @@ SkyPosition _fromEcliptic(
         math.tan(beta) * math.sin(obliquity),
     math.cos(lambda),
   );
-  final declination = math.asin(math.sin(beta) * math.cos(obliquity) +
-      math.cos(beta) * math.sin(obliquity) * math.sin(lambda));
+  final declination = math.asin(
+    math.sin(beta) * math.cos(obliquity) +
+        math.cos(beta) * math.sin(obliquity) * math.sin(lambda),
+  );
   return SkyPosition(
     longitude: longitude,
     latitude: latitude,
@@ -331,10 +351,12 @@ SkyPosition _fromEcliptic(
 /// Greenwich mean sidereal time at the Julian date [jd] (UT), degrees.
 double _siderealTime(double jd) {
   final t = (jd - 2451545) / 36525;
-  return _wrap360(280.46061837 +
-      360.98564736629 * (jd - 2451545) +
-      0.000387933 * t * t -
-      t * t * t / 38710000);
+  return _wrap360(
+    280.46061837 +
+        360.98564736629 * (jd - 2451545) +
+        0.000387933 * t * t -
+        t * t * t / 38710000,
+  );
 }
 
 double _hourAngle(SkyPosition body, double jd, double longitude) =>
@@ -349,8 +371,12 @@ double _altitude(
 ) {
   final phi = _radians(latitude), delta = _radians(body.declination);
   final h = _radians(_hourAngle(body, jd, longitude));
-  return _degrees(math.asin(math.sin(phi) * math.sin(delta) +
-      math.cos(phi) * math.cos(delta) * math.cos(h)));
+  return _degrees(
+    math.asin(
+      math.sin(phi) * math.sin(delta) +
+          math.cos(phi) * math.cos(delta) * math.cos(h),
+    ),
+  );
 }
 
 /// When a body sets nearest [from]: the moment its hour angle reaches the one
@@ -371,7 +397,7 @@ double? _setting({
     final delta = _radians(body.declination);
     final cosH =
         (math.sin(_radians(altitude(body))) - math.sin(phi) * math.sin(delta)) /
-            (math.cos(phi) * math.cos(delta));
+        (math.cos(phi) * math.cos(delta));
     if (cosH < -1 || cosH > 1) return null;
     final target = _degrees(math.acos(cosH));
     final step = _wrap180(target - _hourAngle(body, t, longitude)) / rate;

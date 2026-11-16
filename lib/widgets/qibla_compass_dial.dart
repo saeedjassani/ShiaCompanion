@@ -300,11 +300,7 @@ class _CompassDialPainter extends CustomPainter {
       ..color = muted
       ..strokeWidth = radius * 0.014
       ..strokeCap = StrokeCap.round;
-    canvas.drawLine(
-      Offset(0, -radius * 0.9),
-      Offset(0, -radius * 0.62),
-      paint,
-    );
+    canvas.drawLine(Offset(0, -radius * 0.9), Offset(0, -radius * 0.62), paint);
     canvas.drawCircle(
       Offset(0, -radius * 0.58),
       radius * 0.028,
@@ -353,11 +349,7 @@ class _CompassDialPainter extends CustomPainter {
   }
 
   void _paintHub(Canvas canvas, Offset center, double radius) {
-    canvas.drawCircle(
-      center,
-      radius * 0.155,
-      Paint()..color = face,
-    );
+    canvas.drawCircle(center, radius * 0.155, Paint()..color = face);
     canvas.drawCircle(
       center,
       radius * 0.155,
@@ -407,5 +399,6 @@ class _CompassDialPainter extends CustomPainter {
 
 /// `NNE · 34°` — the compass point and the number, which answer different
 /// questions: the letters say roughly where to turn, the number confirms it.
-String formatBearing(double bearing) => '${compassLabel(bearing)} · '
+String formatBearing(double bearing) =>
+    '${compassLabel(bearing)} · '
     '${localizeDigits('${normalizeBearing(bearing).round()}')}°';

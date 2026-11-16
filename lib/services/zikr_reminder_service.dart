@@ -10,6 +10,7 @@ import 'package:shia_companion/models/zikr_reminder.dart';
 import 'package:shia_companion/services/analytics_service.dart';
 import 'package:shia_companion/utils/shared_preferences.dart';
 import 'package:shia_companion/utils/zikr_reminder_scheduling.dart';
+
 import '../l10n/l10n.dart';
 
 /// Owns the user's zikr reminders: persistence, and turning them into local
@@ -69,8 +70,10 @@ class ZikrReminderService extends ChangeNotifier {
 
   Future<int> _allocateBaseId() async {
     final next = SP.prefs.getInt(_nextBaseIdKey) ?? _baseIdStart;
-    await SP.prefs
-        .setInt(_nextBaseIdKey, next + zikrReminderIdSlotsPerReminder);
+    await SP.prefs.setInt(
+      _nextBaseIdKey,
+      next + zikrReminderIdSlotsPerReminder,
+    );
     return next;
   }
 
@@ -108,11 +111,13 @@ class ZikrReminderService extends ChangeNotifier {
     await _persist();
     notifyListeners();
 
-    unawaited(AnalyticsService.feature(
-      'zikr_reminder_added',
-      label: 'Zikr reminder added',
-      parameters: {'mode': mode.name, 'days': daysOfWeek.length},
-    ));
+    unawaited(
+      AnalyticsService.feature(
+        'zikr_reminder_added',
+        label: 'Zikr reminder added',
+        parameters: {'mode': mode.name, 'days': daysOfWeek.length},
+      ),
+    );
 
     await rescheduleAll();
     return reminder;
@@ -127,11 +132,13 @@ class ZikrReminderService extends ChangeNotifier {
     await _persist();
     notifyListeners();
 
-    unawaited(AnalyticsService.feature(
-      'zikr_reminder_edited',
-      label: 'Zikr reminder edited',
-      parameters: {'mode': updated.mode.name},
-    ));
+    unawaited(
+      AnalyticsService.feature(
+        'zikr_reminder_edited',
+        label: 'Zikr reminder edited',
+        parameters: {'mode': updated.mode.name},
+      ),
+    );
 
     await rescheduleAll();
   }
@@ -153,10 +160,12 @@ class ZikrReminderService extends ChangeNotifier {
     await _persist();
     notifyListeners();
 
-    unawaited(AnalyticsService.feature(
-      'zikr_reminder_deleted',
-      label: 'Zikr reminder deleted',
-    ));
+    unawaited(
+      AnalyticsService.feature(
+        'zikr_reminder_deleted',
+        label: 'Zikr reminder deleted',
+      ),
+    );
 
     await _cancelReminderNotifications(removed);
   }
@@ -197,10 +206,12 @@ class ZikrReminderService extends ChangeNotifier {
   Future<void> _cancelReminderNotifications(ZikrReminder reminder) async {
     final plugin = flutterLocalNotificationsPlugin;
     if (plugin == null) return;
-    await Future.wait(Iterable<int>.generate(
-      zikrReminderIdSlotsPerReminder,
-      (offset) => reminder.notificationBaseId + offset,
-    ).map((id) => plugin.cancel(id: id)));
+    await Future.wait(
+      Iterable<int>.generate(
+        zikrReminderIdSlotsPerReminder,
+        (offset) => reminder.notificationBaseId + offset,
+      ).map((id) => plugin.cancel(id: id)),
+    );
   }
 
   /// Cancels and rebuilds every reminder's notifications against the current
@@ -263,16 +274,18 @@ class ZikrReminderService extends ChangeNotifier {
           weekday: weekday,
           occurrenceIndex: 0,
         );
-        schedulingTasks.add(plugin.zonedSchedule(
-          id: id,
-          title: reminder.title,
-          body: body,
-          scheduledDate: tz.TZDateTime.from(scheduled, tz.local),
-          notificationDetails: details,
-          androidScheduleMode: scheduleMode,
-          matchDateTimeComponents: DateTimeComponents.dayOfWeekAndTime,
-          payload: '$payloadPrefix${reminder.id}',
-        ));
+        schedulingTasks.add(
+          plugin.zonedSchedule(
+            id: id,
+            title: reminder.title,
+            body: body,
+            scheduledDate: tz.TZDateTime.from(scheduled, tz.local),
+            notificationDetails: details,
+            androidScheduleMode: scheduleMode,
+            matchDateTimeComponents: DateTimeComponents.dayOfWeekAndTime,
+            payload: '$payloadPrefix${reminder.id}',
+          ),
+        );
       }
       await Future.wait(schedulingTasks);
       return;
@@ -280,7 +293,8 @@ class ZikrReminderService extends ChangeNotifier {
 
     if (lat == null || long == null) {
       debugPrint(
-          'Skipping zikr reminder "${reminder.title}": location unavailable');
+        'Skipping zikr reminder "${reminder.title}": location unavailable',
+      );
       return;
     }
 
@@ -303,15 +317,17 @@ class ZikrReminderService extends ChangeNotifier {
           weekday: weekday,
           occurrenceIndex: index,
         );
-        schedulingTasks.add(plugin.zonedSchedule(
-          id: id,
-          title: reminder.title,
-          body: body,
-          scheduledDate: tz.TZDateTime.from(occurrences[index], tz.local),
-          notificationDetails: details,
-          androidScheduleMode: scheduleMode,
-          payload: '$payloadPrefix${reminder.id}',
-        ));
+        schedulingTasks.add(
+          plugin.zonedSchedule(
+            id: id,
+            title: reminder.title,
+            body: body,
+            scheduledDate: tz.TZDateTime.from(occurrences[index], tz.local),
+            notificationDetails: details,
+            androidScheduleMode: scheduleMode,
+            payload: '$payloadPrefix${reminder.id}',
+          ),
+        );
       }
     }
     await Future.wait(schedulingTasks);

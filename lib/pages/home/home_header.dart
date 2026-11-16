@@ -68,7 +68,8 @@ class _HomeHeaderState extends State<HomeHeader> {
     final wide = isHomeWide(context);
     final islamicDay = islamicDayAt(HomeHeader.debugNow());
     final hijri = islamicDay.day.hijri;
-    final dayAndMonth = '${localizeDigits('${hijri.hDay}', context.l10n)} '
+    final dayAndMonth =
+        '${localizeDigits('${hijri.hDay}', context.l10n)} '
         '${hijriMonthName(hijri.hMonth, context.l10n).replaceAll(' Al-', ' al-')}';
 
     final header = Row(
@@ -109,7 +110,8 @@ class _HomeHeaderState extends State<HomeHeader> {
                 children: [
                   Text(
                     context.l10n.homeHijriYear(
-                        localizeDigits('${hijri.hYear}', context.l10n)),
+                      localizeDigits('${hijri.hYear}', context.l10n),
+                    ),
                     style: ShiaText.secondary.copyWith(color: colors.textMuted),
                   ),
                   // With no location yet the prayer card asks for a city;

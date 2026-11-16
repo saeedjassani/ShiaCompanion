@@ -33,7 +33,8 @@ class VerseNote {
       surahName: json['surahName']?.toString() ?? '',
       excerpt: json['excerpt']?.toString() ?? '',
       text: json['text']?.toString() ?? '',
-      updatedAt: DateTime.tryParse(json['updatedAt']?.toString() ?? '') ??
+      updatedAt:
+          DateTime.tryParse(json['updatedAt']?.toString() ?? '') ??
           DateTime.fromMillisecondsSinceEpoch(0, isUtc: true),
     );
   }
@@ -92,7 +93,7 @@ class VerseNote {
 @immutable
 class VerseNotesState {
   VerseNotesState([Map<String, VerseNote>? notes])
-      : notes = Map.unmodifiable(notes ?? const {});
+    : notes = Map.unmodifiable(notes ?? const {});
 
   factory VerseNotesState.fromJson(dynamic value) {
     if (value is! Map) return empty;
@@ -157,6 +158,6 @@ class VerseNotesState {
   }
 
   Map<String, Object> toJson() => {
-        'notes': [for (final note in inMushafOrder) note.toJson()],
-      };
+    'notes': [for (final note in inMushafOrder) note.toJson()],
+  };
 }

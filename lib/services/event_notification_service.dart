@@ -77,10 +77,12 @@ class EventNotificationService extends ChangeNotifier {
     if (value == enabled) return;
     await SP.prefs.setBool(enabledKey, value);
     notifyListeners();
-    unawaited(AnalyticsService.feature(
-      value ? 'event_notifications_on' : 'event_notifications_off',
-      label: value ? 'Event notifications on' : 'Event notifications off',
-    ));
+    unawaited(
+      AnalyticsService.feature(
+        value ? 'event_notifications_on' : 'event_notifications_off',
+        label: value ? 'Event notifications on' : 'Event notifications off',
+      ),
+    );
     if (value) await requestNotificationPermissions();
     // On iOS the Azan's share of the 64 pending notifications depends on
     // whether events are on.
@@ -95,11 +97,13 @@ class EventNotificationService extends ChangeNotifier {
     on ? next.add(kind) : next.remove(kind);
     await SP.prefs.setStringList(kindsKey, [for (final k in next) k.name]);
     notifyListeners();
-    unawaited(AnalyticsService.feature(
-      'event_notifications_kind',
-      label: 'Event notification kind changed',
-      parameters: {'kind': kind.name, 'on': on ? 1 : 0},
-    ));
+    unawaited(
+      AnalyticsService.feature(
+        'event_notifications_kind',
+        label: 'Event notification kind changed',
+        parameters: {'kind': kind.name, 'on': on ? 1 : 0},
+      ),
+    );
     await rescheduleAll();
   }
 
@@ -163,7 +167,8 @@ class EventNotificationService extends ChangeNotifier {
           body: l10n.eventNotificationBody(
             l10n.homeEventTonight,
             localizeDigits(
-                '${plan[i].hijriDay} ${hijriMonthName(plan[i].hijriMonth)}'),
+              '${plan[i].hijriDay} ${hijriMonthName(plan[i].hijriMonth)}',
+            ),
           ),
           scheduledDate: tz.TZDateTime.from(plan[i].fireAt, tz.local),
           notificationDetails: details,

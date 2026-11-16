@@ -29,12 +29,12 @@ import 'ziyarat_site_page.dart';
 /// Pixels per metre at which each kind of feature appears: doors crowd the
 /// haram, so they wait for a closer look.
 double _minPixelsPerMetre(PlanFeatureKind kind) => switch (kind) {
-      PlanFeatureKind.zarih || PlanFeatureKind.place => 0,
-      PlanFeatureKind.gate => 0.9,
-      PlanFeatureKind.landmark => 1.1,
-      PlanFeatureKind.tomb || PlanFeatureKind.maqam => 1.6,
-      PlanFeatureKind.door => 3.2,
-    };
+  PlanFeatureKind.zarih || PlanFeatureKind.place => 0,
+  PlanFeatureKind.gate => 0.9,
+  PlanFeatureKind.landmark => 1.1,
+  PlanFeatureKind.tomb || PlanFeatureKind.maqam => 1.6,
+  PlanFeatureKind.door => 3.2,
+};
 
 /// How close the plan opens on its focus: about 160 m across a phone.
 const double _focusPixelsPerMetre = 2.4;
@@ -68,17 +68,16 @@ String? planFeatureSide(PlanFeature feature) {
   final zarih = feature.plan.focusFor(site.id);
   final gates = [
     for (final f in feature.plan.features)
-      if (f.siteId == site.id && f.kind == PlanFeatureKind.gate) f.location
+      if (f.siteId == site.id && f.kind == PlanFeatureKind.gate) f.location,
   ];
   final centre = zarih != null && zarih.kind == PlanFeatureKind.zarih
       ? zarih.location
       : gates.length >= 3
-          ? GeoPoint(
-              gates.map((g) => g.latitude).reduce((a, b) => a + b) /
-                  gates.length,
-              gates.map((g) => g.longitude).reduce((a, b) => a + b) /
-                  gates.length)
-          : site.location;
+      ? GeoPoint(
+          gates.map((g) => g.latitude).reduce((a, b) => a + b) / gates.length,
+          gates.map((g) => g.longitude).reduce((a, b) => a + b) / gates.length,
+        )
+      : site.location;
   final metres = greatCircleDistanceKm(centre, feature.location) * 1000;
   if (metres < 3) return null;
   final bearing = initialBearingDegrees(centre, feature.location);
@@ -88,38 +87,48 @@ String? planFeatureSide(PlanFeature feature) {
 
 String _formatMetres(AppLocalizations l10n, double metres) {
   if (metres >= 1000) {
-    return l10n.distanceKm(NumberFormat.decimalPattern()
-        .format(double.parse((metres / 1000).toStringAsFixed(1))));
+    return l10n.distanceKm(
+      NumberFormat.decimalPattern().format(
+        double.parse((metres / 1000).toStringAsFixed(1)),
+      ),
+    );
   }
   return l10n.ziyaratGuideMapMetres(
-      NumberFormat.decimalPattern().format(metres.round()));
+    NumberFormat.decimalPattern().format(metres.round()),
+  );
 }
 
 /// The colours a plan is drawn in, from the app theme.
 class _PlanPalette {
   _PlanPalette(ShiaColors c, Brightness brightness)
-      : dark = brightness == Brightness.dark,
-        background = c.ground,
-        precinct = Color.lerp(c.ground, c.gold, 0.10)!,
-        court = Color.lerp(
-            c.surface, c.gold, brightness == Brightness.dark ? 0.10 : 0.16)!,
-        walk = Color.lerp(c.ground, c.surface, 0.7)!,
-        green = Color.lerp(c.ground, c.success, 0.22)!,
-        water = Color.lerp(c.ground, const Color(0xFF4A90C8), 0.35)!,
-        road = c.surface,
-        roadEdge = c.line,
-        path = Color.lerp(c.surface, c.ground, 0.35)!,
-        building = Color.lerp(
-            c.well, c.text, brightness == Brightness.dark ? 0.12 : 0.08)!,
-        buildingEdge = Color.lerp(c.well, c.text, 0.30)!,
-        gate = Color.lerp(c.well, c.accent, 0.30)!,
-        tile = Color.lerp(c.well, const Color(0xFF2E8B9A), 0.55)!,
-        greenDome = Color.lerp(c.well, const Color(0xFF3E8E41), 0.75)!,
-        greenDomeEdge = Color.lerp(c.well, const Color(0xFF235A25), 0.85)!,
-        tileEdge = Color.lerp(c.well, const Color(0xFF1F5F69), 0.7)!,
-        gold = c.gold,
-        goldEdge = Color.lerp(c.gold, Colors.black, 0.28)!,
-        wall = Color.lerp(c.line, c.text, 0.35)!;
+    : dark = brightness == Brightness.dark,
+      background = c.ground,
+      precinct = Color.lerp(c.ground, c.gold, 0.10)!,
+      court = Color.lerp(
+        c.surface,
+        c.gold,
+        brightness == Brightness.dark ? 0.10 : 0.16,
+      )!,
+      walk = Color.lerp(c.ground, c.surface, 0.7)!,
+      green = Color.lerp(c.ground, c.success, 0.22)!,
+      water = Color.lerp(c.ground, const Color(0xFF4A90C8), 0.35)!,
+      road = c.surface,
+      roadEdge = c.line,
+      path = Color.lerp(c.surface, c.ground, 0.35)!,
+      building = Color.lerp(
+        c.well,
+        c.text,
+        brightness == Brightness.dark ? 0.12 : 0.08,
+      )!,
+      buildingEdge = Color.lerp(c.well, c.text, 0.30)!,
+      gate = Color.lerp(c.well, c.accent, 0.30)!,
+      tile = Color.lerp(c.well, const Color(0xFF2E8B9A), 0.55)!,
+      greenDome = Color.lerp(c.well, const Color(0xFF3E8E41), 0.75)!,
+      greenDomeEdge = Color.lerp(c.well, const Color(0xFF235A25), 0.85)!,
+      tileEdge = Color.lerp(c.well, const Color(0xFF1F5F69), 0.7)!,
+      gold = c.gold,
+      goldEdge = Color.lerp(c.gold, Colors.black, 0.28)!,
+      wall = Color.lerp(c.line, c.text, 0.35)!;
 
   final bool dark;
   final Color background;
@@ -178,19 +187,21 @@ class _PlanPainter extends CustomPainter {
       canvas.drawPath(path, fill..color = color);
       if (edge != null) {
         canvas.drawPath(
-            path,
-            stroke
-              ..color = edge
-              ..strokeWidth = edgePx * px);
+          path,
+          stroke
+            ..color = edge
+            ..strokeWidth = edgePx * px,
+        );
       }
     }
 
     void line(Path path, Color color, double widthMetres, {double minPx = 1}) {
       canvas.drawPath(
-          path,
-          stroke
-            ..color = color
-            ..strokeWidth = math.max(widthMetres, minPx * px));
+        path,
+        stroke
+          ..color = color
+          ..strokeWidth = math.max(widthMetres, minPx * px),
+      );
     }
 
     for (final shape in plan.shapes) {
@@ -319,14 +330,18 @@ class ShrinePlanCard extends StatelessWidget {
                       const SizedBox(height: 2),
                       Text(
                         l10n.ziyaratGuideMapHint,
-                        style:
-                            ShiaText.caption.copyWith(color: colors.textMuted),
+                        style: ShiaText.caption.copyWith(
+                          color: colors.textMuted,
+                        ),
                       ),
                     ],
                   ),
                 ),
-                OutlineIcon(OutlineGlyph.chevronRight,
-                    size: 18, color: colors.chevron),
+                OutlineIcon(
+                  OutlineGlyph.chevronRight,
+                  size: 18,
+                  color: colors.chevron,
+                ),
               ],
             ),
           ),
@@ -415,43 +430,50 @@ class _ShrinePlanPageState extends State<ShrinePlanPage> {
         showToast(l10n.ziyaratGuideMapNoLocation);
         return;
       }
-      AnalyticsService.feature('ziyarat_guide_plan_locate',
-          parameters: {'plan': widget.plan.id});
+      AnalyticsService.feature(
+        'ziyarat_guide_plan_locate',
+        parameters: {'plan': widget.plan.id},
+      );
       var first = true;
-      _positions = Geolocator.getPositionStream(
-        locationSettings: const LocationSettings(
-          accuracy: LocationAccuracy.best,
-          distanceFilter: 2,
-        ),
-      ).listen((position) {
-        if (!mounted) return;
-        final me = GeoPoint(position.latitude, position.longitude);
-        setState(() {
-          _me = me;
-          _meAccuracy = position.accuracy;
-          _locating = false;
-        });
-        if (first) {
-          first = false;
-          final view = _view.currentState;
-          if (view != null && view.covers(me)) {
-            view.showPoint(me);
-          } else {
-            final focus = widget.plan.focusFor(widget.site.id);
-            final km = focus == null
-                ? null
-                : greatCircleDistanceKm(me, focus.location);
-            if (km != null) {
-              showToast(
-                  l10n.ziyaratGuideMapAway(_formatMetres(l10n, km * 1000)));
-            }
-          }
-        }
-      }, onError: (Object error) {
-        if (!mounted) return;
-        setState(() => _locating = false);
-        showToast(l10n.ziyaratGuideMapNoLocation);
-      });
+      _positions =
+          Geolocator.getPositionStream(
+            locationSettings: const LocationSettings(
+              accuracy: LocationAccuracy.best,
+              distanceFilter: 2,
+            ),
+          ).listen(
+            (position) {
+              if (!mounted) return;
+              final me = GeoPoint(position.latitude, position.longitude);
+              setState(() {
+                _me = me;
+                _meAccuracy = position.accuracy;
+                _locating = false;
+              });
+              if (first) {
+                first = false;
+                final view = _view.currentState;
+                if (view != null && view.covers(me)) {
+                  view.showPoint(me);
+                } else {
+                  final focus = widget.plan.focusFor(widget.site.id);
+                  final km = focus == null
+                      ? null
+                      : greatCircleDistanceKm(me, focus.location);
+                  if (km != null) {
+                    showToast(
+                      l10n.ziyaratGuideMapAway(_formatMetres(l10n, km * 1000)),
+                    );
+                  }
+                }
+              }
+            },
+            onError: (Object error) {
+              if (!mounted) return;
+              setState(() => _locating = false);
+              showToast(l10n.ziyaratGuideMapNoLocation);
+            },
+          );
     } catch (error) {
       debugPrint('Ziyarat guide plan: no location ($error)');
       if (mounted) showToast(l10n.ziyaratGuideMapNoLocation);
@@ -463,8 +485,11 @@ class _ShrinePlanPageState extends State<ShrinePlanPage> {
   }
 
   Future<void> _showList() async {
-    final feature =
-        await showPlanFeatureList(context, widget.plan, siteId: widget.site.id);
+    final feature = await showPlanFeatureList(
+      context,
+      widget.plan,
+      siteId: widget.site.id,
+    );
     if (feature != null && mounted) _select(feature, move: true);
   }
 
@@ -492,12 +517,15 @@ class _ShrinePlanPageState extends State<ShrinePlanPage> {
                 me: _me,
                 meAccuracy: _meAccuracy,
                 pixelsPerMetre: _pixelsPerMetre,
-                bottomInset: padding.bottom +
+                bottomInset:
+                    padding.bottom +
                     (selected == null
                         ? 150
                         : math.min(
-                                MediaQuery.sizeOf(context).height * 0.48, 420) +
-                            60),
+                                MediaQuery.sizeOf(context).height * 0.48,
+                                420,
+                              ) +
+                              60),
               ),
             ),
             Positioned(
@@ -524,8 +552,11 @@ class _ShrinePlanPageState extends State<ShrinePlanPage> {
                   const SizedBox(width: 10),
                   RoundIconButton(
                     label: l10n.ziyaratGuideMapPlaces,
-                    icon: OutlineIcon(OutlineGlyph.lines,
-                        size: 20, color: colors.accent),
+                    icon: OutlineIcon(
+                      OutlineGlyph.lines,
+                      size: 20,
+                      color: colors.accent,
+                    ),
                     onPressed: _showList,
                   ),
                 ],
@@ -544,19 +575,26 @@ class _ShrinePlanPageState extends State<ShrinePlanPage> {
                         ? SizedBox.square(
                             dimension: 18,
                             child: CircularProgressIndicator(
-                                strokeWidth: 2, color: colors.accent),
+                              strokeWidth: 2,
+                              color: colors.accent,
+                            ),
                           )
-                        : OutlineIcon(OutlineGlyph.pin,
+                        : OutlineIcon(
+                            OutlineGlyph.pin,
                             size: 20,
                             color: colors.accent,
-                            filled: _me != null),
+                            filled: _me != null,
+                          ),
                     onPressed: _locate,
                   ),
                   const SizedBox(height: 10),
                   RoundIconButton(
                     label: l10n.ziyaratGuideMapRecenter,
-                    icon: OutlineIcon(OutlineGlyph.reset,
-                        size: 20, color: colors.accent),
+                    icon: OutlineIcon(
+                      OutlineGlyph.reset,
+                      size: 20,
+                      color: colors.accent,
+                    ),
                     onPressed: () => _view.currentState?.recentre(),
                   ),
                 ],
@@ -714,8 +752,10 @@ class _ShrinePlanViewState extends State<ShrinePlanView>
 
   Matrix4 _matrixFor(Offset base, double ppm) {
     final scale = (ppm / _basePpm).clamp(1.0, _maxScale);
-    final visibleHeight =
-        math.max(_viewport.height * 0.4, _viewport.height - widget.bottomInset);
+    final visibleHeight = math.max(
+      _viewport.height * 0.4,
+      _viewport.height - widget.bottomInset,
+    );
     final centre = Offset(_viewport.width / 2, visibleHeight / 2 + 30);
     final t = centre - base * scale;
     return Matrix4.identity()
@@ -726,14 +766,18 @@ class _ShrinePlanViewState extends State<ShrinePlanView>
   double get _maxScale => math.max(1.0, _maxPixelsPerMetre / _basePpm);
 
   void _animateTo(Matrix4 target) {
-    _tween = Matrix4Tween(begin: _controller.value, end: target)
-        .animate(CurvedAnimation(parent: _motion, curve: Curves.easeOutCubic));
+    _tween = Matrix4Tween(
+      begin: _controller.value,
+      end: target,
+    ).animate(CurvedAnimation(parent: _motion, curve: Curves.easeOutCubic));
     _motion.forward(from: 0);
   }
 
   void showFeature(PlanFeature feature) {
-    final ppm = math.max(_basePpm * _controller.value.getMaxScaleOnAxis(),
-        _minPixelsPerMetre(feature.kind) * 1.3 + 0.8);
+    final ppm = math.max(
+      _basePpm * _controller.value.getMaxScaleOnAxis(),
+      _minPixelsPerMetre(feature.kind) * 1.3 + 0.8,
+    );
     _animateTo(_matrixFor(_base(feature.location), ppm));
   }
 
@@ -752,9 +796,9 @@ class _ShrinePlanViewState extends State<ShrinePlanView>
 
   /// The page's top bar and its column of round buttons on the right.
   List<Rect> _chromeRects(double topPadding) => [
-        Rect.fromLTWH(0, 0, _viewport.width, topPadding + 60),
-        Rect.fromLTWH(_viewport.width - 68, 0, 68, topPadding + 222),
-      ];
+    Rect.fromLTWH(0, 0, _viewport.width, topPadding + 60),
+    Rect.fromLTWH(_viewport.width - 68, 0, 68, topPadding + 222),
+  ];
 
   void _layout(Size viewport) {
     if (viewport == _viewport) return;
@@ -762,7 +806,9 @@ class _ShrinePlanViewState extends State<ShrinePlanView>
     final bounds = widget.drawing.bounds;
     // At scale 1 the whole plan fits.
     _basePpm = math.min(
-        viewport.width / bounds.width, viewport.height / bounds.height);
+      viewport.width / bounds.width,
+      viewport.height / bounds.height,
+    );
     if (!_placed || !widget.interactive) {
       _controller.value = _initialMatrix();
       _placed = true;
@@ -774,69 +820,71 @@ class _ShrinePlanViewState extends State<ShrinePlanView>
   Widget build(BuildContext context) {
     final colors = ShiaColors.of(context);
     final palette = _PlanPalette(colors, Theme.of(context).brightness);
-    return LayoutBuilder(builder: (context, constraints) {
-      _layout(constraints.biggest);
-      final bounds = widget.drawing.bounds;
-      final canvasSize = Size(bounds.width, bounds.height) * _basePpm;
-      final drawing = CustomPaint(
-        size: canvasSize,
-        painter: _PlanPainter(
-          plan: widget.drawing,
-          basePixelsPerMetre: _basePpm,
-          palette: palette,
-          zoom: _controller,
-        ),
-      );
-      return ClipRect(
-        child: Stack(
-          children: [
-            Positioned.fill(
-              child: ColoredBox(color: palette.background),
-            ),
-            Positioned.fill(
-              child: InteractiveViewer(
-                transformationController: _controller,
-                constrained: false,
-                panEnabled: widget.interactive,
-                scaleEnabled: widget.interactive,
-                minScale: 1,
-                maxScale: _maxScale,
-                boundaryMargin: EdgeInsets.symmetric(
-                  horizontal: _viewport.width * 0.5,
-                  vertical: _viewport.height * 0.5,
-                ),
-                onInteractionStart: (_) => _motion.stop(),
-                child: drawing,
-              ),
-            ),
-            Positioned.fill(
-              child: AnimatedBuilder(
-                animation: _controller,
-                builder: (context, _) => _MarkerLayer(
-                  features: widget.plan.features,
-                  position: (point) => MatrixUtils.transformPoint(
-                      _controller.value, _base(point)),
-                  pixelsPerMetre:
-                      _basePpm * _controller.value.getMaxScaleOnAxis(),
-                  viewport: _viewport,
-                  selected: widget.selected,
-                  focus: widget.plan.focusFor(widget.site.id),
-                  onSelect: widget.interactive ? widget.onSelect : null,
-                  showLabels: true,
-                  compact: !widget.interactive,
-                  me: widget.me,
-                  meAccuracy: widget.meAccuracy,
-                  reserved: widget.interactive
-                      ? _chromeRects(MediaQuery.paddingOf(context).top)
-                      : const [],
-                  reservedBottom: widget.bottomInset,
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        _layout(constraints.biggest);
+        final bounds = widget.drawing.bounds;
+        final canvasSize = Size(bounds.width, bounds.height) * _basePpm;
+        final drawing = CustomPaint(
+          size: canvasSize,
+          painter: _PlanPainter(
+            plan: widget.drawing,
+            basePixelsPerMetre: _basePpm,
+            palette: palette,
+            zoom: _controller,
+          ),
+        );
+        return ClipRect(
+          child: Stack(
+            children: [
+              Positioned.fill(child: ColoredBox(color: palette.background)),
+              Positioned.fill(
+                child: InteractiveViewer(
+                  transformationController: _controller,
+                  constrained: false,
+                  panEnabled: widget.interactive,
+                  scaleEnabled: widget.interactive,
+                  minScale: 1,
+                  maxScale: _maxScale,
+                  boundaryMargin: EdgeInsets.symmetric(
+                    horizontal: _viewport.width * 0.5,
+                    vertical: _viewport.height * 0.5,
+                  ),
+                  onInteractionStart: (_) => _motion.stop(),
+                  child: drawing,
                 ),
               ),
-            ),
-          ],
-        ),
-      );
-    });
+              Positioned.fill(
+                child: AnimatedBuilder(
+                  animation: _controller,
+                  builder: (context, _) => _MarkerLayer(
+                    features: widget.plan.features,
+                    position: (point) => MatrixUtils.transformPoint(
+                      _controller.value,
+                      _base(point),
+                    ),
+                    pixelsPerMetre:
+                        _basePpm * _controller.value.getMaxScaleOnAxis(),
+                    viewport: _viewport,
+                    selected: widget.selected,
+                    focus: widget.plan.focusFor(widget.site.id),
+                    onSelect: widget.interactive ? widget.onSelect : null,
+                    showLabels: true,
+                    compact: !widget.interactive,
+                    me: widget.me,
+                    meAccuracy: widget.meAccuracy,
+                    reserved: widget.interactive
+                        ? _chromeRects(MediaQuery.paddingOf(context).top)
+                        : const [],
+                    reservedBottom: widget.bottomInset,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 }
 
@@ -879,15 +927,15 @@ class _MarkerLayer extends StatelessWidget {
   final double reservedBottom;
 
   static double _markerSize(PlanFeatureKind kind) => switch (kind) {
-        // Small enough to leave a ring of the dome around it.
-        PlanFeatureKind.zarih => 26,
-        PlanFeatureKind.place => 26,
-        PlanFeatureKind.tomb => 20,
-        PlanFeatureKind.gate => 20,
-        PlanFeatureKind.maqam => 16,
-        PlanFeatureKind.landmark => 14,
-        PlanFeatureKind.door => 12,
-      };
+    // Small enough to leave a ring of the dome around it.
+    PlanFeatureKind.zarih => 26,
+    PlanFeatureKind.place => 26,
+    PlanFeatureKind.tomb => 20,
+    PlanFeatureKind.gate => 20,
+    PlanFeatureKind.maqam => 16,
+    PlanFeatureKind.landmark => 14,
+    PlanFeatureKind.door => 12,
+  };
 
   @override
   Widget build(BuildContext context) {
@@ -895,12 +943,12 @@ class _MarkerLayer extends StatelessWidget {
     final textScaler = MediaQuery.textScalerOf(context);
     // Measured in the style the label is drawn in: the app font included.
     final labelStyle = DefaultTextStyle.of(context).style.merge(
-          ShiaText.caption.copyWith(
-            fontSize: 12,
-            fontWeight: FontWeight.w600,
-            color: colors.text,
-          ),
-        );
+      ShiaText.caption.copyWith(
+        fontSize: 12,
+        fontWeight: FontWeight.w600,
+        color: colors.text,
+      ),
+    );
     final direction = Directionality.of(context);
 
     // Selected first, then what the plan opened on, then by priority, so
@@ -908,9 +956,10 @@ class _MarkerLayer extends StatelessWidget {
     int rank(PlanFeature f) => f == selected
         ? 2
         : f == focus
-            ? 1
-            : 0;
-    final ordered = [...features]..sort((a, b) {
+        ? 1
+        : 0;
+    final ordered = [...features]
+      ..sort((a, b) {
         final byRank = rank(b).compareTo(rank(a));
         if (byRank != 0) return byRank;
         return b.kind.labelPriority.compareTo(a.kind.labelPriority);
@@ -919,7 +968,11 @@ class _MarkerLayer extends StatelessWidget {
     final chrome = <Rect>[
       ...reserved,
       Rect.fromLTWH(
-          0, viewport.height - reservedBottom, viewport.width, reservedBottom),
+        0,
+        viewport.height - reservedBottom,
+        viewport.width,
+        reservedBottom,
+      ),
     ];
     final markers = <Widget>[];
     final labels = <Widget>[];
@@ -934,8 +987,11 @@ class _MarkerLayer extends StatelessWidget {
     for (final feature in ordered) {
       final isSelected = feature == selected;
       if (compact &&
-          !{PlanFeatureKind.zarih, PlanFeatureKind.place, PlanFeatureKind.gate}
-              .contains(feature.kind)) {
+          !{
+            PlanFeatureKind.zarih,
+            PlanFeatureKind.place,
+            PlanFeatureKind.gate,
+          }.contains(feature.kind)) {
         continue;
       }
       if (!isSelected && pixelsPerMetre < _minPixelsPerMetre(feature.kind)) {
@@ -951,18 +1007,20 @@ class _MarkerLayer extends StatelessWidget {
       }
       markerRects.add(markerRect);
       placed.add((feature, at, size));
-      markers.add(Positioned(
-        left: at.dx - 22,
-        top: at.dy - 22,
-        width: 44,
-        height: 44,
-        child: _Marker(
-          feature: feature,
-          size: size,
-          selected: isSelected,
-          onTap: onSelect == null ? null : () => onSelect!(feature),
+      markers.add(
+        Positioned(
+          left: at.dx - 22,
+          top: at.dy - 22,
+          width: 44,
+          height: 44,
+          child: _Marker(
+            feature: feature,
+            size: size,
+            selected: isSelected,
+            onTap: onSelect == null ? null : () => onSelect!(feature),
+          ),
         ),
-      ));
+      );
     }
 
     // Then labels, in the same order, where they fit.
@@ -971,34 +1029,55 @@ class _MarkerLayer extends StatelessWidget {
       if (!showLabels || !visible.contains(at)) continue;
       if (compact && feature.kind == PlanFeatureKind.gate) continue;
       final isSelected = feature == selected;
-      final painter = TextPainter(
-        text: TextSpan(text: feature.name, style: labelStyle),
-        textDirection: direction,
-        textScaler: textScaler,
-        maxLines: 1,
-        ellipsis: '…',
-      )..layout(
-          // The zarih's and the next site's names are worth the room.
-          maxWidth: feature.kind == PlanFeatureKind.zarih ||
-                  feature.kind == PlanFeatureKind.place
-              ? math.min(260.0, viewport.width - 24)
-              : 170);
+      final painter =
+          TextPainter(
+            text: TextSpan(text: feature.name, style: labelStyle),
+            textDirection: direction,
+            textScaler: textScaler,
+            maxLines: 1,
+            ellipsis: '…',
+          )..layout(
+            // The zarih's and the next site's names are worth the room.
+            maxWidth:
+                feature.kind == PlanFeatureKind.zarih ||
+                    feature.kind == PlanFeatureKind.place
+                ? math.min(260.0, viewport.width - 24)
+                : 170,
+          );
       final labelSize = Size(painter.width + 14, painter.height + 6);
       Rect? place;
       // Below, above, then beside the marker; kept on screen, slid sideways
       // rather than cut off at an edge.
-      final double centred = (at.dx - labelSize.width / 2)
-          .clamp(6.0, math.max(6.0, viewport.width - labelSize.width - 6));
+      final double centred = (at.dx - labelSize.width / 2).clamp(
+        6.0,
+        math.max(6.0, viewport.width - labelSize.width - 6),
+      );
       final besideTop = at.dy - labelSize.height / 2;
       final candidates = [
         Rect.fromLTWH(
-            centred, at.dy + size / 2 + 3, labelSize.width, labelSize.height),
-        Rect.fromLTWH(centred, at.dy - size / 2 - 3 - labelSize.height,
-            labelSize.width, labelSize.height),
+          centred,
+          at.dy + size / 2 + 3,
+          labelSize.width,
+          labelSize.height,
+        ),
         Rect.fromLTWH(
-            at.dx + size / 2 + 4, besideTop, labelSize.width, labelSize.height),
-        Rect.fromLTWH(at.dx - size / 2 - 4 - labelSize.width, besideTop,
-            labelSize.width, labelSize.height),
+          centred,
+          at.dy - size / 2 - 3 - labelSize.height,
+          labelSize.width,
+          labelSize.height,
+        ),
+        Rect.fromLTWH(
+          at.dx + size / 2 + 4,
+          besideTop,
+          labelSize.width,
+          labelSize.height,
+        ),
+        Rect.fromLTWH(
+          at.dx - size / 2 - 4 - labelSize.width,
+          besideTop,
+          labelSize.width,
+          labelSize.height,
+        ),
       ];
       // Clear of every marker if it can be; failing that, the selected
       // feature's and the opened-on one's labels may cover other markers
@@ -1014,30 +1093,35 @@ class _MarkerLayer extends StatelessWidget {
 
       place = fit(taken);
       if (place == null && rank(feature) > 0) {
-        place =
-            fit([...chrome, ...taken.skip(chrome.length + markerRects.length)]);
+        place = fit([
+          ...chrome,
+          ...taken.skip(chrome.length + markerRects.length),
+        ]);
         overMarkers = place != null;
       }
       if (place == null) continue;
       taken.add(place);
-      (overMarkers ? topLabels : labels).add(Positioned.fromRect(
-        rect: place,
-        // The marker already says the name to a screen reader.
-        child: ExcludeSemantics(
-          child: IgnorePointer(
-            child: _Label(
-              text: feature.name,
-              style: labelStyle,
-              selected: isSelected,
+      (overMarkers ? topLabels : labels).add(
+        Positioned.fromRect(
+          rect: place,
+          // The marker already says the name to a screen reader.
+          child: ExcludeSemantics(
+            child: IgnorePointer(
+              child: _Label(
+                text: feature.name,
+                style: labelStyle,
+                selected: isSelected,
+              ),
             ),
           ),
         ),
-      ));
+      );
     }
 
     final meAt = me == null ? null : position(me!);
-    final accuracyPx =
-        meAccuracy == null ? 0.0 : (meAccuracy! * pixelsPerMetre).clamp(0, 400);
+    final accuracyPx = meAccuracy == null
+        ? 0.0
+        : (meAccuracy! * pixelsPerMetre).clamp(0, 400);
     return Stack(
       clipBehavior: Clip.none,
       children: [
@@ -1053,7 +1137,8 @@ class _MarkerLayer extends StatelessWidget {
                   shape: BoxShape.circle,
                   color: const Color(0xFF2F80ED).withValues(alpha: 0.14),
                   border: Border.all(
-                      color: const Color(0xFF2F80ED).withValues(alpha: 0.35)),
+                    color: const Color(0xFF2F80ED).withValues(alpha: 0.35),
+                  ),
                 ),
               ),
             ),
@@ -1079,9 +1164,10 @@ class _MarkerLayer extends StatelessWidget {
                     border: Border.all(color: Colors.white, width: 3),
                     boxShadow: [
                       BoxShadow(
-                          color: colors.glassShadow,
-                          blurRadius: 6,
-                          offset: const Offset(0, 1)),
+                        color: colors.glassShadow,
+                        blurRadius: 6,
+                        offset: const Offset(0, 1),
+                      ),
                     ],
                   ),
                 ),
@@ -1113,13 +1199,15 @@ class _Label extends StatelessWidget {
             ? colors.accent
             : colors.glassSolid.withValues(alpha: 0.92),
         borderRadius: BorderRadius.circular(8),
-        border:
-            Border.all(color: selected ? colors.accent : colors.glassBorder),
+        border: Border.all(
+          color: selected ? colors.accent : colors.glassBorder,
+        ),
         boxShadow: [
           BoxShadow(
-              color: colors.glassShadow,
-              blurRadius: 4,
-              offset: const Offset(0, 1)),
+            color: colors.glassShadow,
+            blurRadius: 4,
+            offset: const Offset(0, 1),
+          ),
         ],
       ),
       child: Center(
@@ -1156,98 +1244,104 @@ class _Marker extends StatelessWidget {
     final ring = selected ? colors.accent : Colors.white;
     final shadow = [
       BoxShadow(
-          color: colors.glassShadow, blurRadius: 5, offset: const Offset(0, 1)),
+        color: colors.glassShadow,
+        blurRadius: 5,
+        offset: const Offset(0, 1),
+      ),
       if (selected)
         BoxShadow(
-            color: colors.accent.withValues(alpha: 0.35),
-            blurRadius: 0,
-            spreadRadius: 5),
+          color: colors.accent.withValues(alpha: 0.35),
+          blurRadius: 0,
+          spreadRadius: 5,
+        ),
     ];
     final Widget mark = switch (feature.kind) {
       PlanFeatureKind.zarih => Container(
-          width: size,
-          height: size,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            gradient: RadialGradient(
-              colors: [
-                Color.lerp(colors.gold, Colors.white, 0.35)!,
-                colors.gold
-              ],
-            ),
-            border: Border.all(color: ring, width: 2.5),
-            boxShadow: shadow,
+        width: size,
+        height: size,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          gradient: RadialGradient(
+            colors: [Color.lerp(colors.gold, Colors.white, 0.35)!, colors.gold],
           ),
-          child: CustomPaint(painter: _DomeGlyph(colors.onGold)),
+          border: Border.all(color: ring, width: 2.5),
+          boxShadow: shadow,
         ),
+        child: CustomPaint(painter: _DomeGlyph(colors.onGold)),
+      ),
       PlanFeatureKind.tomb => Container(
-          width: size,
-          height: size,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: colors.gold,
-            border: Border.all(color: ring, width: 2),
-            boxShadow: shadow,
-          ),
+        width: size,
+        height: size,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: colors.gold,
+          border: Border.all(color: ring, width: 2),
+          boxShadow: shadow,
         ),
+      ),
       PlanFeatureKind.maqam => Transform.rotate(
-          angle: math.pi / 4,
-          child: Container(
-            width: size * 0.8,
-            height: size * 0.8,
-            decoration: BoxDecoration(
-              color: colors.surface,
-              border: Border.all(color: colors.gold, width: 2.5),
-              boxShadow: shadow,
-            ),
+        angle: math.pi / 4,
+        child: Container(
+          width: size * 0.8,
+          height: size * 0.8,
+          decoration: BoxDecoration(
+            color: colors.surface,
+            border: Border.all(color: colors.gold, width: 2.5),
+            boxShadow: shadow,
           ),
         ),
+      ),
       PlanFeatureKind.place => Container(
-          width: size,
-          height: size,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: colors.accent,
-            border: Border.all(color: Colors.white, width: 2.5),
-            boxShadow: shadow,
-          ),
-          child: Center(
-            child: OutlineIcon(OutlineGlyph.pin,
-                size: size * 0.55, color: colors.onAccent, strokeWidth: 2.2),
+        width: size,
+        height: size,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: colors.accent,
+          border: Border.all(color: Colors.white, width: 2.5),
+          boxShadow: shadow,
+        ),
+        child: Center(
+          child: OutlineIcon(
+            OutlineGlyph.pin,
+            size: size * 0.55,
+            color: colors.onAccent,
+            strokeWidth: 2.2,
           ),
         ),
+      ),
       PlanFeatureKind.gate => Container(
-          width: size,
-          height: size,
-          decoration: BoxDecoration(
-            color: selected ? colors.accent : colors.surface,
-            borderRadius: BorderRadius.circular(6),
-            border: Border.all(color: colors.accent, width: 2),
-            boxShadow: shadow,
-          ),
-          child: CustomPaint(
-              painter: _ArchGlyph(selected ? colors.onAccent : colors.accent)),
+        width: size,
+        height: size,
+        decoration: BoxDecoration(
+          color: selected ? colors.accent : colors.surface,
+          borderRadius: BorderRadius.circular(6),
+          border: Border.all(color: colors.accent, width: 2),
+          boxShadow: shadow,
         ),
+        child: CustomPaint(
+          painter: _ArchGlyph(selected ? colors.onAccent : colors.accent),
+        ),
+      ),
       PlanFeatureKind.door => Container(
-          width: size,
-          height: size,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: colors.accent,
-            border: Border.all(color: Colors.white, width: 2),
-            boxShadow: shadow,
-          ),
+        width: size,
+        height: size,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: colors.accent,
+          border: Border.all(color: Colors.white, width: 2),
+          boxShadow: shadow,
         ),
+      ),
       PlanFeatureKind.landmark => Container(
-          width: size,
-          height: size,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: colors.textMuted,
-            border: Border.all(color: Colors.white, width: 2),
-            boxShadow: shadow,
-          ),
+        width: size,
+        height: size,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: colors.textMuted,
+          border: Border.all(color: Colors.white, width: 2),
+          boxShadow: shadow,
         ),
+      ),
     };
     return Semantics(
       button: onTap != null,
@@ -1282,9 +1376,14 @@ class _DomeGlyph extends CustomPainter {
       ..close();
     canvas.drawPath(dome, paint);
     canvas.drawRect(
-        Rect.fromLTRB(w * 0.24, base, w * 0.76, base + w * 0.06), paint);
-    canvas.drawLine(Offset(w * 0.5, w * 0.30), Offset(w * 0.5, w * 0.18),
-        paint..strokeWidth = w * 0.05);
+      Rect.fromLTRB(w * 0.24, base, w * 0.76, base + w * 0.06),
+      paint,
+    );
+    canvas.drawLine(
+      Offset(w * 0.5, w * 0.30),
+      Offset(w * 0.5, w * 0.18),
+      paint..strokeWidth = w * 0.05,
+    );
   }
 
   @override
@@ -1336,9 +1435,10 @@ class _GlassPill extends StatelessWidget {
         border: Border.all(color: colors.glassBorder),
         boxShadow: [
           BoxShadow(
-              color: colors.glassShadow,
-              blurRadius: 10,
-              offset: const Offset(0, 2)),
+            color: colors.glassShadow,
+            blurRadius: 10,
+            offset: const Offset(0, 2),
+          ),
         ],
       ),
       child: child,
@@ -1358,8 +1458,10 @@ class _NorthAndQibla extends StatelessWidget {
     final colors = ShiaColors.of(context);
     final qibla = qiblaBearingDegrees(origin);
     return Semantics(
-      label:
-          l10n.qiblaBearingFromNorth(l10n.qiblaPageTitle, '${qibla.round()}°'),
+      label: l10n.qiblaBearingFromNorth(
+        l10n.qiblaPageTitle,
+        '${qibla.round()}°',
+      ),
       excludeSemantics: true,
       child: Container(
         width: 44,
@@ -1416,12 +1518,13 @@ class _CompassGlyph extends CustomPainter {
     final q = c + Offset(math.sin(a), -math.cos(a)) * (r * 0.78);
     canvas.drawCircle(q, r * 0.16, Paint()..color = qibla);
     canvas.drawCircle(
-        q,
-        r * 0.16,
-        Paint()
-          ..color = Colors.white
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = 1.5);
+      q,
+      r * 0.16,
+      Paint()
+        ..color = Colors.white
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 1.5,
+    );
   }
 
   @override
@@ -1478,16 +1581,17 @@ class _ScaleBar extends StatelessWidget {
 }
 
 BoxDecoration _cardDecoration(ShiaColors colors) => BoxDecoration(
-      color: colors.surface,
-      borderRadius: BorderRadius.circular(18),
-      border: Border.all(color: colors.line),
-      boxShadow: [
-        BoxShadow(
-            color: colors.glassShadow,
-            blurRadius: 16,
-            offset: const Offset(0, 4)),
-      ],
-    );
+  color: colors.surface,
+  borderRadius: BorderRadius.circular(18),
+  border: Border.all(color: colors.line),
+  boxShadow: [
+    BoxShadow(
+      color: colors.glassShadow,
+      blurRadius: 16,
+      offset: const Offset(0, 4),
+    ),
+  ],
+);
 
 class _HintCard extends StatelessWidget {
   const _HintCard({super.key, required this.onList});
@@ -1521,8 +1625,9 @@ class _HintCard extends StatelessWidget {
                       children: [
                         Text(
                           l10n.ziyaratGuideMapHint,
-                          style: ShiaText.secondary
-                              .copyWith(color: colors.textMuted),
+                          style: ShiaText.secondary.copyWith(
+                            color: colors.textMuted,
+                          ),
                         ),
                         const SizedBox(height: 4),
                         Text(
@@ -1536,8 +1641,11 @@ class _HintCard extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(width: 12),
-                  OutlineIcon(OutlineGlyph.lines,
-                      size: 22, color: colors.accent),
+                  OutlineIcon(
+                    OutlineGlyph.lines,
+                    size: 22,
+                    color: colors.accent,
+                  ),
                 ],
               ),
             ),
@@ -1569,8 +1677,9 @@ class _FeatureCard extends StatelessWidget {
       label: feature.englishName,
       parameters: {'plan': feature.plan.id, 'feature': feature.id},
     );
-    final opened = await launchExternalUri(mapsUriFor(
-        feature.location, feature.arabicName ?? feature.englishName));
+    final opened = await launchExternalUri(
+      mapsUriFor(feature.location, feature.arabicName ?? feature.englishName),
+    );
     if (!opened && context.mounted) {
       showToast(context.l10n.ziyaratGuideMapsFailed);
     }
@@ -1593,8 +1702,9 @@ class _FeatureCard extends StatelessWidget {
       for (final ref in feature.ziyarat)
         if (items.containsKey(ref.uid)) ref,
     ];
-    final distance =
-        me == null ? null : greatCircleDistanceKm(me!, feature.location) * 1000;
+    final distance = me == null
+        ? null
+        : greatCircleDistanceKm(me!, feature.location) * 1000;
     final meta = [
       guidePlanFeatureKindLabel(l10n, feature.kind),
       if (side != null) l10n.ziyaratGuideMapSide(side),
@@ -1603,8 +1713,9 @@ class _FeatureCard extends StatelessWidget {
     ].join(' · ');
 
     return ConstrainedBox(
-      constraints:
-          BoxConstraints(maxHeight: MediaQuery.sizeOf(context).height * 0.48),
+      constraints: BoxConstraints(
+        maxHeight: MediaQuery.sizeOf(context).height * 0.48,
+      ),
       child: Container(
         decoration: _cardDecoration(colors),
         clipBehavior: Clip.antiAlias,
@@ -1631,8 +1742,9 @@ class _FeatureCard extends StatelessWidget {
                         const SizedBox(height: 3),
                         Text(
                           feature.name,
-                          style:
-                              ShiaText.cardTitle.copyWith(color: colors.text),
+                          style: ShiaText.cardTitle.copyWith(
+                            color: colors.text,
+                          ),
                         ),
                         if (feature.arabicName != null &&
                             feature.arabicName != feature.name)
@@ -1650,11 +1762,14 @@ class _FeatureCard extends StatelessWidget {
                     ),
                   ),
                   IconButton(
-                    tooltip:
-                        MaterialLocalizations.of(context).closeButtonTooltip,
+                    tooltip: MaterialLocalizations.of(context)
+                        .closeButtonTooltip,
                     onPressed: onClose,
-                    icon: OutlineIcon(OutlineGlyph.close,
-                        size: 18, color: colors.textMuted),
+                    icon: OutlineIcon(
+                      OutlineGlyph.close,
+                      size: 18,
+                      color: colors.textMuted,
+                    ),
                   ),
                 ],
               ),
@@ -1670,14 +1785,16 @@ class _FeatureCard extends StatelessWidget {
                 const SizedBox(height: 12),
                 Padding(
                   padding: const EdgeInsets.only(right: 8),
-                  child: CardList(children: [
-                    for (var i = 0; i < refs.length; i++)
-                      ZikrRefRow(
-                        ref: refs[i],
-                        first: i == 0,
-                        last: i == refs.length - 1,
-                      ),
-                  ]),
+                  child: CardList(
+                    children: [
+                      for (var i = 0; i < refs.length; i++)
+                        ZikrRefRow(
+                          ref: refs[i],
+                          first: i == 0,
+                          last: i == refs.length - 1,
+                        ),
+                    ],
+                  ),
                 ),
               ],
               const SizedBox(height: 12),
@@ -1707,8 +1824,11 @@ class _FeatureCard extends StatelessWidget {
 }
 
 /// Every feature of [plan] in a sheet, grouped; returns the one tapped.
-Future<PlanFeature?> showPlanFeatureList(BuildContext context, GuidePlan plan,
-    {String? siteId}) {
+Future<PlanFeature?> showPlanFeatureList(
+  BuildContext context,
+  GuidePlan plan, {
+  String? siteId,
+}) {
   final colors = ShiaColors.of(context);
   return showModalBottomSheet<PlanFeature>(
     context: context,
@@ -1731,8 +1851,12 @@ Future<PlanFeature?> showPlanFeatureList(BuildContext context, GuidePlan plan,
 
 /// The list inside [showPlanFeatureList]; public for tests.
 class PlanFeatureList extends StatelessWidget {
-  const PlanFeatureList(
-      {super.key, required this.plan, this.siteId, this.controller});
+  const PlanFeatureList({
+    super.key,
+    required this.plan,
+    this.siteId,
+    this.controller,
+  });
 
   final GuidePlan plan;
 
@@ -1757,22 +1881,22 @@ class PlanFeatureList extends StatelessWidget {
             if (f.kind == PlanFeatureKind.zarih ||
                 f.kind == PlanFeatureKind.tomb ||
                 f.kind == PlanFeatureKind.maqam)
-              f
-        ]
+              f,
+        ],
       ),
       (
         l10n.ziyaratGuideMapGates,
         [
           for (final f in features)
-            if (f.kind == PlanFeatureKind.gate) f
-        ]
+            if (f.kind == PlanFeatureKind.gate) f,
+        ],
       ),
       (
         l10n.ziyaratGuideMapDoors,
         [
           for (final f in features)
-            if (f.kind == PlanFeatureKind.door) f
-        ]
+            if (f.kind == PlanFeatureKind.door) f,
+        ],
       ),
       (
         l10n.ziyaratGuideMapNearby,
@@ -1780,8 +1904,8 @@ class PlanFeatureList extends StatelessWidget {
           for (final f in features)
             if (f.kind == PlanFeatureKind.place ||
                 f.kind == PlanFeatureKind.landmark)
-              f
-        ]
+              f,
+        ],
       ),
     ];
     return CustomScrollView(
@@ -1803,9 +1927,10 @@ class PlanFeatureList extends StatelessWidget {
                 const SizedBox(height: 14),
                 Align(
                   alignment: AlignmentDirectional.centerStart,
-                  child: Text(l10n.ziyaratGuideMapPlaces,
-                      style:
-                          ShiaText.sectionTitle.copyWith(color: colors.text)),
+                  child: Text(
+                    l10n.ziyaratGuideMapPlaces,
+                    style: ShiaText.sectionTitle.copyWith(color: colors.text),
+                  ),
                 ),
               ],
             ),
@@ -1815,34 +1940,38 @@ class PlanFeatureList extends StatelessWidget {
           if (features.isNotEmpty)
             SliverPadding(
               padding: const EdgeInsets.fromLTRB(16, 14, 16, 0),
-              sliver: SliverMainAxisGroup(slivers: [
-                SliverToBoxAdapter(
-                  child: Padding(
-                    padding: const EdgeInsets.only(bottom: 8),
-                    child: GroupLabel(label),
+              sliver: SliverMainAxisGroup(
+                slivers: [
+                  SliverToBoxAdapter(
+                    child: Padding(
+                      padding: const EdgeInsets.only(bottom: 8),
+                      child: GroupLabel(label),
+                    ),
                   ),
-                ),
-                SliverCardList(
-                  itemCount: features.length,
-                  itemBuilder: (context, i) {
-                    final feature = features[i];
-                    final side = planFeatureSide(feature);
-                    final count = feature.ziyarat
-                        .where((r) => items.containsKey(r.uid))
-                        .length;
-                    return CardListRow(
-                      first: i == 0,
-                      last: i == features.length - 1,
-                      title: Text(feature.name),
-                      subtitle: Text([
-                        if (side != null) l10n.ziyaratGuideMapSide(side),
-                        if (count > 0) l10n.listCountZiyarats(count),
-                      ].join(' · ')),
-                      onTap: () => Navigator.of(context).pop(feature),
-                    );
-                  },
-                ),
-              ]),
+                  SliverCardList(
+                    itemCount: features.length,
+                    itemBuilder: (context, i) {
+                      final feature = features[i];
+                      final side = planFeatureSide(feature);
+                      final count = feature.ziyarat
+                          .where((r) => items.containsKey(r.uid))
+                          .length;
+                      return CardListRow(
+                        first: i == 0,
+                        last: i == features.length - 1,
+                        title: Text(feature.name),
+                        subtitle: Text(
+                          [
+                            if (side != null) l10n.ziyaratGuideMapSide(side),
+                            if (count > 0) l10n.listCountZiyarats(count),
+                          ].join(' · '),
+                        ),
+                        onTap: () => Navigator.of(context).pop(feature),
+                      );
+                    },
+                  ),
+                ],
+              ),
             ),
         const SliverToBoxAdapter(child: SizedBox(height: 32)),
       ],

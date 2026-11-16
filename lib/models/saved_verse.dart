@@ -29,7 +29,7 @@ class SavedVerse {
       version: json['version'] is int
           ? json['version'] as int
           : int.tryParse(json['version']?.toString() ?? '') ??
-              savedVerseSchemaVersion,
+                savedVerseSchemaVersion,
       surah: json['surah'] is int
           ? json['surah'] as int
           : int.tryParse(json['surah']?.toString() ?? '') ?? 0,
@@ -38,7 +38,8 @@ class SavedVerse {
           : int.tryParse(json['ayah']?.toString() ?? '') ?? 0,
       surahName: json['surahName']?.toString() ?? '',
       excerpt: json['excerpt']?.toString() ?? '',
-      savedAt: DateTime.tryParse(json['savedAt']?.toString() ?? '') ??
+      savedAt:
+          DateTime.tryParse(json['savedAt']?.toString() ?? '') ??
           DateTime.fromMillisecondsSinceEpoch(0, isUtc: true),
     );
   }
@@ -81,7 +82,7 @@ class SavedVerse {
 @immutable
 class SavedVersesState {
   SavedVersesState([Map<String, SavedVerse>? verses])
-      : verses = Map.unmodifiable(verses ?? const {});
+    : verses = Map.unmodifiable(verses ?? const {});
 
   factory SavedVersesState.fromJson(dynamic value) {
     if (value is! Map) return empty;
@@ -136,6 +137,6 @@ class SavedVersesState {
   }
 
   Map<String, Object> toJson() => {
-        'verses': [for (final verse in inMushafOrder) verse.toJson()],
-      };
+    'verses': [for (final verse in inMushafOrder) verse.toJson()],
+  };
 }

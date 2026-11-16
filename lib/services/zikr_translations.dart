@@ -109,8 +109,9 @@ class ZikrTranslationIndex {
     return ZikrTranslationIndex(
       language: language,
       titles: _stringMap(json['titles'], language),
-      audioLabels:
-          audio is Map ? _stringMap(audio['labels'], language) : const {},
+      audioLabels: audio is Map
+          ? _stringMap(audio['labels'], language)
+          : const {},
       reciters: audio is Map ? _stringMap(audio['reciters']) : const {},
     );
   }
@@ -241,8 +242,9 @@ class ZikrTranslations extends ChangeNotifier {
     final available = await availableLanguageCodes(bundle);
     if (!available.contains(language.code)) return null;
     try {
-      final raw =
-          await bundle.loadString(zikrTranslationIndexPath(language.code));
+      final raw = await bundle.loadString(
+        zikrTranslationIndexPath(language.code),
+      );
       final decoded = json.decode(raw);
       if (decoded is! Map) return null;
       return ZikrTranslationIndex.fromJson(
@@ -269,10 +271,7 @@ class ZikrTranslations extends ChangeNotifier {
   /// The translation of zikr [uid] (the uid whose content file is read, i.e.
   /// an alias's target), or null when the reader is in English or nothing of
   /// this zikr has been translated.
-  Future<ZikrDocumentTranslation?> documentFor(
-    String uid,
-    AssetBundle bundle,
-  ) {
+  Future<ZikrDocumentTranslation?> documentFor(String uid, AssetBundle bundle) {
     final index = _index;
     if (index == null) return Future.value(null);
     return _documents[uid] ??= _loadDocument(index, uid, bundle);
@@ -295,8 +294,10 @@ class ZikrTranslations extends ChangeNotifier {
       );
       return translation.isEmpty ? null : translation;
     } catch (error) {
-      debugPrint('Unable to load ${index.language.code} translation of '
-          '$uid: $error');
+      debugPrint(
+        'Unable to load ${index.language.code} translation of '
+        '$uid: $error',
+      );
       return null;
     }
   }

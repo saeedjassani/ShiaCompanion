@@ -35,8 +35,9 @@ Future<bool> requestCompassPermission() async {
   if (!constructor.hasProperty('requestPermission'.toJS).toDart) return true;
 
   try {
-    final response =
-        constructor.callMethod<JSPromise<JSAny?>>('requestPermission'.toJS);
+    final response = constructor.callMethod<JSPromise<JSAny?>>(
+      'requestPermission'.toJS,
+    );
     final state = (await response.toDart)?.dartify();
     return state == 'granted';
   } catch (_) {
@@ -102,7 +103,8 @@ CompassReading? _toReading(JSObject event) {
 
   return CompassReading(
     headingDegrees: normalizeBearing(
-        _headingFromEulerAngles(alpha, beta, gamma) + _screenAngleDegrees),
+      _headingFromEulerAngles(alpha, beta, gamma) + _screenAngleDegrees,
+    ),
     reference: NorthReference.magnetic,
   );
 }

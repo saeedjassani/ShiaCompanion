@@ -85,10 +85,12 @@ class _SettingsPageState extends State<SettingsPage> {
       (SP.prefs.getBool(signInCardCollapsedKey) ?? false);
 
   void _collapseSignIn() {
-    unawaited(AnalyticsService.feature(
-      'settings_sign_in_collapsed',
-      label: 'Settings sign-in card collapsed',
-    ));
+    unawaited(
+      AnalyticsService.feature(
+        'settings_sign_in_collapsed',
+        label: 'Settings sign-in card collapsed',
+      ),
+    );
     if (SP.isInitialized) {
       unawaited(SP.prefs.setBool(signInCardCollapsedKey, true));
     }
@@ -161,7 +163,8 @@ class _SettingsPageState extends State<SettingsPage> {
     final palette = context.watch<ThemePaletteProvider>().palette;
     final textScale = context.watch<AppTextScaleProvider>().scale;
     final currentUser = _currentUser;
-    final profile = widget.profile ??
+    final profile =
+        widget.profile ??
         (currentUser == null ? null : AccountProfile.of(currentUser, l10n));
     final gutter = pageGutter(context, maxWidth: widePageWidth);
 
@@ -177,14 +180,16 @@ class _SettingsPageState extends State<SettingsPage> {
             child: WideColumns(
               start: [
                 if (profile == null && _signInCollapsed)
-                  CardList(children: [
-                    _SettingsRow(
-                      icon: const _RowGlyph(OutlineGlyph.cloud),
-                      title: l10n.settingsBackupRow,
-                      value: l10n.settingsOff,
-                      onTap: () => setState(() => _signInExpanded = true),
-                    ),
-                  ])
+                  CardList(
+                    children: [
+                      _SettingsRow(
+                        icon: const _RowGlyph(OutlineGlyph.cloud),
+                        title: l10n.settingsBackupRow,
+                        value: l10n.settingsOff,
+                        onTap: () => setState(() => _signInExpanded = true),
+                      ),
+                    ],
+                  )
                 else if (profile == null)
                   _SignInCard(
                     signingIn: _signingIn,
@@ -215,16 +220,22 @@ class _SettingsPageState extends State<SettingsPage> {
                     ),
                     _SettingsRow(
                       icon: _RowTile(
-                        child: Icon(Icons.palette_outlined,
-                            size: 18, color: ShiaColors.of(context).onAccent),
+                        child: Icon(
+                          Icons.palette_outlined,
+                          size: 18,
+                          color: ShiaColors.of(context).onAccent,
+                        ),
                       ),
                       title: l10n.settingsColor,
                       value: palette.label(l10n),
                       onTap: () => showThemePalettePicker(context),
                     ),
                     _SettingsRow(
-                      icon: const _RowLetters('ع',
-                          fontSize: 15, inArabicFont: true),
+                      icon: const _RowLetters(
+                        'ع',
+                        fontSize: 15,
+                        inArabicFont: true,
+                      ),
                       title: l10n.settingsArabicFont,
                       subtitle: Text(
                         _bismillah,
@@ -266,9 +277,10 @@ class _SettingsPageState extends State<SettingsPage> {
                         icon: const _RowGlyph(OutlineGlyph.bell),
                         title: l10n.settingsAzan,
                         value: l10n.settingsAzanValue(
-                            enabledPrayerNotificationNames(
-                                    kPrayerNotificationList)
-                                .length),
+                          enabledPrayerNotificationNames(
+                            kPrayerNotificationList,
+                          ).length,
+                        ),
                         onTap: () async {
                           await showPrayerNotificationsPage(context);
                           if (mounted) setState(() {});
@@ -284,10 +296,12 @@ class _SettingsPageState extends State<SettingsPage> {
                       icon: const _RowGlyph(OutlineGlyph.eye),
                       title: l10n.settingsPrayerTimesShown,
                       value: l10n.settingsPrayerTimesShownValue(
-                          selectedWidgetPrayerTimes().length),
+                        selectedWidgetPrayerTimes().length,
+                      ),
                       onTap: () async {
-                        final changed =
-                            await showWidgetPrayerTimesDialog(context);
+                        final changed = await showWidgetPrayerTimesDialog(
+                          context,
+                        );
                         if (changed && mounted) setState(() {});
                       },
                     ),
@@ -313,7 +327,9 @@ class _SettingsPageState extends State<SettingsPage> {
                             : l10n.settingsOff,
                         onTap: () async {
                           await pushPageRoute(
-                              context, const EventNotificationsPage());
+                            context,
+                            const EventNotificationsPage(),
+                          );
                           if (mounted) setState(() {});
                         },
                       ),
@@ -334,7 +350,9 @@ class _SettingsPageState extends State<SettingsPage> {
                           icon: const _RowGlyph(OutlineGlyph.bell),
                           title: l10n.settingsScheduledNotifications,
                           onTap: () => pushPageRoute(
-                              context, ScheduledNotificationsPage()),
+                            context,
+                            ScheduledNotificationsPage(),
+                          ),
                         ),
                     ],
                   ),
@@ -385,10 +403,12 @@ class _SettingsPageState extends State<SettingsPage> {
                         title: l10n.settingsRateApp,
                         onTap: () {
                           unawaited(RatingPromptService.openStoreListing());
-                          unawaited(AnalyticsService.feature(
-                            'rate_us_settings',
-                            label: 'Rate us opened from Settings',
-                          ));
+                          unawaited(
+                            AnalyticsService.feature(
+                              'rate_us_settings',
+                              label: 'Rate us opened from Settings',
+                            ),
+                          );
                         },
                       ),
                     _SettingsRow(
@@ -414,8 +434,11 @@ class _SettingsPageState extends State<SettingsPage> {
                     if (!kIsWeb && WhatsNewService.entries().isNotEmpty)
                       _SettingsRow(
                         icon: _RowTile(
-                          child: Icon(Icons.auto_awesome_outlined,
-                              size: 18, color: ShiaColors.of(context).onAccent),
+                          child: Icon(
+                            Icons.auto_awesome_outlined,
+                            size: 18,
+                            color: ShiaColors.of(context).onAccent,
+                          ),
                         ),
                         title: l10n.whatsNewTitle,
                         valueListenable: WhatsNewService.hasUnread,
@@ -440,8 +463,9 @@ class _SettingsPageState extends State<SettingsPage> {
             child: Text(
               '$appName $appVersion',
               textAlign: TextAlign.center,
-              style: ShiaText.caption
-                  .copyWith(color: ShiaColors.of(context).textMuted),
+              style: ShiaText.caption.copyWith(
+                color: ShiaColors.of(context).textMuted,
+              ),
             ),
           ),
         ),
@@ -466,9 +490,11 @@ class _SettingsPageState extends State<SettingsPage> {
             sample: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(font == 'Scheherazade'
-                    ? l10n.setupFontScheherazadeHint
-                    : l10n.setupFontQalamHint),
+                Text(
+                  font == 'Scheherazade'
+                      ? l10n.setupFontScheherazadeHint
+                      : l10n.setupFontQalamHint,
+                ),
                 SizedBox(
                   width: double.infinity,
                   child: Text(
@@ -626,7 +652,8 @@ class _SettingsPageState extends State<SettingsPage> {
       return;
     }
 
-    final shouldOpenSettings = await showDialog<bool>(
+    final shouldOpenSettings =
+        await showDialog<bool>(
           context: context,
           builder: (dialogContext) => AlertDialog(
             title: Text(context.l10n.settingsPreciseAlarmsDialogTitle),
@@ -654,19 +681,24 @@ class _SettingsPageState extends State<SettingsPage> {
 
     if (!mounted) return;
     setState(() {});
-    showToast(granted || canScheduleExactPrayerNotifications
-        ? context.l10n.settingsPreciseAlarmsEnabled
-        : context.l10n.settingsPreciseAlarmsNotEnabled);
+    showToast(
+      granted || canScheduleExactPrayerNotifications
+          ? context.l10n.settingsPreciseAlarmsEnabled
+          : context.l10n.settingsPreciseAlarmsNotEnabled,
+    );
   }
 
   Future<void> _sendFeedback() async {
-    final launched =
-        await launchSupportEmail(subject: "Shia Companion | Feedback");
+    final launched = await launchSupportEmail(
+      subject: "Shia Companion | Feedback",
+    );
     if (launched) {
-      unawaited(AnalyticsService.feature(
-        'feedback_email_opened',
-        label: 'Feedback email opened',
-      ));
+      unawaited(
+        AnalyticsService.feature(
+          'feedback_email_opened',
+          label: 'Feedback email opened',
+        ),
+      );
       return;
     }
     if (mounted) {
@@ -675,10 +707,12 @@ class _SettingsPageState extends State<SettingsPage> {
   }
 
   Future<void> _openGithub() async {
-    unawaited(AnalyticsService.feature(
-      'github_settings',
-      label: 'GitHub opened from Settings',
-    ));
+    unawaited(
+      AnalyticsService.feature(
+        'github_settings',
+        label: 'GitHub opened from Settings',
+      ),
+    );
     final launched = await launchExternalUri(githubRepoUri);
     if (!launched && mounted) {
       showToast(context.l10n.settingsGithubOpenFailed);
@@ -735,12 +769,15 @@ Future<void> showAppTextSizeSheet(BuildContext context) {
                 Row(
                   children: [
                     ExcludeSemantics(
-                      child: Text(l10n.textSizeLetter,
-                          textScaler: TextScaler.noScaling,
-                          style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w700,
-                              color: colors.textMuted)),
+                      child: Text(
+                        l10n.textSizeLetter,
+                        textScaler: TextScaler.noScaling,
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w700,
+                          color: colors.textMuted,
+                        ),
+                      ),
                     ),
                     Expanded(
                       child: Slider(
@@ -754,24 +791,30 @@ Future<void> showAppTextSizeSheet(BuildContext context) {
                         // Persist and count once per gesture, not per frame.
                         onChangeEnd: (_) {
                           unawaited(provider.save());
-                          unawaited(AnalyticsService.feature(
-                            'app_text_scale_changed',
-                            label: 'App text size changed',
-                            parameters: {
-                              'scale':
-                                  AppTextScaleProvider.label(provider.scale),
-                            },
-                          ));
+                          unawaited(
+                            AnalyticsService.feature(
+                              'app_text_scale_changed',
+                              label: 'App text size changed',
+                              parameters: {
+                                'scale': AppTextScaleProvider.label(
+                                  provider.scale,
+                                ),
+                              },
+                            ),
+                          );
                         },
                       ),
                     ),
                     ExcludeSemantics(
-                      child: Text(l10n.textSizeLetter,
-                          textScaler: TextScaler.noScaling,
-                          style: TextStyle(
-                              fontSize: 22,
-                              fontWeight: FontWeight.w700,
-                              color: colors.textMuted)),
+                      child: Text(
+                        l10n.textSizeLetter,
+                        textScaler: TextScaler.noScaling,
+                        style: TextStyle(
+                          fontSize: 22,
+                          fontWeight: FontWeight.w700,
+                          color: colors.textMuted,
+                        ),
+                      ),
                     ),
                   ],
                 ),
@@ -779,7 +822,9 @@ Future<void> showAppTextSizeSheet(BuildContext context) {
                   AppTextScaleProvider.label(provider.scale),
                   textAlign: TextAlign.center,
                   style: ShiaText.secondary.copyWith(
-                      fontWeight: FontWeight.w600, color: colors.textMuted),
+                    fontWeight: FontWeight.w600,
+                    color: colors.textMuted,
+                  ),
                 ),
               ],
             ),
@@ -909,74 +954,82 @@ class _SettingsRow extends StatelessWidget {
                     // it room, and is never squeezed below half the row;
                     // the title takes the rest and wraps only beside a long
                     // value.
-                    child: LayoutBuilder(builder: (context, constraints) {
-                      double valueWidth = 0;
-                      if (value != null) {
-                        // Measured in the styles the Text widgets end up
-                        // with - merged over the inherited DefaultTextStyle,
-                        // whose letter spacing ShiaText leaves alone - or the
-                        // value comes out a hair too narrow and breaks
-                        // mid-word ("Ligh/t").
-                        final inherited = DefaultTextStyle.of(context).style;
-                        double natural(String text, TextStyle style) {
-                          final painter = TextPainter(
-                            text: TextSpan(
-                                text: text, style: inherited.merge(style)),
-                            textDirection: Directionality.of(context),
-                            textScaler: MediaQuery.textScalerOf(context),
-                            locale: Localizations.maybeLocaleOf(context),
-                            maxLines: 1,
-                          )..layout();
-                          final width = painter.width.ceilToDouble() + 1;
-                          painter.dispose();
-                          return width;
-                        }
+                    child: LayoutBuilder(
+                      builder: (context, constraints) {
+                        double valueWidth = 0;
+                        if (value != null) {
+                          // Measured in the styles the Text widgets end up
+                          // with - merged over the inherited DefaultTextStyle,
+                          // whose letter spacing ShiaText leaves alone - or the
+                          // value comes out a hair too narrow and breaks
+                          // mid-word ("Ligh/t").
+                          final inherited = DefaultTextStyle.of(context).style;
+                          double natural(String text, TextStyle style) {
+                            final painter = TextPainter(
+                              text: TextSpan(
+                                text: text,
+                                style: inherited.merge(style),
+                              ),
+                              textDirection: Directionality.of(context),
+                              textScaler: MediaQuery.textScalerOf(context),
+                              locale: Localizations.maybeLocaleOf(context),
+                              maxLines: 1,
+                            )..layout();
+                            final width = painter.width.ceilToDouble() + 1;
+                            painter.dispose();
+                            return width;
+                          }
 
-                        final full = constraints.maxWidth;
-                        final titleWidth = natural(title, ShiaText.body);
-                        final room = full - 8 - titleWidth;
-                        valueWidth = natural(value, valueStyle)
-                            .clamp(0, room > full / 2 ? room : full / 2)
-                            .clamp(0, full - 8)
-                            .toDouble();
-                      }
-                      return Row(
-                        children: [
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Text(title,
-                                    style: ShiaText.body
-                                        .copyWith(color: colors.text)),
-                                if (subtitle != null)
-                                  DefaultTextStyle.merge(
-                                    style: ShiaText.caption
-                                        .copyWith(color: colors.textMuted),
-                                    child: subtitle!,
+                          final full = constraints.maxWidth;
+                          final titleWidth = natural(title, ShiaText.body);
+                          final room = full - 8 - titleWidth;
+                          valueWidth = natural(value, valueStyle)
+                              .clamp(0, room > full / 2 ? room : full / 2)
+                              .clamp(0, full - 8)
+                              .toDouble();
+                        }
+                        return Row(
+                          children: [
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text(
+                                    title,
+                                    style: ShiaText.body.copyWith(
+                                      color: colors.text,
+                                    ),
                                   ),
-                              ],
-                            ),
-                          ),
-                          if (value != null) ...[
-                            const SizedBox(width: 8),
-                            SizedBox(
-                              width: valueWidth,
-                              child: Text(
-                                value,
-                                textAlign: TextAlign.end,
-                                // One word too long for its room is cut
-                                // short rather than split across lines.
-                                maxLines: value.contains(' ') ? 2 : 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: valueStyle,
+                                  if (subtitle != null)
+                                    DefaultTextStyle.merge(
+                                      style: ShiaText.caption.copyWith(
+                                        color: colors.textMuted,
+                                      ),
+                                      child: subtitle!,
+                                    ),
+                                ],
                               ),
                             ),
+                            if (value != null) ...[
+                              const SizedBox(width: 8),
+                              SizedBox(
+                                width: valueWidth,
+                                child: Text(
+                                  value,
+                                  textAlign: TextAlign.end,
+                                  // One word too long for its room is cut
+                                  // short rather than split across lines.
+                                  maxLines: value.contains(' ') ? 2 : 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: valueStyle,
+                                ),
+                              ),
+                            ],
                           ],
-                        ],
-                      );
-                    }),
+                        );
+                      },
+                    ),
                   ),
                   if (badge) ...[
                     const SizedBox(width: 8),
@@ -994,9 +1047,15 @@ class _SettingsRow extends StatelessWidget {
                     dimension: 16,
                     child: busy
                         ? CircularProgressIndicator(
-                            strokeWidth: 2, color: colors.accent)
-                        : OutlineIcon(OutlineGlyph.chevronRight,
-                            size: 16, color: colors.chevron, strokeWidth: 2.4),
+                            strokeWidth: 2,
+                            color: colors.accent,
+                          )
+                        : OutlineIcon(
+                            OutlineGlyph.chevronRight,
+                            size: 16,
+                            color: colors.chevron,
+                            strokeWidth: 2.4,
+                          ),
                   ),
                 ],
               ),
@@ -1019,8 +1078,12 @@ class _RowGlyph extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = ShiaColors.of(context);
     return _RowTile(
-      child:
-          OutlineIcon(glyph, size: 18, color: colors.onAccent, strokeWidth: 2),
+      child: OutlineIcon(
+        glyph,
+        size: 18,
+        color: colors.onAccent,
+        strokeWidth: 2,
+      ),
     );
   }
 }
@@ -1028,8 +1091,11 @@ class _RowGlyph extends StatelessWidget {
 /// A settings row's tile with letters in it: "ع" for the Arabic font, "Aa"
 /// (in the app language's own letters) for text size.
 class _RowLetters extends StatelessWidget {
-  const _RowLetters(this.letters,
-      {required this.fontSize, this.inArabicFont = false});
+  const _RowLetters(
+    this.letters, {
+    required this.fontSize,
+    this.inArabicFont = false,
+  });
 
   final String letters;
   final double fontSize;
@@ -1124,8 +1190,12 @@ class _SignInCard extends StatelessWidget {
                   color: colors.well,
                   borderRadius: BorderRadius.circular(14),
                 ),
-                child: OutlineIcon(OutlineGlyph.cloudCheck,
-                    size: 28, color: colors.accent, strokeWidth: 1.7),
+                child: OutlineIcon(
+                  OutlineGlyph.cloudCheck,
+                  size: 28,
+                  color: colors.accent,
+                  strokeWidth: 1.7,
+                ),
               ),
               const SizedBox(width: 12),
               Expanded(
@@ -1133,8 +1203,10 @@ class _SignInCard extends StatelessWidget {
                   header: true,
                   child: Text(
                     l10n.settingsBackupTitle,
-                    style: ShiaText.sectionTitle
-                        .copyWith(height: 25 / 20, color: colors.text),
+                    style: ShiaText.sectionTitle.copyWith(
+                      height: 25 / 20,
+                      color: colors.text,
+                    ),
                   ),
                 ),
               ),
@@ -1143,8 +1215,10 @@ class _SignInCard extends StatelessWidget {
           const SizedBox(height: 12),
           Text(
             l10n.settingsBackupBody,
-            style: ShiaText.secondary
-                .copyWith(height: 21 / 15, color: colors.translation),
+            style: ShiaText.secondary.copyWith(
+              height: 21 / 15,
+              color: colors.translation,
+            ),
           ),
           const SizedBox(height: 12),
           _SignInButton(
@@ -1154,8 +1228,12 @@ class _SignInCard extends StatelessWidget {
             background: colors.surface,
             foreground: colors.text,
             outline: Color.lerp(colors.line, colors.chevron, 0.35),
-            logo: Image.asset('assets/images/google_logo.png',
-                width: 20, height: 20, excludeFromSemantics: true),
+            logo: Image.asset(
+              'assets/images/google_logo.png',
+              width: 20,
+              height: 20,
+              excludeFromSemantics: true,
+            ),
           ),
           if (appleSignInOffered) ...[
             const SizedBox(height: 12),
@@ -1165,11 +1243,13 @@ class _SignInCard extends StatelessWidget {
               onPressed: busy ? null : () => onSignIn(SignInProvider.apple),
               background: appleBackground,
               foreground: appleForeground,
-              logo: Image.asset('assets/images/apple_logo.png',
-                  width: 20,
-                  height: 20,
-                  color: appleForeground,
-                  excludeFromSemantics: true),
+              logo: Image.asset(
+                'assets/images/apple_logo.png',
+                width: 20,
+                height: 20,
+                color: appleForeground,
+                excludeFromSemantics: true,
+              ),
             ),
           ],
           const SizedBox(height: 12),
@@ -1185,8 +1265,10 @@ class _SignInCard extends StatelessWidget {
               style: TextButton.styleFrom(
                 foregroundColor: colors.accent,
                 minimumSize: const Size(48, 44),
-                textStyle: buttonTextStyle(context, ShiaText.body)
-                    .copyWith(fontWeight: FontWeight.w600),
+                textStyle: buttonTextStyle(
+                  context,
+                  ShiaText.body,
+                ).copyWith(fontWeight: FontWeight.w600),
               ),
               child: Text(l10n.setupMaybeLater),
             ),
@@ -1231,8 +1313,10 @@ class _SignInButton extends StatelessWidget {
         shape: StadiumBorder(
           side: outline == null ? BorderSide.none : BorderSide(color: outline!),
         ),
-        textStyle: buttonTextStyle(context, ShiaText.body)
-            .copyWith(fontWeight: FontWeight.w600),
+        textStyle: buttonTextStyle(
+          context,
+          ShiaText.body,
+        ).copyWith(fontWeight: FontWeight.w600),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -1240,8 +1324,10 @@ class _SignInButton extends StatelessWidget {
           if (busy)
             SizedBox.square(
               dimension: 20,
-              child:
-                  CircularProgressIndicator(strokeWidth: 2, color: foreground),
+              child: CircularProgressIndicator(
+                strokeWidth: 2,
+                color: foreground,
+              ),
             )
           else
             logo,
@@ -1308,8 +1394,9 @@ class _SignedInCard extends StatelessWidget {
                         const SizedBox(height: 2),
                         Text(
                           email,
-                          style: ShiaText.secondary
-                              .copyWith(color: colors.textMuted),
+                          style: ShiaText.secondary.copyWith(
+                            color: colors.textMuted,
+                          ),
                         ),
                       ],
                       const SizedBox(height: 6),
@@ -1345,8 +1432,12 @@ class _SignedInCard extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(width: 8),
-                OutlineIcon(OutlineGlyph.chevronRight,
-                    size: 16, color: colors.chevron, strokeWidth: 2.4),
+                OutlineIcon(
+                  OutlineGlyph.chevronRight,
+                  size: 16,
+                  color: colors.chevron,
+                  strokeWidth: 2.4,
+                ),
               ],
             ),
           ),

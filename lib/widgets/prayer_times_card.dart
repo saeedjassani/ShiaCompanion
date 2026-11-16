@@ -2,6 +2,7 @@ import 'package:material_ui/material_ui.dart';
 import 'package:shia_companion/utils/prayer_time_entries.dart';
 import 'package:shia_companion/utils/prayer_times.dart';
 import 'package:shia_companion/widgets/prayer_glyph.dart';
+
 import '../constants.dart';
 import '../l10n/l10n.dart';
 
@@ -51,9 +52,8 @@ class PrayerTimesCard extends StatelessWidget {
 
     final content = ListView.separated(
       physics: const NeverScrollableScrollPhysics(),
-      separatorBuilder: (BuildContext context, int index) => Divider(
-        height: compact ? 1.0 : 2.0,
-      ),
+      separatorBuilder: (BuildContext context, int index) =>
+          Divider(height: compact ? 1.0 : 2.0),
       itemCount: prayerEntries.length,
       shrinkWrap: true,
       itemBuilder: (context, position) {
@@ -66,10 +66,7 @@ class PrayerTimesCard extends StatelessWidget {
 
     return compact
         ? content
-        : Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: content,
-          );
+        : Padding(padding: const EdgeInsets.all(16.0), child: content);
   }
 }
 
@@ -77,10 +74,7 @@ class _PrayerTimeRow extends StatelessWidget {
   final PrayerTimeDisplayEntry prayerEntry;
   final bool compact;
 
-  const _PrayerTimeRow({
-    required this.prayerEntry,
-    required this.compact,
-  });
+  const _PrayerTimeRow({required this.prayerEntry, required this.compact});
 
   @override
   Widget build(BuildContext context) {
@@ -123,9 +117,7 @@ class _PrayerTimeRow extends StatelessWidget {
 class _PrayerIconBadge extends StatelessWidget {
   final String name;
 
-  const _PrayerIconBadge({
-    required this.name,
-  });
+  const _PrayerIconBadge({required this.name});
 
   @override
   Widget build(BuildContext context) {
@@ -139,11 +131,7 @@ class _PrayerIconBadge extends StatelessWidget {
       width: 30.0,
       height: 30.0,
       child: Center(
-        child: PrayerGlyph(
-          name: name,
-          size: 17.0,
-          color: colorScheme.primary,
-        ),
+        child: PrayerGlyph(name: name, size: 17.0, color: colorScheme.primary),
       ),
     );
   }

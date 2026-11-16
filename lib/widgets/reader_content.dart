@@ -148,9 +148,11 @@ class ReaderPageWindow extends StatelessWidget {
                   // must lay blocks out exactly as the measuring pass did.
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    for (var i = page.firstBlock;
-                        i <= page.lastBlock && i < blocks.length;
-                        i++)
+                    for (
+                      var i = page.firstBlock;
+                      i <= page.lastBlock && i < blocks.length;
+                      i++
+                    )
                       ReaderBlockView(block: blocks[i], styleSheet: styleSheet),
                   ],
                 ),

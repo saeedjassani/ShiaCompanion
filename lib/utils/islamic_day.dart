@@ -42,8 +42,5 @@ IslamicDay islamicDayAt(
     hijriDateOffsetDays: offset,
   );
   if (night != null) return IslamicDay(day: night, isEve: true);
-  return IslamicDay(
-    day: LunarDay(now, hijriOffsetDays: offset),
-    isEve: false,
-  );
+  return IslamicDay(day: LunarDay(now, hijriOffsetDays: offset), isEve: false);
 }

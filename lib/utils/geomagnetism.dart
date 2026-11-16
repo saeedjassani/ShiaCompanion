@@ -171,8 +171,8 @@ class _HorizontalField {
 }
 
 _HorizontalField _fieldAt(GeoPoint point, DateTime date, double altitudeKm) {
-  final years = _decimalYear(date).clamp(_modelEpoch, _modelExpiry) -
-      _modelEpoch;
+  final years =
+      _decimalYear(date).clamp(_modelEpoch, _modelExpiry) - _modelEpoch;
 
   // The model is undefined exactly at the poles, where the east component
   // divides by cos(latitude). Nudging off the pole keeps it finite; nobody
@@ -187,7 +187,8 @@ _HorizontalField _fieldAt(GeoPoint point, DateTime date, double altitudeKm) {
   final cosGeodetic = cos(latitude);
   final eccentricitySquared = _wgs84Flattening * (2 - _wgs84Flattening);
   final primeVertical =
-      _wgs84SemiMajorKm / sqrt(1 - eccentricitySquared * sinGeodetic * sinGeodetic);
+      _wgs84SemiMajorKm /
+      sqrt(1 - eccentricitySquared * sinGeodetic * sinGeodetic);
   final equatorial = (primeVertical + altitudeKm) * cosGeodetic;
   final polar =
       (primeVertical * (1 - eccentricitySquared) + altitudeKm) * sinGeodetic;
@@ -207,8 +208,10 @@ _HorizontalField _fieldAt(GeoPoint point, DateTime date, double altitudeKm) {
   cosMLon[0] = 1.0;
   sinMLon[0] = 0.0;
   for (var m = 1; m <= _maxDegree; m++) {
-    cosMLon[m] = cosMLon[m - 1] * cos(longitude) - sinMLon[m - 1] * sin(longitude);
-    sinMLon[m] = sinMLon[m - 1] * cos(longitude) + cosMLon[m - 1] * sin(longitude);
+    cosMLon[m] =
+        cosMLon[m - 1] * cos(longitude) - sinMLon[m - 1] * sin(longitude);
+    sinMLon[m] =
+        sinMLon[m - 1] * cos(longitude) + cosMLon[m - 1] * sin(longitude);
   }
 
   // Field in the geocentric frame: north (X'), east (Y'), down (Z').
@@ -295,8 +298,9 @@ _Legendre _schmidtLegendre(double cosTheta, double sinTheta) {
         final c = n - m;
         p[n][m] = (a * cosTheta * p[n - 1][m] - b * p[n - 2][m]) / c;
         dp[n][m] =
-            (a * (cosTheta * dp[n - 1][m] - sinTheta * p[n - 1][m]) - b * dp[n - 2][m]) /
-                c;
+            (a * (cosTheta * dp[n - 1][m] - sinTheta * p[n - 1][m]) -
+                b * dp[n - 2][m]) /
+            c;
       }
     }
   }

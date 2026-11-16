@@ -44,7 +44,8 @@ String translationLanguageValue(BuildContext context) {
   final choice = appLanguageFor(provider.translationLanguageChoice);
   return choice?.nativeName ??
       context.l10n.languageFollowApp(
-          provider.appFollowingTranslationLanguage.nativeName);
+        provider.appFollowingTranslationLanguage.nativeName,
+      );
 }
 
 /// Asks which language the app's own text is in, and applies the answer.
@@ -52,8 +53,10 @@ String translationLanguageValue(BuildContext context) {
 /// [republish] false skips writing the widgets, notifications and reminders
 /// again: first-run setup asks before any are written, and Home writes them
 /// once setup is over.
-Future<void> pickAppLanguage(BuildContext context,
-    {bool republish = true}) async {
+Future<void> pickAppLanguage(
+  BuildContext context, {
+  bool republish = true,
+}) async {
   final provider = context.read<LanguageProvider>();
   final l10n = context.l10n;
   final picked = await _pickLanguage(
@@ -75,11 +78,13 @@ Future<void> pickAppLanguage(BuildContext context,
   }
   // The playlist names Siri and Shortcuts show come from the app language.
   SmartActionsService.instance.syncCatalog();
-  unawaited(AnalyticsService.feature(
-    'app_language_changed',
-    label: 'App language changed',
-    parameters: {'language': picked.code ?? 'device'},
-  ));
+  unawaited(
+    AnalyticsService.feature(
+      'app_language_changed',
+      label: 'App language changed',
+      parameters: {'language': picked.code ?? 'device'},
+    ),
+  );
 }
 
 /// Asks what a zikr's translation, instructions, merits and title are shown
@@ -90,18 +95,21 @@ Future<void> pickTranslationLanguage(BuildContext context) async {
   final picked = await _pickLanguage(
     context,
     title: l10n.settingsTranslationLanguage,
-    defaultLabel: l10n
-        .languageFollowApp(provider.appFollowingTranslationLanguage.nativeName),
+    defaultLabel: l10n.languageFollowApp(
+      provider.appFollowingTranslationLanguage.nativeName,
+    ),
     languages: provider.translationLanguages,
     current: provider.translationLanguageChoice,
   );
   if (picked == null) return;
   await provider.setTranslationLanguage(picked.code);
-  unawaited(AnalyticsService.feature(
-    'translation_language_changed',
-    label: 'Translation language changed',
-    parameters: {'language': picked.code ?? 'app'},
-  ));
+  unawaited(
+    AnalyticsService.feature(
+      'translation_language_changed',
+      label: 'Translation language changed',
+      parameters: {'language': picked.code ?? 'app'},
+    ),
+  );
 }
 
 /// The Translation language row of a card list (the reader's Text sheet).
@@ -125,8 +133,11 @@ class TranslationLanguageTile extends StatelessWidget {
       subtitle: Text(translationLanguageValue(context)),
       trailing: Padding(
         padding: const EdgeInsetsDirectional.only(end: 8),
-        child: OutlineIcon(OutlineGlyph.chevronRight,
-            size: 18, color: colors.chevron),
+        child: OutlineIcon(
+          OutlineGlyph.chevronRight,
+          size: 18,
+          color: colors.chevron,
+        ),
       ),
       onTap: () => pickTranslationLanguage(context),
     );

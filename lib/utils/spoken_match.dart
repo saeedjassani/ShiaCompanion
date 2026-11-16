@@ -56,8 +56,11 @@ SpokenMatchScore spokenMatchScore(
 }) {
   ({T entry, SpokenMatchScore score})? best;
   for (final entry in entries) {
-    final score =
-        spokenMatchScore(query, names(entry), ignoredWords: ignoredWords);
+    final score = spokenMatchScore(
+      query,
+      names(entry),
+      ignoredWords: ignoredWords,
+    );
     if (score.score == 0) continue;
     if (best == null || score.isBetterThan(best.score)) {
       best = (entry: entry, score: score);

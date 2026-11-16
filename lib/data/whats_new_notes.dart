@@ -44,10 +44,10 @@ class WhatsNewEntry {
   /// The points to show on [platform]: the shared [bullets] followed by that
   /// platform's own. Other platforms (web, desktop) get the shared ones only.
   List<WhatsNewNote> bulletsFor(TargetPlatform platform) => [
-        ...bullets,
-        if (platform == TargetPlatform.iOS) ...iosBullets,
-        if (platform == TargetPlatform.android) ...androidBullets,
-      ];
+    ...bullets,
+    if (platform == TargetPlatform.iOS) ...iosBullets,
+    if (platform == TargetPlatform.android) ...androidBullets,
+  ];
 }
 
 /// Add one entry per release that changes something a person would notice,
@@ -67,9 +67,7 @@ final List<WhatsNewEntry> whatsNewNotes = <WhatsNewEntry>[
       (l10n) => l10n.whatsNew139Library,
       (l10n) => l10n.whatsNew139Content,
     ],
-    androidBullets: [
-      (l10n) => l10n.whatsNew139PrayerWidget,
-    ],
+    androidBullets: [(l10n) => l10n.whatsNew139PrayerWidget],
   ),
   WhatsNewEntry(
     buildNumber: 140,
@@ -84,15 +82,11 @@ final List<WhatsNewEntry> whatsNewNotes = <WhatsNewEntry>[
       (l10n) => l10n.whatsNew140Siri,
       (l10n) => l10n.whatsNew140Spotlight,
     ],
-    androidBullets: [
-      (l10n) => l10n.whatsNew140PinPlaylist,
-    ],
+    androidBullets: [(l10n) => l10n.whatsNew140PinPlaylist],
   ),
   WhatsNewEntry(
     buildNumber: 141,
     versionName: '4.3.0',
-    bullets: [
-      (l10n) => l10n.whatsNew141EventNotifications,
-    ],
+    bullets: [(l10n) => l10n.whatsNew141EventNotifications],
   ),
 ];

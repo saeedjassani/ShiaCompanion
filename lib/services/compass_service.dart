@@ -2,7 +2,8 @@ import '../models/compass_reading.dart';
 
 import 'compass_platform_stub.dart'
     if (dart.library.io) 'compass_platform_io.dart'
-    if (dart.library.js_interop) 'compass_platform_web.dart' as platform;
+    if (dart.library.js_interop) 'compass_platform_web.dart'
+    as platform;
 
 /// Where heading readings come from.
 ///

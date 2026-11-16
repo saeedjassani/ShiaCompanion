@@ -40,7 +40,9 @@ Future<bool> showWidgetPrayerTimesDialog(BuildContext context) async {
               padding: const EdgeInsets.symmetric(horizontal: 4),
               child: Text(
                 context.l10n.widgetPrayerTimesHelp(
-                    minWidgetPrayerTimes, maxWidgetPrayerTimes),
+                  minWidgetPrayerTimes,
+                  maxWidgetPrayerTimes,
+                ),
                 style: ShiaText.secondary.copyWith(color: colors.textMuted),
               ),
             ),
@@ -48,43 +50,46 @@ Future<bool> showWidgetPrayerTimesDialog(BuildContext context) async {
             CardList(
               children: [
                 for (final (i, time) in widgetPrayerTimes.indexed)
-                  Builder(builder: (context) {
-                    final shown = selected.contains(time.id);
-                    final enabled = shown ? !atMinimum : !atMaximum;
-                    return MergeSemantics(
-                      child: Semantics(
-                        checked: shown,
-                        enabled: enabled,
-                        child: Opacity(
-                          opacity: enabled ? 1 : 0.5,
-                          child: CardListRow(
-                            first: i == 0,
-                            last: i == widgetPrayerTimes.length - 1,
-                            leading: PrayerGlyph(
-                              name: time.name,
-                              size: 24,
-                              color: colors.accent,
-                            ),
-                            title: Text(
-                                localizedPrayerName(time.name, context.l10n)),
-                            trailing: SizedBox.square(
-                              dimension: 44,
-                              child: Center(child: _Tick(selected: shown)),
-                            ),
-                            onTap: enabled
-                                ? () => setSheetState(() {
+                  Builder(
+                    builder: (context) {
+                      final shown = selected.contains(time.id);
+                      final enabled = shown ? !atMinimum : !atMaximum;
+                      return MergeSemantics(
+                        child: Semantics(
+                          checked: shown,
+                          enabled: enabled,
+                          child: Opacity(
+                            opacity: enabled ? 1 : 0.5,
+                            child: CardListRow(
+                              first: i == 0,
+                              last: i == widgetPrayerTimes.length - 1,
+                              leading: PrayerGlyph(
+                                name: time.name,
+                                size: 24,
+                                color: colors.accent,
+                              ),
+                              title: Text(
+                                localizedPrayerName(time.name, context.l10n),
+                              ),
+                              trailing: SizedBox.square(
+                                dimension: 44,
+                                child: Center(child: _Tick(selected: shown)),
+                              ),
+                              onTap: enabled
+                                  ? () => setSheetState(() {
                                       if (shown) {
                                         selected.remove(time.id);
                                       } else {
                                         selected.add(time.id);
                                       }
                                     })
-                                : null,
+                                  : null,
+                            ),
                           ),
                         ),
-                      ),
-                    );
-                  }),
+                      );
+                    },
+                  ),
               ],
             ),
           ],
@@ -129,11 +134,16 @@ class _Tick extends StatelessWidget {
             ? null
             : Border.all(
                 color: Color.lerp(colors.line, colors.chevron, 0.35)!,
-                width: 2),
+                width: 2,
+              ),
       ),
       child: selected
-          ? OutlineIcon(OutlineGlyph.check,
-              size: 15, color: colors.onAccent, strokeWidth: 3)
+          ? OutlineIcon(
+              OutlineGlyph.check,
+              size: 15,
+              color: colors.onAccent,
+              strokeWidth: 3,
+            )
           : null,
     );
   }

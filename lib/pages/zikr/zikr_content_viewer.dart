@@ -8,6 +8,7 @@ import 'package:material_ui/material_ui.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/scheduler.dart' show Ticker;
 import 'package:flutter/services.dart';
+
 import '../../constants.dart';
 import '../../data/quran_ali_verses.dart';
 import '../../data/quran_mahdi_verses.dart';
@@ -400,8 +401,8 @@ class _QuranParagraphs {
   }
 
   factory _QuranParagraphs.build(AyahIndex index) => _QuranParagraphs([
-        for (final run in quranParagraphSpanRuns(index)) _QuranParagraph(run),
-      ]);
+    for (final run in quranParagraphSpanRuns(index)) _QuranParagraph(run),
+  ]);
 
   final List<_QuranParagraph> items;
   final Map<int, int> _paragraphBySpan = {};
@@ -428,10 +429,10 @@ Widget _bookmarkLabelRow(BuildContext context, {bool movable = false}) {
       Text(
         context.l10n.zikrBookmarked,
         style: Theme.of(context).textTheme.labelSmall?.copyWith(
-              color: colorScheme.primary,
-              fontWeight: FontWeight.w600,
-              letterSpacing: 0.4,
-            ),
+          color: colorScheme.primary,
+          fontWeight: FontWeight.w600,
+          letterSpacing: 0.4,
+        ),
       ),
       if (movable) ...[
         const Spacer(),
@@ -462,9 +463,9 @@ Widget _bookmarkDragFeedback(BuildContext context) {
           Text(
             context.l10n.zikrMoveBookmarkHere,
             style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                  color: colorScheme.onPrimaryContainer,
-                  fontWeight: FontWeight.w600,
-                ),
+              color: colorScheme.onPrimaryContainer,
+              fontWeight: FontWeight.w600,
+            ),
           ),
         ],
       ),
@@ -777,12 +778,15 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget>
     int? bookmarkLabelLine,
     TextStyle arabicStyle,
   ) {
-    final flow = (_tabArabicFlows[tabIndex] ??= {})
-        .putIfAbsent(item.firstLineIndex, _FlowingText.new);
+    final flow = (_tabArabicFlows[tabIndex] ??= {}).putIfAbsent(
+      item.firstLineIndex,
+      _FlowingText.new,
+    );
     final textStarts = <int>[];
     var length = 0;
 
-    final highlightedIndex = bookmarkLabelLine != null &&
+    final highlightedIndex =
+        bookmarkLabelLine != null &&
             item.lineIndexes.contains(bookmarkLabelLine)
         ? bookmarkLabelLine
         : null;
@@ -798,8 +802,9 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget>
       final verseSpan = lineIndex == highlightedIndex
           ? TextSpan(
               style: TextStyle(
-                backgroundColor:
-                    colorScheme.primaryContainer.withValues(alpha: 0.55),
+                backgroundColor: colorScheme.primaryContainer.withValues(
+                  alpha: 0.55,
+                ),
               ),
               children: [
                 _inlineBookmarkSpan(colorScheme.primary, arabicStyle.fontSize),
@@ -829,7 +834,8 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget>
     // A Bismillah opening a paragraph is an item of its own
     // ([_buildReadingListItems]) and sits centred above the text, as a
     // surah's does.
-    final isBismillah = item.lineIndexes.length == 1 &&
+    final isBismillah =
+        item.lineIndexes.length == 1 &&
         ZikrContentParser.isBismillah(parsedContent.lines[item.firstLineIndex]);
 
     return Padding(
@@ -974,15 +980,18 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget>
       return;
     }
     // Capped, so a dropped frame or a hitch never jumps a line.
-    final seconds =
-        math.min((elapsed - last).inMicroseconds / 1e6, 0.1).toDouble();
+    final seconds = math
+        .min((elapsed - last).inMicroseconds / 1e6, 0.1)
+        .toDouble();
     // Reading along is reading: the verse it passes counts as the reader's
     // place, as a drag would.
     _sawUserScrollInput = true;
-    position.jumpTo(math.min(
-      position.pixels + autoScroll.pixelsPerSecond * seconds,
-      position.maxScrollExtent,
-    ));
+    position.jumpTo(
+      math.min(
+        position.pixels + autoScroll.pixelsPerSecond * seconds,
+        position.maxScrollExtent,
+      ),
+    );
   }
 
   @override
@@ -1090,20 +1099,22 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget>
         viewportDimension: position.viewportDimension,
         lineIndex: _topLineIndex(tabIndex, controller),
         bookmarkLineIndex: _bookmarkLineIndex(tabIndex, controller),
-        progressFraction: fractionAbove(zikrReadingLine(
-              scrollOffset: position.pixels,
-              maxScrollExtent: position.maxScrollExtent,
-              viewportDimension: position.viewportDimension,
-            )) ??
+        progressFraction:
+            fractionAbove(
+              zikrReadingLine(
+                scrollOffset: position.pixels,
+                maxScrollExtent: position.maxScrollExtent,
+                viewportDimension: position.viewportDimension,
+              ),
+            ) ??
             (isLaidOut
                 ? zikrTabScrollFraction(
                     scrollOffset: position.pixels,
                     maxScrollExtent: position.maxScrollExtent,
                   )
                 : null),
-        seenFraction: fractionAbove(
-              position.pixels + position.viewportDimension,
-            ) ??
+        seenFraction:
+            fractionAbove(position.pixels + position.viewportDimension) ??
             (isLaidOut
                 ? zikrTabSeenFraction(
                     scrollOffset: position.pixels,
@@ -1133,8 +1144,8 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget>
   /// tab's scroll coordinates, or null before the list has been laid out.
   List<ZikrLaidOutItem>? _laidOutItems(int tabIndex) {
     if (tabIndex >= _tabListKeys.length) return null;
-    final renderObject =
-        _tabListKeys[tabIndex].currentContext?.findRenderObject();
+    final renderObject = _tabListKeys[tabIndex].currentContext
+        ?.findRenderObject();
     final sliver = renderObject == null ? null : _findSliverList(renderObject);
     if (sliver == null || sliver.geometry == null) return null;
 
@@ -1149,11 +1160,13 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget>
           parentData.index != null &&
           parentData.layoutOffset != null &&
           child.hasSize) {
-        items.add(ZikrLaidOutItem(
-          index: parentData.index!,
-          top: leading + parentData.layoutOffset!,
-          extent: child.size.height,
-        ));
+        items.add(
+          ZikrLaidOutItem(
+            index: parentData.index!,
+            top: leading + parentData.layoutOffset!,
+            extent: child.size.height,
+          ),
+        );
       }
       child = sliver.childAfter(child);
     }
@@ -1316,8 +1329,8 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget>
   ({RenderBox box, double offset})? _builtItem(int tabIndex, int itemIndex) {
     if (tabIndex >= _tabListKeys.length) return null;
 
-    final renderObject =
-        _tabListKeys[tabIndex].currentContext?.findRenderObject();
+    final renderObject = _tabListKeys[tabIndex].currentContext
+        ?.findRenderObject();
     if (renderObject == null) return null;
     final sliver = _findSliverList(renderObject);
     if (sliver == null) return null;
@@ -1347,8 +1360,8 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget>
   double? _estimateItemOffset(int tabIndex, int itemIndex) {
     if (tabIndex >= _tabListKeys.length) return null;
 
-    final renderObject =
-        _tabListKeys[tabIndex].currentContext?.findRenderObject();
+    final renderObject = _tabListKeys[tabIndex].currentContext
+        ?.findRenderObject();
     final sliver = renderObject == null ? null : _findSliverList(renderObject);
     if (sliver == null) return null;
 
@@ -1446,8 +1459,9 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget>
 
     final ayahIndex = _ayahIndexFor(tabIndex);
     if (ayahIndex != null) {
-      final spanIndex =
-          ayahIndex.spans.indexWhere((span) => span.contains(lineIndex));
+      final spanIndex = ayahIndex.spans.indexWhere(
+        (span) => span.contains(lineIndex),
+      );
       // Before the first verse there is nothing above it to scroll past.
       if (spanIndex < 0) return;
       await _scrollToSpan(tabIndex, ayahIndex, spanIndex, leadingItems);
@@ -1483,8 +1497,9 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget>
       tabIndex,
       itemIndex: itemIndex + leadingItems,
       itemCount: items.length + leadingItems,
-      insetWithin:
-          member == 0 ? null : (box) => _memberTopInFlow(box, flow!, member),
+      insetWithin: member == 0
+          ? null
+          : (box) => _memberTopInFlow(box, flow!, member),
     );
   }
 
@@ -1529,7 +1544,7 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget>
           // Not built yet: aim at an estimate to bring it into range, then
           // measure properly on the next pass.
           ? _estimateItemOffset(tabIndex, itemIndex) ??
-              position.maxScrollExtent * (itemIndex / itemCount)
+                position.maxScrollExtent * (itemIndex / itemCount)
           : itemOffset - _scrollToVerseMargin;
 
       final clamped = target
@@ -1639,8 +1654,8 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget>
     int tabIndex,
     double scrollOffset,
   ) {
-    final renderObject =
-        _tabListKeys[tabIndex].currentContext?.findRenderObject();
+    final renderObject = _tabListKeys[tabIndex].currentContext
+        ?.findRenderObject();
     if (renderObject == null) return null;
     final sliver = _findSliverList(renderObject);
     if (sliver == null) return null;
@@ -1722,8 +1737,9 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget>
     // A flowing paragraph can be a whole dua long; the line is the one being
     // read inside it, not the paragraph's first.
     final flow = _tabArabicFlows[tabIndex]?[item.firstLineIndex];
-    final member =
-        flow == null ? null : _memberInFlowAt(top.box, flow, top.depth);
+    final member = flow == null
+        ? null
+        : _memberInFlowAt(top.box, flow, top.depth);
     if (member != null && member < item.lineIndexes.length) {
       return item.lineIndexes[member];
     }
@@ -1760,8 +1776,9 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget>
     }
     final item = items[hit.itemIndex];
     final flow = _tabArabicFlows[tabIndex]?[item.firstLineIndex];
-    final member =
-        flow == null ? null : _memberInFlowAt(hit.box, flow, hit.depth);
+    final member = flow == null
+        ? null
+        : _memberInFlowAt(hit.box, flow, hit.depth);
     if (member != null && member < item.lineIndexes.length) {
       return item.lineIndexes[member];
     }
@@ -1793,8 +1810,9 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget>
     _stopBookmarkAutoScroll();
     // Measured afresh rather than taken from the preview: the list may have
     // auto-scrolled since the pointer last moved.
-    final line =
-        pointer == null ? null : _contentLineAtGlobal(tabIndex, pointer);
+    final line = pointer == null
+        ? null
+        : _contentLineAtGlobal(tabIndex, pointer);
     _cancelBookmarkDrag();
     if (line == null) return;
 
@@ -1857,7 +1875,8 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget>
     if (y < edge) {
       speed = -_bookmarkAutoScrollMaxStep * ((edge - y) / edge).clamp(0, 1);
     } else if (y > height - edge) {
-      speed = _bookmarkAutoScrollMaxStep *
+      speed =
+          _bookmarkAutoScrollMaxStep *
           ((y - (height - edge)) / edge).clamp(0, 1);
     }
     _bookmarkAutoScrollSpeed = speed;
@@ -2133,8 +2152,9 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget>
     });
   }
 
-  void _centerSelectedTab(
-      {Duration duration = const Duration(milliseconds: 360)}) {
+  void _centerSelectedTab({
+    Duration duration = const Duration(milliseconds: 360),
+  }) {
     if (!mounted ||
         _selectedTabIndex < 0 ||
         _selectedTabIndex >= _tabHeaderKeys.length) {
@@ -2240,9 +2260,9 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget>
     final ayahIndex = tabIndex != 0
         ? null
         : widget.ayahIndex ??
-            (surah == null
-                ? null
-                : AyahIndex.fromParsedContent(parsed, surah: surah));
+              (surah == null
+                  ? null
+                  : AyahIndex.fromParsedContent(parsed, surah: surah));
 
     final cache = _TabContentCache(
       rawContent: rawContent,
@@ -2268,13 +2288,13 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget>
   }) {
     final lineWeights = cache.lineWeights;
     double linesWeight(Iterable<int> lines) => lines.fold(
-          0.0,
-          (sum, line) =>
-              sum + (line < lineWeights.length ? lineWeights[line] : 0.0),
-        );
-    double spanWeight(AyahSpan span) => linesWeight(
-          [for (var line = span.start; line < span.end; line++) line],
-        );
+      0.0,
+      (sum, line) =>
+          sum + (line < lineWeights.length ? lineWeights[line] : 0.0),
+    );
+    double spanWeight(AyahSpan span) => linesWeight([
+      for (var line = span.start; line < span.end; line++) line,
+    ]);
 
     final ayahIndex = cache.ayahIndex;
     final content = <double>[
@@ -2330,7 +2350,8 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget>
         : firstVisibleLineInRange(bookmarkedRange, parsedContent);
     // Where a bookmark being dragged in this tab would land if let go now.
     final dropLine = _bookmarkDragTab == tabIndex ? _bookmarkDropLine : null;
-    final dropRange = dropLine == null ||
+    final dropRange =
+        dropLine == null ||
             (bookmarkedRange != null && bookmarkedRange.contains(dropLine))
         ? null
         : bookmarkedLineRange(
@@ -2382,14 +2403,16 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget>
     );
 
     final leadingItems = showMeritsButton ? 1 : 0;
-    final footer =
-        tabIndex == widget.tabContents.length - 1 ? widget.footer : null;
-    final contentItemCount = leadingItems +
+    final footer = tabIndex == widget.tabContents.length - 1
+        ? widget.footer
+        : null;
+    final contentItemCount =
+        leadingItems +
         (quranParagraphs != null
             ? quranParagraphs.items.length
             : ayahIndex != null
-                ? ayahIndex.spans.length
-                : readingItems.length);
+            ? ayahIndex.spans.length
+            : readingItems.length);
     final itemCount = contentItemCount + (footer == null ? 0 : 1);
     _tabItemWeights[tabIndex] = _itemWeights(
       cache,
@@ -2537,12 +2560,14 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget>
 
                     final isLastItem = itemIndex == readingItems.length - 1;
 
-                    final isDropTarget = dropRange != null &&
+                    final isDropTarget =
+                        dropRange != null &&
                         item.lineIndexes.any(dropRange.contains);
 
                     if (isArabicOnlyReadingView &&
-                        parsedContent.arabicCodes
-                            .contains(item.firstLineIndex)) {
+                        parsedContent.arabicCodes.contains(
+                          item.firstLineIndex,
+                        )) {
                       return _withParagraphDivider(
                         _withBookmarkDropPreview(
                           _buildArabicParagraphItem(
@@ -2590,7 +2615,8 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget>
                         !isZikrLineVisible(parsedContent, contentIndex)) {
                       content = _withBookmarkDropPreview(
                         line,
-                        isTarget: isDropTarget &&
+                        isTarget:
+                            isDropTarget &&
                             isZikrLineVisible(parsedContent, contentIndex),
                       );
                     } else {
@@ -2638,10 +2664,7 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget>
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         content,
-        Divider(
-          height: 20,
-          color: ShiaColors.of(context).readerDivider,
-        ),
+        Divider(height: 20, color: ShiaColors.of(context).readerDivider),
       ],
     );
   }
@@ -2828,8 +2851,8 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget>
       decoration: BoxDecoration(
         border: BorderDirectional(
           start: BorderSide(
-            color:
-                Theme.of(context).colorScheme.primary.withValues(alpha: 0.45),
+            color: Theme.of(context).colorScheme.primary
+                .withValues(alpha: 0.45),
             width: 3,
           ),
         ),
@@ -2917,8 +2940,8 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget>
     final bookmarkedSpan = bookmarkedRange == null
         ? null
         : spans
-            .where((span) => span.contains(bookmarkedRange.start))
-            .firstOrNull;
+              .where((span) => span.contains(bookmarkedRange.start))
+              .firstOrNull;
 
     final children = <InlineSpan>[];
     final textStarts = <int>[];
@@ -2941,8 +2964,9 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget>
       final verseSpan = TextSpan(
         style: isBookmarked
             ? TextStyle(
-                backgroundColor:
-                    colorScheme.primaryContainer.withValues(alpha: 0.55),
+                backgroundColor: colorScheme.primaryContainer.withValues(
+                  alpha: 0.55,
+                ),
               )
             : null,
         children: [
@@ -2961,8 +2985,9 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget>
 
     final canAct = widget.onAyahAction != null;
     void actAt(RenderParagraph text, Offset globalPosition) {
-      final position =
-          text.getPositionForOffset(text.globalToLocal(globalPosition));
+      final position = text.getPositionForOffset(
+        text.globalToLocal(globalPosition),
+      );
       final spanIndex = paragraph.spanIndexAtTextOffset(position.offset);
       _requestAyahAction(parsedContent, ayahIndex.spans[spanIndex]);
     }
@@ -2997,10 +3022,7 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget>
           if (first.startsSurah != null)
             _SurahHeading(surah: first.startsSurah!),
           ruled,
-          Divider(
-            height: 20,
-            color: ShiaColors.of(context).readerDivider,
-          ),
+          Divider(height: 20, color: ShiaColors.of(context).readerDivider),
         ],
       ),
     );
@@ -3016,9 +3038,11 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget>
       if (line.isEmpty || !isZikrLineVisible(parsedContent, i)) continue;
       // QuranWBW's pause marks and medallions are private-use glyphs that
       // paste as boxes anywhere but the reader.
-      parts.add(widget.arabicFontFamily == quranWbwFontFamily
-          ? indoPakPlainText(line)
-          : line);
+      parts.add(
+        widget.arabicFontFamily == quranWbwFontFamily
+            ? indoPakPlainText(line)
+            : line,
+      );
     }
     return parts.join('\n');
   }
@@ -3049,65 +3073,65 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget>
                       child: Center(
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
-                          children: List.generate(
-                            widget.tabContents.length,
-                            (index) {
-                              final isSelected = index == _selectedTabIndex;
-                              final label = _getTabHeader(
-                                widget.tabContents[index],
-                                index,
-                              );
-                              return Padding(
-                                key: _tabHeaderKeys[index],
-                                padding: EdgeInsetsDirectional.only(
-                                  end: index == widget.tabContents.length - 1
-                                      ? 0
-                                      : 8,
-                                ),
-                                child: Semantics(
-                                  button: true,
-                                  selected: isSelected,
-                                  child: Material(
-                                    color: isSelected
-                                        ? colors.accent
-                                        : colors.surface,
-                                    shape: StadiumBorder(
-                                      side: isSelected
-                                          ? BorderSide.none
-                                          : BorderSide(color: colors.line),
-                                    ),
-                                    clipBehavior: Clip.antiAlias,
-                                    child: InkWell(
-                                      onTap: () => _animateToTab(index),
-                                      child: ConstrainedBox(
-                                        constraints:
-                                            const BoxConstraints(minHeight: 36),
-                                        child: Padding(
-                                          padding: const EdgeInsets.symmetric(
-                                            horizontal: 14,
-                                            vertical: 8,
-                                          ),
-                                          child: Text(
-                                            label,
-                                            style: ShiaText.caption.copyWith(
-                                              fontSize: 14,
-                                              height: 20 / 14,
-                                              fontWeight: isSelected
-                                                  ? FontWeight.w600
-                                                  : FontWeight.w500,
-                                              color: isSelected
-                                                  ? colors.onAccent
-                                                  : colors.text,
-                                            ),
+                          children: List.generate(widget.tabContents.length, (
+                            index,
+                          ) {
+                            final isSelected = index == _selectedTabIndex;
+                            final label = _getTabHeader(
+                              widget.tabContents[index],
+                              index,
+                            );
+                            return Padding(
+                              key: _tabHeaderKeys[index],
+                              padding: EdgeInsetsDirectional.only(
+                                end: index == widget.tabContents.length - 1
+                                    ? 0
+                                    : 8,
+                              ),
+                              child: Semantics(
+                                button: true,
+                                selected: isSelected,
+                                child: Material(
+                                  color: isSelected
+                                      ? colors.accent
+                                      : colors.surface,
+                                  shape: StadiumBorder(
+                                    side: isSelected
+                                        ? BorderSide.none
+                                        : BorderSide(color: colors.line),
+                                  ),
+                                  clipBehavior: Clip.antiAlias,
+                                  child: InkWell(
+                                    onTap: () => _animateToTab(index),
+                                    child: ConstrainedBox(
+                                      constraints: const BoxConstraints(
+                                        minHeight: 36,
+                                      ),
+                                      child: Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 14,
+                                          vertical: 8,
+                                        ),
+                                        child: Text(
+                                          label,
+                                          style: ShiaText.caption.copyWith(
+                                            fontSize: 14,
+                                            height: 20 / 14,
+                                            fontWeight: isSelected
+                                                ? FontWeight.w600
+                                                : FontWeight.w500,
+                                            color: isSelected
+                                                ? colors.onAccent
+                                                : colors.text,
                                           ),
                                         ),
                                       ),
                                     ),
                                   ),
                                 ),
-                              );
-                            },
-                          ),
+                              ),
+                            );
+                          }),
                         ),
                       ),
                     ),
@@ -3165,12 +3189,7 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget>
       children: [
         Positioned.fill(child: pages),
         if (chromeVisible == null)
-          Positioned(
-            left: 0,
-            right: 0,
-            top: widget.tabStripTop,
-            child: strip,
-          )
+          Positioned(left: 0, right: 0, top: widget.tabStripTop, child: strip)
         else
           ValueListenableBuilder<bool>(
             valueListenable: chromeVisible,
@@ -3229,8 +3248,12 @@ class _MeritsButton extends StatelessWidget {
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        OutlineIcon(OutlineGlyph.info,
-                            size: 16, color: colors.accent, strokeWidth: 2),
+                        OutlineIcon(
+                          OutlineGlyph.info,
+                          size: 16,
+                          color: colors.accent,
+                          strokeWidth: 2,
+                        ),
                         const SizedBox(width: 6),
                         Text(
                           context.l10n.zikrMerits,
@@ -3257,7 +3280,7 @@ class _MeritsButton extends StatelessWidget {
 /// Reports its child's size after every layout that changes it.
 class _MeasureSize extends SingleChildRenderObjectWidget {
   const _MeasureSize({required this.onChange, required Widget child})
-      : super(child: child);
+    : super(child: child);
 
   final ValueChanged<Size> onChange;
 
@@ -3267,7 +3290,9 @@ class _MeasureSize extends SingleChildRenderObjectWidget {
 
   @override
   void updateRenderObject(
-      BuildContext context, _RenderMeasureSize renderObject) {
+    BuildContext context,
+    _RenderMeasureSize renderObject,
+  ) {
     renderObject.onChange = onChange;
   }
 }
@@ -3443,7 +3468,8 @@ class _AyahBlock extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           if (startsSurah != null) _SurahHeading(surah: startsSurah!),
-          if (ayah != null && (isBookmarked || isSaved || hasNote || sajdahVerse != null))
+          if (ayah != null &&
+              (isBookmarked || isSaved || hasNote || sajdahVerse != null))
             Padding(
               padding: const EdgeInsets.only(top: 8),
               child: Row(
@@ -3476,10 +3502,7 @@ class _AyahBlock extends StatelessWidget {
               ),
             ),
           ...children,
-          Divider(
-            height: 20,
-            color: ShiaColors.of(context).readerDivider,
-          ),
+          Divider(height: 20, color: ShiaColors.of(context).readerDivider),
         ],
       ),
     );
@@ -3487,8 +3510,8 @@ class _AyahBlock extends StatelessWidget {
     final watermark = aliNote != null
         ? _VerseWatermark.ali(note: aliNote!)
         : mahdiNote != null
-            ? _VerseWatermark.mahdi(note: mahdiNote!)
-            : null;
+        ? _VerseWatermark.mahdi(note: mahdiNote!)
+        : null;
     final marked = watermark == null
         ? block
         : Stack(
@@ -3512,11 +3535,7 @@ class _AyahBlock extends StatelessWidget {
 
     if (onAction == null) return decorated;
 
-    return InkWell(
-      onTap: onAction,
-      onLongPress: onAction,
-      child: decorated,
-    );
+    return InkWell(onTap: onAction, onLongPress: onAction, child: decorated);
   }
 }
 
@@ -3536,14 +3555,14 @@ class _AyahBlock extends StatelessWidget {
 /// light one, where the pale gold would all but vanish.
 class _VerseWatermark extends StatelessWidget {
   const _VerseWatermark.ali({required this.note})
-      : asset = aliAsset,
-        height = 170;
+    : asset = aliAsset,
+      height = 170;
 
   /// A little shorter than the Ali mark: the teardrop is taller for its
   /// width, and most of these verses are two lines, so less of it is cut.
   const _VerseWatermark.mahdi({required this.note})
-      : asset = mahdiAsset,
-        height = 165;
+    : asset = mahdiAsset,
+      height = 165;
 
   final String note;
   final String asset;
@@ -3608,11 +3627,7 @@ class _BookmarkedLine extends StatelessWidget {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     return Container(
-      padding: EdgeInsets.only(
-        left: 12,
-        right: 12,
-        top: showLabel ? 6 : 0,
-      ),
+      padding: EdgeInsets.only(left: 12, right: 12, top: showLabel ? 6 : 0),
       decoration: BoxDecoration(
         color: colorScheme.primaryContainer.withValues(alpha: 0.4),
         border: BorderDirectional(
@@ -3623,10 +3638,7 @@ class _BookmarkedLine extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           if (showLabel)
-            Padding(
-              padding: const EdgeInsets.only(bottom: 4),
-              child: label,
-            ),
+            Padding(padding: const EdgeInsets.only(bottom: 4), child: label),
           child,
         ],
       ),
@@ -3689,12 +3701,14 @@ class _RuledArabicParagraph extends StatelessWidget {
         final rules = <Widget>[];
         for (var i = 0; i < lines.length - 1; i++) {
           top += lines[i].height;
-          rules.add(Positioned(
-            left: 0,
-            right: 0,
-            top: top,
-            child: Container(height: 1.0, color: ruleColor),
-          ));
+          rules.add(
+            Positioned(
+              left: 0,
+              right: 0,
+              top: top,
+              child: Container(height: 1.0, color: ruleColor),
+            ),
+          );
         }
 
         return Stack(
@@ -3720,7 +3734,6 @@ class _RuledArabicParagraph extends StatelessWidget {
   }
 }
 
-
 /// Small badge marking a Sajdah verse above its content.
 class _SajdahBadge extends StatelessWidget {
   const _SajdahBadge({required this.sajdahVerse});
@@ -3735,9 +3748,7 @@ class _SajdahBadge extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
       decoration: BoxDecoration(
-        color: isWajib
-            ? colors.accent.withValues(alpha: 0.14)
-            : colors.well,
+        color: isWajib ? colors.accent.withValues(alpha: 0.14) : colors.well,
         borderRadius: BorderRadius.circular(4),
         border: Border.all(
           color: isWajib ? colors.accent : colors.line,
@@ -3773,10 +3784,7 @@ class _SajdahBadge extends StatelessWidget {
 /// The prostration instruction, Fiqh-e-Jafria ruling and Shia supplication box
 /// rendered in the per-ayah sheet when tapping a Sajdah verse.
 class SajdahInstructionCard extends StatelessWidget {
-  const SajdahInstructionCard({
-    super.key,
-    required this.sajdahVerse,
-  });
+  const SajdahInstructionCard({super.key, required this.sajdahVerse});
 
   final QuranSajdahVerse sajdahVerse;
 
@@ -3826,7 +3834,10 @@ class SajdahInstructionCard extends StatelessWidget {
               ),
               if (isWajib)
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 6,
+                    vertical: 2,
+                  ),
                   decoration: BoxDecoration(
                     color: colors.accent,
                     borderRadius: BorderRadius.circular(6),

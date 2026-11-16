@@ -135,8 +135,12 @@ class _CalendarPageState extends State<CalendarPage> {
             if (!kIsWeb) ...[
               RoundIconButton(
                 label: context.l10n.eventNotificationsTitle,
-                icon: OutlineIcon(OutlineGlyph.bell,
-                    size: 20, color: colors.accent, strokeWidth: 2.2),
+                icon: OutlineIcon(
+                  OutlineGlyph.bell,
+                  size: 20,
+                  color: colors.accent,
+                  strokeWidth: 2.2,
+                ),
                 onPressed: () =>
                     pushPageRoute(context, const EventNotificationsPage()),
               ),
@@ -157,7 +161,8 @@ class _CalendarPageState extends State<CalendarPage> {
       ],
     );
 
-    final showToday = !_isSameDay(_selected, today) ||
+    final showToday =
+        !_isSameDay(_selected, today) ||
         _month.year != today.year ||
         _month.month != today.month;
     final monthHeader = _MonthHeader(
@@ -198,77 +203,77 @@ class _CalendarPageState extends State<CalendarPage> {
     final otherCity = _OtherCityRow(date: _selected);
 
     Widget column(List<Widget> children, {double gap = 14}) => Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            for (var i = 0; i < children.length; i++) ...[
-              if (i > 0) SizedBox(height: gap),
-              children[i],
-            ],
-          ],
-        );
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        for (var i = 0; i < children.length; i++) ...[
+          if (i > 0) SizedBox(height: gap),
+          children[i],
+        ],
+      ],
+    );
 
     final Widget body = switch (screen) {
       ScreenClass.phone => column([
-          topBar,
-          monthHeader,
-          gridAndLegend,
-          Divider(height: 1, thickness: 1, color: colors.line),
-          dayHeading,
-          if (eventCard != null) eventCard,
-          _DayPrayerCard(date: _selected, vertical: false),
-          otherCity,
-        ]),
+        topBar,
+        monthHeader,
+        gridAndLegend,
+        Divider(height: 1, thickness: 1, color: colors.line),
+        dayHeading,
+        if (eventCard != null) eventCard,
+        _DayPrayerCard(date: _selected, vertical: false),
+        otherCity,
+      ]),
       ScreenClass.tablet => column([
-          topBar,
-          monthHeader,
-          gridAndLegend,
-          Divider(height: 1, thickness: 1, color: colors.line),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                child: column([
-                  dayHeading,
-                  if (eventCard != null) eventCard,
-                  otherCity,
-                ]),
-              ),
-              const SizedBox(width: 24),
-              SizedBox(
-                width: 340,
-                child: _DayPrayerCard(date: _selected, vertical: true),
-              ),
-            ],
-          ),
-        ], gap: 20),
+        topBar,
+        monthHeader,
+        gridAndLegend,
+        Divider(height: 1, thickness: 1, color: colors.line),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              child: column([
+                dayHeading,
+                if (eventCard != null) eventCard,
+                otherCity,
+              ]),
+            ),
+            const SizedBox(width: 24),
+            SizedBox(
+              width: 340,
+              child: _DayPrayerCard(date: _selected, vertical: true),
+            ),
+          ],
+        ),
+      ], gap: 20),
       ScreenClass.desktop => column([
-          topBar,
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(child: column([monthHeader, gridAndLegend], gap: 16)),
-              const SizedBox(width: 40),
-              SizedBox(
-                width: 360,
-                child: column([
-                  dayHeading,
-                  if (eventCard != null) eventCard,
-                  _DayPrayerCard(date: _selected, vertical: true),
-                  otherCity,
-                ]),
-              ),
-            ],
-          ),
-        ], gap: 20),
+        topBar,
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(child: column([monthHeader, gridAndLegend], gap: 16)),
+            const SizedBox(width: 40),
+            SizedBox(
+              width: 360,
+              child: column([
+                dayHeading,
+                if (eventCard != null) eventCard,
+                _DayPrayerCard(date: _selected, vertical: true),
+                otherCity,
+              ]),
+            ),
+          ],
+        ),
+      ], gap: 20),
     };
 
     return Scaffold(
       backgroundColor: colors.ground,
       body: SingleChildScrollView(
-        padding: pageGutter(context, maxWidth: widePageWidth).copyWith(
-          top: insets.top + 12,
-          bottom: insets.bottom + 32,
-        ),
+        padding: pageGutter(
+          context,
+          maxWidth: widePageWidth,
+        ).copyWith(top: insets.top + 12, bottom: insets.bottom + 32),
         child: body,
       ),
     );
@@ -288,8 +293,9 @@ String _hijriMonth(BuildContext context, int month) =>
 
 /// "26 Rabi' al-Thani 1448".
 String _hijriLabel(BuildContext context, HijriCalendar hijri) => localizeDigits(
-    '${hijri.hDay} ${_hijriMonth(context, hijri.hMonth)} ${hijri.hYear}',
-    context.l10n);
+  '${hijri.hDay} ${_hijriMonth(context, hijri.hMonth)} ${hijri.hYear}',
+  context.l10n,
+);
 
 /// The Hijri months a Gregorian month runs across: "Rabi' al-Thani –
 /// Jumada al-Awwal 1448", with both years when it crosses into a new one.
@@ -334,18 +340,20 @@ class CalendarEventTone {
   final Color selectedDot;
 
   static CalendarEventTone of(
-      BuildContext context, Map<String, dynamic> event) {
+    BuildContext context,
+    Map<String, dynamic> event,
+  ) {
     final colors = ShiaColors.of(context);
     final dark = Theme.of(context).brightness == Brightness.dark;
     return switch (event['color']) {
       0 => dark ? _darkMourning : _lightMourning,
       1 => dark ? _darkJoy : _lightJoy,
       _ => CalendarEventTone(
-          tint: colors.well,
-          line: colors.line,
-          dot: colors.accent,
-          selectedDot: colors.onAccent,
-        ),
+        tint: colors.well,
+        line: colors.line,
+        dot: colors.accent,
+        selectedDot: colors.onAccent,
+      ),
     };
   }
 
@@ -354,8 +362,8 @@ class CalendarEventTone {
       Theme.of(context).brightness == Brightness.dark ? _darkJoy : _lightJoy;
   static CalendarEventTone mourning(BuildContext context) =>
       Theme.of(context).brightness == Brightness.dark
-          ? _darkMourning
-          : _lightMourning;
+      ? _darkMourning
+      : _lightMourning;
 
   static const _lightJoy = CalendarEventTone(
     tint: Color(0xFFE1EFE4),
@@ -396,31 +404,30 @@ class _EventLegend extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = ShiaColors.of(context);
     Widget key(CalendarEventTone tone, String label) => Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              width: 12,
-              height: 12,
-              decoration: BoxDecoration(
-                color: tone.tint,
-                borderRadius: BorderRadius.circular(3),
-                border: Border.all(color: tone.line, width: 1.5),
-              ),
-            ),
-            const SizedBox(width: 6),
-            Text(
-              label,
-              style: ShiaText.caption.copyWith(color: colors.textMuted),
-            ),
-          ],
-        );
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          width: 12,
+          height: 12,
+          decoration: BoxDecoration(
+            color: tone.tint,
+            borderRadius: BorderRadius.circular(3),
+            border: Border.all(color: tone.line, width: 1.5),
+          ),
+        ),
+        const SizedBox(width: 6),
+        Text(label, style: ShiaText.caption.copyWith(color: colors.textMuted)),
+      ],
+    );
     return Wrap(
       spacing: 16,
       runSpacing: 4,
       children: [
         key(CalendarEventTone.joy(context), context.l10n.calendarLegendJoy),
-        key(CalendarEventTone.mourning(context),
-            context.l10n.calendarLegendMourning),
+        key(
+          CalendarEventTone.mourning(context),
+          context.l10n.calendarLegendMourning,
+        ),
       ],
     );
   }
@@ -478,8 +485,10 @@ class _MonthHeader extends StatelessWidget {
                   minimumSize: const Size(44, 44),
                   padding: const EdgeInsets.symmetric(horizontal: 14),
                   shape: const StadiumBorder(),
-                  textStyle: buttonTextStyle(context,
-                      ShiaText.secondary.copyWith(fontWeight: FontWeight.w600)),
+                  textStyle: buttonTextStyle(
+                    context,
+                    ShiaText.secondary.copyWith(fontWeight: FontWeight.w600),
+                  ),
                 ),
                 child: Text(context.l10n.commonToday),
               ),
@@ -487,15 +496,23 @@ class _MonthHeader extends StatelessWidget {
             const SizedBox(width: 8),
             RoundIconButton(
               label: context.l10n.calendarPreviousMonth,
-              icon: OutlineIcon(OutlineGlyph.chevronLeft,
-                  size: 20, color: colors.accent, strokeWidth: 2.2),
+              icon: OutlineIcon(
+                OutlineGlyph.chevronLeft,
+                size: 20,
+                color: colors.accent,
+                strokeWidth: 2.2,
+              ),
               onPressed: onPrevious,
             ),
             const SizedBox(width: 8),
             RoundIconButton(
               label: context.l10n.calendarNextMonth,
-              icon: OutlineIcon(OutlineGlyph.chevronRight,
-                  size: 20, color: colors.accent, strokeWidth: 2.2),
+              icon: OutlineIcon(
+                OutlineGlyph.chevronRight,
+                size: 20,
+                color: colors.accent,
+                strokeWidth: 2.2,
+              ),
               onPressed: onNext,
             ),
           ],
@@ -548,13 +565,13 @@ class _MonthGrid extends StatelessWidget {
     final gap = wide ? 6.0 : 3.0;
 
     Widget row(List<Widget> cells) => Row(
-          children: [
-            for (var i = 0; i < cells.length; i++) ...[
-              if (i > 0) SizedBox(width: gap),
-              Expanded(child: cells[i]),
-            ],
-          ],
-        );
+      children: [
+        for (var i = 0; i < cells.length; i++) ...[
+          if (i > 0) SizedBox(width: gap),
+          Expanded(child: cells[i]),
+        ],
+      ],
+    );
 
     final weekdays = row([
       for (var i = 0; i < 7; i++)
@@ -588,22 +605,27 @@ class _MonthGrid extends StatelessWidget {
             SizedBox(height: gap),
             row([
               for (var i = 0; i < 7; i++)
-                Builder(builder: (context) {
-                  final day = DateTime(
-                      month.year, month.month, 1 - lead + week * 7 + i);
-                  final inMonth = day.month == month.month;
-                  return _DayCell(
-                    day: day,
-                    hijri: hijriFor(day),
-                    event: inMonth ? eventFor(day) : null,
-                    height: cellHeight,
-                    wide: wide,
-                    inMonth: inMonth,
-                    isSelected: _isSameDay(day, selected),
-                    isToday: _isSameDay(day, today),
-                    onTap: () => onPick(day),
-                  );
-                }),
+                Builder(
+                  builder: (context) {
+                    final day = DateTime(
+                      month.year,
+                      month.month,
+                      1 - lead + week * 7 + i,
+                    );
+                    final inMonth = day.month == month.month;
+                    return _DayCell(
+                      day: day,
+                      hijri: hijriFor(day),
+                      event: inMonth ? eventFor(day) : null,
+                      height: cellHeight,
+                      wide: wide,
+                      inMonth: inMonth,
+                      isSelected: _isSameDay(day, selected),
+                      isToday: _isSameDay(day, today),
+                      onTap: () => onPick(day),
+                    );
+                  },
+                ),
             ]),
           ],
         ],
@@ -741,9 +763,11 @@ class _DayHeading extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = ShiaColors.of(context);
     final l10n = context.l10n;
-    final days = DateTime.utc(day.year, day.month, day.day)
-        .difference(DateTime.utc(today.year, today.month, today.day))
-        .inDays;
+    final days = DateTime.utc(
+      day.year,
+      day.month,
+      day.day,
+    ).difference(DateTime.utc(today.year, today.month, today.day)).inDays;
     final relative = switch (days) {
       0 => l10n.commonToday,
       1 => l10n.commonTomorrow,
@@ -907,7 +931,9 @@ class _DayPrayerCardState extends State<_DayPrayerCard> {
     final times = {
       for (final entry in entries ?? const <PrayerTimeDisplayEntry>[])
         entry.name: localizeClockTime(
-            entry.time.replaceFirst(RegExp(r'^0(?=\d)'), ''), context.l10n),
+          entry.time.replaceFirst(RegExp(r'^0(?=\d)'), ''),
+          context.l10n,
+        ),
     };
 
     final Widget content;
@@ -955,9 +981,10 @@ class _DayPrayerCardState extends State<_DayPrayerCard> {
                         child: Column(
                           children: [
                             PrayerGlyph(
-                                name: name,
-                                size: 18,
-                                color: colors.onPrayerCard),
+                              name: name,
+                              size: 18,
+                              color: colors.onPrayerCard,
+                            ),
                             const SizedBox(height: 3),
                             Text(
                               localizedPrayerName(name, context.l10n),
@@ -975,7 +1002,7 @@ class _DayPrayerCardState extends State<_DayPrayerCard> {
                               style: caption.copyWith(
                                 color: colors.onPrayerCardMuted,
                                 fontFeatures: const [
-                                  FontFeature.tabularFigures()
+                                  FontFeature.tabularFigures(),
                                 ],
                               ),
                             ),
@@ -1001,9 +1028,10 @@ class _DayPrayerCardState extends State<_DayPrayerCard> {
                               mainAxisSize: MainAxisSize.min,
                               children: [
                                 PrayerGlyph(
-                                    name: name,
-                                    size: 14,
-                                    color: colors.onPrayerCardMuted),
+                                  name: name,
+                                  size: 14,
+                                  color: colors.onPrayerCardMuted,
+                                ),
                                 const SizedBox(width: 4),
                                 Flexible(
                                   child: Text(
@@ -1024,7 +1052,7 @@ class _DayPrayerCardState extends State<_DayPrayerCard> {
                               style: caption.copyWith(
                                 color: colors.onPrayerCard,
                                 fontFeatures: const [
-                                  FontFeature.tabularFigures()
+                                  FontFeature.tabularFigures(),
                                 ],
                               ),
                             ),
@@ -1040,8 +1068,8 @@ class _DayPrayerCardState extends State<_DayPrayerCard> {
       );
     }
 
-    final azanOn =
-        enabledPrayerNotificationNames(kPrayerNotificationList).length;
+    final azanOn = enabledPrayerNotificationNames(kPrayerNotificationList)
+        .length;
     final shownOnHome = selectedWidgetPrayerTimes().length;
     // Prayer notifications are a phone feature; the web has none to set.
     final showAzan = !kIsWeb;
@@ -1146,15 +1174,18 @@ class _TimeRow extends StatelessWidget {
                 child: PrayerGlyph(
                   name: name,
                   size: prayer ? 20 : 18,
-                  color:
-                      prayer ? colors.onPrayerCard : colors.onPrayerCardMuted,
+                  color: prayer
+                      ? colors.onPrayerCard
+                      : colors.onPrayerCardMuted,
                 ),
               ),
             ),
             const SizedBox(width: 12),
             Expanded(
-              child:
-                  Text(localizedPrayerName(name, context.l10n), style: style),
+              child: Text(
+                localizedPrayerName(name, context.l10n),
+                style: style,
+              ),
             ),
             Text(
               time,
@@ -1318,8 +1349,11 @@ class _OtherCityRow extends StatelessWidget {
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Center(
-                    child: OutlineIcon(OutlineGlyph.globe,
-                        size: 22, color: colors.accent),
+                    child: OutlineIcon(
+                      OutlineGlyph.globe,
+                      size: 22,
+                      color: colors.accent,
+                    ),
                   ),
                 ),
                 const SizedBox(width: 12),
@@ -1334,7 +1368,8 @@ class _OtherCityRow extends StatelessWidget {
                       const SizedBox(height: 1),
                       Text(
                         context.l10n.calendarOtherCityFor(
-                            DateFormat('d MMMM').format(date)),
+                          DateFormat('d MMMM').format(date),
+                        ),
                         style: ShiaText.secondary.copyWith(
                           fontSize: 14,
                           height: 18 / 14,
@@ -1345,8 +1380,12 @@ class _OtherCityRow extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(width: 8),
-                OutlineIcon(OutlineGlyph.chevronRight,
-                    size: 16, color: colors.chevron, strokeWidth: 2.4),
+                OutlineIcon(
+                  OutlineGlyph.chevronRight,
+                  size: 16,
+                  color: colors.chevron,
+                  strokeWidth: 2.4,
+                ),
               ],
             ),
           ),

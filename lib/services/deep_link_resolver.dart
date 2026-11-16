@@ -22,9 +22,7 @@ VerseKey? zikrLinkVerse(DeepLinkTarget target, UidTitleData item) {
 
 /// Where a `/quran/...` link lands: the Quran screen, one juz, or one verse.
 class QuranDeepLinkDestination {
-  const QuranDeepLinkDestination.home()
-      : verse = null,
-        juz = null;
+  const QuranDeepLinkDestination.home() : verse = null, juz = null;
   const QuranDeepLinkDestination.verse(VerseKey this.verse) : juz = null;
   const QuranDeepLinkDestination.juz(int this.juz) : verse = null;
 

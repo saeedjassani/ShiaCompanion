@@ -87,8 +87,9 @@ class _ZikrAudioPlayerState extends State<ZikrAudioPlayer> {
   /// it is no longer among [ZikrAudioPlayer.tracks].
   int _savedTrackIndex() {
     if (widget.tracks.length < 2 || !SP.isInitialized) return 0;
-    final file = SP.prefs
-        .getString(PreferencesSyncService.audioTrackPrefKey(_contentUid));
+    final file = SP.prefs.getString(
+      PreferencesSyncService.audioTrackPrefKey(_contentUid),
+    );
     if (file == null) return 0;
     final index = widget.tracks.indexWhere((track) => track.file == file);
     return index < 0 ? 0 : index;
@@ -142,8 +143,8 @@ class _ZikrAudioPlayerState extends State<ZikrAudioPlayer> {
 
   ZikrAudioTrack? get _currentTrack =>
       _trackIndex >= 0 && _trackIndex < widget.tracks.length
-          ? widget.tracks[_trackIndex]
-          : null;
+      ? widget.tracks[_trackIndex]
+      : null;
 
   Future<void> _load() async {
     final track = _currentTrack;
@@ -157,17 +158,19 @@ class _ZikrAudioPlayerState extends State<ZikrAudioPlayer> {
     if (player == null) return;
 
     try {
-      await player.setAudioSource(AudioSource.uri(
-        AudioDownloadStore.instance.sourceUri(track),
-        tag: MediaItem(
-          // Unique per zikr+track, not just the URL, so the notification
-          // updates correctly if two zikrs ever happened to share a file.
-          id: '${widget.zikrUid}#$_trackIndex',
-          title: track.displayLabel ?? widget.zikrTitle,
-          album: widget.zikrTitle,
-          artist: track.artist,
+      await player.setAudioSource(
+        AudioSource.uri(
+          AudioDownloadStore.instance.sourceUri(track),
+          tag: MediaItem(
+            // Unique per zikr+track, not just the URL, so the notification
+            // updates correctly if two zikrs ever happened to share a file.
+            id: '${widget.zikrUid}#$_trackIndex',
+            title: track.displayLabel ?? widget.zikrTitle,
+            album: widget.zikrTitle,
+            artist: track.artist,
+          ),
         ),
-      ));
+      );
       if (!mounted) return;
       setState(() => _failed = false);
     } catch (error) {
@@ -197,10 +200,12 @@ class _ZikrAudioPlayerState extends State<ZikrAudioPlayer> {
     }
     if (!_hasCountedPlay) {
       _hasCountedPlay = true;
-      unawaited(AnalyticsService.zikrAudioPlay(
-        uid: widget.zikrUid,
-        title: widget.zikrTitle,
-      ));
+      unawaited(
+        AnalyticsService.zikrAudioPlay(
+          uid: widget.zikrUid,
+          title: widget.zikrTitle,
+        ),
+      );
     }
     await player.play();
   }
@@ -220,8 +225,9 @@ class _ZikrAudioPlayerState extends State<ZikrAudioPlayer> {
     });
     final track = _currentTrack;
     if (track != null) {
-      unawaited(PreferencesSyncService.instance
-          .setAudioTrack(_contentUid, track.file));
+      unawaited(
+        PreferencesSyncService.instance.setAudioTrack(_contentUid, track.file),
+      );
     }
     await _player?.stop();
     await (_loadFuture = _load());
@@ -240,7 +246,8 @@ class _ZikrAudioPlayerState extends State<ZikrAudioPlayer> {
         for (var i = 0; i < widget.tracks.length; i++)
           Choice(
             i,
-            widget.tracks[i].displayLabel ?? context.l10n.audioTrackNumber(i + 1),
+            widget.tracks[i].displayLabel ??
+                context.l10n.audioTrackNumber(i + 1),
             hint: store.isDownloaded(widget.tracks[i])
                 ? context.l10n.audioDownloaded
                 : widget.tracks[i].artist,
@@ -270,8 +277,12 @@ class _ZikrAudioPlayerState extends State<ZikrAudioPlayer> {
     final l10n = context.l10n;
     final close = PlayerIconButton(
       label: l10n.audioClosePlayer,
-      icon: OutlineIcon(OutlineGlyph.close,
-          size: 20, color: colors.textMuted, strokeWidth: 2),
+      icon: OutlineIcon(
+        OutlineGlyph.close,
+        size: 20,
+        color: colors.textMuted,
+        strokeWidth: 2,
+      ),
       onPressed: widget.onClose,
     );
 
@@ -282,15 +293,19 @@ class _ZikrAudioPlayerState extends State<ZikrAudioPlayer> {
       // Offline with nothing saved is the common case, and one the reader can
       // fix - so it says so, rather than implying the recording is gone.
       final track = _currentTrack;
-      final offline = !NetworkUtils().isOnline &&
+      final offline =
+          !NetworkUtils().isOnline &&
           track != null &&
           !AudioDownloadStore.instance.isDownloaded(track);
       return Padding(
         padding: const EdgeInsetsDirectional.only(start: 12),
         child: Row(
           children: [
-            OutlineIcon(offline ? OutlineGlyph.cloud : OutlineGlyph.alert,
-                size: 22, color: colors.danger),
+            OutlineIcon(
+              offline ? OutlineGlyph.cloud : OutlineGlyph.alert,
+              size: 22,
+              color: colors.danger,
+            ),
             const SizedBox(width: 10),
             Expanded(
               child: Text(
@@ -302,8 +317,12 @@ class _ZikrAudioPlayerState extends State<ZikrAudioPlayer> {
             ),
             PlayerIconButton(
               label: l10n.commonTryAgain,
-              icon: OutlineIcon(OutlineGlyph.reset,
-                  size: 20, color: colors.accent, strokeWidth: 2),
+              icon: OutlineIcon(
+                OutlineGlyph.reset,
+                size: 20,
+                color: colors.accent,
+                strokeWidth: 2,
+              ),
               onPressed: _retry,
             ),
             close,
@@ -320,8 +339,11 @@ class _ZikrAudioPlayerState extends State<ZikrAudioPlayer> {
         Expanded(child: _buildBody(player)),
         PlayerIconButton(
           label: l10n.playlistAddTo,
-          icon: OutlineIcon(OutlineGlyph.playlistAdd,
-              size: 22, color: colors.accent),
+          icon: OutlineIcon(
+            OutlineGlyph.playlistAdd,
+            size: 22,
+            color: colors.accent,
+          ),
           onPressed: () => showAddToPlaylistSheet(
             context,
             zikrUid: widget.zikrUid,
@@ -330,10 +352,7 @@ class _ZikrAudioPlayerState extends State<ZikrAudioPlayer> {
           ),
         ),
         if (AudioDownloadStore.isSupported)
-          AudioDownloadButton(
-            tracks: widget.tracks,
-            label: widget.zikrTitle,
-          ),
+          AudioDownloadButton(tracks: widget.tracks, label: widget.zikrTitle),
         close,
       ],
     );
@@ -346,7 +365,8 @@ class _ZikrAudioPlayerState extends State<ZikrAudioPlayer> {
       stream: player.playerStateStream,
       builder: (context, snapshot) {
         final state = snapshot.data;
-        final waiting = state?.processingState == ProcessingState.loading ||
+        final waiting =
+            state?.processingState == ProcessingState.loading ||
             state?.processingState == ProcessingState.buffering;
         final playing = state?.playing ?? false;
         final label = playing
@@ -373,7 +393,9 @@ class _ZikrAudioPlayerState extends State<ZikrAudioPlayer> {
                         ? SizedBox.square(
                             dimension: 22,
                             child: CircularProgressIndicator(
-                                strokeWidth: 2.5, color: colors.onAccent),
+                              strokeWidth: 2.5,
+                              color: colors.onAccent,
+                            ),
                           )
                         : OutlineIcon(
                             playing ? OutlineGlyph.pause : OutlineGlyph.play,
@@ -421,8 +443,12 @@ class _ZikrAudioPlayerState extends State<ZikrAudioPlayer> {
         ),
         if (several) ...[
           const SizedBox(width: 2),
-          OutlineIcon(OutlineGlyph.chevronDown,
-              size: 14, color: colors.accent, strokeWidth: 2.2),
+          OutlineIcon(
+            OutlineGlyph.chevronDown,
+            size: 14,
+            color: colors.accent,
+            strokeWidth: 2.2,
+          ),
         ],
       ],
     );
@@ -441,8 +467,7 @@ class _ZikrAudioPlayerState extends State<ZikrAudioPlayer> {
               onTap: _showTrackPicker,
               borderRadius: BorderRadius.circular(8),
               child: Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
                 child: title,
               ),
             ),
@@ -481,7 +506,8 @@ class _ZikrAudioPlayerState extends State<ZikrAudioPlayer> {
               padding: const EdgeInsetsDirectional.only(start: 4),
               child: Text(
                 _formatDuration(
-                    Duration(milliseconds: (_dragValue ?? positionMs).round())),
+                  Duration(milliseconds: (_dragValue ?? positionMs).round()),
+                ),
                 style: timeStyle,
               ),
             ),
@@ -493,10 +519,12 @@ class _ZikrAudioPlayerState extends State<ZikrAudioPlayer> {
                   inactiveTrackColor: colors.divider,
                   thumbColor: colors.accent,
                   overlayColor: colors.accent.withValues(alpha: 0.12),
-                  thumbShape:
-                      const RoundSliderThumbShape(enabledThumbRadius: 6),
-                  overlayShape:
-                      const RoundSliderOverlayShape(overlayRadius: 14),
+                  thumbShape: const RoundSliderThumbShape(
+                    enabledThumbRadius: 6,
+                  ),
+                  overlayShape: const RoundSliderOverlayShape(
+                    overlayRadius: 14,
+                  ),
                 ),
                 child: Slider(
                   min: 0,

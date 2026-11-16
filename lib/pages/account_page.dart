@@ -41,15 +41,15 @@ class AccountProfile {
       name: displayName.isNotEmpty
           ? displayName
           : email.isNotEmpty
-              ? email
-              : l10n.settingsSignedIn,
+          ? email
+          : l10n.settingsSignedIn,
       initials: initialsOf(displayName),
       email: email.isEmpty ? null : email,
       provider: providers.contains('google.com')
           ? l10n.accountProviderGoogle
           : providers.contains('apple.com')
-              ? l10n.accountProviderApple
-              : null,
+          ? l10n.accountProviderApple
+          : null,
     );
   }
 
@@ -92,9 +92,9 @@ class AccountPage extends StatefulWidget {
   static Future<bool> firestoreBackedUp() async {
     if (!await NetworkUtils().isDeviceOnline()) return false;
     try {
-      await FirebaseFirestore.instance
-          .waitForPendingWrites()
-          .timeout(const Duration(seconds: 10));
+      await FirebaseFirestore.instance.waitForPendingWrites().timeout(
+        const Duration(seconds: 10),
+      );
       return true;
     } catch (_) {
       return false;
@@ -181,13 +181,14 @@ class _AccountPageState extends State<AccountPage> {
     final colors = ShiaColors.of(context);
     final gutter = pageGutter(context, maxWidth: compactContentWidth);
     final signedIn = FirebaseAuth.instance.currentUser;
-    final profile = widget.profile ??
+    final profile =
+        widget.profile ??
         (signedIn == null ? null : AccountProfile.of(signedIn, l10n));
 
     Widget section(Widget child, {double bottom = 14}) => SliverPadding(
-          padding: gutter.copyWith(bottom: bottom),
-          sliver: SliverToBoxAdapter(child: child),
-        );
+      padding: gutter.copyWith(bottom: bottom),
+      sliver: SliverToBoxAdapter(child: child),
+    );
 
     return LargeTitlePage(
       title: l10n.accountTitle,
@@ -293,8 +294,9 @@ class _ProfileCard extends StatelessWidget {
                       const SizedBox(height: 1),
                       Text(
                         detail,
-                        style: ShiaText.secondary
-                            .copyWith(color: colors.textMuted),
+                        style: ShiaText.secondary.copyWith(
+                          color: colors.textMuted,
+                        ),
                       ),
                     ],
                   ],
@@ -357,8 +359,11 @@ class AccountAvatar extends StatelessWidget {
       alignment: Alignment.center,
       decoration: BoxDecoration(color: colors.accent, shape: BoxShape.circle),
       child: initials.isEmpty
-          ? OutlineIcon(OutlineGlyph.profile,
-              size: size * 0.5, color: colors.onAccent)
+          ? OutlineIcon(
+              OutlineGlyph.profile,
+              size: size * 0.5,
+              color: colors.onAccent,
+            )
           : Text(
               initials,
               style: TextStyle(
@@ -378,7 +383,8 @@ class _BackupContents extends StatelessWidget {
     final l10n = context.l10n;
     final colors = ShiaColors.of(context);
     final recitations = RecitationTrackerManager.instance.state;
-    final tracks = recitations.labels.length +
+    final tracks =
+        recitations.labels.length +
         ((recitations.sessionsByLabel[unlabeledRecitationLabel] ?? 0) > 0
             ? 1
             : 0);
@@ -387,28 +393,35 @@ class _BackupContents extends StatelessWidget {
     final rows = <(String, String?)>[
       (
         l10n.accountItemFavorites,
-        localizeDigits('${FavoritesManager.instance.favorites.length}', l10n)
+        localizeDigits('${FavoritesManager.instance.favorites.length}', l10n),
       ),
       (
         l10n.accountItemBookmarks,
         localizeDigits(
-            '${ZikrBookmarksManager.instance.state.bookmarks.length}', l10n)
+          '${ZikrBookmarksManager.instance.state.bookmarks.length}',
+          l10n,
+        ),
       ),
       (l10n.accountItemQuranProgress, l10n.accountTracks(tracks)),
       (
         l10n.accountItemSavedVerses,
         localizeDigits(
-            '${SavedVersesManager.instance.state.verses.length}', l10n)
+          '${SavedVersesManager.instance.state.verses.length}',
+          l10n,
+        ),
       ),
       (
         l10n.accountItemVerseNotes,
-        localizeDigits('${VerseNotesManager.instance.state.notes.length}', l10n)
+        localizeDigits(
+          '${VerseNotesManager.instance.state.notes.length}',
+          l10n,
+        ),
       ),
       (
         l10n.accountItemQaza,
         qaza == 0
             ? null
-            : l10n.accountQazaLeft(NumberFormat.decimalPattern().format(qaza))
+            : l10n.accountQazaLeft(NumberFormat.decimalPattern().format(qaza)),
       ),
       (l10n.accountItemStats, null),
     ];
@@ -420,8 +433,12 @@ class _BackupContents extends StatelessWidget {
             first: i == 0,
             last: i == rows.length - 1,
             minHeight: 48,
-            leading: OutlineIcon(OutlineGlyph.check,
-                size: 18, color: colors.success, strokeWidth: 2.4),
+            leading: OutlineIcon(
+              OutlineGlyph.check,
+              size: 18,
+              color: colors.success,
+              strokeWidth: 2.4,
+            ),
             title: Text(rows[i].$1),
             trailing: rows[i].$2 == null
                 ? null
@@ -429,8 +446,9 @@ class _BackupContents extends StatelessWidget {
                     padding: const EdgeInsetsDirectional.only(start: 8, end: 8),
                     child: Text(
                       rows[i].$2!,
-                      style:
-                          ShiaText.secondary.copyWith(color: colors.textMuted),
+                      style: ShiaText.secondary.copyWith(
+                        color: colors.textMuted,
+                      ),
                     ),
                   ),
           ),

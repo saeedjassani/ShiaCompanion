@@ -74,15 +74,15 @@ class Airport {
   /// needs. See [Flight] for why the coordinates are copied rather than looked
   /// up again on every read.
   Map<String, dynamic> toJson() => {
-        'iata': iata,
-        'icao': icao,
-        'name': name,
-        'city': city,
-        'country': country,
-        'lat': latitude,
-        'lon': longitude,
-        'tz': timeZoneId,
-      };
+    'iata': iata,
+    'icao': icao,
+    'name': name,
+    'city': city,
+    'country': country,
+    'lat': latitude,
+    'lon': longitude,
+    'tz': timeZoneId,
+  };
 
   static Airport? fromJson(Map<String, dynamic> json) {
     final iata = json['iata'];

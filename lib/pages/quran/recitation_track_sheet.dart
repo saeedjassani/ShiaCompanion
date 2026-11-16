@@ -26,7 +26,8 @@ String describeRecitationPosition(
   bool compact = false,
 }) {
   final ayah = verse.ayah ?? 1;
-  final surahName = surahInfoFor(verse.surah)?.displayName ??
+  final surahName =
+      surahInfoFor(verse.surah)?.displayName ??
       L10n.current.quranSurahNumber(verse.surah);
   if (!byJuz) {
     return ayah == 1 ? surahName : L10n.current.quranSurahAyah(surahName, ayah);
@@ -38,8 +39,8 @@ String describeRecitationPosition(
   return juzStart == VerseKey(verse.surah, ayah)
       ? juzLabel
       : compact
-          ? '$juzLabel · ${localizeDigits('${verse.surah}:$ayah')}'
-          : '$juzLabel · ${L10n.current.quranSurahAyah(surahName, ayah)}';
+      ? '$juzLabel · ${localizeDigits('${verse.surah}:$ayah')}'
+      : '$juzLabel · ${L10n.current.quranSurahAyah(surahName, ayah)}';
 }
 
 /// Creates a recitation track, or - with [label] - changes an existing one.
@@ -72,10 +73,16 @@ Future<void> showRecitationTrackSheet(
 /// What "Start Khatm" opens; tests swap in a stand-in for the reader.
 @visibleForTesting
 Future<void> Function(BuildContext context, String label)
-    openNewRecitationTrack = openRecitationTrack;
+openNewRecitationTrack = openRecitationTrack;
 
-/// Opens the reader where [label]'s track picks up, in its own view.
-Future<void> openRecitationTrack(BuildContext context, String label) async {
+/// Opens the reader where [label]'s track picks up, in its own view -
+/// with [replace], in place of the page on top (a surah opened from the
+/// list, swapped for the Khatm's reading of it).
+Future<void> openRecitationTrack(
+  BuildContext context,
+  String label, {
+  bool replace = false,
+}) async {
   final target = RecitationTrackerManager.instance.state.resumeTargetFor(label);
   if (target.inJuz) {
     await openQuranJuz(
@@ -84,6 +91,7 @@ Future<void> openRecitationTrack(BuildContext context, String label) async {
       at: target.verse,
       source: ZikrOpenSource.quranResume,
       recitationLabel: label,
+      replace: replace,
     );
     return;
   }
@@ -92,6 +100,7 @@ Future<void> openRecitationTrack(BuildContext context, String label) async {
     target.verse,
     source: ZikrOpenSource.quranResume,
     recitationLabel: label,
+    replace: replace,
   );
 }
 
@@ -178,22 +187,24 @@ class _RecitationTrackSheetState extends State<_RecitationTrackSheet> {
     if (label != null) {
       final current = manager.state.settingsFor(label);
       final position = _position;
-      unawaited(manager.updateTrackSettings(
-        label,
-        _positionChanged && position != null
-            ? RecitationTrackSettings(
-                readByJuz: _readByJuz,
-                startAt: position,
-                startSetAt: DateTime.now(),
-                readBefore: current.readBefore,
-              )
-            : RecitationTrackSettings(
-                readByJuz: _readByJuz,
-                startAt: current.startAt,
-                startSetAt: current.startSetAt,
-                readBefore: current.readBefore,
-              ),
-      ));
+      unawaited(
+        manager.updateTrackSettings(
+          label,
+          _positionChanged && position != null
+              ? RecitationTrackSettings(
+                  readByJuz: _readByJuz,
+                  startAt: position,
+                  startSetAt: DateTime.now(),
+                  readBefore: current.readBefore,
+                )
+              : RecitationTrackSettings(
+                  readByJuz: _readByJuz,
+                  startAt: current.startAt,
+                  startSetAt: current.startSetAt,
+                  readBefore: current.readBefore,
+                ),
+        ),
+      );
       Navigator.pop(context);
       return;
     }
@@ -202,9 +213,9 @@ class _RecitationTrackSheetState extends State<_RecitationTrackSheet> {
     final error = name.isEmpty
         ? context.l10n.trackNameRequired
         : isDefaultRecitationTrackName(name, context.l10n) ||
-                manager.state.customLabels.contains(name)
-            ? context.l10n.trackNameTaken(name)
-            : null;
+              manager.state.customLabels.contains(name)
+        ? context.l10n.trackNameTaken(name)
+        : null;
     if (error != null) {
       setState(() => _nameError = error);
       return;
@@ -212,15 +223,17 @@ class _RecitationTrackSheetState extends State<_RecitationTrackSheet> {
 
     final position = _position;
     final startsAtBeginning = _startsAtBeginning;
-    unawaited(manager.addLabel(
-      name,
-      settings: RecitationTrackSettings(
-        readByJuz: _readByJuz,
-        startAt: startsAtBeginning ? null : position,
-        startSetAt: startsAtBeginning ? null : DateTime.now(),
-        readBefore: !startsAtBeginning && _markEarlierRead ? position : null,
+    unawaited(
+      manager.addLabel(
+        name,
+        settings: RecitationTrackSettings(
+          readByJuz: _readByJuz,
+          startAt: startsAtBeginning ? null : position,
+          startSetAt: startsAtBeginning ? null : DateTime.now(),
+          readBefore: !startsAtBeginning && _markEarlierRead ? position : null,
+        ),
       ),
-    ));
+    );
     Navigator.pop(context, name);
   }
 
@@ -294,34 +307,43 @@ class _RecitationTrackSheetState extends State<_RecitationTrackSheet> {
         if (_isEditing) ...[...readBy, const SizedBox(height: 18)],
         GroupLabel(_isEditing ? l10n.trackContinueFrom : l10n.trackStartFrom),
         const SizedBox(height: 8),
-        CardList(children: [
-          CardListRow(
-            first: true,
-            last: !canMarkEarlierRead,
-            leading: Container(
-              width: 40,
-              height: 40,
-              alignment: Alignment.center,
-              decoration: BoxDecoration(
-                color: colors.well,
-                borderRadius: BorderRadius.circular(12),
+        CardList(
+          children: [
+            CardListRow(
+              first: true,
+              last: !canMarkEarlierRead,
+              leading: Container(
+                width: 40,
+                height: 40,
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  color: colors.well,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: OutlineIcon(
+                  OutlineGlyph.bookmark,
+                  size: 20,
+                  color: colors.accent,
+                ),
               ),
-              child: OutlineIcon(OutlineGlyph.bookmark,
-                  size: 20, color: colors.accent),
-            ),
-            title: Text(positionText),
-            titleStyle: ShiaText.cardTitle,
-            trailing: SizedBox.square(
-              dimension: 36,
-              child: Center(
-                child: OutlineIcon(OutlineGlyph.chevronRight,
-                    size: 18, color: colors.chevron, strokeWidth: 2),
+              title: Text(positionText),
+              titleStyle: ShiaText.cardTitle,
+              trailing: SizedBox.square(
+                dimension: 36,
+                child: Center(
+                  child: OutlineIcon(
+                    OutlineGlyph.chevronRight,
+                    size: 18,
+                    color: colors.chevron,
+                    strokeWidth: 2,
+                  ),
+                ),
               ),
+              onTap: _pickPosition,
             ),
-            onTap: _pickPosition,
-          ),
-          if (canMarkEarlierRead) _buildMarkEarlierReadRow(l10n),
-        ]),
+            if (canMarkEarlierRead) _buildMarkEarlierReadRow(l10n),
+          ],
+        ),
         if (!_isEditing && _showMore) ...[
           const SizedBox(height: 18),
           ...readBy,
@@ -346,11 +368,7 @@ class _RecitationTrackSheetState extends State<_RecitationTrackSheet> {
         ),
         if (_isEditing) ...[
           const SizedBox(height: 10),
-          PageButton(
-            label: l10n.trackDelete,
-            danger: true,
-            onPressed: _delete,
-          ),
+          PageButton(label: l10n.trackDelete, danger: true, onPressed: _delete),
         ],
       ],
     );
@@ -376,8 +394,12 @@ class _RecitationTrackSheetState extends State<_RecitationTrackSheet> {
                 ),
               ),
               const SizedBox(width: 4),
-              OutlineIcon(OutlineGlyph.chevronDown,
-                  size: 14, color: colors.accent, strokeWidth: 2),
+              OutlineIcon(
+                OutlineGlyph.chevronDown,
+                size: 14,
+                color: colors.accent,
+                strokeWidth: 2,
+              ),
             ],
           ),
         ),

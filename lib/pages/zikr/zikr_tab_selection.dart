@@ -74,11 +74,12 @@ ZikrDocumentTranslation translationForShownZikrTabs(
   for (var j = 0; j < shown.length; j++) {
     final from = allOffsets[shown[j]] + (labelDropped ? 1 : 0);
     final to = shownOffsets[j];
-    final count = (shownTabs.length > 1 ? 1 : 0) +
-        ZikrContentParser.parseContent(shownTabs[j],
-                hideHeaderLine: shownTabs.length > 1)
-            .segments
-            .length;
+    final count =
+        (shownTabs.length > 1 ? 1 : 0) +
+        ZikrContentParser.parseContent(
+          shownTabs[j],
+          hideHeaderLine: shownTabs.length > 1,
+        ).segments.length;
     for (var k = 0; k < count; k++) {
       final text = translation.segments[from + k];
       if (text != null) segments[to + k] = text;

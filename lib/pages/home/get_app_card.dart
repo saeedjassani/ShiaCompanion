@@ -84,11 +84,13 @@ class _StoreBadge extends StatelessWidget {
   final String store;
 
   void _open() {
-    unawaited(AnalyticsService.feature(
-      'home_get_app',
-      label: 'Home get app',
-      parameters: {'store': store},
-    ));
+    unawaited(
+      AnalyticsService.feature(
+        'home_get_app',
+        label: 'Home get app',
+        parameters: {'store': store},
+      ),
+    );
     unawaited(launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication));
   }
 
@@ -102,8 +104,11 @@ class _StoreBadge extends StatelessWidget {
       child: InkWell(
         onTap: _open,
         borderRadius: BorderRadius.circular(8),
-        child:
-            Image.asset(asset, height: 40, filterQuality: FilterQuality.high),
+        child: Image.asset(
+          asset,
+          height: 40,
+          filterQuality: FilterQuality.high,
+        ),
       ),
     );
   }

@@ -45,8 +45,10 @@ class QazaTrackerManager extends ChangeNotifier {
   /// Tells this install's operation ids apart from another device's ones
   /// created in the same microsecond. Not `1 << 32`: on the web that
   /// shift is 0, and nextInt(0) throws as the Qaza page opens.
-  final String _deviceNonce =
-      Random().nextInt(0xFFFFFFFF).toRadixString(36).padLeft(7, '0');
+  final String _deviceNonce = Random()
+      .nextInt(0xFFFFFFFF)
+      .toRadixString(36)
+      .padLeft(7, '0');
 
   StreamSubscription<DocumentSnapshot<Map<String, dynamic>>>? _listener;
   Future<void>? _loadQazaFuture;
@@ -171,7 +173,8 @@ class QazaTrackerManager extends ChangeNotifier {
     _stateReady = true;
     _updateState(_loadStateFromStorageKey(_userStorageKey(userId)));
 
-    final shouldImportGuestState = (isGuestToUserTransition ||
+    final shouldImportGuestState =
+        (isGuestToUserTransition ||
             SP.prefs.getBool(_guestImportPendingKey) == true) &&
         !guestState.isEmpty;
     if (shouldImportGuestState) {
@@ -235,7 +238,8 @@ class QazaTrackerManager extends ChangeNotifier {
     String userId,
     QazaTrackerState guestState,
   ) async {
-    final importId = SP.prefs.getString(_guestImportIdKey) ??
+    final importId =
+        SP.prefs.getString(_guestImportIdKey) ??
         '${DateTime.now().microsecondsSinceEpoch}_$_deviceNonce';
     final pending = _pendingFor(userId);
     final queuedIds = {for (final operation in pending) operation.id};
@@ -294,10 +298,12 @@ class QazaTrackerManager extends ChangeNotifier {
 
     final visibleState = visibleQazaState(doc, pending);
     _updateState(visibleState);
-    unawaited(_enqueueStorageWrite(() async {
-      if (hadApplied) await _writePendingOperations(userId, pending);
-      await _writeState(_userStorageKey(userId), visibleState);
-    }));
+    unawaited(
+      _enqueueStorageWrite(() async {
+        if (hadApplied) await _writePendingOperations(userId, pending);
+        await _writeState(_userStorageKey(userId), visibleState);
+      }),
+    );
   }
 
   QazaTrackerState _loadStateFromStorageKey(String storageKey) {
@@ -346,8 +352,9 @@ class QazaTrackerManager extends ChangeNotifier {
 
   Future<_RemoteQazaRead> _loadRemoteState(String userId) async {
     try {
-      final snapshot =
-          await _qazaDoc(userId).get().timeout(const Duration(seconds: 8));
+      final snapshot = await _qazaDoc(userId)
+          .get()
+          .timeout(const Duration(seconds: 8));
       // Offline, get() falls back to Firestore's cache, which can be older
       // than the local state (that already has everything this device did).
       if (snapshot.metadata.isFromCache) return _RemoteQazaRead.failure();
@@ -405,9 +412,7 @@ class QazaTrackerManager extends ChangeNotifier {
     }
     await SP.prefs.setString(
       _pendingOperationsStorageKey(userId),
-      jsonEncode(
-        operations.map((operation) => operation.toJson()).toList(),
-      ),
+      jsonEncode(operations.map((operation) => operation.toJson()).toList()),
     );
   }
 
@@ -459,10 +464,7 @@ class QazaTrackerManager extends ChangeNotifier {
     });
   }
 
-  Future<void> _flushBatch(
-    String userId,
-    List<PendingQazaOperation> batch,
-  ) {
+  Future<void> _flushBatch(String userId, List<PendingQazaOperation> batch) {
     return _firestore.runTransaction((transaction) async {
       final ref = _qazaDoc(userId);
       final snapshot = await transaction.get(ref);
@@ -511,10 +513,7 @@ class QazaTrackerManager extends ChangeNotifier {
 
   Future<void> addMissed(QazaEntryType type) {
     return _applyOperation(
-      PendingQazaOperation.addMissed(
-        id: _newOperationId(),
-        type: type,
-      ),
+      PendingQazaOperation.addMissed(id: _newOperationId(), type: type),
     );
   }
 
@@ -524,10 +523,7 @@ class QazaTrackerManager extends ChangeNotifier {
     }
     unawaited(ActivityStatsStore.instance.recordQazaCompleted());
     return _applyOperation(
-      PendingQazaOperation.markCompleted(
-        id: _newOperationId(),
-        type: type,
-      ),
+      PendingQazaOperation.markCompleted(id: _newOperationId(), type: type),
     );
   }
 
@@ -537,10 +533,7 @@ class QazaTrackerManager extends ChangeNotifier {
     }
     unawaited(ActivityStatsStore.instance.undoQazaCompleted());
     return _applyOperation(
-      PendingQazaOperation.undoCompleted(
-        id: _newOperationId(),
-        type: type,
-      ),
+      PendingQazaOperation.undoCompleted(id: _newOperationId(), type: type),
     );
   }
 
@@ -553,10 +546,7 @@ class QazaTrackerManager extends ChangeNotifier {
       PendingQazaOperation.setCount(
         id: _newOperationId(),
         type: type,
-        count: QazaEntryCount(
-          remaining: remaining,
-          completed: completed,
-        ),
+        count: QazaEntryCount(remaining: remaining, completed: completed),
       ),
     );
   }
@@ -589,13 +579,15 @@ class QazaTrackerManager extends ChangeNotifier {
     final futures = <Future<void>>[];
     for (final entry in additions.entries) {
       if (entry.value <= 0) continue;
-      futures.add(_applyOperation(
-        PendingQazaOperation.addCounts(
-          id: _newOperationId(),
-          type: entry.key,
-          count: QazaEntryCount(remaining: entry.value),
+      futures.add(
+        _applyOperation(
+          PendingQazaOperation.addCounts(
+            id: _newOperationId(),
+            type: entry.key,
+            count: QazaEntryCount(remaining: entry.value),
+          ),
         ),
-      ));
+      );
     }
     return Future.wait(futures);
   }
@@ -610,11 +602,13 @@ class QazaTrackerManager extends ChangeNotifier {
   Future<void> _applyOperation(PendingQazaOperation operation) async {
     // Every qaza mutation funnels through here, so one hook covers adding a
     // missed prayer, marking one done, undoing and bulk edits alike.
-    unawaited(AnalyticsService.feature(
-      'qaza_updated',
-      label: 'Qaza tracker updated',
-      parameters: {'operation': operation.kind.key},
-    ));
+    unawaited(
+      AnalyticsService.feature(
+        'qaza_updated',
+        label: 'Qaza tracker updated',
+        parameters: {'operation': operation.kind.key},
+      ),
+    );
     if (!_canApply) {
       debugPrint('QazaTrackerManager: Ignored change before qaza loaded');
       return;
@@ -676,15 +670,13 @@ class QazaTrackerManager extends ChangeNotifier {
 }
 
 class _RemoteQazaRead {
-  _RemoteQazaRead.success({
-    required this.exists,
-    required this.doc,
-  }) : succeeded = true;
+  _RemoteQazaRead.success({required this.exists, required this.doc})
+    : succeeded = true;
 
   _RemoteQazaRead.failure()
-      : succeeded = false,
-        exists = false,
-        doc = QazaRemoteDoc.empty;
+    : succeeded = false,
+      exists = false,
+      doc = QazaRemoteDoc.empty;
 
   final bool succeeded;
   final bool exists;

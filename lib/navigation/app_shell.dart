@@ -179,7 +179,8 @@ class _AppShellState extends State<AppShell> with RouteAware {
   /// pushed from them keep the regular bar. Dialogs and pushed routes are
   /// built by the navigator, outside this override.
   static ThemeData _tabRootTheme(ThemeData theme) {
-    final colors = theme.extension<ShiaColors>() ??
+    final colors =
+        theme.extension<ShiaColors>() ??
         ShiaColors.forBrightness(theme.brightness);
     return theme.copyWith(
       appBarTheme: theme.appBarTheme.copyWith(
@@ -199,8 +200,10 @@ class _AppShellState extends State<AppShell> with RouteAware {
     final brightness = theme.brightness;
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
-      value: systemOverlayStyleFor(brightness,
-          ground: ShiaColors.of(context).ground),
+      value: systemOverlayStyleFor(
+        brightness,
+        ground: ShiaColors.of(context).ground,
+      ),
       // Back on Quran or Favorites goes to Home first, rather than out of
       // the app.
       child: PopScope(
@@ -293,7 +296,11 @@ class AppTabBar extends StatelessWidget {
         const Positioned.fill(child: BottomFade()),
         Padding(
           padding: EdgeInsets.fromLTRB(
-              gutter, 0, gutter, AppTabBar.bottomOffset(context)),
+            gutter,
+            0,
+            gutter,
+            AppTabBar.bottomOffset(context),
+          ),
           // A fixed-height bar can only take so much: past 1.5x, the labels
           // would no longer fit under their icons.
           child: MediaQuery.withClampedTextScaling(
@@ -415,10 +422,11 @@ class _TabButton extends StatelessWidget {
                   tab.label,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: (selected
-                          ? ShiaText.tabLabelSelected
-                          : ShiaText.tabLabel)
-                      .copyWith(color: selected ? colors.accent : colors.text),
+                  style:
+                      (selected ? ShiaText.tabLabelSelected : ShiaText.tabLabel)
+                          .copyWith(
+                            color: selected ? colors.accent : colors.text,
+                          ),
                 ),
               ],
             ),

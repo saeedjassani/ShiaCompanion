@@ -88,8 +88,9 @@ class LibraryService {
   /// network, for tests.
   @visibleForTesting
   static void seedChaptersForTesting(
-          String bookSlug, List<UidTitleData> chapters) =>
-      _chapterCache[bookSlug] = chapters;
+    String bookSlug,
+    List<UidTitleData> chapters,
+  ) => _chapterCache[bookSlug] = chapters;
 
   static Future<List<UidTitleData>> loadChapters(String bookSlug) async {
     final cached = _chapterCache[bookSlug];
@@ -106,8 +107,9 @@ class LibraryService {
       throw LibraryLoadException(L10n.current.libraryNeedsNetwork);
     }
 
-    final response =
-        await http.get(Uri.parse('$_libraryBaseUrl/$bookSlug/metadata.yml'));
+    final response = await http.get(
+      Uri.parse('$_libraryBaseUrl/$bookSlug/metadata.yml'),
+    );
     if (response.statusCode != 200) {
       final saved = await _savedChaptersOrNull(bookSlug);
       if (saved != null) {
@@ -201,7 +203,8 @@ class LibraryService {
   }
 
   static Future<List<UidTitleData>?> _savedChaptersOrNull(
-      String bookSlug) async {
+    String bookSlug,
+  ) async {
     try {
       final saved = await loadSavedChapters(bookSlug);
       return saved.isEmpty ? null : saved;
@@ -228,8 +231,9 @@ class LibraryService {
       'bookSlug': bookSlug,
       'title': title,
       'savedAt': DateTime.now().toUtc().toIso8601String(),
-      'chapters':
-          chapters.map((c) => {'slug': c.uid, 'title': c.title}).toList(),
+      'chapters': chapters
+          .map((c) => {'slug': c.uid, 'title': c.title})
+          .toList(),
     };
     await File('${bookDir.path}/manifest.json')
         .writeAsString(jsonEncode(manifest));
@@ -262,14 +266,17 @@ class LibraryService {
           try {
             final content = await manifestFile.readAsString();
             final decoded = jsonDecode(content) as Map<String, dynamic>;
-            saved.add(SavedBook(
-              bookSlug:
-                  decoded['bookSlug']?.toString() ?? entry.path.split('/').last,
-              title: decoded['title']?.toString() ?? 'Unknown',
-              savedAt:
-                  DateTime.tryParse(decoded['savedAt']?.toString() ?? '') ??
-                      DateTime.now(),
-            ));
+            saved.add(
+              SavedBook(
+                bookSlug:
+                    decoded['bookSlug']?.toString() ??
+                    entry.path.split('/').last,
+                title: decoded['title']?.toString() ?? 'Unknown',
+                savedAt:
+                    DateTime.tryParse(decoded['savedAt']?.toString() ?? '') ??
+                    DateTime.now(),
+              ),
+            );
           } catch (_) {
             // skip corrupted manifest
           }
@@ -288,7 +295,9 @@ class LibraryService {
   }
 
   static Future<String> loadSavedChapterMarkdown(
-      String bookSlug, String chapterSlug) async {
+    String bookSlug,
+    String chapterSlug,
+  ) async {
     final dir = await _offlineLibraryDir();
     final file = File('${dir.path}/$bookSlug/$chapterSlug.md');
     if (!await file.exists()) {

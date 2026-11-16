@@ -13,8 +13,9 @@ import 'usage_dashboard_page.dart';
 /// same cards, type and colors as My Stats.
 
 final NumberFormat usageCountFormat = NumberFormat.decimalPattern();
-final NumberFormat usagePercentFormat =
-    NumberFormat.decimalPercentPattern(decimalDigits: 0);
+final NumberFormat usagePercentFormat = NumberFormat.decimalPercentPattern(
+  decimalDigits: 0,
+);
 
 /// "+12%"-style change against the previous period: green up, red down.
 class DeltaChip extends StatelessWidget {
@@ -125,31 +126,33 @@ class UsageKpiGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(builder: (context, constraints) {
-      final columns = constraints.maxWidth >= 600 ? 3 : 2;
-      return Column(
-        children: [
-          for (var start = 0; start < tiles.length; start += columns) ...[
-            if (start > 0) const SizedBox(height: 12),
-            IntrinsicHeight(
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  for (var i = start; i < start + columns; i++) ...[
-                    if (i > start) const SizedBox(width: 12),
-                    Expanded(
-                      child: i < tiles.length
-                          ? tiles[i]
-                          : const SizedBox.shrink(),
-                    ),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final columns = constraints.maxWidth >= 600 ? 3 : 2;
+        return Column(
+          children: [
+            for (var start = 0; start < tiles.length; start += columns) ...[
+              if (start > 0) const SizedBox(height: 12),
+              IntrinsicHeight(
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    for (var i = start; i < start + columns; i++) ...[
+                      if (i > start) const SizedBox(width: 12),
+                      Expanded(
+                        child: i < tiles.length
+                            ? tiles[i]
+                            : const SizedBox.shrink(),
+                      ),
+                    ],
                   ],
-                ],
+                ),
               ),
-            ),
+            ],
           ],
-        ],
-      );
-    });
+        );
+      },
+    );
   }
 }
 
@@ -249,8 +252,10 @@ class UsageRankedRow extends StatelessWidget {
         children: [
           SizedBox(
             width: 26,
-            child: Text('$rank',
-                style: muted.copyWith(fontWeight: FontWeight.w700)),
+            child: Text(
+              '$rank',
+              style: muted.copyWith(fontWeight: FontWeight.w700),
+            ),
           ),
           Expanded(
             child: Column(
@@ -308,8 +313,8 @@ class UsageRankedRow extends StatelessWidget {
 /// The figures a [UsageRankedRow] needs, worked out once for a whole list.
 class _Ranking {
   _Ranking(this.rows, this.previousByKey)
-      : max = rows.isEmpty ? 0 : rows.first.count,
-        total = rows.fold<int>(0, (sum, row) => sum + row.count);
+    : max = rows.isEmpty ? 0 : rows.first.count,
+      total = rows.fold<int>(0, (sum, row) => sum + row.count);
 
   final List<UsageRow> rows;
   final Map<String, int>? previousByKey;
@@ -464,13 +469,16 @@ class UsageRankedPage extends StatelessWidget {
     return LargeTitlePage(
       maxWidth: widePageWidth,
       title: title,
-      subtitle: '${usageCountFormat.format(ranking.total)} in all · '
+      subtitle:
+          '${usageCountFormat.format(ranking.total)} in all · '
           '${rows.length} rows',
       slivers: [
         if (subtitle != null)
           SliverPadding(
-            padding: pageGutter(context, maxWidth: widePageWidth)
-                .copyWith(bottom: 12),
+            padding: pageGutter(
+              context,
+              maxWidth: widePageWidth,
+            ).copyWith(bottom: 12),
             sliver: SliverToBoxAdapter(
               child: Text(
                 subtitle!,
@@ -479,20 +487,23 @@ class UsageRankedPage extends StatelessWidget {
             ),
           ),
         SliverPadding(
-          padding: pageGutter(context, maxWidth: widePageWidth)
-              .copyWith(bottom: 32),
+          padding: pageGutter(
+            context,
+            maxWidth: widePageWidth,
+          ).copyWith(bottom: 32),
           sliver: SliverCardList(
             itemCount: rows.length,
             itemBuilder: (context, index) => Container(
               decoration: index == rows.length - 1
                   ? null
                   : BoxDecoration(
-                      border:
-                          Border(bottom: BorderSide(color: colors.divider)),
+                      border: Border(bottom: BorderSide(color: colors.divider)),
                     ),
               padding: const EdgeInsetsDirectional.only(start: 14, end: 14),
-              child: ranking.rowAt(index,
-                  color: colorFor?.call(rows[index]) ?? color),
+              child: ranking.rowAt(
+                index,
+                color: colorFor?.call(rows[index]) ?? color,
+              ),
             ),
           ),
         ),
@@ -546,8 +557,10 @@ class UsageAreaTile extends StatelessWidget {
                     child: Container(
                       width: 10,
                       height: 10,
-                      decoration:
-                          BoxDecoration(color: color, shape: BoxShape.circle),
+                      decoration: BoxDecoration(
+                        color: color,
+                        shape: BoxShape.circle,
+                      ),
                     ),
                   ),
                   const SizedBox(width: 8),
@@ -562,8 +575,11 @@ class UsageAreaTile extends StatelessWidget {
                       ),
                     ),
                   ),
-                  OutlineIcon(OutlineGlyph.chevronRight,
-                      size: 16, color: colors.chevron),
+                  OutlineIcon(
+                    OutlineGlyph.chevronRight,
+                    size: 16,
+                    color: colors.chevron,
+                  ),
                 ],
               ),
               const SizedBox(height: 6),
@@ -655,8 +671,11 @@ class UsageFunnel extends StatelessWidget {
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 4),
                     child: Center(
-                      child: OutlineIcon(OutlineGlyph.arrowRight,
-                          size: 16, color: colors.chevron),
+                      child: OutlineIcon(
+                        OutlineGlyph.arrowRight,
+                        size: 16,
+                        color: colors.chevron,
+                      ),
                     ),
                   ),
                 Expanded(
@@ -718,11 +737,13 @@ List<ShareSegment> namedShareSegments(
     if (slot < 0) {
       rest += row.count;
     } else {
-      segments.add(ShareSegment(
-        label: row.label,
-        value: row.count,
-        color: categoricalColor(slot, brightness),
-      ));
+      segments.add(
+        ShareSegment(
+          label: row.label,
+          value: row.count,
+          color: categoricalColor(slot, brightness),
+        ),
+      );
     }
   }
   if (rest > 0) {

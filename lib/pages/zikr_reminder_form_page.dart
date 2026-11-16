@@ -82,15 +82,18 @@ class _ZikrReminderFormPageState extends State<ZikrReminderFormPage> {
     final availablePrayerNames = getPrayerNotificationPrayerNames();
     _prayerName =
         existing != null && availablePrayerNames.contains(existing.prayerName)
-            ? existing.prayerName
-            : (availablePrayerNames.contains('Maghrib')
-                ? 'Maghrib'
-                : availablePrayerNames.first);
+        ? existing.prayerName
+        : (availablePrayerNames.contains('Maghrib')
+              ? 'Maghrib'
+              : availablePrayerNames.first);
     _offsetIsAfter = (existing?.offsetMinutes ?? 30) >= 0;
-    _offsetMagnitude =
-        (existing?.offsetMinutes ?? 30).abs().clamp(0, _maxOffsetMinutes);
+    _offsetMagnitude = (existing?.offsetMinutes ?? 30).abs().clamp(
+      0,
+      _maxOffsetMinutes,
+    );
     trackScreen(
-        _isEditing ? 'Edit Zikr Reminder Page' : 'Add Zikr Reminder Page');
+      _isEditing ? 'Edit Zikr Reminder Page' : 'Add Zikr Reminder Page',
+    );
   }
 
   @override
@@ -134,31 +137,40 @@ class _ZikrReminderFormPageState extends State<ZikrReminderFormPage> {
     final picked = await showRevampSheet<String>(
       context,
       title: context.l10n.reminderPrayer,
-      builder: (sheetContext) => CardList(children: [
-        for (final (i, name) in names.indexed)
-          MergeSemantics(
-            child: Semantics(
-              selected: name == _prayerName,
-              child: CardListRow(
-                first: i == 0,
-                last: i == names.length - 1,
-                leading:
-                    PrayerGlyph(name: name, size: 24, color: colors.accent),
-                title: Text(localizedPrayerName(name, context.l10n)),
-                trailing: SizedBox.square(
-                  dimension: 44,
-                  child: name == _prayerName
-                      ? Center(
-                          child: OutlineIcon(OutlineGlyph.check,
-                              size: 22, color: colors.accent, strokeWidth: 2.4),
-                        )
-                      : null,
+      builder: (sheetContext) => CardList(
+        children: [
+          for (final (i, name) in names.indexed)
+            MergeSemantics(
+              child: Semantics(
+                selected: name == _prayerName,
+                child: CardListRow(
+                  first: i == 0,
+                  last: i == names.length - 1,
+                  leading: PrayerGlyph(
+                    name: name,
+                    size: 24,
+                    color: colors.accent,
+                  ),
+                  title: Text(localizedPrayerName(name, context.l10n)),
+                  trailing: SizedBox.square(
+                    dimension: 44,
+                    child: name == _prayerName
+                        ? Center(
+                            child: OutlineIcon(
+                              OutlineGlyph.check,
+                              size: 22,
+                              color: colors.accent,
+                              strokeWidth: 2.4,
+                            ),
+                          )
+                        : null,
+                  ),
+                  onTap: () => Navigator.pop(sheetContext, name),
                 ),
-                onTap: () => Navigator.pop(sheetContext, name),
               ),
             ),
-          ),
-      ]),
+        ],
+      ),
     );
     if (picked != null && mounted) setState(() => _prayerName = picked);
   }
@@ -166,7 +178,8 @@ class _ZikrReminderFormPageState extends State<ZikrReminderFormPage> {
   Future<void> _confirmDelete() async {
     final reminder = widget.existing;
     if (reminder == null) return;
-    final shouldDelete = await showDialog<bool>(
+    final shouldDelete =
+        await showDialog<bool>(
           context: context,
           builder: (dialogContext) => AlertDialog(
             title: Text(context.l10n.reminderRemoveTitle),
@@ -181,7 +194,8 @@ class _ZikrReminderFormPageState extends State<ZikrReminderFormPage> {
                 child: Text(
                   context.l10n.commonRemove,
                   style: TextStyle(
-                      color: Theme.of(dialogContext).colorScheme.error),
+                    color: Theme.of(dialogContext).colorScheme.error,
+                  ),
                 ),
               ),
             ],
@@ -238,7 +252,8 @@ class _ZikrReminderFormPageState extends State<ZikrReminderFormPage> {
       }
 
       if (!mounted) return;
-      final pendingLocation = _mode == ZikrReminderTimeMode.relativeToPrayer &&
+      final pendingLocation =
+          _mode == ZikrReminderTimeMode.relativeToPrayer &&
           (lat == null || long == null);
       final message = context.l10n.reminderSavedPendingLocation;
       Navigator.pop(context);
@@ -294,8 +309,9 @@ class _ZikrReminderFormPageState extends State<ZikrReminderFormPage> {
                 hour: _time.hour,
                 minute: _time.minute,
                 prayerName: _prayerName,
-                offsetMinutes:
-                    _offsetIsAfter ? _offsetMagnitude : -_offsetMagnitude,
+                offsetMinutes: _offsetIsAfter
+                    ? _offsetMagnitude
+                    : -_offsetMagnitude,
                 l10n: l10n,
                 firstDayOfWeek: firstDay,
               ),
@@ -320,14 +336,18 @@ class _ZikrReminderFormPageState extends State<ZikrReminderFormPage> {
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: HomeGlyph(
-                      type: HomeGlyphType.duas, size: 26, color: colors.accent),
+                    type: HomeGlyphType.duas,
+                    size: 26,
+                    color: colors.accent,
+                  ),
                 ),
                 title: zikrUid == null
                     ? Text(l10n.reminderChooseZikr)
                     : textWithArabicRuns(_zikrTitle(zikrUid)),
                 titleStyle: ShiaText.cardTitle,
-                subtitle:
-                    location == null ? null : Text(l10n.reminderFrom(location)),
+                subtitle: location == null
+                    ? null
+                    : Text(l10n.reminderFrom(location)),
                 trailing: const _Chevron(),
                 onTap: _pickZikr,
               ),
@@ -374,9 +394,13 @@ class _ZikrReminderFormPageState extends State<ZikrReminderFormPage> {
               SegmentedSwitcher<ZikrReminderTimeMode>(
                 segments: [
                   Segment(
-                      ZikrReminderTimeMode.fixedTime, l10n.reminderFixedTime),
-                  Segment(ZikrReminderTimeMode.relativeToPrayer,
-                      l10n.reminderPrayerRelative),
+                    ZikrReminderTimeMode.fixedTime,
+                    l10n.reminderFixedTime,
+                  ),
+                  Segment(
+                    ZikrReminderTimeMode.relativeToPrayer,
+                    l10n.reminderPrayerRelative,
+                  ),
                 ],
                 selected: _mode,
                 onChanged: (mode) => setState(() => _mode = mode),
@@ -397,8 +421,10 @@ class _ZikrReminderFormPageState extends State<ZikrReminderFormPage> {
                 padding: const EdgeInsets.symmetric(horizontal: 4),
                 child: Text(
                   l10n.reminderPrayerRelativeNote,
-                  style: ShiaText.caption
-                      .copyWith(height: 18 / 13, color: colors.textMuted),
+                  style: ShiaText.caption.copyWith(
+                    height: 18 / 13,
+                    color: colors.textMuted,
+                  ),
                 ),
               ),
             ),
@@ -413,8 +439,10 @@ class _ZikrReminderFormPageState extends State<ZikrReminderFormPage> {
                   style: TextButton.styleFrom(
                     minimumSize: const Size(44, 44),
                     foregroundColor: colors.danger,
-                    textStyle: buttonTextStyle(context, ShiaText.body)
-                        .copyWith(fontWeight: FontWeight.w600),
+                    textStyle: buttonTextStyle(
+                      context,
+                      ShiaText.body,
+                    ).copyWith(fontWeight: FontWeight.w600),
                   ),
                   child: Text(l10n.reminderRemove),
                 ),
@@ -436,19 +464,16 @@ class _ZikrReminderFormPageState extends State<ZikrReminderFormPage> {
   /// The list the reminder's zikr lives in, for "From Duas".
   String? _zikrLocation(String uid) {
     final l10n = context.l10n;
-    return (_locations ??= zikrLocations(
-      [
-        ('E', l10n.menuDuas),
-        ('G', l10n.menuZiyarats),
-        ('C', l10n.menuAamaal),
-        ('D', l10n.menuTaqeebat),
-        ('F', l10n.menuNamaz),
-        ('H', l10n.menuMunajaat),
-        ('I', l10n.menuBaaqeyaat),
-        ('A', l10n.shellTabQuran),
-      ],
-      join: l10n.searchLocation,
-    ))[uid];
+    return (_locations ??= zikrLocations([
+      ('E', l10n.menuDuas),
+      ('G', l10n.menuZiyarats),
+      ('C', l10n.menuAamaal),
+      ('D', l10n.menuTaqeebat),
+      ('F', l10n.menuNamaz),
+      ('H', l10n.menuMunajaat),
+      ('I', l10n.menuBaaqeyaat),
+      ('A', l10n.shellTabQuran),
+    ], join: l10n.searchLocation))[uid];
   }
 
   Map<String, String>? _locations;
@@ -460,8 +485,11 @@ class _ZikrReminderFormPageState extends State<ZikrReminderFormPage> {
         CardListRow(
           first: true,
           last: true,
-          leading:
-              OutlineIcon(OutlineGlyph.clock, size: 22, color: colors.accent),
+          leading: OutlineIcon(
+            OutlineGlyph.clock,
+            size: 22,
+            color: colors.accent,
+          ),
           title: Text(context.l10n.reminderTime),
           trailing: Row(
             mainAxisSize: MainAxisSize.min,
@@ -486,8 +514,11 @@ class _ZikrReminderFormPageState extends State<ZikrReminderFormPage> {
       children: [
         CardListRow(
           first: true,
-          leading:
-              PrayerGlyph(name: _prayerName, size: 22, color: colors.accent),
+          leading: PrayerGlyph(
+            name: _prayerName,
+            size: 22,
+            color: colors.accent,
+          ),
           title: Text(l10n.reminderPrayer),
           trailing: Row(
             mainAxisSize: MainAxisSize.min,
@@ -509,8 +540,12 @@ class _ZikrReminderFormPageState extends State<ZikrReminderFormPage> {
             children: [
               RoundIconButton(
                 label: l10n.reminderMinutesFewer,
-                icon: OutlineIcon(OutlineGlyph.minus,
-                    size: 20, color: colors.accent, strokeWidth: 2),
+                icon: OutlineIcon(
+                  OutlineGlyph.minus,
+                  size: 20,
+                  color: colors.accent,
+                  strokeWidth: 2,
+                ),
                 onPressed: _offsetMagnitude == 0
                     ? null
                     : () => _stepOffset(-_offsetStep),
@@ -525,8 +560,12 @@ class _ZikrReminderFormPageState extends State<ZikrReminderFormPage> {
               ),
               RoundIconButton(
                 label: l10n.reminderMinutesMore,
-                icon: OutlineIcon(OutlineGlyph.plus,
-                    size: 20, color: colors.accent, strokeWidth: 2),
+                icon: OutlineIcon(
+                  OutlineGlyph.plus,
+                  size: 20,
+                  color: colors.accent,
+                  strokeWidth: 2,
+                ),
                 onPressed: _offsetMagnitude >= _maxOffsetMinutes
                     ? null
                     : () => _stepOffset(_offsetStep),
@@ -558,8 +597,12 @@ class _Chevron extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsetsDirectional.only(start: 6, end: 8),
-      child: OutlineIcon(OutlineGlyph.chevronRight,
-          size: 16, color: ShiaColors.of(context).chevron, strokeWidth: 2.4),
+      child: OutlineIcon(
+        OutlineGlyph.chevronRight,
+        size: 16,
+        color: ShiaColors.of(context).chevron,
+        strokeWidth: 2.4,
+      ),
     );
   }
 }
@@ -593,7 +636,8 @@ class _DayButton extends StatelessWidget {
           side: selected
               ? BorderSide.none
               : BorderSide(
-                  color: Color.lerp(colors.line, colors.chevron, 0.25)!),
+                  color: Color.lerp(colors.line, colors.chevron, 0.25)!,
+                ),
         ),
         clipBehavior: Clip.antiAlias,
         child: InkWell(

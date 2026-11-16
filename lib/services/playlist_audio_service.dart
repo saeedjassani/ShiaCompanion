@@ -160,7 +160,10 @@ class PlaylistAudioService extends ChangeNotifier {
       for (final uid in zikrUids)
         for (final track in tracksFor(uid))
           PlaylistQueueEntry(
-              zikrUid: uid, zikrTitle: titleFor(uid), track: track),
+            zikrUid: uid,
+            zikrTitle: titleFor(uid),
+            track: track,
+          ),
     ];
   }
 
@@ -211,13 +214,13 @@ class PlaylistAudioService extends ChangeNotifier {
 
       final startUid =
           startZikrIndex >= 0 && startZikrIndex < playlist.zikrUids.length
-              ? playlist.zikrUids[startZikrIndex]
-              : null;
+          ? playlist.zikrUids[startZikrIndex]
+          : null;
       final initialIndex = startUid == null
           ? 0
           : queue
-              .indexWhere((entry) => entry.zikrUid == startUid)
-              .clamp(0, queue.length - 1);
+                .indexWhere((entry) => entry.zikrUid == startUid)
+                .clamp(0, queue.length - 1);
       var startIndex = initialIndex;
       var result = PlaylistStartResult.started;
       if (!NetworkUtils().isOnline) {
@@ -243,40 +246,45 @@ class PlaylistAudioService extends ChangeNotifier {
       _countedZikrUids.clear();
       _queue = List.unmodifiable(queue);
       _subscriptions
-        ..add(player.playerStateStream.listen((_) {
-          _countPlayingZikr();
-          notifyListeners();
-        }))
-        ..add(player.currentIndexStream.listen((_) {
-          _countPlayingZikr();
-          notifyListeners();
-        }))
-        ..add(player.playbackEventStream.listen(
-          (_) {},
-          onError: (Object error, StackTrace _) => _skipBrokenTrack(error),
-        ));
+        ..add(
+          player.playerStateStream.listen((_) {
+            _countPlayingZikr();
+            notifyListeners();
+          }),
+        )
+        ..add(
+          player.currentIndexStream.listen((_) {
+            _countPlayingZikr();
+            notifyListeners();
+          }),
+        )
+        ..add(
+          player.playbackEventStream.listen(
+            (_) {},
+            onError: (Object error, StackTrace _) => _skipBrokenTrack(error),
+          ),
+        );
 
-      await player.setAudioSources(
-        [
-          for (var i = 0; i < queue.length; i++)
-            // A recitation saved for offline plays from the device.
-            AudioSource.uri(
-              downloads.sourceUri(queue[i].track),
-              tag: MediaItem(
-                id: 'playlist:${playlist.id}#$i',
-                title: queue[i].title,
-                album: playlist.displayName,
-                artist: queue[i].track.artist,
-              ),
+      await player.setAudioSources([
+        for (var i = 0; i < queue.length; i++)
+          // A recitation saved for offline plays from the device.
+          AudioSource.uri(
+            downloads.sourceUri(queue[i].track),
+            tag: MediaItem(
+              id: 'playlist:${playlist.id}#$i',
+              title: queue[i].title,
+              album: playlist.displayName,
+              artist: queue[i].track.artist,
             ),
-        ],
-        initialIndex: startIndex,
+          ),
+      ], initialIndex: startIndex);
+      unawaited(
+        AnalyticsService.feature(
+          'zikr_playlist_play',
+          label: 'Zikr playlist played',
+          parameters: {'track_count': queue.length},
+        ),
       );
-      unawaited(AnalyticsService.feature(
-        'zikr_playlist_play',
-        label: 'Zikr playlist played',
-        parameters: {'track_count': queue.length},
-      ));
       unawaited(player.play());
       return result;
     } catch (error) {
@@ -293,12 +301,14 @@ class PlaylistAudioService extends ChangeNotifier {
   /// queue as a playlist: a play link, Siri or a shortcut asks for one dua,
   /// and it should keep going on the lock screen like any playlist does.
   Future<PlaylistStartResult> playZikr(String uid) {
-    return play(ZikrPlaylist(
-      id: '$singleZikrIdPrefix$uid',
-      name: _indexTitle(uid),
-      zikrUids: [uid],
-      updatedAt: DateTime.now().toUtc(),
-    ));
+    return play(
+      ZikrPlaylist(
+        id: '$singleZikrIdPrefix$uid',
+        name: _indexTitle(uid),
+        zikrUids: [uid],
+        updatedAt: DateTime.now().toUtc(),
+      ),
+    );
   }
 
   /// Records which zikr a playlist is actually playing, the first time each
@@ -310,10 +320,12 @@ class PlaylistAudioService extends ChangeNotifier {
     if (player == null || !player.playing) return;
     final entry = current;
     if (entry == null || !_countedZikrUids.add(entry.zikrUid)) return;
-    unawaited(AnalyticsService.zikrPlaylistPlay(
-      uid: entry.zikrUid,
-      title: entry.zikrTitle,
-    ));
+    unawaited(
+      AnalyticsService.zikrPlaylistPlay(
+        uid: entry.zikrUid,
+        title: entry.zikrTitle,
+      ),
+    );
   }
 
   /// A recording that has moved or vanished from the bucket should cost that

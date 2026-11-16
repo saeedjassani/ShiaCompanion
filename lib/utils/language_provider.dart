@@ -65,9 +65,9 @@ class LanguageProvider extends ChangeNotifier with WidgetsBindingObserver {
 
   /// Languages whose zikr translations have shipped, English first.
   List<AppLanguage> get translationLanguages => [
-        for (final language in appLanguages)
-          if (_translationLanguageCodes.contains(language.code)) language,
-      ];
+    for (final language in appLanguages)
+      if (_translationLanguageCodes.contains(language.code)) language,
+  ];
 
   String? get appLanguageChoice => _appLanguageChoice;
 
@@ -144,16 +144,17 @@ class LanguageProvider extends ChangeNotifier with WidgetsBindingObserver {
 
   AppLanguage _translationLanguageFor(String code) =>
       _translationLanguageCodes.contains(code)
-          ? appLanguageFor(code) ?? englishLanguage
-          : englishLanguage;
+      ? appLanguageFor(code) ?? englishLanguage
+      : englishLanguage;
 
   Future<void> _load() async {
     await SP.init();
     _appLanguageChoice = SP.prefs.getString(appLanguagePrefsKey);
-    _translationLanguageChoice =
-        SP.prefs.getString(translationLanguagePrefsKey);
-    _translationLanguageCodes =
-        await ZikrTranslations.instance.availableLanguageCodes(_bundle);
+    _translationLanguageChoice = SP.prefs.getString(
+      translationLanguagePrefsKey,
+    );
+    _translationLanguageCodes = await ZikrTranslations.instance
+        .availableLanguageCodes(_bundle);
     _applyAppLanguage();
     await _applyZikrLanguages();
     notifyListeners();

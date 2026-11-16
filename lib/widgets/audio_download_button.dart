@@ -48,9 +48,11 @@ Future<bool> startAudioDownload(
       builder: (dialogContext) => AlertDialog(
         icon: const Icon(Icons.signal_cellular_alt),
         title: Text(context.l10n.audioMobileDataTitle),
-        content: Text(size == null
-            ? context.l10n.audioMobileDataBody
-            : context.l10n.audioMobileDataSizedBody(formatAudioBytes(size))),
+        content: Text(
+          size == null
+              ? context.l10n.audioMobileDataBody
+              : context.l10n.audioMobileDataSizedBody(formatAudioBytes(size)),
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(dialogContext).pop(false),
@@ -82,15 +84,19 @@ Future<void> confirmRemoveAudioDownload(
   final confirmed = await showDialog<bool>(
     context: context,
     builder: (dialogContext) => AlertDialog(
-      title: Text(many
-          ? context.l10n.audioRemoveDownloadsTitle
-          : context.l10n.audioRemoveDownloadTitle),
+      title: Text(
+        many
+            ? context.l10n.audioRemoveDownloadsTitle
+            : context.l10n.audioRemoveDownloadTitle,
+      ),
       content: Text(
-        context.l10n.audioRemoveBody(label == null
-                ? (many
-                    ? context.l10n.audioTheseRecitations
-                    : context.l10n.audioThisRecitation)
-                : context.l10n.audioQuotedName(label)) +
+        context.l10n.audioRemoveBody(
+              label == null
+                  ? (many
+                        ? context.l10n.audioTheseRecitations
+                        : context.l10n.audioThisRecitation)
+                  : context.l10n.audioQuotedName(label),
+            ) +
             (bytes > 0
                 ? ' ${context.l10n.audioRemoveFrees(formatAudioBytes(bytes))}'
                 : ''),
@@ -125,7 +131,8 @@ void showAudioDownloadResult(AudioDownloadResult result) {
         : l10n.audioDownloadDoneNamed(name);
   } else {
     final l10n = L10n.current;
-    final what = name ??
+    final what =
+        name ??
         (total > 1
             ? l10n.audioTheseRecitationsLower
             : l10n.audioThisRecitationLower);
@@ -139,8 +146,12 @@ void showAudioDownloadResult(AudioDownloadResult result) {
     };
     message = '$partial $reason';
     if (result.failure != AudioDownloadFailure.unavailable) {
-      retry = () => unawaited(AudioDownloadStore.instance
-          .download(result.tracks, label: result.label));
+      retry = () => unawaited(
+        AudioDownloadStore.instance.download(
+          result.tracks,
+          label: result.label,
+        ),
+      );
     }
   }
   showToast(
@@ -205,7 +216,8 @@ class _AudioDownloadButtonState extends State<AudioDownloadButton> {
         _store.cancel(tracks);
       case AudioDownloadState.done:
         unawaited(
-            confirmRemoveAudioDownload(context, tracks, label: widget.label));
+          confirmRemoveAudioDownload(context, tracks, label: widget.label),
+        );
       case AudioDownloadState.idle:
       case AudioDownloadState.partial:
       case AudioDownloadState.failed:
@@ -226,8 +238,9 @@ class _AudioDownloadButtonState extends State<AudioDownloadButton> {
         final progress = _store.overallProgress(tracks);
         final percent = (progress * 100).floor();
         final toDownload = _store.bytesToDownload(tracks);
-        final sizeSuffix =
-            toDownload == null ? '' : ' · ${formatAudioBytes(toDownload)}';
+        final sizeSuffix = toDownload == null
+            ? ''
+            : ' · ${formatAudioBytes(toDownload)}';
         final remaining = tracks.where((t) => !_store.isDownloaded(t)).length;
 
         final colors = ShiaColors.of(context);
@@ -267,24 +280,38 @@ class _AudioDownloadButtonState extends State<AudioDownloadButton> {
                 : context.l10n.audioDownloadingEllipsis;
             tooltip = context.l10n.audioStopDownloading;
           case AudioDownloadState.done:
-            icon = OutlineIcon(OutlineGlyph.check,
-                size: 22, color: colors.success, strokeWidth: 2.2);
+            icon = OutlineIcon(
+              OutlineGlyph.check,
+              size: 22,
+              color: colors.success,
+              strokeWidth: 2.2,
+            );
             label = context.l10n.audioDownloaded;
             tooltip = context.l10n.audioDownloadedTooltip;
           case AudioDownloadState.failed:
-            icon =
-                OutlineIcon(OutlineGlyph.alert, size: 22, color: colors.danger);
+            icon = OutlineIcon(
+              OutlineGlyph.alert,
+              size: 22,
+              color: colors.danger,
+            );
             label = context.l10n.audioRetryDownload;
             tooltip = context.l10n.audioDownloadFailedTooltip;
           case AudioDownloadState.partial:
-            icon = OutlineIcon(OutlineGlyph.download,
-                size: 22, color: colors.accent);
+            icon = OutlineIcon(
+              OutlineGlyph.download,
+              size: 22,
+              color: colors.accent,
+            );
             label = context.l10n.audioDownloadMore(remaining) + sizeSuffix;
             tooltip = context.l10n.audioDownloadRestTooltip;
           case AudioDownloadState.idle:
-            icon = OutlineIcon(OutlineGlyph.download,
-                size: 22, color: colors.accent);
-            label = (tracks.length > 1
+            icon = OutlineIcon(
+              OutlineGlyph.download,
+              size: 22,
+              color: colors.accent,
+            );
+            label =
+                (tracks.length > 1
                     ? context.l10n.audioDownloadAll
                     : context.l10n.audioDownload) +
                 sizeSuffix;
@@ -348,10 +375,7 @@ class PlayerIconButton extends StatelessWidget {
         child: InkResponse(
           onTap: onPressed,
           radius: 22,
-          child: SizedBox.square(
-            dimension: 44,
-            child: Center(child: icon),
-          ),
+          child: SizedBox.square(dimension: 44, child: Center(child: icon)),
         ),
       ),
     );

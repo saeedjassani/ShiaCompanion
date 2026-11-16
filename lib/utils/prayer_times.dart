@@ -97,15 +97,7 @@ class PrayerTime {
 
     // Time Names
 
-    timeNames = [
-      "Fajr",
-      "Sunrise",
-      "Zuhr",
-      "Asr",
-      "Sunset",
-      "Maghrib",
-      "Isha"
-    ];
+    timeNames = ["Fajr", "Sunrise", "Zuhr", "Asr", "Sunset", "Maghrib", "Isha"];
 
     InvalidTime = "-----"; // The string used for invalid times
 
@@ -241,7 +233,8 @@ class PrayerTime {
 
     double B = 2 - A + (A / 4.0).floorToDouble();
 
-    double JD = (365.25 * (year + 4716)).floorToDouble() +
+    double JD =
+        (365.25 * (year + 4716)).floorToDouble() +
         (30.6001 * (month + 1)).floorToDouble() +
         day +
         B -
@@ -334,8 +327,14 @@ class PrayerTime {
 
   //region Interface Functions
   // return prayer times for a given date
-  List<String> getDatePrayerTimes(int year, int month, int day, double latitude,
-      double longitude, double tZone) {
+  List<String> getDatePrayerTimes(
+    int year,
+    int month,
+    int day,
+    double latitude,
+    double longitude,
+    double tZone,
+  ) {
     this.setLat(latitude);
     this.setLng(longitude);
     this.setTimeZone(tZone);
@@ -347,7 +346,11 @@ class PrayerTime {
 
   // return prayer times for a given date
   List<String> getPrayerTimes(
-      DateTime date, double latitude, double longitude, double tZone) {
+    DateTime date,
+    double latitude,
+    double longitude,
+    double tZone,
+  ) {
     int year = date.year;
     int month = date.month;
     int day = date.day;
@@ -411,9 +414,9 @@ class PrayerTime {
       suffix = "am";
     }
     hours = ((((hours + 12) - 1) % (12)) + 1);
-//        /* hours = (hours + 12) - 1;
-//        int hrs = (int) hours % 12;
-//        hrs += 1;*/
+    //        /* hours = (hours + 12) - 1;
+    //        int hrs = (int) hours % 12;
+    //        hrs += 1;*/
     if (noSuffix == false) {
       if ((hours >= 0 && hours <= 9) && (minutes >= 0 && minutes <= 9)) {
         result = "0$hours:0${minutes.round()} $suffix";
@@ -497,7 +500,8 @@ class PrayerTime {
       times[6] = times[5] + mParams[4] / 60;
     }
 
-    if (this.getAdjustHighLats() != this.getNone() && this.getLat().abs() > 48.5) {
+    if (this.getAdjustHighLats() != this.getNone() &&
+        this.getLat().abs() > 48.5) {
       times = adjustHighLatTimes(times);
     }
 
@@ -563,7 +567,8 @@ class PrayerTime {
       calc = (angle) / 60.0;
     else if (adjustHighLats == MidNight)
       calc = 0.5;
-    else if (adjustHighLats == OneSeventh) calc = 0.14286;
+    else if (adjustHighLats == OneSeventh)
+      calc = 0.14286;
 
     return calc;
   }
@@ -830,5 +835,5 @@ class PrayerTime {
     return timeNames;
   }
 
-//endregion
+  //endregion
 }

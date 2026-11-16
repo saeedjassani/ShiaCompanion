@@ -108,9 +108,7 @@ class RecentRecitationsPage extends StatelessWidget {
                 padding: gutter.copyWith(top: 12),
                 sliver: SliverToBoxAdapter(
                   child: Text(
-                    l10n.quranOlderSessionsNote(
-                      recitationSessionRetentionDays,
-                    ),
+                    l10n.quranOlderSessionsNote(recitationSessionRetentionDays),
                     style: ShiaText.caption.copyWith(color: colors.textMuted),
                   ),
                 ),
@@ -126,9 +124,10 @@ class RecentRecitationsPage extends StatelessWidget {
     RecitationTrackerState state,
     RecitationEntry entry,
   ) async {
-    final choices = [...state.labels, unlabeledRecitationLabel]
-        .where((label) => label != entry.label)
-        .toList(growable: false);
+    final choices = [
+      ...state.labels,
+      unlabeledRecitationLabel,
+    ].where((label) => label != entry.label).toList(growable: false);
 
     final newLabel = await showRevampSheet<String>(
       context,
@@ -160,8 +159,10 @@ class RecentRecitationsPage extends StatelessWidget {
         ? '${entry.fromAyah}'
         : '${entry.fromAyah}–${entry.toAyah}';
     final verses = entry.versesRecited;
-    return localizeDigits('${_surahName(entry.surah)} $range · '
-        '${L10n.current.statsVerseCount(verses, '$verses')}');
+    return localizeDigits(
+      '${_surahName(entry.surah)} $range · '
+      '${L10n.current.statsVerseCount(verses, '$verses')}',
+    );
   }
 }
 

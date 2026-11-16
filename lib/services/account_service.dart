@@ -83,10 +83,8 @@ class AccountService {
       );
     }
 
-    final credential = OAuthProvider('apple.com').credential(
-      idToken: identityToken,
-      rawNonce: rawNonce,
-    );
+    final credential = OAuthProvider('apple.com')
+        .credential(idToken: identityToken, rawNonce: rawNonce);
     return (credential, appleCredential.authorizationCode);
   }
 
@@ -159,15 +157,18 @@ class AccountService {
           await _ensureRecentLoginForDataDeletion(currentUser);
       await FavoritesManager.instance.deleteAllFavorites(deletionUser.uid);
       await QazaTrackerManager.instance.deleteAllQazaData(deletionUser.uid);
-      await RecitationTrackerManager.instance
-          .deleteAllRecitationData(deletionUser.uid);
+      await RecitationTrackerManager.instance.deleteAllRecitationData(
+        deletionUser.uid,
+      );
       await SavedVersesManager.instance.deleteAllSavedVerses(deletionUser.uid);
       await ZikrBookmarksManager.instance.deleteAllBookmarks(deletionUser.uid);
       await VerseNotesManager.instance.deleteAllNotes(deletionUser.uid);
-      await PreferencesSyncService.instance
-          .deleteSyncedPreferences(deletionUser.uid);
-      await PrayerPreferencesSyncService.instance
-          .deleteSyncedPreferences(deletionUser.uid);
+      await PreferencesSyncService.instance.deleteSyncedPreferences(
+        deletionUser.uid,
+      );
+      await PrayerPreferencesSyncService.instance.deleteSyncedPreferences(
+        deletionUser.uid,
+      );
       await ActivityStatsStore.instance.deleteSyncedStats(deletionUser.uid);
       if (appleAuthorizationCode != null) {
         await _revokeAppleTokens(appleAuthorizationCode);
@@ -267,8 +268,9 @@ class AccountService {
   }
 
   static bool _hasProvider(User user, String providerId) {
-    return user.providerData
-        .any((provider) => provider.providerId == providerId);
+    return user.providerData.any(
+      (provider) => provider.providerId == providerId,
+    );
   }
 
   static String _messageForAuthError(FirebaseAuthException error) {

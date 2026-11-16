@@ -42,10 +42,7 @@ MarkdownStyleSheet readerStyleSheet(
       height: kReaderLineHeight,
       fontStyle: FontStyle.italic,
     ),
-    blockquotePadding: const EdgeInsets.symmetric(
-      horizontal: 14,
-      vertical: 4,
-    ),
+    blockquotePadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
     // flutter_markdown_plus fills every blockquote with a hardcoded
     // Colors.blue.shade100 that ignores the theme — the same blue in dark mode
     // as in light. Most of this library's quotations are Qur'an and hadith, and

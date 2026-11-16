@@ -90,8 +90,10 @@ Future<void> showReaderTextSheet(
         ),
       ),
       transitionBuilder: (context, animation, _, child) {
-        final curved =
-            CurvedAnimation(parent: animation, curve: Curves.easeOutCubic);
+        final curved = CurvedAnimation(
+          parent: animation,
+          curve: Curves.easeOutCubic,
+        );
         final from = Directionality.of(context) == TextDirection.rtl
             ? const Offset(-0.08, 0)
             : const Offset(0.08, 0);
@@ -207,14 +209,15 @@ class _ReaderTextSheetState extends State<ReaderTextSheet> {
       padding: inPanel
           ? const EdgeInsetsDirectional.fromSTEB(20, 14, 16, 20)
           : EdgeInsets.fromLTRB(
-              16, 8, 16, 16 + MediaQuery.paddingOf(context).bottom),
+              16,
+              8,
+              16,
+              16 + MediaQuery.paddingOf(context).bottom,
+            ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          if (!inPanel) ...[
-            const SheetDragHandle(),
-            const SizedBox(height: 6),
-          ],
+          if (!inPanel) ...[const SheetDragHandle(), const SizedBox(height: 6)],
           Row(
             children: [
               Expanded(
@@ -248,36 +251,38 @@ class _ReaderTextSheetState extends State<ReaderTextSheet> {
             ],
           ),
           const SizedBox(height: 12),
-          CardList(children: [
-            _SizeRow(
-              label: l10n.readerArabicSize,
-              value: arabicFontSize,
-              smallerLabel: l10n.readerArabicSmaller,
-              biggerLabel: l10n.readerArabicBigger,
-              onSmaller: arabicFontSize > minArabicFontSize
-                  ? () => _stepArabic(-1)
-                  : null,
-              onBigger: arabicFontSize < maxArabicFontSize
-                  ? () => _stepArabic(1)
-                  : null,
-              last: ZikrTranslations.instance.isArabic,
-            ),
-            // Read in Arabic there are no translation lines to size.
-            if (!ZikrTranslations.instance.isArabic)
+          CardList(
+            children: [
               _SizeRow(
-                label: l10n.readerEnglishSize,
-                value: englishFontSize,
-                smallerLabel: l10n.readerEnglishSmaller,
-                biggerLabel: l10n.readerEnglishBigger,
-                onSmaller: englishFontSize > minEnglishFontSize
-                    ? () => _stepEnglish(-1)
+                label: l10n.readerArabicSize,
+                value: arabicFontSize,
+                smallerLabel: l10n.readerArabicSmaller,
+                biggerLabel: l10n.readerArabicBigger,
+                onSmaller: arabicFontSize > minArabicFontSize
+                    ? () => _stepArabic(-1)
                     : null,
-                onBigger: englishFontSize < maxEnglishFontSize
-                    ? () => _stepEnglish(1)
+                onBigger: arabicFontSize < maxArabicFontSize
+                    ? () => _stepArabic(1)
                     : null,
-                last: true,
+                last: ZikrTranslations.instance.isArabic,
               ),
-          ]),
+              // Read in Arabic there are no translation lines to size.
+              if (!ZikrTranslations.instance.isArabic)
+                _SizeRow(
+                  label: l10n.readerEnglishSize,
+                  value: englishFontSize,
+                  smallerLabel: l10n.readerEnglishSmaller,
+                  biggerLabel: l10n.readerEnglishBigger,
+                  onSmaller: englishFontSize > minEnglishFontSize
+                      ? () => _stepEnglish(-1)
+                      : null,
+                  onBigger: englishFontSize < maxEnglishFontSize
+                      ? () => _stepEnglish(1)
+                      : null,
+                  last: true,
+                ),
+            ],
+          ),
           Padding(
             padding: const EdgeInsets.fromLTRB(4, 6, 4, 0),
             child: Text(
@@ -287,66 +292,73 @@ class _ReaderTextSheetState extends State<ReaderTextSheet> {
           ),
           if (widget.onStartAutoScroll != null) ...[
             const SizedBox(height: 12),
-            CardList(children: [
-              _AutoScrollRow(onStart: () {
-                Navigator.of(context).maybePop();
-                widget.onStartAutoScroll!();
-              }),
-            ]),
+            CardList(
+              children: [
+                _AutoScrollRow(
+                  onStart: () {
+                    Navigator.of(context).maybePop();
+                    widget.onStartAutoScroll!();
+                  },
+                ),
+              ],
+            ),
           ],
           const SizedBox(height: 12),
-          CardList(children: [
-            // Transliteration is only ever shown with English - see
-            // transliterationShown - so there is nothing to switch otherwise.
-            if (ZikrTranslations.instance.isEnglish)
+          CardList(
+            children: [
+              // Transliteration is only ever shown with English - see
+              // transliterationShown - so there is nothing to switch otherwise.
+              if (ZikrTranslations.instance.isEnglish)
+                CardSwitchRow(
+                  label: l10n.readerTransliteration,
+                  value: ReadingSwitch.transliteration.value,
+                  onChanged: (v) => _toggle(ReadingSwitch.transliteration, v),
+                ),
+              // Read in Arabic there is no translation to switch. A zikr
+              // nobody has translated yet says so rather than offering a
+              // switch that would do nothing; the stored setting is left as
+              // it is for the zikrs that do have one.
+              if (untranslated != null)
+                _TranslationUnavailableRow(zikr: untranslated)
+              else if (!translations.isArabic)
+                CardSwitchRow(
+                  label: l10n.readerTranslation,
+                  value: ReadingSwitch.translation.value,
+                  onChanged: (v) => _toggle(ReadingSwitch.translation, v),
+                ),
               CardSwitchRow(
-                label: l10n.readerTransliteration,
-                value: ReadingSwitch.transliteration.value,
-                onChanged: (v) => _toggle(ReadingSwitch.transliteration, v),
+                label: l10n.readerArabicParagraph,
+                hint: l10n.readerArabicParagraphHint,
+                value:
+                    paragraphAvailable && ReadingSwitch.arabicParagraph.value,
+                onChanged: paragraphAvailable
+                    ? (v) => _toggle(ReadingSwitch.arabicParagraph, v)
+                    : null,
               ),
-            // Read in Arabic there is no translation to switch. A zikr
-            // nobody has translated yet says so rather than offering a
-            // switch that would do nothing; the stored setting is left as
-            // it is for the zikrs that do have one.
-            if (untranslated != null)
-              _TranslationUnavailableRow(zikr: untranslated)
-            else if (!translations.isArabic)
               CardSwitchRow(
-                label: l10n.readerTranslation,
-                value: ReadingSwitch.translation.value,
-                onChanged: (v) => _toggle(ReadingSwitch.translation, v),
+                label: l10n.readerKeepScreenOn,
+                value: ReadingSwitch.keepScreenOn.value,
+                onChanged: (v) => _toggle(ReadingSwitch.keepScreenOn, v),
               ),
-            CardSwitchRow(
-              label: l10n.readerArabicParagraph,
-              hint: l10n.readerArabicParagraphHint,
-              value: paragraphAvailable && ReadingSwitch.arabicParagraph.value,
-              onChanged: paragraphAvailable
-                  ? (v) => _toggle(ReadingSwitch.arabicParagraph, v)
-                  : null,
-            ),
-            CardSwitchRow(
-              label: l10n.readerKeepScreenOn,
-              value: ReadingSwitch.keepScreenOn.value,
-              onChanged: (v) => _toggle(ReadingSwitch.keepScreenOn, v),
-            ),
-            CardSwitchRow(
-              label: l10n.readerFocusMode,
-              hint: l10n.readerFocusModeHint,
-              value: ReadingSwitch.focusMode.value,
-              onChanged: (v) => _toggle(ReadingSwitch.focusMode, v),
-            ),
-            CardSwitchRow(
-              label: l10n.readerShareAsImage,
-              value: ReadingSwitch.shareAsImage.value,
-              onChanged: (v) => _toggle(ReadingSwitch.shareAsImage, v),
-              last: true,
-            ),
-          ]),
+              CardSwitchRow(
+                label: l10n.readerFocusMode,
+                hint: l10n.readerFocusModeHint,
+                value: ReadingSwitch.focusMode.value,
+                onChanged: (v) => _toggle(ReadingSwitch.focusMode, v),
+              ),
+              CardSwitchRow(
+                label: l10n.readerShareAsImage,
+                value: ReadingSwitch.shareAsImage.value,
+                onChanged: (v) => _toggle(ReadingSwitch.shareAsImage, v),
+                last: true,
+              ),
+            ],
+          ),
           if (showLanguage) ...[
             const SizedBox(height: 12),
-            const CardList(children: [
-              TranslationLanguageTile(first: true, last: true),
-            ]),
+            const CardList(
+              children: [TranslationLanguageTile(first: true, last: true)],
+            ),
           ],
         ],
       ),
@@ -378,8 +390,10 @@ class _AutoScrollRow extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(l10n.readerAutoScroll,
-                        style: ShiaText.body.copyWith(color: colors.text)),
+                    Text(
+                      l10n.readerAutoScroll,
+                      style: ShiaText.body.copyWith(color: colors.text),
+                    ),
                     Text(
                       l10n.readerAutoScrollHint,
                       style: ShiaText.caption.copyWith(color: colors.textMuted),
@@ -424,18 +438,21 @@ class _TranslationUnavailableRowState
   Future<void> _request() async {
     final language = ZikrTranslations.instance.language;
     setState(() => _sending = true);
-    unawaited(AnalyticsService.feature(
-      'zikr_translation_requested',
-      label: 'Zikr translation requested',
-      parameters: {'uid': widget.zikr.uid, 'language': language.code},
-    ));
+    unawaited(
+      AnalyticsService.feature(
+        'zikr_translation_requested',
+        label: 'Zikr translation requested',
+        parameters: {'uid': widget.zikr.uid, 'language': language.code},
+      ),
+    );
     final submitted = await TranslationRequests.request(
       uid: widget.zikr.uid,
       englishTitle: widget.zikr.englishTitle,
       language: language,
     );
     showToast(
-        submitted ? L10n.current.requestThanks : L10n.current.requestFailed);
+      submitted ? L10n.current.requestThanks : L10n.current.requestFailed,
+    );
     if (mounted) setState(() => _sending = false);
   }
 
@@ -444,8 +461,10 @@ class _TranslationUnavailableRowState
     final colors = ShiaColors.of(context);
     final l10n = context.l10n;
     final language = ZikrTranslations.instance.language;
-    final requested =
-        TranslationRequests.wasRequested(widget.zikr.uid, language.code);
+    final requested = TranslationRequests.wasRequested(
+      widget.zikr.uid,
+      language.code,
+    );
     return MergeSemantics(
       child: Container(
         constraints: const BoxConstraints(minHeight: 54),
@@ -459,8 +478,10 @@ class _TranslationUnavailableRowState
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(l10n.readerTranslation,
-                      style: ShiaText.body.copyWith(color: colors.textMuted)),
+                  Text(
+                    l10n.readerTranslation,
+                    style: ShiaText.body.copyWith(color: colors.textMuted),
+                  ),
                   Text(
                     l10n.readerTranslationUnavailable(language.nativeName),
                     style: ShiaText.caption.copyWith(color: colors.textMuted),
@@ -584,8 +605,10 @@ class _SizeRow extends StatelessWidget {
       child: Row(
         children: [
           Expanded(
-            child:
-                Text(label, style: ShiaText.body.copyWith(color: colors.text)),
+            child: Text(
+              label,
+              style: ShiaText.body.copyWith(color: colors.text),
+            ),
           ),
           _StepButton(
             text: '${context.l10n.textSizeLetter}−',

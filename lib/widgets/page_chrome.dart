@@ -118,8 +118,10 @@ const double widePageWidth = 1120;
 /// Horizontal padding that keeps a [LargeTitlePage]'s content in line with
 /// its title: the 16 px phone gutter (32 from tablet width up), widened to
 /// centre a [maxWidth] column on a wide screen.
-EdgeInsets pageGutter(BuildContext context,
-    {double maxWidth = largeTitlePageWidth}) {
+EdgeInsets pageGutter(
+  BuildContext context, {
+  double maxWidth = largeTitlePageWidth,
+}) {
   final width = MediaQuery.sizeOf(context).width;
   final gutter = width >= 600 ? 32.0 : 16.0;
   final side = math.max(gutter, (width - maxWidth) / 2);
@@ -180,13 +182,7 @@ class _LargeTitlePageState extends State<LargeTitlePage> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         if (pushed) ...[
-          Row(
-            children: [
-              const PageBackButton(),
-              const Spacer(),
-              actions,
-            ],
-          ),
+          Row(children: [const PageBackButton(), const Spacer(), actions]),
           const SizedBox(height: 10),
           title,
         ] else
@@ -241,7 +237,8 @@ class _LargeTitlePageState extends State<LargeTitlePage> {
                   valueListenable: PlaylistAudioService.instance.visible,
                   builder: (context, playing, _) => SliverPadding(
                     padding: EdgeInsets.only(
-                      bottom: endPadding +
+                      bottom:
+                          endPadding +
                           (playing ? NowPlayingCapsule.contentClearance : 0),
                     ),
                   ),
@@ -267,8 +264,9 @@ class _LargeTitlePageState extends State<LargeTitlePage> {
                 // field's width, centred under the content.
                 child: Center(
                   child: ConstrainedBox(
-                    constraints:
-                        const BoxConstraints(maxWidth: floatingControlWidth),
+                    constraints: const BoxConstraints(
+                      maxWidth: floatingControlWidth,
+                    ),
                     child: FloatingBottomSlot(
                       extent: bottomOffset + _bottomControlHeight,
                       child: bottom,
@@ -430,8 +428,9 @@ class ToolHeader extends StatelessWidget {
                 title,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: ShiaText.cardTitle
-                    .copyWith(color: foreground ?? colors.text),
+                style: ShiaText.cardTitle.copyWith(
+                  color: foreground ?? colors.text,
+                ),
               ),
             ),
           ),
@@ -483,10 +482,7 @@ class RoundIconButton extends StatelessWidget {
           clipBehavior: Clip.antiAlias,
           child: InkWell(
             onTap: onPressed,
-            child: SizedBox.square(
-              dimension: 44,
-              child: Center(child: icon),
-            ),
+            child: SizedBox.square(dimension: 44, child: Center(child: icon)),
           ),
         ),
       ),
@@ -503,8 +499,12 @@ class PageBackButton extends StatelessWidget {
     final colors = ShiaColors.of(context);
     return RoundIconButton(
       label: MaterialLocalizations.of(context).backButtonTooltip,
-      icon: OutlineIcon(OutlineGlyph.chevronLeft,
-          size: 22, color: colors.accent, strokeWidth: 2),
+      icon: OutlineIcon(
+        OutlineGlyph.chevronLeft,
+        size: 22,
+        color: colors.accent,
+        strokeWidth: 2,
+      ),
       onPressed: () => Navigator.of(context).maybePop(),
     );
   }
@@ -956,8 +956,11 @@ class SliverReorderableCardList extends StatelessWidget {
 
 /// The round red minus that takes a row out of a list being edited.
 class RowRemoveButton extends StatelessWidget {
-  const RowRemoveButton(
-      {super.key, required this.label, required this.onPressed});
+  const RowRemoveButton({
+    super.key,
+    required this.label,
+    required this.onPressed,
+  });
 
   /// What it removes, read out: "Remove Dua Kumayl from favorites".
   final String label;
@@ -983,10 +986,16 @@ class RowRemoveButton extends StatelessWidget {
               width: 24,
               height: 24,
               alignment: Alignment.center,
-              decoration:
-                  BoxDecoration(color: scheme.error, shape: BoxShape.circle),
-              child: OutlineIcon(OutlineGlyph.minus,
-                  size: 16, color: scheme.onError, strokeWidth: 2.6),
+              decoration: BoxDecoration(
+                color: scheme.error,
+                shape: BoxShape.circle,
+              ),
+              child: OutlineIcon(
+                OutlineGlyph.minus,
+                size: 16,
+                color: scheme.onError,
+                strokeWidth: 2.6,
+              ),
             ),
           ),
         ),
@@ -1063,10 +1072,10 @@ class CardListRow extends StatelessWidget {
         onTap: onTap,
         borderRadius:
             cell?.inkRadius(corner).resolve(Directionality.of(context)) ??
-                BorderRadius.vertical(
-                  top: first ? corner : Radius.zero,
-                  bottom: last ? corner : Radius.zero,
-                ),
+            BorderRadius.vertical(
+              top: first ? corner : Radius.zero,
+              bottom: last ? corner : Radius.zero,
+            ),
         child: Container(
           constraints: BoxConstraints(minHeight: minHeight),
           decoration: last
@@ -1086,15 +1095,17 @@ class CardListRow extends StatelessWidget {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       DefaultTextStyle.merge(
-                        style: (titleStyle ?? ShiaText.body)
-                            .copyWith(color: colors.text),
+                        style: (titleStyle ?? ShiaText.body).copyWith(
+                          color: colors.text,
+                        ),
                         child: title,
                       ),
                       if (subtitle != null) ...[
                         const SizedBox(height: 1),
                         DefaultTextStyle.merge(
-                          style: ShiaText.caption
-                              .copyWith(color: colors.textMuted),
+                          style: ShiaText.caption.copyWith(
+                            color: colors.textMuted,
+                          ),
                           child: subtitle!,
                         ),
                       ],
@@ -1114,8 +1125,12 @@ class CardListRow extends StatelessWidget {
 /// The 34 px numbered well at the start of a surah or juz row; filled with
 /// the accent when [selected].
 class NumberWell extends StatelessWidget {
-  const NumberWell(this.number,
-      {super.key, this.selected = false, this.size = 34});
+  const NumberWell(
+    this.number, {
+    super.key,
+    this.selected = false,
+    this.size = 34,
+  });
 
   final int number;
   final bool selected;
@@ -1248,8 +1263,10 @@ class EmptyStateCard extends StatelessWidget {
                   backgroundColor: colors.accent,
                   foregroundColor: colors.onAccent,
                   shape: const StadiumBorder(),
-                  textStyle: buttonTextStyle(context, ShiaText.secondary)
-                      .copyWith(fontWeight: FontWeight.w600),
+                  textStyle: buttonTextStyle(
+                    context,
+                    ShiaText.secondary,
+                  ).copyWith(fontWeight: FontWeight.w600),
                 ),
                 child: Text(actionLabel!),
               ),
@@ -1297,10 +1314,12 @@ class PageButton extends StatelessWidget {
     final foreground = filled
         ? colors.onAccent
         : danger
-            ? colors.danger
-            : colors.accent;
-    final textStyle = buttonTextStyle(context, ShiaText.body)
-        .copyWith(fontWeight: FontWeight.w600);
+        ? colors.danger
+        : colors.accent;
+    final textStyle = buttonTextStyle(
+      context,
+      ShiaText.body,
+    ).copyWith(fontWeight: FontWeight.w600);
     final glyph = this.glyph;
 
     final child = Row(
@@ -1361,7 +1380,8 @@ class PageButton extends StatelessWidget {
               disabledForegroundColor: foreground.withValues(alpha: 0.6),
               backgroundColor: colors.surface,
               side: BorderSide(
-                  color: Color.lerp(colors.line, colors.chevron, 0.25)!),
+                color: Color.lerp(colors.line, colors.chevron, 0.25)!,
+              ),
               shape: const StadiumBorder(),
               textStyle: textStyle,
             ),
@@ -1393,10 +1413,12 @@ class MoreButton extends StatelessWidget {
         child: SizedBox.square(
           dimension: 44,
           child: Center(
-            child: OutlineIcon(OutlineGlyph.more,
-                size: 22,
-                color: ShiaColors.of(context).accent,
-                strokeWidth: 2.6),
+            child: OutlineIcon(
+              OutlineGlyph.more,
+              size: 22,
+              color: ShiaColors.of(context).accent,
+              strokeWidth: 2.6,
+            ),
           ),
         ),
       ),
@@ -1412,10 +1434,14 @@ Future<T?> showMenuAt<T>(BuildContext anchor, List<PopupMenuEntry<T>> items) {
       Navigator.of(anchor).overlay!.context.findRenderObject()! as RenderBox;
   final position = RelativeRect.fromRect(
     Rect.fromPoints(
-      button.localToGlobal(button.size.bottomLeft(Offset.zero),
-          ancestor: overlay),
-      button.localToGlobal(button.size.bottomRight(Offset.zero),
-          ancestor: overlay),
+      button.localToGlobal(
+        button.size.bottomLeft(Offset.zero),
+        ancestor: overlay,
+      ),
+      button.localToGlobal(
+        button.size.bottomRight(Offset.zero),
+        ancestor: overlay,
+      ),
     ),
     Offset.zero & overlay.size,
   );
@@ -1463,13 +1489,16 @@ class CardSwitchRow extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(label,
-                          style: ShiaText.body.copyWith(color: colors.text)),
+                      Text(
+                        label,
+                        style: ShiaText.body.copyWith(color: colors.text),
+                      ),
                       if (hint != null)
                         Text(
                           hint!,
-                          style: ShiaText.caption
-                              .copyWith(color: colors.textMuted),
+                          style: ShiaText.caption.copyWith(
+                            color: colors.textMuted,
+                          ),
                         ),
                     ],
                   ),
@@ -1550,8 +1579,12 @@ Future<T?> showRevampDialog<T>(
 
 /// One answer of a [showRevampDialog].
 class DialogAnswer<T> {
-  const DialogAnswer(this.value, this.label,
-      {this.primary = false, this.danger = false});
+  const DialogAnswer(
+    this.value,
+    this.label, {
+    this.primary = false,
+    this.danger = false,
+  });
 
   final T value;
   final String label;
@@ -1609,10 +1642,7 @@ class RevampDialog<T> extends StatelessWidget {
                   style: ShiaText.body.copyWith(color: colors.textMuted),
                 ),
               ],
-              if (content != null) ...[
-                const SizedBox(height: 12),
-                content!,
-              ],
+              if (content != null) ...[const SizedBox(height: 12), content!],
               const SizedBox(height: 18),
               for (final (i, answer) in answers.indexed) ...[
                 if (i > 0) const SizedBox(height: 8),
@@ -1669,25 +1699,31 @@ class PillButton extends StatelessWidget {
           side: filled
               ? BorderSide.none
               : BorderSide(
-                  color: Color.lerp(colors.line, colors.chevron, 0.35)!),
+                  color: Color.lerp(colors.line, colors.chevron, 0.35)!,
+                ),
         ),
-        textStyle: buttonTextStyle(context, ShiaText.body)
-            .copyWith(fontSize: 16, fontWeight: FontWeight.w600),
+        textStyle: buttonTextStyle(
+          context,
+          ShiaText.body,
+        ).copyWith(fontSize: 16, fontWeight: FontWeight.w600),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           if (glyph != null) ...[
-            OutlineIcon(glyph,
-                size: 18,
-                color: onPressed == null
-                    ? colors.text.withValues(alpha: 0.38)
-                    : foreground,
-                strokeWidth: 2),
+            OutlineIcon(
+              glyph,
+              size: 18,
+              color: onPressed == null
+                  ? colors.text.withValues(alpha: 0.38)
+                  : foreground,
+              strokeWidth: 2,
+            ),
             const SizedBox(width: 6),
           ],
           Flexible(
-              child: Text(label, maxLines: 1, overflow: TextOverflow.ellipsis)),
+            child: Text(label, maxLines: 1, overflow: TextOverflow.ellipsis),
+          ),
         ],
       ),
     );
@@ -1731,14 +1767,14 @@ class WideColumns extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Widget column(List<Widget> children) => Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            for (var i = 0; i < children.length; i++) ...[
-              if (i > 0) SizedBox(height: spacing),
-              children[i],
-            ],
-          ],
-        );
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        for (var i = 0; i < children.length; i++) ...[
+          if (i > 0) SizedBox(height: spacing),
+          children[i],
+        ],
+      ],
+    );
 
     return LayoutBuilder(
       builder: (context, constraints) {

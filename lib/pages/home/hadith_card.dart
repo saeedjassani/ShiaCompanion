@@ -56,10 +56,12 @@ class HadithOfTheDayCard extends StatelessWidget {
   Future<void> _share(BuildContext context) async {
     final size = MediaQuery.sizeOf(context);
     final text = localized?.shareText ?? hadith;
-    final result = await SharePlus.instance.share(ShareParams(
-      text: '$text\n\n${context.l10n.hadithSharedVia('$appWebOrigin/')}',
-      sharePositionOrigin: Rect.fromLTWH(size.width / 2, 0, 2, 2),
-    ));
+    final result = await SharePlus.instance.share(
+      ShareParams(
+        text: '$text\n\n${context.l10n.hadithSharedVia('$appWebOrigin/')}',
+        sharePositionOrigin: Rect.fromLTWH(size.width / 2, 0, 2, 2),
+      ),
+    );
     if (result.status == ShareResultStatus.success) {
       RatingPromptService.recordPositiveAction('share_hadith');
     }
@@ -198,13 +200,15 @@ class _LocalizedHadithText extends StatelessWidget {
         arabic,
         const SizedBox(height: 10),
         Text.rich(
-          TextSpan(children: [
-            TextSpan(
-              text: '${hadith.attribution}: ',
-              style: TextStyle(color: colors.textMuted),
-            ),
-            TextSpan(text: translation),
-          ]),
+          TextSpan(
+            children: [
+              TextSpan(
+                text: '${hadith.attribution}: ',
+                style: TextStyle(color: colors.textMuted),
+              ),
+              TextSpan(text: translation),
+            ],
+          ),
           style: TextStyle(fontSize: 17, height: 1.7, color: colors.text),
         ),
       ],

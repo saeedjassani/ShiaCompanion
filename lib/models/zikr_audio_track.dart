@@ -63,11 +63,13 @@ class ZikrAudioTrack {
           '$zikrAudioBaseUrl${file.split('/').map(Uri.encodeComponent).join('/')}';
       if (!seen.add(url)) continue;
 
-      tracks.add(ZikrAudioTrack(
-        url: url,
-        label: _optional(entry['label']),
-        reciter: _optional(entry['reciter']),
-      ));
+      tracks.add(
+        ZikrAudioTrack(
+          url: url,
+          label: _optional(entry['label']),
+          reciter: _optional(entry['reciter']),
+        ),
+      );
     }
     return tracks;
   }

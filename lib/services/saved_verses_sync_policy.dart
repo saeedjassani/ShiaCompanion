@@ -4,9 +4,9 @@ enum SavedVerseOperationKind { save, unsave }
 
 extension SavedVerseOperationKindInfo on SavedVerseOperationKind {
   String get key => switch (this) {
-        SavedVerseOperationKind.save => 'save',
-        SavedVerseOperationKind.unsave => 'unsave',
-      };
+    SavedVerseOperationKind.save => 'save',
+    SavedVerseOperationKind.unsave => 'unsave',
+  };
 }
 
 SavedVerseOperationKind? savedVerseOperationKindFromKey(String key) {
@@ -57,16 +57,17 @@ class PendingSavedVerseOperation {
   String get id => 'verse_$verseKey';
 
   Map<String, Object> toJson() => {
-        'kind': kind.key,
-        'verseKey': verseKey,
-        if (verse != null) 'verse': verse!.toJson(),
-      };
+    'kind': kind.key,
+    'verseKey': verseKey,
+    if (verse != null) 'verse': verse!.toJson(),
+  };
 
   static PendingSavedVerseOperation? fromJson(dynamic value) {
     if (value is! Map) return null;
 
-    final kind =
-        savedVerseOperationKindFromKey(value['kind']?.toString() ?? '');
+    final kind = savedVerseOperationKindFromKey(
+      value['kind']?.toString() ?? '',
+    );
     final verseKey = value['verseKey']?.toString().trim() ?? '';
     if (kind == null || verseKey.isEmpty) return null;
 

@@ -37,19 +37,22 @@ Future<void> openAppSearch(BuildContext context, {String query = ''}) async {
   // Ties in search rank keep this order, so give it the one the lists use:
   // by category, then as each category's list shows it. Plain key order put
   // A117 (Al-Falaq) ahead of A5 (Al-Fatihah).
-  final zikrEntries = items.entries
-      .map((entry) => UidTitleData(entry.key, entry.value))
-      .toList()
-    ..sort(_compareSearchOrder);
+  final zikrEntries =
+      items.entries
+          .map((entry) => UidTitleData(entry.key, entry.value))
+          .toList()
+        ..sort(_compareSearchOrder);
 
   unawaited(AnalyticsService.searchOpened());
-  await Navigator.of(context).push(_SearchRoute(
-    SearchPage(
-      entries: [...zikrEntries, ...books],
-      libraryUids: books.map((book) => book.uid).toSet(),
-      initialQuery: query,
+  await Navigator.of(context).push(
+    _SearchRoute(
+      SearchPage(
+        entries: [...zikrEntries, ...books],
+        libraryUids: books.map((book) => book.uid).toSet(),
+        initialQuery: query,
+      ),
     ),
-  ));
+  );
 }
 
 final RegExp _categoryPattern = RegExp(r'^[A-Za-z]*');
@@ -70,15 +73,15 @@ int _compareSearchOrder(UidTitleData a, UidTitleData b) {
 /// place of the button, rather than sliding in as a page from the side.
 class _SearchRoute extends PageRouteBuilder<void> {
   _SearchRoute(Widget page)
-      : super(
-          pageBuilder: (context, _, __) => page,
-          transitionDuration: const Duration(milliseconds: 200),
-          reverseTransitionDuration: const Duration(milliseconds: 150),
-          transitionsBuilder: (context, animation, _, child) =>
-              MediaQuery.disableAnimationsOf(context)
-                  ? child
-                  : FadeTransition(opacity: animation, child: child),
-        );
+    : super(
+        pageBuilder: (context, _, __) => page,
+        transitionDuration: const Duration(milliseconds: 200),
+        reverseTransitionDuration: const Duration(milliseconds: 150),
+        transitionsBuilder: (context, animation, _, child) =>
+            MediaQuery.disableAnimationsOf(context)
+            ? child
+            : FadeTransition(opacity: animation, child: child),
+      );
 }
 
 /// The kinds of result search lists, each a section of the results.
@@ -88,16 +91,16 @@ enum SearchSource {
   library;
 
   String label(AppLocalizations l10n) => switch (this) {
-        SearchSource.zikr => l10n.searchSourceZikr,
-        SearchSource.quran => l10n.searchSourceQuran,
-        SearchSource.library => l10n.searchSourceLibrary,
-      };
+    SearchSource.zikr => l10n.searchSourceZikr,
+    SearchSource.quran => l10n.searchSourceQuran,
+    SearchSource.library => l10n.searchSourceLibrary,
+  };
 
   HomeGlyphType get glyph => switch (this) {
-        SearchSource.zikr => HomeGlyphType.duas,
-        SearchSource.quran => HomeGlyphType.surahs,
-        SearchSource.library => HomeGlyphType.library,
-      };
+    SearchSource.zikr => HomeGlyphType.duas,
+    SearchSource.quran => HomeGlyphType.surahs,
+    SearchSource.library => HomeGlyphType.library,
+  };
 }
 
 /// Search (docs/DESIGN_SPEC.md, "Search"; mockups `R3-Search`,
@@ -147,8 +150,9 @@ class SearchPage extends StatefulWidget {
 }
 
 class _SearchPageState extends State<SearchPage> {
-  late final TextEditingController _query =
-      TextEditingController(text: widget.initialQuery);
+  late final TextEditingController _query = TextEditingController(
+    text: widget.initialQuery,
+  );
   Set<SearchSource> _openSources = _loadSources();
   List<String> _recent = _loadRecent();
 
@@ -165,19 +169,16 @@ class _SearchPageState extends State<SearchPage> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     final l10n = context.l10n;
-    _locations ??= zikrLocations(
-      [
-        ('E', l10n.menuDuas),
-        ('G', l10n.menuZiyarats),
-        ('C', l10n.menuAamaal),
-        ('D', l10n.menuTaqeebat),
-        ('F', l10n.menuNamaz),
-        ('H', l10n.menuMunajaat),
-        ('I', l10n.menuBaaqeyaat),
-        ('A', l10n.shellTabQuran),
-      ],
-      join: l10n.searchLocation,
-    );
+    _locations ??= zikrLocations([
+      ('E', l10n.menuDuas),
+      ('G', l10n.menuZiyarats),
+      ('C', l10n.menuAamaal),
+      ('D', l10n.menuTaqeebat),
+      ('F', l10n.menuNamaz),
+      ('H', l10n.menuMunajaat),
+      ('I', l10n.menuBaaqeyaat),
+      ('A', l10n.shellTabQuran),
+    ], join: l10n.searchLocation);
   }
 
   @override
@@ -212,8 +213,11 @@ class _SearchPageState extends State<SearchPage> {
       open ? _openSources.add(source) : _openSources.remove(source);
     });
     if (SP.isInitialized) {
-      unawaited(SP.prefs.setStringList(
-          SearchPage.sourcesPrefKey, [for (final s in _openSources) s.name]));
+      unawaited(
+        SP.prefs.setStringList(SearchPage.sourcesPrefKey, [
+          for (final s in _openSources) s.name,
+        ]),
+      );
     }
   }
 
@@ -289,17 +293,17 @@ class _SearchPageState extends State<SearchPage> {
   }
 
   List<UidTitleData> _results(String query) => filterDataSearchResults(
-        widget.entries,
-        query,
-        matchUid: isUserAdmin,
-        translatedTitleFor: (uid) => widget.libraryUids.contains(uid)
-            ? null
-            : ZikrTranslations.instance.titleFor(uid),
-        slugsFor: (uid) => [
-          if (itemSlugs[uid] != null) itemSlugs[uid]!,
-          ...?itemSlugAliases[uid],
-        ],
-      );
+    widget.entries,
+    query,
+    matchUid: isUserAdmin,
+    translatedTitleFor: (uid) => widget.libraryUids.contains(uid)
+        ? null
+        : ZikrTranslations.instance.titleFor(uid),
+    slugsFor: (uid) => [
+      if (itemSlugs[uid] != null) itemSlugs[uid]!,
+      ...?itemSlugAliases[uid],
+    ],
+  );
 
   /// The verse the query names (`2:255`, `baqarah 255`, `yasin 1`), offered
   /// above every other result.
@@ -320,7 +324,9 @@ class _SearchPageState extends State<SearchPage> {
     final item = UniversalData(entry.uid, entry.title, isBook ? 1 : 0);
     if (!isBook && isZikrGroup(entry)) {
       pushPageRoute(
-          context, ItemList(entry.getUId().split("~")[1], item.displayTitle));
+        context,
+        ItemList(entry.getUId().split("~")[1], item.displayTitle),
+      );
     } else {
       handleUniversalDataClick(context, item, source: ZikrOpenSource.search);
     }
@@ -333,8 +339,10 @@ class _SearchPageState extends State<SearchPage> {
     final query = _query.text.trim();
     // Results take a wide page's width, where their lists go two columns
     // on a desktop; what comes before typing stays one column.
-    final gutter = pageGutter(context,
-        maxWidth: query.isEmpty ? largeTitlePageWidth : widePageWidth);
+    final gutter = pageGutter(
+      context,
+      maxWidth: query.isEmpty ? largeTitlePageWidth : widePageWidth,
+    );
     final bottomOffset = floatingBottomOffset(context);
 
     return Scaffold(
@@ -352,10 +360,12 @@ class _SearchPageState extends State<SearchPage> {
                 valueListenable: PlaylistAudioService.instance.visible,
                 builder: (context, playing, _) => SliverPadding(
                   padding: EdgeInsets.only(
-                      bottom: bottomOffset +
-                          FindField.height +
-                          24 +
-                          (playing ? NowPlayingCapsule.contentClearance : 0)),
+                    bottom:
+                        bottomOffset +
+                        FindField.height +
+                        24 +
+                        (playing ? NowPlayingCapsule.contentClearance : 0),
+                  ),
                 ),
               ),
             ],
@@ -377,7 +387,8 @@ class _SearchPageState extends State<SearchPage> {
                 child: ConstrainedBox(
                   // A field's width, with the Close button beside it.
                   constraints: const BoxConstraints(
-                      maxWidth: floatingControlWidth + 10 + FindField.height),
+                    maxWidth: floatingControlWidth + 10 + FindField.height,
+                  ),
                   child: FloatingBottomSlot(
                     extent: bottomOffset + FindField.height,
                     child: Row(
@@ -496,7 +507,10 @@ class _SearchPageState extends State<SearchPage> {
   }
 
   List<Widget> _buildResults(
-      BuildContext context, EdgeInsets gutter, String query) {
+    BuildContext context,
+    EdgeInsets gutter,
+    String query,
+  ) {
     final l10n = context.l10n;
     final results = _results(query);
     final bySource = {
@@ -535,9 +549,11 @@ class _SearchPageState extends State<SearchPage> {
       for (final source in open)
         source: searchMatchRank(bySource[source]!.first.title, lowered),
     };
-    open.sort((a, b) => bestRank[a] != bestRank[b]
-        ? bestRank[a]! - bestRank[b]!
-        : a.index - b.index);
+    open.sort(
+      (a, b) => bestRank[a] != bestRank[b]
+          ? bestRank[a]! - bestRank[b]!
+          : a.index - b.index,
+    );
     final verse = _verseQuery(query);
 
     if (results.isEmpty && verse == null) {
@@ -549,7 +565,8 @@ class _SearchPageState extends State<SearchPage> {
               query: query,
               onRequest: () => showContentRequestDialog(
                 context,
-                initialType: _openSources.length == 1 &&
+                initialType:
+                    _openSources.length == 1 &&
                         _openSources.contains(SearchSource.library)
                     ? ContentRequestType.book
                     : ContentRequestType.zikr,
@@ -582,7 +599,9 @@ class _SearchPageState extends State<SearchPage> {
           sliver: SliverToBoxAdapter(
             child: _SectionHeader(
               label: l10n.searchSection(
-                  source.label(l10n), bySource[source]!.length),
+                source.label(l10n),
+                bySource[source]!.length,
+              ),
               // Nothing to hide it under when it is all there is.
               action: unfolded.contains(source) ? null : l10n.searchHide,
               actionSemantics: l10n.searchHideSource(source.label(l10n)),
@@ -644,7 +663,8 @@ class _SearchPageState extends State<SearchPage> {
       // work, mostly), so the author is what tells them apart.
       SearchSource.library => entry.author,
       SearchSource.quran => context.l10n.quranVerseCount(
-          surahInfoFor(surahForUid(entry.uid)!)?.ayahCount ?? 0),
+        surahInfoFor(surahForUid(entry.uid)!)?.ayahCount ?? 0,
+      ),
       SearchSource.zikr => _locations?[entry.uid],
     };
 
@@ -688,8 +708,12 @@ class _CloseButton extends StatelessWidget {
                 onTap: close,
                 customBorder: const CircleBorder(),
                 child: Center(
-                  child: OutlineIcon(OutlineGlyph.close,
-                      size: 22, color: colors.text, strokeWidth: 2.2),
+                  child: OutlineIcon(
+                    OutlineGlyph.close,
+                    size: 22,
+                    color: colors.text,
+                    strokeWidth: 2.2,
+                  ),
                 ),
               ),
             ),
@@ -788,8 +812,10 @@ class _ExampleCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(label,
-                    style: ShiaText.caption.copyWith(color: colors.textMuted)),
+                Text(
+                  label,
+                  style: ShiaText.caption.copyWith(color: colors.textMuted),
+                ),
                 const SizedBox(height: 1),
                 Text(
                   example,
@@ -828,15 +854,24 @@ class _RecentRow extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
             child: Row(
               children: [
-                OutlineIcon(OutlineGlyph.clock,
-                    size: 20, color: colors.textMuted),
+                OutlineIcon(
+                  OutlineGlyph.clock,
+                  size: 20,
+                  color: colors.textMuted,
+                ),
                 const SizedBox(width: 12),
                 Expanded(
-                  child: Text(term,
-                      style: ShiaText.body.copyWith(color: colors.text)),
+                  child: Text(
+                    term,
+                    style: ShiaText.body.copyWith(color: colors.text),
+                  ),
                 ),
-                OutlineIcon(OutlineGlyph.arrowRight,
-                    size: 18, color: colors.chevron, strokeWidth: 2),
+                OutlineIcon(
+                  OutlineGlyph.arrowRight,
+                  size: 18,
+                  color: colors.chevron,
+                  strokeWidth: 2,
+                ),
               ],
             ),
           ),
@@ -888,12 +923,17 @@ class _FoldedSection extends StatelessWidget {
                 color: colors.well,
                 borderRadius: BorderRadius.circular(10),
               ),
-              child:
-                  HomeGlyph(type: source.glyph, size: 22, color: colors.accent),
+              child: HomeGlyph(
+                type: source.glyph,
+                size: 22,
+                color: colors.accent,
+              ),
             ),
-            title: Text(count == 1
-                ? l10n.searchOneMatch(label)
-                : l10n.searchMatches(count, label)),
+            title: Text(
+              count == 1
+                  ? l10n.searchOneMatch(label)
+                  : l10n.searchMatches(count, label),
+            ),
             trailing: Padding(
               padding: const EdgeInsetsDirectional.only(start: 8, end: 8),
               child: Text(
@@ -955,9 +995,10 @@ class _GoToVerseCard extends StatelessWidget {
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: HomeGlyph(
-                          type: HomeGlyphType.surahs,
-                          size: 28,
-                          color: colors.accent),
+                        type: HomeGlyphType.surahs,
+                        size: 28,
+                        color: colors.accent,
+                      ),
                     ),
                     const SizedBox(width: 12),
                     Expanded(
@@ -966,7 +1007,9 @@ class _GoToVerseCard extends StatelessWidget {
                         children: [
                           Text(
                             l10n.searchVerseTitle(
-                                name, localizeDigits('$verse', l10n)),
+                              name,
+                              localizeDigits('$verse', l10n),
+                            ),
                             style: ShiaText.cardTitle.copyWith(
                               fontSize: 18,
                               fontWeight: FontWeight.w700,
@@ -976,8 +1019,9 @@ class _GoToVerseCard extends StatelessWidget {
                           if (surah != null)
                             Text(
                               l10n.searchVerseOf(ayah, surah.ayahCount),
-                              style: ShiaText.caption
-                                  .copyWith(color: colors.textMuted),
+                              style: ShiaText.caption.copyWith(
+                                color: colors.textMuted,
+                              ),
                             ),
                         ],
                       ),
@@ -992,8 +1036,10 @@ class _GoToVerseCard extends StatelessWidget {
                     backgroundColor: colors.accent,
                     foregroundColor: colors.onAccent,
                     shape: const StadiumBorder(),
-                    textStyle: buttonTextStyle(context, ShiaText.body)
-                        .copyWith(fontWeight: FontWeight.w600),
+                    textStyle: buttonTextStyle(
+                      context,
+                      ShiaText.body,
+                    ).copyWith(fontWeight: FontWeight.w600),
                   ),
                   child: Text(l10n.searchOpenVerse(ayah)),
                 ),
@@ -1053,8 +1099,10 @@ class _NoResults extends StatelessWidget {
               TextSpan(text: sentence.substring(0, at)),
               TextSpan(
                 text: word,
-                style:
-                    TextStyle(fontWeight: FontWeight.w700, color: colors.text),
+                style: TextStyle(
+                  fontWeight: FontWeight.w700,
+                  color: colors.text,
+                ),
               ),
               TextSpan(text: sentence.substring(at + word.length)),
             ],
@@ -1080,8 +1128,11 @@ class _NoResults extends StatelessWidget {
                   color: colors.well,
                   borderRadius: BorderRadius.circular(20),
                 ),
-                child: OutlineIcon(OutlineGlyph.search,
-                    size: 30, color: colors.accent),
+                child: OutlineIcon(
+                  OutlineGlyph.search,
+                  size: 30,
+                  color: colors.accent,
+                ),
               ),
               const SizedBox(height: 16),
               Semantics(
@@ -1121,8 +1172,10 @@ class _NoResults extends StatelessWidget {
                         color: colors.well,
                         borderRadius: BorderRadius.circular(12),
                       ),
-                      child: OutlineIcon(OutlineGlyph.playlistAdd,
-                          color: colors.accent),
+                      child: OutlineIcon(
+                        OutlineGlyph.playlistAdd,
+                        color: colors.accent,
+                      ),
                     ),
                     const SizedBox(width: 12),
                     Expanded(
@@ -1131,14 +1184,16 @@ class _NoResults extends StatelessWidget {
                         children: [
                           Text(
                             l10n.searchStillMissing,
-                            style:
-                                ShiaText.cardTitle.copyWith(color: colors.text),
+                            style: ShiaText.cardTitle.copyWith(
+                              color: colors.text,
+                            ),
                           ),
                           const SizedBox(height: 2),
                           Text(
                             l10n.searchStillMissingBody,
-                            style: ShiaText.secondary
-                                .copyWith(color: colors.textMuted),
+                            style: ShiaText.secondary.copyWith(
+                              color: colors.textMuted,
+                            ),
                           ),
                         ],
                       ),
@@ -1153,14 +1208,18 @@ class _NoResults extends StatelessWidget {
                     foregroundColor: colors.accent,
                     backgroundColor: colors.surface,
                     side: BorderSide(
-                        color: Color.lerp(colors.line, colors.chevron, 0.25)!),
+                      color: Color.lerp(colors.line, colors.chevron, 0.25)!,
+                    ),
                     shape: const StadiumBorder(),
-                    textStyle: buttonTextStyle(context, ShiaText.body)
-                        .copyWith(fontWeight: FontWeight.w600),
+                    textStyle: buttonTextStyle(
+                      context,
+                      ShiaText.body,
+                    ).copyWith(fontWeight: FontWeight.w600),
                   ),
                   child: Text(
                     l10n.searchRequest(
-                        query.substring(0, math.min(query.length, 60))),
+                      query.substring(0, math.min(query.length, 60)),
+                    ),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                     textAlign: TextAlign.center,

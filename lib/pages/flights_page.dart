@@ -165,19 +165,22 @@ class _FlightsPageState extends State<FlightsPage> {
                     for (final flight in flights)
                       Padding(
                         padding: const EdgeInsets.only(bottom: 14),
-                        child: Builder(builder: (context) {
-                          final resolved = ResolvedFlight.resolve(flight);
-                          return _FlightCard(
-                            flight: flight,
-                            resolved: resolved,
-                            plan: _planFor(flight, resolved),
-                            onOpen: () => pushPageRoute(
-                              context,
-                              FlightPrayerTimesPage(flight: flight),
-                            ),
-                            onOptions: (anchor) => _showOptions(anchor, flight),
-                          );
-                        }),
+                        child: Builder(
+                          builder: (context) {
+                            final resolved = ResolvedFlight.resolve(flight);
+                            return _FlightCard(
+                              flight: flight,
+                              resolved: resolved,
+                              plan: _planFor(flight, resolved),
+                              onOpen: () => pushPageRoute(
+                                context,
+                                FlightPrayerTimesPage(flight: flight),
+                              ),
+                              onOptions: (anchor) =>
+                                  _showOptions(anchor, flight),
+                            );
+                          },
+                        ),
                       ),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 4),
@@ -222,8 +225,10 @@ class _FlightCard extends StatelessWidget {
     final l10n = context.l10n;
     final colors = ShiaColors.of(context);
     final resolved = this.resolved;
-    final cities =
-        l10n.flightCities(flight.origin.place, flight.destination.place);
+    final cities = l10n.flightCities(
+      flight.origin.place,
+      flight.destination.place,
+    );
     final flightNumber = flight.flightNumber;
     final codeStyle = ShiaText.sectionTitle.copyWith(
       fontSize: 22,
@@ -261,17 +266,20 @@ class _FlightCard extends StatelessWidget {
                             children: [
                               Text(flight.origin.iata, style: codeStyle),
                               Padding(
-                                padding:
-                                    const EdgeInsets.symmetric(horizontal: 8),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 8,
+                                ),
                                 // The glyph points up; turned to fly from the
                                 // first code to the second.
                                 child: Transform.rotate(
                                   angle: (rtl ? -1 : 1) * math.pi / 2,
-                                  child: OutlineIcon(OutlineGlyph.plane,
-                                      size: 18,
-                                      color: colors.accent,
-                                      strokeWidth: 1.2,
-                                      filled: true),
+                                  child: OutlineIcon(
+                                    OutlineGlyph.plane,
+                                    size: 18,
+                                    color: colors.accent,
+                                    strokeWidth: 1.2,
+                                    filled: true,
+                                  ),
                                 ),
                               ),
                               Text(flight.destination.iata, style: codeStyle),
@@ -283,8 +291,9 @@ class _FlightCard extends StatelessWidget {
                           flightNumber == null
                               ? cities
                               : '$cities · $flightNumber',
-                          style: ShiaText.secondary
-                              .copyWith(color: colors.textMuted),
+                          style: ShiaText.secondary.copyWith(
+                            color: colors.textMuted,
+                          ),
                         ),
                       ],
                     ),
@@ -309,8 +318,9 @@ class _FlightCard extends StatelessWidget {
                             formatShortDate(flight.departureLocal),
                             formatClock12(flight.departureLocal),
                           ),
-                          style:
-                              ShiaText.cardTitle.copyWith(color: colors.text),
+                          style: ShiaText.cardTitle.copyWith(
+                            color: colors.text,
+                          ),
                         ),
                         if (resolved != null) ...[
                           const SizedBox(height: 2),
@@ -336,8 +346,12 @@ class _FlightCard extends StatelessWidget {
                   ),
                   Padding(
                     padding: const EdgeInsetsDirectional.only(start: 8, end: 8),
-                    child: OutlineIcon(OutlineGlyph.chevronRight,
-                        size: 16, color: colors.chevron, strokeWidth: 2.4),
+                    child: OutlineIcon(
+                      OutlineGlyph.chevronRight,
+                      size: 16,
+                      color: colors.chevron,
+                      strokeWidth: 2.4,
+                    ),
                   ),
                 ],
               ),

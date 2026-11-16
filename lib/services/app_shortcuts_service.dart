@@ -196,7 +196,10 @@ class AppShortcutsService with WidgetsBindingObserver {
   static const int maxShortcuts = 4;
 
   static ShortcutItem _item(AppShortcut shortcut, String title) => ShortcutItem(
-      type: shortcut.id, localizedTitle: title, icon: shortcut.icon);
+    type: shortcut.id,
+    localizedTitle: title,
+    icon: shortcut.icon,
+  );
 
   /// [title] without the Arabic that English zikr titles carry after the
   /// English ("Dua Kumayl دعاء كميل" -> "Dua Kumayl"): a launcher's one short
@@ -215,7 +218,5 @@ class AppShortcutsService with WidgetsBindingObserver {
     return latin.isEmpty ? trimmed : latin;
   }
 
-  static final RegExp _arabicScript = RegExp(
-    '[؀-ۿݐ-ݿࢠ-ࣿﭐ-﷿ﹰ-﻿]+',
-  );
+  static final RegExp _arabicScript = RegExp('[؀-ۿݐ-ݿࢠ-ࣿﭐ-﷿ﹰ-﻿]+');
 }

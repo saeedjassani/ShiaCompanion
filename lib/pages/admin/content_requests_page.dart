@@ -44,10 +44,14 @@ class _ContentRequestsPageState extends State<ContentRequestsPage> {
   }
 
   Future<void> _setResolved(ContentRequest request, bool resolved) async {
-    unawaited(AnalyticsService.feature(
-      resolved ? 'content_request_resolved' : 'content_request_reopened',
-      label: resolved ? 'Content request resolved' : 'Content request reopened',
-    ));
+    unawaited(
+      AnalyticsService.feature(
+        resolved ? 'content_request_resolved' : 'content_request_reopened',
+        label: resolved
+            ? 'Content request resolved'
+            : 'Content request reopened',
+      ),
+    );
     await ContentRequestService.setResolved(request.id, resolved);
   }
 
@@ -75,8 +79,8 @@ class _ContentRequestsPageState extends State<ContentRequestsPage> {
               builder: (context, snapshot) {
                 if (snapshot.hasError) {
                   return Center(
-                      child:
-                          Text('Could not load requests: ${snapshot.error}'));
+                    child: Text('Could not load requests: ${snapshot.error}'),
+                  );
                 }
                 if (!snapshot.hasData) {
                   return const Center(child: CircularProgressIndicator());
@@ -161,26 +165,22 @@ class _ContentRequestCard extends StatelessWidget {
                 const SizedBox(width: 6),
                 Text(
                   request.type.label,
-                  style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                        color: colorScheme.primary,
-                      ),
+                  style: Theme.of(context).textTheme.labelMedium
+                      ?.copyWith(color: colorScheme.primary),
                 ),
                 const Spacer(),
                 if (createdAt != null)
                   Text(
                     dateFormat.format(createdAt),
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: colorScheme.onSurfaceVariant,
-                        ),
+                    style: Theme.of(context).textTheme.bodySmall
+                        ?.copyWith(color: colorScheme.onSurfaceVariant),
                   ),
               ],
             ),
             const SizedBox(height: 6),
             SelectableText(
               request.title,
-              style: Theme.of(context)
-                  .textTheme
-                  .titleMedium
+              style: Theme.of(context).textTheme.titleMedium
                   ?.copyWith(fontWeight: FontWeight.w600),
             ),
             if (request.details.isNotEmpty) ...[

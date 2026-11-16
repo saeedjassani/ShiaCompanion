@@ -10,8 +10,6 @@ List<String> buildVisibleZikrTabContents({
     visibleTabs.add(primary);
   }
 
-  visibleTabs.addAll(
-    normalizedExtraTabs.where((tab) => tab.trim().isNotEmpty),
-  );
+  visibleTabs.addAll(normalizedExtraTabs.where((tab) => tab.trim().isNotEmpty));
   return visibleTabs;
 }

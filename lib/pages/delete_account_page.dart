@@ -38,10 +38,9 @@ Future<String?> deleteSignedInAccount() async {
   try {
     await AccountService.deleteCurrentAccountAndData();
     user = null;
-    unawaited(AnalyticsService.feature(
-      'account_deleted',
-      label: 'Account deleted',
-    ));
+    unawaited(
+      AnalyticsService.feature('account_deleted', label: 'Account deleted'),
+    );
     return null;
   } on AccountActionException catch (error) {
     return error.message;
@@ -174,16 +173,16 @@ class _DeleteAccountPageState extends State<DeleteAccountPage> {
           final gutter = pageGutter(context, maxWidth: compactContentWidth);
 
           Widget section(Widget child, {double bottom = 14}) => SliverPadding(
-                padding: gutter.copyWith(bottom: bottom),
-                sliver: SliverToBoxAdapter(child: child),
-              );
+            padding: gutter.copyWith(bottom: bottom),
+            sliver: SliverToBoxAdapter(child: child),
+          );
           Widget note(String text) => Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 4),
-                child: Text(
-                  text,
-                  style: ShiaText.secondary.copyWith(color: colors.textMuted),
-                ),
-              );
+            padding: const EdgeInsets.symmetric(horizontal: 4),
+            child: Text(
+              text,
+              style: ShiaText.secondary.copyWith(color: colors.textMuted),
+            ),
+          );
 
           final deleted = [
             l10n.deleteAccountItemSignIn,
@@ -197,22 +196,30 @@ class _DeleteAccountPageState extends State<DeleteAccountPage> {
             subtitle: l10n.deleteAccountHeading,
             maxWidth: compactContentWidth,
             slivers: [
-              section(note(currentUser == null
-                  ? l10n.deleteAccountSignInPrompt
-                  : l10n.deleteAccountSignedInAs(currentUser.email ??
-                      currentUser.displayName ??
-                      currentUser.uid))),
+              section(
+                note(
+                  currentUser == null
+                      ? l10n.deleteAccountSignInPrompt
+                      : l10n.deleteAccountSignedInAs(
+                          currentUser.email ??
+                              currentUser.displayName ??
+                              currentUser.uid,
+                        ),
+                ),
+              ),
               section(GroupLabel(l10n.deleteAccountWhatGetsDeleted), bottom: 8),
               section(
-                CardList(children: [
-                  for (final (i, item) in deleted.indexed)
-                    CardListRow(
-                      first: i == 0,
-                      last: i == deleted.length - 1,
-                      titleStyle: ShiaText.secondary,
-                      title: Text(item),
-                    ),
-                ]),
+                CardList(
+                  children: [
+                    for (final (i, item) in deleted.indexed)
+                      CardListRow(
+                        first: i == 0,
+                        last: i == deleted.length - 1,
+                        titleStyle: ShiaText.secondary,
+                        title: Text(item),
+                      ),
+                  ],
+                ),
                 bottom: 20,
               ),
               if (_isDeleted)
@@ -224,9 +231,13 @@ class _DeleteAccountPageState extends State<DeleteAccountPage> {
                   ),
                 )
               else if (currentUser == null) ...[
-                section(note(kIsWeb
-                    ? l10n.deleteAccountWebSteps
-                    : l10n.deleteAccountAppStepsAccount)),
+                section(
+                  note(
+                    kIsWeb
+                        ? l10n.deleteAccountWebSteps
+                        : l10n.deleteAccountAppStepsAccount,
+                  ),
+                ),
                 if (kIsWeb) ...[
                   section(
                     PageButton(
@@ -234,10 +245,15 @@ class _DeleteAccountPageState extends State<DeleteAccountPage> {
                           ? l10n.deleteAccountSigningIn
                           : l10n.settingsSignInGoogle,
                       busy: _signingIn == SignInProvider.google,
-                      icon: Image.asset('assets/images/google_logo.png',
-                          width: 20, height: 20, excludeFromSemantics: true),
-                      onPressed:
-                          _isBusy ? null : () => _signIn(SignInProvider.google),
+                      icon: Image.asset(
+                        'assets/images/google_logo.png',
+                        width: 20,
+                        height: 20,
+                        excludeFromSemantics: true,
+                      ),
+                      onPressed: _isBusy
+                          ? null
+                          : () => _signIn(SignInProvider.google),
                     ),
                     bottom: 10,
                   ),
@@ -247,13 +263,16 @@ class _DeleteAccountPageState extends State<DeleteAccountPage> {
                           ? l10n.deleteAccountSigningIn
                           : l10n.settingsSignInApple,
                       busy: _signingIn == SignInProvider.apple,
-                      icon: Image.asset('assets/images/apple_logo.png',
-                          width: 20,
-                          height: 20,
-                          color: colors.text,
-                          excludeFromSemantics: true),
-                      onPressed:
-                          _isBusy ? null : () => _signIn(SignInProvider.apple),
+                      icon: Image.asset(
+                        'assets/images/apple_logo.png',
+                        width: 20,
+                        height: 20,
+                        color: colors.text,
+                        excludeFromSemantics: true,
+                      ),
+                      onPressed: _isBusy
+                          ? null
+                          : () => _signIn(SignInProvider.apple),
                     ),
                   ),
                 ],

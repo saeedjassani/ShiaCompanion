@@ -83,8 +83,9 @@ class AudioDownloadStore extends ChangeNotifier {
 
   static const String folderName = 'zikr_audio';
 
-  static const MethodChannel _backupChannel =
-      MethodChannel('shia_companion/file_backup');
+  static const MethodChannel _backupChannel = MethodChannel(
+    'shia_companion/file_backup',
+  );
 
   /// Whether this platform can save recitations at all.
   static bool get isSupported => !kIsWeb;
@@ -137,8 +138,9 @@ class AudioDownloadStore extends ChangeNotifier {
 
   Future<void> _excludeFromBackup(Directory dir) async {
     try {
-      await _backupChannel
-          .invokeMethod<void>('excludeFromBackup', {'path': dir.path});
+      await _backupChannel.invokeMethod<void>('excludeFromBackup', {
+        'path': dir.path,
+      });
     } catch (error) {
       debugPrint('Unable to exclude saved audio from backup: $error');
     }
@@ -209,8 +211,9 @@ class AudioDownloadStore extends ChangeNotifier {
   /// Whether any of [tracks] failed to download last time it was tried - no
   /// signal, say, or a file gone from the bucket - and has not been saved
   /// since.
-  bool anyFailed(Iterable<ZikrAudioTrack> tracks) => tracks
-      .any((track) => _failed.containsKey(track.url) && !isDownloaded(track));
+  bool anyFailed(Iterable<ZikrAudioTrack> tracks) => tracks.any(
+    (track) => _failed.containsKey(track.url) && !isDownloaded(track),
+  );
 
   /// The worst reason any of [tracks] last failed for.
   AudioDownloadFailure? failureOf(Iterable<ZikrAudioTrack> tracks) {
@@ -278,8 +281,9 @@ class AudioDownloadStore extends ChangeNotifier {
       ..connectionTimeout = const Duration(seconds: 10);
     try {
       final request = await client.headUrl(Uri.parse(track.url));
-      final response =
-          await request.close().timeout(const Duration(seconds: 10));
+      final response = await request.close().timeout(
+        const Duration(seconds: 10),
+      );
       await response.drain<void>();
       if (response.statusCode == HttpStatus.ok && response.contentLength > 0) {
         return _sizes[track.url] = response.contentLength;
@@ -355,11 +359,13 @@ class AudioDownloadStore extends ChangeNotifier {
     if (added.isEmpty) return;
     _batches.add(_Batch(label, all, added));
     notifyListeners();
-    unawaited(AnalyticsService.feature(
-      'zikr_audio_download',
-      label: 'Zikr audio downloaded',
-      parameters: {'track_count': added.length},
-    ));
+    unawaited(
+      AnalyticsService.feature(
+        'zikr_audio_download',
+        label: 'Zikr audio downloaded',
+        parameters: {'track_count': added.length},
+      ),
+    );
     unawaited(_drain());
   }
 
@@ -440,12 +446,15 @@ class AudioDownloadStore extends ChangeNotifier {
       final response = await request.close();
       if (response.statusCode != HttpStatus.ok) {
         await response.drain<void>();
-        failure = response.statusCode == HttpStatus.notFound ||
+        failure =
+            response.statusCode == HttpStatus.notFound ||
                 response.statusCode == HttpStatus.forbidden
             ? AudioDownloadFailure.unavailable
             : AudioDownloadFailure.network;
-        throw HttpException('HTTP ${response.statusCode}',
-            uri: Uri.parse(track.url));
+        throw HttpException(
+          'HTTP ${response.statusCode}',
+          uri: Uri.parse(track.url),
+        );
       }
       final total = response.contentLength;
       if (total > 0) _sizes[track.url] = total;
@@ -477,8 +486,10 @@ class AudioDownloadStore extends ChangeNotifier {
       }
       if (total > 0 && received != total) {
         failure = AudioDownloadFailure.network;
-        throw HttpException('Download cut short ($received of $total bytes)',
-            uri: Uri.parse(track.url));
+        throw HttpException(
+          'Download cut short ($received of $total bytes)',
+          uri: Uri.parse(track.url),
+        );
       }
       await part.rename(file.path);
       _saved[fileNameFor(track)] = received;
@@ -510,8 +521,8 @@ class AudioDownloadStore extends ChangeNotifier {
       final code = error.osError?.errorCode;
       // ENOSPC on Linux/Android (28) and Darwin (28 as well).
       if (code == 28) return AudioDownloadFailure.storage;
-      final message =
-          '${error.message} ${error.osError?.message}'.toLowerCase();
+      final message = '${error.message} ${error.osError?.message}'
+          .toLowerCase();
       if (message.contains('no space')) return AudioDownloadFailure.storage;
     }
     return AudioDownloadFailure.network;
@@ -538,13 +549,15 @@ class AudioDownloadStore extends ChangeNotifier {
       _batches.remove(batch);
       // A batch the reader cancelled outright reports nothing: they know.
       if (batch.saved == 0 && batch.failed == 0) continue;
-      _results.add(AudioDownloadResult(
-        label: batch.label,
-        tracks: batch.tracks,
-        saved: batch.saved,
-        failed: batch.failed,
-        failure: batch.failure,
-      ));
+      _results.add(
+        AudioDownloadResult(
+          label: batch.label,
+          tracks: batch.tracks,
+          saved: batch.saved,
+          failed: batch.failed,
+          failure: batch.failure,
+        ),
+      );
     }
     if (cancelled) _failed.remove(url);
   }
@@ -554,14 +567,23 @@ class AudioDownloadStore extends ChangeNotifier {
 String formatAudioBytes(int bytes) {
   final strings = L10n.current;
   if (bytes >= 1024 * 1024 * 1024) {
-    return strings.sizeGigabytes(localizeDigits(
-        (bytes / (1024 * 1024 * 1024)).toStringAsFixed(1), strings));
+    return strings.sizeGigabytes(
+      localizeDigits(
+        (bytes / (1024 * 1024 * 1024)).toStringAsFixed(1),
+        strings,
+      ),
+    );
   }
   if (bytes >= 1024 * 1024) {
     final mb = bytes / (1024 * 1024);
-    return strings.sizeMegabytes(localizeDigits(
-        mb >= 100 ? '${mb.round()}' : mb.toStringAsFixed(1), strings));
+    return strings.sizeMegabytes(
+      localizeDigits(
+        mb >= 100 ? '${mb.round()}' : mb.toStringAsFixed(1),
+        strings,
+      ),
+    );
   }
-  return strings
-      .sizeKilobytes(localizeDigits('${(bytes / 1024).ceil()}', strings));
+  return strings.sizeKilobytes(
+    localizeDigits('${(bytes / 1024).ceil()}', strings),
+  );
 }

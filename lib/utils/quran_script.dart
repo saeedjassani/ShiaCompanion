@@ -41,11 +41,11 @@ class QuranScript {
 
   /// [document], surah [surah], in this script and tagged with its font.
   Map<String, dynamic> applyTo(int surah, Map<String, dynamic> document) => {
-        ...document,
-        'data': apply(surah, document['data']?.toString() ?? ''),
-        arabicFontFamilyKey: fontFamily,
-        quranScriptFontKey: font,
-      };
+    ...document,
+    'data': apply(surah, document['data']?.toString() ?? ''),
+    arabicFontFamilyKey: fontFamily,
+    quranScriptFontKey: font,
+  };
 }
 
 /// The script [font] (by default the current [arabicFont]) shows surahs in,
@@ -58,17 +58,25 @@ Future<QuranScript?> loadQuranScript(AssetBundle bundle, {String? font}) async {
   try {
     if (usesIndoPakScript(selected)) {
       final quran = await IndoPakQuran.load(bundle);
-      return QuranScript._(selected, quranWbwFontFamily,
-          (surah, data) => toIndoPak(surah, data, quran));
+      return QuranScript._(
+        selected,
+        quranWbwFontFamily,
+        (surah, data) => toIndoPak(surah, data, quran),
+      );
     }
     if (usesUthmaniScript(selected)) {
       final quran = await UthmaniQuran.load(bundle);
       return QuranScript._(
-          selected, selected, (surah, data) => toUthmani(surah, data, quran));
+        selected,
+        selected,
+        (surah, data) => toUthmani(surah, data, quran),
+      );
     }
   } catch (error) {
-    debugPrint('Quran script for $selected unavailable, showing the corpus '
-        'text: $error');
+    debugPrint(
+      'Quran script for $selected unavailable, showing the corpus '
+      'text: $error',
+    );
   }
   return null;
 }

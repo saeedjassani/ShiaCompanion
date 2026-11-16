@@ -1,39 +1,30 @@
 import '../l10n/l10n.dart';
 
-enum QazaEntryType {
-  fajr,
-  dhuhr,
-  asr,
-  maghrib,
-  isha,
-  ayat,
-  other,
-  fast,
-}
+enum QazaEntryType { fajr, dhuhr, asr, maghrib, isha, ayat, other, fast }
 
 extension QazaEntryTypeInfo on QazaEntryType {
   String get key => switch (this) {
-        QazaEntryType.fajr => 'fajr',
-        QazaEntryType.dhuhr => 'dhuhr',
-        QazaEntryType.asr => 'asr',
-        QazaEntryType.maghrib => 'maghrib',
-        QazaEntryType.isha => 'isha',
-        QazaEntryType.ayat => 'namaz_e_ayat',
-        QazaEntryType.other => 'other',
-        QazaEntryType.fast => 'fast',
-      };
+    QazaEntryType.fajr => 'fajr',
+    QazaEntryType.dhuhr => 'dhuhr',
+    QazaEntryType.asr => 'asr',
+    QazaEntryType.maghrib => 'maghrib',
+    QazaEntryType.isha => 'isha',
+    QazaEntryType.ayat => 'namaz_e_ayat',
+    QazaEntryType.other => 'other',
+    QazaEntryType.fast => 'fast',
+  };
 
   String get label => switch (this) {
-        QazaEntryType.fajr => L10n.current.prayerFajr,
-        // Zuhr, as everywhere else in the app.
-        QazaEntryType.dhuhr => L10n.current.prayerZuhr,
-        QazaEntryType.asr => L10n.current.prayerAsr,
-        QazaEntryType.maghrib => L10n.current.prayerMaghrib,
-        QazaEntryType.isha => L10n.current.prayerIsha,
-        QazaEntryType.ayat => L10n.current.qazaAyat,
-        QazaEntryType.other => L10n.current.qazaOther,
-        QazaEntryType.fast => L10n.current.qazaFasts,
-      };
+    QazaEntryType.fajr => L10n.current.prayerFajr,
+    // Zuhr, as everywhere else in the app.
+    QazaEntryType.dhuhr => L10n.current.prayerZuhr,
+    QazaEntryType.asr => L10n.current.prayerAsr,
+    QazaEntryType.maghrib => L10n.current.prayerMaghrib,
+    QazaEntryType.isha => L10n.current.prayerIsha,
+    QazaEntryType.ayat => L10n.current.qazaAyat,
+    QazaEntryType.other => L10n.current.qazaOther,
+    QazaEntryType.fast => L10n.current.qazaFasts,
+  };
 
   bool get isPrayer => this != QazaEntryType.fast;
 
@@ -72,10 +63,7 @@ QazaEntryType? qazaEntryTypeFromKey(String key) {
 }
 
 class QazaEntryCount {
-  const QazaEntryCount({
-    this.remaining = 0,
-    this.completed = 0,
-  });
+  const QazaEntryCount({this.remaining = 0, this.completed = 0});
 
   static const zero = QazaEntryCount();
 
@@ -86,10 +74,7 @@ class QazaEntryCount {
 
   int get total => remaining + completed;
 
-  QazaEntryCount copyWith({
-    int? remaining,
-    int? completed,
-  }) {
+  QazaEntryCount copyWith({int? remaining, int? completed}) {
     return QazaEntryCount(
       remaining: _nonNegative(remaining ?? this.remaining),
       completed: _nonNegative(completed ?? this.completed),
@@ -110,10 +95,7 @@ class QazaEntryCount {
     );
   }
 
-  Map<String, int> toJson() => {
-        'remaining': remaining,
-        'completed': completed,
-      };
+  Map<String, int> toJson() => {'remaining': remaining, 'completed': completed};
 
   static QazaEntryCount fromJson(dynamic value) {
     if (value is! Map) return zero;
@@ -125,10 +107,7 @@ class QazaEntryCount {
 }
 
 class QazaEntryDelta {
-  const QazaEntryDelta({
-    this.remaining = 0,
-    this.completed = 0,
-  });
+  const QazaEntryDelta({this.remaining = 0, this.completed = 0});
 
   static const zero = QazaEntryDelta();
 
@@ -152,16 +131,10 @@ class QazaEntryDelta {
   }
 
   QazaEntryDelta inverse() {
-    return QazaEntryDelta(
-      remaining: -remaining,
-      completed: -completed,
-    );
+    return QazaEntryDelta(remaining: -remaining, completed: -completed);
   }
 
-  Map<String, int> toJson() => {
-        'remaining': remaining,
-        'completed': completed,
-      };
+  Map<String, int> toJson() => {'remaining': remaining, 'completed': completed};
 
   static QazaEntryDelta fromJson(dynamic value) {
     if (value is! Map) return zero;
@@ -174,12 +147,9 @@ class QazaEntryDelta {
 
 class QazaTrackerDelta {
   QazaTrackerDelta([Map<QazaEntryType, QazaEntryDelta>? deltas])
-      : deltas = Map.unmodifiable(_sanitizeDeltas(deltas ?? const {}));
+    : deltas = Map.unmodifiable(_sanitizeDeltas(deltas ?? const {}));
 
-  factory QazaTrackerDelta.single(
-    QazaEntryType type,
-    QazaEntryDelta delta,
-  ) {
+  factory QazaTrackerDelta.single(QazaEntryType type, QazaEntryDelta delta) {
     return QazaTrackerDelta({type: delta});
   }
 
@@ -203,8 +173,9 @@ class QazaTrackerDelta {
     return QazaTrackerDelta({
       for (final entry in value.entries)
         if (qazaEntryTypeFromKey(entry.key.toString()) != null)
-          qazaEntryTypeFromKey(entry.key.toString())!:
-              QazaEntryDelta.fromJson(entry.value),
+          qazaEntryTypeFromKey(entry.key.toString())!: QazaEntryDelta.fromJson(
+            entry.value,
+          ),
     });
   }
 
@@ -233,8 +204,8 @@ class QazaTrackerDelta {
   }
 
   Map<String, Map<String, int>> toJson() => {
-        for (final entry in deltas.entries) entry.key.key: entry.value.toJson(),
-      };
+    for (final entry in deltas.entries) entry.key.key: entry.value.toJson(),
+  };
 
   static Map<QazaEntryType, QazaEntryDelta> _sanitizeDeltas(
     Map<QazaEntryType, QazaEntryDelta> source,
@@ -248,18 +219,19 @@ class QazaTrackerDelta {
 
 class QazaTrackerState {
   QazaTrackerState([Map<QazaEntryType, QazaEntryCount>? entries])
-      : entries = Map.unmodifiable({
-          for (final type in QazaEntryType.values)
-            type: entries?[type] ?? QazaEntryCount.zero,
-        });
+    : entries = Map.unmodifiable({
+        for (final type in QazaEntryType.values)
+          type: entries?[type] ?? QazaEntryCount.zero,
+      });
 
   factory QazaTrackerState.fromJson(dynamic value) {
     if (value is! Map) return QazaTrackerState.empty;
     return QazaTrackerState({
       for (final entry in value.entries)
         if (qazaEntryTypeFromKey(entry.key.toString()) != null)
-          qazaEntryTypeFromKey(entry.key.toString())!:
-              QazaEntryCount.fromJson(entry.value),
+          qazaEntryTypeFromKey(entry.key.toString())!: QazaEntryCount.fromJson(
+            entry.value,
+          ),
     });
   }
 
@@ -280,10 +252,7 @@ class QazaTrackerState {
   }
 
   QazaTrackerState setCount(QazaEntryType type, QazaEntryCount count) {
-    return QazaTrackerState({
-      ...entries,
-      type: count,
-    });
+    return QazaTrackerState({...entries, type: count});
   }
 
   QazaTrackerState plus(QazaTrackerState other) {
@@ -302,9 +271,8 @@ class QazaTrackerState {
   }
 
   Map<String, Map<String, int>> toJson() => {
-        for (final entry in entries.entries)
-          entry.key.key: entry.value.toJson(),
-      };
+    for (final entry in entries.entries) entry.key.key: entry.value.toJson(),
+  };
 }
 
 int _readInt(dynamic value) => _nonNegative(_readSignedInt(value));

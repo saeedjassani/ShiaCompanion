@@ -28,18 +28,22 @@ class ZikrPlaylist {
       id: json['id']?.toString() ?? '',
       name: json['name']?.toString() ?? '',
       zikrUids: rawUids is List
-          ? List.unmodifiable(rawUids
-              .map((uid) => uid?.toString().trim() ?? '')
-              .where((uid) => uid.isNotEmpty))
+          ? List.unmodifiable(
+              rawUids
+                  .map((uid) => uid?.toString().trim() ?? '')
+                  .where((uid) => uid.isNotEmpty),
+            )
           : const [],
-      updatedAt: DateTime.tryParse(json['updatedAt']?.toString() ?? '') ??
+      updatedAt:
+          DateTime.tryParse(json['updatedAt']?.toString() ?? '') ??
           DateTime.fromMillisecondsSinceEpoch(0, isUtc: true),
       trackFiles: rawTracks is Map
           ? Map.unmodifiable({
               for (final entry in rawTracks.entries)
                 if (entry.value is List)
                   entry.key.toString(): List<String>.unmodifiable(
-                      (entry.value as List).map((file) => file.toString())),
+                    (entry.value as List).map((file) => file.toString()),
+                  ),
             })
           : const {},
     );
@@ -117,10 +121,10 @@ class ZikrPlaylist {
   }
 
   Map<String, dynamic> toJson() => {
-        'id': id,
-        'name': name,
-        'zikrUids': zikrUids,
-        'updatedAt': updatedAt.toUtc().toIso8601String(),
-        if (trackFiles.isNotEmpty) 'trackFiles': trackFiles,
-      };
+    'id': id,
+    'name': name,
+    'zikrUids': zikrUids,
+    'updatedAt': updatedAt.toUtc().toIso8601String(),
+    if (trackFiles.isNotEmpty) 'trackFiles': trackFiles,
+  };
 }

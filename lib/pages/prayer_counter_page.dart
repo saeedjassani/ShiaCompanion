@@ -171,15 +171,15 @@ class _PrayerCounterPageState extends State<PrayerCounterPage>
       _sensorArmed = false;
     });
     _restartDimTimer();
-    _proximitySubscription =
-        widget.proximitySensorService.proximityStates.listen(
-      _handleProximityState,
-      onError: (_) {
-        if (!mounted) return;
-        unawaited(_setSensorEnabled(false));
-        showToast(context.l10n.counterSensorStopped);
-      },
-    );
+    _proximitySubscription = widget.proximitySensorService.proximityStates
+        .listen(
+          _handleProximityState,
+          onError: (_) {
+            if (!mounted) return;
+            unawaited(_setSensorEnabled(false));
+            showToast(context.l10n.counterSensorStopped);
+          },
+        );
   }
 
   void _handleProximityState(bool isNear) {
@@ -192,7 +192,8 @@ class _PrayerCounterPageState extends State<PrayerCounterPage>
     }
 
     final now = DateTime.now();
-    final wasRecentlyCounted = _lastSensorCountAt != null &&
+    final wasRecentlyCounted =
+        _lastSensorCountAt != null &&
         now.difference(_lastSensorCountAt!) < _sensorDebounce;
     if (!_sensorArmed || wasRecentlyCounted || _counter.isComplete) return;
 
@@ -211,11 +212,13 @@ class _PrayerCounterPageState extends State<PrayerCounterPage>
     setState(() => _counter = _counter.recordSajdah());
     _saveCounter();
     if (_counter.isComplete) {
-      unawaited(AnalyticsService.feature(
-        'rakaat_prayer_completed',
-        label: 'Rakaat counter completed',
-        parameters: {'total_rakaat': _counter.totalRakaat},
-      ));
+      unawaited(
+        AnalyticsService.feature(
+          'rakaat_prayer_completed',
+          label: 'Rakaat counter completed',
+          parameters: {'total_rakaat': _counter.totalRakaat},
+        ),
+      );
       HapticFeedback.heavyImpact();
       // Bright again for the end of the prayer, so "Prayer complete" and
       // the salawat below can be read.
@@ -256,7 +259,8 @@ class _PrayerCounterPageState extends State<PrayerCounterPage>
     if (totalRakaat == _counter.totalRakaat) return;
 
     if (_counter.hasStarted) {
-      final shouldReset = await showDialog<bool>(
+      final shouldReset =
+          await showDialog<bool>(
             context: context,
             builder: (context) => AlertDialog(
               title: Text(context.l10n.counterStartOverTitle),
@@ -287,9 +291,7 @@ class _PrayerCounterPageState extends State<PrayerCounterPage>
   void _saveCounter() {
     if (!SP.isInitialized) return;
     unawaited(SP.prefs.setInt(_totalRakaatKey, _counter.totalRakaat));
-    unawaited(
-      SP.prefs.setInt(_completedSajdahsKey, _counter.completedSajdahs),
-    );
+    unawaited(SP.prefs.setInt(_completedSajdahsKey, _counter.completedSajdahs));
   }
 
   void _showPlacementGuide() {
@@ -476,17 +478,18 @@ class _PrayerCounterPageState extends State<PrayerCounterPage>
     final (label, dot) = _counter.isComplete
         ? (l10n.counterComplete, colors.success)
         : _sensorAvailable == null
-            ? (l10n.counterCheckingSensor, colors.chevron)
-            : _sensorAvailable == false
-                ? (l10n.counterNoSensorPill, colors.chevron)
-                : _sensorEnabled && _sensorNear
-                    ? (l10n.counterSajdahDetected, colors.accent)
-                    : _sensorEnabled
-                        ? (l10n.counterSensorOnPill, colors.success)
-                        : (l10n.counterSensorOffPill, colors.chevron);
+        ? (l10n.counterCheckingSensor, colors.chevron)
+        : _sensorAvailable == false
+        ? (l10n.counterNoSensorPill, colors.chevron)
+        : _sensorEnabled && _sensorNear
+        ? (l10n.counterSajdahDetected, colors.accent)
+        : _sensorEnabled
+        ? (l10n.counterSensorOnPill, colors.success)
+        : (l10n.counterSensorOffPill, colors.chevron);
     final toggleable = _sensorAvailable == true && !_counter.isComplete;
-    final onTap =
-        toggleable ? () => unawaited(_setSensorEnabled(!_sensorEnabled)) : null;
+    final onTap = toggleable
+        ? () => unawaited(_setSensorEnabled(!_sensorEnabled))
+        : null;
 
     return Semantics(
       button: toggleable,
@@ -513,8 +516,10 @@ class _PrayerCounterPageState extends State<PrayerCounterPage>
                   Container(
                     width: 9,
                     height: 9,
-                    decoration:
-                        BoxDecoration(color: dot, shape: BoxShape.circle),
+                    decoration: BoxDecoration(
+                      color: dot,
+                      shape: BoxShape.circle,
+                    ),
                   ),
                   const SizedBox(width: 8),
                   Flexible(
@@ -544,14 +549,17 @@ class _PrayerCounterPageState extends State<PrayerCounterPage>
     final hint = complete
         ? l10n.counterCompleteHint
         : _sensorEnabled
-            ? l10n.counterMissedHint
-            : l10n.counterManualTapHint;
+        ? l10n.counterMissedHint
+        : l10n.counterManualTapHint;
 
     return Semantics(
       button: !complete,
       label: complete ? l10n.counterPrayerComplete : l10n.counterAddSajdah,
-      value: l10n.counterSemanticsValue(_counter.currentRakaat,
-          _counter.totalRakaat, _counter.sajdahsInCurrentRakaat),
+      value: l10n.counterSemanticsValue(
+        _counter.currentRakaat,
+        _counter.totalRakaat,
+        _counter.sajdahsInCurrentRakaat,
+      ),
       hint: complete ? l10n.counterCompleteHint : null,
       excludeSemantics: true,
       onTap: complete ? null : _recordSajdah,
@@ -649,15 +657,15 @@ class _CountPalette {
   });
 
   factory _CountPalette.of(ShiaColors colors) => _CountPalette(
-        number: colors.text,
-        muted: colors.textMuted,
-        done: colors.accent,
-        now: Color.lerp(colors.accent, colors.readerDivider, 0.5)!,
-        ahead: colors.readerDivider,
-        dotOn: colors.accent,
-        dotOff: Color.lerp(colors.line, colors.chevron, 0.5)!,
-        label: colors.text,
-      );
+    number: colors.text,
+    muted: colors.textMuted,
+    done: colors.accent,
+    now: Color.lerp(colors.accent, colors.readerDivider, 0.5)!,
+    ahead: colors.readerDivider,
+    dotOn: colors.accent,
+    dotOff: Color.lerp(colors.line, colors.chevron, 0.5)!,
+    label: colors.text,
+  );
 
   /// Mockup `Rakaat-B`: nothing brighter than a dim sand on black.
   static const dim = _CountPalette(
@@ -701,14 +709,14 @@ class _CountDisplay extends StatelessWidget {
     final sajdahs = counter.sajdahsInCurrentRakaat;
 
     Widget dot(bool on) => Container(
-          width: 18 * scale,
-          height: 18 * scale,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: on ? palette.dotOn : null,
-            border: on ? null : Border.all(color: palette.dotOff, width: 2),
-          ),
-        );
+      width: 18 * scale,
+      height: 18 * scale,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        color: on ? palette.dotOn : null,
+        border: on ? null : Border.all(color: palette.dotOff, width: 2),
+      ),
+    );
 
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -765,8 +773,8 @@ class _CountDisplay extends StatelessWidget {
                   color: complete || i < counter.currentRakaat
                       ? palette.done
                       : i == counter.currentRakaat
-                          ? palette.now
-                          : palette.ahead,
+                      ? palette.now
+                      : palette.ahead,
                 ),
               ),
             ],
@@ -815,8 +823,11 @@ class _DimView extends StatelessWidget {
       child: Semantics(
         button: true,
         label: l10n.counterDimmedHint,
-        value: l10n.counterSemanticsValue(counter.currentRakaat,
-            counter.totalRakaat, counter.sajdahsInCurrentRakaat),
+        value: l10n.counterSemanticsValue(
+          counter.currentRakaat,
+          counter.totalRakaat,
+          counter.sajdahsInCurrentRakaat,
+        ),
         excludeSemantics: true,
         onTap: onBrighten,
         child: GestureDetector(
@@ -836,17 +847,20 @@ class _DimView extends StatelessWidget {
                         child: Material(
                           color: Colors.transparent,
                           shape: const CircleBorder(
-                              side: BorderSide(color: Color(0xFF2A241E))),
+                            side: BorderSide(color: Color(0xFF2A241E)),
+                          ),
                           clipBehavior: Clip.antiAlias,
                           child: InkWell(
                             onTap: onBrighten,
                             child: const SizedBox.square(
                               dimension: 44,
                               child: Center(
-                                child: OutlineIcon(OutlineGlyph.close,
-                                    size: 20,
-                                    color: Color(0xFF8C7B6B),
-                                    strokeWidth: 2),
+                                child: OutlineIcon(
+                                  OutlineGlyph.close,
+                                  size: 20,
+                                  color: Color(0xFF8C7B6B),
+                                  strokeWidth: 2,
+                                ),
                               ),
                             ),
                           ),

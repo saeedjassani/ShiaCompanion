@@ -1,12 +1,10 @@
 import 'dart:convert';
+
 import '../l10n/l10n.dart';
 
 /// Whether a [ZikrReminder] fires at a clock time the user picked, or at an
 /// offset from a prayer time that shifts with the calendar and location.
-enum ZikrReminderTimeMode {
-  fixedTime,
-  relativeToPrayer,
-}
+enum ZikrReminderTimeMode { fixedTime, relativeToPrayer }
 
 /// A user-defined reminder to recite a particular zikr/dua on one or more
 /// days of the week — e.g. Tawassul every Tuesday night, or Dua Kumail 30
@@ -126,18 +124,18 @@ class ZikrReminder {
   }
 
   Map<String, dynamic> toJson() => {
-        'id': id,
-        'notificationBaseId': notificationBaseId,
-        'title': title,
-        'zikrUid': zikrUid,
-        'daysOfWeek': (daysOfWeek.toList()..sort()),
-        'mode': mode.name,
-        'hour': hour,
-        'minute': minute,
-        'prayerName': prayerName,
-        'offsetMinutes': offsetMinutes,
-        'enabled': enabled,
-      };
+    'id': id,
+    'notificationBaseId': notificationBaseId,
+    'title': title,
+    'zikrUid': zikrUid,
+    'daysOfWeek': (daysOfWeek.toList()..sort()),
+    'mode': mode.name,
+    'hour': hour,
+    'minute': minute,
+    'prayerName': prayerName,
+    'offsetMinutes': offsetMinutes,
+    'enabled': enabled,
+  };
 
   /// Parses one reminder, tolerating anything malformed by returning null —
   /// one bad entry should cost itself, not the whole stored list.

@@ -31,10 +31,14 @@ class SavedVersesStore {
       final decoded = jsonDecode(encoded);
       if (decoded is! List) return const [];
 
-      return List.unmodifiable(decoded
-          .whereType<Map>()
-          .map((entry) => SavedVerse.fromJson(Map<String, dynamic>.from(entry)))
-          .where((verse) => verse.isValid));
+      return List.unmodifiable(
+        decoded
+            .whereType<Map>()
+            .map(
+              (entry) => SavedVerse.fromJson(Map<String, dynamic>.from(entry)),
+            )
+            .where((verse) => verse.isValid),
+      );
     } catch (error) {
       debugPrint('Unable to read saved verses: $error');
       return const [];

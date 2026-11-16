@@ -47,8 +47,9 @@ class FirestoreActivityStatsRemote implements ActivityStatsRemote {
 
   @override
   Future<Map<String, DeviceActivity>?> fetch(String userId) async {
-    final snapshot =
-        await _doc(userId).get().timeout(const Duration(seconds: 8));
+    final snapshot = await _doc(userId)
+        .get()
+        .timeout(const Duration(seconds: 8));
     final devices = snapshot.data()?['devices'];
     if (devices is! Map) return null;
     final result = <String, DeviceActivity>{};
@@ -143,10 +144,10 @@ class ActivityStatsStore extends ChangeNotifier {
     bool Function()? syncEnabled,
     InstallMarker installMarker = const FileInstallMarker(),
     this.recitationSource,
-  })  : _remote = remote,
-        _clock = clock ?? DateTime.now,
-        _syncEnabled = syncEnabled ?? _alwaysOn,
-        _installMarker = installMarker;
+  }) : _remote = remote,
+       _clock = clock ?? DateTime.now,
+       _syncEnabled = syncEnabled ?? _alwaysOn,
+       _installMarker = installMarker;
 
   static final ActivityStatsStore instance = ActivityStatsStore(
     recitationSource: () => RecitationTrackerManager.instance,
@@ -357,8 +358,9 @@ class ActivityStatsStore extends ChangeNotifier {
     if (userId == null) return;
     final lastPush = SP.prefs.getInt(_lastPushKey);
     if (lastPush != null) {
-      final since =
-          _clock().difference(DateTime.fromMillisecondsSinceEpoch(lastPush));
+      final since = _clock().difference(
+        DateTime.fromMillisecondsSinceEpoch(lastPush),
+      );
       if (since < minPushInterval && !since.isNegative) return;
     }
     await _push(userId);
@@ -367,8 +369,8 @@ class ActivityStatsStore extends ChangeNotifier {
   /// One write at a time: on a slow connection a write can stay unconfirmed
   /// for minutes, and a pause in the meantime must not queue a second copy.
   Future<void> _push(String userId) {
-    return _pushInFlight ??=
-        _pushNow(userId).whenComplete(() => _pushInFlight = null);
+    return _pushInFlight ??= _pushNow(userId)
+        .whenComplete(() => _pushInFlight = null);
   }
 
   Future<void> _pushNow(String userId) async {

@@ -34,8 +34,10 @@ VerseKey? _verse(int surah, String rawAyah) {
 }
 
 final RegExp _numericPattern = RegExp(r'^(\d{1,3})\s*[:/.\-\s]\s*(\d{1,3})$');
-final RegExp _namedPattern =
-    RegExp(r'^(\D*[^\d\s:/.\-])[\s:/.\-]*(\d{1,3})$', unicode: true);
+final RegExp _namedPattern = RegExp(
+  r'^(\D*[^\d\s:/.\-])[\s:/.\-]*(\d{1,3})$',
+  unicode: true,
+);
 
 /// The surahs whose name [query] spells, as loosely as people type them:
 /// with or without the article (`baqarah`, `al-baqarah`), with doubled or

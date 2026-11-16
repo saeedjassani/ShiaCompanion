@@ -19,6 +19,7 @@ import '../../utils/web_route_sync.dart';
 import '../../theme/shia_colors.dart';
 import '../../widgets/favorite_icon.dart';
 import '../../widgets/outline_icon.dart';
+import '../../widgets/app_toast.dart';
 import '../../widgets/page_chrome.dart';
 import 'go_to_verse_sheet.dart';
 import 'listen_and_follow_sheet.dart';
@@ -120,27 +121,25 @@ class _QuranPageState extends State<QuranPage>
     await _open(verse);
   }
 
-  Future<void> _openJuz(int juz) async {
-    await openQuranJuz(context, juz);
-  }
-
-  /// A surah or juz tapped in the lists. If a Khatm is up to it, asks
-  /// first whether to carry on the Khatm instead ([askToContinueKhatm]):
-  /// opened from the list, the reading would not count towards it.
+  /// A surah or juz tapped in the lists, opened where it starts. If a
+  /// Khatm is up to it, a toast says where the Khatm is, with a button to
+  /// carry it on ([offerKhatmPlace]): opened from the list, the reading
+  /// does not count towards it.
   Future<void> _openFromList({int? surah, int? juz}) async {
-    final choice = await askToContinueKhatm(context, surah: surah, juz: juz);
-    if (!mounted) return;
-    switch (choice) {
-      case KhatmChoice(:final label?):
-        await openRecitationTrack(context, label);
-      case KhatmChoice():
-        if (surah != null) {
-          await _open(VerseKey(surah));
-        } else {
-          await _openJuz(juz!);
-        }
-      case null:
-      // Closed without an answer: stay on the list.
+    final label = khatmToOffer(
+      RecitationTrackerManager.instance.state,
+      surah: surah,
+      juz: juz,
+    );
+    // Once the reader is on screen, so the toast belongs to it.
+    void offer() {
+      if (label != null) offerKhatmPlace(label);
+    }
+
+    if (surah != null) {
+      await openQuranVerse(context, VerseKey(surah), onOpened: offer);
+    } else {
+      await openQuranJuz(context, juz!, onOpened: offer);
     }
   }
 
@@ -319,101 +318,53 @@ class _RecitationTrackCards extends StatelessWidget {
   }
 }
 
-/// What the reader answered [askToContinueKhatm]: the Khatm to carry on,
-/// or - [label] null - to read from the list as asked.
-@immutable
-class KhatmChoice {
-  const KhatmChoice(this.label);
-
-  final String? label;
-}
-
-/// Prefs key: the Khatm places the reader said "No, just read" to, as
-/// [khatmPromptPlace]s, so the same question is not asked twice.
-const String khatmPromptDeclinedKey = 'quran_khatm_prompt_declined';
-
-/// One answer remembered under [khatmPromptDeclinedKey]: [label] at
-/// [verse]. Once the Khatm moves on, it is a new place and may be asked
-/// about again.
-String khatmPromptPlace(String label, VerseKey verse) =>
-    '$label|${verse.surah}:${verse.ayah ?? 1}';
+/// How long [offerKhatmPlace]'s toast stays: a little longer than most,
+/// as it is read while the surah opens.
+const Duration khatmToastDuration = Duration(seconds: 6);
 
 /// The Khatm to offer when [surah] (or [juz]) is opened from the Quran
-/// screen's lists: the one read most recently whose next verse is in it.
-/// Not one finished, nor one the reader already said no to at that place.
+/// screen's lists: the one read most recently whose next verse is in it,
+/// unless it is finished.
 @visibleForTesting
-String? khatmToOffer(
-  RecitationTrackerState state, {
-  int? surah,
-  int? juz,
-  Set<String> declined = const {},
-}) {
+String? khatmToOffer(RecitationTrackerState state, {int? surah, int? juz}) {
   for (final label in _byRecency(state)) {
     if (state.percentCompleteFor(label) >= 100) continue;
     final target = state.resumeTargetFor(label);
-    final here = surah != null
-        ? target.verse.surah == surah
-        : target.juz == juz;
-    if (!here) continue;
-    if (declined.contains(khatmPromptPlace(label, target.verse))) continue;
-    return label;
+    if (surah != null ? target.verse.surah == surah : target.juz == juz) {
+      return label;
+    }
   }
   return null;
 }
 
-/// Opened from the lists, a surah or juz does not count towards a Khatm -
-/// the one thing a reader carrying on a Khatm from the list would not
-/// know, and find out only when the Khatm has not moved. So when a Khatm is
-/// up to the surah (or juz) tapped, this asks whether to carry it on.
-///
-/// Returns the answer, a [KhatmChoice] without a label straight away when
-/// there is nothing to ask, or null when the dialog was closed unanswered.
-/// "No, just read" is remembered for that Khatm at that place.
-Future<KhatmChoice?> askToContinueKhatm(
-  BuildContext context, {
-  int? surah,
-  int? juz,
-}) async {
-  final state = RecitationTrackerManager.instance.state;
-  final declined = SP.isInitialized
-      ? (SP.prefs.getStringList(khatmPromptDeclinedKey) ?? const <String>[])
-            .toSet()
-      : <String>{};
-  final label = khatmToOffer(state, surah: surah, juz: juz, declined: declined);
-  if (label == null) return const KhatmChoice(null);
-
-  final target = state.resumeTargetFor(label);
-  final l10n = context.l10n;
-  final carryOn = await showRevampDialog<bool>(
-    context,
-    title: l10n.quranKhatmPromptTitle,
-    body: l10n.quranKhatmPromptBody(
+/// Says, in a toast over the surah just opened from the list, where the
+/// Khatm [label] is up to, with "Continue Khatm" to swap this reading for
+/// the Khatm's - opened from the list, a surah does not count towards it,
+/// which a reader carrying on their Khatm that way would otherwise find
+/// out only when it has not moved. A toast rather than a question, so
+/// someone just reading the surah is not stopped.
+void offerKhatmPlace(String label) {
+  final l10n = L10n.current;
+  final target = RecitationTrackerManager.instance.state.resumeTargetFor(label);
+  showToast(
+    l10n.quranKhatmToast(
       recitationTrackName(label, l10n),
       describeRecitationPosition(target.verse, byJuz: target.inJuz),
     ),
-    answers: [
-      DialogAnswer(false, l10n.quranKhatmPromptJustRead),
-      DialogAnswer(true, l10n.quranKhatmPromptContinue, primary: true),
-    ],
+    actionLabel: l10n.quranKhatmToastContinue,
+    duration: khatmToastDuration,
+    onAction: () {
+      unawaited(
+        AnalyticsService.feature(
+          'quran_khatm_toast_continued',
+          label: 'Quran list toast continued a Khatm',
+        ),
+      );
+      final navigator = appNavigatorKey.currentContext;
+      if (navigator == null) return;
+      unawaited(openRecitationTrack(navigator, label, replace: true));
+    },
   );
-  if (carryOn == null) return null;
-  unawaited(
-    AnalyticsService.feature(
-      'quran_khatm_prompt',
-      label: 'Quran list offered a Khatm',
-      parameters: {'answer': carryOn ? 'continue' : 'just_read'},
-    ),
-  );
-  if (carryOn) return KhatmChoice(label);
-  if (SP.isInitialized) {
-    unawaited(
-      SP.prefs.setStringList(khatmPromptDeclinedKey, [
-        ...declined,
-        khatmPromptPlace(label, target.verse),
-      ]),
-    );
-  }
-  return const KhatmChoice(null);
 }
 
 /// The Khatms, the one read (or started) most recently first; the rest keep

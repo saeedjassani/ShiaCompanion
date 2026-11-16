@@ -1,5 +1,6 @@
 import 'package:flutter/widgets.dart';
 import 'package:shia_companion/utils/shared_preferences.dart';
+
 import '../l10n/l10n.dart';
 
 /// The in-app "Text size" preference: a multiplier applied on top of

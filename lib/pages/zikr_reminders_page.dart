@@ -116,8 +116,10 @@ class _ZikrRemindersPageState extends State<ZikrRemindersPage> {
                 padding: const EdgeInsets.symmetric(horizontal: 4),
                 child: Text(
                   l10n.remindersFootnote,
-                  style: ShiaText.caption
-                      .copyWith(height: 18 / 13, color: colors.textMuted),
+                  style: ShiaText.caption.copyWith(
+                    height: 18 / 13,
+                    color: colors.textMuted,
+                  ),
                 ),
               ),
             ),
@@ -152,7 +154,10 @@ class _ZikrRemindersPageState extends State<ZikrRemindersPage> {
         ),
         child: reminder.mode == ZikrReminderTimeMode.relativeToPrayer
             ? PrayerGlyph(
-                name: reminder.prayerName, size: 22, color: colors.accent)
+                name: reminder.prayerName,
+                size: 22,
+                color: colors.accent,
+              )
             : OutlineIcon(OutlineGlyph.clock, size: 20, color: colors.accent),
       ),
       title: Text(reminder.title),

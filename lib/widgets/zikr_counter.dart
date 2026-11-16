@@ -72,8 +72,9 @@ class _ZikrCounterState extends State<ZikrCounter> {
           child: InkWell(
             onTap: _increment,
             child: ConstrainedBox(
-              constraints:
-                  const BoxConstraints(minHeight: ZikrCounter.panelHeight),
+              constraints: const BoxConstraints(
+                minHeight: ZikrCounter.panelHeight,
+              ),
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(14, 4, 4, 14),
                 child: Column(
@@ -82,8 +83,11 @@ class _ZikrCounterState extends State<ZikrCounter> {
                     Row(
                       children: [
                         ExcludeSemantics(
-                          child: OutlineIcon(OutlineGlyph.dragHandle,
-                              size: 18, color: colors.chevron),
+                          child: OutlineIcon(
+                            OutlineGlyph.dragHandle,
+                            size: 18,
+                            color: colors.chevron,
+                          ),
                         ),
                         const SizedBox(width: 8),
                         Expanded(
@@ -91,8 +95,9 @@ class _ZikrCounterState extends State<ZikrCounter> {
                             l10n.counterHoldToMove,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
-                            style: ShiaText.caption
-                                .copyWith(color: colors.textMuted),
+                            style: ShiaText.caption.copyWith(
+                              color: colors.textMuted,
+                            ),
                           ),
                         ),
                         if (widget.onClose != null)
@@ -119,7 +124,7 @@ class _ZikrCounterState extends State<ZikrCounter> {
                                 letterSpacing: -1.5,
                                 color: colors.text,
                                 fontFeatures: const [
-                                  FontFeature.tabularFigures()
+                                  FontFeature.tabularFigures(),
                                 ],
                               ),
                             ),
@@ -158,7 +163,8 @@ class _ZikrCounterState extends State<ZikrCounter> {
                                       label: l10n.commonCancel,
                                       height: 44,
                                       onPressed: () => setState(
-                                          () => _confirmingReset = false),
+                                        () => _confirmingReset = false,
+                                      ),
                                     ),
                                   ),
                                   const SizedBox(width: 8),
@@ -169,7 +175,8 @@ class _ZikrCounterState extends State<ZikrCounter> {
                                       filled: true,
                                       onPressed: () {
                                         setState(
-                                            () => _confirmingReset = false);
+                                          () => _confirmingReset = false,
+                                        );
                                         widget.onReset();
                                       },
                                     ),
@@ -188,8 +195,9 @@ class _ZikrCounterState extends State<ZikrCounter> {
                                   child: PillButton(
                                     label: '−1',
                                     height: 44,
-                                    onPressed:
-                                        count > 0 ? widget.onDecrement : null,
+                                    onPressed: count > 0
+                                        ? widget.onDecrement
+                                        : null,
                                   ),
                                 ),
                                 const SizedBox(width: 8),
@@ -200,7 +208,8 @@ class _ZikrCounterState extends State<ZikrCounter> {
                                     height: 44,
                                     onPressed: count > 0
                                         ? () => setState(
-                                            () => _confirmingReset = true)
+                                            () => _confirmingReset = true,
+                                          )
                                         : null,
                                   ),
                                 ),
@@ -250,8 +259,12 @@ class _CloseButton extends StatelessWidget {
                   color: colors.well,
                   shape: BoxShape.circle,
                 ),
-                child: OutlineIcon(OutlineGlyph.close,
-                    size: 14, color: colors.textMuted, strokeWidth: 2.2),
+                child: OutlineIcon(
+                  OutlineGlyph.close,
+                  size: 14,
+                  color: colors.textMuted,
+                  strokeWidth: 2.2,
+                ),
               ),
             ),
           ),

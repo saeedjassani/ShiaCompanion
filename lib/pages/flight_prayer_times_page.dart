@@ -114,17 +114,18 @@ class _FlightPrayerTimesPageState extends State<FlightPrayerTimesPage> {
         ),
       ],
       slivers: [
-        for (final child in resolved == null || plan == null
-            ? [
-                EmptyStateCard(
-                  glyph: OutlineGlyph.info,
-                  title: l10n.flightTimeZonesFailed,
-                  body: l10n.flightTimeZonesFailedBody,
-                  actionLabel: l10n.flightEdit,
-                  onAction: _edit,
-                ),
-              ]
-            : _sections(context, resolved, plan))
+        for (final child
+            in resolved == null || plan == null
+                ? [
+                    EmptyStateCard(
+                      glyph: OutlineGlyph.info,
+                      title: l10n.flightTimeZonesFailed,
+                      body: l10n.flightTimeZonesFailedBody,
+                      actionLabel: l10n.flightEdit,
+                      onAction: _edit,
+                    ),
+                  ]
+                : _sections(context, resolved, plan))
           SliverPadding(
             padding: gutter.copyWith(bottom: 14),
             sliver: SliverToBoxAdapter(child: child),
@@ -148,10 +149,10 @@ class _FlightPrayerTimesPageState extends State<FlightPrayerTimesPage> {
     // Only worth highlighting a "next" prayer while the flight is under way.
     final nextEvent =
         now.isAfter(plan.departureUtc) && now.isBefore(plan.arrivalUtc)
-            ? duringFlight
-                .where((event) => event.instantUtc!.isAfter(now))
-                .firstOrNull
-            : null;
+        ? duringFlight
+              .where((event) => event.instantUtc!.isAfter(now))
+              .firstOrNull
+        : null;
 
     if (!plan.isValid) {
       return [
@@ -166,13 +167,9 @@ class _FlightPrayerTimesPageState extends State<FlightPrayerTimesPage> {
     }
 
     Widget labelled(String label, Widget child) => Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            GroupLabel(label),
-            const SizedBox(height: 8),
-            child,
-          ],
-        );
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [GroupLabel(label), const SizedBox(height: 8), child],
+    );
 
     return [
       _SummaryCard(resolved: resolved, plan: plan),
@@ -267,8 +264,11 @@ class _FlightPrayerTimesPageState extends State<FlightPrayerTimesPage> {
               body: plan.usesAircraftHorizon
                   ? l10n.flightAltitudeHorizonBody(
                       _cruiseLabel(plan.cruiseAltitudeFeet),
-                      localizeDigits(horizonDipDegrees(plan.cruiseAltitudeFeet)
-                          .toStringAsFixed(1)))
+                      localizeDigits(
+                        horizonDipDegrees(plan.cruiseAltitudeFeet)
+                            .toStringAsFixed(1),
+                      ),
+                    )
                   : l10n.flightGroundHorizonBody,
             ),
           ],
@@ -287,12 +287,14 @@ class _FlightPrayerTimesPageState extends State<FlightPrayerTimesPage> {
     final to = resolved.destination.place;
 
     return switch (event.status) {
-      FlightPrayerStatus.alreadyInAtDeparture => isMidnight
-          ? l10n.flightGroundIshaEnded
-          : l10n.flightGroundAlreadyIn(from),
-      FlightPrayerStatus.afterArrival => isMidnight
-          ? l10n.flightGroundIshaOpen(to)
-          : l10n.flightGroundAfterLanding(to),
+      FlightPrayerStatus.alreadyInAtDeparture =>
+        isMidnight
+            ? l10n.flightGroundIshaEnded
+            : l10n.flightGroundAlreadyIn(from),
+      FlightPrayerStatus.afterArrival =>
+        isMidnight
+            ? l10n.flightGroundIshaOpen(to)
+            : l10n.flightGroundAfterLanding(to),
       FlightPrayerStatus.sunAngleNeverReached =>
         l10n.flightSunAngleNeverReached,
       FlightPrayerStatus.duringFlight => '',
@@ -303,8 +305,8 @@ class _FlightPrayerTimesPageState extends State<FlightPrayerTimesPage> {
 /// A prayer by name, or "Isha time ends" for the midnight that closes it.
 String _eventName(FlightPrayerEvent event, AppLocalizations l10n) =>
     event.prayerIndex == prayerIndexMidnight
-        ? l10n.flightIshaEnds
-        : localizedPrayerName(event.name, l10n);
+    ? l10n.flightIshaEnds
+    : localizedPrayerName(event.name, l10n);
 
 /// Departs / arrives, each on its own airport's clock, then the time in the
 /// air and the distance.
@@ -471,8 +473,10 @@ class _InAirRow extends StatelessWidget {
     final instant = event.instantUtc!;
     final originTime = toZone(instant, resolved.originLocation);
     final destinationTime = toZone(instant, resolved.destinationLocation);
-    final elapsed =
-        formatFlightDuration(instant.difference(resolved.departureUtc), l10n);
+    final elapsed = formatFlightDuration(
+      instant.difference(resolved.departureUtc),
+      l10n,
+    );
     final position = event.position;
     final detail = TextStyle(
       fontSize: 14,
@@ -504,13 +508,17 @@ class _InAirRow extends StatelessWidget {
               _TimeCell(
                 time: destinationTime,
                 dayOffset: formatDayOffset(
-                    resolved.flight.arrivalLocal, destinationTime),
+                  resolved.flight.arrivalLocal,
+                  destinationTime,
+                ),
                 emphasized: true,
               ),
               _TimeCell(
                 time: originTime,
-                dayOffset:
-                    formatDayOffset(resolved.flight.departureLocal, originTime),
+                dayOffset: formatDayOffset(
+                  resolved.flight.departureLocal,
+                  originTime,
+                ),
                 emphasized: false,
               ),
             ],
@@ -524,7 +532,9 @@ class _InAirRow extends StatelessWidget {
                   position == null
                       ? l10n.flightAfterTakeoff(elapsed)
                       : l10n.flightAfterTakeoffOver(
-                          elapsed, formatCoordinates(position)),
+                          elapsed,
+                          formatCoordinates(position),
+                        ),
                   style: detail,
                 ),
                 if (horizon != null) Text(horizon, style: detail),
@@ -532,8 +542,12 @@ class _InAirRow extends StatelessWidget {
                   const SizedBox(height: 2),
                   Row(
                     children: [
-                      OutlineIcon(OutlineGlyph.compass,
-                          size: 15, color: colors.accent, strokeWidth: 2),
+                      OutlineIcon(
+                        OutlineGlyph.compass,
+                        size: 15,
+                        color: colors.accent,
+                        strokeWidth: 2,
+                      ),
                       const SizedBox(width: 6),
                       Expanded(
                         child: Text(
@@ -640,8 +654,9 @@ class _TimeCell extends StatelessWidget {
 }
 
 /// `38,000 ft`
-String _cruiseLabel(double feet) => L10n.current
-    .flightAltitudeFeet(NumberFormat.decimalPattern().format(feet.round()));
+String _cruiseLabel(double feet) => L10n.current.flightAltitudeFeet(
+  NumberFormat.decimalPattern().format(feet.round()),
+);
 
 /// A note on how to read the times, or a warning about them: a glyph in a
 /// well, a title and a paragraph.

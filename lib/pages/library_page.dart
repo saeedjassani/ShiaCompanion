@@ -16,9 +16,11 @@ import 'package:shia_companion/widgets/zikr_list_row.dart';
 import '../constants.dart';
 import 'chapter_list_page.dart';
 import 'chapter_page.dart';
+
 import 'package:shia_companion/services/analytics_service.dart';
 import 'package:shia_companion/services/content_request_service.dart';
 import 'package:shia_companion/widgets/content_request_dialog.dart';
+
 import '../l10n/l10n.dart';
 import '../widgets/app_toast.dart';
 
@@ -80,18 +82,20 @@ class _LibraryPageState extends State<LibraryPage>
 
   Future<void> _openBook(UidTitleData book) async {
     await handleUniversalDataClick(
-        context, UniversalData(book.uid, book.title, 1),
-        source: ZikrOpenSource.library);
+      context,
+      UniversalData(book.uid, book.title, 1),
+      source: ZikrOpenSource.library,
+    );
     // Reading a chapter moves where the reader left off.
     if (mounted) setState(_loadRecentProgress);
   }
 
   void _requestBook({String title = ''}) => showContentRequestDialog(
-        context,
-        initialType: ContentRequestType.book,
-        initialTitle: title,
-        source: 'library',
-      );
+    context,
+    initialType: ContentRequestType.book,
+    initialTitle: title,
+    source: 'library',
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -266,14 +270,16 @@ class _ContinueReadingCard extends StatelessWidget {
                     Row(
                       children: [
                         HomeGlyph(
-                            type: HomeGlyphType.library,
-                            size: 16,
-                            color: colors.accent),
+                          type: HomeGlyphType.library,
+                          size: 16,
+                          color: colors.accent,
+                        ),
                         const SizedBox(width: 6),
                         Text(
                           l10n.libraryContinueReading,
-                          style: ShiaText.caption
-                              .copyWith(color: colors.textMuted),
+                          style: ShiaText.caption.copyWith(
+                            color: colors.textMuted,
+                          ),
                         ),
                       ],
                     ),
@@ -287,8 +293,11 @@ class _ContinueReadingCard extends StatelessWidget {
                     const SizedBox(height: 2),
                     Text(
                       progress.hasPage
-                          ? l10n.libraryChapterPage(progress.chapterTitle,
-                              progress.displayPage, progress.pageCount)
+                          ? l10n.libraryChapterPage(
+                              progress.chapterTitle,
+                              progress.displayPage,
+                              progress.pageCount,
+                            )
                           : progress.chapterTitle,
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
@@ -324,8 +333,12 @@ class _ContinueReadingCard extends StatelessWidget {
                     child: SizedBox.square(
                       dimension: 44,
                       child: Center(
-                        child: OutlineIcon(OutlineGlyph.close,
-                            size: 18, color: colors.textMuted, strokeWidth: 2),
+                        child: OutlineIcon(
+                          OutlineGlyph.close,
+                          size: 18,
+                          color: colors.textMuted,
+                          strokeWidth: 2,
+                        ),
                       ),
                     ),
                   ),

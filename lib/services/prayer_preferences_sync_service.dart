@@ -75,8 +75,9 @@ class PrayerPreferencesSyncService {
     if (userId == null) return;
 
     try {
-      final snapshot =
-          await _doc(userId).get().timeout(const Duration(seconds: 8));
+      final snapshot = await _doc(userId)
+          .get()
+          .timeout(const Duration(seconds: 8));
       final data = snapshot.data();
       if (data == null || data.isEmpty) {
         await _write(userId, _currentValues());
@@ -100,10 +101,9 @@ class PrayerPreferencesSyncService {
   /// Pushes all eight toggles plus the "asked" flag at once — for the
   /// all-or-nothing opt-in switch, which rewrites every prayer together.
   Future<void> pushAzaanOptInBulk() => _pushIfSignedIn({
-        for (final key in _notificationKeys)
-          key: SP.prefs.getBool(key) ?? false,
-        _askedField: SP.prefs.getBool(_askedField) ?? false,
-      });
+    for (final key in _notificationKeys) key: SP.prefs.getBool(key) ?? false,
+    _askedField: SP.prefs.getBool(_askedField) ?? false,
+  });
 
   /// Pushes the app-wide default azan sound.
   Future<void> pushAzaanSound() {
@@ -148,7 +148,8 @@ class PrayerPreferencesSyncService {
       for (final name in _prayerBaseNames)
         soundPreferenceKeyForPrayer(name):
             SP.prefs.getString(soundPreferenceKeyForPrayer(name)) ?? '',
-      _widgetTimesField: SP.prefs.getStringList(_widgetTimesField) ??
+      _widgetTimesField:
+          SP.prefs.getStringList(_widgetTimesField) ??
           defaultWidgetPrayerTimeIds,
     };
   }

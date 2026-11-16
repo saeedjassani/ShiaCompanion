@@ -57,14 +57,14 @@ class Flight {
   }
 
   Map<String, dynamic> toJson() => {
-        'id': id,
-        'origin': origin.toJson(),
-        'destination': destination.toJson(),
-        'departure': _encodeWallClock(departureLocal),
-        'arrival': _encodeWallClock(arrivalLocal),
-        if (flightNumber != null && flightNumber!.isNotEmpty)
-          'flightNumber': flightNumber,
-      };
+    'id': id,
+    'origin': origin.toJson(),
+    'destination': destination.toJson(),
+    'departure': _encodeWallClock(departureLocal),
+    'arrival': _encodeWallClock(arrivalLocal),
+    if (flightNumber != null && flightNumber!.isNotEmpty)
+      'flightNumber': flightNumber,
+  };
 
   /// [resolveIata] upgrades flights written before airports were stored in
   /// full, when only the IATA code was persisted.

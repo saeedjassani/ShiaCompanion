@@ -31,11 +31,11 @@ enum UsageRange {
   /// What the headline tiles' period-over-period delta is measured against.
   /// Empty for All time, which has no equal-length "previous" period.
   String get previousPeriodLabel => switch (this) {
-        UsageRange.today => 'yesterday',
-        UsageRange.week => 'the previous 7 days',
-        UsageRange.month => 'the previous 30 days',
-        UsageRange.allTime => '',
-      };
+    UsageRange.today => 'yesterday',
+    UsageRange.week => 'the previous 7 days',
+    UsageRange.month => 'the previous 30 days',
+    UsageRange.allTime => '',
+  };
 }
 
 /// One row of the ranking.
@@ -66,8 +66,10 @@ class UsageSnapshot {
     this.previousCounts,
   });
 
-  static const UsageSnapshot empty =
-      UsageSnapshot(metrics: {}, trend: <MapEntry<String, int>>[]);
+  static const UsageSnapshot empty = UsageSnapshot(
+    metrics: {},
+    trend: <MapEntry<String, int>>[],
+  );
 
   /// metric name -> rows, already sorted with the biggest first.
   final Map<String, List<UsageRow>> metrics;
@@ -100,9 +102,10 @@ class UsageSnapshot {
   int? previousTotalFor(String metric) {
     final counts = previousCounts;
     if (counts == null) return null;
-    return (counts[metric] ?? const {})
-        .values
-        .fold<int>(0, (sum, count) => sum + count);
+    return (counts[metric] ?? const {}).values.fold<int>(
+      0,
+      (sum, count) => sum + count,
+    );
   }
 
   bool get isEmpty => metrics.values.every((rows) => rows.isEmpty);
@@ -132,8 +135,10 @@ PreviousPeriodTotals previousTotalsFrom(Map<String, Map<String, int>> counts) {
   final zikrOpenEntries = (counts[AnalyticsService.metricZikr] ?? const {})
       .entries
       .where((entry) => _isZikrOpenKey(entry.key));
-  final zikrOpens =
-      zikrOpenEntries.fold<int>(0, (sum, entry) => sum + entry.value);
+  final zikrOpens = zikrOpenEntries.fold<int>(
+    0,
+    (sum, entry) => sum + entry.value,
+  );
   final featureUses = (counts[AnalyticsService.metricFeature] ?? const {})
       .values
       .fold<int>(0, (sum, count) => sum + count);
@@ -274,8 +279,8 @@ const Set<String> _readingContentFeatureKeys = {
   'recitation_entry_removed',
   'recitation_track_settings_changed',
   'quran_tracking_hint_dismissed',
-  // A Khatm offered on a surah or juz opened from the lists.
-  'quran_khatm_prompt',
+  // A Khatm carried on from the toast over a surah opened from the lists.
+  'quran_khatm_toast_continued',
   'quran_surah_step',
   'quran_juz_step',
   // The end-of-surah offer to read Dua Khatm al-Quran.
@@ -516,7 +521,8 @@ Map<String, Map<String, int>> parseUsageTotals(Object? value) {
   Map<String, Map<String, int>> counts,
   Map<String, int> trend,
   Map<String, Map<String, int>> metricTrend,
-}) parseUsageDays(Object? value, List<String> wantedDays) {
+})
+parseUsageDays(Object? value, List<String> wantedDays) {
   final counts = <String, Map<String, int>>{};
   final trend = <String, int>{for (final day in wantedDays) day: 0};
   final metricTrend = <String, Map<String, int>>{};
@@ -579,8 +585,7 @@ List<UsageRow> splitZikrCompletions(List<UsageRow> rows) {
 /// Every completion in the zikr metric: zikrs read to the end.
 @visibleForTesting
 int zikrCompletionTotal(Map<String, int>? zikrCounts) =>
-    (zikrCounts ?? const {})
-        .entries
+    (zikrCounts ?? const {}).entries
         .where((entry) => entry.key.endsWith(zikrCompletionSuffix))
         .fold<int>(0, (sum, entry) => sum + entry.value);
 
@@ -619,15 +624,16 @@ const Map<String, String> _zikrSourceOtherLabels = {
 
 /// [rows] of the zikr-source metric under their short names.
 List<UsageRow> shortZikrSourceRows(List<UsageRow> rows) => [
-      for (final row in rows)
-        UsageRow(
-          key: row.key,
-          label: zikrSourceShortLabels[row.key] ??
-              _zikrSourceOtherLabels[row.key] ??
-              row.label,
-          count: row.count,
-        ),
-    ];
+  for (final row in rows)
+    UsageRow(
+      key: row.key,
+      label:
+          zikrSourceShortLabels[row.key] ??
+          _zikrSourceOtherLabels[row.key] ??
+          row.label,
+      count: row.count,
+    ),
+];
 
 /// The previous period's zikr *open* counts, keyed the same way
 /// [splitZikrCompletions] keys its rows (by uid, completions stripped out) —
@@ -635,7 +641,8 @@ List<UsageRow> shortZikrSourceRows(List<UsageRow> rows) => [
 /// mix that includes completions.
 @visibleForTesting
 Map<String, int> zikrPreviousByKey(
-    Map<String, Map<String, int>>? previousCounts) {
+  Map<String, Map<String, int>>? previousCounts,
+) {
   final raw = previousCounts?[AnalyticsService.metricZikr] ?? const {};
   final byKey = <String, int>{};
   raw.forEach((key, count) {
@@ -683,7 +690,8 @@ List<UsageRow> zikrPlayRows(List<UsageRow> rows) {
 /// uid the way [zikrPlayRows] keys its rows.
 @visibleForTesting
 Map<String, int> zikrPlayPreviousByKey(
-    Map<String, Map<String, int>>? previousCounts) {
+  Map<String, Map<String, int>>? previousCounts,
+) {
   final raw = previousCounts?[AnalyticsService.metricZikr] ?? const {};
   final byKey = <String, int>{};
   raw.forEach((key, count) {
@@ -756,8 +764,10 @@ class _UsageDashboardPageState extends State<UsageDashboardPage> {
         .endAt(wanted.last)
         .get();
     final labelsFuture = _loadLabels();
-    final previousCountsFuture =
-        _loadPreviousPeriod(days, before: wanted.first);
+    final previousCountsFuture = _loadPreviousPeriod(
+      days,
+      before: wanted.first,
+    );
 
     final snapshot = await daysFuture;
     final labels = await labelsFuture;
@@ -827,14 +837,17 @@ class _UsageDashboardPageState extends State<UsageDashboardPage> {
   }) {
     final metrics = <String, List<UsageRow>>{};
     counts.forEach((metric, keys) {
-      final rows = keys.entries
-          .map((entry) => UsageRow(
-                key: entry.key,
-                label: _labelFor(metric, entry.key, labels),
-                count: entry.value,
-              ))
-          .toList()
-        ..sort((a, b) => b.count.compareTo(a.count));
+      final rows =
+          keys.entries
+              .map(
+                (entry) => UsageRow(
+                  key: entry.key,
+                  label: _labelFor(metric, entry.key, labels),
+                  count: entry.value,
+                ),
+              )
+              .toList()
+            ..sort((a, b) => b.count.compareTo(a.count));
       metrics[metric] = rows;
     });
     return UsageSnapshot(
@@ -857,8 +870,9 @@ class _UsageDashboardPageState extends State<UsageDashboardPage> {
       if (title != null && title.isNotEmpty) return title;
     }
     // Zikr sources are stored, labels and all, under the feature metric.
-    final storedAs =
-        metric == zikrSourceMetric ? AnalyticsService.metricFeature : metric;
+    final storedAs = metric == zikrSourceMetric
+        ? AnalyticsService.metricFeature
+        : metric;
     final recorded = labels['$storedAs/$key'];
     if (recorded != null && recorded.isNotEmpty) return recorded;
     return key;
@@ -880,8 +894,10 @@ class _UsageDashboardPageState extends State<UsageDashboardPage> {
       ],
       slivers: [
         SliverPadding(
-          padding: pageGutter(context, maxWidth: widePageWidth)
-              .copyWith(bottom: 32),
+          padding: pageGutter(
+            context,
+            maxWidth: widePageWidth,
+          ).copyWith(bottom: 32),
           sliver: SliverToBoxAdapter(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -920,9 +936,11 @@ class _UsageDashboardPageState extends State<UsageDashboardPage> {
                     if (data.isEmpty) {
                       return EmptyStateCard(
                         glyph: OutlineGlyph.stats,
-                        title: 'No usage recorded for '
+                        title:
+                            'No usage recorded for '
                             '${_range.label.toLowerCase()}',
-                        body: 'Counters start filling once a release with '
+                        body:
+                            'Counters start filling once a release with '
                             "analytics is in people's hands. Debug builds "
                             'are excluded on purpose.',
                       );
@@ -967,7 +985,8 @@ class UsageOverview extends StatelessWidget {
       if (_zikrRows().isNotEmpty)
         UsageRankedCard(
           title: 'Most opened zikrs',
-          subtitle: 'With how many were read to the end. Aliases count '
+          subtitle:
+              'With how many were read to the end. Aliases count '
               'with the zikr they point at',
           rows: _zikrRows(),
           previousTotal: data.previous?.zikrOpens,
@@ -979,11 +998,14 @@ class UsageOverview extends StatelessWidget {
       if (playRows.isNotEmpty)
         UsageRankedCard(
           title: 'Recitations played',
-          subtitle: "From a zikr's own page (once per visit) or a playlist "
+          subtitle:
+              "From a zikr's own page (once per visit) or a playlist "
               '(once per run)',
           rows: playRows,
-          previousTotal:
-              playPrevious?.values.fold<int>(0, (sum, count) => sum + count),
+          previousTotal: playPrevious?.values.fold<int>(
+            0,
+            (sum, count) => sum + count,
+          ),
           previousByKey: playPrevious,
           previousCaption: previousCaption,
           color: categoricalColor(6, brightness),
@@ -1067,17 +1089,17 @@ class UsageOverview extends StatelessWidget {
       previousCaption: range.previousPeriodLabel,
       colorFor: colorFor,
       header: ShareBar(
-        segments:
-            namedShareSegments(rows, named, brightness, colors.textMuted),
+        segments: namedShareSegments(rows, named, brightness, colors.textMuted),
       ),
     );
   }
 
   /// Opened search, typed a search, opened a result.
   List<({String label, int value, PeriodDelta? delta})> _searchSteps() {
-    int now(String metric, String key) =>
-        data.rowsFor(metric).where((row) => row.key == key).fold<int>(
-            0, (sum, row) => sum + row.count);
+    int now(String metric, String key) => data
+        .rowsFor(metric)
+        .where((row) => row.key == key)
+        .fold<int>(0, (sum, row) => sum + row.count);
     PeriodDelta? delta(String metric, String key, int value) {
       final previous = data.previousCounts;
       if (previous == null) return null;
@@ -1085,7 +1107,10 @@ class UsageOverview extends StatelessWidget {
     }
 
     ({String label, int value, PeriodDelta? delta}) step(
-        String label, String metric, String key) {
+      String label,
+      String metric,
+      String key,
+    ) {
       final value = now(metric, key);
       return (label: label, value: value, delta: delta(metric, key, value));
     }
@@ -1109,7 +1134,7 @@ class UsageOverview extends StatelessWidget {
         note: opened == 0
             ? null
             : '${(results / opened).toStringAsFixed(1)} results opened for '
-                'every time search is opened',
+                  'every time search is opened',
       ),
     );
   }
@@ -1132,7 +1157,8 @@ class UsageOverview extends StatelessWidget {
 
     return UsageCard(
       title: 'What people do',
-      subtitle: 'Actions taken, by area of the app. Open one for its '
+      subtitle:
+          'Actions taken, by area of the app. Open one for its '
           'actions',
       total: total,
       delta: data.previous == null
@@ -1143,43 +1169,51 @@ class UsageOverview extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           if (present.length > 1) ...[
-            ShareBar(segments: [
-              for (final (group, groupRows) in present)
-                ShareSegment(
-                  label: group.title,
-                  value: groupRows.fold<int>(0, (sum, r) => sum + r.count),
-                  color: colorOf(group),
-                ),
-            ]),
+            ShareBar(
+              segments: [
+                for (final (group, groupRows) in present)
+                  ShareSegment(
+                    label: group.title,
+                    value: groupRows.fold<int>(0, (sum, r) => sum + r.count),
+                    color: colorOf(group),
+                  ),
+              ],
+            ),
             const SizedBox(height: 14),
           ],
-          UsageTileGrid(tiles: [
-            for (final (group, groupRows) in present)
-              Builder(builder: (context) {
-                final groupTotal =
-                    groupRows.fold<int>(0, (sum, r) => sum + r.count);
-                return UsageAreaTile(
-                  title: group.title,
-                  color: colorOf(group),
-                  total: groupTotal,
-                  share: total == 0 ? 0 : groupTotal / total,
-                  delta: previousByKey == null
-                      ? null
-                      : periodDelta(groupTotal, previousTotals[group] ?? 0),
-                  top: groupRows.first.label,
-                  onTap: () => pushPageRoute(
-                    context,
-                    UsageRankedPage(
+          UsageTileGrid(
+            tiles: [
+              for (final (group, groupRows) in present)
+                Builder(
+                  builder: (context) {
+                    final groupTotal = groupRows.fold<int>(
+                      0,
+                      (sum, r) => sum + r.count,
+                    );
+                    return UsageAreaTile(
                       title: group.title,
-                      subtitle: group.subtitle,
-                      rows: groupRows,
-                      previousByKey: previousByKey,
                       color: colorOf(group),
-                    ),
-                  ),
-                );
-              }),
-          ]),
+                      total: groupTotal,
+                      share: total == 0 ? 0 : groupTotal / total,
+                      delta: previousByKey == null
+                          ? null
+                          : periodDelta(groupTotal, previousTotals[group] ?? 0),
+                      top: groupRows.first.label,
+                      onTap: () => pushPageRoute(
+                        context,
+                        UsageRankedPage(
+                          title: group.title,
+                          subtitle: group.subtitle,
+                          rows: groupRows,
+                          previousByKey: previousByKey,
+                          color: colorOf(group),
+                        ),
+                      ),
+                    );
+                  },
+                ),
+            ],
+          ),
         ],
       ),
     );
@@ -1235,60 +1269,66 @@ class UsageOverview extends StatelessWidget {
     final previous = data.previous;
     final previousCounts = data.previousCounts;
     final caption = range.previousPeriodLabel;
-    final previousLibrary =
-        data.previousTotalFor(AnalyticsService.metricLibrary);
+    final previousLibrary = data.previousTotalFor(
+      AnalyticsService.metricLibrary,
+    );
 
     String count(int value) => usageCountFormat.format(value);
 
-    return UsageKpiGrid(tiles: [
-      UsageKpiTile(
-        label: 'Zikr opens',
-        value: count(zikrOpens),
-        delta: previous == null
-            ? null
-            : periodDelta(zikrOpens, previous.zikrOpens),
-        deltaCaption: caption,
-      ),
-      UsageKpiTile(
-        label: 'Read to the end',
-        value: zikrOpens == 0
-            ? '–'
-            : usagePercentFormat.format(finished / zikrOpens),
-        note: '${count(finished)} finished',
-      ),
-      UsageKpiTile(
-        label: 'Different zikrs',
-        value: count(zikrRows.length),
-        delta: previous == null
-            ? null
-            : periodDelta(zikrRows.length, previous.distinctZikrs),
-        deltaCaption: caption,
-      ),
-      UsageKpiTile(
-        label: 'Searches',
-        value: count(searches),
-        delta: previousCounts == null
-            ? null
-            : periodDelta(searches,
-                previousCounts[AnalyticsService.metricFeature]?['search'] ?? 0),
-        deltaCaption: caption,
-      ),
-      UsageKpiTile(
-        label: 'Actions taken',
-        value: count(featureUses),
-        delta: previous == null
-            ? null
-            : periodDelta(featureUses, previous.featureUses),
-        deltaCaption: caption,
-      ),
-      UsageKpiTile(
-        label: 'Library chapters',
-        value: count(libraryOpens),
-        delta: previousLibrary == null
-            ? null
-            : periodDelta(libraryOpens, previousLibrary),
-        deltaCaption: caption,
-      ),
-    ]);
+    return UsageKpiGrid(
+      tiles: [
+        UsageKpiTile(
+          label: 'Zikr opens',
+          value: count(zikrOpens),
+          delta: previous == null
+              ? null
+              : periodDelta(zikrOpens, previous.zikrOpens),
+          deltaCaption: caption,
+        ),
+        UsageKpiTile(
+          label: 'Read to the end',
+          value: zikrOpens == 0
+              ? '–'
+              : usagePercentFormat.format(finished / zikrOpens),
+          note: '${count(finished)} finished',
+        ),
+        UsageKpiTile(
+          label: 'Different zikrs',
+          value: count(zikrRows.length),
+          delta: previous == null
+              ? null
+              : periodDelta(zikrRows.length, previous.distinctZikrs),
+          deltaCaption: caption,
+        ),
+        UsageKpiTile(
+          label: 'Searches',
+          value: count(searches),
+          delta: previousCounts == null
+              ? null
+              : periodDelta(
+                  searches,
+                  previousCounts[AnalyticsService.metricFeature]?['search'] ??
+                      0,
+                ),
+          deltaCaption: caption,
+        ),
+        UsageKpiTile(
+          label: 'Actions taken',
+          value: count(featureUses),
+          delta: previous == null
+              ? null
+              : periodDelta(featureUses, previous.featureUses),
+          deltaCaption: caption,
+        ),
+        UsageKpiTile(
+          label: 'Library chapters',
+          value: count(libraryOpens),
+          delta: previousLibrary == null
+              ? null
+              : periodDelta(libraryOpens, previousLibrary),
+          deltaCaption: caption,
+        ),
+      ],
+    );
   }
 }

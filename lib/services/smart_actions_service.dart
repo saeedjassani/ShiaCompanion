@@ -67,8 +67,9 @@ class SmartActionsService {
 
   static final SmartActionsService instance = SmartActionsService._();
 
-  static const MethodChannel _channel =
-      MethodChannel('shia_companion/smart_actions');
+  static const MethodChannel _channel = MethodChannel(
+    'shia_companion/smart_actions',
+  );
 
   static bool get isSupported =>
       !kIsWeb &&
@@ -190,7 +191,9 @@ class SmartActionsService {
     if (!_isAndroid) return false;
     try {
       return await _channel.invokeMethod<bool>(
-              'pinShortcut', playlistShortcut(playlist)) ??
+            'pinShortcut',
+            playlistShortcut(playlist),
+          ) ??
           false;
     } catch (error) {
       debugPrint('Smart actions pinShortcut failed: $error');
@@ -202,11 +205,11 @@ class SmartActionsService {
   /// screen. `SmartActions.kt` relabels and retires pinned ones by its id.
   @visibleForTesting
   static Map<String, String> playlistShortcut(ZikrPlaylist playlist) => {
-        'id': 'playlist:${playlist.id}',
-        'kind': 'playlist',
-        'label': playlist.displayName,
-        'link': buildPlaylistDeepLinkUrl(playlist.id),
-      };
+    'id': 'playlist:${playlist.id}',
+    'kind': 'playlist',
+    'label': playlist.displayName,
+    'link': buildPlaylistDeepLinkUrl(playlist.id),
+  };
 
   Future<void> _sendCatalog() async {
     if (!zikrIndexReady.value) return;
@@ -312,9 +315,7 @@ class SmartActionsService {
     return name.replaceAll(RegExp(r'[\s\-:,]+$'), '');
   }
 
-  static final RegExp _arabicScript = RegExp(
-    '[؀-ۿݐ-ݿࢠ-ࣿﭐ-﷿ﹰ-﻿]+',
-  );
+  static final RegExp _arabicScript = RegExp('[؀-ۿݐ-ݿࢠ-ࣿﭐ-﷿ﹰ-﻿]+');
 
   Future<Object?> _handle(MethodCall call) async {
     final arguments = call.arguments is Map
@@ -328,17 +329,21 @@ class SmartActionsService {
   }
 
   Future<Object?> _perform(
-      String method, Map<String, Object?> arguments) async {
+    String method,
+    Map<String, Object?> arguments,
+  ) async {
     switch (method) {
       case 'playPlaylist':
         await _whenIndexReady();
-        final playlist =
-            ZikrPlaylistStore.instance.byId(arguments['id']?.toString() ?? '');
+        final playlist = ZikrPlaylistStore.instance.byId(
+          arguments['id']?.toString() ?? '',
+        );
         if (playlist == null) {
           return _outcome(false, L10n.current.smartActionsPlaylistMissing);
         }
         return _startOutcome(
-            await PlaylistAudioService.instance.play(playlist));
+          await PlaylistAudioService.instance.play(playlist),
+        );
       case 'playZikr':
         await _whenIndexReady();
         final uid = arguments['uid']?.toString() ?? '';
@@ -404,8 +409,11 @@ class SmartActionsService {
         (playlistAsked ||
             recited == null ||
             playlist.score.isAtLeast(recited.score))) {
-      _navigate(SmartActionLink(
-          Uri.parse(buildPlaylistDeepLinkUrl(playlist.entry['id'] as String))));
+      _navigate(
+        SmartActionLink(
+          Uri.parse(buildPlaylistDeepLinkUrl(playlist.entry['id'] as String)),
+        ),
+      );
       return;
     }
     if (playlistAsked) {
@@ -415,8 +423,11 @@ class SmartActionsService {
     }
     if (recited != null) {
       final id = recited.entry['id'] as String;
-      _navigate(SmartActionLink(
-          Uri.parse(buildPlayDeepLinkUrl(uid: id, slug: itemSlugs[id]))));
+      _navigate(
+        SmartActionLink(
+          Uri.parse(buildPlayDeepLinkUrl(uid: id, slug: itemSlugs[id])),
+        ),
+      );
       return;
     }
     final unrecited = matchZikr(name, catalog['zikrs']!);
@@ -439,19 +450,18 @@ class SmartActionsService {
   static ({HomeMenuItem entry, SpokenMatchScore score})? matchFeature(
     String name,
     List<HomeMenuItem> features,
-  ) =>
-      bestSpokenMatch(
-        name,
-        features,
-        (item) => [
-          item.analyticsId,
-          item.label,
-          item.shortLabel,
-          item.displayLabel,
-          item.displayShortLabel,
-          ...?featureKeywords[item.analyticsId],
-        ],
-      );
+  ) => bestSpokenMatch(
+    name,
+    features,
+    (item) => [
+      item.analyticsId,
+      item.label,
+      item.shortLabel,
+      item.displayLabel,
+      item.displayShortLabel,
+      ...?featureKeywords[item.analyticsId],
+    ],
+  );
 
   /// What else people call a feature, by its `analyticsId`, beside its
   /// label: "prayer times" is the Calendar, "tasbih" the Tasbeeh Counter.
@@ -490,16 +500,15 @@ class SmartActionsService {
     String name,
     List<Map<String, Object>> zikrs, {
     bool recitedOnly = false,
-  }) =>
-      bestSpokenMatch(
-        name,
-        recitedOnly ? zikrs.where((zikr) => zikr['audio'] == true) : zikrs,
-        (zikr) => [
-          zikr['name'] as String,
-          if (zikr['subtitle'] case final String subtitle) subtitle,
-          ...(zikr['keywords'] as List).cast<String>(),
-        ],
-      );
+  }) => bestSpokenMatch(
+    name,
+    recitedOnly ? zikrs.where((zikr) => zikr['audio'] == true) : zikrs,
+    (zikr) => [
+      zikr['name'] as String,
+      if (zikr['subtitle'] case final String subtitle) subtitle,
+      ...(zikr['keywords'] as List).cast<String>(),
+    ],
+  );
 
   /// The playlist of the catalog's [playlists] that [name] names best, by
   /// its stored or shown name; "playlist" itself is not part of the name.
@@ -507,16 +516,15 @@ class SmartActionsService {
   static ({Map<String, Object> entry, SpokenMatchScore score})? matchPlaylist(
     String name,
     List<Map<String, Object>> playlists,
-  ) =>
-      bestSpokenMatch(
-        name,
-        playlists,
-        (playlist) => [
-          playlist['name'] as String,
-          if (playlist['subtitle'] case final String subtitle) subtitle,
-        ],
-        ignoredWords: const {'playlist'},
-      );
+  ) => bestSpokenMatch(
+    name,
+    playlists,
+    (playlist) => [
+      playlist['name'] as String,
+      if (playlist['subtitle'] case final String subtitle) subtitle,
+    ],
+    ignoredWords: const {'playlist'},
+  );
 
   /// Waits for the zikr index the titles and playlists come from: an intent
   /// can arrive while the app is still starting. Gives up after a while
@@ -539,8 +547,10 @@ class SmartActionsService {
   static Map<String, Object?> _startOutcome(PlaylistStartResult result) =>
       _outcome(result.isStarted, result.message);
 
-  static Map<String, Object?> _outcome(bool ok, String? message) =>
-      {'ok': ok, if (message != null) 'message': message};
+  static Map<String, Object?> _outcome(bool ok, String? message) => {
+    'ok': ok,
+    if (message != null) 'message': message,
+  };
 
   Future<void> _invoke(String method, [Object? arguments]) async {
     try {

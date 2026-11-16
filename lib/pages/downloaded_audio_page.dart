@@ -71,12 +71,14 @@ class _DownloadedAudioPageState extends State<DownloadedAudioPage> {
   }
 
   void _open(BuildContext context, String uid) {
-    Navigator.of(context).push(MaterialPageRoute(
-      builder: (_) => ZikrPage(
-        UidTitleData(uid, _zikrTitle(uid)),
-        source: ZikrOpenSource.downloads,
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => ZikrPage(
+          UidTitleData(uid, _zikrTitle(uid)),
+          source: ZikrOpenSource.downloads,
+        ),
       ),
-    ));
+    );
   }
 
   @override
@@ -119,18 +121,23 @@ class _DownloadedAudioPageState extends State<DownloadedAudioPage> {
       entries.add((uid, tracks));
       claimed.addAll(tracks.map(AudioDownloadStore.fileNameFor));
     }
-    entries.sort((a, b) => _zikrTitle(a.$1)
-        .toLowerCase()
-        .compareTo(_zikrTitle(b.$1).toLowerCase()));
-    final orphans =
-        store.savedFileNames.where((name) => !claimed.contains(name)).toList();
+    entries.sort(
+      (a, b) =>
+          _zikrTitle(a.$1)
+              .toLowerCase()
+              .compareTo(_zikrTitle(b.$1).toLowerCase()),
+    );
+    final orphans = store.savedFileNames
+        .where((name) => !claimed.contains(name))
+        .toList();
     final totalBytes = store.totalSavedBytes;
     final empty = entries.isEmpty && orphans.isEmpty;
 
     return LargeTitlePage(
       title: l10n.playlistDownloads,
-      subtitle:
-          empty ? null : l10n.downloadsSubtitle(formatAudioBytes(totalBytes)),
+      subtitle: empty
+          ? null
+          : l10n.downloadsSubtitle(formatAudioBytes(totalBytes)),
       slivers: [
         if (empty)
           SliverPadding(
@@ -178,8 +185,10 @@ class _DownloadedAudioPageState extends State<DownloadedAudioPage> {
                   style: TextButton.styleFrom(
                     minimumSize: const Size(44, 44),
                     foregroundColor: colors.danger,
-                    textStyle: buttonTextStyle(context, ShiaText.body)
-                        .copyWith(fontWeight: FontWeight.w600),
+                    textStyle: buttonTextStyle(
+                      context,
+                      ShiaText.body,
+                    ).copyWith(fontWeight: FontWeight.w600),
                   ),
                   child: Text(l10n.downloadsRemoveAllButton),
                 ),
@@ -192,8 +201,8 @@ class _DownloadedAudioPageState extends State<DownloadedAudioPage> {
 
   /// Saved files no zikr names any more, as tracks the store can act on.
   static List<ZikrAudioTrack> _orphanTracks(List<String> names) => [
-        for (final name in names) ZikrAudioTrack(url: '$zikrAudioBaseUrl$name'),
-      ];
+    for (final name in names) ZikrAudioTrack(url: '$zikrAudioBaseUrl$name'),
+  ];
 
   static int _orphanBytes(AudioDownloadStore store, List<String> names) =>
       store.savedBytesOf(_orphanTracks(names));
@@ -260,10 +269,13 @@ class _DownloadedZikrRow extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 12),
               foregroundColor: colors.accent,
               side: BorderSide(
-                  color: Color.lerp(colors.line, colors.chevron, 0.25)!),
+                color: Color.lerp(colors.line, colors.chevron, 0.25)!,
+              ),
               shape: const StadiumBorder(),
-              textStyle: buttonTextStyle(context, ShiaText.secondary)
-                  .copyWith(fontWeight: FontWeight.w600),
+              textStyle: buttonTextStyle(
+                context,
+                ShiaText.secondary,
+              ).copyWith(fontWeight: FontWeight.w600),
             ),
             child: Text(l10n.commonStop),
           ),
@@ -274,8 +286,8 @@ class _DownloadedZikrRow extends StatelessWidget {
 
     final count = tracks.length > 1
         ? (saved == tracks.length
-            ? l10n.audioRecordingsCount(tracks.length)
-            : l10n.audioRecordingsChosen(saved, tracks.length))
+              ? l10n.audioRecordingsCount(tracks.length)
+              : l10n.audioRecordingsChosen(saved, tracks.length))
         : null;
     final subtitle = [
       if (count != null) count,
@@ -305,8 +317,11 @@ class _DownloadedZikrRow extends StatelessWidget {
             child: SizedBox.square(
               dimension: 44,
               child: Center(
-                child: OutlineIcon(OutlineGlyph.trash,
-                    size: 22, color: colors.accent),
+                child: OutlineIcon(
+                  OutlineGlyph.trash,
+                  size: 22,
+                  color: colors.accent,
+                ),
               ),
             ),
           ),
@@ -355,8 +370,11 @@ class _OlderRecordingsCard extends StatelessWidget {
                     color: colors.well,
                     borderRadius: BorderRadius.circular(10),
                   ),
-                  child: OutlineIcon(OutlineGlyph.repeat,
-                      size: 20, color: colors.accent),
+                  child: OutlineIcon(
+                    OutlineGlyph.repeat,
+                    size: 20,
+                    color: colors.accent,
+                  ),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
@@ -369,8 +387,9 @@ class _OlderRecordingsCard extends StatelessWidget {
                       ),
                       Text(
                         l10n.downloadsOlderBody(size),
-                        style:
-                            ShiaText.caption.copyWith(color: colors.textMuted),
+                        style: ShiaText.caption.copyWith(
+                          color: colors.textMuted,
+                        ),
                       ),
                     ],
                   ),
@@ -378,10 +397,7 @@ class _OlderRecordingsCard extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 12),
-            PageButton(
-              label: l10n.downloadsRemoveOlder,
-              onPressed: onRemove,
-            ),
+            PageButton(label: l10n.downloadsRemoveOlder, onPressed: onRemove),
           ],
         ),
       ),

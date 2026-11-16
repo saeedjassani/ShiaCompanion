@@ -75,11 +75,9 @@ class CommunityStats {
         final uid = raw['uid']?.toString() ?? '';
         final title = raw['title']?.toString().trim() ?? '';
         if (uid.isEmpty || title.isEmpty) continue;
-        top.add(CommunityTopZikr(
-          uid: uid,
-          title: title,
-          recitations: _int(raw['o']),
-        ));
+        top.add(
+          CommunityTopZikr(uid: uid, title: title, recitations: _int(raw['o'])),
+        );
       }
     }
 
@@ -111,8 +109,8 @@ class CommunityStatsService {
   CommunityStatsService({
     Future<Object?> Function()? fetch,
     DateTime Function()? clock,
-  })  : _fetch = fetch ?? _fetchFromDatabase,
-        _clock = clock ?? DateTime.now;
+  }) : _fetch = fetch ?? _fetchFromDatabase,
+       _clock = clock ?? DateTime.now;
 
   static final CommunityStatsService instance = CommunityStatsService();
 
@@ -145,8 +143,9 @@ class CommunityStatsService {
     if (!SP.isInitialized) return null;
     final fetchedAt = SP.prefs.getInt(_fetchedAtKey);
     if (!force && fetchedAt != null) {
-      final age =
-          _clock().difference(DateTime.fromMillisecondsSinceEpoch(fetchedAt));
+      final age = _clock().difference(
+        DateTime.fromMillisecondsSinceEpoch(fetchedAt),
+      );
       if (!age.isNegative && age < refreshInterval) return cached;
     }
 
@@ -169,8 +168,9 @@ class CommunityStatsService {
 
   static Future<Object?> _fetchFromDatabase() async {
     if (Firebase.apps.isEmpty) return null;
-    final snapshot =
-        await FirebaseDatabase.instance.ref('public/community').get();
+    final snapshot = await FirebaseDatabase.instance
+        .ref('public/community')
+        .get();
     return _plain(snapshot.value);
   }
 

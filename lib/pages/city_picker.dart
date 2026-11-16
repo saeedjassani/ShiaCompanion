@@ -134,8 +134,12 @@ Future<void> lookUpCityFlow(BuildContext context, {DateTime? date}) async {
     purpose: CityPickerPurpose.lookup,
   );
   if (choice is! ChosenCity || !context.mounted) return;
-  await openCityPrayerTimes(context, choice.city,
-      source: 'calendar', date: date);
+  await openCityPrayerTimes(
+    context,
+    choice.city,
+    source: 'calendar',
+    date: date,
+  );
 }
 
 /// Applies [choice] through [LocationService] and counts it. [source] says
@@ -149,19 +153,25 @@ Future<void> applyCityChoice(
 }) async {
   switch (choice) {
     case ChosenCity(:final city):
-      unawaited(AnalyticsService.feature(
-        'city_chosen',
-        label: 'City chosen',
-        parameters: {'source': source, 'country': city.countryCode},
-      ));
-      await LocationService.instance
-          .chooseCity(city, confirmedInCity: confirmedInCity);
+      unawaited(
+        AnalyticsService.feature(
+          'city_chosen',
+          label: 'City chosen',
+          parameters: {'source': source, 'country': city.countryCode},
+        ),
+      );
+      await LocationService.instance.chooseCity(
+        city,
+        confirmedInCity: confirmedInCity,
+      );
     case UseDeviceLocation():
-      unawaited(AnalyticsService.feature(
-        'device_location_chosen',
-        label: 'Device location chosen',
-        parameters: {'source': source},
-      ));
+      unawaited(
+        AnalyticsService.feature(
+          'device_location_chosen',
+          label: 'Device location chosen',
+          parameters: {'source': source},
+        ),
+      );
       await LocationService.instance.useDeviceLocation(context: context);
   }
 }
@@ -298,7 +308,11 @@ class _CityPickerState extends State<CityPicker> {
             child: ListView(
               keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
               padding: EdgeInsets.fromLTRB(
-                  16, 16, 16, 24 + MediaQuery.paddingOf(context).bottom),
+                16,
+                16,
+                16,
+                24 + MediaQuery.paddingOf(context).bottom,
+              ),
               children: [
                 if (!lookup) ...[
                   _UseLocationRow(
@@ -318,8 +332,9 @@ class _CityPickerState extends State<CityPicker> {
                     padding: const EdgeInsets.symmetric(horizontal: 4),
                     child: Text(
                       context.l10n.cityNoMatch(query),
-                      style:
-                          ShiaText.secondary.copyWith(color: colors.textMuted),
+                      style: ShiaText.secondary.copyWith(
+                        color: colors.textMuted,
+                      ),
                     ),
                   )
                 else if (listLabel != null) ...[

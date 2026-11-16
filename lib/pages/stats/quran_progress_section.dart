@@ -12,7 +12,8 @@ String _surahName(int surah) =>
     surahInfoFor(surah)?.displayName ?? L10n.current.quranSurahNumber(surah);
 
 String _percentText(double percent) => localizeDigits(
-    '${percent.toStringAsFixed(percent > 0 && percent < 10 ? 1 : 0)}%');
+  '${percent.toStringAsFixed(percent > 0 && percent < 10 ? 1 : 0)}%',
+);
 
 /// Quran recitation as one card per Khatm - how much of the Quran it has
 /// covered, where it was left, and which juz are done - and, below them, the
@@ -111,22 +112,29 @@ class _EverydayReadingCard extends StatelessWidget {
                   recitationTrackName(label, context.l10n),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: theme.textTheme.titleMedium
-                      ?.copyWith(fontWeight: FontWeight.w700),
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w700,
+                  ),
                 ),
                 const SizedBox(height: 2),
                 Text(
                   [
-                    context.l10n
-                        .statsSessionCount(sessions, _count.format(sessions)),
-                    context.l10n
-                        .statsVersesRecited(verses, _count.format(verses)),
+                    context.l10n.statsSessionCount(
+                      sessions,
+                      _count.format(sessions),
+                    ),
+                    context.l10n.statsVersesRecited(
+                      verses,
+                      _count.format(verses),
+                    ),
                     if (lastAt != null)
                       context.l10n.statsLastOn(
-                          DateFormat('MMM d').format(lastAt.toLocal())),
+                        DateFormat('MMM d').format(lastAt.toLocal()),
+                      ),
                   ].join(' · '),
-                  style: theme.textTheme.bodySmall
-                      ?.copyWith(color: colorScheme.onSurfaceVariant),
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: colorScheme.onSurfaceVariant,
+                  ),
                 ),
               ],
             ),
@@ -176,8 +184,9 @@ class QuranTrackCard extends StatelessWidget {
                   recitationTrackName(label, context.l10n),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: theme.textTheme.titleMedium
-                      ?.copyWith(fontWeight: FontWeight.w700),
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w700,
+                  ),
                 ),
               ),
             ],
@@ -192,8 +201,9 @@ class QuranTrackCard extends StatelessWidget {
                 value: percent / 100,
                 center: Text(
                   _percentText(percent),
-                  style: theme.textTheme.titleMedium
-                      ?.copyWith(fontWeight: FontWeight.w800),
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w800,
+                  ),
                 ),
               ),
               const SizedBox(width: 16),
@@ -203,26 +213,30 @@ class QuranTrackCard extends StatelessWidget {
                   children: [
                     Text(
                       context.l10n.statsRecitedTill,
-                      style: theme.textTheme.labelMedium
-                          ?.copyWith(color: colorScheme.onSurfaceVariant),
+                      style: theme.textTheme.labelMedium?.copyWith(
+                        color: colorScheme.onSurfaceVariant,
+                      ),
                     ),
                     const SizedBox(height: 2),
                     Text(
                       last == null
                           ? context.l10n.statsNotStarted
                           : '${_surahName(last.surah)}: '
-                              '${localizeDigits('${last.ayah}')}',
+                                '${localizeDigits('${last.ayah}')}',
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
-                      style: theme.textTheme.titleMedium
-                          ?.copyWith(fontWeight: FontWeight.w700),
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w700,
+                      ),
                     ),
                     if (last != null)
                       Text(
-                        context.l10n
-                            .quranJuzNumber(juzOf(last.surah, last.ayah!)),
-                        style: theme.textTheme.bodyMedium
-                            ?.copyWith(color: colorScheme.onSurfaceVariant),
+                        context.l10n.quranJuzNumber(
+                          juzOf(last.surah, last.ayah!),
+                        ),
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                          color: colorScheme.onSurfaceVariant,
+                        ),
                       ),
                     const SizedBox(height: 8),
                     Text(
@@ -248,15 +262,19 @@ class QuranTrackCard extends StatelessWidget {
           if (sessions > 0)
             Text(
               [
-                context.l10n
-                    .statsSessionCount(sessions, _count.format(sessions)),
+                context.l10n.statsSessionCount(
+                  sessions,
+                  _count.format(sessions),
+                ),
                 context.l10n.statsVersesRecited(verses, _count.format(verses)),
                 if (lastAt != null)
                   context.l10n.statsLastOn(
-                      DateFormat('MMM d').format(lastAt.toLocal())),
+                    DateFormat('MMM d').format(lastAt.toLocal()),
+                  ),
               ].join(' · '),
-              style: theme.textTheme.bodySmall
-                  ?.copyWith(color: colorScheme.onSurfaceVariant),
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: colorScheme.onSurfaceVariant,
+              ),
             ),
           if (distinct > 0 && remaining > 0) ...[
             const SizedBox(height: 2),
@@ -295,8 +313,9 @@ class _JuzMap extends StatelessWidget {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     return Semantics(
-      label:
-          context.l10n.statsJuzComplete(coverage.where((f) => f >= 1).length),
+      label: context.l10n.statsJuzComplete(
+        coverage.where((f) => f >= 1).length,
+      ),
       excludeSemantics: true,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -312,7 +331,9 @@ class _JuzMap extends StatelessWidget {
                         padding: const EdgeInsets.symmetric(horizontal: 1.5),
                         child: Tooltip(
                           message: context.l10n.statsJuzCoverage(
-                              i + 1, (coverage[i] * 100).floor()),
+                            i + 1,
+                            (coverage[i] * 100).floor(),
+                          ),
                           child: Container(
                             height: 18,
                             alignment: Alignment.center,
@@ -320,10 +341,12 @@ class _JuzMap extends StatelessWidget {
                               color: coverage[i] >= 1
                                   ? colorScheme.primary
                                   : coverage[i] > 0
-                                      ? colorScheme.primary.withValues(
-                                          alpha: 0.15 + 0.45 * coverage[i])
-                                      : colorScheme.onSurface
-                                          .withValues(alpha: 0.06),
+                                  ? colorScheme.primary.withValues(
+                                      alpha: 0.15 + 0.45 * coverage[i],
+                                    )
+                                  : colorScheme.onSurface.withValues(
+                                      alpha: 0.06,
+                                    ),
                               borderRadius: BorderRadius.circular(4),
                             ),
                             child: FittedBox(

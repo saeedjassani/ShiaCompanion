@@ -21,9 +21,9 @@ Stream<CompassReading>? openCompassStream() {
   }
 
   if (defaultTargetPlatform == TargetPlatform.iOS) {
-    return _quietly(_iosHeadingChannel
-        .receiveBroadcastStream()
-        .map(iosHeadingEventToReading));
+    return _quietly(
+      _iosHeadingChannel.receiveBroadcastStream().map(iosHeadingEventToReading),
+    );
   }
 
   final events = FlutterCompass.events;
@@ -38,8 +38,9 @@ Stream<CompassReading>? openCompassStream() {
 /// running location updates — and the plugin's never is. The result, on
 /// iPhones with working magnetometers, was a stream of nothing but -1s and a
 /// screen claiming there was no compass (issue #62).
-const EventChannel _iosHeadingChannel =
-    EventChannel('shia_companion/compass_heading');
+const EventChannel _iosHeadingChannel = EventChannel(
+  'shia_companion/compass_heading',
+);
 
 Stream<CompassReading> _quietly(Stream<CompassReading?> readings) {
   return readings

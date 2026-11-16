@@ -262,11 +262,13 @@ class OsSpeechRecitationRecognizer implements RecitationRecognizer {
     final controller = _controller;
     if (controller == null || controller.isClosed) return;
 
-    controller.add(RecitationTranscript(
-      text: result.recognizedWords,
-      isFinal: result.finalResult,
-      confidence: result.hasConfidenceRating ? result.confidence : null,
-    ));
+    controller.add(
+      RecitationTranscript(
+        text: result.recognizedWords,
+        isFinal: result.finalResult,
+        confidence: result.hasConfidenceRating ? result.confidence : null,
+      ),
+    );
 
     if (result.finalResult) controller.close();
   }

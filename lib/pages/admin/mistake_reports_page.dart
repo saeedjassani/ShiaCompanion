@@ -55,10 +55,12 @@ class _MistakeReportsPageState extends State<MistakeReportsPage> {
   }
 
   Future<void> _setResolved(MistakeReport report, bool resolved) async {
-    unawaited(AnalyticsService.feature(
-      resolved ? 'mistake_report_resolved' : 'mistake_report_reopened',
-      label: resolved ? 'Mistake report resolved' : 'Mistake report reopened',
-    ));
+    unawaited(
+      AnalyticsService.feature(
+        resolved ? 'mistake_report_resolved' : 'mistake_report_reopened',
+        label: resolved ? 'Mistake report resolved' : 'Mistake report reopened',
+      ),
+    );
     await MistakeReportService.setResolved(report.id, resolved);
   }
 
@@ -86,7 +88,8 @@ class _MistakeReportsPageState extends State<MistakeReportsPage> {
               builder: (context, snapshot) {
                 if (snapshot.hasError) {
                   return Center(
-                      child: Text('Could not load reports: ${snapshot.error}'));
+                    child: Text('Could not load reports: ${snapshot.error}'),
+                  );
                 }
                 if (!snapshot.hasData) {
                   return const Center(child: CircularProgressIndicator());
@@ -169,18 +172,15 @@ class _MistakeReportCard extends StatelessWidget {
                     report.zikrTitle.isEmpty
                         ? report.zikrUid
                         : report.zikrTitle,
-                    style: Theme.of(context)
-                        .textTheme
-                        .titleMedium
+                    style: Theme.of(context).textTheme.titleMedium
                         ?.copyWith(fontWeight: FontWeight.w600),
                   ),
                 ),
                 if (createdAt != null)
                   Text(
                     dateFormat.format(createdAt),
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: colorScheme.onSurfaceVariant,
-                        ),
+                    style: Theme.of(context).textTheme.bodySmall
+                        ?.copyWith(color: colorScheme.onSurfaceVariant),
                   ),
               ],
             ),

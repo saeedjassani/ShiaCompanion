@@ -44,7 +44,8 @@ class _ZiyaratSitePageState extends State<ZiyaratSitePage> {
       parameters: {'site': site.id},
     );
     final opened = await launchExternalUri(
-        mapsUriFor(site.location, site.arabicName ?? site.englishName));
+      mapsUriFor(site.location, site.arabicName ?? site.englishName),
+    );
     if (!opened && mounted) showToast(context.l10n.ziyaratGuideMapsFailed);
   }
 
@@ -70,8 +71,11 @@ class _ZiyaratSitePageState extends State<ZiyaratSitePage> {
         if (holySite != null)
           RoundIconButton(
             label: l10n.ziyaratGuideCompass,
-            icon: OutlineIcon(OutlineGlyph.compass,
-                size: 22, color: colors.accent),
+            icon: OutlineIcon(
+              OutlineGlyph.compass,
+              size: 22,
+              color: colors.accent,
+            ),
             onPressed: () => _openCompass(holySite),
           ),
         RoundIconButton(
@@ -106,8 +110,10 @@ class _ZiyaratSitePageState extends State<ZiyaratSitePage> {
         ),
         if (plan != null)
           SliverPadding(
-            padding: pageGutter(context, maxWidth: widePageWidth)
-                .copyWith(top: 4, bottom: 0),
+            padding: pageGutter(
+              context,
+              maxWidth: widePageWidth,
+            ).copyWith(top: 4, bottom: 0),
             sliver: SliverToBoxAdapter(
               child: ShrinePlanCard(site: site, plan: plan),
             ),
@@ -120,8 +126,9 @@ class _ZiyaratSitePageState extends State<ZiyaratSitePage> {
         if (site.about != null)
           GuideSection(
             label: l10n.ziyaratGuideAbout,
-            sliver:
-                SliverToBoxAdapter(child: GuideTextCard(paragraph: site.about)),
+            sliver: SliverToBoxAdapter(
+              child: GuideTextCard(paragraph: site.about),
+            ),
           ),
         if (buried.isNotEmpty)
           GuideSection(
@@ -138,8 +145,9 @@ class _ZiyaratSitePageState extends State<ZiyaratSitePage> {
         if (site.tips.isNotEmpty)
           GuideSection(
             label: l10n.ziyaratGuideTips,
-            sliver:
-                SliverToBoxAdapter(child: GuideTextCard(bullets: site.tips)),
+            sliver: SliverToBoxAdapter(
+              child: GuideTextCard(bullets: site.tips),
+            ),
           ),
         const SliverToBoxAdapter(child: SizedBox(height: 32)),
       ],

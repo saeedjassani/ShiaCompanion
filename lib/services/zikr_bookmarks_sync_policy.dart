@@ -16,7 +16,7 @@ import 'zikr_bookmark_store.dart';
 @immutable
 class ZikrBookmarksState {
   ZikrBookmarksState([Map<String, ZikrBookmark>? bookmarks])
-      : bookmarks = Map.unmodifiable(bookmarks ?? const {});
+    : bookmarks = Map.unmodifiable(bookmarks ?? const {});
 
   factory ZikrBookmarksState.fromJson(dynamic value) {
     if (value is! Map) return empty;
@@ -77,20 +77,20 @@ class ZikrBookmarksState {
   }
 
   Map<String, Object> toJson() => {
-        'bookmarks': [
-          for (final uid in bookmarks.keys.toList()..sort())
-            bookmarks[uid]!.toJson(),
-        ],
-      };
+    'bookmarks': [
+      for (final uid in bookmarks.keys.toList()..sort())
+        bookmarks[uid]!.toJson(),
+    ],
+  };
 }
 
 enum ZikrBookmarkOperationKind { save, remove }
 
 extension ZikrBookmarkOperationKindInfo on ZikrBookmarkOperationKind {
   String get key => switch (this) {
-        ZikrBookmarkOperationKind.save => 'save',
-        ZikrBookmarkOperationKind.remove => 'remove',
-      };
+    ZikrBookmarkOperationKind.save => 'save',
+    ZikrBookmarkOperationKind.remove => 'remove',
+  };
 }
 
 ZikrBookmarkOperationKind? zikrBookmarkOperationKindFromKey(String key) {
@@ -148,17 +148,18 @@ class PendingZikrBookmarkOperation {
   String get id => 'bookmark_$uid';
 
   Map<String, Object> toJson() => {
-        'kind': kind.key,
-        'uid': uid,
-        'at': at.toUtc().toIso8601String(),
-        if (bookmark != null) 'bookmark': bookmark!.toJson(),
-      };
+    'kind': kind.key,
+    'uid': uid,
+    'at': at.toUtc().toIso8601String(),
+    if (bookmark != null) 'bookmark': bookmark!.toJson(),
+  };
 
   static PendingZikrBookmarkOperation? fromJson(dynamic value) {
     if (value is! Map) return null;
 
-    final kind =
-        zikrBookmarkOperationKindFromKey(value['kind']?.toString() ?? '');
+    final kind = zikrBookmarkOperationKindFromKey(
+      value['kind']?.toString() ?? '',
+    );
     final uid = value['uid']?.toString().trim() ?? '';
     if (kind == null || uid.isEmpty) return null;
 
@@ -195,7 +196,9 @@ ZikrBookmarksState applyPendingZikrBookmarkOperation(
   return switch (operation.kind) {
     ZikrBookmarkOperationKind.save =>
       operation.bookmark == null ? state : state.save(operation.bookmark!),
-    ZikrBookmarkOperationKind.remove =>
-      state.remove(operation.uid, operation.at),
+    ZikrBookmarkOperationKind.remove => state.remove(
+      operation.uid,
+      operation.at,
+    ),
   };
 }
