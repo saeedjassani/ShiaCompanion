@@ -26,18 +26,24 @@ void main() {
     expect(filterDataSearchResults(entries, 'al-'), [entries[3]]);
   });
 
-  test('matches across hyphens, ranking the title that starts with it first',
-      () {
-    final hyphenated = [
-      UidTitleData('G1', 'Ziyarat Aal-e-Yasin'),
-      UidTitleData('A40', '36: Ya-Sin يس'),
-    ];
+  test(
+    'matches across hyphens, ranking the title that starts with it first',
+    () {
+      final hyphenated = [
+        UidTitleData('G1', 'Ziyarat Aal-e-Yasin'),
+        UidTitleData('A40', '36: Ya-Sin يس'),
+      ];
 
-    expect(filterDataSearchResults(hyphenated, 'Yasin').map((e) => e.uid),
-        ['A40', 'G1']);
-    expect(filterDataSearchResults(hyphenated, 'ya-sin').map((e) => e.uid),
-        ['A40', 'G1']);
-  });
+      expect(filterDataSearchResults(hyphenated, 'Yasin').map((e) => e.uid), [
+        'A40',
+        'G1',
+      ]);
+      expect(filterDataSearchResults(hyphenated, 'ya-sin').map((e) => e.uid), [
+        'A40',
+        'G1',
+      ]);
+    },
+  );
 
   test('ignores uid by default, even when the query matches one', () {
     expect(filterDataSearchResults(entries, 'g4'), isEmpty);
@@ -66,14 +72,22 @@ void main() {
         respelled,
       );
       expect(
-        filterDataSearchResults(respelled, 'ziyarat e waaresa',
-            slugsFor: slugsFor),
+        filterDataSearchResults(
+          respelled,
+          'ziyarat e waaresa',
+          slugsFor: slugsFor,
+        ),
         respelled,
       );
     });
 
     test('is not consulted unless given', () {
-      expect(filterDataSearchResults(respelled, 'waaresa'), isEmpty);
+      // A slug word that does not sound like the title, so only the slug
+      // could find it.
+      final entry = [UidTitleData('G6', 'Ziyarat Warith')];
+      Iterable<String> heir(String uid) => const ['ziyarat-of-the-heir'];
+      expect(filterDataSearchResults(entry, 'heir', slugsFor: heir), entry);
+      expect(filterDataSearchResults(entry, 'heir'), isEmpty);
     });
 
     test('ignores a query that is only punctuation', () {
@@ -113,13 +127,17 @@ void main() {
 
   test('matches a book on its author', () {
     final books = [
-      UidTitleData('B1', 'The Islamic Modest Dress',
-          author: 'Murtada Mutahhari'),
+      UidTitleData(
+        'B1',
+        'The Islamic Modest Dress',
+        author: 'Murtada Mutahhari',
+      ),
       UidTitleData('B2', 'Peak of Eloquence'),
     ];
 
-    expect(
-        filterDataSearchResults(books, 'mutahhari').map((e) => e.uid), ['B1']);
+    expect(filterDataSearchResults(books, 'mutahhari').map((e) => e.uid), [
+      'B1',
+    ]);
   });
 
   group('ranking', () {
@@ -140,8 +158,12 @@ void main() {
         UidTitleData('AA47', 'Farewell Prayer of Ramazan'),
       ];
 
-      expect(filterDataSearchResults(entries, 'fa').map((e) => e.uid),
-          ['A5', 'AA47', 'D3', 'A12']);
+      expect(filterDataSearchResults(entries, 'fa').map((e) => e.uid), [
+        'A5',
+        'AA47',
+        'D3',
+        'A12',
+      ]);
     });
   });
 
@@ -161,12 +183,14 @@ void main() {
       final results = filterDataSearchResults(
         [
           UidTitleData('E1', 'Dua Kumayl'),
-          UidTitleData('G4', 'Ziyarat Ashura')
+          UidTitleData('G4', 'Ziyarat Ashura'),
         ],
         'دعای کمیل',
         translatedTitleFor: (uid) => translated[uid],
       );
-      expect(results.map((e) => e.uid), isEmpty);
+      // Not as typed ("دعای" is not "دعاء"), but by sound - see
+      // fuzzy_search_test.dart.
+      expect(results.map((e) => e.uid), ['E1']);
       expect(
         filterDataSearchResults(
           [UidTitleData('E1', 'Dua Kumayl')],
@@ -182,7 +206,7 @@ void main() {
       final results = filterDataSearchResults(
         [
           UidTitleData('A2', 'Dua Iftitah'),
-          UidTitleData('A1', '1: Al-Fatihah')
+          UidTitleData('A1', '1: Al-Fatihah'),
         ],
         'سورة',
         translatedTitleFor: (uid) => translated[uid],
