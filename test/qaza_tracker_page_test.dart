@@ -84,6 +84,23 @@ void main() {
     // Working it out again moves to the top bar, as an icon.
     expect(find.text('Work out how many I owe'), findsNothing);
     expect(find.bySemanticsLabel('Work out how many I owe'), findsOneWidget);
+    // Every daily prayer has one owed, so a full day can be logged.
+    expect(find.text('Needs one of each daily prayer left to make up.'),
+        findsNothing);
+  });
+
+  testWidgets('says why a full day can\'t be logged while one is done', (
+    tester,
+  ) async {
+    await seed(tester, {
+      for (final type in qazaDailyPrayers)
+        type: (remaining: type == QazaEntryType.fajr ? 0 : 3, completed: 3),
+    });
+    await pump(tester);
+
+    expect(find.text('Prayed a full day'), findsOneWidget);
+    expect(find.text('Needs one of each daily prayer left to make up.'),
+        findsOneWidget);
   });
 
   testWidgets('the ⋯ menu holds the rarer actions', (tester) async {

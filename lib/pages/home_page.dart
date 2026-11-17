@@ -11,6 +11,7 @@ import 'package:shia_companion/constants.dart';
 import 'package:shia_companion/data/live_streaming_data.dart';
 import 'package:shia_companion/data/uid_title_data.dart';
 import 'package:shia_companion/navigation/home_menu.dart';
+import 'package:shia_companion/pages/calendar_page.dart';
 import 'package:shia_companion/pages/chapter_list_page.dart';
 import 'package:shia_companion/pages/chapter_page.dart';
 import 'package:shia_companion/pages/deep_link_not_found_page.dart';
@@ -111,6 +112,13 @@ class _MyHomePageState extends State<MyHomePage>
 
   void _openHomeMenuItem(HomeMenuItem item) {
     item.open(context);
+  }
+
+  /// The Calendar on [day] rather than today: the event row under the prayer
+  /// card is about a day that may be weeks away.
+  void _openCalendarOn(DateTime day) {
+    calendarMenuItem.recordOpen();
+    pushPageRoute(context, CalendarPage(initialDate: day));
   }
 
   /// Whether Home offers the Color setting under the prayer card; decided
@@ -562,9 +570,7 @@ class _MyHomePageState extends State<MyHomePage>
     );
     final prayerCard = HomePrayerTimesCard(
       onTap: () => _openHomeMenuItem(calendarMenuItem),
-      footer: ComingUpRow(
-        onOpenCalendar: () => _openHomeMenuItem(calendarMenuItem),
-      ),
+      footer: ComingUpRow(onOpenCalendar: _openCalendarOn),
     );
     final shortcuts = ShortcutsSection(
       onOpen: _openHomeMenuItem,

@@ -198,6 +198,27 @@ void main() {
         'Birth of Prophet Muhammad (sawaw) · Imam Jafer Sadiq (a.s.)',
       );
     });
+
+    testWidgets('a tap opens the calendar on the event\'s day, not today', (
+      tester,
+    ) async {
+      final now = DateTime(2026, 9, 28, 12);
+      ComingUpRow.debugNow = () => now;
+      addTearDown(() => ComingUpRow.debugNow = DateTime.now);
+      DateTime? opened;
+      await tester.pumpWidget(
+        _app(ComingUpRow(onOpenCalendar: (day) => opened = day)),
+      );
+      await tester.runAsync(() => tester.pumpAndSettle());
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byType(InkWell));
+      expect(opened, isNotNull);
+      // Mid Rabi' al-Thani 1448: the next event, 5 Jumada al-Awwal, is weeks away.
+      expect(opened!.isAfter(now), isTrue, reason: '$opened');
+      expect(opened, DateTime(opened!.year, opened!.month, opened!.day));
+      expect(find.text('${opened!.day}'), findsOneWidget);
+    });
   });
 
   group('Continue', () {

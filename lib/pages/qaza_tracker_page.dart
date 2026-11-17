@@ -185,6 +185,15 @@ class _QazaTrackerPageState extends State<QazaTrackerPage> {
             label: l10n.qazaPrayedFullDay,
             onPressed: canLogFullDay ? _logFullDay : null,
           ),
+          // A greyed-out button alone reads as broken; say what it waits for.
+          if (!canLogFullDay) ...[
+            const SizedBox(height: 6),
+            Text(
+              l10n.qazaFullDayNeedsEach,
+              textAlign: TextAlign.center,
+              style: ShiaText.caption.copyWith(color: colors.textMuted),
+            ),
+          ],
           // With something owed it is the top bar's button instead.
           if (left == 0) ...[
             const SizedBox(height: 8),
