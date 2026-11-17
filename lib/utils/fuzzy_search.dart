@@ -21,7 +21,12 @@ import 'package:shia_companion/utils/data_search_filter.dart'
 /// skeletons. Words run together ("duasanme") match adjacent title words
 /// joined, and the last word may be a prefix, as it is mid-typing.
 class FuzzyQuery {
-  FuzzyQuery._(this._required, this._optional, {this.weak = false});
+  FuzzyQuery._(
+    this._required,
+    this._optional,
+    this._lastTyped, {
+    this.weak = false,
+  });
 
   /// The query, ready to test entries against; null when it has no word
   /// worth matching by sound (only generic words like "dua", or only
@@ -41,8 +46,10 @@ class FuzzyQuery {
       for (final t in tokens)
         if (t.key.length < 3) t,
     ];
-    if (required.isEmpty) return FuzzyQuery._(optional, const [], weak: true);
-    return FuzzyQuery._(required, optional);
+    if (required.isEmpty) {
+      return FuzzyQuery._(optional, const [], tokens.last, weak: true);
+    }
+    return FuzzyQuery._(required, optional, tokens.last);
   }
 
   /// Whether every word is a two-letter skeleton - "kisa" is "ks", as are
@@ -53,25 +60,39 @@ class FuzzyQuery {
   final List<_Token> _required;
   final List<_Token> _optional;
 
+  /// The word still being typed, which may be a prefix of a title word.
+  final _Token _lastTyped;
+
   /// How much further than the closest fuzzy match another may be: past it
   /// they share a skeleton with the query, not a name. A [weak] query keeps
   /// only the closest.
-  int get slack => weak ? 0 : 3;
+  int get slack => weak ? 0 : 2;
+
+  /// How far from the query itself a fuzzy match may be spelled when the
+  /// query also matches exactly: only a variant spelling ("Kumail" beside
+  /// "Kumayl") belongs next to exact matches.
+  static const int besideExact = 1;
 
   /// How far [texts] (a title, its slugs, its translated title; folded or
   /// not) are from this query - lower is closer - or null when
   /// they do not match it.
-  int? score(Iterable<String?> texts) {
+  ///
+  /// [allowPrefix] is off when the query already matches something exactly:
+  /// then "sakina" is a whole word, not the start of "seeking".
+  int? score(Iterable<String?> texts, {bool allowPrefix = true}) {
     final words = <_Token>[];
     for (final text in texts) {
       if (text != null && text.isNotEmpty) words.addAll(_entryWords(text));
     }
     if (words.isEmpty) return null;
 
-    final last = _required.last;
     var total = 0;
     for (final token in _required) {
-      final distance = _bestDistance(token, words, prefix: token == last);
+      final distance = _bestDistance(
+        token,
+        words,
+        prefix: allowPrefix && identical(token, _lastTyped),
+      );
       if (distance == null) return null;
       total += distance;
     }
@@ -92,8 +113,9 @@ class FuzzyQuery {
   }) {
     int? best;
     for (final word in words) {
-      if (word.exactOnly
-          ? token.key != word.key
+      final lead = word.leadingStopword;
+      if (lead != null
+          ? token.key != word.key || !token.spelling.startsWith(lead)
           : !_keysMatch(token.key, word.key, prefix: prefix)) {
         continue;
       }
@@ -105,7 +127,11 @@ class FuzzyQuery {
 
   static bool _keysMatch(String query, String word, {required bool prefix}) {
     if (query == word) return true;
-    if (prefix && query.length >= 3 && word.startsWith(query)) return true;
+    // Numbers are not spellings: "114" is not one edit from "14".
+    if (_digit.hasMatch(query) || _digit.hasMatch(word)) return false;
+    // Four consonants before a prefix counts: "kntr" (Centre) starts with
+    // "knt", and "qunoot" is not being typed towards it.
+    if (prefix && query.length >= 4 && word.startsWith(query)) return true;
     final shorter = min(query.length, word.length);
     final allowed = shorter >= 7
         ? 2
@@ -123,6 +149,8 @@ class FuzzyQuery {
   }
 }
 
+final RegExp _digit = RegExp('[0-9]');
+
 /// [word]'s consonant skeleton; see [FuzzyQuery].
 String phoneticKey(String word) => _tokenFor(word)?.key ?? '';
 
@@ -131,7 +159,7 @@ class _Token {
     this.spelling,
     this.key, {
     this.isStopword = false,
-    this.exactOnly = false,
+    this.leadingStopword,
   });
 
   /// The word in one Latin alphabet, vowels kept (for ranking).
@@ -142,9 +170,11 @@ class _Token {
 
   final bool isStopword;
 
-  /// Title words joined across a generic word ("the human") match only a
-  /// query word with the very same skeleton, or "rehman" would find them.
-  final bool exactOnly;
+  /// For title words joined after a generic word ("dua" + "sanamay"), that
+  /// word's spelling: they match only a query word that starts with it and
+  /// has the very same skeleton - "duasanme", not "rehman" for "the human"
+  /// or "father" for "of asr".
+  final String? leadingStopword;
 }
 
 /// Generic words that say what kind of entry it is, not which one: "surah e
@@ -158,7 +188,7 @@ const Set<String> _stopwords = {
   'namaz', 'namaaz', 'nimaz', 'salat', 'salah', 'salaat',
   // Arabic-script "dua", "surah", "ziyarat", "namaz" (as foldSearchText
   // leaves them); Devanagari "दुआ" is spelled "dua" and needs no entry.
-  'دعا', 'دعای', 'دعاء', 'سوره', 'زیارت', 'زیاره', 'نماز',
+  'دعا', 'دعای', 'دعاء', 'دعایی', 'سوره', 'زیارت', 'زیاره', 'نماز',
 };
 
 final RegExp _wordSplit = RegExp(r'[^\p{L}\p{M}\p{N}]+', unicode: true);
@@ -176,16 +206,26 @@ List<_Token> _entryWords(String text) {
     for (final t in tokens)
       if (!t.isStopword && t.key.isNotEmpty) t,
   ];
-  // Adjacent words joined - stopwords included, as "duasanme" includes the
-  // "dua" - for a query that runs them together.
+  // Adjacent words joined, for a query that runs them together. A generic
+  // word may lead the run, as "duasanme" includes the "dua", but nowhere
+  // else: "hajj the" and "an and" are not names.
   for (var n = 2; n <= 3; n++) {
     for (var i = 0; i + n <= tokens.length; i++) {
       final run = tokens.sublist(i, i + n);
+      if (run.skip(1).any((t) => t.isStopword)) continue;
+      // Initials such as the "a.t.f.s." after a name join into nonsense.
+      if (run.any((t) => t.spelling.length < 2)) continue;
       final spelling = run.map((t) => t.spelling).join();
       // Long enough to be a name: "ya" + "sin" is, "of" + "a" is not.
       if (spelling.length < 5) continue;
       final key = _collapse(run.map((t) => t.key).join());
-      words.add(_Token(spelling, key, exactOnly: run.any((t) => t.isStopword)));
+      words.add(
+        _Token(
+          spelling,
+          key,
+          leadingStopword: run.first.isStopword ? run.first.spelling : null,
+        ),
+      );
     }
   }
   return _entryCache[text] = words;
@@ -243,6 +283,9 @@ String _latinSpelling(String word) {
   // ث, which Urdu says (and spells) as s mid-word - "hadis" is "hadith" -
   // but a leading th is more often an aspirated t: "thawassul".
   if (s.startsWith('th')) s = 't${s.substring(2)}';
+  // A diphthong before a consonant: "jawshan" is said "joshan" too, while
+  // the w of "tawassul" and "awwal" is a consonant.
+  s = s.replaceAll(RegExp(r'[ao]w(?=[^aeiouyw]|$)'), 'o');
   s = s
       .replaceAll('ch', '\u0001')
       .replaceAll('kh', 'k')
@@ -271,8 +314,9 @@ String _latinSpelling(String word) {
 String _latinKey(String spelling) =>
     _collapse(spelling.replaceAll(RegExp('[aeiouy]'), ''));
 
+/// [s] with doubled letters single; digits stay as they are ("114").
 String _collapse(String s) =>
-    s.replaceAllMapped(RegExp(r'(.)\1+'), (m) => m.group(1)!);
+    s.replaceAllMapped(RegExp(r'([a-z])\1+'), (m) => m.group(1)!);
 
 /// Arabic-script words are compared as typed (already folded by
 /// `foldSearchText`), without the article: "صنعی" still finds "صنمی".

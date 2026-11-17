@@ -89,29 +89,33 @@ List<UidTitleData> filterDataSearchResults(
   }
 
   final fuzzy = FuzzyQuery.parse(normalizedQuery);
-  if (fuzzy != null && !(fuzzy.weak && matches.isNotEmpty)) {
+  final anyExact = matches.isNotEmpty;
+  if (fuzzy != null && !(fuzzy.weak && anyExact)) {
     for (final entry in unmatched) {
       final score = fuzzy.score([
         entry.title,
         ...?slugsFor?.call(entry.uid),
         foldedTranslatedTitle(entry),
-      ]);
+      ], allowPrefix: !anyExact);
       if (score == null) continue;
       ranked.add((rank: _fuzzyRank, score: score, index: matches.length));
       matches.add(entry);
     }
   }
 
-  final closest = ranked
-      .where((r) => r.rank == _fuzzyRank)
-      .fold<int?>(
-        null,
-        (best, r) => best == null ? r.score : min(best, r.score),
-      );
-  if (closest != null) {
-    ranked.removeWhere(
-      (r) => r.rank == _fuzzyRank && r.score > closest + fuzzy!.slack,
-    );
+  // Fuzzy matches stay near the closest one - or, beside exact matches,
+  // near the query itself, so "mashhad" is not followed by every "Masjid".
+  final fuzzyLimit = anyExact
+      ? FuzzyQuery.besideExact
+      : ranked
+            .where((r) => r.rank == _fuzzyRank)
+            .fold<int?>(
+              null,
+              (best, r) => best == null ? r.score : min(best, r.score),
+            );
+  if (fuzzy != null && fuzzyLimit != null) {
+    final limit = anyExact ? fuzzyLimit : fuzzyLimit + fuzzy.slack;
+    ranked.removeWhere((r) => r.rank == _fuzzyRank && r.score > limit);
   }
 
   // List.sort is not stable, so ties fall back to position explicitly.

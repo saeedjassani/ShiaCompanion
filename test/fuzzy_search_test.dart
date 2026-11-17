@@ -101,6 +101,53 @@ void main() {
     },
   );
 
+  group('keeps the noise out (review of PR #433)', () {
+    final noisy = [
+      UidTitleData('AA1', 'Nafilah of Asr'),
+      UidTitleData('B7', 'Hajj the Pilgrimage'),
+      UidTitleData('AJ1', 'Ziyarat of Lady Sakina (s.a.)'),
+      UidTitleData('B8', 'Seeking and Asking'),
+      UidTitleData('A118', '114: An-Nas الناس'),
+      UidTitleData('A18', '14: Ibrahim إبراهيم'),
+      UidTitleData('E29', 'Dua Jawshan Kabir'),
+      UidTitleData('E30', 'Dua Jawshan Saghir'),
+      UidTitleData('E9', 'Imam al-Mahdi (a.t.f.s.) - Short'),
+      UidTitleData('B9', 'The Centre of the Account'),
+      UidTitleData('D7', 'Qunut'),
+    ];
+    List<String> find(String query) =>
+        filterDataSearchResults(noisy, query).map((e) => e.uid).toList();
+
+    test(
+      'words joined across a generic word match only after a leading one',
+      () {
+        expect(find('father'), isEmpty); // "of" + "asr", "a.t.f.s." + short
+        expect(find('hajat'), isEmpty); // "hajj the"
+      },
+    );
+
+    test('beside an exact match, only near spellings and no prefixes', () {
+      expect(find('sakina'), ['AJ1']); // not "seeking", "asking"
+    });
+
+    test('numbers match only as they are', () {
+      expect(find('surah 144'), isEmpty);
+      expect(find('surah 114'), ['A118']);
+    });
+
+    test('a diphthong before a consonant is a vowel', () {
+      expect(find('joshan'), ['E29', 'E30']);
+    });
+
+    test('a short skeleton is not a prefix of a longer word', () {
+      expect(find('qunoot'), ['D7']); // not "Centre", "Account"
+    });
+
+    test('the Urdu دعائے is a generic word', () {
+      expect(FuzzyQuery.parse('دعائے'), isNull);
+    });
+  });
+
   test('generic words alone match nothing by sound', () {
     expect(FuzzyQuery.parse('dua e surah'), isNull);
     expect(search('ziyarat namaz'), isEmpty);
