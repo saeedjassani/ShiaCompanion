@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:shia_companion/data/uid_title_data.dart';
+import 'package:shia_companion/utils/fuzzy_search.dart';
 import 'package:shia_companion/utils/slug_registry.dart';
 
 /// The entries in [entries] whose title contains [query].
@@ -17,6 +18,10 @@ import 'package:shia_companion/utils/slug_registry.dart';
 ///
 /// A book also matches on its author, so someone who remembers who wrote a
 /// book but not what it is called still finds it.
+///
+/// When none of that matches, an entry can still match by sound
+/// ([FuzzyQuery]) - "sanamaiqoraish" for Dua Sanamay Quraish, "bakra" for
+/// Al-Baqarah. Those come after every exact match, closest spelling first.
 ///
 /// Results come best match first (see [searchMatchRank]), and in the order of
 /// [entries] among equally good matches. "fa" matches 65 titles; ranked by
@@ -48,22 +53,15 @@ List<UidTitleData> filterDataSearchResults(
   bool matchesTranslatedTitle(UidTitleData entry) =>
       foldedTranslatedTitle(entry)?.contains(normalizedQuery) ?? false;
 
-  final matches = entries
-      .where(
-        (entry) =>
-            !entry.uid.contains('|') &&
-            (entry.title.toLowerCase().contains(normalizedQuery) ||
-                (joinedQuery.isNotEmpty &&
-                    _joinHyphenated(entry.title.toLowerCase())
-                        .contains(joinedQuery)) ||
-                (entry.author?.toLowerCase().contains(normalizedQuery) ??
-                    false) ||
-                matchesSlug(entry) ||
-                matchesTranslatedTitle(entry) ||
-                (matchUid &&
-                    entry.uid.toLowerCase().contains(normalizedQuery))),
-      )
-      .toList();
+  bool matchesExactly(UidTitleData entry) =>
+      entry.title.toLowerCase().contains(normalizedQuery) ||
+      (joinedQuery.isNotEmpty &&
+          _joinHyphenated(entry.title.toLowerCase()).contains(joinedQuery)) ||
+      (entry.author?.toLowerCase().contains(normalizedQuery) ?? false) ||
+      matchesSlug(entry) ||
+      matchesTranslatedTitle(entry) ||
+      (matchUid && entry.uid.toLowerCase().contains(normalizedQuery));
+
   int rankOf(UidTitleData entry) {
     var english = searchMatchRank(entry.title, normalizedQuery);
     if (joinedQuery.isNotEmpty) {
@@ -77,14 +75,56 @@ List<UidTitleData> filterDataSearchResults(
     return min(english, searchMatchRank(translated, normalizedQuery));
   }
 
-  final ranked = [
-    for (var i = 0; i < matches.length; i++)
-      (rank: rankOf(matches[i]), index: i),
-  ];
+  final matches = <UidTitleData>[];
+  final ranked = <({int rank, int score, int index})>[];
+  final unmatched = <UidTitleData>[];
+  for (final entry in entries) {
+    if (entry.uid.contains('|')) continue;
+    if (matchesExactly(entry)) {
+      ranked.add((rank: rankOf(entry), score: 0, index: matches.length));
+      matches.add(entry);
+    } else {
+      unmatched.add(entry);
+    }
+  }
+
+  final fuzzy = FuzzyQuery.parse(normalizedQuery);
+  if (fuzzy != null && !(fuzzy.weak && matches.isNotEmpty)) {
+    for (final entry in unmatched) {
+      final score = fuzzy.score([
+        entry.title,
+        ...?slugsFor?.call(entry.uid),
+        foldedTranslatedTitle(entry),
+      ]);
+      if (score == null) continue;
+      ranked.add((rank: _fuzzyRank, score: score, index: matches.length));
+      matches.add(entry);
+    }
+  }
+
+  final closest = ranked
+      .where((r) => r.rank == _fuzzyRank)
+      .fold<int?>(
+        null,
+        (best, r) => best == null ? r.score : min(best, r.score),
+      );
+  if (closest != null) {
+    ranked.removeWhere(
+      (r) => r.rank == _fuzzyRank && r.score > closest + fuzzy!.slack,
+    );
+  }
+
   // List.sort is not stable, so ties fall back to position explicitly.
-  ranked.sort((a, b) => a.rank != b.rank ? a.rank - b.rank : a.index - b.index);
+  ranked.sort((a, b) {
+    if (a.rank != b.rank) return a.rank - b.rank;
+    if (a.score != b.score) return a.score - b.score;
+    return a.index - b.index;
+  });
   return [for (final r in ranked) matches[r.index]];
 }
+
+/// Below [searchMatchRank]'s worst: a match by sound only.
+const int _fuzzyRank = 4;
 
 /// [text] without hyphens and apostrophes, so "yasin" finds "36: Ya-Sin" and
 /// "ya-sin" finds it too.
