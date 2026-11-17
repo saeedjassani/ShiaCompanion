@@ -341,6 +341,51 @@ Left for a human to check, in our Arabic (not changed):
   تَجْعَلْنَ, 534 یَنْفَعُنِیْ / اَعْطَیْنَتِیْ, 228 كهيعص in Urdu letters,
   missing spaces in 359, 571, 593.
 
+### Dua Sanamay Quraish — ShianeAli.com booklet (2026-11-16)
+
+| uid | Zikr | Source | Segments |
+| --- | --- | --- | --- |
+| E37 | Dua Sanamay Quraish | *دعائے صنمی قریش اردو ترجمہ*, ShianeAli.com, https://archive.org/details/20220820_20220820_1028 (PDF dated 2021-12-13) | all 64 (63 filled + existing 61) |
+
+A nine-page booklet (an introduction, then the dua in Arabic and Urdu rows
+that alternate); it names no translator, only the publisher (ShianeAli.com). Its introduction cites
+*Misbah* of al-Kaf'ami p. 552 and *Bihar al-Anwar* vol. 82/85 p. 260, and
+has the merits (not used yet). The scan has no text layer, so the Urdu was
+transcribed by eye from the page images. Each Urdu row runs about half a
+line ahead of the Arabic row above it, so the Urdu was read as one text and
+divided at our segment breaks through the Arabic, in order. 16 ends with
+no verb: its "ملا ڈالا" closes 17. Bracketed glosses that explain a word
+(تبدیل, نشانیوں, خانہ نبوت, دوزخ, خراج, ...) are kept as printed;
+glosses naming people are left out, as in the Persian. Honorifics are
+written (ص)/(ع), as the booklet has them.
+
+- **Segment 0** is the corpus-standard Urdu Basmala, as in D2 and I74; the
+  booklet's is "شروع اللہ کے پاک نام سے جو بڑا مہربان نہایت رحم والا ہے".
+- **Our own, or changed from the booklet:**
+  - 3: the booklet's Arabic adds وابنيهما ("دونوں کے بیٹوں اور بیٹیوں پر");
+    ours has only the daughters, so "دونوں کی بیٹیوں پر".
+  - 38 (second half) and 39: the booklet has "معصومہ عالم کو شہید کرنے"
+    for بطن فتقوه, "حضرت محسن کو شہید کرنے" for جنين اسقطوه and "معصومہ
+    عالم کے پہلو کو زخمی کرنے" for ضلع دقوه, which name people instead of
+    translating. Ours, in its "... کے عوض" pattern: "پیٹ کو چاک کرنے",
+    "جنین کو ساقط کرنے", "پسلی کو توڑنے".
+  - 50 (first half): the booklet's "وہ معین راہیں جنہیں چھوڑ دیا گیا"
+    doesn't translate دباب دحرجوها; ours is "وہ کپے جنہیں لڑھکایا گیا"
+    (the Gujarati has કુપ્પા too). Its second half (کجی) is the booklet's.
+  - 44: the booklet's Arabic is العنهم, ours العنهما, so "ان دونوں پر".
+  - Left out: "نبی (ص) کی" before تحریر (40), "(رسول کے)" before
+    دھتکارے ہوئے (26), and "جان بچانے کے لیے" in 49 (the Arabic has only
+    "the hill they climbed").
+  - 28: the booklet prints "اور واجب میں تغیر کرنے کے عوض" twice; it is
+    kept once. 54: the booklet brackets its whole first clause; the
+    brackets are dropped.
+- **Kept as printed but worth knowing:** 35 has "ظلم" while the booklet's
+  own Arabic, like ours, reads وَظِلٍّ (the Persian does the same); 47
+  نكثوها is "بھلا ڈالا"; 22 renders the Quran's وما ادراك as "اور تو خوب
+  جانتا ہے"; 63 آمین رب العالمین is "اے عالمین کے پروردگار میری دعا کو
+  قبول فرما"; 60 adds "باطل" before احکام.
+- An Urdu reader should still check this one against the scan.
+
 ### The Quran translation, reused
 
 - **A4 Ayat al-Kursi** (ur, fa, gu): segments 1-3 are 2:255-257, copied from
