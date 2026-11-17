@@ -116,7 +116,7 @@ class FuzzyQuery {
       final lead = word.leadingStopword;
       if (lead != null
           ? token.key != word.key || !token.spelling.startsWith(lead)
-          : !_keysMatch(token.key, word.key, prefix: prefix)) {
+          : !_keysMatch(token, word, prefix: prefix)) {
         continue;
       }
       final distance = _editDistance(token.spelling, word.spelling);
@@ -125,10 +125,16 @@ class FuzzyQuery {
     return best;
   }
 
-  static bool _keysMatch(String query, String word, {required bool prefix}) {
+  static bool _keysMatch(
+    _Token queryToken,
+    _Token wordToken, {
+    required bool prefix,
+  }) {
+    final query = queryToken.key;
+    final word = wordToken.key;
     if (query == word) return true;
     // Numbers are not spellings: "114" is not one edit from "14".
-    if (_digit.hasMatch(query) || _digit.hasMatch(word)) return false;
+    if (queryToken.hasDigit || wordToken.hasDigit) return false;
     // Four consonants before a prefix counts: "kntr" (Centre) starts with
     // "knt", and "qunoot" is not being typed towards it.
     if (prefix && query.length >= 4 && word.startsWith(query)) return true;
@@ -155,7 +161,7 @@ final RegExp _digit = RegExp('[0-9]');
 String phoneticKey(String word) => _tokenFor(word)?.key ?? '';
 
 class _Token {
-  const _Token(
+  _Token(
     this.spelling,
     this.key, {
     this.isStopword = false,
@@ -167,6 +173,9 @@ class _Token {
 
   /// Its consonant skeleton (for matching).
   final String key;
+
+  /// Worked out once: [FuzzyQuery._keysMatch] asks on every comparison.
+  late final bool hasDigit = _digit.hasMatch(key);
 
   final bool isStopword;
 
