@@ -32,9 +32,9 @@ void main() {
     itemOrder = {};
   });
 
-  test('the Duas list leads with Ayat al-Kursi, then the Sahifa', () {
+  test('the Duas list leads with the Sahifa, then Ayat al-Kursi', () {
     final duas = zikrListEntries('E').map((e) => e.uid).toList();
-    expect(duas.take(2), ['E157|A4', 'E~AS0']);
+    expect(duas.take(2), ['E~AS0', 'E157|A4']);
   });
 
   test('the Sahifa group lists all 54 supplications in order', () {

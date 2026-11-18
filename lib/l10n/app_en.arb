@@ -2014,9 +2014,41 @@
   "@whatsNew140PinPlaylist": {
     "description": "Release note on the What's new page, Android only. The menu item is playlistAddToHomeScreen."
   },
-  "whatsNew141EventNotifications": "Get notified of wiladat, shahadat and the other days of the Islamic calendar, at Maghrib the evening before. Turn it on with the bell on the Calendar, or in Settings › Notifications. Even if you don't open the app for a while, every month still brings at least one.",
-  "@whatsNew141EventNotifications": {
-    "description": "Release note on the What's new page (build 141): the new opt-in notifications of the Islamic calendar's events (eventNotificationsTitle), which come at Maghrib on the eve of each event. Turned on with the bell on the Calendar (menuCalendar) or under Settings > Notifications (actionSettings, settingsSectionNotifications)."
+  "whatsNew144EventNotifications": "Get notified of wiladat, shahadat and the other days of the Islamic calendar, at Maghrib the evening before. Turn it on with the bell on the Calendar, or in Settings › Notifications. Even if you don't open the app for a while, every month still brings at least one.",
+  "@whatsNew144EventNotifications": {
+    "description": "Release note on the What's new page (build 144): the new opt-in notifications of the Islamic calendar's events (eventNotificationsTitle), which come at Maghrib on the eve of each event. Turned on with the bell on the Calendar (menuCalendar) or under Settings > Notifications (actionSettings, settingsSectionNotifications)."
+  },
+  "whatsNew144Sahifa": "All 54 supplications of Sahifa Sajjadiya, by Imam Zayn al-Abidin (a.s.), together at the top of Duas.",
+  "@whatsNew144Sahifa": {
+    "description": "Release note on the What's new page (build 144): the 54 supplications of Sahifa Sajjadiya, now a group at the top of Duas (menuDuas). Name the book as its group title does in this language."
+  },
+  "whatsNew144Khatm": "In the Quran, a Khatm is now only for reading the whole Quran from start to finish, and it keeps your place. Everyday reading picks up from Continue on Home. If you were already reading straight through, that reading is now a Khatm called \"My reading\". A Khatm can also be deleted.",
+  "@whatsNew144Khatm": {
+    "description": "Release note on the What's new page (build 144): the Quran screen's reading changes. Use the app's words for Khatm (trackNew), Home's \"Continue\" section (homeContinueTitle, on shellTabHome) and \"My reading\" (quranMyReading)."
+  },
+  "whatsNew144Search": "Search finds a dua or surah even when you spell it the way you say it, such as \"hadis kissa\" or \"sura bakra\".",
+  "@whatsNew144Search": {
+    "description": "Release note on the What's new page (build 144): search now matches dua and surah names spelled by sound. Keep the two quoted examples exactly as they are, in Latin letters: they are what people type."
+  },
+  "whatsNew144Favorites": "Swipe sideways in Favorites to switch between \"Duas & more\" and \"Quran verses\".",
+  "@whatsNew144Favorites": {
+    "description": "Release note on the What's new page (build 144): a sideways swipe in Favorites (menuFavorites) switches tabs. Quote the tab names as favoritesTabZikr and favoritesTabVerses say them."
+  },
+  "whatsNew144Content": "Urdu for Jawshan Kabir, Dua Arafah and Abu Hamza; Gujarati for Dua Arafah, Dua Iftitah, Dua Nudba and Munajat Shabaniyah; Dua Sanamay Quraish in Urdu and Persian. Corrections to Dua Sanamay Quraish, Ziyarat Ashura, Dua Tawassul and Hadith al-Kisa.",
+  "@whatsNew144Content": {
+    "description": "Release note on the What's new page (build 144): new translations and corrections. Name each dua as its translated title does in this language."
+  },
+  "whatsNew144Fixes": "Library chapters no longer keep loading forever on a slow connection: they offer Retry instead. The next occasion on Home opens the Calendar on its day, and without a connection your location is named after the nearest city.",
+  "@whatsNew144Fixes": {
+    "description": "Release note on the What's new page (build 144): bug fixes. Retry is commonRetry."
+  },
+  "whatsNew144Widgets": "Home screen widgets that got stuck loading on some phones now show, and they stay up to date through the day and when you change your settings.",
+  "@whatsNew144Widgets": {
+    "description": "Release note on the What's new page (build 144), Android only: fixes to the home screen widgets, which now render on phones where they stayed on their spinner and no longer miss the app's and the day's updates."
+  },
+  "whatsNew144WearOs": "Shia Companion is on Wear OS watches: prayer times, the Islamic calendar and a tasbeeh counter on your wrist, with a tile and watch face complications. Install it from the Play Store on your watch; it syncs from your phone.",
+  "@whatsNew144WearOs": {
+    "description": "Release note on the What's new page (build 144), Android only: the new Wear OS watch app. Keep Shia Companion, Wear OS and Play Store in Latin letters. Use the watch app's own words (android/wear/app/src/main/res/values-<code>/strings.xml): prayer times (tile_prayer_label), Islamic Calendar (islamic_calendar), Tasbeeh Counter (tasbeeh_counter). A tile is the swipe-to screen of a Wear OS watch; complications are the small readouts on a watch face."
   },
   "pickerChooseZikr": "Choose a zikr",
   "pickerSearchZikrHint": "Search zikr, dua, ziyarat...",

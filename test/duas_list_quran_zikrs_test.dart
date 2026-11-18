@@ -33,9 +33,9 @@ void main() {
     itemOrder = {};
   });
 
-  test('the Duas list opens with Ayat al-Kursi', () {
+  test('Ayat al-Kursi comes right after the Sahifa group', () {
     final duas = zikrListEntries('E');
-    expect(duas.first.getFirstUId(), 'A4');
+    expect(duas[1].getFirstUId(), 'A4');
   });
 
   test('the Duas list carries both Quran duas, by alias', () {
