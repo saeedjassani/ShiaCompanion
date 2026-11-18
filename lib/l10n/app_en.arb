@@ -570,6 +570,7 @@
   "qazaMissedAWhileBody": "Enter how long, and we will add one of each daily prayer for every day missed.",
   "qazaPrayedFullDay": "Prayed a full day",
   "qazaLoggedFullDay": "Logged one of each daily prayer",
+  "qazaFullDayNeedsEach": "Needs one of each daily prayer left to make up.",
   "qazaAddedToList": "Added to your qaza list",
   "qazaRemainingLabel": "Remaining",
   "qazaCompletedLabel": "Completed",
@@ -1858,7 +1859,7 @@
   "airportSearchTitle": "Search for an airport",
   "airportSearchDetail": "Type an airport code, a city, or a country name.",
   "airportNoneFound": "No airports found",
-  "counterTapAnywhere": "Tap anywhere to count",
+  "counterTapHereToCount": "Tap here to count",
   "counterHoldToMove": "Hold and drag to move",
   "azanPaused": "{prayer} Azan is paused",
   "@azanPaused": {

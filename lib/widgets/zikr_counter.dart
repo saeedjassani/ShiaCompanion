@@ -133,7 +133,7 @@ class _ZikrCounterState extends State<ZikrCounter> {
                           Text(
                             _confirmingReset
                                 ? l10n.tasbeehStartAgainQuestion
-                                : l10n.counterTapAnywhere,
+                                : l10n.counterTapHereToCount,
                             textAlign: TextAlign.center,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,

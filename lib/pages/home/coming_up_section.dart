@@ -98,13 +98,15 @@ List<ComingUpEvent> upcomingEvents({
 
 /// The next event, as the last row of Home's prayer card: its date, when it
 /// is and what. Gold while its day is the one in effect (today, or tonight
-/// from Maghrib). Tap for the calendar. Nothing while there is no event.
+/// from Maghrib). Tap for the calendar, open on the event's day. Nothing while
+/// there is no event.
 ///
 /// Rebuilt with the card, which ticks, so it moves on by itself.
 class ComingUpRow extends StatefulWidget {
   const ComingUpRow({super.key, required this.onOpenCalendar});
 
-  final VoidCallback onOpenCalendar;
+  /// Opens the calendar on the day of the event shown (its local midnight).
+  final ValueChanged<DateTime> onOpenCalendar;
 
   /// Lets tests pin "now".
   @visibleForTesting
@@ -134,7 +136,7 @@ class _ComingUpRowState extends State<ComingUpRow> {
           event: rows.first,
           when: rows.first.whenFrom(now, context.l10n, islamicDay),
           current: rows.first.isCurrent(islamicDay),
-          onTap: widget.onOpenCalendar,
+          onTap: () => widget.onOpenCalendar(rows.first.date),
         );
       },
     );

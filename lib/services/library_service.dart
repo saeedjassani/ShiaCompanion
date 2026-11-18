@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
@@ -25,6 +26,26 @@ class LibraryService {
   /// chapter ahead) doesn't re-hit the network, not as a full offline store.
   static final Map<String, String> _markdownCache = {};
   static const int _markdownCacheLimit = 8;
+
+  /// Chapters being fetched now, so opening one whose prefetch is still on
+  /// its way waits for that request instead of starting a second.
+  static final Map<String, Future<String>> _markdownInFlight = {};
+
+  /// How long a request to the library may take before the reader is told it
+  /// failed. Without one, a connection that stalls (rather than failing) kept
+  /// the spinner up for as long as the platform took to give up - most of a
+  /// minute - with no error and no way to retry.
+  @visibleForTesting
+  static Duration requestTimeout = const Duration(seconds: 20);
+
+  /// [uri], or null if no answer came within [requestTimeout].
+  static Future<http.Response?> _get(Uri uri) async {
+    try {
+      return await http.get(uri).timeout(requestTimeout);
+    } on TimeoutException {
+      return null;
+    }
+  }
 
   static Future<List<UidTitleData>> loadBooks() async {
     final cached = _cachedBooks;
@@ -107,10 +128,10 @@ class LibraryService {
       throw LibraryLoadException(L10n.current.libraryNeedsNetwork);
     }
 
-    final response = await http.get(
+    final response = await _get(
       Uri.parse('$_libraryBaseUrl/$bookSlug/metadata.yml'),
     );
-    if (response.statusCode != 200) {
+    if (response == null || response.statusCode != 200) {
       final saved = await _savedChaptersOrNull(bookSlug);
       if (saved != null) {
         _chapterCache[bookSlug] = saved;
@@ -118,7 +139,7 @@ class LibraryService {
       }
       throw LibraryLoadException(
         L10n.current.libraryChaptersFailed,
-        statusCode: response.statusCode,
+        statusCode: response?.statusCode,
       );
     }
 
@@ -156,11 +177,21 @@ class LibraryService {
       throw LibraryLoadException(L10n.current.libraryReadingNeedsNetwork);
     }
 
-    final response = await http.get(Uri.parse('$_libraryBaseUrl/$slug.md'));
-    if (response.statusCode != 200) {
+    // A block body: `remove` returns this very future, and whenComplete
+    // waits on a future its callback returns.
+    return _markdownInFlight[slug] ??= _fetchChapterMarkdown(
+      slug,
+    ).whenComplete(() {
+      _markdownInFlight.remove(slug);
+    });
+  }
+
+  static Future<String> _fetchChapterMarkdown(String slug) async {
+    final response = await _get(Uri.parse('$_libraryBaseUrl/$slug.md'));
+    if (response == null || response.statusCode != 200) {
       throw LibraryLoadException(
         L10n.current.libraryChapterFailed,
-        statusCode: response.statusCode,
+        statusCode: response?.statusCode,
       );
     }
     _cacheMarkdown(slug, response.body);

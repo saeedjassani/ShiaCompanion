@@ -255,6 +255,10 @@
       const iosStoreUrl = 'https://apps.apple.com/app/id1492517189';
       const redirectKey = 'shia-companion-open-app-' + path;
       const bannerDismissedKey = 'shia-companion-download-banner-dismissed';
+      // Shown once per visit, and only for a few seconds: it floats over the
+      // bottom of the app, where the reader's tools and audio player sit.
+      const bannerShownKey = 'shia-companion-download-banner-shown';
+      const bannerVisibleMs = 10000;
 
       if ((!isAndroid && !isIos) || isStandalone) {
         return;
@@ -292,9 +296,22 @@
         }
       }
 
+      function wasBannerShownThisVisit() {
+        try {
+          return window.sessionStorage.getItem(bannerShownKey) === '1';
+        } catch (_) {
+          return false;
+        }
+      }
+
       function createDownloadAppBanner() {
-        if (isBannerDismissedForever()) {
+        if (isBannerDismissedForever() || wasBannerShownThisVisit()) {
           return;
+        }
+        try {
+          window.sessionStorage.setItem(bannerShownKey, '1');
+        } catch (_) {
+          // Storage unavailable: it shows once per page load instead.
         }
 
         const banner = document.createElement('div');
@@ -365,6 +382,27 @@
 
         function appendBanner() {
           document.body.appendChild(banner);
+          // Goes by itself, so it never sits over the app's own controls for
+          // long. A touch on it keeps it up while the finger is down.
+          let hideTimer;
+          function scheduleHide(delay) {
+            window.clearTimeout(hideTimer);
+            hideTimer = window.setTimeout(function () {
+              banner.style.transition = 'opacity .3s ease, transform .3s ease';
+              banner.style.opacity = '0';
+              banner.style.transform = 'translateY(12px)';
+              window.setTimeout(function () {
+                banner.remove();
+              }, 300);
+            }, delay);
+          }
+          banner.addEventListener('pointerdown', function () {
+            window.clearTimeout(hideTimer);
+          });
+          banner.addEventListener('pointerup', function () {
+            scheduleHide(4000);
+          });
+          scheduleHide(bannerVisibleMs);
         }
 
         if (document.readyState === 'loading') {

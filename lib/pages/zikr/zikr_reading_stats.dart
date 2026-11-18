@@ -1,5 +1,6 @@
 import 'zikr_content_parser.dart';
 import '../../l10n/l10n.dart';
+import '../../utils/quran_index.dart';
 
 /// Words an average reciter covers per minute of Arabic supplication text.
 ///
@@ -11,6 +12,16 @@ import '../../l10n/l10n.dart';
 /// minutes, well past the 5-10 minutes it actually takes to recite aloud.
 /// 100wpm lines up with that instead.
 const double _arabicWordsPerMinute = 100;
+
+/// The fastest Quran reading the recitation tracker believes, in Arabic words
+/// a second - 1,200 a minute. See `RecitationPacer`.
+///
+/// Deliberately far above any reader: hadr, the fastest recitation, runs at
+/// some 150-250 words a minute, a hafiz reading silently not much more, and
+/// the reader's fastest auto-scroll at about 10 words a second on a wide
+/// screen. A fling covers thousands of words a second, so this still tells
+/// them apart, and nobody reading for real is ever held back by it.
+const double quranFastestWordsPerSecond = 20;
 
 /// Words per minute used for content that has no Arabic to recite.
 const double _latinWordsPerMinute = 190;
@@ -131,6 +142,35 @@ List<double> zikrLineWeights(List<String> lines) {
     for (var i = 0; i < lines.length; i++)
       hasArabic && !arabic[i] ? 0.0 : words[i].toDouble(),
   ];
+}
+
+/// The Arabic words of each verse in a Quran document, for pacing what the
+/// recitation tracker counts as read. [index] is the juz's own when the
+/// document is a juz; otherwise the surah's is built from [content], as the
+/// viewer builds it.
+Map<VerseKey, int> quranVerseWordCounts(
+  String content, {
+  int? surah,
+  AyahIndex? index,
+}) {
+  final parsed = ZikrContentParser.parseContent(content, hideHeaderLine: false);
+  final ayahs =
+      index ??
+      (surah == null
+          ? null
+          : AyahIndex.fromParsedContent(parsed, surah: surah));
+  if (ayahs == null) return const {};
+  final lines = parsed.lines;
+  return {
+    for (final span in ayahs.spans)
+      if (span.verse case final verse?)
+        verse: [
+          for (var i = span.start; i < span.end && i < lines.length; i++)
+            if (lines[i].trim().isNotEmpty &&
+                ZikrContentParser.isArabic(lines[i]))
+              _countWords(lines[i].trim()),
+        ].fold(0, (sum, words) => sum + words),
+  };
 }
 
 /// One list item as currently laid out: where it starts in the tab's scroll

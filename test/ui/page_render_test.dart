@@ -276,7 +276,7 @@ class _HomeSections extends StatelessWidget {
                 HomeHeader(onOpenSettings: () {}),
                 const SizedBox(height: 18),
                 HomePrayerTimesCard(
-                  footer: ComingUpRow(onOpenCalendar: () {}),
+                  footer: ComingUpRow(onOpenCalendar: (_) {}),
                 ),
               ],
             ),

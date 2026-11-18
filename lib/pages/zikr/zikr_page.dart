@@ -27,6 +27,7 @@ import 'package:shia_companion/services/recitation_tracker_manager.dart';
 import 'package:shia_companion/services/saved_verses_manager.dart';
 import 'package:shia_companion/utils/deep_links.dart';
 import 'package:shia_companion/utils/quran_index.dart';
+import 'package:shia_companion/utils/recitation_pacer.dart';
 import 'package:shia_companion/utils/quran_indopak.dart';
 import 'package:shia_companion/utils/quran_script.dart';
 import 'package:shia_companion/utils/quran_portion.dart';
@@ -409,6 +410,30 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
   bool _hasMarkedQuranEnd = false;
   Timer? _quranEndTimer;
 
+  /// What has been on screen waits here before it counts as recited, so
+  /// verses count no faster than they could have been read - see
+  /// [RecitationPacer]. Made on first use, timed from [_openedAt].
+  RecitationPacer? _pacer;
+
+  /// Wakes the pacer when the next queued verse can count.
+  Timer? _pacerTimer;
+
+  /// Arabic words per verse of the Quran open, for [_pacer]; rebuilt with
+  /// the reading estimate.
+  Map<VerseKey, int> _verseWords = const {};
+
+  RecitationPacer get _recitationPacer => _pacer ??= RecitationPacer(
+    start: _openedAt ?? DateTime.now(),
+    wordsPerSecond: quranFastestWordsPerSecond,
+    wordsOf: (verse) => _verseWords[verse] ?? _averageVerseWords,
+  );
+
+  int get _averageVerseWords {
+    if (_verseWords.isEmpty) return 10;
+    final total = _verseWords.values.fold(0, (sum, words) => sum + words);
+    return math.max(1, total ~/ _verseWords.length);
+  }
+
   @override
   void initState() {
     super.initState();
@@ -598,30 +623,50 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
     _pendingProgressVerse = top;
     _pendingLastVisibleVerse = last;
     final lastAyah = last.ayah;
+    Iterable<VerseKey> run(int surah, int from, int to) => [
+      for (var a = from; a <= to; a++) VerseKey(surah, a),
+    ];
+    final seen = <VerseKey>[];
     if (lastAyah == null || last.surah == top.surah) {
-      _extendRecitedRange(top.surah, ayah, math.max(ayah, lastAyah ?? ayah));
+      seen.addAll(run(top.surah, ayah, math.max(ayah, lastAyah ?? ayah)));
     } else {
       // A juz crossing into the next surah on screen: the top surah was read
       // to its end, any short one wholly between, and the last from its
       // start.
       final info = surahInfoFor(top.surah);
-      _extendRecitedRange(
-        top.surah,
-        ayah,
-        math.max(ayah, info?.ayahCount ?? ayah),
+      seen.addAll(
+        run(top.surah, ayah, math.max(ayah, info?.ayahCount ?? ayah)),
       );
       for (var surah = top.surah + 1; surah < last.surah; surah++) {
         final count = surahInfoFor(surah)?.ayahCount;
-        if (count != null) _extendRecitedRange(surah, 1, count);
+        if (count != null) seen.addAll(run(surah, 1, count));
       }
-      _extendRecitedRange(
-        last.surah,
-        _firstAyahInDocument(last.surah),
-        lastAyah,
-      );
+      seen.addAll(run(last.surah, _firstAyahInDocument(last.surah), lastAyah));
     }
+    _recitationPacer.see(seen);
+    _releasePacedVerses();
     // Reading on past the end marker's gate - scrolling counts as reading.
     _maybeMarkQuranEndReached();
+  }
+
+  /// Counts what the pacer lets through by now, and wakes it again when the
+  /// next queued verse can count. [schedule] is false on the way out.
+  void _releasePacedVerses({bool schedule = true}) {
+    final pacer = _pacer;
+    if (pacer == null) return;
+    final now = DateTime.now();
+    for (final verse in pacer.release(now)) {
+      _extendRecitedRange(verse.surah, verse.ayah!, verse.ayah!);
+    }
+    _pacerTimer?.cancel();
+    _pacerTimer = null;
+    final wait = schedule && mounted ? pacer.untilNext(now) : null;
+    if (wait != null) {
+      _pacerTimer = Timer(wait + const Duration(milliseconds: 50), () {
+        _pacerTimer = null;
+        if (mounted) _releasePacedVerses();
+      });
+    }
   }
 
   /// Widens this visit's recited range for [surah] to cover [from]–[to], and
@@ -680,6 +725,8 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
   /// forever. Reaching the end fills that in: straight away if the reader
   /// scrolled there, otherwise once they have stayed about as long as the
   /// text takes to recite, so a glance at a short surah is not a recitation.
+  /// Either way the verses go through [_pacer] like everything else seen, so
+  /// they count only as fast as they could have been read.
   void _maybeMarkQuranEndReached() {
     if (_hasMarkedQuranEnd || !_isQuran || !mounted) return;
     if (_readingProgress.value < _quranEndProgress) {
@@ -693,7 +740,7 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
     final openedAt = _openedAt;
     if (end == null || endAyah == null || openedAt == null) return;
 
-    final readByScrolling = _recitedRangesThisSession.isNotEmpty;
+    final readByScrolling = _pacer?.hasSeen ?? false;
     if (!readByScrolling) {
       final required = Duration(
         seconds: math.max(10, _readingStats.duration.inSeconds ~/ 2),
@@ -716,11 +763,16 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
     _quranEndTimer = null;
     final opening = _initialVerse;
     final from =
-        _recitedRangesThisSession[end.surah]?.$1 ??
+        _pacer?.firstSeenAyah(end.surah) ??
         (opening != null && opening.surah == end.surah && opening.ayah != null
             ? opening.ayah!
             : _firstAyahInDocument(end.surah));
-    _extendRecitedRange(end.surah, from, endAyah);
+    // Still paced: the end of the surah being on screen says it can be read
+    // from here, not that it has been.
+    _recitationPacer.see([
+      for (var a = from; a <= endAyah; a++) VerseKey(end.surah, a),
+    ]);
+    _releasePacedVerses();
   }
 
   /// Commits every surah's range touched by genuine reading this visit to
@@ -1144,6 +1196,9 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
     ZikrBookmarksManager.instance.removeListener(_handleBookmarksChanged);
     _progressSaveTimer?.cancel();
     _quranEndTimer?.cancel();
+    // Whatever has been paid for by now counts; what is still queued was
+    // only glanced at.
+    _releasePacedVerses(schedule: false);
     _flushRecitationProgress();
     if (_pageRoute != null) {
       routeObserver.unsubscribe(this);
@@ -2237,6 +2292,13 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
       tabContents,
       hideHeaderLine: hideHeaderLine,
     );
+    _verseWords = _isQuran && tabContents.isNotEmpty
+        ? quranVerseWordCounts(
+            tabContents.first,
+            surah: widget.portion == null ? _surahNumber : null,
+            index: widget.portion?.index,
+          )
+        : const {};
     // This runs from build, so the notifier is written once the frame is done.
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
