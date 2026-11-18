@@ -1,10 +1,9 @@
 # Wear OS app
 
 A watch app for Android watches, the counterpart of the Apple Watch app in
-`ios/ShiaCompanion Watch App`. **It is merged but not shipped**: nothing builds,
-signs or uploads it except by hand, and the phone app's side of it does nothing
-until the watch app exists on a watch. "Shipping it" below lists every step
-left.
+`ios/ShiaCompanion Watch App`. **It has shipped.** The phone app's side of it
+does nothing until the watch app is on a watch. "Shipping it" below records the
+steps it took, for the next upload.
 
 ## What it does
 

@@ -185,13 +185,12 @@
   its own `src/debug/res/xml/shortcuts.xml` (its package differs) -
   `test/android_shortcuts_test.dart` keeps it in step.
 
-- **Wear OS app: merged, not shipped.** `android/wear` is a standalone
+- **Wear OS app: shipped.** `android/wear` is a standalone
   Gradle build (Compose for Wear OS: prayer times, calendar, tasbeeh, a tile,
   complications) fed from the phone over the Data Layer by `WearSync`, which
   stays dormant until a watch has the app. `internal-testing.yml` with
   *platforms* `wear` uploads it to Play's `wear:internal` track, in its own
-  version-code range (100000+). Before shipping: the device checks and the
-  Play Console steps in `docs/WEAR_OS.md`. Its UI strings
+  version-code range (100000+); see `docs/WEAR_OS.md`. Its UI strings
   live in `android/wear/app/src/main/res/values*/strings.xml` - keep all five
   languages in step there.
 
