@@ -96,6 +96,9 @@ final List<WhatsNewEntry> whatsNewNotes = <WhatsNewEntry>[
       (l10n) => l10n.whatsNew144Content,
       (l10n) => l10n.whatsNew144Fixes,
     ],
-    androidBullets: [(l10n) => l10n.whatsNew144Widgets],
+    androidBullets: [
+      (l10n) => l10n.whatsNew144Widgets,
+      (l10n) => l10n.whatsNew144WearOs,
+    ],
   ),
 ];

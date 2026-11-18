@@ -2046,6 +2046,10 @@
   "@whatsNew144Widgets": {
     "description": "Release note on the What's new page (build 144), Android only: fixes to the home screen widgets, which now render on phones where they stayed on their spinner and no longer miss the app's and the day's updates."
   },
+  "whatsNew144WearOs": "Shia Companion is on Wear OS watches: prayer times, the Islamic calendar and a tasbeeh counter on your wrist, with a tile and watch face complications. Install it from the Play Store on your watch; it syncs from your phone.",
+  "@whatsNew144WearOs": {
+    "description": "Release note on the What's new page (build 144), Android only: the new Wear OS watch app. Keep Shia Companion, Wear OS and Play Store in Latin letters. Use the watch app's own words (android/wear/app/src/main/res/values-<code>/strings.xml): prayer times (tile_prayer_label), Islamic Calendar (islamic_calendar), Tasbeeh Counter (tasbeeh_counter). A tile is the swipe-to screen of a Wear OS watch; complications are the small readouts on a watch face."
+  },
   "pickerChooseZikr": "Choose a zikr",
   "pickerSearchZikrHint": "Search zikr, dua, ziyarat...",
   "todaysNone": "No recitations configured.",
