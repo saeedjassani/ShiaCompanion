@@ -2014,9 +2014,37 @@
   "@whatsNew140PinPlaylist": {
     "description": "Release note on the What's new page, Android only. The menu item is playlistAddToHomeScreen."
   },
-  "whatsNew141EventNotifications": "Get notified of wiladat, shahadat and the other days of the Islamic calendar, at Maghrib the evening before. Turn it on with the bell on the Calendar, or in Settings › Notifications. Even if you don't open the app for a while, every month still brings at least one.",
-  "@whatsNew141EventNotifications": {
-    "description": "Release note on the What's new page (build 141): the new opt-in notifications of the Islamic calendar's events (eventNotificationsTitle), which come at Maghrib on the eve of each event. Turned on with the bell on the Calendar (menuCalendar) or under Settings > Notifications (actionSettings, settingsSectionNotifications)."
+  "whatsNew144EventNotifications": "Get notified of wiladat, shahadat and the other days of the Islamic calendar, at Maghrib the evening before. Turn it on with the bell on the Calendar, or in Settings › Notifications. Even if you don't open the app for a while, every month still brings at least one.",
+  "@whatsNew144EventNotifications": {
+    "description": "Release note on the What's new page (build 144): the new opt-in notifications of the Islamic calendar's events (eventNotificationsTitle), which come at Maghrib on the eve of each event. Turned on with the bell on the Calendar (menuCalendar) or under Settings > Notifications (actionSettings, settingsSectionNotifications)."
+  },
+  "whatsNew144Sahifa": "All 54 supplications of Sahifa Sajjadiya, by Imam Zayn al-Abidin (a.s.), together at the top of Duas.",
+  "@whatsNew144Sahifa": {
+    "description": "Release note on the What's new page (build 144): the 54 supplications of Sahifa Sajjadiya, now a group at the top of Duas (menuDuas). Name the book as its group title does in this language."
+  },
+  "whatsNew144Khatm": "In the Quran, a Khatm is now only for reading the whole Quran from start to finish, and it saves your place. Everyday reading picks up from \"Continue reading\". If you were already reading straight through, that reading is now a Khatm called \"My reading\". A Khatm can also be deleted.",
+  "@whatsNew144Khatm": {
+    "description": "Release note on the What's new page (build 144): the Quran screen's reading changes. Use the app's words for Khatm (trackNew), \"Continue reading\" (libraryContinueReading) and \"My reading\" (quranMyReading)."
+  },
+  "whatsNew144Search": "Search finds a dua even when you spell it the way you say it, such as \"hadis kissa\" or \"sura bakra\".",
+  "@whatsNew144Search": {
+    "description": "Release note on the What's new page (build 144): search now matches names spelled by sound. Keep the two quoted examples exactly as they are, in Latin letters: they are what people type."
+  },
+  "whatsNew144Favorites": "Swipe sideways in Favorites to switch between \"Duas & more\" and \"Quran verses\".",
+  "@whatsNew144Favorites": {
+    "description": "Release note on the What's new page (build 144): a sideways swipe in Favorites (menuFavorites) switches tabs. Quote the tab names as favoritesTabZikr and favoritesTabVerses say them."
+  },
+  "whatsNew144Content": "More duas in Urdu and Gujarati, among them Jawshan Kabir, Dua Arafah, Abu Hamza, Dua Nudba and Munajat Shabaniyah, and Dua Sanamay Quraish in Urdu and Persian. Corrections to Ziyarat Ashura, Dua Tawassul and Hadith al-Kisa.",
+  "@whatsNew144Content": {
+    "description": "Release note on the What's new page (build 144): new translations and corrections. Name each dua as its translated title does in this language."
+  },
+  "whatsNew144Fixes": "Library chapters no longer keep loading on a slow connection, the next occasion on Home opens the Calendar on its day, and without a connection your location is named after the nearest city.",
+  "@whatsNew144Fixes": {
+    "description": "Release note on the What's new page (build 144): bug fixes."
+  },
+  "whatsNew144Widgets": "Home screen widgets that stayed on loading on some phones now show, and they update when you change your settings.",
+  "@whatsNew144Widgets": {
+    "description": "Release note on the What's new page (build 144), Android only: fixes to the home screen widgets."
   },
   "pickerChooseZikr": "Choose a zikr",
   "pickerSearchZikrHint": "Search zikr, dua, ziyarat...",

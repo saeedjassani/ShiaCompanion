@@ -85,8 +85,17 @@ final List<WhatsNewEntry> whatsNewNotes = <WhatsNewEntry>[
     androidBullets: [(l10n) => l10n.whatsNew140PinPlaylist],
   ),
   WhatsNewEntry(
-    buildNumber: 141,
+    buildNumber: 144,
     versionName: '4.3.0',
-    bullets: [(l10n) => l10n.whatsNew141EventNotifications],
+    bullets: [
+      (l10n) => l10n.whatsNew144Sahifa,
+      (l10n) => l10n.whatsNew144EventNotifications,
+      (l10n) => l10n.whatsNew144Khatm,
+      (l10n) => l10n.whatsNew144Search,
+      (l10n) => l10n.whatsNew144Favorites,
+      (l10n) => l10n.whatsNew144Content,
+      (l10n) => l10n.whatsNew144Fixes,
+    ],
+    androidBullets: [(l10n) => l10n.whatsNew144Widgets],
   ),
 ];
