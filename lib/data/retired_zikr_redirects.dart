@@ -482,4 +482,19 @@ const Map<String, RetiredZikrRedirect> retiredZikrRedirects = {
   /// Salman's ziyarat, whose slugAliases keep their slugs.
   'AJ1': RetiredZikrRedirect('AJ2'),
   'AJ4': RetiredZikrRedirect('AJ2'),
+
+  /// Samarra: AL4 (Permission to Enter Holy Place of Imam Ali al-Naqi) was
+  /// Ibn Tawus's permission to enter, which already opens AL5's first part;
+  /// its introduction is AL5's merits now. AL2 (the house of the two Imams
+  /// and its mosque), AL3 (which forms to recite there) and AL10 (al-Husayn,
+  /// son of Imam al-Naqi) were Mafatih al-Jinan's prose, with nothing to
+  /// recite, and are the merits of AL1, the shrine's combined ziyarat. AL16
+  /// (Ibn Tawus's rites attached to the Sardab chapter) points to entries
+  /// that are all live, and is a paragraph of AL11's merits. Their targets'
+  /// slugAliases keep the old titles' slugs (but for AL3's "Other Ziyarah").
+  'AL2': RetiredZikrRedirect('AL1'),
+  'AL3': RetiredZikrRedirect('AL1'),
+  'AL4': RetiredZikrRedirect('AL5'),
+  'AL10': RetiredZikrRedirect('AL1'),
+  'AL16': RetiredZikrRedirect('AL11'),
 };

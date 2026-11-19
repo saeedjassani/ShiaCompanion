@@ -3521,6 +3521,16 @@
                   "note": "Can be recited at the shrine of any of the Imams (a.s.)."
                 },
                 {
+                  "uid": "AL8",
+                  "label": "Ziyarat of Lady Narjis (s.a.)",
+                  "note": "Mother of Imam al-Mahdi (a.t.f.s.); her tomb is behind Imam al-Askari's (a.s.)."
+                },
+                {
+                  "uid": "AL9",
+                  "label": "Ziyarat of Lady Hakimah (s.a.)",
+                  "note": "No ziyarat of her own is recorded, so she is visited with Lady Masuma's (s.a.), in her name. Her tomb is past the Imams' feet."
+                },
+                {
                   "uid": "AL7",
                   "note": "Prayer, dua and farewell (wida) to the two Imams at the end of the visit."
                 }
@@ -3561,7 +3571,7 @@
               ],
               "tips": [
                 "Pray the ziyarat prayer at the tombs if you can reach them, or else in the mosque beside the Imams' house where they used to pray, as the [combined ziyarat](AL1) instructs.",
-                "Remember Lady Narjis (s.a.) and Lady Hakimah (s.a.) inside the same zarih; the app does not yet have their own ziyarats, so a salam and al-Fatihah will do.",
+                "Lady Narjis (s.a.) and Lady Hakimah (s.a.) lie inside the same zarih; visit them after the two Imams, before the farewell.",
                 "The Sardab is reached through the mosque that adjoins the shrine, under its own dome."
               ],
               "sources": [
@@ -3612,12 +3622,21 @@
                   "uid": "G5"
                 },
                 {
+                  "uid": "E34",
+                  "note": "Sayyid Ibn Tawus adds it to the Sardab's rites."
+                },
+                {
                   "uid": "AL17",
                   "note": "After the Fajr prayer."
                 },
                 {
                   "uid": "E18",
                   "note": "After the Fajr prayer."
+                },
+                {
+                  "uid": "E12",
+                  "label": "Dua on Leaving the Sardab",
+                  "note": "When you are ready to leave, return to the Sardab, pray as much as you wish, then face the qiblah and recite this dua of Imam al-Reza (a.s.) for Imam al-Mahdi (a.t.f.s.)."
                 }
               ],
               "buried": [],
@@ -3700,6 +3719,16 @@
                       "note": "Can be recited at the shrine of any of the Imams (a.s.)."
                     },
                     {
+                      "uid": "AL8",
+                      "label": "Ziyarat of Lady Narjis (s.a.)",
+                      "note": "Mother of Imam al-Mahdi (a.t.f.s.); her tomb is behind Imam al-Askari's (a.s.)."
+                    },
+                    {
+                      "uid": "AL9",
+                      "label": "Ziyarat of Lady Hakimah (s.a.)",
+                      "note": "No ziyarat of her own is recorded, so she is visited with Lady Masuma's (s.a.), in her name. Her tomb is past the Imams' feet."
+                    },
+                    {
                       "uid": "AL7",
                       "note": "Prayer, dua and farewell (wida) to the two Imams at the end of the visit."
                     }
@@ -3748,12 +3777,21 @@
                       "uid": "G5"
                     },
                     {
+                      "uid": "E34",
+                      "note": "Sayyid Ibn Tawus adds it to the Sardab's rites."
+                    },
+                    {
                       "uid": "AL17",
                       "note": "After the Fajr prayer."
                     },
                     {
                       "uid": "E18",
                       "note": "After the Fajr prayer."
+                    },
+                    {
+                      "uid": "E12",
+                      "label": "Dua on Leaving the Sardab",
+                      "note": "When you are ready to leave, return to the Sardab, pray as much as you wish, then face the qiblah and recite this dua of Imam al-Reza (a.s.) for Imam al-Mahdi (a.t.f.s.)."
                     }
                   ],
                   "location": [
