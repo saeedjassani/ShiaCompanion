@@ -18,6 +18,7 @@ import 'package:shia_companion/widgets/responsive_content.dart';
 import 'package:shia_companion/widgets/widget_prayer_times_dialog.dart';
 
 import '../constants.dart';
+import '../l10n/app_language.dart';
 import '../l10n/hijri_l10n.dart';
 import '../l10n/l10n.dart';
 import '../theme/shia_colors.dart';
@@ -292,10 +293,10 @@ String _hijriMonth(BuildContext context, int month) =>
     hijriMonthName(month, context.l10n).replaceAll(' Al-', ' al-');
 
 /// "26 Rabi' al-Thani 1448".
-String _hijriLabel(BuildContext context, HijriCalendar hijri) => localizeDigits(
-  '${hijri.hDay} ${_hijriMonth(context, hijri.hMonth)} ${hijri.hYear}',
-  context.l10n,
-);
+String _hijriLabel(BuildContext context, HijriCalendar hijri) =>
+    '${dayOfMonthLabel(hijri.hDay, context.l10n)} '
+    '${_hijriMonth(context, hijri.hMonth)} '
+    '${localizeDigits('${hijri.hYear}', context.l10n)}';
 
 /// The Hijri months a Gregorian month runs across: "Rabi' al-Thani –
 /// Jumada al-Awwal 1448", with both years when it crosses into a new one.
@@ -677,7 +678,7 @@ class _DayCell extends StatelessWidget {
     final eventName = event == null ? '' : eventHeadline(event!).name;
 
     final label = [
-      DateFormat('d MMMM').format(day),
+      civilDayMonth(day, context.l10n),
       _hijriLabel(context, hijri),
       if (event != null)
         eventName.isNotEmpty ? eventName : context.l10n.calendarHasEvent,
@@ -724,9 +725,12 @@ class _DayCell extends StatelessWidget {
                   bottom: wide ? 6 : 4,
                   end: wide ? 9 : 6,
                   child: Text(
-                    // Eastern digits even in English, to set the Hijri
-                    // day apart; otherwise the app language's own.
-                    context.l10n.localeName == 'en'
+                    // Eastern digits even in a language written in 0-9
+                    // (English, French), to set the Hijri day apart;
+                    // otherwise the app language's own.
+                    (appLanguageFor(context.l10n.localeName)?.zeroDigit ??
+                                '0') ==
+                            '0'
                         ? convertNumberToUrdu('${hijri.hDay}')
                         : localizeDigits('${hijri.hDay}', context.l10n),
                     style: ShiaText.caption.copyWith(
@@ -792,7 +796,7 @@ class _DayHeading extends StatelessWidget {
         Semantics(
           header: true,
           child: Text(
-            DateFormat('EEEE d MMMM').format(day),
+            civilDayMonth(day, context.l10n, true),
             style: ShiaText.sectionTitle.copyWith(
               fontSize: 22,
               height: 28 / 22,
@@ -1368,7 +1372,7 @@ class _OtherCityRow extends StatelessWidget {
                       const SizedBox(height: 1),
                       Text(
                         context.l10n.calendarOtherCityFor(
-                          DateFormat('d MMMM').format(date),
+                          civilDayMonth(date, context.l10n),
                         ),
                         style: ShiaText.secondary.copyWith(
                           fontSize: 14,

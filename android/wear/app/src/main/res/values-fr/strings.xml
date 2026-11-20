@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="up_next">À venir</string>
+    <string name="up_next_on">À venir · %1$s</string>
+    <string name="refresh">Actualiser</string>
+    <string name="sync_now">Synchroniser</string>
+    <string name="synced_ago">Synchronisé %1$s</string>
+
+    <string name="waiting_for_phone_title">En attente du téléphone</string>
+    <string name="waiting_for_phone_message">Ouvrez Shia Companion sur votre téléphone pour envoyer les horaires de prière à votre montre.</string>
+    <string name="location_needed_title">Position requise</string>
+    <string name="location_needed_message">Définissez votre position dans Shia Companion sur votre téléphone, puis synchronisez à nouveau.</string>
+    <string name="phone_app_missing">Installez Shia Companion sur votre téléphone pour synchroniser les horaires de prière.</string>
+    <string name="phone_unreachable">Impossible de joindre votre téléphone. Vérifiez qu’il est à proximité et connecté.</string>
+
+    <string name="calendar">Calendrier</string>
+    <string name="islamic_calendar">Calendrier islamique</string>
+    <string name="upcoming">À venir</string>
+    <string name="upcoming_events">Événements à venir</string>
+    <string name="calendar_not_synced">Ouvrez Shia Companion sur votre téléphone pour synchroniser le calendrier.</string>
+    <string name="calendar_next_event">Prochain : %1$s</string>
+    <string name="hijri_year">%1$d H</string>
+    <string name="today">Aujourd’hui</string>
+    <string name="tomorrow">Demain</string>
+    <plurals name="in_days">
+        <item quantity="one">Dans %d jour</item>
+        <item quantity="many">Dans %d jours</item>
+        <item quantity="other">Dans %d jours</item>
+    </plurals>
+    <string name="event_kind_when">%1$s · %2$s</string>
+
+    <string name="tasbeeh">Tasbih</string>
+    <string name="tasbeeh_counter">Compteur de tasbih</string>
+    <string name="no_target">Sans limite</string>
+    <string name="target_progress">%1$d / %2$d</string>
+    <string name="lap">×%1$d</string>
+    <string name="tasbeeh_hint">Touchez ou tournez</string>
+    <string name="add_one">Ajouter un</string>
+    <string name="minus_one">Retirer un</string>
+    <string name="reset">Réinitialiser</string>
+    <string name="reset_question">Recommencer à 0 ?</string>
+    <string name="change_target">Changer l’objectif</string>
+
+    <string name="tile_prayer_label">Horaires de prière</string>
+    <string name="tile_prayer_description">La prochaine prière et les horaires suivants.</string>
+    <string name="complication_next_prayer">Prochaine prière</string>
+    <string name="complication_hijri_date">Date hégirienne</string>
+    <string name="complication_tasbeeh">Compte du tasbih</string>
+    <string name="tile_open_phone">Ouvrez Shia Companion sur votre téléphone</string>
+</resources>

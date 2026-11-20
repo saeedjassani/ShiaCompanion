@@ -849,9 +849,10 @@ class _MyHomePageState extends State<MyHomePage>
       useMuharramQuotes: useMuharramQuotes,
       day: hadithDayNumber(),
     );
-    // Only English readers get the English collection: anyone else sees
-    // their own language or, if it cannot be read, no hadith at all.
-    final english = language != 'en'
+    // Only languages without a collection of their own (English, French)
+    // get the English one: anyone else sees their own language or, if it
+    // cannot be read, no hadith at all.
+    final english = localizedHadithLanguages.contains(language)
         ? ''
         : await loadDailyHadith(
             bundle,

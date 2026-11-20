@@ -147,15 +147,21 @@ class LocalizedHadithCollection {
   }
 }
 
-/// Today's hadith in [languageCode], or null in English (which has its own
-/// collection) or when the collection cannot be read.
+/// The languages [localizedHadithAsset] is written for. Any other language
+/// - English, which has its own collection, and French, whose readers also
+/// read zikrs in English until they are translated - gets the English
+/// collection.
+const Set<String> localizedHadithLanguages = {'ar', 'ur', 'fa', 'gu'};
+
+/// Today's hadith in [languageCode], or null outside
+/// [localizedHadithLanguages] or when the collection cannot be read.
 Future<LocalizedHadith?> loadLocalizedHadith(
   AssetBundle bundle, {
   required String languageCode,
   required bool useMuharramQuotes,
   required int day,
 }) async {
-  if (languageCode == 'en') return null;
+  if (!localizedHadithLanguages.contains(languageCode)) return null;
   try {
     final collection = LocalizedHadithCollection.fromJson(
       json.decode(await bundle.loadString(localizedHadithAsset))

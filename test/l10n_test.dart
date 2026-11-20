@@ -232,7 +232,7 @@ void main() {
   });
 
   test('the language catalog has the languages the app is prepared for', () {
-    expect(appLanguages.map((l) => l.code), ['en', 'ur', 'fa', 'ar', 'gu']);
+    expect(appLanguages.map((l) => l.code), ['en', 'ur', 'fa', 'ar', 'gu', 'fr']);
     expect(
       appLanguages.where((l) => l.isRtl).map((l) => l.code),
       ['ur', 'fa', 'ar'],
@@ -244,7 +244,10 @@ Map<String, dynamic> _arb(String path) =>
     jsonDecode(File(path).readAsStringSync()) as Map<String, dynamic>;
 
 /// The `{name}` / `{name, plural, ...}` placeholders a message uses.
-Set<String> _placeholders(String message) => RegExp(r'\{([A-Za-z_]\w*)\s*[,}]')
+/// `{name}` and `{name, plural, ...}` - not a select or plural branch such
+/// as `1{Premier}` or `one{jour}`, whose brace follows its selector.
+Set<String> _placeholders(String message) =>
+    RegExp(r'(?<![\w=])\{([A-Za-z_]\w*)\s*[,}]')
     .allMatches(message)
     .map((m) => m.group(1)!)
     .toSet();

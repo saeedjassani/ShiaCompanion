@@ -13,6 +13,7 @@
 		<string>fa</string>
 		<string>ur</string>
 		<string>gu</string>
+		<string>fr</string>
 	</array>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>

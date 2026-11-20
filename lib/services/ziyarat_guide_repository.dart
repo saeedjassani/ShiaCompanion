@@ -9,6 +9,9 @@ import '../models/ziyarat_guide.dart';
 
 const String ziyaratGuideAssetPath = 'assets/ziyarat_guide.json';
 
+/// The languages `assets/ziyarat_guide_i18n/` translates the guide into.
+const Set<String> ziyaratGuideLanguages = {'ar', 'ur', 'fa', 'gu'};
+
 String ziyaratGuideTranslationPath(String languageCode) =>
     'assets/ziyarat_guide_i18n/$languageCode.json';
 
@@ -47,7 +50,10 @@ class ZiyaratGuideRepository {
     return _cache[code] ??= _load(code, rootBundle);
   }
 
-  static Future<ZiyaratGuide> _load(String code, AssetBundle bundle) async {
+  static Future<ZiyaratGuide> _load(String language, AssetBundle bundle) async {
+    // A language the guide is not translated into (French) reads it in
+    // English rather than with its prose hidden.
+    final code = ziyaratGuideLanguages.contains(language) ? language : 'en';
     final source =
         json.decode(await bundle.loadString(ziyaratGuideAssetPath)) as Map;
     return ZiyaratGuide.fromJson(

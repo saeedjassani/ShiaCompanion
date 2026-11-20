@@ -95,6 +95,29 @@
     legacy "Gujrati" font, decode pending; E8 not in Jafri catalog;
   - merits notes.
 
+- **French: app text shipped, content still English.** `app_fr.arb`, the
+  Quran collections' notes, the Sajdah rulings, the city picker's names
+  and the Wear OS strings are French (reviewed by independent agents);
+  zikrs, the Quran, calendar events, hadith and the Ziyarat Guide read in
+  English (see
+  "French" in `docs/TRANSLATIONS.md`). Left:
+  - a **Shia** French Quran - Fakhri's (Ansariyan) is the candidate, but
+    no machine-readable copy was found (al-islam.org blocks cloud
+    sessions); Hamidullah (Tanzil) is Sunni. Shipping it also needs an
+    English fallback per zikr for French, or every untranslated dua shows
+    its Arabic alone;
+  - French weekly phrases are lower case (`occasionWeekly`...) and each
+    label's clause gets its capital from `capitalizeFirst`; a day of the
+    month goes through `dayOfMonthLabel` (`1er` in French), a civil
+    "d MMMM" through `civilDayMonth` - keep new
+    date and occasion code on both;
+  - owner questions: 11:86 Baqiyyatullah as « le reste d’Allah », 98:7
+    « tes chiites » (Collections notes); Najaf, Karbala, Mashhad kept in
+    their English spelling in app text and city names (`fix` in
+    `scripts/city_names/fr.tsv`) rather than Nadjaf, Kerbala, Machhad.
+    Most city names have no `gn`/`tr` fill-in: ~1,100 places show their
+    English, which French mostly spells the same.
+
 - **Trim Firestore cost of the synced-data managers.** Zikr bookmarks
   (`lib/services/zikr_bookmarks_manager.dart`, PR #176) copied
   `SavedVersesManager`'s sync pattern, including two avoidable costs:
@@ -191,7 +214,7 @@
   stays dormant until a watch has the app. `internal-testing.yml` with
   *platforms* `wear` uploads it to Play's `wear:internal` track, in its own
   version-code range (100000+); see `docs/WEAR_OS.md`. Its UI strings
-  live in `android/wear/app/src/main/res/values*/strings.xml` - keep all five
+  live in `android/wear/app/src/main/res/values*/strings.xml` - keep all six
   languages in step there.
 
 - **Move iOS to Swift Package Manager before the next Firebase update.**
@@ -243,14 +266,15 @@
 
 ## Translations
 
-The app is set up for Urdu, Persian, Arabic and Gujarati; see
+The app is set up for Urdu, Persian, Arabic, Gujarati and French (app
+text only); see
 `docs/TRANSLATIONS.md`. **Never hardcode user-facing English in Dart**: add
 it to `lib/l10n/app_en.arb` and read it with `context.l10n.key` (or
 `L10n.current.key` where there is no `BuildContext`), then run
 `flutter gen-l10n` (`flutter pub get` does it too). The generated
 `lib/l10n/app_localizations*.dart` are gitignored - never commit them.
 **A PR that adds or changes a key adds it to every `app_<code>.arb` too**
-(Urdu, Persian, Arabic, Gujarati), in the same PR, using the wording those
+(Urdu, Persian, Arabic, Gujarati, French), in the same PR, using the wording those
 files already use for the same ideas; `build/untranslated_messages.json`
 (written by `flutter gen-l10n`) should list none of the new keys. See
 "Keeping translations in step" in `docs/TRANSLATIONS.md`.

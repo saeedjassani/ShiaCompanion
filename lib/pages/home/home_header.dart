@@ -69,7 +69,7 @@ class _HomeHeaderState extends State<HomeHeader> {
     final islamicDay = islamicDayAt(HomeHeader.debugNow());
     final hijri = islamicDay.day.hijri;
     final dayAndMonth =
-        '${localizeDigits('${hijri.hDay}', context.l10n)} '
+        '${dayOfMonthLabel(hijri.hDay, context.l10n)} '
         '${hijriMonthName(hijri.hMonth, context.l10n).replaceAll(' Al-', ' al-')}';
 
     final header = Row(

@@ -1,0 +1,6242 @@
+# City list names in fr; see scripts/build_city_names.py. Sources: tr = transliterated by hand, fix = corrected by hand, wd = Wikidata (CC0), gn = GeoNames (CC BY 4.0), cldr = Unicode CLDR (Unicode License v3, (c) Unicode, Inc.).
+C:AD	Andorre	cldr	Andorra	
+C:AE	Émirats arabes unis	cldr	United Arab Emirates	
+C:AF	Afghanistan	cldr	Afghanistan	
+C:AG	Antigua-et-Barbuda	cldr	Antigua and Barbuda	
+C:AI	Anguilla	cldr	Anguilla	
+C:AL	Albanie	cldr	Albania	
+C:AM	Arménie	cldr	Armenia	
+C:AO	Angola	cldr	Angola	
+C:AR	Argentine	cldr	Argentina	
+C:AS	Samoa américaines	cldr	American Samoa	
+C:AT	Autriche	cldr	Austria	
+C:AU	Australie	cldr	Australia	
+C:AW	Aruba	cldr	Aruba	
+C:AX	Îles Åland	cldr	Aland Islands	
+C:AZ	Azerbaïdjan	cldr	Azerbaijan	
+C:BA	Bosnie-Herzégovine	cldr	Bosnia and Herzegovina	
+C:BB	Barbade	cldr	Barbados	
+C:BD	Bangladesh	cldr	Bangladesh	
+C:BE	Belgique	cldr	Belgium	
+C:BF	Burkina Faso	cldr	Burkina Faso	
+C:BG	Bulgarie	cldr	Bulgaria	
+C:BH	Bahreïn	cldr	Bahrain	
+C:BI	Burundi	cldr	Burundi	
+C:BJ	Bénin	cldr	Benin	
+C:BL	Saint-Barthélemy	cldr	Saint Barthelemy	
+C:BM	Bermudes	cldr	Bermuda	
+C:BN	Brunei	cldr	Brunei	
+C:BO	Bolivie	cldr	Bolivia	
+C:BQ	Pays-Bas caribéens	cldr	Bonaire, Saint Eustatius and Saba 	
+C:BR	Brésil	cldr	Brazil	
+C:BS	Bahamas	cldr	Bahamas	
+C:BT	Bhoutan	cldr	Bhutan	
+C:BW	Botswana	cldr	Botswana	
+C:BY	Biélorussie	cldr	Belarus	
+C:BZ	Belize	cldr	Belize	
+C:CA	Canada	cldr	Canada	
+C:CC	Îles Cocos	cldr	Cocos Islands	
+C:CD	Congo-Kinshasa	cldr	Democratic Republic of the Congo	
+C:CF	République centrafricaine	cldr	Central African Republic	
+C:CG	Congo-Brazzaville	cldr	Republic of the Congo	
+C:CH	Suisse	cldr	Switzerland	
+C:CI	Côte d’Ivoire	cldr	Ivory Coast	
+C:CK	Îles Cook	cldr	Cook Islands	
+C:CL	Chili	cldr	Chile	
+C:CM	Cameroun	cldr	Cameroon	
+C:CN	Chine	cldr	China	
+C:CO	Colombie	cldr	Colombia	
+C:CR	Costa Rica	cldr	Costa Rica	
+C:CU	Cuba	cldr	Cuba	
+C:CV	Cap-Vert	cldr	Cabo Verde	
+C:CW	Curaçao	cldr	Curacao	
+C:CX	Île Christmas	cldr	Christmas Island	
+C:CY	Chypre	cldr	Cyprus	
+C:CZ	Tchéquie	cldr	Czechia	
+C:DE	Allemagne	cldr	Germany	
+C:DJ	Djibouti	cldr	Djibouti	
+C:DK	Danemark	cldr	Denmark	
+C:DM	Dominique	cldr	Dominica	
+C:DO	République dominicaine	cldr	Dominican Republic	
+C:DZ	Algérie	cldr	Algeria	
+C:EC	Équateur	cldr	Ecuador	
+C:EE	Estonie	cldr	Estonia	
+C:EG	Égypte	cldr	Egypt	
+C:EH	Sahara occidental	cldr	Western Sahara	
+C:ER	Érythrée	cldr	Eritrea	
+C:ES	Espagne	cldr	Spain	
+C:ET	Éthiopie	cldr	Ethiopia	
+C:FI	Finlande	cldr	Finland	
+C:FJ	Fidji	cldr	Fiji	
+C:FK	Îles Malouines	cldr	Falkland Islands	
+C:FM	Micronésie	cldr	Micronesia	
+C:FO	Îles Féroé	cldr	Faroe Islands	
+C:FR	France	cldr	France	
+C:GA	Gabon	cldr	Gabon	
+C:GB	Royaume-Uni	cldr	United Kingdom	
+C:GD	Grenade	cldr	Grenada	
+C:GE	Géorgie	cldr	Georgia	
+C:GF	Guyane française	cldr	French Guiana	
+C:GG	Guernesey	cldr	Guernsey	
+C:GH	Ghana	cldr	Ghana	
+C:GI	Gibraltar	cldr	Gibraltar	
+C:GL	Groenland	cldr	Greenland	
+C:GM	Gambie	cldr	Gambia	
+C:GN	Guinée	cldr	Guinea	
+C:GP	Guadeloupe	cldr	Guadeloupe	
+C:GQ	Guinée équatoriale	cldr	Equatorial Guinea	
+C:GR	Grèce	cldr	Greece	
+C:GS	Géorgie du Sud-et-les Îles Sandwich du Sud	cldr	South Georgia and the South Sandwich Islands	
+C:GT	Guatemala	cldr	Guatemala	
+C:GU	Guam	cldr	Guam	
+C:GW	Guinée-Bissau	cldr	Guinea-Bissau	
+C:GY	Guyana	cldr	Guyana	
+C:HK	R.A.S. chinoise de Hong Kong	cldr	Hong Kong	
+C:HN	Honduras	cldr	Honduras	
+C:HR	Croatie	cldr	Croatia	
+C:HT	Haïti	cldr	Haiti	
+C:HU	Hongrie	cldr	Hungary	
+C:ID	Indonésie	cldr	Indonesia	
+C:IE	Irlande	cldr	Ireland	
+C:IL	Israël	cldr	Israel	
+C:IM	Île de Man	cldr	Isle of Man	
+C:IN	Inde	cldr	India	
+C:IQ	Irak	cldr	Iraq	
+C:IR	Iran	cldr	Iran	
+C:IS	Islande	cldr	Iceland	
+C:IT	Italie	cldr	Italy	
+C:JE	Jersey	cldr	Jersey	
+C:JM	Jamaïque	cldr	Jamaica	
+C:JO	Jordanie	cldr	Jordan	
+C:JP	Japon	cldr	Japan	
+C:KE	Kenya	cldr	Kenya	
+C:KG	Kirghizstan	cldr	Kyrgyzstan	
+C:KH	Cambodge	cldr	Cambodia	
+C:KI	Kiribati	cldr	Kiribati	
+C:KM	Comores	cldr	Comoros	
+C:KN	Saint-Christophe-et-Niévès	cldr	Saint Kitts and Nevis	
+C:KP	Corée du Nord	cldr	North Korea	
+C:KR	Corée du Sud	cldr	South Korea	
+C:KW	Koweït	cldr	Kuwait	
+C:KY	Îles Caïmans	cldr	Cayman Islands	
+C:KZ	Kazakhstan	cldr	Kazakhstan	
+C:LA	Laos	cldr	Laos	
+C:LB	Liban	cldr	Lebanon	
+C:LC	Sainte-Lucie	cldr	Saint Lucia	
+C:LI	Liechtenstein	cldr	Liechtenstein	
+C:LK	Sri Lanka	cldr	Sri Lanka	
+C:LR	Liberia	cldr	Liberia	
+C:LS	Lesotho	cldr	Lesotho	
+C:LT	Lituanie	cldr	Lithuania	
+C:LU	Luxembourg	cldr	Luxembourg	
+C:LV	Lettonie	cldr	Latvia	
+C:LY	Libye	cldr	Libya	
+C:MA	Maroc	cldr	Morocco	
+C:MC	Monaco	cldr	Monaco	
+C:MD	Moldavie	cldr	Moldova	
+C:ME	Monténégro	cldr	Montenegro	
+C:MF	Saint-Martin	cldr	Saint Martin	
+C:MG	Madagascar	cldr	Madagascar	
+C:MH	Îles Marshall	cldr	Marshall Islands	
+C:MK	Macédoine du Nord	cldr	North Macedonia	
+C:ML	Mali	cldr	Mali	
+C:MM	Myanmar	cldr	Myanmar	
+C:MN	Mongolie	cldr	Mongolia	
+C:MO	R.A.S. chinoise de Macao	cldr	Macao	
+C:MP	Îles Mariannes du Nord	cldr	Northern Mariana Islands	
+C:MQ	Martinique	cldr	Martinique	
+C:MR	Mauritanie	cldr	Mauritania	
+C:MS	Montserrat	cldr	Montserrat	
+C:MT	Malte	cldr	Malta	
+C:MU	Maurice	cldr	Mauritius	
+C:MV	Maldives	cldr	Maldives	
+C:MW	Malawi	cldr	Malawi	
+C:MX	Mexique	cldr	Mexico	
+C:MY	Malaisie	cldr	Malaysia	
+C:MZ	Mozambique	cldr	Mozambique	
+C:NA	Namibie	cldr	Namibia	
+C:NC	Nouvelle-Calédonie	cldr	New Caledonia	
+C:NE	Niger	cldr	Niger	
+C:NF	Île Norfolk	cldr	Norfolk Island	
+C:NG	Nigeria	cldr	Nigeria	
+C:NI	Nicaragua	cldr	Nicaragua	
+C:NL	Pays-Bas	cldr	The Netherlands	
+C:NO	Norvège	cldr	Norway	
+C:NP	Népal	cldr	Nepal	
+C:NR	Nauru	cldr	Nauru	
+C:NU	Niue	cldr	Niue	
+C:NZ	Nouvelle-Zélande	cldr	New Zealand	
+C:OM	Oman	cldr	Oman	
+C:PA	Panama	cldr	Panama	
+C:PE	Pérou	cldr	Peru	
+C:PF	Polynésie française	cldr	French Polynesia	
+C:PG	Papouasie-Nouvelle-Guinée	cldr	Papua New Guinea	
+C:PH	Philippines	cldr	Philippines	
+C:PK	Pakistan	cldr	Pakistan	
+C:PL	Pologne	cldr	Poland	
+C:PM	Saint-Pierre-et-Miquelon	cldr	Saint Pierre and Miquelon	
+C:PN	Îles Pitcairn	cldr	Pitcairn	
+C:PR	Porto Rico	cldr	Puerto Rico	
+C:PS	Territoires palestiniens	cldr	Palestinian Territory	
+C:PT	Portugal	cldr	Portugal	
+C:PW	Palaos	cldr	Palau	
+C:PY	Paraguay	cldr	Paraguay	
+C:QA	Qatar	cldr	Qatar	
+C:RE	La Réunion	cldr	Reunion	
+C:RO	Roumanie	cldr	Romania	
+C:RS	Serbie	cldr	Serbia	
+C:RU	Russie	cldr	Russia	
+C:RW	Rwanda	cldr	Rwanda	
+C:SA	Arabie saoudite	cldr	Saudi Arabia	
+C:SB	Îles Salomon	cldr	Solomon Islands	
+C:SC	Seychelles	cldr	Seychelles	
+C:SD	Soudan	cldr	Sudan	
+C:SE	Suède	cldr	Sweden	
+C:SG	Singapour	cldr	Singapore	
+C:SH	Sainte-Hélène	cldr	Saint Helena	
+C:SI	Slovénie	cldr	Slovenia	
+C:SJ	Svalbard et Jan Mayen	cldr	Svalbard and Jan Mayen	
+C:SK	Slovaquie	cldr	Slovakia	
+C:SL	Sierra Leone	cldr	Sierra Leone	
+C:SM	Saint-Marin	cldr	San Marino	
+C:SN	Sénégal	cldr	Senegal	
+C:SO	Somalie	cldr	Somalia	
+C:SR	Suriname	cldr	Suriname	
+C:SS	Soudan du Sud	cldr	South Sudan	
+C:ST	Sao Tomé-et-Principe	cldr	Sao Tome and Principe	
+C:SV	Salvador	cldr	El Salvador	
+C:SX	Saint-Martin	cldr	Sint Maarten	
+C:SY	Syrie	cldr	Syria	
+C:SZ	Eswatini	cldr	Eswatini	
+C:TC	Îles Turques-et-Caïques	cldr	Turks and Caicos Islands	
+C:TD	Tchad	cldr	Chad	
+C:TF	Terres australes françaises	cldr	French Southern Territories	
+C:TG	Togo	cldr	Togo	
+C:TH	Thaïlande	cldr	Thailand	
+C:TJ	Tadjikistan	cldr	Tajikistan	
+C:TL	Timor oriental	cldr	Timor Leste	
+C:TM	Turkménistan	cldr	Turkmenistan	
+C:TN	Tunisie	cldr	Tunisia	
+C:TO	Tonga	cldr	Tonga	
+C:TR	Turquie	cldr	Turkey	
+C:TT	Trinité-et-Tobago	cldr	Trinidad and Tobago	
+C:TV	Tuvalu	cldr	Tuvalu	
+C:TW	Taïwan	cldr	Taiwan	
+C:TZ	Tanzanie	cldr	Tanzania	
+C:UA	Ukraine	cldr	Ukraine	
+C:UG	Ouganda	cldr	Uganda	
+C:US	États-Unis	cldr	United States	
+C:UY	Uruguay	cldr	Uruguay	
+C:UZ	Ouzbékistan	cldr	Uzbekistan	
+C:VA	État de la Cité du Vatican	cldr	Vatican	
+C:VC	Saint-Vincent-et-les Grenadines	cldr	Saint Vincent and the Grenadines	
+C:VE	Venezuela	cldr	Venezuela	
+C:VG	Îles Vierges britanniques	cldr	British Virgin Islands	
+C:VI	Îles Vierges des États-Unis	cldr	U.S. Virgin Islands	
+C:VN	Viêt Nam	cldr	Vietnam	
+C:VU	Vanuatu	cldr	Vanuatu	
+C:WF	Wallis-et-Futuna	cldr	Wallis and Futuna	
+C:WS	Samoa	cldr	Samoa	
+C:XK	Kosovo	cldr	Kosovo	
+C:YE	Yémen	cldr	Yemen	
+C:YT	Mayotte	cldr	Mayotte	
+C:ZA	Afrique du Sud	cldr	South Africa	
+C:ZM	Zambie	cldr	Zambia	
+C:ZW	Zimbabwe	cldr	Zimbabwe	
+A:BR.07	District fédéral	wd	Federal District	reviewed
+A:BR.23	Rio Grande do Sul	wd	Rio Grande do Sul	
+A:BR.26	Santa Catarina	wd	Santa Catarina	
+A:BR.29	Goiás	wd	Goiás	
+A:CN.01	Anhui	wd	Anhui	
+A:CN.02	Zhejiang	wd	Zhejiang	
+A:CN.03	Jiangxi	wd	Jiangxi	
+A:CN.04	Jiangsu	wd	Jiangsu	
+A:CN.05	Jilin	wd	Jilin	
+A:CN.06	Qinghai	wd	Qinghai	
+A:CN.07	Fujian	wd	Fujian	
+A:CN.08	Heilongjiang	wd	Heilongjiang	
+A:CN.09	Henan	wd	Henan	
+A:CN.10	Hebei	wd	Hebei	
+A:CN.11	Hunan	wd	Hunan	
+A:CN.12	Hubei	wd	Hubei	
+A:CN.16	Guangxi	wd	Guangxi	
+A:CN.19	Liaoning	wd	Liaoning	
+A:CN.20	Mongolie-Intérieure	wd	Inner Mongolia	
+A:CN.23	Shanghaï	wd	Shanghai	
+A:CN.24	Shanxi	wd	Shanxi	
+A:CN.25	Shandong	wd	Shandong	
+A:CN.29	Yunnan	wd	Yunnan	
+A:CN.30	Guangdong	wd	Guangdong	
+A:CN.31	Hainan	wd	Hainan	
+A:CN.33	Chongqing	wd	Chongqing	
+A:CO.29	Valle del Cauca	wd	Valle del Cauca Department	
+A:HN.01	Atlántida	wd	Atlántida Department	
+A:ID.10	Yogyakarta	fix	Yogyakarta	
+A:ID.30	Java occidental	wd	West Java	
+A:IR.33	Azerbaïdjan oriental	wd	East Azerbaijan	
+A:IR.42	Khorassan Razavi	wd	Razavi Khorasan	
+A:JP.10	Gunma	fix	Gunma	
+A:JP.40	Tokyo	wd	Tokyo	
+A:KE.22	comté de Kiambu	wd	Kiambu County	reviewed
+A:KE.38	Murang'a	fix	Murang'A	
+A:MX.06	Chihuahua	wd	Chihuahua	
+A:MX.09	Mexico	wd	Mexico City	
+A:MX.19	Nuevo León	wd	Nuevo León	
+A:MX.32	Zacatecas	wd	Zacatecas	
+A:PH.05	Bicol	wd	Bicol Region	
+A:PH.06	Visayas occidentales	wd	Western Visayas	
+A:PH.07	Visayas centrales	wd	Central Visayas	
+A:PK.04	Pendjab	wd	Punjab	
+A:US.AZ	Arizona	wd	Arizona	
+A:US.CA	Californie	wd	California	
+A:US.CO	Colorado	wd	Colorado	
+A:US.GA	Géorgie	wd	Georgia	
+A:US.IL	Illinois	wd	Illinois	
+A:US.KS	Kansas	wd	Kansas	
+A:US.MA	Massachusetts	wd	Massachusetts	
+A:US.MN	Minnesota	wd	Minnesota	
+A:US.MO	Missouri	wd	Missouri	
+A:US.NY	New York	wd	New York	
+A:US.OH	Ohio	wd	Ohio	
+A:US.SC	Caroline du Sud	wd	South Carolina	
+A:US.TX	Texas	wd	Texas	
+A:US.VA	Virginie	wd	Virginia	
+1796236	Shanghaï	wd	Shanghai	
+1814906	Chongqing	wd	Chongqing	
+1815286	Chengdu	wd	Chengdu	
+1816670	Pékin	wd	Beijing	
+1809858	Canton	wd	Guangzhou	
+1795565	Shenzhen	wd	Shenzhen	
+2314302	Kinshasa	wd	Kinshasa	
+745044	Istanbul	wd	Istanbul	
+2332459	Lagos	wd	Lagos	
+1566083	Hô Chi Minh-Ville	wd	Ho Chi Minh City	
+1792947	Tianjin	wd	Tianjin	
+1791247	Wuhan	wd	Wuhan	
+1172451	Lahore	wd	Lahore	
+1790630	Xi'an	wd	Xi’an	
+1275339	Bombay	wd	Mumbai	
+3448439	São Paulo	wd	São Paulo	
+3530597	Mexico	wd	Mexico City	
+1808926	Hangzhou	wd	Hangzhou	
+1174872	Karachi	wd	Karachi	
+1273294	Delhi	fix	Delhi	
+524901	Moscou	wd	Moscow	
+1185241	Dacca	wd	Dhaka	
+1835848	Séoul	wd	Seoul	
+2037013	Harbin	wd	Harbin	
+1850147	Tokyo	wd	Tokyo	
+1812545	Dongguan	wd	Dongguan	
+360630	Le Caire	wd	Cairo	
+1808722	Hefei	wd	Hefei	
+993800	Johannesbourg	wd	Johannesburg	
+1791681	Weifang	wd	Weifang	
+1799962	Nankin	wd	Nanjing	
+2034937	Shenyang	wd	Shenyang	
+1811103	Foshan	wd	Foshan	
+2643743	Londres	wd	London	
+5128581	New York	wd	New York City	
+1642911	Jakarta	wd	Jakarta	
+1277333	Bengaluru	wd	Bengaluru	
+1805753	Jinan	wd	Jinan	
+1581130	Hanoï	wd	Hanoi	
+1668341	Taipei	wd	Taipei	
+3936456	Lima	wd	Lima	
+3688689	Bogota	wd	Bogotá	
+1814087	Dalian	wd	Dalian	
+1819729	Hong Kong	wd	Hong Kong	
+98182	Bagdad	wd	Baghdad	
+1790842	Wuzhong	wd	Wuzhong	
+1797929	Qingdao	wd	Qingdao	
+112931	Téhéran	wd	Tehran	
+1787093	Yantai	wd	Yantai	
+1269843	Hyderabad	wd	Hyderabad	
+3451190	Rio de Janeiro	wd	Rio de Janeiro	
+1886760	Suzhou	wd	Suzhou	
+1784658	Zhengzhou	wd	Zhengzhou	
+1279233	Ahmedabad	wd	Ahmedabad	
+2293538	Abidjan	wd	Abidjan	
+1799869	Nanning	wd	Nanning	
+1804651	Kunming	wd	Kunming	
+1795270	Shijiazhuang	wd	Shijiazhuang	
+2038180	Changchun	wd	Changchun	
+1798524			Pudong	
+2147714	Sydney	wd	Sydney	
+1880252	Singapour	wd	Singapore	
+2158177	Melbourne	wd	Melbourne	
+160263	Dar es Salam	wd	Dar es Salaam	
+498817	Saint-Pétersbourg	wd	Saint Petersburg	
+1793511	Taiyuan	wd	Taiyuan	
+361058	Alexandrie	wd	Alexandria	
+1609350	Bangkok	wd	Bangkok	
+2335204	Kano	wd	Kano	
+3871336	Santiago	wd	Santiago	
+3369157	Le Cap	wd	Cape Town	
+1168197	Peshawar	wd	Peshawar	
+1785286	Zibo	wd	Zibo	
+105343	Djeddah	wd	Jeddah	
+1264527	Madras	wd	Chennai	
+1275004	Calcutta	gn	Kolkata	
+1790645	Xiamen	wd	Xiamen	
+1255364	Surate	wd	Surat	
+1787227	Yangzhou	wd	Yangzhou	
+1797873	Huai'an	wd	Huai'an	
+1809461	Guiyang	wd	Guiyang	
+1298824	Rangoun	wd	Yangon	
+13308620			Bao'an	
+1138958	Kaboul	wd	Kabul	
+184745	Nairobi	wd	Nairobi	
+1790923	Wuxi	wd	Wuxi	
+360995	Gizeh	wd	Giza	
+1804430	Lanzhou	wd	Lanzhou	
+2460596	Bamako	wd	Bamako	
+108410	Riyad	wd	Riyadh	
+1810821	Fuzhou	wd	Fuzhou	
+1529102	Ürümqi	wd	Ürümqi	
+12908892	Nouveau Taipei	wd	New Taipei City	
+1205733	Chittagong	wd	Chattogram	
+344979	Addis-Abeba	wd	Addis Ababa	
+1785453	Zaozhuang	wd	Zaozhuang	
+6986104	Zhongshan	wd	Zhongshan	
+1795940	Shantou	wd	Shantou	
+5368361	Los Angeles	wd	Los Angeles	
+1179400	Faisalabad	wd	Faisalabad	
+292223	Dubaï	wd	Dubai	
+1848354	Yokohama	wd	Yokohama	
+1799397	Ningbo	wd	Ningbo	
+2553604	Casablanca	wd	Casablanca	
+2339354	Ibadan	wd	Ibadan	
+1798425	Puyang	fix	Puyang	
+323786	Ankara	wd	Ankara	
+1794903	Shiyan	wd	Shiyan	
+2036892	Hohhot	wd	Hohhot	
+2950159	Berlin	wd	Berlin	
+1793346	Tangshan	wd	Tangshan	
+1166993	Rawalpindi	wd	Rawalpindi	
+13512505			Lüliang	
+1007311	Durban	wd	Durban	
+2038632	Anshan	wd	Anshan	
+1815456	Changzhou	wd	Changzhou	
+1838524	Pusan	wd	Busan	
+3117735	Madrid	wd	Madrid	
+1871859	Pyongyang	wd	Pyongyang	
+1259229	Pune	wd	Pune	
+2037799	Datong	wd	Datong	
+750269	Bursa	wd	Bursa	
+1815577	Changsha	wd	Changsha	
+1692192	Quezon City	wd	Quezon City	
+1269515	Jaipur	wd	Jaipur	
+1807681			Huainan	
+1625822	Surabaya	wd	Surabaya	
+1843564	Incheon	wd	Incheon	
+1809078	Haikou	wd	Haikou	
+3646738	Caracas	wd	Caracas	
+703448	Kiev	wd	Kyiv	
+311046	Izmir	wd	İzmir	
+1806776	Huizhou	wd	Huizhou	
+3435910	Buenos Aires	wd	Buenos Aires	
+1786657	Yinchuan	wd	Yinchuan	
+1668399	Taichung	wd	Taichung	
+1267995	Kanpur	wd	Kanpur	
+6167865	Toronto	wd	Toronto	
+3652462	Quito	wd	Quito	
+2174003	Brisbane	wd	Brisbane	
+2240449	Luanda	wd	Luanda	
+2038432	Baotou	wd	Baotou	
+1853909	Osaka	wd	Osaka	
+1803318	Linyi	wd	Linyi	
+1816971	Baoding	wd	Baoding	
+1673820	Kaohsiung	wd	Kaohsiung	
+5110302	Brooklyn	wd	Brooklyn	
+3657509	Guayaquil	wd	Guayaquil	
+3470127	Belo Horizonte	wd	Belo Horizonte	
+1800480			Minhang	
+11995100	Bazhong	wd	Bazhong	
+3450554	Salvador	wd	Salvador	
+2352778	Abuja	wd	Abuja	
+1200109	Gazipur	wd	Gazipur	
+4887398	Chicago	wd	Chicago	
+1791388	Wenzhou	wd	Wenzhou	
+1649378	Bekasi	wd	Bekasi	
+2253354	Dakar	wd	Dakar	
+1581298	Haïphong	wd	Haiphong	
+1785725	Yunfu	wd	Yunfu	
+53654	Mogadiscio	wd	Mogadishu	
+2298890	Kumasi	wd	Kumasi	
+1650357	Bandung	wd	Bandung	
+1177662	Gujranwala	wd	Gujranwala	
+1214520	Medan	wd	Medan	
+1264733	Lucknow	wd	Lucknow	
+1788852	Xining	wd	Xining	
+2357048	Ouagadougou	wd	Ouagadougou	
+1262180	Nagpur	wd	Nagpur	
+3399415	Fortaleza	wd	Fortaleza	
+3687925	Cali	wd	Cali	
+2063523	Perth	wd	Perth	
+1835329	Daegu	wd	Daegu	
+2507480	Alger	wd	Algiers	
+1800163	Nanchang	wd	Nanchang	
+587084	Bakou	wd	Baku	
+1856057	Nagoya	wd	Nagoya	
+3169070	Rome	wd	Rome	
+5133273	Queens	wd	Queens	
+4699066	Houston	wd	Houston	
+124665	Mashhad	fix	Mashhad	
+1795855	Shaoxing	wd	Shaoxing	
+1799722	Nantong	wd	Nantong	
+1816917			Baoshan	
+314830	Gaziantep	wd	Gaziantep	
+922704	Lubumbashi	wd	Lubumbashi	
+3663517	Manaus	wd	Manaus	
+909137	Lusaka	wd	Lusaka	
+3469058	Brasilia	wd	Brasília	
+1790437	Zhuhai	wd	Zhuhai	
+3492908	Saint-Domingue	wd	Santo Domingo	
+2365267	Lomé	wd	Lomé	
+1169825	Multan	wd	Multan	
+3553478	La Havane	wd	Havana	
+1645524	Depok	wd	Depok	
+8347664	Ordos	gn	Ordos	
+2988507	Paris	wd	Paris	
+1273865	Coimbatore	wd	Coimbatore	
+12359313			Qingyang	
+2324774	Port Harcourt	wd	Port Harcourt	
+964137	Pretoria	wd	Pretoria	
+3860259	Córdoba	wd	Córdoba	
+209228	Mbujimayi	wd	Mbuji-Mayi	
+170063	Alep	wd	Aleppo	
+1785623	Kunshan	wd	Kunshan	
+1783621	Zunyi	wd	Zunyi	
+3911925	La Paz	wd	La Paz	
+10859300	Lianyungang	wd	Lianyungang	
+3674962	Medellín	wd	Medellín	
+1802940	Puning	wd	Puning	
+1269743	Indore	wd	Indore	
+2260535	Brazzaville	wd	Brazzaville	
+1512569	Tachkent	wd	Tashkent	
+1810638	Ganzhou	wd	Ganzhou	
+1526384	Almaty	wd	Almaty	
+379252	Khartoum	wd	Khartoum	
+2911298	Hambourg	wd	Hamburg	
+2128295	Sapporo	wd	Sapporo	
+1794035			Songjiang	
+2306104	Accra	wd	Accra	
+3464975	Curitiba	wd	Curitiba	
+71137	Sanaa	wd	Sanaa	
+2422465	Conakry	wd	Conakry	
+1625084	Tangerang	wd	Tangerang	
+3981609	Tijuana	wd	Tijuana	
+1176734	Hyderâbâd	wd	Hyderabad	
+276781	Beyrouth	wd	Beirut	
+1797121	Jieyang	wd	Jieyang	
+2036502	Jilin	wd	Jilin	
+1806508	Jiading	fix	Jiading	
+683506	Bucarest	wd	Bucharest	
+2422488	Camayenne	wd	Camayenne	
+195272	Kakamega	wd	Kakamega	
+1796134	Shangqiu	wd	Shangqiu	
+1800146	Nanchong	wd	Nanchong	
+1668355	Tainan	wd	Tainan	
+2335727	Kaduna	wd	Kaduna	
+365137	Omdourman	wd	Omdurman	
+1715348	Davao	wd	Davao	
+1254661	Thane	wd	Thāne	
+3526683			Iztapalapa	
+316541	Diyarbakır	wd	Diyarbakır	
+3904906	Santa Cruz de la Sierra	wd	Santa Cruz de la Sierra	
+1253573	Vadodara	wd	Vadodara	
+325363	Adana	wd	Adana	
+1799629	Nanyang	wd	Nanyang	
+292968	Abou Dabi	wd	Abu Dhabi	
+1633070	Palembang	wd	Palembang	
+292672	Charjah	wd	Sharjah	
+1275841	Bhopal	wd	Bhopal	
+1806299	Jiangmen	wd	Jiangmen	
+2347283	Benin City	wd	Benin City	
+1815251	Jiangyin	wd	Jiangyin	
+1810845	Fuyang	wd	Fuyang	
+6077243	Montréal	wd	Montréal	
+11838258	Bayannur	fix	Bayan Nur	
+1793036	Tengzhou	wd	Chengtangcun	reviewed
+3633009	Maracaibo	wd	Maracaibo	
+1815395	Chaozhou	wd	Chaozhou	
+625144	Minsk	wd	Minsk	
+3054643	Budapest	wd	Budapest	
+1797945	Qingyuan	wd	Qingyuan	
+1793724	Tai'an	wd	Tai’an	
+1258393			Rasapūdipalem	
+7626690	Pimpri Chinchwad	wd	Pimpri-Chinchwad	
+1720151	Caloocan	wd	Caloocan	
+756135	Varsovie	wd	Warsaw	
+953781	Soweto	wd	Soweto	
+1627896	Semarang	wd	Semarang	
+3521081	Puebla	wd	Puebla	
+2761369	Vienne	wd	Vienna	
+3128760	Barcelone	wd	Barcelona	
+1260086	Patna	wd	Patna	
+99072	Mossoul	wd	Mosul	
+12165956			Kallakurichi	
+232422	Kampala	wd	Kampala	
+7283386			Changshu	
+2538475	Rabat	wd	Rabat	
+3390760	Recife	gn	Recife	
+5308655	Phoenix	wd	Phoenix	
+1793743	Suzhou	wd	Suzhou	
+3529612	Ecatepec de Morelos	wd	Ecatepec de Morelos	
+1802206	Lu'an	wd	Lu’an	
+3625549	Valencia	wd	Valencia	
+1264728	Ludhiana	wd	Ludhiana	
+1787746	Yancheng	gn	Yancheng	
+1496747	Novossibirsk	wd	Novosibirsk	
+95446	Erbil	wd	Erbil	
+1863967	Fukuoka	wd	Fukuoka	
+1793505	Taizhou	wd	Taizhou	
+2037860	Daqing	wd	Daqing	
+212730	Kisangani	wd	Kisangani	
+1701668	Manille	wd	Manila	
+1791236	Wuhu	wd	Wuhu	
+3991164	Santiago de Querétaro	wd	Santiago de Querétaro	
+1813325	Dazhou	wd	Dazhou	
+3998655	León	wd	León de los Aldama	
+104515	La Mecque	wd	Makkah	reviewed
+4560349	Philadelphie	wd	Philadelphia	
+1821306	Phnom Penh	wd	Phnom Penh	
+1809498	Guilin	wd	Guilin	
+170654	Damas	wd	Damascus	
+1167528	Quetta	wd	Quetta	
+1784853	Zhaoqing	wd	Zhaoqing	
+2326016	Onitsha	wd	Onitsha	
+1800627	Mianyang	wd	Mianyang	
+2193733	Auckland	wd	Auckland	
+418863	Ispahan	wd	Isfahan	
+12358576			Wanzhou	
+1526273	Astana	wd	Astana	
+890299	Harare	wd	Harare	
+2274895	Monrovia	wd	Monrovia	
+1798449	Putian	wd	Putian	
+1859642	Kawasaki	wd	Kawasaki	
+3462377	Goiânia	gn	Goiânia	
+4726206	San Antonio	wd	San Antonio	
+1859171	Kobe	wd	Kobe	
+2036427	Jinzhou	wd	Jinzhou	
+2673730	Stockholm	wd	Stockholm	
+4013708	Ciudad Juárez	fix	Ciudad Juárez	
+1586203	Cần Thơ	gn	Cần Thơ	
+2867714	Munich	wd	Munich	
+1336135	Khulnâ	wd	Khulna	
+3405870	Belém	gn	Belém	
+1486209	Iekaterinbourg	wd	Yekaterinburg	
+3452925	Porto Alegre	gn	Porto Alegre	
+5125771	Manhattan	wd	Manhattan	
+1261731	Nasik	wd	Nashik	
+8400694	Taizhou	wd	Taizhou	
+3439389	Asuncion	wd	Asunción	
+1814870	Yiwu	wd	Yiwu	
+3979770	Zapopan	wd	Zapopan	
+1622786	Makassar	gn	Makassar	
+2078025	Adélaïde	wd	Adelaide	
+1797353	Quanzhou	wd	Quanzhou	
+1264521	Madurai	wd	Madurai	
+1805528	Jinhua	wd	Jinhua	
+1857910	Kyoto	wd	Kyoto	
+1806602	Cixi	wd	Cixi	
+1791121	Changde	wd	Changde	
+1735161	Kuala Lumpur	wd	Kuala Lumpur	
+308464	Kayseri	wd	Kayseri	
+1804879	Kaifeng	wd	Kaifeng	
+128747	Karadj	wd	Karaj	
+1283240	Katmandou	wd	Kathmandu	
+1835235	Daejeon	wd	Daejeon	
+10942359	Baoji	wd	Baoji	
+1793771	Suqian	wd	Suqian	
+1803300	Liuzhou	wd	Liuzhou	
+1254361	Tirunelveli	wd	Tirunelveli	
+306571	Konya	wd	Konya	
+1787331	Zhangjiagang	wd	Zhangjiagang	
+1279259	Agra	wd	Agra	
+8581443	Tangerang du Sud	wd	South Tangerang	
+113646	Tabriz	wd	Tabriz	
+706483	Kharkiv	wd	Kharkiv	
+1788534	Xinyang	wd	Xinyang	
+1797658	Jinjiang	wd	Jinjiang	
+1271951	Faridabad	wd	Faridabad	
+1816234	Bozhou	wd	Bozhou	
+1797318	Qujing	wd	Qujing	
+5391811	San Diego	wd	San Diego	
+1841811	Gwangju	wd	Gwangju	
+1784990	Zhanjiang	wd	Zhanjiang	
+2037355	Fushun	wd	Fushun	
+1258847	Rajkot	wd	Rājkot	
+1801792	Luoyang	wd	Luoyang	
+4005539	Guadalajara	wd	Guadalajara	
+5110266	Bronx	wd	The Bronx	
+1802875	Guankou	fix	Guankou	
+1580240	Huế	wd	Huế	
+3173435	Milan	wd	Milan	
+1262111			Najafgarh	
+1804120			Lianjiang	
+2427123	N'Djaména	wd	N'Djamena	
+1808963	Handan	wd	Handan	
+1183460	Bannu	wd	Bannu	
+1786764	Yichang	wd	Yichang	
+1070940	Antananarivo	wd	Antananarivo	
+1808198	Heze	wd	Heze	
+3461786	Guarulhos	gn	Guarulhos	
+2293521	Abobo	wd	Abobo	
+1269300	Jamshedpur	wd	Jamshedpur	
+2232593	Douala	wd	Douala	
+323777	Antalya	wd	Antalya	
+99532	Bassorah	wd	Basrah	
+4684888	Dallas	wd	Dallas	
+6940394			Saitama	
+2440485	Niamey	wd	Niamey	
+8533133	Liupanshui	wd	Liupanshui	
+1684308	Taguig	wd	Taguig	
+1801180	Maoming	wd	Maoming	
+5913490	Calgary	wd	Calgary	
+2210247	Tripoli	wd	Tripoli	
+109223	Médine	wd	Madinah	
+2220957	Yaoundé	wd	Yaoundé	
+6295587	Batam	wd	Batam	
+1797551	Qinzhou	wd	Qinzhou	
+1801934	Luohe	wd	Luohe	
+1790587	Xiangyang	fix	Xiangyang	
+1806408	Yangjiang	wd	Yangjiang	
+1786760	Yixing	fix	Yixing	
+1259652			Pimpri	
+1583992	Đà Nẵng	wd	Da Nang	
+250441	Amman	wd	Amman	
+1723510			Budta	
+792680	Belgrade	wd	Belgrade	
+1587923	Biên Hòa	wd	Biên Hòa	
+214481	Kananga	wd	Kananga	
+1797798			Qingpu	
+3441575	Montevideo	wd	Montevideo	
+1788046	Xuchang	wd	Xuchang	
+1268295	Kalyan	wd	Kalyān	
+1783745	Zigong	wd	Zigong	
+520555	Nijni Novgorod	wd	Nizhniy Novgorod	
+1642548	Jepara	wd	Jepara	
+1040652	Maputo	wd	Maputo	
+10630003	Xuzhou	wd	Xuzhou	
+110336	Dammam	wd	Dammam	
+1799491	Neijiang	wd	Neijiang	
+115019	Chiraz	wd	Shiraz	
+1808316	Yiyang	wd	Heshan	reviewed
+1272423	Dombivli	wd	Dombivali	
+551487	Kazan	wd	Kazan	
+1805518	Jining	wd	Jining	
+3648522	Barquisimeto	wd	Barquisimeto	
+349076	Shubra El-Kheima	wd	Shubrā al Khaymah	
+1798439			Putuo	
+3718426	Port-au-Prince	wd	Port-au-Prince	
+1835553	Suwon	wd	Suwon	
+1803834	Liaocheng	wd	Liaocheng	
+10942283			Jinzhong	
+3946083	Callao	wd	Callao	
+1263214	Meerut	wd	Meerut	
+1253133	Vasai-Virar	wd	Virār	
+1261162	Nabarangpur	wd	Nowrangapur	
+94824	Karbala	fix	Karbala	
+1808956	Changzhi	wd	Changzhi	
+1792892			Tianshui	
+7802746	Sadr City	wd	Sadr City	
+1787375			Yangpu	
+186301	Mombasa	wd	Mombasa	
+1311874	Mandalay	wd	Mandalay	
+1255634	Srinagar	wd	Srinagar	
+3689147	Barranquilla	gn	Barranquilla	
+1508291	Tcheliabinsk	wd	Chelyabinsk	
+3523349	Mérida	wd	Mérida	
+1862415	Hiroshima	wd	Hiroshima	
+3492914	Santiago de los Caballeros	wd	Santiago de los Caballeros	
+1518980	Chimkent	wd	Shymkent	
+1791636	Weinan	wd	Weinan	
+1271308	Ghaziabad	wd	Ghāziābād	
+1039854	Matola	wd	Matola	
+1272979	Dhanbad	gn	Dhanbad	
+3947322	Arequipa	wd	Arequipa	
+2548885	Fès	wd	Fes	
+3514674			Gustavo Adolfo Madero	
+2377450	Nouakchott	wd	Nouakchott	
+1805953	Jiaxing	wd	Jiaxing	
+1278149	Aurangābād	wd	Aurangabad	
+1784285	Zhongwei	wd	Zhongwei	
+1496153	Omsk	wd	Omsk	
+2246678	Pikine	wd	Pikine	
+1631761	Pekanbaru	wd	Pekanbaru	
+10794003	Panjin	wd	Panjin	
+1624917	Bandar Lampung	wd	Bandar Lampung	
+3067696	Prague	wd	Prague	
+1253405	Bénarès	wd	Varanasi	
+1805179			Jiujiang	
+499099	Samara	wd	Samara	
+2353151	Aba	wd	Aba	
+1278710	Amritsar	wd	Amritsar	
+2655603	Birmingham	wd	Birmingham	
+2618425	Copenhague	wd	Copenhagen	
+727011	Sofia	wd	Sofia	
+1785294			Anyang	
+616052	Erevan	wd	Yerevan	
+1253184	Vijayawada	wd	Vijayawada	
+13608002			Fengxiang	
+1816373	Bijie	fix	Bijie	
+3995465	Monterrey	wd	Monterrey	
+202061	Kigali	wd	Kigali	
+501175	Rostov-sur-le-Don	wd	Rostov-on-Don	
+1783763	Zhuzhou	wd	Zhuzhou	
+1797063	Rui'an	wd	Rui’an	
+1978681			Malingao	
+2244322	Touba	wd	Touba	
+479561	Oufa	wd	Ufa	
+1258526	Ranchi	wd	Ranchi	
+1783633	Zoucheng	wd	Zoucheng	
+1787858			Shangrao	
+927967	Lilongwe	wd	Lilongwe	
+1807700	Huaibei	wd	Huaibei	
+2331447	Maiduguri	wd	Maiduguri	
+1787957			Xuhui	
+1800818	Meishan	wd	Meishan	
+152224	Mwanza	wd	Mwanza	
+1833747	Ulsan	gn	Ulsan	
+2111149	Sendai	wd	Sendai	
+1502026	Krasnoïarsk	wd	Krasnoyarsk	
+1810820	Fuzhou	wd	Fuzhou	
+1809532	Guigang	wd	Guigang	
+3143244	Oslo	wd	Oslo	
+1269633	Jabalpur	wd	Jabalpur	
+2337639	Ilorin	wd	Ilorin	
+415189	Aden	wd	Aden	
+1648473	Bogor	wd	Bogor	
+3530589	Nezahualcóyotl	wd	Ciudad Nezahualcoyotl	
+1808370			Hengyang	
+1278994	Prayagraj	wd	Prayagraj	
+3691175	Trujillo	wd	Trujillo	
+1253102	Visakhapatnam	wd	Visakhapatnam	
+1842485	Goyang	wd	Goyang-si	
+1785781	Yulin	wd	Yulin	
+1268865	Jodhpur	wd	Jodhpur	
+1270583	Gwâlior	wd	Gwalior	
+1805540	Jingzhou	wd	Jingzhou	
+964420	Port Elizabeth	wd	Gqeberha	
+611717	Tbilissi	wd	Tbilisi	
+472045	Voronej	wd	Voronezh	
+1788572			Xinxiang	
+1786746	Yichun	wd	Yichun	
+2335953	Jos	wd	Jos	
+2322911	Sokoto	wd	Sokoto	
+2530335	Tanger	gn	Tangier	
+1790353	Xianyang	wd	Xianyang	
+3996069	Mexicali	wd	Mexicali	
+2255414	Pointe-Noire	wd	Pointe-Noire	
+3395981	Maceió	gn	Maceió	
+3467865	Campinas	gn	Campinas	
+1796556	Sanya	wd	Sanya	
+1185188	Rangpur	wd	Rangpur	
+94787	Kirkouk	wd	Kirkuk	
+162183	Achgabat	wd	Ashgabat	
+1795874	Shaoguan	wd	Shaoguan	
+1270396	Howrah	wd	Howrah	
+1258980	Raipur	wd	Raipur	
+1846326	Changwon	wd	Changwon	
+1802276	Longyan	wd	Longyan	
+2886242	Cologne	wd	Köln	reviewed
+2964574	Dublin	wd	Dublin	
+1254388	Tiruchirappalli	wd	Tiruchirappalli	
+1786217	Yongzhou	wd	Yongzhou	
+2800866	Bruxelles	wd	Brussels	
+1679432	Zamboanga	wd	Zamboanga	
+6094817	Ottawa	wd	Ottawa	
+1806535	Huzhou	wd	Huzhou	
+1812057	Xinyi	wd	Xinyi	
+472757	Volgograd	wd	Volgograd	
+379251	Bahri	wd	Khartoum North	
+5946768	Edmonton	wd	Edmonton	
+698740	Odesa	wd	Odesa	
+1803936	Wuwei	wd	Wuwei	
+4160021	Jacksonville	wd	Jacksonville	
+4691930	Fort Worth	wd	Fort Worth	
+1786455	Yishui	fix	Yishui	
+1808857	Hanzhong	wd	Hanzhong	
+7576887	Hezhou	wd	Hezhou	
+1266049	Kota	wd	Kota	
+7602670	Zhucheng	fix	Zhu Cheng City	
+1812101			Dongying	
+1801640	Luzhou	wd	Luzhou	
+5392171	San José	wd	San Jose	
+1256436			Sholapur	
+2542997	Marrakech	wd	Marrakesh	
+3598132	Guatemala	gn	Guatemala City	
+1800779	Meizhou	wd	Meizhou	
+1927639	Yueyang	wd	Yueyang	
+1804591	Laiwu	wd	Laiwu	
+747323	Esenyurt	wd	Esenyurt	
+511196	Perm	wd	Perm	
+2317765			Zaria	
+2113015	Chiba	wd	Chiba	
+1798827	Pingdingshan	wd	Pingdingshan	
+3645528	Ciudad Guayana	wd	Ciudad Guayana	
+1166000	Sargodha	wd	Sargodha	
+4671654	Austin	wd	Austin	
+3617763	Managua	wd	Managua	
+1816440	Bengbu	wd	Bengbu	
+2537763	Salé	wd	Salé	
+281184	Jérusalem	wd	Jerusalem	
+1274746	Chandigarh	wd	Chandigarh	
+709930	Dnipro	wd	Dnipro	
+1789176	Feicheng	wd	Feicheng	
+1717512	Cebu	wd	Cebu City	
+1796823	Sanhe	wd	Sanhe	
+1809412	Yongkang	wd	Guli	reviewed
+1254348	Tiruppur	wd	Tiruppur	
+1271476	Guwahati	wd	Guwahati	
+1790492			Xiangtan	
+1803567	Linfen	wd	Linfen	
+1931681	Victoria	wd	Victoria	
+1784642	Zhenjiang	wd	Zhenjiang	
+2343279	Enugu	wd	Enugu	
+3838583	Rosario	wd	Rosario	
+101760			Sulţānah	
+2036662	Huludao	wd	Huludao	
+1269920	Hubli	wd	Hubballi	
+1633419	Padang	wd	Padang	
+1859307	Kitakyūshū	wd	Kitakyushu	
+70225	Ta'izz	wd	Taiz	
+3489854	Kingston	wd	Kingston	
+1281673	Baoshan	wd	Baoshan	
+4014338	Chihuahua	wd	Chihuahua	
+6611854	Naypyidaw	wd	Nay Pyi Taw	
+315202	Eskişehir	wd	Eskişehir	
+1262321	Mysore	wd	Mysuru	
+2038087	Chengde	gn	Chengde	
+1257629	Salem	wd	Salem	
+3388368	São Luís	gn	São Luís	
+1897000			Seongnam-si	
+3687238	Carthagène	gn	Cartagena	
+1730501	Antipolo	wd	Antipolo	
+4509177	Columbus	wd	Columbus	
+1164909	Sialkot	wd	Sialkot	
+4460243	Charlotte	wd	Charlotte	
+1804609			Laibin	
+2319133	Warri	wd	Warri	
+3172394	Naples	gn	Naples	
+1790254	Xiaogan	wd	Xiaogan	
+1800829	Wuchuan	wd	Wuchuan	
+3467747	Campo Grande	gn	Campo Grande	
+1783683	Ziyang	wd	Ziyang	
+2362344	Bobo-Dioulasso	wd	Bobo-Dioulasso	
+1183880	Bahawâlpur	wd	Bahawalpur	
+1797264	Quzhou	wd	Quzhou	
+931755	Blantyre	wd	Blantyre	
+709717	Donetsk	wd	Donetsk	
+100077	Abou Ghraib	wd	Abū Ghurayb	
+1528675	Bichkek	wd	Bishkek	
+119208	Qom	wd	Qom	
+542420	Krasnodar	wd	Krasnodar	
+3394023	Natal	wd	Natal	
+1798654	Pingxiang	wd	Pingxiang	
+1636722	Malang	wd	Malang	
+3531673	Cancún	wd	Cancún	
+4259418	Indianapolis	wd	Indianapolis	
+1270642	Gurgaon	wd	Gurugram	
+1275817	Bhubaneswar	wd	Bhubaneswar	
+1886762	Zhoushan	wd	Zhoushan	
+2035265	Qiqihar	wd	Qiqihar	
+8307074			Mulenvos	
+98463	Souleimaniye	wd	Sulaymaniyah	
+2995469	Marseille	wd	Marseille	
+1275901	Bhiwandi	wd	Bhiwandi	
+954013	Soshanguve	wd	Soshanguve	
+1804586			Laiyang	
+1813206			Daye	
+3386496	Teresina	gn	Teresina	
+1789065	Ankang	wd	Ankang	
+1268782	Jalandhar	wd	Jalandhar	
+2747891	Rotterdam	wd	Rotterdam	
+1804540	Langfang	gn	Langfang	
+1280737	Lhassa	wd	Lhasa	
+3464374			Duque de Caxias	
+2236500	Viana	wd	Viana	
+1805987	Jiaozuo	wd	Jiaozuo	
+1629001	Samarinda	wd	Samarinda	
+2038300	Benxi	wd	Benxi	
+1791748			Wanxian	
+1799194	Guang'an	wd	Guang’an	
+1732752	Johor Bahru	wd	Johor Bahru	
+1184370	Arifwala	wd	Arifwala	
+7290466	Pasig	wd	Pasig City	
+1845604	Cheongju	wd	Cheongju-si	
+12501153			Kanayannur	
+3600949	Tegucigalpa	wd	Tegucigalpa	
+1838716	Bucheon	wd	Bucheon-si	
+1566166	Thanh Hóa	wd	Thanh Hóa	
+3165524	Turin	gn	Turin	
+292913	Al-Aïn	wd	Al Ain City	
+2399697	Libreville	wd	Libreville	
+498677	Saratov	wd	Saratov	
+2028462	Oulan-Bator	wd	Ulan Bator	
+1791673	Weihai	wd	Weihai	
+1821940	Takeo	wd	Takeo	
+3456160	Nova Iguaçu	gn	Nova Iguaçu	
+3919968	Cochabamba	gn	Cochabamba	
+144448	Ahvaz	wd	Ahvaz	
+1651944	Vientiane	wd	Vientiane	
+3449344			São Bernardo do Campo	
+1817720	Shangyu	wd	Shangyu	
+1788508	Xinyu	wd	Xinyu	
+965301	Pietermaritzburg	wd	Pietermaritzburg	
+1786770			Yibin	
+3522790	Naucalpan de Juárez	wd	Naucalpan de Juárez	
+1771023			Kampung Baru Subang	
+2290956	Bouaké	wd	Bouaké	
+1793703	Taicang	wd	Taicang	
+5391959	San Francisco	wd	San Francisco	
+1853195	Sakai	gn	Sakai	
+2509954	Valence	fix	Valencia	
+13608000			Jinshan	
+1815059	Chenzhou	wd	Chenzhou	
+3397277	João Pessoa	gn	João Pessoa	
+217831	Bukavu	gn	Bukavu	
+3094802	Cracovie	wd	Kraków	
+2037886	Dandong	wd	Dandong	
+3648559	Barcelona	wd	Barcelona	
+2389853	Bangui	wd	Bangui	
+4004898	Hermosillo	wd	Hermosillo	
+1276014			Bhayandar	
+4012176	Culiacán	wd	Culiacán	
+1735158	Petaling Jaya	wd	Petaling Jaya	
+1817993	Anqing	wd	Anqing	
+2485926	Oran	wd	Oran	
+2409306	Freetown	wd	Freetown	
+3601782	San Pedro Sula	gn	San Pedro Sula	
+1261809			Narela	
+1788927			Xingtai	
+1855431	Niigata	gn	Niigata	
+287286	Mascate	wd	Muscat	
+250090	Zarka	wd	Zarqa	
+6955677	Çankaya	wd	Çankaya	
+742394			Küçükçekmece	
+1863289	Hamamatsu	wd	Hamamatsu	
+922773	Kolwezi	wd	Kolwezi	
+1562798	Vinh	wd	Vinh	
+1254163	Trivandrum	wd	Thiruvananthapuram	
+1784841	Zhaotong	wd	Zhaotong	
+6929460	Panzhihua	wd	Panzhihua	
+1814757			Chuzhou	
+5809844	Seattle	wd	Seattle	
+358619	Port-Saïd	wd	Port Said	
+3685533	Cúcuta	gn	Cúcuta	
+169577	Homs	wd	Homs	
+1788081	Xuancheng	wd	Xuancheng	
+74477	Ibb	wd	Ibb	
+1624647	Tasikmalaya	wd	Tasikmalaya	
+1033356	Nampula	wd	Nampula	
+425378	Bujumbura	fix	Bujumbura	
+1488754	Tioumen	wd	Tyumen	
+315368	Erzurum	wd	Erzurum	
+1817968	Anshun	wd	Anshun	
+160196	Dodoma	wd	Dodoma	
+1185128	Râjshâhî	wd	Rajshahi	
+1180281	Dera Ismail Khan	wd	Dera Ismail Khan	
+3447399			Sorocaba	
+1790840	Wuzhou	wd	Wuzhou	
+1734634	Ipoh	wd	Ipoh	
+1797595	Qinhuangdao	wd	Qinhuangdao	
+88319	Benghazi	wd	Benghazi	
+3445831			Uberlândia	
+1279017	Aligarh	wd	Alīgarh	
+1816920	Shaoyang	wd	Shaoyang	
+304922	Malatya	wd	Malatya	
+6183235	Winnipeg	wd	Winnipeg	
+8469289	Ōta	fix	Ōta	
+1514588	Andijan	wd	Andijon	
+1277013	Bareli	wd	Bareilly	
+107304	Buraydah	wd	Buraydah	
+2036986	Hegang	wd	Hegang	
+3995402	Morelia	wd	Morelia	
+456172	Riga	wd	Riga	
+1784055	Zhuanghe	wd	Zhuanghe	
+2759794	Amsterdam	wd	Amsterdam	
+1721080	Cagayán de Oro	wd	Cagayan de Oro	
+1801620	Ma'anshan	wd	Ma’anshan	
+1732903	Shah Alam	wd	Shah Alam	
+751324	Bağcılar	wd	Bağcılar	
+12324556			Shizuishan	
+1858421	Kumamoto	wd	Kumamoto	
+2325200	Oyo	wd	Oyo	
+1627549	Serang	wd	Serang	
+3981254	Torreón	wd	Torreón	
+1812961	Deyang	wd	Deyang	
+2352947	Abeokuta	wd	Abeokuta	
+79415	Al Hudaydah	wd	Al Ḩudaydah	
+1787351	Yangquan	wd	Yangquan	
+2350841	Akure	wd	Akure	
+5419384	Denver	wd	Denver	
+3455775	Osasco	wd	Osasco	
+7758790	Quicolo	wd	Kikolo	
+2239888	Maianga	wd	Maianga	
+3448636			São José dos Campos	
+1865689			Aihara	
+1004866	Evaton	wd	Evaton	
+1680102	Valenzuela	wd	Valenzuela	
+1169607	Muzaffarabad	wd	Muzaffarābād	
+1854383	Okayama	gn	Okayama	
+3985606	San Luis Potosí	wd	San Luis Potosí	
+4019233	Aguascalientes	wd	Aguascalientes	
+1713022	General Santos	wd	General Santos	
+1783873	Zhumadian	wd	Zhumadian	
+1262801	Moradabad	wd	Morādābād	
+11611609			Sagamihara	
+6075357	Mississauga	wd	Mississauga	
+702550	Lviv	wd	Lviv	
+1513157	Namangan	wd	Namangan	
+687700	Zaporijjia	wd	Zaporizhzhya	
+148730	Zanzibar	wd	Zanzibar	
+3988086	Saltillo	wd	Saltillo	
+173576	Lattaquié	wd	Latakia	
+1252948	Varangal	wd	Warangal	
+1694781	Parañaque	wd	Paranaque City	
+482283	Togliatti	wd	Tolyatti	
+7874116			Santo Domingo Oeste	
+1183105	Battagram	wd	Battagram	
+8601412	Santo Domingo Este	wd	Santo Domingo Este	
+359796	Suez	wd	Suez	
+1815463			Changzhi	
+3451328	Ribeirão Preto	gn	Ribeirão Preto	
+2561668	Agadir	wd	Agadir	
+3191281	Sarajevo	wd	Sarajevo	
+1650527	Balikpapan	wd	Balikpapan	
+1815611			Changning	
+2347470	Bauchi	wd	Bauchi	
+1851717	Shizuoka	wd	Shizuoka	
+2464470	Tunis	wd	Tunis	
+2033196	Zhangjiakou	wd	Zhangjiakou	
+4140963	Washington	wd	Washington	
+4644585	Nashville	wd	Nashville	
+2037346	Fuxin	wd	Fuxin	
+107968	Taëf	wd	Ta’if	
+1796989	Changsha	fix	Changsha	
+1807234	Huangshi	wd	Huangshi	
+2036113	Liaoyang	wd	Liaoyang	
+8740157			Hlaingthaya	
+1052373	Beira	wd	Beira	
+1808090			Hongkou	
+3104324	Saragosse	fix	Zaragoza	
+2510911	Sevilla	wd	Sevilla	
+1816269	Baise	wd	Baise	
+1630789	Pontianak	wd	Pontianak	
+1626801			Situbondo	
+2351943			Agege	
+1816336	Binzhou	wd	Binzhou	
+4544349	Oklahoma City	wd	Oklahoma City	
+1785738	Yuncheng	wd	Yuncheng	
+1812955	Dezhou	wd	Dezhou	
+1221874	Douchanbé	gn	Dushanbe	
+2394819	Cotonou	wd	Cotonou	
+5520993	El Paso	wd	El Paso	
+1270927	Gorakhpur	wd	Gorakhpur	
+4005492	Guadalupe	wd	Guadalupe	
+3081368	Wrocław	wd	Wrocław	
+1645528	Denpasar	wd	Denpasar	
+1270668	Guntur	wd	Guntur	
+2334802	Katsina	wd	Katsina	
+1796669	Sanmenxia	wd	Sanmenxia	
+6642286			E’zhou	
+2591957	Camama	wd	Camama	
+101628	Tabuk	wd	Tabuk	
+911148	Kitwe	wd	Kitwe	
+894701	Bulawayo	wd	Bulawayo	
+2035715	Mudanjiang	wd	Mudanjiang	
+3471872	Aracaju	gn	Aracaju	
+3459712	Joinville	gn	Joinville	
+264371	Athènes	wd	Athens	
+3186886	Zagreb	wd	Zagreb	
+1804153			Leshan	
+3449701			Santo André	
+6173331	Vancouver	wd	Vancouver	
+9072919	Rizhao	gn	Rizhao	
+658225	Helsinki	wd	Helsinki	
+1845759	Cheonan	wd	Cheonan	
+3533462	Acapulco	wd	Acapulco de Juárez	
+1812621	Haiyang	wd	Dongcun	reviewed
+1650213	Banjarmasin	gn	Banjarmasin	
+1259425	Pondichéry	wd	Puducherry	
+1793900	Suining	wd	Suining	
+5907364	Brampton	wd	Brampton	
+8307452	Huangpu	fix	Huangpu	
+2591953			Golfe	
+9181182			Puyang	
+3667905			Soacha	
+4930956	Boston	wd	Boston	
+3515431			Tlalnepantla	
+5746545	Portland	wd	Portland	
+2242906	Calumbo	wd	Calumbo	
+3981461	Tlaquepaque	wd	Tlaquepaque	
+2925533	Francfort-sur-le-Main	wd	Frankfurt am Main	
+1821274	Macao	wd	Macau	
+2523920	Palerme	wd	Palermo	
+554840	Ijevsk	wd	Izhevsk	
+1248991	Colombo	wd	Colombo	
+3778045	Maturín	wd	Maturín	
+1278718	Amravati	wd	Amravati	
+2036075			Lingyuan	
+4990729	Détroit	wd	Detroit	
+1800519	Mingguang	wd	Mingguang	
+2325590	Osogbo	wd	Osogbo	
+1275665	Bîkâner	wd	Bikaner	
+6317344			Jaboatão dos Guararapes	
+13631351			Hoji ya Henda	
+5506956	Las Vegas	wd	Las Vegas	
+1843847	Hwaseong	wd	Hwaseong-si	
+2165087	Gold Coast	wd	Gold Coast	
+3093133	Łódź	wd	Łódź	
+1845457	Jeonju	wd	Jeonju	
+13608003			Chongming	
+285839	Al Ahmadi	wd	Al Aḩmadī	
+3658666	Cuenca	wd	Cuenca	
+618426	Chișinău	wd	Chisinau	
+922741	Likasi	wd	Likasi	
+1642858	Jambi	wd	Jambi City	
+1808770	Hebi	wd	Hebi	
+1185186	Comilla	wd	Comilla	
+204953	Tshikapa	wd	Tshikapa	
+1180942	Chunian	wd	Chunian	
+1273874	Cochin	wd	Kochi	
+4641239	Memphis	wd	Memphis	
+1805611	Jingmen	wd	Jingmen	
+1510853	Barnaoul	wd	Barnaul	
+3693528	Piura	wd	Piura	
+2034714	Siping	wd	Siping	
+1275971	Bhilai	wd	Bhilai	
+901344	Ndola	wd	Ndola	
+3465624			Contagem	
+479123	Oulianovsk	wd	Ulyanovsk	
+223817	Djibouti	wd	Djibouti	
+2648579	Glasgow	wd	Glasgow	
+2035513			Panshan	
+4299276	Louisville	wd	Louisville	
+2023469	Irkoutsk	wd	Irkutsk	
+1846918	Ansan	wd	Ansan-si	
+360761	Mansourah	wd	Al Mansurah	
+128226	Kermanchah	wd	Kermanshah	
+1806096	Jiaozhou	wd	Jiaozhou	
+2934246	Düsseldorf	wd	Düsseldorf	
+1793879	Suizhou	wd	Suizhou	
+3587902			Villa Nueva	
+2022890	Khabarovsk	wd	Khabarovsk	
+3465038	Cuiabá	gn	Cuiabá	
+161325	Arusha	wd	Arusha	
+3463478			Feira de Santana	
+1707174	Las Piñas	wd	Las Piñas	
+1814934	Chizhou	wd	Chizhou	
+3530139	Coyoacán	gn	Coyoacán	
+2825297	Stuttgart	wd	Stuttgart	
+1787816	Ya'an	wd	Ya'an	
+1273780	Cuttack	wd	Cuttack	
+1275248			Borivli	
+3698350	Chiclayo	wd	Chiclayo	
+468902	Iaroslavl	wd	Yaroslavl	
+2711537	Göteborg	wd	Gothenburg	
+1859730	Kawaguchi	wd	Kawaguchi	
+13118225			Bukit Rahman Putra	
+1175892	Jhang	wd	Jhang Sadr	
+106281	Haïl	wd	Ha'il	
+1276032	Bhavnagar	wd	Bhavnagar	
+1020098	Benoni	wd	Benoni	
+2013348	Vladivostok	wd	Vladivostok	
+3515001	Tuxtla Gutiérrez	wd	Tuxtla	
+703845	Kryvyï Rih	wd	Kryvyy Rih	
+1796663	Sanming	wd	Sanming	
+1176615	Islamabad	wd	Islamabad	
+1257416	Sangli	wd	Sāngli	
+1269317	Jamnagar	wd	Jamnagar	
+3347762	Lubango	wd	Lubango	
+1282898	Pokhara	wd	Pokhara	
+2034786	Shuangyashan	wd	Shuangyashan	
+64021	Borama	wd	Borama	
+1802204			Luancheng	
+532096	Makhatchkala	wd	Makhachkala	
+1846898			Anyang-si	
+3348313	Huambo	wd	Huambo	
+1216265	Samarcande	wd	Samarkand	
+13512502			Mengzi	
+1860827	Kagoshima	wd	Kagoshima	
+78754	Al Mukalla	wd	Mukalla	
+118743	Racht	wd	Rasht	
+3430863	Mar del Plata	wd	Mar del Plata	
+2928810	Essen	wd	Essen	
+360829	El-Mahalla El-Koubra	wd	Al Maḩallah al Kubrá	
+2514256	Malaga	fix	Málaga	
+1165221	Shekhupura	wd	Shekhupura	
+2033370	Yingkou	wd	Yingkou	
+1785018	Zhangzhou	wd	Zhangzhou	
+3520339	Reynosa	wd	Reynosa	
+12382296			Thuận An	
+2935517	Dortmund	gn	Dortmund	
+4347778	Baltimore	wd	Baltimore	
+1732747			Pelentong	
+1646448			Cimahi	
+3458449	Londrina	gn	Londrina	
+3688465	Bucaramanga	gn	Bucaramanga	
+3176219	Gênes	gn	Genoa	
+1863440	Hachiōji	wd	Hachiōji	
+1734759	Malacca	wd	Malacca	
+1572151	Nha Trang	wd	Nha Trang	
+128234	Kerman	wd	Kerman	
+121801	Ourmia	wd	Orūmīyeh	reviewed
+7627067	Bahçelievler	wd	Bahçelievler	
+347497	Tanta	wd	Tanta	
+1269321	Jammu	gn	Jammu	
+10063567	Iskandar Puteri	wd	Iskandar Puteri	
+1720681	Calamba	wd	Calamba	
+3515428	Tlalpan	wd	Tlalpan	
+1140026	Hérat	wd	Herāt	
+1812256	Dongsheng	fix	Dongsheng	
+1177654	Gujrat	wd	Gujrat	
+1489425	Tomsk	wd	Tomsk	
+738377	Ümraniye	wd	Ümraniye	
+1529195	Shihezi	fix	Shihezi	
+184622	Nakuru	wd	Nakuru	
+5969782	Hamilton	wd	Hamilton	
+248946	Irbid	wd	Irbid	
+2643123	Manchester	gn	Manchester	
+1736376	Kota Bharu	wd	Kota Bharu	
+6159905	Surrey	wd	Surrey	
+2542715	Meknès	wd	Meknes	
+3875024			Puente Alto	
+369004	Nyala	wd	Nyala	
+2033675	Xinmin	wd	Xinmin	
+2935022	Dresde	wd	Dresden	
+515003	Orenbourg	wd	Orenburg	
+5454711	Albuquerque	wd	Albuquerque	
+1275362	Bokaro	wd	Bokāro	
+343300	Asmara	wd	Asmara	
+1164408	Sukkur	wd	Sukkur	
+5263045	Milwaukee	wd	Milwaukee	
+1791544	Wenchang	wd	Wenchang	
+2340451	Gombe	wd	Gombe	
+2338900	Ile Ife	wd	Ile-Ife	
+1877449	Hamhŭng	wd	Hamhŭng	
+1503901	Kemerovo	wd	Kemerovo	
+98854	Nassiriya	wd	Nasiriyah	
+1018725	Bloemfontein	wd	Bloemfontein	
+2638077	Sheffield	wd	Sheffield	
+3536729	Santiago de Cuba	wd	Santiago de Cuba	
+3515807	Cuautitlán Izcalli	wd	Cuautitlán Izcalli	
+3351663	Benguela	wd	Benguela	
+1814760	Chuxiong	wd	Chuxiong	
+7648070	Balbala	wd	Balbala	
+1807689	Huaihua	wd	Huaihua	
+1794140	Sishui	fix	Sishui	
+1699076	Muntinlupa	wd	Muntinlupa	
+1159301	Zâhedân	wd	Zahedan	
+1670029	Banqiao	wd	Banqiao	
+1261977	Nanded	wd	Nanded	
+1265873	Calicut	wd	Kozhikode	
+8335361	Ulaan Chab	wd	Ulanqab	
+2566636			Ajegunle	
+2243271	Cabinda	wd	Cabinda	
+786714	Pristina	wd	Pristina	
+2036581	Jiamusi	wd	Jiamusi	
+1529376	Korla	wd	Korla	
+1266285	Kolhapur	wd	Kolhāpur	
+3662762	Porto Velho	gn	Porto Velho	
+3836873	San Miguel de Tucumán	wd	San Miguel de Tucumán	
+1735227	Kuantan	wd	Kuantan	
+694423	Sébastopol	wd	Sevastopol	
+1261529	Nellore	wd	Nellore	
+2944388	Brême	wd	Bremen	
+1791779	Wanning	wd	Wanning	
+2325330	Owerri	wd	Owerri	
+6847550			Kota Kuala Muda	
+1735498	Sungai Petani	wd	Sungai Petani	
+1788450	Xinzhou	wd	Xinzhou	
+11209896	Kōtō	fix	Kotō	
+1270752	Gulbarga	wd	Kalaburagi	
+5318313	Tucson	wd	Tucson	
+7795834	Selayang	fix	Selayang Baru Utara	
+593116	Vilnius	wd	Vilnius	
+1279159	Ajmer	wd	Ajmer	
+1798821	Pingdu	wd	Pingdu	
+5350937	Fresno	wd	Fresno	
+154380	Mbeya	wd	Mbeya	
+3459505			Juiz de Fora	
+2346229	Calabar	wd	Calabar	
+2540483	Oujda	wd	Oujda	
+1496990	Novokouznetsk	wd	Novokuznetsk	
+500096	Riazan	wd	Ryazan’	
+1806445	Ji'an	wd	Ji’an	
+1166547	Sahiwal	wd	Sahiwal	
+1166548	Sahiwal	wd	Sahiwal	
+304531	Mersin	wd	Mersin	
+10346824	Nilüfer	wd	Nilüfer	
+2644688	Leeds	wd	Leeds	
+3088171	Poznań	wd	Poznań	
+1529660	Aksou	wd	Aqsu	
+2344082	Ibute Ikorodu	wd	Ebute Ikorodu	
+3407669	Ananindeua	wd	Ananindeua	
+1793424	Tanggu	fix	Tanggu	
+1732722	Pasir Gudang	wd	Pasir Gudang	
+580497	Astrakhan	wd	Astrakhan	
+1168718	Okara	wd	Okara	
+10943053	Nansana	wd	Nansana	
+1842943			Kimhae	
+172955	Raqqa	wd	Ar Raqqah	
+6325494	Québec	wd	Québec	
+3827409			Cuauhtémoc	
+1796068	Shangluo	wd	Shangluo	
+1862627	Himeji	wd	Himeji	
+3680656	Ibagué	gn	Ibagué	
+2803138	Anvers	wd	Antwerp	
+359783	Assiout	wd	Assiut	
+132144	Hamadan	wd	Hamadān	
+1806488	Qionghai	wd	Qionghai	
+6316406			Aparecida de Goiânia	
+1816080	Cangzhou	gn	Cangzhou	
+1194041			Mohammadpur	
+1625812	Surakarta	wd	Surakarta	
+1786060	Yuanping	wd	Yuanping	
+3583361	San Salvador	wd	San Salvador	
+1816705	Beihai	wd	Beihai	
+298117	Van	wd	Van	
+5389489	Sacramento	wd	Sacramento	
+1565019	Thủ Đức	fix	Thủ Đức	
+738329	Üsküdar	wd	Üsküdar	
+511565	Penza	wd	Penza	
+1138336	Kandahâr	wd	Kandahār	
+1133616	Mazâr-e Charîf	wd	Mazār-e Sharīf	
+1808392	Hengshui	wd	Hengshui	
+1273313	Dehradun	wd	Dehradun	
+1272013	Erode	wd	Erode	
+2996944	Lyon	wd	Lyon	
+3838233	Salta	wd	Salta	
+3447779			Serra	
+747340	Esenler	wd	Esenler	
+12446699			Daxing’anling	
+1568574	Quy Nhơn	wd	Qui Nhon	
+361320	Médinet el-Fayoum	wd	Al Fayyum	
+1272175	Durgapur	wd	Durgapur	
+1849053	Utsunomiya	gn	Utsunomiya	
+4011743	Durango	wd	Victoria de Durango	
+3470142			Belford Roxo	
+2267057	Lisbonne	wd	Lisbon	
+1167460	Rahim Yar Khan	wd	Rahim Yar Khan	
+1253894	Ulhasnagar	wd	Ulhasnagar	
+1806466	Guangyuan	wd	Guangyuan	
+1264773	Loni	wd	Loni	
+1256525	Siliguri	wd	Siliguri	
+2861650	Nuremberg	fix	Nuremberg	
+3456283	Niterói	wd	Niterói	
+1253914	Ujjain	wd	Ujjain	
+2910831	Hanovre	wd	Hannover	
+2650225	Édimbourg	wd	Edinburgh	
+3396016	Macapá	gn	Macapá	
+1790396			Xianning	
+2972315	Toulouse	wd	Toulouse	
+949880	Tembisa	wd	Thembisa	
+6201369	Carrefour	wd	Carrefour	
+1926099	Matsuyama	wd	Matsuyama	
+1275610	Bilimora	wd	Bilimora	
+1174625	Kasur	wd	Kasur	
+4180439	Atlanta	wd	Atlanta	
+3523466	Matamoros	wd	Heroica Matamoros	
+1703417	Makati	wd	Makati City	
+12492662	Mianzhu	fix	Mianzhu, Deyang, Sichuan	
+2034414			Tonghua	
+523750	Naberejnye Tchelny	wd	Naberezhnyye Chelny	
+535121	Lipetsk	wd	Lipetsk	
+2314705	Kikwit	wd	Kikwit	
+3463237	Florianópolis	gn	Florianópolis	
+1909733	Banan	fix	Banan	
+2155472	Newcastle	wd	Newcastle	
+1818446	Tuen Mun	wd	Tuen Mun	
+1785036	Zhangye	wd	Zhangye	
+548408	Kirov	wd	Kirov	
+1280849	Kachgar	wd	Kashgar	
+12750654			Mukim Pulai	
+103630	Najran	wd	Najrān	
+1784130	Zhoukou	wd	Zhoukou	
+2879139	Leipzig	wd	Leipzig	
+1798760	Pingliang	wd	Pingliang	
+2934691	Duisbourg	gn	Duisburg	
+1278314	Asansol	wd	Āsansol	
+143127	Arak	wd	Arāk	
+3880980	Maipú	wd	Maipú	
+627907	Homiel	wd	Homyel'	
+610611	Aktioubé	wd	Aktobe	
+1733432	Kota Kinabalu	wd	Kota Kinabalu	
+1176358	Jalalpur Pirwala	wd	Jalalpur Pirwala	
+1732724			Kampung Larkin Lama	
+12514556			Kota Damansara	
+2591976			Talatona	
+1263780	Mangalore	wd	Mangaluru	
+1783988	Zhucheng	wd	Zhucheng	
+3668605	Santa Marta	wd	Santa Marta	
+1857553	Matsudo	wd	Matsudo	
+1462674	Hathazari	wd	Hāthazāri	
+1707267	Lapu-Lapu	fix	Lapu-Lapu City	
+609655	Karaganda	wd	Karagandy	
+1802238	Loudi	wd	Loudi	
+2644210	Liverpool	wd	Liverpool	
+1818920	Sha Tin	wd	Sha Tin	
+1180289	Dera Ghazi Khan	wd	Dera Ghazi Khan	
+1808747			Hecun	
+1862752	Higashiōsaka	wd	Higashiosaka	
+1168021	Pindi Bhattian	wd	Pindi Bhattian	
+569696	Tcheboksary	wd	Cheboksary	
+1839071	Pohang	wd	Pohang	
+1795928			Shanwei	
+3674453	Montería	gn	Montería	
+181032	Ruiru	wd	Ruiru	
+3666304	Valledupar	wd	Valledupar	
+1276533	Belgaum	wd	Belagavi	
+292932	Ajman	wd	Ajman	
+9931406			Jianshui	
+7628420	Sancaktepe	wd	Sancaktepe	
+377039	Port-Soudan	wd	Port Sudan	
+3515302	Toluca	wd	Toluca	
+3532624	Ciudad López Mateos	wd	Ciudad López Mateos	
+360890			Al Khuşūş	
+1846266	Jeju-si	wd	Jeju City	
+3099434	Gdańsk	wd	Gdańsk	
+4164138	Miami	wd	Miami	
+5074472	Omaha	wd	Omaha	
+1855207			Nishinomiya	
+2593460	Masina	wd	Masina	
+1257806	Saharanpur	wd	Sahāranpur	
+1253286	Vellore	wd	Vellore	
+1858311	Kurashiki	wd	Kurashiki	
+3467693			Campos dos Goytacazes	
+1730737	Ángeles	wd	Angeles City	
+1276058	Bhatpara	wd	Bhātpāra	
+333795	Djidjiga	wd	Jijiga	
+480562	Toula	wd	Tula	
+98860	Najaf	fix	Najaf	
+4487042	Raleigh	wd	Raleigh	
+1710914	Imus	wd	Imus	
+1789647	Xichang	wd	Xichang	
+1264115	Malegaon	wd	Malegaon	
+1785462	Zaoyang	wd	Zaoyang	
+3448639			São José do Rio Preto	
+3466537			Caxias do Sul	
+7701384	Karabağlar	wd	Karabağlar	
+2327220	Okene	wd	Okene	
+1833788			Uijeongbu-si	
+2654675	Bristol	wd	Bristol	
+1006984	East London	wd	East London	
+13527052			Chéngguān Qū	
+111822	Yazd	wd	Yazd	
+57289	Hargeisa	wd	Hargeysa	
+1854487	Ōita	wd	Ōita	
+1805741	Jincheng	wd	Jincheng	
+1808106	Hongjiang	wd	Hongjiang	
+8440756	Modinagar	wd	Modīnagar	
+6696918	Taoyuan	fix	Taoyuan	
+198629	Eldoret	wd	Eldoret	
+4393217	Kansas City	wd	Kansas City	
+1787765	Yan'an	wd	Yan’an	
+554234	Kaliningrad	wd	Kaliningrad	
+785842	Skopje	wd	Skopje	
+2057087	Kupang	wd	Kupang	
+944385	Vereeniging	wd	Vereeniging	
+2747373	La Haye	gn	The Hague	
+5367929	Long Beach	wd	Long Beach	
+1271439	Gaya	wd	Gaya	
+1711005	Iloïlo	wd	Iloilo	
+1794794	Shouguang	wd	Shouguang	
+1805680	Jingdezhen	wd	Jingdezhen	
+2513416	Murcia	wd	Murcia	
+5304391	Mesa	wd	Mesa	
+6324729	Halifax	gn	Halifax	
+153220	Morogoro	wd	Morogoro	
+1700925	Marikina	wd	Marikina City	
+2544571	Kénitra	wd	Kenitra	
+288967	Sib	wd	Seeb	
+1646511	Cilegon	wd	Cilegon	
+700569	Mykolaïv	wd	Mykolayiv	
+1863917	Fukuyama	wd	Fukuyama	
+5139568	Staten Island	wd	Staten Island	
+1799846	Nanping	wd	Nanping	
+3672486	Pereira	wd	Pereira	
+4018390	Apodaca	wd	Ciudad Apodaca	
+3448877			São João de Meriti	
+1278840	Ambattur	wd	Ambattur	
+1860243	Kanazawa	wd	Kanazawa	
+336014	Gondar	wd	Gonder	
+1701966	Mandaluyong	wd	Mandaluyong City	
+3592519			Mixco	
+2036109	Liaoyuan	wd	Longshan	reviewed
+2338325	Ikare	wd	Ikare	
+11592397			Nova Vida	
+1562414	Vũng Tàu	fix	Vũng Tàu	
+3632998	Maracay	wd	Maracay	
+2294877	Tamale	wd	Tamale	
+1786112	Heyuan	wd	Heyuan	
+1583518	Di An	wd	Dĩ An	
+231165	Kira	wd	Kira	
+355449	Esna	gn	Esna	
+1792359	Huangshan	wd	Huangshan	
+170017	Hama	wd	Ḩamāh	
+1269407	Jalgaon	wd	Jalgaon	
+1265491	Kurnool	wd	Kurnool	
+2318044	Yola	wd	Yola	
+2034439	Tieling	gn	Tieling	
+1568510	Rạch Giá	wd	Rạch Giá	
+1865387	Amagasaki	wd	Amagasaki	
+1636544	Manado	wd	Manado	
+3651297	Santo Domingo	wd	Santo Domingo de los Colorados	
+163345	Tartous	wd	Ţarţūs	
+331180	Mekele	wd	Mek'ele	
+330186	Adama	wd	Nazrēt	reviewed
+5417598	Colorado Springs	wd	Colorado Springs	
+3939459	Huancayo	wd	Huancayo	
+99347	Hilla	wd	Al Hillah	
+2312895	Mbandaka	wd	Mbandaka	
+2239862	Malanje	wd	Malanje	
+1873757	Nampo	wd	Namp’o	
+4005867	General Escobedo	wd	Ciudad General Escobedo	
+1729564	Bacolod	wd	Bacolod City	
+4791259	Virginia Beach	wd	Virginia Beach	
+1792260	Wafangdian	wd	Wafangdian	
+1701500			Mansilingan	
+158597	Kahama	wd	Kahama	
+1675151	Hsinchu	wd	Hsinchu	
+8469284			Katsushika	
+320857	Bornova	wd	Bornova	
+1258662	Ramagundam	wd	Rāmgundam	
+321836	Batman	wd	Batman	
+1784818	Yongji	wd	Yongji	
+1803245			Lishui	
+1253986	Udaipur	wd	Udaipur	
+326282	Warder	wd	Warder	
+1591527	Bắc Giang	wd	Bắc Giang	
+449504	Eslamchahr	wd	Eslamshahr	
+373303	Djouba	wd	Juba	
+8074174	Muratpaşa	wd	Muratpaşa	
+8505006	Wenshan	fix	Wenshan City	
+298333	Şanlıurfa	wd	Şanlıurfa	
+538560	Koursk	wd	Kursk	
+1348843	Maheshtala	wd	Maheshtala	
+1573517	Nam Định	wd	Nam Định	
+2501152	Constantine	wd	Constantine	
+1260107	Patiala	wd	Patiāla	
+1017780	Boksburg	wd	Boksburg	
+1816858	Dongfang	wd	Basuo	reviewed
+3403642	Campina Grande	gn	Campina Grande	
+4006702	Ensenada	wd	Ensenada	
+315808	Elazığ	wd	Elazığ	
+3459462			Jundiaí	
+3514450	Xochimilco	wd	Xochimilco	
+1256409	Shyamnagar	wd	Shyamnagar	
+1715430	Dasmariñas	wd	Dasmariñas	
+1813171	Zhangjiajie	wd	Zhangjiajie	
+1635882	Mataram	wd	Mataram	
+2286304	Korhogo	wd	Korhogo	
+3453643			Piracicaba	
+1864092	Fujisawa	wd	Fujisawa	
+2374775	Bissau	wd	Bissau	
+1786546	Zhongxiang	wd	Zhongxiang	
+1734052	Sandakan	wd	Sandakan	
+1308465	Moulmein	wd	Mawlamyine	
+6050610	Laval	wd	Laval	
+2512989	Palma	gn	Palma	
+3456814			Montes Claros	
+1869012	Sunchon	wd	Sunch’ŏn	
+7628416			Sultangazi	
+2319480	Uyo	wd	Uyo	
+2038365	Bei'an	wd	Bei’an	
+1273368	Davanagere	wd	Davangere	
+1801582			Macheng	
+2352379	Ado Ekiti	wd	Ado-Ekiti	
+3675443	Manizales	wd	Manizales	
+1841246			Masan	
+1586896	Buôn Ma Thuột	wd	Buôn Ma Thuột	
+487846	Stavropol	wd	Stavropol	
+1794328	Shuozhou	wd	Shuozhou	
+1859924	Kashiwa	wd	Kashiwa	
+2327735	Ogbomoso	wd	Ogbomoso	
+293397	Tel Aviv	wd	Tel Aviv	
+3688452			Buenaventura	
+940909	Welkom	wd	Welkom	
+1818953	Sham Shui Po	wd	Sham Shui Po	
+1857871	Machida	wd	Machida	
+359493	Zagazig	wd	Zagazig	
+689558	Vinnytsia	wd	Vinnytsya	
+361055	Ismaïlia	wd	Ismailia	
+1806097	Ningde	wd	Ningde	
+1279105	Akola	wd	Akola	
+13608165			Kima Kieza	
+3941584	Cuzco	wd	Cusco	
+1279945	Jiuquan	wd	Jiuquan	
+3514783	Veracruz	wd	Veracruz	
+571476	Briansk	wd	Bryansk	
+741763	Maltepe	wd	Maltepe	
+584923	Sumqayıt	wd	Sumgayit	
+1163964			Tando Bago	
+1734705	Kuala Terengganu	wd	Kuala Terengganu	
+1849814	Toyota	wd	Toyota	
+2313002	Matadi	gn	Matadi	
+109353	Al Khardj	wd	Al Kharj	
+1818304			Wong Tai Sin	
+13118244			Mandaluyong	
+2330100	Minna	wd	Minna	
+3526617	Xalapa	wd	Xalapa de Enríquez	
+1255783	Rajpur Sonarpur	wd	Rajpur Sonarpur	
+3060972	Bratislava	wd	Bratislava	
+12557764			Taman Petaling	
+1852139	Shinagawa	fix	Shinagawa	
+173811	Hassaké	wd	Al Ḩasakah	
+360502	Louxor	wd	Luxor	
+6058560	London	wd	London	
+343137	Hawassa	wd	Awasa	
+1049261	Chimoio	wd	Chimoio	
+1163965	Tando Allahyar	wd	Tando Allahyar	
+2290486	Daloa	wd	Daloa	
+7290718	Barra da Tijuca	wd	Barra da Tijuca	
+1812749			Dingxi	
+2234974	Bamenda	wd	Bamenda	
+480060	Tver	wd	Tver	
+1566319	Thái Nguyên	wd	Thái Nguyên	
+3664980	Boa Vista	gn	Boa Vista	
+3662574	Rio Branco	gn	Rio Branco	
+5378538	Oakland	wd	Oakland	
+2192362	Christchurch	wd	Christchurch	
+1266122	Korba	wd	Korba	
+1851100	Takamatsu	gn	Takamatsu	
+1819607	Kowloon City	wd	Kowloon City	
+3449433	Santos	fix	Santos	
+3183875	Tirana	wd	Tirana	
+3392242			Petrolina	
+3457381			Mauá	
+4568127	San Juan	wd	San Juan	
+1736309	Alor Setar	wd	Alor Setar	
+7064006			Tongchuan	
+1694611			Pasay	
+3522551	Nuevo Laredo	wd	Nuevo Laredo	
+1849876	Toyama	wd	Toyama	
+2528910	Tétouan	wd	Tétouan	
+2657896	Zurich	gn	Zürich	
+6947640	Beylikdüzü	wd	Beylikdüzü	
+1562820	Việt Trì	wd	Việt Trì	
+3532497			Azcapotzalco	
+4174757	Tampa	wd	Tampa	
+234179			Bunamwaya	
+532288	Magnitogorsk	wd	Magnitogorsk	
+4553433	Tulsa	wd	Tulsa	
+1269006	Jhansi	wd	Jhānsi	
+1818506			Tseung Kwan O	
+3645532	Ciudad Bolívar	wd	Ciudad Bolívar	
+1762110			Kampung Kangkar Teberau	
+2285853	Koumassi	wd	Koumassi	
+3985241	San Nicolás de los Garza	wd	San Nicolás de los Garza	
+1809152	Guyuan	wd	Guyuan	
+5037649	Minneapolis	wd	Minneapolis	
+2082600	Jayapura	wd	Jayapura	
+8629640	Thoothukudi	wd	Thoothukudi	
+143083	Ardabil	wd	Ardabīl	
+1276509	Bellary	wd	Ballari	
+2038120			Chaoyang	
+281133	Gaza	wd	Gaza	
+3457671	Maringá	gn	Maringá	
+1848313	Yokosuka	wd	Yokosuka	
+353802	Kôm Ombo	wd	Kom Ombo	
+1856177	Nagasaki	gn	Nagasaki	
+1281019	Hotan	wd	Gujangbagh	reviewed
+3981369	Tonalá	wd	Tonalá	
+1801455	Zhijiang	wd	Zhijiang	
+3703443	Panama	wd	Panama City	
+204405	Uvira	gn	Uvira	
+1862540	Hirakata	wd	Hirakata	
+555312	Ivanovo	wd	Ivanovo	
+3644768	Cumaná	wd	Cumaná	
+971421	Newcastle	wd	Newcastle	
+1842225	Gumi	wd	Gumi	
+3078610	Brno	wd	Brno	
+2036389	Jixi	wd	Jixi	
+3464739			Diadema	
+1735634	Kuching	wd	Kuching	
+1863641	Gifu	wd	Gifu	
+3402655			Caruaru	
+1792621			Tongling	
+1682812	Tarlac	wd	Tarlac City	
+1849837	Toyonaka	wd	Toyonaka	
+372753	Kassala	wd	Kassala	
+1856717	Miyazaki	wd	Miyazaki	
+7732748	Lekki	wd	Lekki	
+3899539	Antofagasta	wd	Antofagasta	
+1276300	Bhagalpur	wd	Bhāgalpur	
+1279290	Agartala	wd	Agartala	
+2347209			Bida	
+217695	Bunia	wd	Bunia	
+323779	Antakya	wd	Antakya	
+9645085			Quận Mười	
+10630449	Sunshine Coast	wd	Sunshine Coast	
+191245	Kisumu	wd	Kisumu	
+702658	Louhansk	wd	Luhansk	
+1649150	Bengkulu	wd	Bengkulu	
+3648546	Barinas	wd	Barinas	
+1808981	Hancheng	wd	Hancheng	
+3444914			Vitória da Conquista	
+4281730	Wichita	wd	Wichita	
+2558545	Al Hoceïma	wd	Al Hoceïma	
+3083829	Szczecin	wd	Szczecin	
+3726786	Delmas	gn	Delmas	
+2036106			Liaozhong	
+3445026			Vila Velha	
+3181928	Bologne	wd	Bologna	
+11523293	Sejong	wd	Sejong	
+2591949	Cazenga	wd	Cazenga	
+740264	Samsun	wd	Samsun	
+588409	Tallinn	wd	Tallinn	
+149606	Tanga	wd	Tanga	
+379003	El Obeid	wd	El Obeid	
+3347939	Lobito	wd	Lobito	
+145531	Saurimo	wd	Saurimo	
+3470279	Bauru	wd	Bauru	
+3688928	Bello	gn	Bello	
+3672778	Pasto	gn	Pasto	
+1810458	Gaomi	wd	Gaomi	
+3836277	Santa Fe	wd	Santa Fe	
+2282006	San-Pédro	wd	San-Pédro	
+1271458	Gauriganj	wd	Gauriganj	
+2331140	Makurdi	wd	Makurdi	
+1633034	Palu	wd	Palu	
+2294915	Takoradi	wd	Takoradi	
+1606590	Samut Prakan	wd	Samut Prakan	
+4671240	Arlington	wd	Arlington	
+105072	Khamis Mushait	wd	Khamis Mushait	
+3660689	Ambato	wd	Ambato	
+3466998			Carapicuíba	
+3827598	Ojo de Agua	wd	Ojo de Agua	
+3352136	Windhoek	wd	Windhoek	
+2395914	Abomey-Calavi	wd	Abomey-Calavi	
+2947416	Bochum	wd	Bochum	
+1851483	Suita	wd	Suita	
+1175748	Chak Jhumra	wd	Chak Jhumra	
+310859	Kahramanmaraş	wd	Kahramanmaraş	
+12159964			Chongzuo	
+1854376	Okazaki	wd	Okazaki	
+3514519	Xico	wd	Xico	
+3526700			Iztacalco	
+1268561	Kakinada	wd	Kākināda	
+3470044			Betim	
+2515270	Las Palmas de Gran Canaria	wd	Las Palmas de Gran Canaria	
+1716771	Cotabato	fix	Cotabato	
+288764	Bawshar	wd	Bawshar	
+1265014	Latur	wd	Latur	
+1913154	Tanzhou	fix	Tanzhou	
+2179537	Wellington	wd	Wellington	
+3996322	Mazatlán	wd	Mazatlán	
+520494	Nijni Taguil	wd	Nizhny Tagil	
+4004330	Irapuato	wd	Irapuato	
+1861949	Ichinomiya	wd	Ichinomiya	
+359792	Assouan	wd	Aswān	
+675810	Iași	wd	Iaşi	
+986822	Krugersdorp	wd	Krugersdorp	
+1260482	Panihati	wd	Pānihāti	
+1185107			Shibganj	
+3402429			Caucaia	
+3696183	Iquitos	wd	Iquitos	
+1849846	Toyohashi	wd	Toyohashi	
+1808212	Hechuan	fix	Hechuan	
+3719028	Pétionville	wd	Pétionville	
+2745912	Utrecht	wd	Utrecht	
+1258932	Rajahmundry	wd	Rajamahendravaram	reviewed
+3466954	Cariacica	wd	Cariacica	
+1621177	Yogyakarta	wd	Yogyakarta	
+1272691	Dhule	wd	Dhule	
+1787031	Yanzhou	wd	Yanzhou	
+1852383			Minato	
+1749822			Puchong	
+2326171	Ondo	wd	Ondo	
+1798632	Pingyin	fix	Pingyin	
+1258076	Rohtak	wd	Rohtak	
+1182682	Bhawana	wd	Bhawana	
+958724	Rustenburg	wd	Rustenburg	
+5325738	Bakersfield	wd	Bakersfield	
+2033574			Xuanhua	
+939270	Emalahleni	fix	Emalahleni	
+2235189	Bafoussam	wd	Bafoussam	
+1565022	Thu Dau Mot	gn	Thủ Dầu Một	
+1851002	Takasaki	wd	Takasaki	
+1734810	Seremban	wd	Seremban	
+3827408			Miguel Hidalgo	
+1856215	Nagano	wd	Nagano	
+1734199	Tawau	wd	Tawau	
+2653822	Cardiff	wd	Cardiff	
+1814544			Dachang	
+8616121			Đống Đa	
+1106542	Chitungwiza	wd	Chitungwiza	
+7304020			Fenghuang	
+3629672	Puerto la Cruz	wd	Puerto La Cruz	
+2320576	Umuahia	wd	Umuahia	
+298299	Uşak	wd	Uşak	
+1283613	Bhâratpur	wd	Bharatpur	
+3460644			Itaquaquecetuba	
+7483813	Natore	wd	Natore	
+353219	6-Octobre	fix	6th of October City	
+2644668	Leicester	wd	Leicester	
+3466779			Cascavel	
+2172517	Canberra	wd	Canberra	
+7535637	Avellaneda	wd	Avellaneda	
+3452465			Praia Grande	
+1855612	Nara	gn	Nara-shi	
+3176959	Florence	wd	Florence	
+1279228	Ahmadnagar	wd	Ahilyanagar	
+1259091	Quilon	wd	Kollam	
+8537264	Huanggang	wd	Huanggang	
+2654993	Bradford	wd	Bradford	
+1626381	Sukabumi	wd	Sukabumi	
+1275637	Bilaspur	wd	Bilāspur	
+1703320			Malabon	
+3463011			Franca	
+5150529	Cleveland	wd	Cleveland	
+2337181	Iseyin	wd	Iseyin	
+5950268			Etobicoke	
+2341374	Gboko	wd	Gboko	
+2318123	Yenagoa	wd	Yenagoa	
+13546342			Samba	
+3393536	Olinda	gn	Olinda	
+1838343			Pyeongtaek	
+3630297	Petare	wd	Petare	
+1588060			Bến Cát	
+1817990			Anqiu	
+324190	Alanya	wd	Alanya	
+1172128	Larkana	wd	Larkana	
+379062	Al-Qadarif	wd	Al Qadarif	
+627904	Hrodna	wd	Hrodna	
+1647003			Cibinong	
+1169116	Nawabshah	wd	Nawabshah	
+4335045	La Nouvelle-Orléans	wd	New Orleans	
+1678228	Chilung	wd	Keelung	
+2692969	Malmö	wd	Malmö	
+1805029	Jizhou	wd	Jizhou	
+2187404	Manukau City	wd	Manukau City	
+2441291	Maradi	wd	Maradi	
+1182092			Burewala	
+6947637			Ataşehir	
+3469968	Blumenau	gn	Blumenau	
+1799823			Nanqiao	
+1170395	Mingora	wd	Mingora	
+3389353	Santarém	gn	Santarém	
+2805753	Wuppertal	wd	Wuppertal	
+2014407	Oulan-Oudé	wd	Ulan-Ude	
+11694038	Huocheng	fix	Huocheng	
+2338400	Ijebu Ode	wd	Ijebu Ode	
+932505	Maseru	wd	Maseru	
+1275960	Bhilwara	wd	Bhilwara	
+5412347	Aurora	wd	Aurora	
+620127	Vitebsk	wd	Vitebsk	
+7628419			Sultanbeyli	
+1516905	Taraz	wd	Taraz	
+1832828	Yangsan	wd	Yangsan	
+1689395	San Jose del Monte	wd	San Jose del Monte	
+13631407			Abū al-Kahṣīb	
+1948005			Gwangmyeong	
+111453	Zandjan	wd	Zanjan	
+3673899	Neiva	gn	Neiva	
+2112539			Iwaki	
+473247	Vladimir	wd	Vladimir	
+1026014	Tete	wd	Tete	
+1729524			Bacoor	
+3445839	Uberaba	fix	Uberaba	
+1926004	Wakayama	wd	Wakayama	
+1275198	Berhampore	wd	Brahmapur	
+1673816	Fengshan	wd	Fengshan	reviewed
+747158			Fatih	
+2214846	Misrata	wd	Misratah	
+3348078	Kuito	wd	Cuíto	
+3827406			Benito Juarez	
+1519922	Kyzylorda	wd	Kyzylorda	
+1164776			Sinjhoro	
+1859740	Kawagoe	wd	Kawagoe	
+1850910	Takatsuki	wd	Takatsuki	
+1262330	Muzaffarpur	wd	Muzaffarpur	
+3516266	Tapachula	wd	Tapachula	
+8067345	Nédong	wd	Lhoka	reviewed
+3514670	Villahermosa	wd	Villahermosa	
+1735162	Setapak	wd	Setapak	
+625665	Mahiliow	wd	Mahilyow	
+141681	Bandar Abbas	wd	Bandar Abbas	
+291074	Ras el Khaïmah	wd	Ras Al Khaimah	
+3647651	Cabimas	wd	Cabimas	
+1640344	Kendari	wd	Kendari	
+5856195	Honolulu	wd	Honolulu	
+5323810	Anaheim	wd	Anaheim	
+299817	Tarse	wd	Tarsus	
+99100			Al Maḩmūdīyah	
+342884	Baher Dar	wd	Bahir Dar	
+1798900	Pengze	fix	Pengze	
+1259239			Punāsa	
+8054802			Xilinhot	
+3448632			São José dos Pinhais	
+1028434	Quelimane	wd	Quelimane	
+581049	Arkhangelsk	wd	Arkhangel’sk	
+1262332	Muzaffarnagar	wd	Muzaffarnagar	
+12548253			Hulunbuir	
+1645133	Dumai	wd	Dumai	
+2451185	Sikasso	wd	Sikasso	
+117574	Sanandaj	wd	Sanandaj	
+2025339	Tchita	wd	Chita	
+1688749	San Pedro	wd	San Pedro	
+2521978	Alicante	fix	Alicante	
+2388873	Bimbo	wd	Bimbo	
+1321218	Kalaymyo	wd	Kalemyo	
+2655984	Belfast	wd	Belfast	
+1564064			Long Bien	
+3566067	Camagüey	wd	Camagüey	
+3128026			Bilbao	
+1651531	Ambon	wd	Ambon	
+629634	Brest	wd	Brest	
+3451353			Ribeirão das Neves	
+2038067	Chifeng	wd	Chifeng	
+8310663			Central Coast	
+3435217	Corrientes	wd	Corrientes	
+1877030	Hŭngnam	wd	Hŭngnam	
+1278130	Avadi	wd	Avadi	
+12277239			Yunlong	
+1858729	Koshigaya	wd	Koshigaya	
+2652221	Coventry	wd	Coventry	
+578072	Belgorod	wd	Belgorod	
+1053384	Tamatave	wd	Toamasina	
+7281838			Logan City	
+1853574	Ōtsu	wd	Ōtsu	
+371760	Kosti	wd	Kosti	
+2035261	Qitaihe	wd	Qitaihe	
+290030	Doha	wd	Doha	
+1273800	Kadapa	wd	Kadapa	
+8715035	Nakano	wd	Nakano	
+1646170	Cirebon	wd	Cirebon	
+3625829	Turmero	wd	Turmero	
+1850181	Tokorozawa	wd	Tokorozawa	
+1721906	Cabanatuan	fix	Cabanatuan City	
+1785716	Pizhou	wd	Pizhou	
+338832	Dire Dawa	gn	Dire Dawa	
+2506999	Annaba	wd	Annaba	
+2990440	Nice	wd	Nice	
+1711084	Iligan	wd	Iligan	
+3667849			Soledad	
+2529013	Témara	wd	Temara	
+3392740			Paulista	
+2566633			Obalende	
+1265767	Kukatpally	wd	Kukatpally	
+1794479	Laixi	wd	Laixi	
+96994	Dahuk	wd	Dihok	
+553915	Kalouga	wd	Kaluga	
+13405933			Bắc Từ Liêm	
+4014875	Celaya	wd	Celaya	
+2411989	Serrekunda	wd	Serekunda	
+1199503			Kafrul	
+308988	Karşıyaka	wd	Karşıyaka	
+702320	Makiïvka	wd	Makiyivka	
+3529947	Cuernavaca	wd	Cuernavaca	
+6066513	Markham	wd	Markham	
+3448136			São Vicente	
+1876373	Kaesŏng	wd	Kaesŏng	
+1185098	Tongi	wd	Tungi	
+963241	Randburg	wd	Randburg	
+2537881	Safi	wd	Safi	
+693805	Simferopol	wd	Simferopol	
+765876	Lublin	wd	Lublin	
+3454244	Pelotas	gn	Pelotas	
+3621849	San José	wd	San José	
+4167147	Orlando	wd	Orlando	
+3868121	Viña del Mar	wd	Viña del Mar	
+119505	Qazvin	wd	Qazvin	
+2130629	Asahikawa	wd	Asahikawa	
+1268257	Kamarhati	wd	Kāmārhāti	
+3981941	Tepic	wd	Tepic	
+1833105	Wonju	wd	Wŏnju	
+364103	Wad Madani	wd	Wad Medani	
+9645084			Quận Mười Một	
+601294	Noukous	wd	Nukus	
+306641	Konak	wd	Konak	
+1857843	Maebashi	gn	Maebashi	
+8469285	Kita	fix	Kita	
+3530580	Ciudad Victoria	wd	Ciudad Victoria	
+3982912			Soledad de Graciano Sánchez	
+1859146	Kochi	gn	Kochi	
+2949186	Bielefeld	wd	Bielefeld	
+2503769	Blida	wd	Blida	
+1819595	Kwai Chung	wd	Kwai Chung	
+1701947	Mandaue	wd	Mandaue City	
+586523	Gandja	wd	Ganja	
+127319	Khorramshahr	wd	Khorramshahr	
+2946447	Bonn	gn	Bonn	
+1263364			Mathura	
+12358476			Hechi	
+3102014	Bydgoszcz	wd	Bydgoszcz	
+491687	Smolensk	wd	Smolensk	
+608668	Oural	wd	Oral	
+127349	Khorramabad	wd	Khorramabad	
+3583096	Soyapango	wd	Soyapango	
+1787824	Tongshan	fix	Tongshan	
+2595778	Guédiawaye	wd	Guédiawaye	
+728193	Plovdiv	wd	Plovdiv	
+4013704	Ciudad Obregón	gn	Ciudad Obregón	
+1866923	Wonsan	wd	Wŏnsan	
+1520240	Pavlodar	wd	Pavlodar	
+1274693	Chandrapur	wd	Chānda	
+3467467	Canoas	gn	Canoas	
+2112141	Kōriyama	wd	Kōriyama	
+491422	Sotchi	gn	Sochi	
+324496	Aksaray	wd	Aksaray	
+1275701	Bijapur	wd	Vijayapura	
+918702	Chipata	wd	Chipata	
+2044757	Ch'ŏngjin	wd	Chongjin	
+2033467	Yanji	wd	Yanji	
+936374	Roodepoort	wd	Roodepoort	
+3693345	Pucallpa	wd	Pucallpa	
+3457001			Mogi das Cruzes	
+2519240	Córdoba	wd	Córdoba	
+2655613	Birkenhead	wd	Birkenhead	
+2990969	Nantes	wd	Nantes	
+2337704	Ilesha	wd	Ilesa	
+1631766	Pekalongan	wd	Pekalongan	
+1209106			Bhatara	
+660158	Espoo	fix	Espoo	
+192126			Kikuyu	
+1732811	Kluang	wd	Kluang	
+1803590	Lincang	wd	Lincang	
+2641170	Nottingham	wd	Nottingham	
+13631350			Ramiros	
+99608	Al-Amara	wd	Al ‘Amārah	
+472231	Voljski	wd	Volzhsky	
+6173577	Vaughan	wd	Vaughan	
+1807566	Xingyi	wd	Xingyi	
+1256515			Shivamogga	
+1278946	Alwar	wd	Alwar	
+2236568	Uige	gn	Uíge	
+3446682			Taubaté	
+3526682	Ixtapaluca	wd	Ixtapaluca	
+1527534	Och	wd	Osh	
+3652941	Portoviejo	wd	Portoviejo	
+3665900	Villavicencio	gn	Villavicencio	
+1874533	Mangyongdae	wd	Man’gyŏngdae-ri	
+3468031			Camaçari	
+3701329	San Miguelito	wd	San Miguelito	
+1256728	Shahjahanpur	wd	Shāhjānpur	
+4297983	Lexington	wd	Lexington	
+6958518			Tantou	
+3447212			Suzano	
+3472287			Anápolis	
+1876401	Kaech'ŏn	wd	Kaech’ŏn	
+1268773	Junâgadh	wd	Jūnāgadh	
+2646003	Islington	wd	Islington	
+1571968	Hoa Lư	fix	Hoa Lư	
+3556969	Holguín	gn	Holguín	
+1520316	Öskemen	wd	Ust-Kamenogorsk	reviewed
+1818209	Tsuen Wan	wd	Tsuen Wan	
+2437798	Zinder	wd	Zinder	
+498698	Saransk	wd	Saransk	
+99762	Diwaniya	wd	Al Diwaniyah	
+726050	Varna	wd	Varna	
+1177384	Hafizabad	wd	Hafizabad	
+12278193	Marne-la-Vallée	fix	Marne La Vallée	
+1633118			Palangkaraya	
+358448	Damanhur	wd	Damanhur	
+1181096	Chiniot	wd	Chiniot	
+3671916	Popayán	gn	Popayán	
+2639577	Reading	wd	Reading	
+159908	Geita	wd	Geita	
+680963	Constanța	wd	Constanţa	
+1261481	New Delhi	wd	New Delhi	
+734077	Thessalonique	wd	Thessaloníki	
+2244802	Thiès	wd	Thiès	
+1856035	Naha	wd	Naha	
+5387877	Riverside	wd	Riverside	
+2038569	Baicheng	wd	Baicheng	
+3698304	Chimbote	wd	Chimbote	
+3182351	Bari	wd	Bari	
+3470353			Barueri	
+4683416	Corpus Christi	wd	Corpus Christi	
+1254187	Thrissur	wd	Thrissur	
+569223	Tcherepovets	wd	Cherepovets	
+3658192	Durán	wd	Eloy Alfaro	reviewed
+99131	Kut	wd	Al-Kut	
+1732869	Muar	wd	Muar	
+739549			Şişli	
+4297999			Lexington-Fayette	
+2228373	Maroua	wd	Maroua	
+2645425	Kingston-upon-Hull	wd	Kingston upon Hull	
+2639912	Preston	wd	Preston	
+2036434			Lianshan	
+317109	Denizli	wd	Denizli	
+2338313	Ikeja	wd	Ikeja	
+7799991	Nouveau Caire	wd	New Cairo	
+3444924	Vitória	gn	Vitória	
+3673164			Palmira	
+472459	Vologda	wd	Vologda	
+1711082	Iligan	wd	Iligan City	
+2525068	Catane	wd	Catania	
+1261258	Nizamabad	wd	Nizāmābād	
+4508722	Cincinnati	wd	Cincinnati	
+1214189	Percut	wd	Percut	
+3530517	Coatzacoalcos	wd	Coatzacoalcos	
+5392900	Santa Ana	wd	Santa Ana	
+1870883	Sariwŏn	wd	Sariwŏn-si	
+1016670	Botshabelo	wd	Botshabelo	
+1722186	Butuan	gn	Butuan	
+143860	Chahriar	wd	Shahrīār	
+120292	Qods	wd	Qods	
+9871722			Gia Lâm	
+1501321	Kourgan	wd	Kurgan	
+3516355	Tampico	wd	Tampico	
+2566696			Akowonjo	
+1721281	Cabuyao	wd	Cabuyao	
+149658	Tabora	wd	Tabora	
+1859891	Kasugai	wd	Kasugai	
+1594308			An Nhơn	
+2566676	Alimosho	wd	Alimosho	
+4003757			Ciudad Benito Juárez	
+2867543	Münster	gn	Münster	
+2873891	Mannheim	wd	Mannheim	
+1641134	Karawang	wd	Karawang	
+2113126	Akita	gn	Akita	
+1254089	Tumkur	wd	Tumkūr	
+1846052	Jinju	wd	Chinju	
+1260341	Parbhani	wd	Parbhani	
+1270022	Hisar	wd	Hisar	
+1843491	Iksan	wd	Iksan	
+1271885	Firozabad	wd	Fīrozābād	
+3474574	Palmas	gn	Palmas	
+473249	Vladikavkaz	wd	Vladikavkaz	
+3718420	Port-de-Paix	wd	Port-de-Paix	
+358048	Damiette	wd	Damietta	
+3429886	Posadas	wd	Posadas	
+6317872	Parauapebas	wd	Parauapebas	
+1016181	Brakpan	wd	Brakpan	
+5399020	Stockton	wd	Stockton	
+3397147			Juazeiro do Norte	
+1848373	Yokkaichi	wd	Yokkaichi	
+1265711	Kulti	wd	Kulti	
+3515463			Tláhuac	
+2323675	Sapele	wd	Sapele	
+128476	Kachan	wd	Kashan	
+6861211			Kāshān	
+5206379	Pittsburgh	wd	Pittsburgh	
+3689560	Armenia	wd	Armenia	
+3984583	Santa Catarina	wd	Santa Catarina	
+149703	Sumbawanga	wd	Sumbawanga	
+515012	Orel	wd	Orël	
+1847966	Akashi	wd	Akashi	
+8616127			Hai Bà Trưng	
+1858088	Kurume	wd	Kurume	
+2778067	Graz	wd	Graz	
+5045360	Saint Paul	wd	Saint Paul	
+1572532			Nghi Sơn	
+1267708	Karnal	wd	Karnāl	
+1815482	Changyi	wd	Changyi	
+3439101	Ciudad del Este	wd	Ciudad del Este	
+350203	Rosette	wd	Rosetta	
+1277029	Bardhaman	wd	Barddhamān	
+1640660	Kediri	wd	Kediri	
+897045	Solwezi	wd	Solwezi	
+2954172	Augsbourg	wd	Augsburg	
+3106672	Valladolid	wd	Valladolid	
+1738050	Miri	wd	Miri	
+1789262	Xinyi	wd	Xinyi	
+1170880	Mardan	wd	Mardan	
+1490624	Sourgout	wd	Surgut	
+2636432	Swansea	wd	Swansea	
+1688830	San Pablo	wd	San Pablo	
+2641673	Newcastle upon Tyne	wd	Newcastle upon Tyne	
+11679708	Ozhukarai	wd	Gundupālaiyam	reviewed
+3445451			Várzea Grande	
+5959974	Gatineau	wd	Gatineau	
+1725115	Binan	wd	Biñan	
+3632308	Mérida	wd	Mérida	
+363807			Winejok	
+1787323			Yangshuo	
+1803364			Linqu	
+3980760	Uruapan	wd	Uruapan	
+1282931	Lalitpur	wd	Pātan	reviewed
+1514019	Ferghana	wd	Fergana	
+3865086	Bahía Blanca	wd	Bahía Blanca	
+1687687			Santol	
+2250805	Kaolack	wd	Kaolack	
+1642588	Jember	wd	Jember	
+2130658	Aomori	wd	Aomori	
+1277065	Barasat	wd	Bārāsat	
+12165955			Mulugu	
+3463030	Foz do Iguaçu	gn	Foz do Iguaçu	
+1275716	Bihar Sharif	wd	Bihār Sharīf	
+1624494	Tegal	wd	Tegal	
+558418	Grozny	wd	Grozny	
+2316702	Boma	wd	Boma	
+1277539	Bally	wd	Bāli	
+1794209	Pu'er	fix	Pu'er	
+1258599			Rāmpur	
+1273491	Darbhanga	wd	Darbhanga	
+1260476	Pânipat	wd	Panipat	
+776069	Białystok	wd	Białystok	
+8461573			Mwene	
+3448744	São José	wd	São José	
+2246512	Rufisque	wd	Rufisque	
+524305	Mourmansk	wd	Murmansk	
+1254360	Tirupati	wd	Tirupati	
+2637433	Southend-on-Sea	wd	Southend-on-Sea	
+3454031	Petrópolis	gn	Petrópolis	
+3461789			Guarujá	
+3460845			Itajaí	
+5072006	Lincoln	wd	Lincoln	
+8531735			Phu Quoc	
+1817240	Baiyin	wd	Baiyin	
+2112923	Fukushima	wd	Fukushima	
+3161732	Bergen	wd	Bergen	
+6954929	Greater Noida	wd	Greater Noida	
+7279746	Noida	wd	Noida	
+484646	Tambov	wd	Tambov	
+3105976	Vigo	wd	Vigo	
+1279186	Aizawl	wd	Aizawl	
+1650217	Banjarbaru	wd	Banjarbaru	
+8616118			Thanh Xuân	
+109571	Al-Hufuf	wd	Al Hufūf	
+3530757	Cholula	wd	Cholula	
+1271715	Gandhinagar	wd	Gandhinagar	
+1519422	Semeï	wd	Semey	
+8616113			Cầu Giấy	
+1272543	Dindigul	wd	Dindigul	
+3453186			Ponta Grossa	
+1810295	Gaozhou	wd	Gaozhou	
+1175088	Kamoke	wd	Kamoke	
+3458575			Limeira	
+1254649	Tanjavûr	wd	Thanjavur	
+946877	Kariega	fix	Kariega	
+325330	Adıyaman	wd	Adıyaman	
+109101			Al Mubarraz	
+3429577	Resistencia	wd	Resistencia	
+610529	Atyraou	wd	Atyrau	
+2111834	Morioka	wd	Morioka	
+1788245	Xiuying	fix	Xiuying	
+3628473	San Cristóbal	wd	San Cristóbal	
+1646494			Cileungsir	
+1267755	Karimnagar	wd	Karīmnagar	
+6174041	Victoria	wd	Victoria	
+5879400	Anchorage	wd	Anchorage	
+1273066			Dewas	
+2505572	Batna	wd	Batna	
+598316	Kaunas	wd	Kaunas	
+1255744	Sonipat	wd	Sonīpat	
+3654533	Machala	wd	Machala	
+2809346	Wiesbaden	wd	Wiesbaden	
+4300488	Meads	wd	Meads	
+916095	Kabwe	wd	Kabwe	
+2040893	Sinuiju	wd	Sinŭiju	
+1862033	Ibaraki	wd	Ibaraki	
+1591449	Bắc Ninh	wd	Bắc Ninh	
+1269834	Ichalkaranji	wd	Ichalkaranji	
+1570357	Phú Mỹ	wd	Phú Mỹ	
+3466489	Ceilândia	wd	Ceilândia	
+3096472	Katowice	wd	Katowice	
+752850	Adapazarı	wd	Adapazarı	
+681290	Cluj-Napoca	wd	Cluj-Napoca	
+1842030	Gunpo	wd	Gunpo	
+877401	Songea	wd	Songea	
+217562	Butembo	wd	Butembo	
+3928128	Tacna	wd	Tacna	
+1818558	Tin Shui Wai	wd	Tin Shui Wai	
+1575627	Long Xuyen	gn	Long Xuyên	
+1349452	Sabhar	wd	Savar	
+1276070	Bathinda	gn	Bathinda	
+5505411	Henderson	wd	Henderson	
+1269395	Jalna	wd	Jālna	
+11808941			Sekondi	
+3449072	São Gonçalo	wd	São Gonçalo	
+10858926			Kyengera	
+4469146	Greensboro	wd	Greensboro	
+294801	Haïfa	wd	Haifa	
+2624652	Aarhus	wd	Århus	
+1812990	Dengzhou	fix	Dengzhou	
+1281743	Artux	wd	Artux	
+1845136	Chuncheon	wd	Chuncheon	
+3487903			Alto Barinas	
+2248477	M'bour	wd	Mbour	
+2654710	Brighton	wd	Brighton	
+2892794	Karlsruhe	wd	Karlsruhe	
+2088122	Port Moresby	wd	Port Moresby	
+360686	Al-Minya	wd	Minya	
+4719457	Plano	wd	Plano	
+3395503			Marabá	
+2112664	Ichihara	gn	Ichihara	
+1798097	Qibao	wd	Qibao	
+10263153			Kirāri Sulemānnagar	
+1720840			Cainta	
+1257022	Satna	wd	Satna	
+2165798	Geelong	wd	Geelong	
+710735	Tchernihiv	wd	Chernihiv	
+1529046	Xinyuan	fix	Xinyuan	
+3466296			Chapecó	
+1588129			Ba Vì	
+3868626	Valparaíso	wd	Valparaíso	
+3938527	Ica	wd	Ica	
+1259166	Purnia	wd	Purnia	
+5101798	Newark	wd	Newark	
+3680450			Itagüí	
+3522732	Ciudad Nicolás Romero	wd	Nicolás Romero	
+747014	Gebze	wd	Gebze	
+1043893	Lichinga	wd	Lichinga	
+1185117	Narsingdi	wd	Narsingdi	
+737071			Zeytinburnu	
+3068799	Ostrava	wd	Ostrava	
+2467454	Sfax	wd	Sfax	
+3513966	Zumpango de Ocampo	wd	Zumpango	
+11238838	Merkez Efendi	wd	Merkezefendi	
+5261457	Madison	wd	Madison	
+1217662	Boukhara	wd	Bukhara	
+2171507	Wollongong	wd	Wollongong	
+3444876			Volta Redonda	
+4407066	Saint-Louis	wd	St. Louis	
+696643	Poltava	wd	Poltava	
+3447259			Sumaré	
+2343983	Efon Alaaye	wd	Efon-Alaaye	
+1215355	Binjai	wd	Binjai	
+1214204	Pematang Siantar	wd	Pematangsiantar	
+509820	Petrozavodsk	wd	Petrozavodsk	
+1811720	Enshi	wd	Enshi	
+484907	Taganrog	wd	Taganrog	
+3627047	Santa Teresa del Tuy	wd	Santa Teresa del Tuy	
+1568770	Quảng Ngãi	wd	Quảng Ngãi	
+1216311	Karchi	wd	Qarshi	
+1793419			Tanghe	
+3530569			Coacalco	
+3667983	Sincelejo	gn	Sincelejo	
+418710	Khomeynishahr	wd	Khomeynī Shahr	
+543878	Kostroma	wd	Kostroma	
+1269771	Imphāl	wd	Imphal	
+2288829	Gagnoa	fix	Gagnoa	
+1884382	Bedok	wd	Bedok New Town	
+1880159			Ulu Bedok	
+2325314	Owo	wd	Owo	
+1835648	Suncheon	wd	Suncheon	
+12269572			Fangchenggang	
+2021851	Komsomolsk-sur-l'Amour	wd	Komsomolsk-on-Amur	
+1185056	Abbottabad	wd	Abbottabad	
+1804866	Kaili	wd	Kaili	
+2130188	Hakodate	wd	Hakodate	
+2279755	Yamoussoukro	wd	Yamoussoukro	
+2505854	Bab Ezzouar	wd	Bab Ezzouar	
+2973783	Strasbourg	wd	Strasbourg	
+1257845	Sagar	wd	Saugor	
+1671467	Neihu	fix	Neihu	
+1849796	Tsu	wd	Tsu	
+8594670	Xingning	wd	Xingning	
+1803331	Linxia	wd	Linxia Chengguanzhen	reviewed
+706369	Khmelnytskyï	wd	Khmelnytskyi	
+12032137	Kusinâgar	wd	Kushinagar	
+1166652	Sadiqabad	wd	Saddiqabad	
+3654667	Loja	wd	Loja	
+1818673	Tai Po	wd	Tai Po	
+1514896	Isfara	wd	Isfara	
+3347719	Luena	wd	Luena	
+3447186			Taboão da Serra	
+1220253	Istaravchan	wd	Istaravshan	
+1529114	Tourfan	wd	Turpan	
+1258315	Rourkela	wd	Rourkela	
+1848522			Yao	
+359173	Beni Suef	wd	Banī Suwayf	
+3398269	Imperatriz	gn	Imperatriz	
+1193745			Nagar Naluākot	
+3557689	Guantanamo	gn	Guantánamo	
+1728930	Baguio	wd	Baguio	
+289888	Al Rayyan	wd	Ar Rayyān	reviewed
+965289	Polokwane	wd	Polokwane	
+3196359	Ljubljana	wd	Ljubljana	
+1139715	Jalalabad	wd	Jalālābād	
+170794	Deir ez-Zor	wd	Deir ez-Zor	
+3121424	Gijón	gn	Gijón	
+3450083			Santa Maria	
+3392998			Parnamirim	
+106297	Hafar Al-Batin	wd	Hafar Al-Batin	
+1860704	Kakogawa	wd	Kakogawachō-honmachi	
+9645072			Quận Sáu	
+1574023	Mỹ Tho	wd	Mỹ Tho	
+2111901			Mito	
+2651347	Derby	wd	Derby	
+339219	Dessie	wd	Dessie	
+1580410	Hạ Long	wd	Hạ Long	
+2921466	Gelsenkirchen	wd	Gelsenkirchen	
+12492660	Longling	fix	Longling County	
+710791	Tcherkassy	wd	Cherkasy	
+1702540	Malolos	wd	Malolos	
+2637487	Southampton	wd	Southampton	
+1732901			Kapar	
+748879	Çorum	wd	Çorum	
+1529435			Ghulja	
+3430697	Merlo	wd	Merlo	
+1884138	Yeosu	wd	Yeosu	
+1272181	Durg	wd	Durg	
+1810979	Fuling	wd	Fuling	
+1841066	Mokpo	wd	Mokpo	
+1283581	Birganj	wd	Birgañj	
+466806	Iochkar-Ola	wd	Yoshkar-Ola	
+7838895	Russeifa	wd	Russeifa	
+1215502	Banda Aceh	wd	Banda Aceh	
+349158	Shibin El Kom	wd	Shibīn al Kawm	
+1170295	Mirpur Khas	wd	Mirpur Khas	
+7289760	Sengkang	fix	Sengkang New Town	
+3682385			Floridablanca	
+1850158	Tokushima	gn	Tokushima	
+487495	Sterlitamak	wd	Sterlitamak	
+1278672	Anantapur	wd	Anantapur	
+1841598	Gyeongsan	wd	Gyeongsan-si	
+347796	Sohag	wd	Sohag	
+1856199			Nagaoka	
+3717588	Saint-Marc	gn	Saint-Marc	
+3462315			Governador Valadares	
+3449319	São Carlos	gn	São Carlos	
+1185281	Bagerhat	wd	Bagerhat	
+13680149			Az-Zuhūr	
+1581047	Hà Tĩnh	wd	Hà Tĩnh	
+6141256	Saskatoon	wd	Saskatoon	
+1786640	Chengzhong	fix	Chengzhong	
+2500017	Djelfa	wd	Djelfa	
+5336899	Chula Vista	wd	Chula Vista	
+1852225	Shimonoseki	wd	Shimonoseki	
+5174035	Toledo	wd	Toledo	
+2034312	Ulan Hot	wd	Ulanhot	
+158027	Kibaha	wd	Kibaha	
+2036670	Fularji	fix	Hulan Ergi	
+3031582	Bordeaux	wd	Bordeaux	
+3247449	Aix-la-Chapelle	wd	Aachen	
+2797656	Gand	wd	Gent	
+3462089			Gravataí	
+3740007	Cité Soleil	wd	Cité Soleil	
+1701472			Mantampay	
+1258342	Ratlam	wd	Ratlām	
+4004886	Nogales	wd	Nogales	
+380148	Ed Daein	wd	El Daein	
+136256	Dezfoul	wd	Dezful	
+1812521	Donghai	fix	Donghai	
+1842025	Gunsan	wd	Gunsan	
+3394682			Mossoró	
+3458266			Macaé	
+1258451	Ranipet	wd	Rānipet	
+1336142	Brahmanbaria	wd	Brāhmanbāria	
+2392087	Porto-Novo	wd	Porto-Novo	
+710719	Tchernivtsi	wd	Chernivtsi	
+5099836	Jersey City	wd	Jersey City	
+3654410	Manta	wd	Manta	
+5511077	Reno	wd	Reno	
+2389422	Bégoua	wd	Bégoua	
+3652350	Riobamba	wd	Riobamba	
+300619	Sivas	wd	Sivas	
+3464460	Dourados	gn	Dourados	
+3450909			Rondonópolis	
+2633691	Wolverhampton	wd	Wolverhampton	
+1806988	Huayin	wd	Huayin	
+1632228	Pasarkemis	wd	Pasarkemis	
+1819873	Fanling	wd	Fanling	
+1678836	Chiayi	wd	Chiayi City	
+1812228	Dongtai	fix	Dongtai	
+11611632	Fuchū	wd	Fuchū	
+1881953			Jurong Town	
+124877	Maragha	wd	Marāgheh	
+124878			Marāgheh	
+3429652	Quilmes	wd	Quilmes	
+1863985	Fukui	wd	Fukui-shi	
+7302826	Lal Bahadur Nagar	wd	Lal Bahadur Nagar	
+2869894	Mönchengladbach	wd	Mönchengladbach	
+13060482			Bagong Silang	
+686967	Jytomyr	wd	Zhytomyr	
+1529401	Karamay	wd	Karamay	
+1278483	Arrah	wd	Arrah	
+2034400	Tongliao	wd	Tongliao	
+161218	Bariadi	wd	Bariadi	
+1069166	Antsirabe	wd	Antsirabe	
+5289282	Chandler	wd	Chandler	
+363619	Yei	wd	Yei	
+634963	Tampere	gn	Tampere	
+1062663	Mahajanga	wd	Mahajanga	
+13353696	Minato	fix	Minato City	
+4920423	Fort Wayne	wd	Fort Wayne	
+2640194	Plymouth	wd	Plymouth	
+1799471	Haidong	fix	Nianbo	
+1164709	Skardu	fix	Skardu	
+1701053	Marawi	wd	Marawi City	
+3464305			Embu das Artes	
+1512979	Kokand	wd	Qo‘qon	
+1684712	Tacloban	wd	Tacloban	
+3388441			São José de Ribamar	
+1815669			Changle	
+7302833	Gajuwaka	wd	Gajuwaka	
+2036458	Jining	fix	Jining	
+293703	Rishon LeZion	wd	Rishon LeTsiyyon	
+1862462	Hiratsuka	wd	Hiratsuka	
+2636841	Stoke-on-Trent	wd	Stoke-on-Trent	
+5110629	Buffalo	wd	Buffalo	
+3164527	Vérone	wd	Verona	
+1584071	Đà Lạt	wd	Ðà Lạt	
+3836564	San Salvador de Jujuy	wd	San Salvador de Jujuy	
+4464368	Durham	wd	Durham	
+1271987	Etawah	wd	Etāwah	
+3104499	Vitoria-Gasteiz	fix	Gasteiz / Vitoria	
+10942183			Rugao	
+4005775	Gómez Palacio	wd	Gómez Palacio	
+4171563	St. Petersburg	wd	St. Petersburg	
+3120619			L'Hospitalet de Llobregat	
+3099424	Gdynia	wd	Gdynia	
+1646559	Cilacap	wd	Cilacap	
+5359777	Irvine	wd	Irvine	
+5992996	Kitchener	wd	Kitchener	
+1793899	Suicheng	fix	Suicheng	
+1800234	Danzhou	wd	Nada	reviewed
+3997479	Los Mochis	wd	Los Mochis	
+2051523	Bratsk	wd	Bratsk	
+3522210	Pachuca	wd	Pachuca de Soto	
+919009	Chingola	wd	Chingola	
+692194	Soumy	wd	Sumy	
+2642465	Milton Keynes	wd	Milton Keynes	
+3461311			Indaiatuba	
+4705349	Laredo	wd	Laredo	
+3397154			Juazeiro	
+12170526			Vila Flor	
+1002108	Germiston	wd	Germiston	
+2392204	Parakou	wd	Parakou	
+215771	Isiro	wd	Isiro	
+116996	Sari	wd	Sari	
+1624725	Tarakan	wd	Tarakan	
+2407790	Kenema	wd	Kenema	
+3522507	Oaxaca de Juárez	wd	Oaxaca	
+99106			Al Madīnah	
+3347019	Moçâmedes	wd	Mossamedes	
+2163355	Hobart	wd	Hobart	
+2338106	Ikot Ekpene	wd	Ikot Ekpene	
+1882316	Woodlands	wd	Woodlands	
+1897007	Hanam	wd	Hanam	
+1608133	Nonthaburi	wd	Mueang Nonthaburi	
+1169692	Muridke	wd	Muridke	
+2246452	Saint-Louis	wd	Saint-Louis	
+1735166	Batu Caves	fix	Batu Caves	
+3456068			Novo Hamburgo	
+1881955			Jurong West	
+1626916	Singkawang	wd	Singkawang	
+1336134	Cox's Bazar	wd	Cox’s Bāzār	
+3465284			Cotia	
+293918	Petah Tikva	wd	Petaẖ Tiqva	
+1513243	Marguilan	wd	Marg‘ilon	
+1278903	Ambernath	wd	Ambarnath	
+2394092	Godomey	wd	Godomè	
+1262131	Naihati	wd	Naihāti	
+683844	Braşov	gn	Braşov	
+1560565			Xuân Lộc	
+962367	Richards Bay	wd	Richards Bay	
+350550	Qena	wd	Qina	
+1276128	Bhâratpur	wd	Bharatpur	
+632453	Vantaa	wd	Vantaa	
+2735943	Porto	wd	Porto	
+2891122	Kiel	wd	Kiel	
+379555	El Fasher	wd	El Fasher	
+2244799			Thiès Nones	
+2034655	Suihua	wd	Suihua	
+3633622	Los Teques	wd	Los Teques	
+3835869	Santiago del Estero	wd	Santiago del Estero	
+2481700	Sétif	wd	Sétif	
+1276609	Begusarai	wd	Begusarai	
+140044	Boroudjerd	wd	Borūjerd	
+32767	Qarchak	wd	Qarchak	
+325303	Afyonkarahisar	wd	Afyonkarahisar	
+311111	Alexandrette	wd	İskenderun	
+3395473			Maracanaú	
+2325457			Ota	
+179330	Thika	wd	Thika	
+1690039	San Fernando	wd	San Fernando	
+3347353	Menongue	wd	Menongue	
+3460370			Jacareí	
+333772	Jimma	wd	Jimma	
+665087	Timișoara	wd	Timişoara	
+3537906	Santa Clara	gn	Santa Clara	
+2336905	Iwo	wd	Iwo	
+3119841	A Coruña	wd	A Coruña	
+1706684			Libertad	
+4000900	La Paz	wd	La Paz	
+95005	Kalar	wd	Kelar	
+787657	Niš	wd	Niš	
+366847	Singa	wd	Singa	
+3872348			San Bernardo	
+1851604			Sōka	
+925475	Mzuzu	wd	Mzuzu	
+1697846	Navotas	wd	Navotas	
+1254320	Tiruvottiyur	wd	Tiruvottiyūr	
+5911606	Burnaby	wd	Burnaby	
+5525577	Lubbock	wd	Lubbock	
+1582497			Thị Trấn Đông Triều	
+2110556			Yamagata	
+3516109	Tehuacán	wd	Tehuacán	
+3640049	Guarenas	wd	Guarenas	
+3432555	Gregorio de Laferrère	wd	Laferrere	
+2992166	Montpellier	wd	Montpellier	
+2336056	Jimeta	wd	Jimeta	
+3100946	Częstochowa	wd	Częstochowa	
+1271717	Gandhidham	wd	Gāndhīdhām	
+1816790			Beibei	
+1321937	Insein	wd	Insein	
+2634341	Westminster	wd	City of Westminster	
+5295903	Gilbert	wd	Gilbert	
+2940132	Chemnitz	wd	Chemnitz	
+3841956	Paraná	wd	Paraná	
+3583446	San Miguel	wd	San Miguel	
+1916862	Shijie	fix	Shijie	
+145778	Chitato	wd	Chitato	
+514734	Orsk	wd	Orsk	
+944986	Vanderbijlpark	wd	Vanderbijlpark	
+3645213	Coro	wd	Coro	
+3472343			Americana	
+1529484	Hami	fix	Hami	
+933773	Gaborone	wd	Gaborone	
+353229			Al ‘Āshir min Ramaḑān	
+1263311	Mau	wd	Mau	
+3874960	Puerto Montt	wd	Puerto Montt	
+2641430	Northampton	wd	Northampton	
+3937513	Juliaca	wd	Juliaca	
+1864134	Fuji	wd	Fuji	
+1841603	Gyeongju	wd	Gyeongju	
+6316328	Águas Lindas de Goiás	wd	Águas Lindas de Goiás	
+2281606	Sinfra	wd	Sinfra	
+485239	Syktyvkar	wd	Syktyvkar	
+132892	Gorgan	wd	Gorgān	
+1497543	Nijnevartovsk	wd	Nizhnevartovsk	
+1165569	Shahkot	wd	Shahkot	
+2755251	Groningue	wd	Groningen	
+1283582	Biratnagar	wd	Biratnagar	
+2945024	Brunswick	gn	Braunschweig	
+3625542	Valera	wd	Valera	
+1256320	Sikar	wd	Sīkar	
+1300466	Pégou	wd	Bago	
+2874545	Magdebourg	wd	Magdeburg	
+3648439	Baruta	fix	Baruta	
+3458142	Magé	wd	Magé	
+738648	Trabzon	wd	Trabzon	
+7289169	Tri-Cities	wd	Tri-Cities	
+1336140	Jessore	wd	Jessore	
+304827	Manisa	wd	Manisa	
+3407327			Arapiraca	
+695594	Rivne	wd	Rivne	
+1214369	Padang Sidempuan	wd	Padangsidempuan	
+1630634	Probolinggo	wd	Probolinggo	
+118063	Sabzevar	wd	Sabzevar	
+12042053			Musaffah	
+1852899	Sasebo	wd	Sasebo	
+2027667	Angarsk	wd	Angarsk	
+8347656	Ramagundam	wd	Ramagundam	
+1270393	Hapur	wd	Hāpur	
+1864624	Chigasaki	wd	Chigasaki	
+1623502			Toli-Toli	
+1864518			Chōfu	
+64435	Berbera	wd	Berbera	
+1805012	Jiyuan	wd	Jiyuan	
+11611478	Yamato	wd	Yamato	
+2284647	Man	wd	Man	
+1183883	Bahawalnagar	wd	Bahawalnagar	
+1332083			Bahawalnagar	
+518255	Novorossiïsk	wd	Novorossiysk	
+2110681	Tsukuba	wd	Tsukuba	
+3899361	Arica	wd	Arica	
+3876682			Peñalolén	
+3451055	Rio Verde	wd	Rio Verde	
+1804386			Laohekou	
+1581326	Hai Duong	wd	Hải Dương	
+4499612	Winston-Salem	wd	Winston-Salem	
+1271942	Farrukhabad	wd	Farrukhābād	
+1857519	Matsumoto	wd	Matsumoto	
+1278985	Alleppey	wd	Alappuzha	
+3460718			Itapevi	
+1267480	Katihar	wd	Katihar	
+3688451	Buenaventura	gn	Buenaventura	
+3645527	Ciudad Ojeda	fix	Ciudad Ojeda	
+1809571			Gucun	
+5295985	Glendale	wd	Glendale	
+1788268			Xiulin	
+13607978			Navegantes	
+3460950			Itaboraí	
+1732905	Kelang	wd	Klang	
+32900	Golestan	wd	Golestān	
+550280	Khimki	wd	Khimki	
+707753	Horlivka	wd	Horlivka	
+1035025	Nacala	wd	Nacala	
+1790371	Xiantao	wd	Xiantao	
+523523	Naltchik	wd	Nalchik	
+2130203			Hachinohe	
+3447624			Sete Lagoas	
+1839652	Osan	wd	Osan	
+2998324	Lille	wd	Lille	
+6697563	Neyagawa	wd	Neyagawa	
+1697018	Ormoc	wd	Ormoc	
+3468615	Cabo Frio	wd	Cabo Frio	
+3523760	La Magdalena Contreras	wd	Magdalena Contreras	
+1185159			Nāgarpur	
+158214	Kasulu	wd	Kasulu	
+707471	Ivano-Frankivsk	wd	Ivano-Frankivsk	
+2224827	Ngaoundéré	wd	Ngaoundéré	
+322165	Balıkesir	wd	Balıkesir	
+3870011	Temuco	wd	Temuco	
+4776222	Norfolk	wd	Norfolk	
+2884509	Krefeld	wd	Krefeld	
+2911522	Halle-sur-Saale	wd	Halle (Saale)	
+1271685	Sri Ganganagar	wd	Sri Ganganagar	
+3457692	Marília	gn	Marília	
+1329221	Amarapura	wd	Amarapura	
+10402606			Kilamba	
+143534	Amol	wd	Āmol	
+2925177	Fribourg-en-Brisgau	wd	Freiburg	
+1726280			Batangas	
+109435	al-Jubayl	wd	Al Jubayl	
+1868144	Tŏkch'ŏn	wd	Tŏkch’ŏn	
+2641022	Oldham	wd	Oldham	
+1328421	Pathein	wd	Pathein	
+4158476	Hialeah	wd	Hialeah	
+1172657			Kunri	
+1185099	Sylhet	wd	Sylhet	
+3363094	Paarl	wd	Paarl	
+4693003	Garland	wd	Garland	
+3193044	Podgorica	wd	Podgorica	
+5313457	Scottsdale	wd	Scottsdale	
+3461655			Hortolândia	
+4700168	Irving	wd	Irving	
+1105777	Centurion	wd	Centurion	
+1786731	Qingzhou	wd	Qingzhou	
+9478811	Pakdasht	wd	Pākdasht	
+10941913	Kajang	wd	Kajang	
+2756253	Eindhoven	gn	Eindhoven	
+5586437	Boise	wd	Boise	
+1258182	Rewa	wd	Rewa	
+2013159	Iakoutsk	wd	Yakutsk	
+8521718	Bole	wd	Bole	
+1169605	Muzaffargarh	wd	Muzaffargarh	
+4752186	Chesapeake	wd	Chesapeake	
+1253880	Ulubaria	wd	Uluberiya	
+3461144			Ipatinga	
+1814093	Dali	wd	Dali	
+418606	Nadjafabad	wd	Najafābād	
+8594709	Thanh Pho Ba Ria	gn	Thành Phố Bà Rịa	
+3378644	Georgetown	wd	Georgetown	
+1790471	Xiangxiang	wd	Xiangxiang	
+55671	Kismaayo	wd	Kismayo	
+5509403	North Las Vegas	wd	North Las Vegas	
+2518559	Elche	wd	Elche	
+3452324			Presidente Prudente	
+1255947	Sivakasi	wd	Sivakasi	
+212902	Kindu	wd	Kindu	
+1179837			Digri	
+521118	Nijnekamsk	wd	Nizhnekamsk	
+1267648	Karur	wd	Karur	
+1637158	Lubuklinggau	wd	Lubuklinggau	
+680332	Craiova	wd	Craiova	
+1259012	Raichur	wd	Rāichūr	
+1260692	Pallavaram	wd	Pallāvaram	
+3612907			Danlí	
+1665221	Yongkang	fix	Yongkang	
+2410048	Bo	wd	Bo	
+2517117	Granada	wd	Granada	
+1253993	Ooty	wd	Ooty	
+1853303	Saga	gn	Saga	
+1684269	Tagum	wd	Magugpo Poblacion	reviewed
+563708	Dzerjinsk	wd	Dzerzhinsk	
+1028918	Pemba	wd	Pemba	
+11101805	Geoje	wd	Geoje	
+1735459	Teluk Intan	wd	Teluk Intan	
+149879	Singida	wd	Singida	
+157738	Kigoma	wd	Kigoma	
+3465927			Colombo	
+5350734	Fremont	wd	Fremont	
+3445156	Viamão	gn	Viamão	
+1280957	Jiayuguan	wd	Jiayuguan	
+145459	Abadan	wd	Abadan	
+1682598			Taytay	
+13589354			Phổ Yên	
+3843123	Neuquén	wd	Neuquén	
+3464688			Divinópolis	
+1219649	Türkmenabat	wd	Türkmenabat	
+1567621	Sơn Tây	wd	Sơn Tây	
+1571951	Ninh Hòa	wd	Ninh Hòa	
+1736372			Pasir Mas	
+1630328	Purwokerto	wd	Purwokerto	
+12076997	José C. Paz	wd	José C. Paz	
+54225	Merka	wd	Marka	reviewed
+1260716	Pali	wd	Pāli	
+2349019			Atani	
+701822	Marioupol	wd	Mariupol	
+355795	Helwan	wd	Ḩalwān	
+2036713	Huanren	fix	Huanren	
+7843638			Changzheng	
+1859884	Kasukabe	wd	Kasukabe	
+2970479	Paris 15e	fix	Paris 15 Vaugirard	
+6182962	Windsor	wd	Windsor	
+1269934	Hosur	wd	Hosūr	
+5811696	Spokane	wd	Spokane	
+266826	Tripoli	wd	Tripoli	
+6059891	Longueuil	wd	Longueuil	
+741100	Ordu	wd	Ordu	
+3805673	San Fernando de Apure	wd	San Fernando de Apure	
+3727135	Croix-des-Bouquets	wd	Croix-des-Bouquets	
+1705357	Lucena	wd	Lucena	
+1882155	Yishun	fix	Yishun New Town	
+1253084	Vizianagaram	wd	Vizianagaram	
+1805733	Jinchang	wd	Jinchang	
+1571058	Phan Thiet	gn	Phan Thiết	
+102651			Şabyā	
+294071	Netanya	wd	Netanya	
+3124964	Ciudad Lineal	wd	Ciudad Lineal	
+1699802	Meycauayan	wd	Meycauayan	
+2350434			Aliayabiagba	
+2655775	Bexley	wd	Bexley	
+3571824	Nassau	wd	Nassau	
+3437056	San Lorenzo	wd	San Lorenzo	
+2983990	Rennes	wd	Rennes	
+2542051	Mohammédia	gn	Mohammedia	
+3639898	Guatire	wd	Guatire	
+1624863	Tanjung Pinang	wd	Tanjung Pinang	
+4315588	Baton Rouge	wd	Baton Rouge	
+3465196			Criciúma	
+3085128	Sosnowiec	wd	Sosnowiec	
+1517945	Turkestan	wd	Turkistan	
+989921	Klerksdorp	wd	Klerksdorp	
+487928	Stary Oskol	wd	Staryy Oskol	
+1865714	Ageo	gn	Ageo	
+2339937	Gusau	wd	Gusau	
+709932	Kamianske	wd	Kamyanske	
+295629	Ashdod	wd	Ashdod	
+760778	Radom	wd	Radom	
+13100478			Paya Terubong	
+4781708	Richmond	wd	Richmond	
+1679136	Changhua	wd	Chang-hua	
+1993459	Changhua	wd	Changhua	
+1583478			Điện Bàn	
+1851012	Takarazuka	wd	Takarazuka	
+2416969	Nzérékoré	wd	Nzérékoré	
+6119109	Regina	wd	Regina	
+1586443	Cà Mau	wd	Cà Mau	
+1256422	Serampore	wd	Shrīrāmpur	
+1632654	Pangkal Pinang	wd	Pangkalpinang	
+1807508			Huanggang	
+7302845	Quthbullapur	wd	Quthbullapur	
+2329821	Mubi	wd	Mubi	
+112214	Varamin	wd	Varāmīn	
+1649824	Batu	wd	Batu	
+6951112	Somerset West	wd	Somerset West	
+2643339	Luton	wd	Luton	
+691650	Ternopil	wd	Ternopil	
+1648637	Bitung	wd	Bitung	
+1185162	Mymensingh	wd	Mymensingh	
+2026609	Blagovechtchensk	fix	Blagoveshchensk	
+1262292	Nadiad	wd	Nadiād	
+2229752	Kumba	wd	Kumba	
+724443	Košice	wd	Košice	
+704147	Krementchouk	wd	Kremenchuk	
+1805618	Jingling	fix	Jingling	
+1262204	Nagercoil	wd	Nāgercoil	
+3903987	Sucre	wd	Sucre	
+884979	Mutare	wd	Mutare	
+1853677	Ōta	wd	Ōta	
+3991328	Puerto Vallarta	wd	Puerto Vallarta	
+1857144			Minamirinkan	
+2965140	Cork	wd	Cork	
+1847963	Atsugi	wd	Atsugi	
+2036973	Heihe	wd	Heihe	
+13353441			Mango	
+6318696			Sinop	
+3383330	Paramaribo	wd	Paramaribo	
+1639850	Klungkung	fix	Klungkung	
+1185155	Narayanganj	wd	Narayanganj	
+1680116	Valencia	wd	NIA Valencia	
+1795196			Tongchuanshi	
+3893894	Concepción	wd	Concepción	
+98717	Ramadi	wd	Ramadi	
+5509952	Paradise	wd	Paradise	
+5812944	Tacoma	wd	Tacoma	
+2874225	Mayence	wd	Mainz	
+519336	Novgorod	wd	Velikiy Novgorod	
+1735153	Sungai Buloh	wd	Sungai Buloh	
+1692685	Puerto Princesa	wd	Puerto Princesa	
+3455478			Palhoça	
+1788618	Xintai	wd	Xintai	
+3641351	El Tigre	wd	El Tigre	
+1877615	Haeju	wd	Haeju	
+3433899	Formosa	wd	Formosa	
+2338273	Ikire	wd	Ikire	
+1805833	Jiexiu	wd	Jiexiu	
+3608248	La Ceiba	gn	La Ceiba	
+2746301	Tilbourg	wd	Tilburg	
+7289846			Ba Dinh	
+1262395	Katni	wd	Murwāra	reviewed
+153209	Moshi	wd	Moshi	
+1268159	Kanchipuram	wd	Kanchipuram	
+2464915	Sousse	fix	Sousse	
+3666645			Tuluá	
+2236967	Soyo	wd	Soyo	
+1567788	Sóc Trăng	wd	Sóc Trăng	
+2419992	Kankan	wd	Kankan	
+496015	Chakhty	wd	Shakhty	
+229268	Mbarara	wd	Mbarara	
+3458329			Luziânia	
+1697175	Olongapo	wd	Olongapo	
+3655673	Ibarra	wd	Ibarra	
+3204541	Banja Luka	wd	Banja Luka	
+122285	Nishapur	wd	Neyshābūr	
+116667	Saveh	wd	Sāveh	
+1790894	Wuxue	wd	Wuxue	
+1585489			Chí Linh	
+3531732	Campeche	wd	Campeche	
+9645086			Quận Ba	
+7279754	Singrauli	wd	Singrauli	
+1262995	Mirzapur	wd	Mirzāpur	
+3114711	Oviedo	wd	Oviedo	
+13118272			Bandar Seri Alam	
+1626542	Sorong	wd	Sorong	
+2524170	Messine	wd	Messina	
+1234569	Dehiwala-Mount Lavinia	fix	Dehiwala-Mount Lavinia	
+705812	Kropyvnytskyï	wd	Kropyvnytskyi	
+1266976	Kharagpur	wd	Kharagpur	
+215527	Kabinda	wd	Kabinda	
+1176515	Jacobabad	wd	Jacobabad	
+149402	Tunduma	wd	Tunduma	
+1725094	Binangonan	wd	Binangonan	
+2860410	Oberhausen	wd	Oberhausen	
+1611110	Chonburi	wd	Chon Buri	
+3450144			Santa Luzia	
+1494114	Prokopievsk	wd	Prokop’yevsk	
+12432979			Samambaia	
+2929670	Erfurt	wd	Erfurt	
+3657990	Esmeraldas	wd	Esmeraldas	
+3108286	Terrassa	gn	Terrassa	
+2656333	Barking	wd	Barking	
+1791249	Wuhai	wd	Wuhai	
+6318856	Valparaíso de Goiás	wd	Valparaíso de Goiás	
+1173664	Khuzdar	wd	Khuzdar	
+2454268	Koutiala	wd	Koutiala	
+1272051	Eluru	wd	Eluru	
+3493032	San Pedro de Macoris	gn	San Pedro de Macorís	
+677697	Galați	gn	Galaţi	
+3129028	Badalone	wd	Badalona	
+764484	Mokotów	wd	Mokotów	
+1734586	Taiping	wd	Taiping	
+12358616			Yintai	
+1252797	Yamunanagar	wd	Yamuna Nagar	
+3404545			Cabo de Santo Agostinho	
+3827606	Buenavista	wd	Buenavista	
+1178338	Gilgit	wd	Gilgit	
+500004	Rybinsk	wd	Rybinsk	
+1687894	Santa Rosa	wd	Santa Rosa	
+3387296			Sobral	
+3133880	Trondheim	wd	Trondheim	
+13308246			Raurkela Industrial Township	
+3629965	Porlamar	wd	Porlamar	
+5391710	San Bernardino	wd	San Bernardino	
+4013728	Ciudad Acuña	wd	Ciudad Acuña	
+643492	Oulu	gn	Oulu	
+1275738	Bîdâr	wd	Bidar	
+702569	Loutsk	wd	Lutsk	
+8556321			La Ceiba	
+3519537	San Cristóbal de Las Casas	wd	San Cristóbal de las Casas	
+463829	Zelenograd	fix	Zelenograd	
+11777624	Archway	wd	Archway	
+12750606			Wangsa Maju	
+5780993	Salt Lake City	wd	Salt Lake City	
+1510018	Biïsk	wd	Biysk	
+3194360	Novi Sad	wd	Novi Sad	
+1805298			Jinzhou	
+3526485	Jiutepec	wd	Jiutepec	
+1802656	Longgang	fix	Longgang	
+3995523	Monclova	wd	Monclova	
+1567069	Tan An	gn	Tân An	
+1819400			Ma On Shan	
+7090983			Commonwealth	
+4068590	Huntsville	wd	Huntsville	
+2243940	Ziguinchor	wd	Ziguinchor	
+3454857			Passo Fundo	
+1221194	Kulob	wd	Kŭlob	
+1646034			Citeureup	
+1568212	Sa Đéc	fix	Sa Dec	
+1858296	Kure	wd	Kure	
+2323411			Shagamu	
+295514	Bnei Brak	wd	Bnei Brak	
+2544248	Khouribga	wd	Khouribga	
+1786577	Yingtan	wd	Yingtan	
+4853828	Des Moines	wd	Des Moines	
+320257	Çiğli	wd	Çiğli	
+2595323	Marcory	wd	Marcory	
+1178231	Gojra	wd	Gojra	
+2520058	Carthagène	fix	Cartagena	
+3652567	Quevedo	wd	Quevedo	
+6092122	Oakville	wd	Oakville	
+1632033	Pasuruan	wd	Pasuruan	
+122438	Nazarabad	wd	Naz̧arābād	
+1262482	Munger	wd	Munger	
+2033824	Xilinhot	wd	Xilin Hot	
+2516326	Jerez de la Frontera	wd	Jerez de la Frontera	
+2550078	El Jadida	gn	El Jadida	
+1783700			Zitong	
+1637510	Loa Janan	wd	Loa Janan	
+665004	Târgu Mureş	gn	Târgu Mureş	
+5349755	Fontana	wd	Fontana	
+3873775	Rancagua	wd	Rancagua	
+1677112	Zhubei	wd	Zhubei	
+352951	Mallawi	wd	Mallawī	
+2302357	Cape Coast	wd	Cape Coast	
+1735079	Bukit Mertajam	wd	Bukit Mertajam	
+1706090	Lipa	wd	Lipa City	
+3432135	Lanús	wd	Lanús	
+2875601	Lübeck	wd	Lübeck	
+1801909			Luojiang	
+1734821			Sepang	
+3598119			Cobán	
+3457708	Maricá	wd	Maricá	
+1586151	Cao Lãnh	wd	Cao Lãnh	
+1861436	Isesaki	wd	Isesaki	
+3111199	Sabadell	wd	Sabadell	
+1261927	Nandyal	wd	Nandyāl	
+2511174	Santa Cruz de Tenerife	wd	Santa Cruz de Tenerife	
+6690108	Panchkula	wd	Panchkula	
+5373900	Modesto	wd	Modesto	
+1695804	Panabo	wd	Panabo	
+1813253	Lijiang	wd	Lijiang	
+1514891	Konibodom	wd	Konibodom	
+2037078	Hailar	wd	Hailar	
+1709968	Kabankalan	wd	Kabankalan	
+110690	Abha	wd	Abha	
+1275068	Burhanpur	wd	Burhānpur	
+1624041	Ternate	gn	Ternate	
+732770	Bourgas	wd	Burgas	
+504341	Pskov	wd	Pskov	
+1262775	Morvi	wd	Morvi	
+1814082	Daliang	fix	Daliang	
+3874212	Quilicura	wd	Quilicura	
+2555745	Béni Mellal	wd	Beni Mellal	
+1212405	Ashuganj	wd	Ashuganj City	
+2481007	Sidi Bel Abbès	wd	Sidi Bel Abbes	
+3568342			Arroyo Naranjo	
+1337233	Bogra	wd	Bogra	
+11524601	Jebel Ali	wd	Jebel Ali	
+1519928	Kostanaï	wd	Kostanay	
+6122085	Richmond	wd	Richmond	
+5134086	Rochester	wd	Rochester	
+1650234			Banjar	
+787607	Novi Beograd	wd	Novi Beograd	
+2043572	Kanggye	wd	Kanggye	
+1845033	Chungju	wd	Chungju	
+1278685	Anand	wd	Anand	
+3448622			São Leopoldo	
+1670909			Bade	
+3909234	Oruro	wd	Oruro	
+1817848			Bachuan	
+3500957	La Romana	gn	La Romana	
+3471859			Araçatuba	
+328689	Shashamané	wd	Shashamane	
+1808931	Hangu	fix	Hangu	
+1261045	Ongole	wd	Ongole	
+3114472	Pampelune	fix	Pamplona	
+1843137	Gangneung	wd	Gangneung	
+2639996	Portsmouth	wd	Portsmouth	
+216449	Ngandajika	wd	Gandajika	
+1809380	Gunan	fix	Gunan	
+1571067	Phan Rang - Tháp Chàm	wd	Phan Rang-Tháp Chàm	
+1646194			Ciputat	
+232110			Kasangati	
+4744709	Arlington	gn	Arlington	
+339666	Bishoftu	wd	Bishoftu	
+1850692	Nishitōkyō	wd	Nishi-Tokyo-shi	
+2045220			Changam-ch’on	
+712165	Bila Tserkva	wd	Bila Tserkva	
+5380184	Oxnard	wd	Oxnard	
+1647383			Ciampea	
+361291	Hurghada	wd	Hurghada	
+3116025	Móstoles	wd	Móstoles	
+4188985	Columbus	wd	Columbus	
+3685095			Dosquebradas	
+1681602			Toledo	
+633679	Turku	gn	Turku	
+4956184	Worcester	wd	Worcester	
+1696710	Pagadian	wd	Pagadian	
+3628423	San Felipe	wd	San Felipe	
+1203891	Dinajpur	wd	Dinajpur	
+1269935	Hospet	wd	Hosapete	
+1562818			Việt Yên	
+159492	Ifakara	wd	Ifakara	
+3346015	Sumbe	wd	Sumbe	
+2451478	Ségou	wd	Ségou	
+1578500	Kon Tum	wd	Kon Tum	
+3654870	Latacunga	wd	Latacunga	
+1261913	Nangloi Jat	wd	Nāngloi Jāt	
+1859383			Kishiwada	
+1785710	Jinghong	wd	Yunjinghong	
+977432	Mdantsane	wd	Mdantsane	
+630468	Babrouïsk	wd	Bobruysk	
+1643837	Gorontalo	wd	Gorontalo	
+120695	Qaem Shahr	wd	Qā’em Shahr	
+1165108	Shikarpur	wd	Shikarpur	
+6958503			Gongheyong	
+2772400	Linz	wd	Linz	
+1283467	Dhangadhi	wd	Dhangaḍhi̇̄	
+8544703	Nanchuan	fix	Nanchuan	
+3530240	Córdoba	wd	Córdoba	
+1816329			Bishan	
+2503826	Biskra	wd	Biskra	
+1675393	Xizhi	wd	Xizhi	
+1787592			Yanghang	
+1810437	Gaoping	fix	Gaoping	
+153176	Mpanda	wd	Mpanda	
+3165185	Trieste	wd	Trieste	
+5374732	Moreno Valley	wd	Moreno Valley	
+1256922	Secunderabad	fix	Secunderabad	
+1880348			Punggol	
+7910079	Sodo	wd	Sodo	
+3456223			Nossa Senhora do Socorro	
+2208485	Zliten	wd	Zliten	
+3171728	Padoue	gn	Padua	
+8299875			Karnaphuli	
+3550598	Las Tunas	gn	Las Tunas	
+1857550			Matsue	
+4562831	Bayamon	gn	Bayamón	
+1842936			Gimpo-si	
+6317464			Lauro de Freitas	
+1273241	Deoghar	wd	Deoghar	
+1064890	Fianarantsoa	wd	Fianarantsoa	
+1207337	Chandpur	fix	Chāndpur	
+2306079			Atsiaman	
+2317397	Bandundu	wd	Bandundu Province	
+303195	Osmaniye	wd	Osmaniye	
+142363	Babol	wd	Bābol	
+3985710	Cabo San Lucas	wd	Cabo San Lucas	
+4119403	Little Rock	wd	Little Rock	
+748893	Çorlu	wd	Çorlu	
+1636930	Madiun	wd	Madiun	
+159071	Iringa	wd	Iringa	
+721472	Debrecen	wd	Debrecen	
+1274353	Chhapra	wd	Chāpra	
+13589478			Motijheel	
+1336137	Barisal	wd	Barishal	
+6122091	Richmond Hill	wd	Richmond Hill	
+4466033	Fayetteville	wd	Fayetteville	
+2219905	Khoms	wd	Al Khums	
+5358705	Huntington Beach	wd	Huntington Beach	
+1708522	Koronadal	wd	Koronadal	
+2660646	Genève	gn	Geneva	
+4174715	Tallahassee	wd	Tallahassee	
+2636389	Swindon	wd	Swindon	
+1629710			Rengasdengklok	
+3451234			Rio Claro	
+3699088	Cajamarca	wd	Cajamarca	
+2146142	Townsville	wd	Townsville	
+8656376			Thanh Khê	
+7281017			La Pintana	
+601734	Daşoguz	wd	Daşoguz	
+5145215	Yonkers	wd	Yonkers	
+5352423	Glendale	wd	Glendale	
+1180809	Dadu	wd	Dadu	
+343663	Arba Minch	wd	Arba Minch	
+1520172	Petropavl	wd	Petropavl	
+1214658	Lhokseumawe	wd	Lhokseumawe	
+4684724	Cypress	wd	Cypress	
+1267031	Khandwa	wd	Khandwa	
+4883817	Aurora	wd	Aurora	
+1259184	Purî	wd	Puri	
+1262771	Morena	wd	Morena	
+146268	Nicosie	wd	Nicosia	
+3181554	Brescia	fix	Brescia	
+13405749			Nasimshahr	
+2320831	Ugep	wd	Ugep	
+214614	Kamina	wd	Kamina	
+100425			Yanbu	
+1856184	Nagareyama	wd	Nagareyama	
+2800481	Charleroi	wd	Charleroi	
+1576633	Lạng Sơn	wd	Lạng Sơn	
+1164045	Talhar	wd	Talhar	
+2218970	Az Zawiyah	gn	Az Zāwīyah	
+13118277			Bandar Utama	
+13118362			Bukit Jalil	
+12129605			Chakwama	
+1180752			Dajal	
+60149			El Dibir	
+1270576	Gyanpur	wd	Gyānpur	
+13512708	Nyingchi	fix	Nyingchi	
+1167648	Qadirpur Ran	wd	Qadirpur Ran	
+10920963			Salé Al Jadida	
+1626103	Sumedang	wd	Sumedang	
+3448742			São José	
+1818225	Yuen Long	wd	Yuen Long	
+1818222			Yuen Long San Hui	
+1803551	Beiliu	wd	Beiliu	
+114259	Sirdjan	wd	Sirjan	
+3887127	Iquique	wd	Iquique	
+1565047			Thuận Thanh	
+579492	Balakovo	wd	Balakovo	
+580922	Armavir	wd	Armavir	
+3460102			Jaraguá do Sul	
+6822182	Yachiyo	wd	Yachiyo	
+6545349	Saiyadpur	wd	Saidpur	
+9645071			Quận Bốn	
+361546	El-Arich	wd	Arīsh	
+1735150			Rawang	
+2650839	Dudley	wd	Dudley	
+2329660	Mushin	wd	Mushin	
+2119441	Ioujno-Sakhalinsk	wd	Yuzhno-Sakhalinsk	
+2912621	Hagen	wd	Hagen	
+1629131	Salatiga	wd	Salatiga	
+3451138	Rio Grande	wd	Rio Grande	
+3640465	Guacara	wd	Guacara	
+126972	Khoy	wd	Khūy	
+3099230	Gliwice	wd	Gliwice	
+1529569			Changji	
+11611930			Kodaira	
+13512576			Plano Piloto	
+5516233	Amarillo	wd	Amarillo	
+1275120	Bulandshahr	wd	Bulandshahr	
+13512674			Lusail	
+2657832	Aberdeen	wd	Aberdeen	
+3165926	Tarente	gn	Taranto	
+3439214	Capiatá	wd	Capiatá	
+11592398			Zango	
+1811764	Duyun	wd	Duyun	
+184707	Naivasha	wd	Naivasha	
+1804850	Kaiyuan	wd	Kaiyuan	
+3468376	Cachoeiro de Itapemirim	gn	Cachoeiro de Itapemirim	
+759734	Rzeszów	wd	Rzeszów	
+1804169			Lengshuijiang	
+2844588	Rostock	wd	Rostock	
+3171457	Parme	gn	Parma	
+1735902	Sibu	wd	Sibu	
+751868			Arnavutköy	
+1861310	Itami	wd	Itami	
+1800657			Mentougou	
+1275926	Bhind	wd	Bhind	
+5145476	Akron	wd	Akron	
+3870294	Talca	wd	Talca	
+2892518	Cassel	wd	Kassel	
+3530594	Ciudad Madero	wd	Ciudad Madero	
+1628453			Sawangan	
+2315728	Gemena	wd	Gemena	
+10263167			Bhālswa Jahangirpur	
+13512503			Lushui	
+140463	Birjand	wd	Bīrjand	
+3083271	Toruń	wd	Toruń	
+2521886	Almería	fix	Almería	
+1805798	Jiangjin	fix	Jijiang	
+1184845	Ahmedpur Sharqia	wd	Ahmadpur East	
+3696417	Huánuco	wd	Huánuco	
+11611627	Higashihiroshima	wd	Higashihiroshima	
+745028	Izmit	fix	İzmit	
+2984114	Reims	wd	Reims	
+1808950			Hanfeng	
+5814616	Vancouver	wd	Vancouver	
+4049979	Birmingham	wd	Birmingham	
+3460949	Itabuna	gn	Itabuna	
+2462881	Laâyoune	wd	Laayoune	
+1267076	Khammam	wd	Khammam	
+294751	Holon	wd	H̱olon	
+976361	Middelburg	wd	Middelburg	
+1843702			Icheon-si	
+585915	Xırdalan	wd	Khirdalan	
+1607508	Phra Pradaeng	wd	Phra Pradaeng	
+2427455	Moundou	wd	Moundou	
+1257540	Sambhal	wd	Sambhal	
+1275899	Bhiwani	wd	Bhiwāni	
+563464	Engels	wd	Engels	
+4026082	Lázaro Cárdenas	wd	Ciudad Lázaro Cárdenas	
+1024694	Mocuba	wd	Mocuba	
+1283339	Hetauda	wd	Hetauda	
+3185728	Durrës	wd	Durrës	
+2037411	Fengcheng	wd	Fengcheng	
+1851348	Suzuka	wd	Suzuka	
+12524485			Hub	
+3432043	La Plata	wd	La Plata	
+1283318	Janakpur	wd	Janakpur	
+1260434	Panvel	wd	Panvel	
+1798972	Peicheng	fix	Peicheng	
+1236854			Maharagama	
+4076784	Montgomery	wd	Montgomery	
+2792413	Liège	wd	Liège	
+1858428	Kumagaya	wd	Kumagaya	
+1841988	Guri	wd	Guri-si	
+1278860	Ambala	wd	Ambāla	
+4994358	Grand Rapids	wd	Grand Rapids	
+3169921	Prato	gn	Prato	
+8223943			Kumarapalayam	
+1283562	Butwal	wd	Butwāl	
+8986037			Dhirkot	
+2455518	Kayes	wd	Kayes	
+1648186	Bontang	wd	Bontang	
+354502	Kafr el-Cheik	wd	Kafr ash Shaykh	
+2477461	Tébessa	wd	Tébessa	
+1732676			Kuala Kubu Baharu	
+193624			Karuri	
+193627			Karuri	
+2417786	Manéah	wd	Manéah	
+496285	Severodvinsk	wd	Severodvinsk	
+187269			Matuga	
+747764	Düzce	wd	Düzce	
+2328765	Nnewi	wd	Nnewi	
+1848689	Yamaguchi	wd	Yamaguchi	
+3130616	Alcalá de Henares	wd	Alcalá de Henares	
+6947639			Başakşehir	
+1811619	Ezhou	fix	Ezhou	
+1784712			Zhengding	
+139889	Bukan	wd	Būkān	
+2742032	Braga	wd	Braga	
+1174376			Garhi Khairo	
+909863	Luanshya	wd	Luanshya	
+1963770			Padalarang	
+7026720			Bang Khae	
+1729085	Bago	wd	Bago City	
+1786378			Yongchuan	
+1849372	Uji	gn	Uji	
+1264637	Machilipatnam	wd	Machilīpatnam	
+1803842	Hepu	fix	Hepu	
+2038670	Aihui	fix	Aihui	
+2043837	Hyesan	wd	Hyesan	
+3567597	Bayamo	gn	Bayamo	
+769250	Kielce	wd	Kielce	
+1192366			Pār Naogaon	
+1792585			Fuding	
+3402591			Castanhal	
+3080985	Zabrze	wd	Zabrze	
+2190324	Hamilton	wd	Hamilton	
+140380	Bojnourd	wd	Bojnūrd	
+2322733	Surulere	wd	Surulere	
+1806696	Humen	wd	Humen	
+2240937			Benfica	
+1610780	Hat Yai	wd	Hat Yai	
+2037086	Haicheng	wd	Haicheng	
+1645895			Curug	
+3689169			Barrancabermeja	
+462444	Zlatooust	wd	Zlatoust	
+1514581	Angren	wd	Angren	
+228853	Mukono	wd	Mukono	
+3530599	Ciudad del Carmen	wd	Ciudad del Carmen	
+1162004	Khayrpur	wd	Khairpur Mir’s	
+1514879	Khodjent	wd	Khujand	
+5308480	Peoria	wd	Peoria	
+2304121	Ashaiman	wd	Ashaiman	
+1213547			Tanjungbalai	
+5224151	Providence	wd	Providence	
+1264389	Mehsana	wd	Mahesāna	
+4634946	Knoxville	wd	Knoxville	
+13546341			Rangel	
+3121960	Fuenlabrada	wd	Fuenlabrada	
+1862599	Hino	wd	Hino	
+1175864	Jhelum	wd	Jhelum	
+1264407	Mahbubnagar	wd	Mahbūbnagar	
+2038342	Beipiao	wd	Beipiao	
+1608048	Pak Kret	wd	Pak Kret	
+1586360	Cẩm Phả	wd	Cẩm Phả	
+99454	Falloujah	wd	Al Fallūjah	
+1529651	Altay	wd	Jinshanlu	reviewed
+2337207	Ise	wd	Ise-Ekiti	
+3456166	Nova Friburgo	gn	Nova Friburgo	
+3461879			Guarapuava	
+1859100	Kōfu	wd	Kofu	
+1854902	Numazu	wd	Numazu	
+3450404			Santa Bárbara d'Oeste	
+6825489	Jōetsu	wd	Jōetsu	
+11184422	Planaltina	wd	Planaltina	
+5513343	Sunrise Manor	wd	Sunrise Manor	
+1257542	Sambalpur	wd	Sambalpur	
+484972	Syzran	wd	Syzran	
+1667982	Tamsui	wd	Danshui	reviewed
+3101950	Bytom	wd	Bytom	
+207570	Mwene-Ditu	wd	Mwene-Ditu	
+3461408			Ilhéus	
+1695743			Panalanoy	
+1809467			Guixi	
+1854747	Odawara	wd	Odawara	
+1638868	Labuan Bajo	wd	Labuan Bajo	
+1865294	Anjō	wd	Anjō	
+1002145	George	wd	George	
+1849892	Tottori	wd	Tottori-shi	
+3118594	Leganés	wd	Leganés	
+3649833	Acarigua	wd	Acarigua	
+334609	Hosaena	wd	Hosa’ina	
+7026886			Sai Mai	
+1285693	Nyaung Shwe	wd	Yawnghwe	
+1704703	Mabalacat	wd	Mabalacat City	
+3670745	Riohacha	gn	Riohacha	
+1804578	Laizhou	wd	Laizhou	
+3068160	Pilsen	wd	Pilsen	
+4694482	Grand Prairie	wd	Grand Prairie	
+1685755	Sorsogon	wd	Sorsogon	
+10374934	Aït Melloul	wd	Ait Melloul	
+2636503	Sutton	wd	Sutton	
+4341513	Shreveport	wd	Shreveport	
+1884737	Choa Chu Kang	fix	Choa Chu Kang New Town	
+3121437	Getafe	wd	Getafe	
+9645073			Quận Năm	
+1275778	Bhusawal	wd	Bhusawal	
+3454865			Alvorada	
+3530870	Chilpancingo	wd	Chilpancingo	
+3544091	Pinar del Río	gn	Pinar del Río	
+8416933	Huixing	fix	Huixing	
+307654	Kırıkkale	wd	Kırıkkale	
+615532	Batoumi	wd	Batumi	
+5911592	Burlington	wd	Burlington	
+1336143	Pabna	wd	Pābna	
+4676740	Brownsville	wd	Brownsville	
+1815477			Changyuan	
+3564124	Cienfuegos	gn	Cienfuegos	
+295530	Beer-Sheva	wd	Beersheba	
+2421820	Dixinn	wd	Dixinn	
+2497411	El Oued	wd	El Oued	
+4276873	Overland Park	wd	Overland Park	
+1259064	Rae Bareli	wd	Raebareli	
+7910932			Shangri-La	
+4776024	Newport News	wd	Newport News	
+8417605			Yangcheng	
+2453348	Mopti	wd	Mopti	
+248460			Khuraybat as Sūq	
+2216885	Zaouïa	wd	Zawiya	
+3979802	Zamora	wd	Zamora de Hidalgo	
+1270351	Haridwar	wd	Haridwar	
+380174	Ad-Damazin	wd	Ad-Damazin	
+1529531	Dunhuang	wd	Dunhuang	
+1805704	Jing’an	fix	Jing’an	
+3003796	Le Havre	wd	Le Havre	
+11127930	Phusro	wd	Phusro	
+3110044	Saint-Sébastien	wd	Donostia / San Sebastián	
+3521168	Poza Rica	wd	Poza Rica de Hidalgo	
+358840	Bilbéïs	wd	Bilbeis	reviewed
+1691444	Roxas	fix	Roxas City	
+2994540	Paris 20e	fix	Paris 20 Ménilmontant	
+305268	Kütahya	wd	Kütahya	
+1633037	Palopo	wd	Palopo	
+2852458	Potsdam	wd	Potsdam	
+3173331	Modène	gn	Modena	
+750516	Bolu	wd	Bolu	
+1849845	Toyokawa	wd	Toyokawa	
+1279335	Adoni	wd	Adoni	
+1861107	Izumi	wd	Izumi	
+12157007			Santa Anita - Los Ficus	
+9827976	Paltan	wd	Paltan	
+173377	Qamichli	wd	Al Qāmishlī	
+1512236	Abakan	wd	Abakan	
+1631648	Pemalang	fix	Pemalang	
+2758401	Bréda	wd	Breda	
+1214724	Langsa	wd	Langsa	
+1562773	Vĩnh Châu	wd	Vĩnh Châu	
+2038584	Baishan	wd	Baishan	
+1255560	Sujangarh	wd	Sūjāngarh	
+3458498			Linhares	
+2519752	Castelló de la Plana	wd	Castelló de la Plana	
+11611487			Tachikawa	
+8555643	Cergy-Pontoise	fix	Cergy-Pontoise	
+101732			Unaizah	
+4076598	Mobile	wd	Mobile	
+2638785	St Helens	wd	St Helens	
+4155966	Fort Lauderdale	wd	Fort Lauderdale	
+1638063	Lembang	wd	Lembang	
+3029374	Paris 18e	fix	Paris 18 Buttes-Montmartre	
+671768	Oradea	wd	Oradea	
+3407357	Araguaína	gn	Araguaína	
+2842647	Sarrebruck	wd	Saarbrücken	
+160892			Bunda	
+2479536	Skikda	wd	Skikda	
+1215957	Termez	wd	Tirmiz	
+1626899			Singosari	
+3452640			Porto Seguro	
+3644918	Cúa	wd	Cúa	
+1256052	Sirsa	wd	Sirsa	
+1504826	Kamensk-Ouralski	wd	Kamensk-Ural’skiy	
+2523630	Reggio de Calabre	gn	Reggio Calabria	
+13156932			Dinapur Nizamat	
+5393049	Santa Clarita	wd	Santa Clarita	
+1014073	Carletonville	wd	Carletonville	
+2421535	Dubréka	wd	Dubréka	
+1635283	Metro	wd	Metro	
+359280	Banha	wd	Banhā	
+1277799	Bahraich	wd	Bahraigh	
+98622			Ash Shaţrah	
+1818483	Tsing Yi	fix	Tsing Yi Town	
+1308522	Monywa	wd	Monywa	
+3726540			Dessalines	
+185131			Mwala	
+1267885	Karaikudi	wd	Kāraikkudi	
+3649017	Araure	wd	Araure	
+3470636			Barra Mansa	
+13157013			Sultan Pur Majra	
+1784617			Zhenping	
+2038650			Anda	
+3015772	Paris 13e	fix	Paris 13 Gobelins	
+2122104	Petropavlovsk-Kamtchatski	wd	Petropavlovsk-Kamchatsky	
+246013			Wādī as Sīr	
+6657205			Fardīs	
+4612862	Chattanooga	wd	Chattanooga	
+1270711	Guna	wd	Guna	
+2615876	Odense	wd	Odense	
+3906194	Sacaba	wd	Sacaba	
+3590979			Quetzaltenango	
+2037222	Gongzhuling	wd	Gongzhuling	
+1274784	Chandernagor	wd	Chandannagar	
+1277820	Baharampur	wd	Baharampur	
+670474	Ploieşti	gn	Ploieşti	
+3436043	Berazategui	wd	Berazategui	
+12501195			Shahuwadi	
+1264621	Madanapalle	wd	Madanapalle	
+1336144	Tangail	wd	Tangail	
+1668875	Shulin	wd	Shulin	
+747712	Edirne	wd	Edirne	
+1316752	Kyaukpyu	wd	Kyaukpyu	
+6087029	Nepean	wd	Nepean	
+1570656	Phúc Yên	wd	Phúc Yên	
+12492669	Pingwu	fix	Pingwu County	
+1256451	Shivpuri	wd	Shivpuri	
+1832847	Yangju	wd	Yangju	
+6545348	Praga-Południe	wd	Praga Południe	
+912764	Kasama	wd	Kasama	
+1255349	Surendranagar	wd	Surendranagar	
+2296606	Obuasi	wd	Obuase	
+3461563			Ibirité	
+1706889	Legazpi	wd	Legaspi	
+12253704			Phú Quốc	
+508101	Podolsk	wd	Podolsk	
+1630341	Purwakarta	wd	Purwakarta	
+1513886	Djizak	wd	Jizzax	
+3463422			Ferraz de Vasconcelos	
+2337765			Ila Orangun	
+1584242			Thị Trấn Đại Từ	
+1261473	Neyveli	wd	Neyveli	
+3472177			Angra dos Reis	
+1786067	Qianjiang	wd	Qianjiang	
+2911240	Hamm	gn	Hamm	
+1606250	Si Racha	wd	Si Racha	
+2476897	Tiaret	wd	Tiaret	
+3848950	La Rioja	wd	La Rioja	
+1256287	Silchar	wd	Silchar	
+2271772	Amadora	gn	Amadora	
+3529986	Cuautitlán	wd	Cuautitlán	
+2646057	Ipswich	wd	Ipswich	
+227812	Njeru	wd	Njeru	
+1055429	Toliara	wd	Toliara	
+3029372	Paris 19e	fix	Paris 19 Buttes-Chaumont	
+2323390			Saki	
+2498611	Chlef	wd	Chlef	
+3558729			Fontanar	
+6621166	Seogwipo	wd	Seogwipo	
+1716995	Concepcion	wd	Concepcion	
+5512909	Spring Valley	wd	Spring Valley	
+910111	Livingstone	wd	Livingstone	
+964349	Potchefstroom	wd	Potchefstroom	
+5393287	Santa Rosa	wd	Santa Rosa	
+13546343	Sambizanga	wd	Sambizanga	
+1259312	Proddatur	wd	Proddatūr	
+1295765	Sittwe	wd	Sittwe	
+145757	Dundo	wd	Dundo	
+2661604	Bâle	gn	Basel	
+1309793	Meiktila	wd	Meiktila	
+233346	Gulu	wd	Gulu	
+2750053	Nimègue	gn	Nijmegen	
+355628	Idku	wd	Idkū	
+2666199	Uppsala	wd	Uppsala	
+1269910	Hugli-Chuchura	wd	Hugli	
+10263066			Hashtsāl	
+3469092			Bragança Paulista	
+3446606			Teresópolis	
+3985604	San Luis Río Colorado	wd	San Luis Río Colorado	
+3583334	Santa Ana	wd	Santa Ana	
+5725846	Eugene	wd	Eugene	
+2541479	Nador	wd	Nador	
+290332	Muharraq	wd	Al Muharraq	
+3103402	Bielsko-Biała	wd	Bielsko-Biala	
+352733	Marsa Matruh	wd	Marsá Maţrūḩ	
+2759879	Almere Stad	wd	Almere Stad	
+3127461	Burgos	fix	Burgos	
+1842966			Gijang	
+3637012	Lander	fix	Lander	
+2980291	Saint-Étienne	wd	Saint-Étienne	
+1278708	Amroha	wd	Amroha	
+11612347			Narashino	
+2505329	Béjaïa	wd	Béjaïa	
+1784580			Zhenzhou	
+5317058	Tempe	wd	Tempe	
+1789137	Xindi	fix	Xindi	
+5378771	Oceanside	wd	Oceanside	
+8416626	Fengcheng	fix	Fengcheng	
+5750162	Salem	wd	Salem	
+2633948	Wigan	wd	Wigan	
+5351515	Garden Grove	wd	Garden Grove	
+309527	Karaman	wd	Karaman	
+6094578	Oshawa	wd	Oshawa	
+300614	Siverek	wd	Siverek	
+5385955	Rancho Cucamonga	wd	Rancho Cucamonga	
+4149962	Cape Coral	wd	Cape Coral	
+1567032			Tân Châu	
+1990589	Teluknaga	wd	Teluknaga	
+2036401	Jiutai	wd	Jiutai	
+1274304	Chhindwara	wd	Chhindwāra	
+3460535			Itu	
+3447854			Senador Canedo	
+94591	Khanaqin	wd	Khānaqīn	
+1698829	Naga	wd	Naga	
+2127733	Tomakomai	wd	Tomakomai	
+1255062	Tambaram	wd	Tambaram	
+3985344	San Miguel de Allende	wd	San Miguel de Allende	
+1647142	Cianjur	fix	Cianjur	
+1632937			Pamulang	
+2112708	Hitachi	wd	Hitachi	
+3386361			Timon	
+1275984			Bhetia	
+1260137	Pathankot	wd	Pathānkot	
+1163967	Tando Adam Khan	wd	Tando Adam	
+1277976	Badlapur	wd	Badlapur	
+1985663			Cikupa	
+3629706	Puerto Cabello	wd	Puerto Cabello	
+2111220	Sakura	wd	Sakura	
+1849498	Ube	wd	Ube	
+3658501	Daule	wd	Daule	
+97783	Baïji	wd	Bayjī	
+1273802	Gondelour	wd	Cuddalore	
+3109718	Santander	wd	Santander	
+2475687	Tlemcen	wd	Tlemcen	
+1256237	Shimla	wd	Shimla	
+417472	Shahinshahr	wd	Shāhīn Shahr	
+2651817	Croydon	wd	Croydon	
+1309611	Mergui	wd	Myeik	
+281124	Khan Younès	wd	Khān Yūnis	
+1283460	Dharan	wd	Dharān	
+2522258	Albacete	wd	Albacete	
+2867838	Mülheim an der Ruhr	gn	Mülheim	
+2310046	Bata	wd	Bata	
+1860672	Kamakura	wd	Kamakura	
+3530937	Chicoloapan de Juárez	wd	Chicoloapan	
+8740017	Gadag-Betageri	wd	Gadag-Betageri	
+1861084	Izumo	wd	Izumo	
+1803791	Zengcheng	wd	Licheng	reviewed
+3449324	São Caetano do Sul	wd	São Caetano do Sul	
+3453837			Pindamonhangaba	
+1271850			Gadag	
+189723			Ongata Rongai	
+3666608	Tunja	gn	Tunja	
+3458930			Lages	
+3906791	Quillacollo	wd	Quillacollo	
+3130564	Alcorcón	wd	Alcorcón	
+202905	Gisenyi	fix	Gisenyi	
+3453303			Poços de Caldas	
+311073	Isparta	wd	Isparta	
+2634739	Warrington	wd	Warrington	
+598098	Klaipėda	gn	Klaipėda	
+2634853	Walsall	wd	Walsall	
+2905891	Herne	gn	Herne	
+2643097	Mansfield	wd	Mansfield	
+3169522	Reggio d'Émilie	gn	Reggio nell'Emilia	
+3470583			Barreiras	
+1319364	Kengtung	wd	Kēng Tung	
+5231851	Sioux Falls	wd	Sioux Falls	
+786712	Prizren	wd	Prizren	
+2037620			Dongling	
+1622636	Ungaran	wd	Ungaran	
+1849186	Urayasu	gn	Urayasu	
+9075789			Long Khánh	
+1716198	Dagupan	wd	Dagupan	
+5379439	Ontario	wd	Ontario	
+7027003			Watthana	
+1253237	Veraval	wd	Verāval	
+1261653	Navsari	wd	Navsari	
+1926134	Imabari	wd	Imabari	
+907770	Mansa	wd	Mansa	
+5577147	Fort Collins	wd	Fort Collins	
+1588275	Bảo Lộc	wd	Bảo Lộc	
+1734393	Kulim	wd	Kulim	
+2325592			Oshodi	
+293788	Ramat Gan	wd	Ramat Gan	
+1277835	Bahadurgarh	wd	Bahadurgarh	
+1344377	Haldia	wd	Haldia	
+1518262	Témirtaou	wd	Temirtau	
+3393001			Parnaíba	
+4563243	Caroline	gn	Carolina	
+1259009	Raiganj	wd	Rāiganj	
+125185	Malayer	wd	Malāyer	
+4409896	Springfield	wd	Springfield	
+2636531	Sunderland	wd	Sunderland	
+1851032			Takaoka	
+630429	Baranavitchy	wd	Baranovichi	
+1269723	English Bazar	wd	Malda	
+4005509	Guadalupe	wd	Guadalupe	
+1855189	Nishio	wd	Nishio	
+3837056	San Luis	wd	San Luis	
+2485801	Ouargla	wd	Ouargla	
+763166	Olsztyn	wd	Olsztyn	
+922806	Kipushi	wd	Kipushi	
+1818223	Yuen Long Kau Hui	wd	Yuen Long Kau Hui	
+1269135	Jawnpur	wd	Jaunpur	
+13494069			Khlong Sam Wa	
+13353695			Chūō	
+905395	Mufulira	wd	Mufulira	
+10263232	Deoli	wd	Deoli	
+1242833	Jaffna	wd	Jaffna	
+686254	Arad	gn	Arad	
+3531023	Chetumal	wd	Chetumal	
+1276100	Bharuch	wd	Bharūch	
+1045512	Gurúè	wd	Gurúè	
+7645166	San Miguel	wd	San Miguel	
+2130057	Hirosaki	wd	Hirosaki	
+3531200	Chalco de Díaz Covarrubias	wd	Chalco	
+2972328	Toulon	wd	Toulon	
+1269937	Hoshiarpur	wd	Hoshiārpur	
+3647444	Calabozo	wd	Calabozo	
+281129	Jabaliya	wd	Jabālyā	
+4012406	Cuauhtémoc	fix	Cuauhtémoc	
+3471766			Araraquara	
+3665688	Yopal	gn	Yopal	
+3433360	Ituzaingó	wd	Ituzaingó	
+125446	Mahabad	wd	Mahābād	
+121110	Piranshahr	wd	Piranshahr	
+3682426	Florencia	gn	Florencia	
+1566566			Tây Hồ	
+1234633	Moratuwa	wd	Moratuwa	
+3037656	Angers	wd	Angers	
+2646277	Ilford	wd	Ilford	
+1177042	Hasilpur	wd	Hasilpur	
+3451205			Rio das Ostras	
+255683	Patras	wd	Pátra	
+1582436	Đồng Xoài	fix	Đồng Xoài	
+1185106	Jamalpur	wd	Jamālpur	
+2129376	Kushiro	wd	Kushiro	
+577206	Berezniki	wd	Berezniki	
+2348773	Awka	wd	Awka	
+472761	Volgodonsk	wd	Volgodonsk	
+1853483	Oyama	wd	Oyama	
+2338385	Ijero Ekiti	wd	Ijero-Ekiti	
+1268907	Jind	wd	Jīnd	
+1498894	Miass	wd	Miass	
+1680932	Tuguegarao	wd	Tuguegarao	
+3646382	Carúpano	wd	Carúpano	
+1265683	Kumbakonam	wd	Kumbakonam	reviewed
+1630997			Plumbon	
+2938913	Darmstadt	gn	Darmstadt	
+1218667	Mary	wd	Mary	
+518970	Novotcherkassk	wd	Novocherkassk	
+5346111	Elk Grove	wd	Elk Grove	
+6992326	Mohali	wd	Mohali	
+1628884	Sampit	wd	Sampit	
+4613868	Clarksville	wd	Clarksville	
+1818379	Wan Chai	wd	Wan Chai	
+2694762	Linköping	wd	Linköping	
+1861171	Iwata	wd	Iwata	
+1175156	Kamalia	wd	Kamalia	
+4168139	Pembroke Pines	wd	Pembroke Pines	
+3675657			Maicao	
+2128815	Obihiro	wd	Obihiro	
+1271912	Fatehpur	wd	Fatehpur	
+2856883	Osnabrück	wd	Osnabrück	
+3897347	Calama	wd	Calama	
+6941099	Nepalganj	wd	Nepalgunj	
+3530367	Comitán de Domínguez	wd	Comitán	
+3631412	Ocumare del Tuy	wd	Ocumare del Tuy	
+6822138	Niiza	wd	Niiza	
+5964700	Grand Sudbury	wd	Greater Sudbury	
+109323	Khobar	wd	Khobar	
+1794060	Songcheng	fix	Songcheng	
+1619485			Bang Khun Thian	
+4644312	Murfreesboro	wd	Murfreesboro	
+139817	Bouchehr	wd	Bushehr	
+2552615			Dar Bouazza	
+1254241	Tonk	wd	Tonk	
+117392	Saqqez	wd	Saqqez	
+2505530	Béchar	wd	Béchar	
+1567148	Tam Ky	gn	Tam Kỳ	
+314133	Gölbaşı	wd	Gölbaşı	
+3462980			Francisco Morato	
+1648759	Bima	wd	Bima	
+1308318			Mu-se	
+135423	Shahroud	wd	Shahrud	
+1253952	Udupi	wd	Udupi	
+1650227			Banjaran	
+1254757	Tenali	wd	Thenali	
+946058	Mthatha	wd	Mthatha	
+2036920			Hengshan	
+2637627	Slough	wd	Slough	
+3351599	Bocoio	wd	Bocoio	
+4169171	Port Sainte-Lucie	wd	Port Saint Lucie	
+1255969	Sitapur	wd	Sītāpur	
+3186573	Zenica	wd	Zenica	
+2831580	Solingen	wd	Solingen	
+3460728			Itapetininga	
+1582926	Đông Hà	fix	Ðông Hà	
+5339631	Corona	wd	Corona	
+285629	Hawalli	gn	Ḩawallī	
+152451	Musoma	wd	Musoma	
+2337490			Inisa	
+523064	Nazran	wd	Nazran	
+1711146	Ilagan	wd	Ilagan	
+2396518	Port-Gentil	wd	Port-Gentil	
+1276321	Bhadravathi	wd	Bhadrāvati	
+1863431	Hadano	wd	Hadano	
+3449948			Santana de Parnaíba	
+255274	Le Pirée	wd	Piraeus	
+7279741	Vapi	wd	Vapi	
+2655095	Bournemouth	wd	Bournemouth	
+268064	Sidon	wd	Sidon	
+3402383	Caxias	wd	Caxias	
+287830	Ibri	wd	‘Ibrī	
+195915			Jomvu	
+197745	Garissa	wd	Garissa	
+1262951			Moga	
+2640354	Peterborough	wd	Peterborough	
+3672328			Piedecuesta	
+1792520			Tongzhou	
+2875376	Ludwigshafen	gn	Ludwigshafen am Rhein	
+6957690			Lat Krabang	
+6947641			Büyükçekmece	
+286621	Salalah	wd	Şalālah	
+1258831	Rajnandgaon	wd	Rāj-Nāndgaon	
+322830	Aydın	gn	Aydın	
+3682631			Envigado	
+3460748			Itapecerica da Serra	
+379303	El-Geneina	wd	Al-Junaynah	reviewed
+1818116			Anbu	
+4710178	McKinney	wd	McKinney	
+2487134	Mostaganem	wd	Mostaganem	
+1514210	Tchirtchik	wd	Chirchiq	
+141663	Bandar-e Mahchahr	wd	Bandar-e Māhshahr	
+2878234	Leverkusen	wd	Leverkusen	
+1695462	Pandi	wd	Pandi	
+1718722	Capas	wd	Capas	
+1799389			Ning’er	
+2755003	Haarlem	wd	Haarlem	
+2759661	Arnhem	gn	Arnhem	
+2223763	Nkongsamba	wd	Nkongsamba	
+3641099	El Vigía	wd	El Vigía	
+3471697			Araucária	
+1258109	Robertson Pet	wd	Robertsonpet	
+191220	Kitale	wd	Kitale	
+2322794	Suleja	wd	Suleja	
+3452525			Pouso Alegre	
+2529317	Taza	wd	Taza	
+2640729	Oxford	wd	Oxford	
+360716			Al Maţarīyah	
+1135689	Kondôz	wd	Kunduz	
+1811200			Fengcheng	
+1564046	Trảng Bàng	wd	Trảng Bàng	
+1253747	Unnao	wd	Unnāo	
+2239076	N'Dalantando	wd	N'dalatando	
+1275163	Budaun	wd	Budaun	
+1854703	Ōgaki	wd	Ōgaki	
+2641598	Newport	wd	Newport	
+3893629	Coquimbo	wd	Coquimbo	
+1649541	Bau-Bau	wd	Baubau	
+1582173			Đưc Trọng	
+1648580	Blitar	wd	Blitar	
+3472766			Alagoinhas	
+952734	KwaDukuza	wd	KwaDukuza	
+1856775	Miyakonojō	wd	Miyakonojō	
+1264543	Madhyamgram	wd	Madhyamgram	
+5364940	Lancaster	wd	Lancaster	
+1493467	Roubtsovsk	wd	Rubtsovsk	
+1529167	Tacheng	wd	Tacheng	
+2419533	Kindia	wd	Kindia	
+2208032	Tauranga	wd	Tauranga	
+214974	Kalemie	gn	Kalemie	
+7026785			Chatuchak	
+3628053	San Juan de Los Morros	wd	San Juan de los Morros	
+1907146	Sayama	wd	Sayama	
+3691674	Sullana	wd	Sullana	
+2747351	Bois-le-Duc	wd	's-Hertogenbosch	
+715429	Szeged	wd	Szeged	
+370737	Malakal	wd	Malakal	
+1274033	Chittoor	wd	Chittoor	
+3446370			Toledo	
+3988214	Salamanca	wd	Salamanca	
+1618177			Ban Khlong Prawet	
+1577995	La Gi	wd	La Gi	
+2803201	Anderlecht	wd	Anderlecht	
+523812	Mytichtchi	wd	Mytishchi	
+3530049			Delegación Cuajimalpa de Morelos	
+285066	Hébron	wd	Hebron	
+3403741			Camaragibe	
+3457000			Mogi Guaçu	
+3584399	Mejicanos	wd	Mejicanos	
+1563926	Trà Vinh	wd	Trà Vinh	
+1632353	Pare-Pare	wd	Parepare	
+1269280	Jamuria	wd	Jāmuria	
+2358946	Koudougou	wd	Koudougou	
+1293960	Taunggyi	wd	Taunggyi	
+76184	Dhamar	wd	Dhamār	
+91057			Ash Sharqāt	
+3021372	Dijon	wd	Dijon	
+499292	Salavat	wd	Salavat	
+2344053	Ede	wd	Ede	
+2464960	La Soukra	wd	Sukrah	
+3996663	Manzanillo	wd	Manzanillo	
+3595237			Jalapa	
+1873014			Paech’ŏn-ŭp	
+4459467	Cary	wd	Cary	
+2439376	Tahoua	wd	Tahoua	
+4744091	Alexandria	wd	Alexandria	
+3518723	San Juan Bautista Tuxtepec	wd	Tuxtepec	
+7483743			Puthia	
+2988394	Paris 16e	fix	Paris 16 Passy	
+1784554			Zhicheng	
+1884365	Ang Mo Kio	fix	Ang Mo Kio New Town	
+189386	Limuru	wd	Limuru	
+3538803	San Miguel del Padrón	wd	San Miguel del Padrón	
+3903320	Tarija	wd	Tarija	
+3454783			Patos de Minas	
+2857458	Oldenbourg	wd	Oldenburg	
+3034610	Paris 17e	fix	Paris 17 Batignolles-Monceau	
+11468431	Matsusaka	wd	Matsusaka	
+3837702	San Fernando del Valle de Catamarca	wd	Catamarca	
+1850311	Tochigi	wd	Tochigi	
+2503701	Bordj Bou Arreridj	wd	Bordj Bou Arreridj	
+338998	Dila	wd	Dīla	
+7284820	Jaigaon	wd	Jaigaon	
+3471335			Atibaia	
+1276720	Batala	wd	Batāla	
+3014728	Grenoble	wd	Grenoble	
+91597	Samarra	wd	Sāmarrā’	
+5317071			Tempe Junction	
+5380698	Palmdale	wd	Palmdale	
+1735106	George Town	wd	George Town	
+2498766	El Achir	wd	El Achir	
+5355933	Hayward	wd	Hayward	
+1261039	Orai	wd	Orai	
+1565136			Thốt Nốt	
+890422	Gweru	wd	Gweru	
+3408424			Abaetetuba	
+13631347			Panguíla	
+7026787			Chom Thong	
+1213614			Sunggal	
+2252309	Diourbel	wd	Diourbel	
+1849429	Ueda	wd	Ueda	
+1819757	Aberdeen	wd	Aberdeen	
+5391295	Salinas	wd	Salinas	
+3529982	Cuautla	wd	Cuautla	
+2766824	Salzbourg	gn	Salzburg	
+1214191			Perbaungan	
+1608258			Nong Chok	
+2014006	Oussouriïsk	wd	Ussuriysk	
+11250625			Arif Wala	
+2035644			Nanpiao	
+3174659	Livourne	gn	Livorno	
+3838874	Río Cuarto	wd	Río Cuarto	
+335035	Harar	wd	Harar	
+617239	Tiraspol	wd	Tiraspol	
+2649997	Enfield	wd	Enfield Town	
+940316	Westonaria	wd	Westonaria	
+8416218			Lizhi	
+6822096			Hitachi-Naka	
+1257804	Saharsa	wd	Saharsa	
+350789	Kalyoub	wd	Qalyub	
+3595803			Escuintla	
+2514169	Marbella	wd	Marbella	
+315498	Ereğli	wd	Ereğli	
+1732687	Batu Pahat	wd	Batu Pahat	
+1735453	Sitiawan	wd	Sitiawan	
+1700868	Mariveles	wd	Mariveles	
+3518135	San Pablo de las Salinas	wd	San Pablo de las Salinas	
+1152473	Lampang	wd	Lampang	
+2633352	York	wd	York	
+1591474	Bạc Liêu	wd	Bạc Liêu	
+8299780			Juja	
+330118	Nekemte	wd	Nek’emtē	
+2686657	Örebro	wd	Örebro	
+99062	Mouqdadiyah	wd	Al Miqdādīyah	
+2112312	Katsuta	fix	Katsuta	
+2309527	Malabo	wd	Malabo	
+1253200	Vidisha	wd	Vidisha	
+1563281	Tuy Hòa	wd	Tuy Hòa	
+1797632			Yizhou	
+1788669			Xinqiao	
+5400075	Sunnyvale	wd	Sunnyvale	
+2294700	Tema	wd	Tema	
+2033413	Yichun	wd	Yichun	
+1582190			Đức Phổ	
+3518407	San Martín Texmelucan	wd	San Martin Texmelucan de Labastida	
+250336	Ar Ramtha	wd	Ar Ramthā	
+1270407	Hanumangarh	wd	Hanumāngarh	
+783920	Zemun	wd	Zemun	
+3345439	Telford	wd	Telford	
+2334327			Kisi	
+3456290			Nilópolis	
+3587923			Villa Canales	
+1712051			Guyong	
+2537406	Settat	gn	Settat	
+3468879			Brusque	
+6317837	Paço do Lumiar	wd	Paço do Lumiar	
+1176241			Jampur	
+934154	Port-Louis	wd	Port Louis	
+1859675	Kawanishi	wd	Kawanishi	
+1254657	Thanesar	wd	Thānesar	
+361179			Al Ḩawāmidīyah	
+1270239	Hassan	wd	Hassan	
+1919014	Lianghu	fix	Lianghu	
+6254843	Birendranagar	wd	Birendranagar	
+1266486	Kishangârh	wd	Kishangarh	
+10265162			Dalūpura	
+1809879	Guangshui	fix	Guangshui	
+935264	Saint-Denis	wd	Saint-Denis	
+683902	Brăila	wd	Brăila	
+532615	Lioubertsy	wd	Lyubertsy	
+217745	Bumba	wd	Bumba	
+8740322	Rudrapur	wd	Rudrapur	
+3884373	La Serena	wd	La Serena	
+717582	Miskolc	wd	Miskolc	
+362485	Abu Kabir	wd	Abū Kabīr	
+1808872	Fu'an	wd	Fu’an	
+7931934			Kitengela	
+4692559	Frisco	wd	Frisco	
+2033168	Zhaodong	wd	Zhaodong	
+1529085	Wujiaqu	wd	Wujiaqu	
+2323090			Shomolu	
+2216349	Zanzur	wd	Janzūr	
+1024552	Xai-Xai	wd	Xai-Xai	
+4951788	Springfield	wd	Springfield	
+1262067	Nalgonda	wd	Nalgonda	
+231954			Katabi	
+1884178			Gwangyang	
+543460	Kovrov	wd	Kovrov	
+298033			Viranşehir	
+1855078	Noda	fix	Noda	
+3511540	San Cristobal	gn	San Cristóbal	
+4619947			East Chattanooga	
+146384	Limassol	wd	Limassol	
+1860034	Kariya	wd	Kariya	
+4717782	Pasadena	wd	Pasadena	
+352181	Mit Ghamr	wd	Mīt Ghamr	
+1789273	Sanshui	fix	Sanshui	
+4431410	Jackson	wd	Jackson	
+2756071	Enschede	wd	Enschede	
+1816265			Boshan	
+1270164	Hazaribagh	wd	Hazāribāgh	
+1814786	Yangchun	wd	Yangchun	
+2479215	Souk Ahras	wd	Souk Ahras	
+201521	Musanze	fix	Musanze	
+1263220	Midnapore	wd	Medinīpur	
+1846986	Andong	wd	Andong	
+1277508	Balurghat	wd	Bālurghāt	
+5384170	Pomona	wd	Pomona	
+3625515	Valle de la Pascua	wd	Valle de La Pascua	
+3943789	Chincha Alta	wd	Chincha Alta	
+2172797	Cairns	wd	Cairns	
+1271976	Faizabad	wd	Fyzābād	
+1590900			Thị Trấn Thuận Châu	
+1273581	Danapur	wd	Dinapore	
+1812728	Dingzhou	wd	Dingzhou	
+4273837	Kansas City	wd	Kansas City	
+98530	Samawa	wd	As Samawah	
+1259395	Porbandar	wd	Porbandar	
+2040959	Sinpo	wd	Sinp’o	
+1798919			Pengpu	
+1162456	Wazirabad	wd	Wazirabad	
+5427946	Lakewood	wd	Lakewood	
+97990	Bakouba	wd	Baqubah	
+10303650	Semel	wd	Simele	
+90532			Sumayl	
+2864118	Neuss	wd	Neuss	
+1815302			Chenghua	
+1869446	Songrim	wd	Songnim-ni	
+1277397	Banda	wd	Bānda	
+1586296			Cần Giuộc	
+2035980			Longfeng	
+2037201	Beining	fix	Beining	
+132938	Gonbad-e Qabus	wd	Gonbad-e Kāvūs	
+11204106	Etwatwa	wd	Etwatwa	
+7279570	Higashimurayama	wd	Higashimurayama	
+3399058			Garanhuns	
+1270079	Hindupur	wd	Hindupur	
+3137115	Stavanger	wd	Stavanger	
+1737486	Bintulu	wd	Bintulu	
+2640101	Poole	wd	Poole	
+361661			Akhmīm	
+1173491	Kohat	wd	Kohat	
+2849483	Ratisbonne	wd	Regensburg	
+1172035	Layyah	wd	Layyah	
+355026			Girga	
+2299522	Koforidua	wd	Koforidua	
+3118150	Logroño	wd	Logroño	
+1276634	Beawar	wd	Beāwar	
+1164970			Shujaabad	
+5346827	Escondido	wd	Escondido	
+13286467			Ṣuwayliḥ	
+315373	Erzincan	wd	Erzincan	
+307515	Kırşehir	wd	Kırşehir	
+2511401	San Cristóbal de La Laguna	wd	La Laguna	
+1522203	Kökşetaw	wd	Kokshetau	
+1179406	Eminabad	wd	Eminabad	
+1278667	Anantnag	wd	Anantnag	
+1858445			Kukichūō	
+2521420	Badajoz	wd	Badajoz	
+7302856			Serilingampalle	
+3870282	Talcahuano	wd	Talcahuano	
+3895088	Chillán	wd	Chillán	
+1176106	Jaranwala	wd	Jaranwala	
+1578163			Kỳ Anh	
+1608236			Nong Khaem	
+3992619	Piedras Negras	wd	Piedras Negras	
+307084	Kızıltepe	wd	Kızıltepe	
+1856367	Musashino	wd	Musashino	
+3455070			Paranaguá	
+579464	Balachikha	wd	Balashikha	
+1259005	Raigârh	wd	Raigarh	
+5962204	Gloucester	wd	Gloucester	
+942470	Vryheid	wd	Vryheid	
+13118229			Bandar Tasik Puteri	
+7473418			Bercham	
+1645457	Dili	wd	Dili	
+1842944	Gimcheon	wd	Gimcheon	
+7302828	Malkajgiri	wd	Malkajgiri	
+13118091			Setia Alam	
+1163198	Tordher	wd	Tordher	
+1256639			Shāntipur	
+1181073	Chishtian	wd	Chishtian	
+3521342	Playa del Carmen	wd	Playa del Carmen	
+3389321			Santa Rita	
+3190261	Split	wd	Split	
+6545326	Ursynów	wd	Ursynów	
+4158928	Hollywood	wd	Hollywood	
+1177073			Harunabad	
+11612583	Shūnan	wd	Shūnan	
+2448085	Agadez	wd	Agadez	
+2654264	Burnley	wd	Burnley	
+293725	Rehovot	wd	Reẖovot	
+1621884	Watampone	wd	Watampone	
+2212775	Sebha	wd	Sabha	
+358108			Disūq	
+2525473	Cagliari	wd	Cagliari	
+2647425	Harrow	wd	Harrow	
+2556272			Berrechid	
+3452073			Queimados	
+2244991	Tambacounda	wd	Tambacounda	
+2646458	Huddersfield	wd	Huddersfield	
+343749			Ārabī	
+706524	Kertch	wd	Kerch	
+6137270	Saguenay	wd	Saguenay	
+6317123			Fazenda Rio Grande	
+1858926	Komaki	wd	Komaki	
+124721	Marvdasht	wd	Marvdasht	
+701404	Melitopol	wd	Melitopol	
+2037534	Dunhua	wd	Dunhua	
+1275812	Bhuj	wd	Bhuj	
+655194	Jyväskylä	gn	Jyväskylä	
+1848277	Yonago	wd	Yonago	
+52407			Ruqi	
+3169361	Rimini	wd	Rimini	
+5927690	Coquitlam	wd	Coquitlam	
+13680148			Aḍ-Ḍawāḥy	
+108512	Arar	wd	Arar	
+5405288	Valencia	wd	Valencia	
+7778796	Moreno	wd	Moreno	
+6822129	Tama	wd	Tama	
+4907959	Rockford	wd	Rockford	
+3642833	El Limón	wd	El Limón	
+2455914	Kalabankoro	wd	Kalaban Koro	
+2990363	Nîmes	fix	Nîmes	
+2650752	Dundee	wd	Dundee	
+1277100	Barrackpore	wd	Bārākpur	
+2034638			Sujiatun	
+1651112			Astanajapura	
+96833			Xebat	
+4013720	Delicias	wd	Ciudad Delicias	
+2415703	Siguiri	wd	Siguiri	
+2416402	Kamsar	wd	Kamsar	
+2239520	Mbanza-Kongo	wd	Mbanza Kongo	
+4756955			East Hampton	
+2036876	Honggang	fix	Honggang	
+192710	Kiambu	wd	Kiambu	
+3024635	Clermont-Ferrand	gn	Clermont-Ferrand	
+4898015	Joliet	wd	Joliet	
+5894171	Barrie	wd	Barrie	
+1619532			Bang Kapi	
+1786676			Yima	
+4221552	Savannah	wd	Savannah	
+5102466	Paterson	wd	Paterson	
+546230	Kolomna	wd	Kolomna	
+1270525	Hajipur	wd	Hājīpur	
+118994	Rafsanjan	wd	Rafsanjān	
+9081327			Hòa Thành	
+3173529	Mestre	wd	Mestre	
+5282804	Bridgeport	wd	Bridgeport	
+789128	Kragujevac	wd	Kragujevac	
+610612	Aktaou	wd	Aktau	
+13680164	Nusantara	wd	Nusantara	
+1257086	Sasaram	wd	Sasarām	
+6822163	Iruma	wd	Iruma	
+3873454	Renca	wd	Renca	
+704508	Kramatorsk	wd	Kramatorsk	
+4903279	Naperville	wd	Naperville	
+290340	Manama	wd	Manama	
+4013516	Colima	wd	Colima	
+1275947	Bhimavaram	wd	Bhimavaram	
+258576	Lárissa	wd	Lárisa	
+2019528	Nakhodka	wd	Nakhodka	
+339734	Debre Berhan	wd	Debre Birhan	
+2243173	Cacuaco	wd	Cacuaco	
+3038354	Aix-en-Provence	wd	Aix-en-Provence	
+1586350			Cam Ranh	
+1176368	Jalalpur Jattan	wd	Jalalpur Jattan	
+3547398	Matanzas	gn	Matanzas	
+1275539	Beed	wd	Beed	
+446208			Khasnahzān	
+1793092	Taozhou	fix	Taozhou	
+8533870	Saint-Quentin-en-Yvelines	wd	Saint-Quentin-en-Yvelines	
+13118145			Bandar Bukit Raja	
+2655524	Blackburn	wd	Blackburn	
+13546323			Rosemont–La Petite-Patrie	
+3894242	Colina	wd	Colina	
+10261509	Burari	wd	Burāri	
+3086800	Ruda Śląska	wd	Ruda Śląska	
+2377457	Nouadhibou	wd	Nouadhibou	
+3493175	Puerto Plata	gn	Puerto Plata	
+1680197	Urdaneta	wd	Urdaneta	
+1265859	Krishnanagar	wd	Krishnanagar	
+1788816			Xinji	
+3595069			Jutiapa	
+1274056	Chitradurga	wd	Chitradurga	
+7026776			Bueng Kum	
+2653941	Cambridge	wd	Cambridge	
+1732721			Kampung Pasir Gudang Baru	
+1764027			Kampung Sungai Glugur	
+1272648	Dibrugarh	wd	Dibrugarh	
+2488835	Médéa	wd	Médéa	
+1793700	Taishan	wd	Taishan	
+2498392	El Eulma	wd	El Eulma	
+3046526	Pécs	wd	Pécs	
+1581755			Giá Rai	
+1279403	Abohar	wd	Abohar	
+1254327	Thiruvanamalaï	wd	Tiruvannamalai	
+6318755	Teixeira de Freitas	wd	Teixeira de Freitas	
+4156404	Gainesville	wd	Gainesville	
+3435261	Concordia	wd	Concordia	
+3469136			Botucatu	
+1864132	Fujieda	wd	Fujieda	
+3488465	Spanish Town	wd	Spanish Town	
+2655459	Blackpool	wd	Blackpool	
+1512473	Ourguentch	wd	Urganch	
+160961	Bukoba	wd	Bukoba	
+1268593	Kaithal	wd	Kaithal	
+10627325	Ingombota	wd	Ingombota	
+3030300	Brest	wd	Brest	
+2656194	Basildon	wd	Basildon	
+3462964			Franco da Rocha	
+3111108	Salamanque	fix	Salamanca	
+13546324			Villeray–Saint-Michel–Parc-Extension	
+4710826	Mesquite	wd	Mesquite	
+1865005	Ashikaga	wd	Ashikaga	
+12217184	Lâm Hà	fix	Huyện Lâm Hà	
+2038679	Acheng	fix	Acheng	
+5990579	Kelowna	wd	Kelowna	
+1162959			Umarkot	
+3618030	León	wd	León	
+1860735	Kakamigahara	wd	Kakamigahara	
+3003603	Le Mans	wd	Le Mans	
+1171965	Lodhran	wd	Lodhran	
+3467736			Campo Largo	
+6169141	Trois-Rivières	wd	Trois-Rivières	
+2037075	Hailin	wd	Hailin	
+6822099			Tsuchiura	
+563523	Elektrostal	wd	Elektrostal’	
+1277599	Balasore	wd	Balasore	
+1786395	Fengjie	fix	Yong’an	
+1880574			Kampong Pasir Ris	
+2516548	Huelva	fix	Huelva	
+1513131	Navoï	wd	Navoiy	
+5140405	Syracuse	wd	Syracuse	
+295620	Ashkelon	wd	Ashkelon	
+965154	Pinetown	wd	Pinetown	
+1858067	Kusatsu	wd	Kusatsu	
+8417607			Nanjin	
+5967629	Guelph	wd	Guelph	
+8408334	Qianjiang	fix	Qianjiang	
+1271107	Godhra	wd	Godhra	
+2558470	Khémisset	wd	Khemisset	
+749780	Çanakkale	wd	Çanakkale	
+5403022	Torrance	wd	Torrance	
+3446098			Três Lagoas	
+1689510	San Jose	wd	San Jose	
+984998	Ladysmith	wd	Ladysmith	
+6325521	Lévis	wd	Lévis	
+2907911	Heidelberg	wd	Heidelberg	
+4006163	Fresnillo	wd	Fresnillo	
+2475475	Touggourt	wd	Touggourt	
+1256523	Shillong	wd	Shillong	
+5316428	Surprise	wd	Surprise	
+2641181	Norwich	wd	Norwich	
+1564555	Tịnh Biên	wd	Tịnh Biên	
+1856584	Moriguchi	wd	Moriguchi	
+3037854	Amiens	fix	Amiens	
+1586551			Cai Lậy	
+1258178	Rewari	wd	Rewāri	
+1276759	Basirhat	wd	Basirhat City	
+2624886	Aalborg	wd	Aalborg	
+1707123	La Trinidad	wd	La Trinidad	
+2496049	Ghardaïa	wd	Ghardaïa	
+1623834	Timika	wd	Timika	
+503550	Piatigorsk	wd	Pyatigorsk	
+3446621			Teófilo Otoni	
+2312888	Mbanza-Ngungu	wd	Mbanza-Ngungu	
+13546319			Mercier–Hochelaga-Maisonneuve	
+1894616	Okinawa	wd	Okinawa	
+2642607	Middlesbrough	wd	Middlesbrough	
+1216187	Chakhrisabz	wd	Shahrisabz	
+1170013			Moro	
+1878458			Ch’ŏngdan-ŭp	
+3086586	Rybnik	wd	Rybnik	
+2482572	Saïda	wd	Saïda	
+3188582	Tuzla	wd	Tuzla	
+1005646	Embalenhle	wd	eMbalenhle	
+3446038			Trindade	
+1174167	Khanpur	wd	Khanpur	
+4575352	Columbia	wd	Columbia	
+1337240	Nawabganj	wd	Nawābganj	
+2545957	Inezgane	wd	Inezgane	
+3600026			Puerto Cortez	
+5381396	Pasadena	wd	Pasadena	
+2146268	Toowoomba	wd	Toowoomba	
+2855745	Paderborn	wd	Paderborn	
+6822137	Misato	fix	Misato, Saitama	
+1274337	Chhatarpur	wd	Chhatarpur	
+990930	Kimberley	wd	Kimberley	
+3899887	Alto Hospicio	wd	Alto Hospicio	
+3564178	Ciego de Avila	gn	Ciego de Ávila	
+349717			Samālūţ	
+1805844	Jieshou	wd	Jieshou	
+528293	Maïkop	wd	Maykop	
+1184249	Attock	fix	Attock City	
+1214882	Kisaran	wd	Kisaran	
+1635111	Mojokerto	fix	Mojokerto	
+3682516			Facatativá	
+1732750			Masai	
+3629576	Punto Fijo	wd	Punto Fijo	
+1307835	Myingyan	wd	Myingyan	
+41548	Kamal Shahr	wd	Kamālshahr	
+1263834	Mandsaur	wd	Mandsaur	
+463355	Jeleznodorojny	wd	Zheleznodorozhnyy	
+1274553	Chas	wd	Chas	
+130531	Jahrom	wd	Jahrom	
+2972191	Tours	wd	Tours	
+1260777	Palanpur	wd	Pālanpur	
+2291136	Bondoukou	wd	Bondoukou	
+3598655			Chichicastenango	
+3108288	Tarragone	fix	Tarragona	
+3468403	Cachoeirinha	gn	Cachoeirinha	
+81302	Tobrouk	wd	Tobruk	
+1870648			Sinch’ŏn-ŭp	
+5881791	Abbotsford	wd	Abbotsford	
+2655237	Bolton	wd	Bolton	
+1281105	Gyêgu	wd	Yushu	reviewed
+670609	Pitești	wd	Piteşti	
+3907584	Potosí	wd	Potosí	
+2998286	Limoges	wd	Limoges	
+3450594			Salto	
+1907299	Asaka	wd	Asaka	
+1141269	Ghazni	wd	Ghazni	
+5379513	Orange	wd	Orange	
+755330			Wola	
+8406214			Sanhe	
+130802	Ilam	wd	Īlām	
+1907301	Toda	wd	Shimotoda	
+3860443	Comodoro Rivadavia	wd	Comodoro Rivadavia	
+1764160			Kampung Sungai Ara	
+5351247	Fullerton	wd	Fullerton	
+4703223	Killeen	wd	Killeen	
+1497337	Norilsk	wd	Norilsk	
+3118514	Lérida	wd	Lleida	
+2740637	Coimbra	wd	Coimbra	
+877747	Mtwara	wd	Mtwara	
+1170989			Manjhand	
+219057	Beni	wd	Beni	
+339708	Debre Marqos	wd	Debre Mark’os	
+1697497			Norzagaray	
+92615	Qaladze	wd	Qeładizê	
+970566	Nigel	wd	Nigel	
+3613974	Catacamas	wd	Catacamas	
+2233410	Buéa	wd	Buea	
+1794371			Shuizhai	
+582432	Almetievsk	wd	Al’met’yevsk	
+11205248			Motherwell	
+4709796	McAllen	wd	McAllen	
+1265242	Lakhimpur	wd	Lakhīmpur	
+2112576	Ishinomaki	wd	Ishinomaki	
+973111	Mpumalanga	fix	Mpumalanga	
+1170486	Mian Channu	wd	Mian Channun	
+3925033			Ji Paraná	
+2744114	Zaanstad	gn	Zaanstad	
+1610538			Kabin Buri	
+11468429			Kuwana	
+3947019	Ayacucho	wd	Ayacucho	
+112646	Torbat-e Heydarieh	wd	Torbat-e Ḩeydarīyeh	
+3125239	Chamartín	wd	Chamartín	
+2034996	Shanhaiguan	fix	Shanhaiguan	
+286647	Saham	wd	Şaḩam	
+245785	Abéché	wd	Abéché	
+255524	Peristéri	wd	Peristéri	
+2759821	Amersfoort	wd	Amersfoort	
+2073124	Darwin	wd	Darwin	
+11695689	Jeongeup	wd	Jeongeup	
+5786882	Bellevue	wd	Bellevue	
+554233	Korolev	wd	Korolev	
+1253468	Valsad	wd	Valsād	
+150006	Shinyanga	wd	Shinyanga	
+2675408	Sollentuna	wd	Sollentuna	
+99344			Al Hindīyah	
+1848774	Yaizu	wd	Yaizu	
+1631905	Payakumbuh	wd	Payakumbuh	
+1273587	Damoh	wd	Damoh	
+343370	Assella	wd	Āsela	
+1270498	Haldwani	wd	Haldwani	
+2337313			Irewe	
+1649881			Batang	
+2341355			Gbongan	
+3462672	Gama	wd	Gama	
+1822214	Siem Reap	wd	Siem Reap	
+3486270	Anaco	wd	Anaco	
+1630333			Purwodadi	
+1859093	Koga	wd	Koga	
+1785916			Yuepu	
+1270568	Habra	wd	Hābra	
+1627253	Sidoarjo	fix	Sidoarjo	
+412800			Şabāḩ as Sālim	
+3471039			Balneário Camboriú	
+2659994	Lausanne	gn	Lausanne	
+3613533			Choloma	
+3406429	Barcarena	wd	Barcarena	
+2473449	Kairouan	wd	Kairouan	
+2636882	Stockport	wd	Stockport	
+2036776	Huadian	wd	Huadian	
+3401545			Crato	
+2229798	Kousséri	wd	Kousséri	
+1621613			Weru	
+12451089			Al-'Ubūr	
+546105	Kolpino	wd	Kolpino	
+3397909			Itapipoca	
+3465644			Conselheiro Lafaiete	
+2425791	Sarh	wd	Sarh	
+1712875	Gingoog	wd	Gingoog	
+3518692			San Juan del Río	
+2295458	Sekondi-Takoradi	fix	Sekondi-Takoradi	
+10020191			Liuzhi	
+3407882			Altamira	
+1698839	Naga	wd	Naga	
+2037335			Fuyu	
+2034135	Wūdān	fix	Wūdān	
+3445162			Vespasiano	
+6180170	Whitby	wd	Whitby	
+4333177	Metairie	wd	Metairie	
+1815427			Chaohu	
+1266305	Kolar	wd	Kolār	
+2472706	Bizerte	wd	Bizerte	
+3626402	Táriba	wd	Táriba	
+2343784	Ejigbo	wd	Ejigbo	
+3450269			Santa Cruz do Sul	
+2544001	Ksar el Kebir	wd	Ksar El Kebir	
+2986082	Paris 11e	fix	Paris 11 Popincourt	
+2290582	Dabou	wd	Dabou	
+1884367	Bukit Panjang	wd	Bukit Panjang New Town	
+2983854	Paris 12e	fix	Paris 12 Reuilly	
+2234359	Bertoua	wd	Bertoua	
+3723779	Jacmel	wd	Jacmel	
+1255647	Srikakulam	wd	Srikakulam	
+1719274	Candelaria	wd	Candelaria	
+3471715	Araruama	wd	Araruama	
+1562693	Vinh Long	gn	Vĩnh Long	
+3374333	Praia	wd	Praia	
+3451668			Resende	
+12489673			Liangping	
+353492			Kirdāsah	
+4566880	Ponce	gn	Ponce	
+6559683			Doilungdêqên	
+1805857			Jieshi	
+1808612			Hejiang	
+1735545			Pasir Puteh	
+1263814	Mandya	wd	Mandya	
+7845495			Xiayang	
+1019330	Bisho	wd	Bhisho	
+1626444			Subang	
+10834495			Madhurampur Dehri	
+1233369	Negombo	wd	Negombo	
+261745	Héraklion	wd	Irákleion	
+4762894	Hampton	wd	Hampton	
+1922014	Wuyishan	wd	Wuyishan	
+4164601	Miramar	wd	Miramar	
+2036597	Jiagedaqi	fix	Jiagedaqi	
+358821	Belkas	wd	Bilqās	
+516215	Odintsovo	wd	Odintsovo	
+1630058			Rangkasbitung	
+3176885	Foggia	wd	Foggia	
+1069129	Antsiranana	wd	Antsiranana	
+1268715	Kanchrapara	wd	Kānchrāpāra	
+3589885			San Juan Sacatepéquez	
+1857046			Minoh	
+2342490			Funtua	
+6155721	Saint Catharines	wd	St. Catharines	
+1293625	Tavoy	wd	Dawei	
+2338711	Igboho	wd	Igboho	
+1215102	Gunungsitoli	wd	Gunungsitoli	
+2759706	Apeldoorn	wd	Apeldoorn	
+124778	Marivan	wd	Marīvān	
+1570449	Phủ Lý	wd	Phủ Lý	
+2289887	Divo	wd	Divo	
+1794806	Shizuishan	wd	Huinong	reviewed
+6822128	Ebina	wd	Ebina	
+2543549	Larache	wd	Larache	
+3445487			Varginha	
+2989781	Paris 14e	fix	Paris 14 Observatoire	
+358600	Nasser	wd	Būsh	reviewed
+9166066			Mlolongo	
+3461888			Guarapari	
+13680023			Tương Mai	
+3986172	San José del Cabo	wd	San José del Cabo	
+5784607	West Valley City	wd	West Valley City	
+1859393	Kisarazu	wd	Kisarazu	
+1810240	Gejiu	wd	Gejiu	
+685948	Bacău	wd	Bacău	
+2356157	Saaba	wd	Saaba	
+1309233	Mingaladon	fix	Mingaladon	
+1272552	Dimapur	wd	Dimāpur	
+957487	Sasolburg	wd	Sasolburg	
+1777077	Cheras	fix	Cheras	
+1735093			Tasek Glugor	
+3877949	Osorno	wd	Osorno	
+3471758			Araras	
+12022102	Tumushuke	wd	Tumxuk	
+1185191	Kushtia	wd	Kushtia	
+3672110			Pitalito	
+1727995			Baliuag	
+8616124			Hoàn Kiếm	
+232713			Kajansi	
+1861464	Isahaya	wd	Isahaya	
+4509884	Dayton	wd	Dayton	
+1586357			Cẩm Phả Mines	
+3591415			Petapa	
+1264111	Maler Kotla	wd	Māler Kotla	
+2346615	Buguma	wd	Buguma	
+3397967			Itaituba	
+1299154	Prome	wd	Pyay	
+1795055	Panyu	fix	Shiqiao	
+368277	Rabak	wd	Rabak	
+1566559	Tây Ninh	wd	Tây Ninh	
+267008	Tyr	wd	Tyre	
+613607	Koutaïssi	wd	Kutaisi	
+143420	Andimeshk	wd	Andīmeshk	
+1255927	Siwan	wd	Siwān	
+3675707			Madrid	
+1730713	Angono	wd	Angono	
+3687230			Cartago	
+418533	Chahreza	wd	Shahreẕā	
+1325211	Henzada	wd	Hinthada	
+3471910	Apucarana	wd	Apucarana	
+3728474	Cap-Haïtien	gn	Cap-Haïtien	
+1649593	Baturaja	wd	Baturaja	
+1861602	Inazawa	wd	Inazawa	
+1699296	Rodriguez	wd	Rodriguez	
+1268338	Kalol	fix	Kalol	
+124085	Miandoab	wd	Mīāndoāb	
+3448519			São Mateus	
+2491191	Laghouat	wd	Laghouat	
+522377	Nevinnomyssk	wd	Nevinnomyssk	
+1689056	San Mateo	wd	San Mateo	
+347634	Tahta	wd	Ţahţā	
+1689286	San Juan	wd	San Juan	
+667268	Sibiu	wd	Sibiu	
+4276614	Olathe	wd	Olathe	
+379302			El Geneina Fort	
+2338269	Ikirun	wd	Ikirun	
+8419424			Shenglilu	
+3836846	San Nicolás de los Arroyos	wd	San Nicolás de los Arroyos	
+3722286	Léogâne	wd	Léogâne	
+1651887			Adiwerna	
+3403697			Cametá	
+98993	Al-Qurnah	wd	Al Qurnah	
+2353099	Abakaliki	wd	Abakaliki	
+3384987			Vitória de Santo Antão	
+5014051	Warren	wd	Warren	
+318253	Cizre	wd	Cizre	
+1277264	Bankura	wd	Bānkura	
+745169	İnegöl	wd	İnegol	
+2130404	Ebetsu	wd	Ebetsu	
+2292852	Anyama	wd	Anyama	
+1805962			Jiawang	
+1626932	Singaraja	wd	Singaraja	
+1260173	Patan	wd	Pātan	
+2805615	Wurtzbourg	wd	Würzburg	
+630376	Borissov	wd	Barysaw	
+1582886	Đồng Hới	wd	Đồng Hới	
+963230	Randfontein	wd	Randfontein	
+510808	Pervoouralsk	wd	Pervouralsk	
+1270996	Gonda	wd	Gondā City	
+290247	Hamad Town	wd	Madīnat Ḩamad	reviewed
+1854162	Ōme	wd	Ōme	
+347907			Sinnūris	
+3444866			Votorantim	
+3654215	Milagro	wd	Milagro	
+3460005			Jaú	
+1298073	Thandwe	wd	Thandwe	
+5441492	Thornton	wd	Thornton	
+3868707	Valdivia	wd	Valdivia	
+1513064	Almalyk	wd	Olmaliq	
+2326899	Okrika	wd	Okrika	
+2646914	High Wycombe	wd	High Wycombe	
+4679195	Carrollton	wd	Carrollton	
+1683881	Talisay	wd	Talisay	
+2457163	Gao	wd	Gao	
+1272805	Dholpur	wd	Dhaulpur	
+149581			Tarime	
+6074377	Milton	wd	Milton	
+2486690	M'Sila	wd	M'Sila	
+2111684	Narita	wd	Narita	
+2400555	Franceville	wd	Franceville	
+1798473			Puqi	
+1850034			Tondabayashichō	
+1853008	Sanda	wd	Sandachō	
+1270990	Gondia	wd	Gondiā	
+2191562	Dunedin	wd	Dunedin	
+548114	Kislovodsk	wd	Kislovodsk	
+1316574			Kyauktan	
+2787149	Schaerbeek	wd	Schaerbeek	
+2753801	Hoofddorp	wd	Hoofddorp	
+3633444	Machiques	wd	Machiques	
+1260728	Palakkad	wd	Palakkad	
+300808	Silifke	wd	Silifke	
+4574324	Charleston	wd	Charleston	
+6049429	Langley	wd	Langley	
+5526337	Midland	wd	Midland	
+1864105	Fujinomiya	wd	Fujinomiya	
+13589383			Mingala Tangnyunt	
+2775220	Innsbruck	gn	Innsbruck	
+3405006			Bragança	
+5992500	Kingston	wd	Kingston	
+1791272	Wugang	wd	Wugang	
+2648404	Gloucester	wd	Gloucester	
+4739526	Waco	wd	Waco	
+1848004	Zama	wd	Zama	
+1636308	Manokwari	wd	Manokwari	
+3445578			Valinhos	
+566199	Dimitrovgrad	wd	Dimitrovgrad	
+2033225	Zhalantun	wd	Zhalantun	
+1276393	Bettiah	wd	Bettiah	
+1195434			Maijdi	
+3388847			São Félix do Xingu	
+4005937	San Pedro Garza García	wd	San Pedro Garza García	
+3448031			Sapucaia do Sul	
+333373	Kombolcha	wd	Kombolcha	
+1699054			Muricay	
+5011148	Sterling Heights	wd	Sterling Heights	
+1150515	Surat Thani	wd	Surat Thani	
+2923544	Fürth	gn	Fürth	
+3177090	Ferrare	gn	Ferrara	
+12166273			Quận Đức Thịnh	
+3433424	Isidro Casanova	wd	Isidro Casanova	
+1854083	Ōmuta	wd	Ōmuta	
+11947989			Villa Mercedes	
+1811028			Fuji	
+1260637	Palwal	wd	Palwal	
+776029	Bielany	wd	Bielany	
+1813344			Dawukou	
+1722930			Bulaon	
+1644409			Garut	
+89113	Ajdabiya	wd	Ajdabiya	
+2113164	Abiko	gn	Abiko	
+1860871	Kadoma	wd	Kadoma	
+1801401			Majie	
+1182815	Bhakkar	wd	Bhakkar	
+128447	Kachmar	wd	Kāshmar	
+2492913	Jijel	wd	Jijel	
+1636022	Martapura	fix	Martapura	
+2968254	Villeurbanne	wd	Villeurbanne	
+1581331			Hải Châu	
+2229411	Limbé	wd	Limbe	
+1258470	Raniganj	wd	Rānīganj	
+1808336	Hepo	fix	Hepo	
+1160939	Iran Shahr	wd	Iranshahr	
+2596935	Soubré	wd	Soubré	
+1853992	Onomichi	wd	Onomichi	
+4685907	Denton	wd	Denton	
+1271992	Etah	wd	Etah	
+1259686	Pilibhit	wd	Pīlibhīt	
+2035002	Shangzhi	wd	Shangzhi	
+1314759	Lashio	wd	Lashio	
+518557	Novomoskovsk	wd	Novomoskovsk	
+1857568	Matsubara	wd	Matsubara	
+2293549	Abengourou	wd	Abengourou	
+174018	Al-Bab	wd	Al Bāb	
+2034834	Shuangcheng	wd	Shuangcheng	
+2649808	Exeter	wd	Exeter	
+2300379	Ho	wd	Ho	
+1169278	Narowal	wd	Narowal	
+1576303	Lao Cai	gn	Lào Cai	
+2219701			Al Ajaylat	
+1605239	Udon Thani	wd	Udon Thani	
+98156			Baḥarkah	
+1735102	Bayan Lepas	wd	Bayan Lepas	
+1258916	Rajapalayam	wd	Rajapalayam	
+3665542			Zipaquirá	
+6925362	Djiroft	wd	Jīroft	
+4850751	Cedar Rapids	wd	Cedar Rapids	
+1791056	Dongyang	wd	Dongyang	
+1913126	Nantou	fix	Nantou	
+1275218	Botad	wd	Botad	
+282615	Naplouse	wd	Nablus	
+4839366	New Haven	wd	New Haven	
+3731088	Arcahaie	wd	Arcahaie	
+1805935			Jiazi	
+2231506	Foumban	wd	Foumban	
+5388881	Roseville	wd	Roseville	
+3874096	Quilpué	wd	Quilpué	
+13452524			Rawson	
+2473164			Sīdī Ḥusayn	
+2455558	Kati	wd	Kati	
+1744246	Seri Kembangan	wd	Seri Kembangan	
+2652618	Colchester	wd	Colchester	
+602150	Umeå	wd	Umeå	
+6694101			Din Daeng	
+1181611			Chaman	
+367644	Sennar	wd	Sennar	reviewed
+3617723	Masaya	wd	Masaya	
+5406567	Visalia	wd	Visalia	
+1169372	Nankana Sahib	wd	Nankana Sahib	
+280425	Aley	wd	Aley	
+3351500	Caála	wd	Caála	
+1812138	Dongxing	wd	Dongxing	
+12157008			San Martin	
+1187530			Sonārgaon	
+2635608	Tottenham	wd	Tottenham	
+3082914	Tychy	wd	Tychy	
+5913695	Cambridge	wd	Cambridge	
+304797	Mardin	wd	Mardin	
+1798655	Pingxiang	wd	Pingxiang	
+2743477	Zwolle	wd	Zwolle	
+64536	Baidoa	wd	Baidoa	
+1568142	Sầm Sơn	fix	Sầm Sơn	
+13527315			Santo António	
+2638671	Salford	wd	Salford	
+1171123	Mandi Bahauddin	wd	Mandi Bahauddin	
+738743	Tokat	wd	Tokat	
+1571644			Ô Môn	
+1713226	Gapan	wd	Gapan	
+1273193	Deoria	wd	Deoria	
+1725863	Bayambang	wd	Bayambang	
+1170425	Mianwali	wd	Mianwali	
+4151909	Coral Springs	wd	Coral Springs	
+6146143	Sherbrooke	wd	Sherbrooke	
+89055	El Beïda	wd	Al Bayḑā’	
+3450817			Sabará	
+3183539	Acilia	wd	Acilia-Castel Fusano-Ostia Antica	
+5402405	Thousand Oaks	wd	Thousand Oaks	
+4381982	Columbia	wd	Columbia	
+3465944			Colatina	
+3052009	Győr	wd	Győr	
+3893656	Copiapó	wd	Copiapó	
+1858964	Kokubunji	wd	Kokubunji	
+3671116	Quibdó	gn	Quibdó	
+2548526	Guelmim	wd	Guelmim	
+3645854	Charallave	wd	Charallave	
+115770	Shahre kord	wd	Shahr-e Kord	
+3675595			Malambo	
+3446692			Tatuí	
+1861212	Iwakuni	wd	Iwakuni	
+1804208	Leiyang	wd	Leiyang	
+776103	Białołęka	wd	Białołeka	
+1721168			Cadiz	
+2387495	Carnot	wd	Carnot	
+295548	Bat Yam	wd	Bat Yam	
+3979844	Zacatecas	wd	Zacatecas	
+5097598	Elizabeth	wd	Elizabeth	
+1180374			Daur	
+321082	Bingöl	wd	Bingöl	
+1185111	Satkhira	wd	Sātkhira	
+1632276			Parung	
+3630932	Palo Negro	wd	Palo Negro	
+4843564	Stamford	wd	Stamford	
+169389	Idleb	wd	Idlib	
+2312393	Moanda	wd	Moanda	
+90708			Sīnah	
+6822188	Ōsaki	wd	Ōsaki	
+1636884	Magelang	wd	Magelang	
+5339111	Concord	wd	Concord	
+2267095	Leiria	wd	Leiria	
+3931276	Puno	wd	Puno	
+553287	Kamychine	wd	Kamyshin	
+12450887			Shuanglonghu	
+8441115			Nimach	
+354775			Kafr ad Dawwār	
+12432982			Águas Claras	
+518976	Novotcheboksarsk	wd	Novocheboksarsk	
+3033123	Besançon	wd	Besançon	
+229911	Lugazi	wd	Lugazi	
+13513037			Thành phố Sông Công	
+1691490			Rosario	
+1266945	Khardaha	wd	Khardah	
+102527	Sakaka	wd	Sakakah	
+2544333	Khénifra	wd	Khenifra	
+379149			Al Manāqil	
+612287	Roustavi	wd	Rustavi	
+3547867			Manzanillo	
+1252770			Yavatmāl	
+1270484	Halisahar	wd	Hālīsahar	
+496527	Serpoukhov	wd	Serpukhov	
+3670730			Rionegro	
+1280037	Yarkand	fix	Shache	
+1267016	Khanna	wd	Khanna	
+2407656	Koidu	wd	Koidu	
+4543762	Norman	wd	Norman	
+3674292	Mosquera	wd	Mosquera	
+3470073	Bento Gonçalves	wd	Bento Gonçalves	
+1586989			Buôn Hồ	
+1585281	Chũ	wd	Chũ	
+2664454	Västerås	wd	Västerås	
+1852663	Seto	wd	Seto	
+1254309			Titāgarh	
+2641674	Newcastle-under-Lyme	wd	Newcastle under Lyme	
+3090048	Opole	wd	Opole	
+3359041	Worcester	wd	Worcester	
+3099759	Elbląg	wd	Elbląg	
+7843633			Gaojing	
+1185115	Sirajganj	wd	Sirajganj	
+3459943			Jequié	
+3088825	Płock	wd	Płock	
+3601311	Siguatepeque	wd	Siguatepeque	
+3082707	Wałbrzych	wd	Wałbrzych	
+584649	Ievlakh	wd	Yevlakh	
+360754	Manzala	wd	Al Manzalah	
+363885	Wau	wd	Wau	
+1793999			Songnan	
+4180386	Athens	wd	Athens	
+2350249			Amaigbo	
+1153671	Chiang Mai	wd	Chiang Mai	
+2332515	Lafia	wd	Lafia	
+1885823			Jiangyou	
+1646698			Cikampek	
+1279891	Tengchong	fix	Tengyue	
+1796376	Shajing	fix	Shajing	
+1790251			Jinfeng	
+3540667	Sancti Spiritus	gn	Sancti Spíritus	
+3117164	Mataró	wd	Mataró	
+3470451			Barretos	
+5799625	Kent	wd	Kent	
+1302439	Pakokku	wd	Pakokku	
+524294	Mourom	wd	Murom	
+3447651			Sertãozinho	
+1270216	Hathras	wd	Hāthras	
+1692520			Pulong Santa Cruz	
+1639900	Klaten	wd	Klaten	
+550478	Khassaviourt	wd	Khasavyurt	
+522942	Neftekamsk	wd	Neftekamsk	
+5396003	Simi Valley	wd	Simi Valley	
+1725804	Bayawan	wd	Bayawan	
+1165388	Shakargarh	wd	Shakargarh	
+1268820			Jorhat	
+3634922	La Victoria	wd	La Victoria	
+1168555	Pakpattan	wd	Pakpattan	
+1805543			Jingzhi	
+1813812	Danshui	fix	Danshui	
+2637546	Solihull	wd	Solihull	
+5344994	East Los Angeles	wd	East Los Angeles	
+1265157	Lalitpur	wd	Lalitpur	
+1642414	Jombang	wd	Jombang	
+1039536	Maxixe	wd	Maxixe	
+1608529	Nakhon Ratchasima	wd	Nakhon Ratchasima	
+3620381	Chinandega	wd	Chinandega	
+2219960			Al Jadīd	
+3437863	Lambaré	wd	Lambaré	
+1861835	Iizuka	wd	Iizuka	
+1153269	Hua Hin	wd	Hua Hin	
+3628489	San Carlos del Zulia	wd	San Carlos del Zulia	
+281102	Rafah	wd	Rafaḩ	
+1735168			Ampang	
+1270670	Guntakal	wd	Guntakal	
+1529641	Aral	wd	Ālā'ĕr	reviewed
+5393015	Santa Clara	wd	Santa Clara	
+7279595	Pithampur	wd	Pithampur	
+1632197			Paseh	
+1262710	Motihari	wd	Mothīhāri	
+11612579	Koganei	wd	Koganei	
+13527308			Nossa Senhora de Fátima	
+4280539	Topeka	wd	Topeka	
+8556295	Orléans	wd	Orléans	
+1950953			Paek'ak	
+1806881	Huicheng	fix	Huicheng	
+3629710	Puerto Ayacucho	wd	Puerto Ayacucho	
+2341656	Gashua	wd	Gashua	
+3728097	Les Cayes	wd	Les Cayes	
+3168673	Salerne	wd	Salerno	
+1653316	Savannakhet	fix	Savannakhet	
+352354	Ménouf	wd	Munūf	
+2634677	Watford	wd	Watford	
+3461936	Guará	wd	Guará	
+746881	Giresun	wd	Giresun	
+1789703			Xiazhen	
+1879490			Chaeryŏng-ni	
+743882	Kastamonu	wd	Kastamonu	
+1268015	Kanhangad	wd	Kanhangad	
+250799	Ajlun	wd	‘Ajlūn	
+748208	Derince	wd	Derince	
+7334948	Sukawati	wd	Sukawati	
+1269578	Jagdalpur	wd	Jagdalpur	
+650224	Kuopio	wd	Kuopio	
+6845329			Bang Sue	
+1171502	Mailsi	wd	Mailsi	
+3882428	Los Ángeles	wd	Los Ángeles	
+1809062			Haimen	
+744562	Karabük	wd	Karabük	
+11205667	Ntuzuma	wd	Ntuzuma	
+1849563	Tsuruoka	wd	Tsuruoka	
+2638703	St Peter's	wd	Saint Peters	
+3470858			Barbacena	
+6822153	Uruma	wd	Uruma	
+339686	Debre Tabor	wd	Debre Tabor	
+2467243	Sakiet Eddaïer	wd	Sakiet ed Daier	
+150930			Nzega	
+4669635	Abilene	wd	Abilene	
+1613549			Ban Samae Dam	
+1796421			Shahecheng	
+2229748	Kumbo	wd	Kumbo	
+6094835	Ottawa-Sud	wd	Ottawa South	
+107781			Az Zulfī	
+618605	Bălți	wd	Bălţi	
+1179660	Dokri	wd	Dokri	
+3513090	Willemstad	wd	Willemstad	
+1685378	Sultan Kudarat	wd	Sultan Kudarat	
+295432	Bet Shemesh	wd	Bet Shemesh	
+1269605	Jagadhri	wd	Jagādhri	
+3827414	Huixquilucan de Degollado	wd	Huixquilucan	
+3471798			Arapongas	
+116402	Semnan	wd	Semnan	
+3118532	León	wd	León	
+3493146	San Francisco de Macorís	wd	San Francisco de Macorís	
+2033242	Yushu	wd	Yushu	
+1665443	Yuanlin	wd	Yuanlin	
+3584257	Santa Tecla	wd	Santa Tecla	
+6318714	Sorriso	wd	Sorriso	
+3483849	Ciudad Valles	wd	Ciudad Valles	
+2357043	Ouahigouya	wd	Ouahigouya	
+7391141			Poblacion	
+1859951	Kashihara	wd	Kashihara-shi	
+360048	Ashmoun	wd	Ashmūn	
+309647	Ağrı	wd	Ağrı	
+2751792	Leuvarde	wd	Leeuwarden	
+1587976	Bến Tre	wd	Bến Tre	
+3172629	Monza	gn	Monza	
+1169027	Mirpur	wd	New Mirpur City	
+3686675			Chía	
+3604251			Olanchito	
+757065	Targówek	wd	Targówek	
+1804252	Lecheng	fix	Lecheng	
+1800130			Nancun	
+124862	Marand	wd	Marand	
+359815			As Sinbillāwayn	
+2652053	Crawley	wd	Crawley	
+1519843	Roudny	wd	Rudnyy	
+3675692			Magangué	
+3460899			Itaguaí	
+776251	Bemowo	wd	Bemowo	
+2994160	Metz	wd	Metz	
+2036403			Jiupu	
+1273467	Darjeeling	wd	Dārjiling	
+2038438			Baoshan	
+3493240	Higüey	wd	Salvaleón de Higüey	
+1292288	Thaton	wd	Thaton	
+11500546			Kurichchi	
+1637090	Lumajang	wd	Lumajang	
+1861450	Ise	wd	Ise	
+1711982			Hagonoy	
+301975	Samandağ	wd	Samandağ	
+3467081			Caraguatatuba	
+3469989	Birigüi	gn	Birigui	
+623549	Pinsk	wd	Pinsk	
+2510542	Telde	wd	Telde	
+1643078			Indramayu	
+2483668	Relizane	wd	Relizane	
+2503661	Bordj El Kiffan	wd	Bordj el Kiffan	
+1528249	Manas	wd	Manas	
+7303138	Kirishima	wd	Kirishima	
+3522307	Orizaba	wd	Orizaba	
+1801799	Luoyang	wd	Luoyang	
+1163272	Toba Tek Singh	wd	Toba Tek Singh	
+1848445	Honmachi	wd	Honmachi	
+2806654	Wolfsburg	wd	Wolfsburg	
+1855425	Niihama	wd	Niihama	
+3445782			Umuarama	
+2036536	Jiaohe	wd	Jiaohe	
+3398352			Igarassu	
+2518794	Dos Hermanas	wd	Dos Hermanas	
+8031389	Tabuk	wd	Tabuk	
+1272243			Dam Dam	
+233312	Hoima	wd	Hoima	
+1791325	Wuda	fix	Wuda	
+98245	Az Zubayr	wd	Az Zubayr	
+1864750	Beppu	wd	Beppu	
+1270370	Hardoi	wd	Hardoī	
+140951	Behbahan	wd	Behbahān	
+3460598			Itatiba	
+1807112			Huangzhou	
+1259163	Purulia	wd	Puruliya	
+1605245	Ubon Ratchathani	wd	Ubon Ratchathani	
+943882	Virginia	wd	Virginia	
+1015621	Brits	wd	Brits	
+2849647	Recklinghausen	wd	Recklinghausen	
+1784178			Zhoucun	
+569154	Tcherkessk	wd	Cherkessk	
+1176997			Haveli Lakha	
+2751283	Maastricht	wd	Maastricht	
+5107129	Amherst	wd	Amherst	
+738927	Tekirdağ	wd	Tekirdağ	
+6653052	Shahre-Jadide-Sadra	wd	Shahr-e Ṣadrā	
+5406222	Victorville	wd	Victorville	
+2654200	Burton upon Trent	wd	Burton upon Trent	
+1720034	Calumpit	wd	Calumpit	
+7026837			Lat Phrao	
+2918632	Göttingen	wd	Göttingen	
+13118233			Titiwangsa	
+1607782	Phasi Charoen	wd	Phasi Charoen	
+1113217	Zabol	wd	Zābol	
+2359608	Kaya	wd	Kaya	
+1790442			Xiangcheng	
+1272842	Dharmavaram	wd	Dharmavaram	
+345149	Adigrat	wd	Ādīgrat	
+1639500	Kotamobagu	wd	Kotamobagu	
+3646487	Carora	wd	Carora	
+5405380	Vallejo	wd	Vallejo	
+1276320	Bhadreswar	wd	Bhadreswar	
+135878	Dorud	wd	Dorūd	
+2661552	Berne	wd	Bern	
+6693576			San Pedro de la Paz	
+1261163	Nagaon	wd	Nagaon	
+649360	Lahti	gn	Lahti	
+1253315			Vejalpur	
+1802420	Longshui	fix	Longshui	
+2523083	Siracusa	wd	Siracusa	
+228971	Mubende	wd	Mubende	
+726848	Stara Zagora	wd	Stara Zagora	
+3346821	Ondjiva	wd	Ondjiva	
+1023441	Alberton	wd	Alberton	
+1274220	Chikmagalur	wd	Chikmagalūr	
+1524325	Ekibastouz	wd	Ekibastuz	
+2522013	Algésiras	wd	Algeciras	
+4330145	Lafayette	wd	Lafayette	
+2035669	Lianhe	fix	Lianhe	
+5336269	Chico	wd	Chico	
+1276325	Bhadrak	wd	Bhadrak	
+3471196			Bagé	
+4839745	North Stamford	wd	North Stamford	
+3182164	Bergame	wd	Bergamo	
+727523	Roussé	wd	Ruse	
+1256949	Sawai Madhopur	wd	Sawai Madhopur	
+1585317			Chơn Thành	
+1278827	Ambikapur	wd	Ambikāpur	
+3463690	Eunápolis	wd	Eunápolis	
+1730413	Apalit	wd	Apalit	
+4835797	Hartford	wd	Hartford	
+1647866	Bukittinggi	wd	Bukittinggi	
+2258261	Dolisie	wd	Dolisie	
+3644417	Ejido	wd	Ejido	
+5327684	Berkeley	wd	Berkeley	
+3456147			Nova Lima	
+1693239	Plaridel	wd	Plaridel	
+4177887	West Palm Beach	wd	West Palm Beach	
+1859913			Kashiwara	
+3445679	Uruguaiana	gn	Uruguaiana	
+1861749	Ikoma	wd	Ikoma	
+2907669	Heilbronn	gn	Heilbronn	
+11204413	El Mourouj	wd	El Mourouj	
+90026	Touz Khormatou	wd	Ţūz Khūrmātū	
+3165243	Trente	fix	Trento	
+1165638	Shahdadkot	wd	Shahdad Kot	
+3348094	Katchiungo	wd	Catchiungo	
+2895992	Ingolstadt	gn	Ingolstadt	
+1803782			Lichuan	
+11054399			Bukit Bintang	
+3638371			La Concepción	
+2820256	Ulm	wd	Ulm	
+10265071			Mandoli	
+3628503	San Carlos	wd	San Carlos	
+3081741	Włocławek	wd	Włocławek	
+5178127	Allentown	wd	Allentown	
+1257055	Satara	wd	Satara	
+13308659			Bao'an Centre	
+1181439	Charsadda	wd	Charsadda	
+3438115	Fernando de la Mora	wd	Fernando de la Mora	
+1273892	Churu	wd	Chūru	
+3171180	Pérouse	gn	Perugia	
+1271675	Gangapur	wd	Gangāpur	
+1783903	Zhujing	fix	Zhujing	
+2495662	Guelma	wd	Guelma	
+63400	Abudwak	wd	Cabudwaaq	
+9983718			Cheremushky	
+8504621	Gereida	wd	Gereida	
+278913	Nabatieh	wd	Nabatîyé et Tahta	
+515024	Orekhovo-Zouïevo	wd	Orekhovo-Zuyevo	
+289011	Rustaq	wd	Rustaq	
+1784953	Zhaoyuan	wd	Zhaoyuan	
+8411054	Madhyapur Thimi	wd	Madhyapur Thimi	
+6138671			Saint-Louis-de-Terrebonne	
+4257227	Evansville	wd	Evansville	
+7849539	Bonon	wd	Bonon	
+2945756	Bottrop	wd	Bottrop	
+1178456	Ghotki	wd	Ghotki	
+888710			Kwekwe	
+187968	Malindi	wd	Malindi	
+1157290			Ban I Chang	
+740483	Rize	wd	Rize	
+3472518			Almirante Tamandaré	
+4167499	Palm Bay	wd	Palm Bay	
+1328872	Ann	wd	Ann	
+2751773	Leyde	gn	Leiden	
+1605403			Thon Buri	
+5882873	Ajax	wd	Ajax	
+1166265	Sambrial	wd	Sambrial	
+3171168	Pescara	wd	Pescara	
+2330028	Modakeke	wd	Modakeke	
+1855095	Nobeoka	wd	Nobeoka	
+1686547	Silang	wd	Silang	
+2304848			Amanfrom	
+6317548	Marituba	wd	Marituba	
+400771	Mohammadshahr	wd	Moḩammad Shahr	
+3392734			Paulo Afonso	
+130697	Izeh	wd	Īz̄eh	
+303873	Nazilli	wd	Nazilli	
+1864416	Daitō	wd	Daitō	
+8657105			Hòa Cường	
+230166	Lira	wd	Lira	
+2853969	Pforzheim	gn	Pforzheim	
+302043	Salihli	wd	Salihli	
+1734815	Port Dickson	wd	Port Dickson	
+2555467	Berkane	wd	Berkane	
+3466692			Catanduva	
+2756669	Dordrecht	gn	Dordrecht	
+1831797	Battambang	wd	Battambang	
+2857807			Offenbach	
+2129537	Kitami	wd	Kitami	
+1562548	Vĩnh Yên	wd	Vĩnh Yên	
+1465594	Madhavaram	wd	Madhavaram	
+3647549	Cagua	wd	Cagua	
+292878	Fujaïrah	wd	Fujairah	
+1041190			Mandimba	
+3413829	Reykjavik	wd	Reykjavík	
+1273687	Dahod	wd	Dohad	
+2653261	Cheltenham	wd	Cheltenham	
+3696378	Huaraz	wd	Huaraz	
+3109981	Santa Coloma de Gramenet	gn	Santa Coloma de Gramenet	
+3391360	Santana	wd	Santana	
+3471691			Araxá	
+3453535			Piraquara	
+1276856	Barshi	wd	Barshi	
+1591440			Bắc Quang	
+1787901			Xunchang	
+1580142	Hưng Yên	wd	Hưng Yên	
+3523149			Miramar	
+2944368	Bremerhaven	wd	Bremerhaven	
+963516	Queenstown	wd	Queenstown	
+1800175			Nanbin	
+141679	Bandar-e Anzali	wd	Bandar-e Anzalī	
+1609899			Khlong Luang	
+1279344	Adilabad	wd	Ādilābād	
+5059163	Fargo	wd	Fargo	
+2800931	Bruges	wd	Brugge	
+1268936	Jhunjhunu	wd	Jhunjhunūn	
+3526798	Iguala	wd	Iguala de la Independencia	
+3447998			Sarandi	
+923295	Zomba	wd	Zomba	
+1627610			Sepatan	
+1702649			Malita	
+3080165	Zielona Góra	wd	Zielona Góra	
+1801969	Luodian	fix	Luodian	
+1269065	Jetpur	wd	Jetpur	
+1253744			Uppal Kalan	
+3388376	São Lourenço da Mata	wd	São Lourenço da Mata	
+353183	Maghagha	wd	Maghāghah	
+1230089			Pita Kotte	
+1712531	Guiguinto	wd	Guiguinto	
+1270801	Gudivada	wd	Gudivāda	
+2262963	Setúbal	fix	Setúbal	
+3107784	Torrejón de Ardoz	wd	Torrejón de Ardoz	
+6822148	Aizuwakamatsu	wd	Aizu-Wakamatsu	
+2347954	Bama	wd	Bama	
+2337659	Ilobu	wd	Ilobu	
+1701537	Manolo Fortich	wd	Manolo Fortich	
+3460960			Itabira	
+1579018	Kiến An	fix	Kiến An	
+3460170			Jandira	
+3461859			Guaratinguetá	
+3836669	San Rafael	wd	San Rafael	
+1795860			Shaoshan	
+1277084	Baran	wd	Bārān	
+1269939	Narmadapuram	wd	Narmadapuram	
+1278715	Amreli	wd	Amreli	
+1608534	Nakhon Pathom	wd	Nakhon Pathom	
+1860728	Kakegawa	wd	Kakegawa	
+352913	Manfalut	wd	Manfalūţ	
+1863209	Handa	wd	Handa	
+1790920	Wushan	fix	Wushan	
+2395915	Abomey	wd	Abomey	
+2364104	Sokodé	wd	Sokodé	
+3471830			Araguari	
+757026	Tarnów	wd	Tarnów	
+1619460			Bangkok Noi	
+2336589	Jalingo	wd	Jalingo	
+6136944	Saanich	wd	Saanich	
+233299	Ibanda	wd	Ibanda	
+716935	Nyíregyháza	wd	Nyíregyháza	
+1852964	Sano	wd	Sano	
+1860063	Karatsu	wd	Karatsu	
+1512165	Atchinsk	wd	Achinsk	
+1259297	Pudukkottai	wd	Pudukkottai	
+2034754			Shunyi	
+2639093	Rotherham	wd	Rotherham	
+3980194	Villa de Álvarez	fix	Ciudad de Villa de Álvarez	
+1650077			Banyuwangi	
+2482908	Rouïba	wd	Rouiba	
+1213500			Tebingtinggi	
+3718962	Petit-Goâve	wd	Tigwav	
+1261848	Narasaraopet	wd	Narasaraopet	
+211734	Lisala	wd	Lisala	
+1184055	Badin	wd	Badin	
+2362909	Banfora	wd	Banfora	
+3874787	Punta Arenas	wd	Punta Arenas	
+889453	Kadoma	wd	Kadoma	
+1699755	Midsayap	wd	Midsayap	
+3467968	Camboriú	wd	Camboriú	
+1309937	Pyin U Lwin	wd	Pyin Oo Lwin	
+4151316	Clearwater	wd	Clearwater	
+1711718	Himamaylan	wd	Himamaylan	
+4391812	Independence	wd	Independence	
+4005143	Guaymas	gn	Heroica Guaymas	
+1640581			Kedungwuni	
+215976			Ilebo	
+3149318	Kristiansand	wd	Kristiansand	
+2035966	Longjing	wd	Longjing	
+986846	Kroonstad	wd	Kroonstad	
+2848273	Remscheid	wd	Remscheid	
+5640350	Billings	wd	Billings	
+1308567			Möng Yang	
+792078	Čačak	wd	Čačak	
+4984247	Ann Arbor	wd	Ann Arbor	
+1705536	Los Baños	wd	Los Baños	
+2289549	Duékoué	wd	Duekoué	
+11611628			Higashikurume	
+1258126	Rishra	wd	Rishra	
+6317953			Pinhais	
+1500973	Kyzyl	wd	Kyzyl	
+2520600	Cadix	fix	Cadiz	
+3100796	Dąbrowa Górnicza	wd	Dąbrowa Górnicza	
+3454847			Passos	
+356989			Fāqūs	
+1684681	Tacurong	wd	Tacurong	
+1862302	Hōfu	wd	Hōfu	
+3348613	Gabela	wd	Gabela	
+3682281			Funza	
+2082539	Merauke	wd	Merauke	
+1276942	Baripada	wd	Baripāda	
+1858794			Kōnosu	
+1626560			Soreang	
+1714781	Datu Odin Sinsuat	wd	Dinaig	reviewed
+2042893	Manpho	wd	Manp’o	
+1262578	Sri Muktsar Sahib	wd	Muktsar	
+5345743	El Monte	wd	El Monte	
+3445993			Tubarão	
+3176746	Forlì	gn	Forlì	
+1278083	Azamgarh	wd	Azamgarh	
+12432973			Santa Maria	
+229380	Masaka	wd	Masaka	
+1584784			Cờ Đỏ	
+1518542	Taldykourgan	wd	Taldykorgan	
+1809408			Gulin	
+7026999			Thung Khru	
+1276895	Barnala	wd	Barnāla	
+1252758	Yelahanka	wd	Yelahanka	
+1614295	Pattaya	wd	Pattaya	
+1274040	Chittorgarh	wd	Chittorgarh	
+1815276			Chenggu	
+2989317	Orléans	wd	Orléans	
+2982652	Rouen	wd	Rouen	
+1254432			Tinsukia	
+5443910	Westminster	wd	Westminster	
+1807301	Dasha	fix	Dasha	
+2033536	Yakeshi	wd	Yakeshi	
+155101	Makambako	wd	Makumbako	
+1266928	Khargone	wd	Khargone	
+3632929	Mariara	wd	Mariara	
+1714956	Digos	wd	Digos	
+922083			Tshilenge	
+2508287	Aïn Beïda	wd	Aïn Beïda	
+32909	Andisheh	wd	Shahre Jadide Andisheh	
+3404817			Breves	
+3130583	Alcobendas	wd	Alcobendas	
+2419472	Kissidougou	wd	Kissidougou	
+1819283			San Tung Chung Hang	
+4724129	Round Rock	wd	Round Rock	
+520068	Noguinsk	wd	Noginsk	
+3626219	Tinaquillo	wd	Tinaquillo	
+4499379	Wilmington	wd	Wilmington	
+1717641	Cavite	wd	Cavite City	
+3463140			Formosa	
+3427833	Tandil	wd	Tandil	
+2743856	Zoetermeer	gn	Zoetermeer	
+3388713			São Gonçalo do Amarante	
+1238992	Sri Jayawardenapura	wd	Sri Jayewardenepura Kotte	
+6822174	Nasushiobara	wd	Nasushiobara	
+3445446			Várzea Paulista	
+1817441			Baisha	
+359212			Banī Mazār	
+1163724	Taunsa Sharif	wd	Taunsa	
+6822152	Urasoe	wd	Urasoe	
+467978	Ielets	wd	Yelets	
+7026898			Suan Luang	
+3114256			Parla	
+1574155			Mỹ Hào	
+1818020	Anliu	fix	Anliu	
+3451329			Ribeirão Pires	
+13450916			Recanto das Emas	
+13132725			Chunga	
+103369	Qal'at Bishah	wd	Bīshah	
+511510	Novo-Peredelkino	wd	Novo-Peredelkino	
+1277780	Baidyabati	wd	Baidyabāti	
+2327143			Okigwe	
+385038	Riffa	wd	Ar Rifā‘	
+690548	Oujhorod	wd	Uzhhorod	
+232066	Kasese	wd	Kasese	
+1791536			Tianfu	
+5412199	Arvada	wd	Arvada	
+2128574	Otaru	wd	Otaru	
+1682659	Tayabas	wd	Tayabas	
+2315419			Inkisi	
+1710544	Iriga	wd	Iriga City	
+6165683	Thornhill	wd	Thornhill	
+933945	Vacoas	wd	Vacoas	
+4672989	Beaumont	wd	Beaumont	
+3183719	Vlora	wd	Vlorë	
+1670106	Sanxia	wd	Sanxia	
+5780026	Provo	wd	Provo	
+3385935			Tucuruí	
+1276736	Basti	wd	Bastī	
+4905687	Peoria	wd	Peoria	
+3433975	Ezeiza	wd	Ezeiza	
+1513604	Khiva	wd	Xiva	
+752015	Amasya	wd	Amasya	
+3844421	Mendoza	wd	Mendoza	
+1147290	Balkh	wd	Balkh	
+3465059	Cubatão	gn	Cubatão	
+1800498	Mingshui	fix	Mingshui	
+1570863			Phong Điền	
+3456117	Nova Serrana	wd	Nova Serrana	
+7027001			Wang Thonglang	
+5334223	Carlsbad	wd	Carlsbad	
+187896	Mandera	wd	Mandera	
+1798131	Qiaotou	wd	Qiaotou	
+616635	Gyumri	wd	Gyumri	
+300797	Silopi	wd	Silopi	
+1271662	Gangavathi	wd	Gangavati	
+1278815	Ambur	wd	Ambur	
+6318738	Tangará da Serra	wd	Tangará da Serra	
+3098722	Gorzów Wielkopolski	wd	Gorzów Wielkopolski	
+6318694			Simões Filho	
+1271175	Giridih	wd	Giridih	
+1182829	Phool Nagar	wd	Phool Nagar	
+1692214	Quezon	wd	Quezon	
+2473247	Ariana	wd	Aryanah	
+1185920			Tungipara	
+2112656	Ichinoseki	wd	Ichinoseki	
+2491889	Khenchela	wd	Khenchela	
+1609776	Khonkèn	wd	Khon Kaen	
+5527554	Odessa	wd	Odessa	
+3466696			Catalão	
+1163952	Tando Muhammad Khan	wd	Tando Muhammad Khan	
+4250542	Springfield	wd	Springfield	
+1105728			Somaroboro	
+3688256			Guadalajara de Buga	
+1632998			Pamanukan	
+3402000			Codó	
+6681051	Pardis	wd	Pardīs	
+1569684	Pleiku	wd	Pleiku	
+5343858	Downey	wd	Downey	
+2188164	Lower Hutt	wd	Lower Hutt	
+1785545	Yuyao	wd	Yuyao	
+1863018	Hatsukaichi	wd	Hatsukaichi	
+92052	Ranya	wd	Rānyah	
+11101593	Tung Chung	wd	Tung Chung	
+3440714	Salto	wd	Salto	
+300822	Siirt	wd	Siirt	
+2033147			Zhaozhou	
+3629614	Punta Cardón	wd	Punta Cardón	
+6822132			Akishima	
+3397893			Itacoatiara	
+919544	Chililabombwe	wd	Chililabombwe	
+13546322			Rivière-des-Prairies–Pointe-aux-Trembles	
+2633521	Worthing	wd	Worthing	
+3995019	Navojoa	wd	Navojoa	
+2327879	Offa	wd	Offa	
+1489530	Tobolsk	wd	Tobolsk	
+11612537	Tōkai	wd	Tōkai	
+1252942	Wardha	wd	Wardha	
+1791765	Wansheng	fix	Wansheng	
+1168226	Pattoki	wd	Pattoki	
+1791706			Wayaobu	
+1862636	Hikone	wd	Hikone	
+1856243	Nagahama	wd	Nagahama	
+1798713	Pingshan	fix	Pingshan	
+2035399			Songyuan	
+1801615	Maba	wd	Maba	
+6822159	Fujimino	wd	Fujimino	
+2651123	Doncaster	wd	Doncaster	
+1587759			Bình Thủy	
+1714201	Dumaguete	wd	Dumaguete	
+2516395	Jaén	wd	Jaén	
+1814915			Chengqiao	
+3101619	Chorzów	wd	Chorzów	
+2249222	Louga	wd	Louga	reviewed
+13562438			Hoàng Mai	
+3625207	Yaritagua	wd	Yaritagua	
+1165635	Shahdadpur	wd	Shahdadpur	
+3460522			Itumbiara	
+192785			Khwisero	
+5339840	Costa Mesa	wd	Costa Mesa	
+1176022	Jauharabad	wd	Jauharabad	
+4164167	Miami Gardens	wd	Miami Gardens	
+1147513	Begrâm	wd	Bagrām	
+2653225	Chesterfield	wd	Chesterfield	
+4903976			North Peoria	
+495344	Chtchiolkovo	wd	Shchyolkovo	
+361329			Al Fashn	
+5347335	Fairfield	wd	Fairfield	
+3557846	Guanabacoa	wd	Guanabacoa	
+998082			Hammanskraal	
+6822184	Ōshū	wd	Ōshū	
+2530048	Taourirt	wd	Taourirt	
+347591	Talkha	wd	Ţalkhā	
+1671444			Neili	
+1162813	Vehari	wd	Vihari	
+2034497	Taonan	wd	Taonan	
+1848382			Youkaichi	
+1859586	Kazo	wd	Kazo	
+3589289			Santa Lucía Cotzumalguapa	
+2702979	Jönköping	wd	Jönköping	
+1255264	Tadepalligudem	wd	Tadepalligudem	
+1809077	Haikou	fix	Haikou	
+4998830	Lansing	wd	Lansing	
+1274767	Chandausi	wd	Chanduasi	
+1277939	Bagaha	wd	Bagaha	
+1497917	Nefteïougansk	wd	Nefteyugansk	
+2847736	Reutlingen	gn	Reutlingen	
+3625710	Upata	wd	Upata	
+1795857			Shaowu	
+1280570	Ruili	wd	Mengmao	reviewed
+1638284			Lawang	
+2554006			Bouskoura	
+667873	Satu Mare	wd	Satu Mare	
+3460791	Itanhaém	wd	Itanhaém	
+2036337			Kaiyuan	
+191299	Kisii	wd	Kisii	
+3058213	Petržalka	wd	Petržalka	
+128321	Kazerun	wd	Kāzerūn	
+1279390	Achalpur	wd	Achalpur	
+3453420			Planaltina	
+3640226	Guanare	wd	Guanare	
+1916012	Wuzhishan	wd	Wuzhishan	
+5043473	Rochester	wd	Rochester	
+1270994	Gondal	wd	Gondal	
+1181163	Chichawatni	wd	Chichawatni	
+1203344			Farīdpur	
+3587345	Apopa	wd	Apopa	
+1718306	Carmona	wd	Carmona	
+1707404	Laoag	wd	Laoag	
+4890864	Elgin	wd	Elgin	
+1261012	Osmanabad	wd	Dharashiv	
+1789496			Xigang	
+1814928			Chóngfú	
+1821263	Taipa	wd	Taipa	
+1259385	Sri Vijaya Puram	wd	Port Blair	reviewed
+3523183	Minatitlán	wd	Minatitlán	
+2343093	Esuk Oron	wd	Esuk Oron	
+378231	Atbara	wd	Atbara	
+3164419	Vicence	gn	Vicenza	
+4013714	Ciudad Guzmán	wd	Ciudad Guzmán	
+2177091	Ballarat	wd	Ballarat	
+3600704			Tocoa	
+5784549	West Jordan	wd	West Jordan	
+1277936	Bagalakote	wd	Bagalkot	
+3431271	Lomas de Zamora	wd	Lomas de Zamora	
+1832743	Yeoju	fix	Yeoju	
+170592	Douma	wd	Dūmā	
+2657970	Winterthour	wd	Winterthur	
+518659	Novokouïbychevsk	wd	Novokuybyshevsk	
+2502385	Bou Saâda	wd	Bou Saâda	
+362973			Abnūb	
+119115	Ghouchan	wd	Qūchān	
+3663529			Manacapuru	
+1639094			Kuningan	
+1255344	Suryapet	wd	Suriāpet	
+1241622	Kandy	wd	Kandy	
+346030	Zefta	wd	Zefta	
+1277324	Bangaon	wd	Bangaon	
+5359488	Inglewood	wd	Inglewood	
+307864	Kilis	wd	Kilis	
+6163012	Terrebonne	wd	Terrebonne	
+1481927			Set Ka Lay	
+2653266	Chelmsford	wd	Chelmsford	
+3598465			Chiquimula	
+1646492			Cileunyi	
+7302861	Ashoknagar Kalyangarh	wd	Ashoknagar Kalyangarh	
+906054	Mongu	wd	Mongu	
+2991214	Mulhouse	wd	Mulhouse	
+2548830	Fquih Ben Salah	wd	Al Fqih Ben Çalah	
+1692565	Pulilan	wd	Pulilan	
+934765	Beau-Bassin Rose-Hill	wd	Beau Bassin-Rose Hill	
+4094455	Tuscaloosa	wd	Tuscaloosa	
+3667873			Sogamoso	
+229278	Mbale	wd	Mbale	
+2992090	Montreuil	wd	Montreuil	
+3165771	Terni	wd	Terni	
+1272513	Deesa	wd	Deesa	
+1261669	Nabadwip	wd	Navadwīp	
+1732637			Maran	
+1261931	Nandurbar	wd	Nandurbar	
+6822147	Kasuga	wd	Kasuga	
+2328684	Nsukka	wd	Nsukka	
+2328952	Nguru	wd	Nguru	
+980921	Mabopane	wd	Mabopane	
+2790471	Namur	wd	Namur	
+3467978			Cambé	
+1811729	Encheng	fix	Encheng	
+738618	Turhal	wd	Turhal	
+1581461			Gò Vấp	
+4722625	Richardson	wd	Richardson	
+1220747	Bokhtar	wd	Bokhtar	
+2339631	Hadejia	wd	Hadejia	
+1783940	Zhuji	wd	Zhuji	
+2987914	Perpignan	wd	Perpignan	
+4942618	Lowell	wd	Lowell	
+3458696			Lavras	
+3448351			São Pedro da Aldeia	
+3029241	Caen	wd	Caen	
+6316298	Açailândia	wd	Açailândia	
+140097	Borazdjan	wd	Borāzjān	
+5729485	Gresham	wd	Gresham	
+1285173	Yenangyaung	wd	Yenangyaung	
+5324200	Antioch	wd	Antioch	
+934995	Manzini	wd	Manzini	
+3454690	Paulinia	gn	Paulínia	
+6324733	Saint-Jean de Terre-Neuve	wd	St. John's	
+229362	Masindi	wd	Masindi	
+294514	Kfar Saba	wd	Kfar Saba	
+1857470			Matsutō	
+4931972	Cambridge	wd	Cambridge	
+1255491	Sultanpur	wd	Sultānpur	
+1273292	Delhi Cantonment	wd	Delhi Cantonment	
+1725684			Bayugan	
+1271883	Firozpur	wd	Firozpur	
+4471025	High Point	wd	High Point	
+1813425			Datun	
+5089178	Manchester	wd	Manchester	
+141584	Baneh	wd	Bāneh	
+11876505			Gulshan	
+1639362	Kresek	wd	Kresek	
+618577	Bender	wd	Bender	
+971534	Mbombela	wd	Mbombela	
+1880283	Sembawang	wd	Sembawang Estate	
+2468369	Gabès	wd	Gabès	
+967476	Orkney	wd	Orkney	
+1803367	Linqing	wd	Qingnian	reviewed
+5401395	Temecula	wd	Temecula	
+98846			An Nu‘mānīyah	
+99135	Koufa	wd	Kufa	
+145724			Lucapa	
+1496503	Noïabrsk	wd	Noyabrsk	
+92511	Qalat Sukar	wd	Qal‘at Sukkar	
+1028079			Ressano Garcia	
+150103			Sengerema	
+578740	Bataïsk	wd	Bataysk	
+3170647	Pise	gn	Pisa	
+1803352			Linshui	
+11611942	Kamagaya	wd	Kamagaya	
+2636486	Royal Sutton Coldfield	wd	Sutton Coldfield	
+2037069	Hailun	wd	Hailun	
+1701124	Maramag	wd	Maramag	
+3050434	Kecskemét	wd	Kecskemét	
+1538637	Seversk	wd	Seversk	
+1647149	Ciamis	wd	Ciamis	
+5375911	Murrieta	wd	Murrieta	
+711390	Brovary	wd	Brovary	
+3449521			Santo Antônio de Jesus	
+7026833			Lak Si	
+2634910	Wakefield	wd	Wakefield	
+5416541	Centennial	wd	Centennial	
+1795184	Shilong	wd	Shilong	
+5387428	Richmond	wd	Richmond	
+1565157			Thới Lai	
+3924679			Vilhena	
+1262634	Mughalsarai	wd	Pandit Deen Dayal Upadhyaya Nagar	
+2037685	Didao	fix	Didao	
+298435	Arsuz	wd	Arsuz	
+1631733			Pelabuhanratu	
+1857665	Marugame	wd	Marugame	
+580724	Arzamas	wd	Arzamas	
+6825496	Habikino	wd	Habikino	
+965528	Phalaborwa	wd	Phalaborwa	
+2634838	Walthamstow	wd	Walthamstow	
+5435464	Pueblo	wd	Pueblo	
+2338403	Ijebu Igbo	wd	Ijebu-Igbo	
+496638	Serguiev Possad	wd	Sergiyev Posad	
+1683877	Talisay	wd	Talisay	
+3837213	San Juan	wd	San Juan	
+1256913	Sehore	wd	Sehore	
+1806439	Nancheng	fix	Jianchang	
+2036671			Hulan	
+3617708	Matagalpa	wd	Matagalpa	
+6908641			Khlong Toei	
+1500665	Leninsk-Kouznetski	wd	Leninsk-Kuznetsky	
+1859405	Kiryū	wd	Kiryū	
+159675			Handeni	
+3351764	Balombo	wd	Balombo	
+6166142	Thunder Bay	wd	Thunder Bay	
+1861164	Iwatsuki	wd	Iwatsuki	
+4718097	Pearland	wd	Pearland	
+2037712			Dehui	
+1632694			Pangkalanbuun	
+4845193	Waterbury	wd	Waterbury	
+5577592	Greeley	wd	Greeley	
+3031137	Boulogne-Billancourt	gn	Boulogne-Billancourt	
+685826	Baia Mare	wd	Baia Mare	
+3096880	Kalisz	wd	Kalisz	
+290503			Warīsān	
+3465476			Coronel Fabriciano	
+2490098	Mascara	wd	Mascara	
+3395449	Maranguape	wd	Maranguape	
+2319668	Uromi	wd	Uromi	
+158151	Katumba	wd	Katumba	
+1574507	Móng Cái	wd	Móng Cái	
+13645699			Kanpur Cantonment	
+1858910	Komatsu	wd	Komatsu	
+5407933	West Covina	wd	West Covina	
+5503766	Enterprise	wd	Enterprise	
+1277240	Bansberia	wd	Bānsbāria	
+3682018			Girón	
+1147540	Baghlân	wd	Baghlān	
+3456500			Muriaé	
+1808916			Hanjia	
+1226260	Trinquemalay	wd	Trincomalee	
+1687801	Santiago	wd	Santiago	
+8403612	Taibai	fix	Taibai	
+2651621	Dagenham	wd	Dagenham	
+1787828			Xuyong	
+4589387	North Charleston	wd	North Charleston	
+286282	Sohar	wd	Sohar	
+2035610			Nehe	
+387345			Abu Gharaq	
+515879	Oktiabrski	wd	Oktyabrsky	
+1255254	Tadpatri	wd	Tadpatri	
+2347059	Birnin Kebbi	wd	Birnin Kebbi	
+1688253			Santa Cruz	
+5793933	Everett	wd	Everett	
+378699	En Nahud	wd	An Nuhūd	
+1867429			Ŭllyul	
+3191648	Rijeka	wd	Rijeka	
+1665196	Touliu	wd	Douliu	
+11427402			Luis Eduardo Magalhães	
+1717911	Catbalogan	wd	Catbalogan	
+4682464	College Station	wd	College Station	
+250258	Salt	wd	As Salţ	
+1856977	Mishima	wd	Mishima	
+3351786	Baía Farta	wd	Baía Farta	
+1269388	Jalpaiguri	wd	Jalpāiguri	
+2036595			Jalai Nur	
+1851193			Tajimi	
+3435607	Castelar	wd	Castelar	
+4169014	Pompano Beach	wd	Pompano Beach	
+3893532			Coronel	
+3406910			Bacabal	
+6317781	Novo Gama	wd	Novo Gama	
+1610858			Dusit	
+2067119	Mandurah	wd	Mandurah	
+2656192	Basingstoke	wd	Basingstoke	
+751077	Bandırma	wd	Bandırma	
+2643179	Maidstone	wd	Maidstone	
+2034440	Tieli	wd	Tieli	
+89824	Umm Qasr	wd	Umm Qaşr	
+1735076	Butterworth	wd	Butterworth	
+1795842	Shaping	fix	Shaping	
+2418362	Labé	wd	Labé	
+139223	Tchalous	wd	Chālūs	
+3095049	Koszalin	wd	Koszalin	
+3181913	Bolzano	wd	Bolzano	
+12541728			South Fulton	
+3445859			Ubá	
+1337248	Sherpur	wd	Sherpur	
+516436	Obninsk	wd	Obninsk	
+3682028	Girardot	fix	Girardot City	
+2886946	Coblence	wd	Koblenz	
+3460733			Itaperuna	
+2832495	Siegen	wd	Siegen	
+1263797	Mangalagiri	wd	Mangalagiri	
+949224	Thohoyandou	wd	Thohoyandou	
+288955	Suwayq	wd	As Suwayq	
+5377995	Norwalk	wd	Norwalk	
+1560037			Yên Vinh	
+789225	Mitrovica	wd	Mitrovicë	
+688105	Eupatoria	wd	Yevpatoriya	
+1631992			Pati	
+563514	Elista	wd	Elista	
+1397479	Dera Murad Jamali	wd	Dera Murad Jamali	
+1290596	Taungû	wd	Taungoo	
+2656046	Bedford	wd	Bedford	
+7090987			Bagong Silangan	
+1876124			Kangnyŏng	
+3646190	Catia La Mar	wd	Catia La Mar	
+5574991	Boulder	wd	Boulder	
+1803886	Anning	fix	Anning	
+3460523			Ituiutaba	
+1607017	Rayong	wd	Rayong	
+2210554	Syrte	wd	Sirte	
+1172904			Kotri	
+569273			Cherëmushki	
+4531405	Broken Arrow	wd	Broken Arrow	
+5341430	Daly City	wd	Daly City	
+1646678			Cikarang	
+2447513	Arlit	wd	Arlit	
+418943	Baharestan	wd	Bahārestān	
+1568737	Ba Đồn	fix	Ba Đồn	
+1258474			Ranebennur	
+2035970	Longjiang	fix	Longjiang	
+1897118			Hwado	
+1816221	Buhe	fix	Buhe	
+2473744	Hammamet	wd	Hammamet	
+2324857	Pindiga	wd	Pindiga	
+712451	Berdiansk	wd	Berdyansk	
+1667027	Toufen	wd	Toufen	
+124082	Meyaneh	wd	Mīāneh	
+2463447	Dakhla	wd	Dakhla	
+1695097	Paniqui	wd	Paniqui	
+517836	Novotroïtsk	wd	Novotroitsk	
+2950349	Bergisch Gladbach	gn	Bergisch Gladbach	
+1336139	Rangamati	wd	Rangamati	
+713716	Altchevsk	wd	Alchevsk	
+1567681	Sơn La	wd	Sơn La	
+585514	Mingachevir	wd	Mingachevir	
+3093692	Legnica	wd	Legnica	
+3159016	Drammen	wd	Drammen	
+1632358			Pare	
+948542	Thokoza	wd	Tokoza	
+3406545			Balsas	
+6354908	Sydney	wd	Sydney	
+566532	Derbent	wd	Derbent	
+1784820			Xinghua	
+1266607			Khurja	
+1700360	Mati	wd	Mati	
+1651226			Arjawinangun	
+13546316			Le Plateau-Mont-Royal	
+2267827	Funchal	wd	Funchal	
+1266489			Kishanganj	
+3514321	Yautepec de Zaragoza	wd	Yautepec	
+3460064			Jataí	
+2348595	Azare	wd	Azare	
+1671566	Nantou	wd	Nantou	
+3398115			Ipojuca	
+1733953	Lahad Datu	wd	Lahad Datu	
+6713355	Subulussalam	fix	Subulussalam	
+3393106			Paragominas	
+217834	Bukama	wd	Bukama	
+1259411	Ponnani	wd	Ponnāni	
+1683013			Tanza	
+6822179	Inzai	wd	Inzai	
+1185263			Bhairab Bāzār	
+1270090	Hindaun	wd	Hindaun	
+1269374	Jamalpur	wd	Jamālpur	
+362004			Abū Tīj	
+3598122			Coatepeque	
+2505653	Baraki	wd	Baraki	
+118367	Robat Karim	wd	Robāţ Karīm	
+445694			'Ākra	
+4221333	Sandy Springs	wd	Sandy Springs	
+5331835	Burbank	wd	Burbank	
+1605843			Taling Chan	
+3428775	San Justo	wd	San Justo	
+1580830	Hòa Bình	wd	Hòa Bình	
+935221	Saint-Paul	wd	Saint-Paul	
+3114965	Ourense	gn	Ourense	
+1262216	Nagaur	wd	Nāgaur	
+12432977			Riacho Fundo II	
+5254962	Green Bay	wd	Green Bay	
+229139	Mityana	wd	Mityana	
+105299	Jizan	wd	Jizan	
+3515715	Texcoco	wd	Texcoco de Mora	
+8355932			Bang Bon	
+700051	Nikopol	wd	Nikopol	
+693468	Sloviansk	wd	Slovyansk	
+5393180	Santa Maria	wd	Santa Maria	
+12157013			San Francisco De Borja	
+12324302			Yidu	
+2990999	Nancy	wd	Nancy	
+1735572			Kuala Krai	
+1784393			Zhonghe	
+1798422	Puyang	fix	Puyang Chengguanzhen	
+1861795	Ikeda	wd	Ikeda	
+6176823	Waterloo	wd	Waterloo	
+13157160			Ambala Sadar	
+3598529			Chinautla	
+2842150	Salzgitter	wd	Salzgitter	
+13546317			Ville-Marie	
+7279747	Bhiwadi	wd	Bhiwadi	
+1275103	Bûndî	wd	Būndi	
+1263012	Miryalaguda	wd	Miryalaguda	
+1807544			Daxing	
+3471374			Assis	
+3389652			Santa Cruz do Capibaribe	
+1786778			Yezhou	
+4004867	Parral	wd	Hidalgo del Parral	
+1926054	Saijō	wd	Saijō	
+2895044	Iéna	gn	Jena	
+4741752	Wichita Falls	wd	Wichita Falls	
+5907990	Brantford	wd	Brantford	
+2921232	Gera	gn	Gera	
+1563287	Tuyên Quang	wd	Tuyên Quang	
+99446	Fao	wd	Al Fāw	
+1052944	Angoche	wd	Angoche	
+1645518			Depok	
+2110729			Toride	
+3194828	Mostar	wd	Mostar	
+625324	Mazyr	wd	Mazyr	
+5989045	Kamloops	wd	Kamloops	
+907111	Mazabuka	wd	Mazabuka	
+4161438	Lakeland	wd	Lakeland	
+1516589	Djezkazgan	wd	Zhezqazghan	
+8403616	Pailou	fix	Pailou	
+7281020			Lo Prado	
+2475744	Tizi Ouzou	wd	Tizi Ouzou	
+1798490	Pulandian	wd	Pulandian	
+2706767	Helsingborg	wd	Helsingborg	
+3408404			Abreu e Lima	
+1173378	Kot Adu	wd	Kot Addu	
+2290964	Bouaflé	wd	Bouaflé	
+2366152	Kara	wd	Kara	
+5338122	Clovis	wd	Clovis	
+915883	Kafue	wd	Kafue	
+3467717			Campo Mourão	
+2035196	Salaqi	fix	Salaqi	
+914959	Kalulushi	wd	Kalulushi	
+4706057	Lewisville	wd	Lewisville	
+2540689	Oued Zem	wd	Oued Zem	
+1503277	Kisseliovsk	wd	Kiselëvsk	
+1430991			Soyībug	
+326406	Weldiya	wd	Weldiya	
+2036418			Jishu	
+2549979			El Kelaa des Srarhna	
+2596934	Séguéla	wd	Séguéla	
+3455729			Ourinhos	
+3588258			Totonicapán	
+380173	Ad-Damir	wd	Ad-Damir	
+1269562	Jagtial	wd	Jagtiāl	
+2633709	Woking	wd	Woking	
+1258044	Roorkee	wd	Roorkee	
+2232239	Édéa	wd	Edéa	
+1784185	Yuxi	wd	Yuxi	
+2644487	Lincoln	wd	Lincoln	
+3453406	Poa	wd	Poá	
+1816865			Bashan	
+2328811	Nkpor	wd	Nkpor	
+2389086	Berbérati	wd	Berbérati	
+1166146	Sangla Hill	wd	Sangla Hill	
+1797091			Tongren	
+4738214	Tyler	wd	Tyler	
+1282027	Malé	wd	Male	
+5345529	El Cajon	wd	El Cajon	
+3171058	Plaisance	gn	Piacenza	
+1141857	Gardêz	wd	Gardez	
+607610	Janaozen	wd	Zhanaozen	
+1810724			Gangu Chengguanzhen	
+3515696	Teziutlán	wd	Teziutlan	
+2249782	Kolda	wd	Kolda	
+1253958	Udgir	wd	Udgīr	
+5392423	San Mateo	wd	San Mateo	
+2732265	Viseu	wd	Viseu	
+1262209	Nagda	wd	Nagda	
+2870221	Moers	wd	Moers	
+4148757	Brandon	wd	Brandon	
+683123	Buzau	wd	Buzău	
+3111933	Reus	wd	Reus	
+1631393	Prabumulih	wd	Prabumulih	
+3460974			Itabaiana	
+933778	Francistown	wd	Francistown	
+1861449	Isehara	wd	Isehara	
+2264268	Queluz	wd	Queluz	
+1276389	Betul	wd	Betūl	
+1864572	Chikushino	wd	Chikushino-shi	
+298806	Turgutlu	wd	Turgutlu	
+626081	Lida	wd	Lida	
+1668295	Taitung	wd	Taitung	
+2451778	San	wd	San	
+1269557	Jehanabad	wd	Jahānābād	
+6053154	Lethbridge	wd	Lethbridge	
+476077	Velikié Louki	wd	Velikiye Luki	
+1267579	Kashipur	wd	Kashipur	
+5387288	Rialto	wd	Rialto	
+2634491	West Bromwich	wd	West Bromwich	
+1271306	Ghazipur	wd	Ghazīpur	
+1624877	Tanjung Pandan	wd	Tanjung Pandan	
+2338287	Ikere	wd	Ikere-Ekiti	
+2904789	Hildesheim	wd	Hildesheim	
+1174042	Kharian	wd	Kharian	
+2176187	Bendigo	wd	Bendigo	
+1214073			Rantauprapat	
+12261477	Amaravati	wd	Amaravati	
+8521334	Nkayi	wd	Nkayi	
+121380	Parsabad	wd	Pārsābād	
+1283161	Lahan	wd	Lahān	
+3071961	Liberec	wd	Liberec	
+1262260	Nagapattinam	wd	Nagapattinam	
+108648	Al Qurayyat	wd	Qurayyat	
+1275019	Buxar	wd	Buxar	
+3488981	Portmore	wd	Portmore	
+3835994	Santa Rosa	wd	Santa Rosa	
+3545064			Palma Soriano	
+503977	Pouchkino	wd	Pushkino	
+1173687	Khushab	wd	Khushāb	
+2332504	Lafiagi	wd	Lafiagi	
+3468215			Caieiras	
+1529363	Kucha	wd	Xincheng	reviewed
+1168307	Pasrur	wd	Pasrur	
+1215412	Belawan	wd	Belawan	
+1168412	Pano Akil	wd	Pano Aqil	
+670889	Piatra Neamţ	gn	Piatra Neamţ	
+3647637	Cabudare	wd	Cabudare	
+2929567	Erlangen	gn	Erlangen	
+3817746	Tepexpan	wd	Tepexpan	
+2244386	Tivaouane	wd	Tivaouane	
+233508	Entebbe	wd	Entebbe	
+4853423	Davenport	wd	Davenport	
+87205	Derna	wd	Darnah	
+358269			Dayrūţ	
+5097529			Edison	
+3892870	Curicó	wd	Curicó	
+1876105			Kangsŏn	
+3509382	Concepción de La Vega	wd	La Vega	
+1185121			Shāhzādpur	
+3515062	Tulancingo	wd	Tulancingo	
+1848254			Yono	
+4018400	Apatzingán	wd	Apatzingán	
+5731371	Hillsboro	wd	Hillsboro	
+1263494	Mormugao	wd	Mormugao	
+1256826	Seoni	wd	Seoni	
+1165744	Shabqadar	wd	Shabqadar	
+3670502			Sabanalarga	
+1805270			Jishou	
+183595	Ngong	wd	Ngong	
+3462996			Francisco Beltrão	
+2027456	Artiom	wd	Artëm	
+329114	Sebeta	wd	Sebeta	
+1849519	Tsuyama	wd	Tsuyama	
+2962943	Limerick	wd	Limerick	
+1278148	Aurangabad	wd	Aurangābād	
+3885273			Lampa	
+1625929	Sungai Penuh	wd	Sungai Penuh	
+479411	Oukhta	wd	Ukhta	
+3460132			Japeri	
+1151933	Nakhon Si Thammarat	wd	Nakhon Si Thammarat	
+6822216	Kani	wd	Kani	
+6648023	Shuifu	fix	Shuifu	
+6822146	Ōnojō	wd	Ōnojō	
+1172915	Kot Radha Kishan	wd	Kot Radha Kishan	
+2219936			Al Jumayl	
+3441894	Maldonado	wd	Maldonado	
+2745641	Venlo	wd	Venlo	
+3458131			Mairiporã	
+3172189	Novare	gn	Novara	
+114584	Chouchtar	wd	Shūshtar	
+99039			Al-Musayab	
+3393008			Parintins	
+1997228			Hedong	
+1270077	Hinganghat	wd	Hinganghāt	
+737022	Zonguldak	wd	Zonguldak	
+311665	Iğdır	wd	Iğdır	
+6825498			Kawachi-Nagano	
+2650497	Eastbourne	wd	Eastbourne	
+1272997	Dhamtari	wd	Dhamtari	
+5937615	Delta	wd	Delta	
+624079	Orcha	wd	Orsha	
+2633563	Worcester	wd	Worcester	
+5475352	Las Cruces	wd	Las Cruces	
+3044774	Székesfehérvár	wd	Székesfehérvár	
+3459342			Lagarto	
+2656173	Bath	wd	Bath	
+2532945	Sidi Slimane	wd	Sidi Slimane	
+3458662			Leme	
+1861864	Iida	wd	Iida	
+3649417			Los Puertos de Altagracia	
+4926563	South Bend	wd	South Bend	
+1504682	Kansk	wd	Kansk	
+5921356	Chilliwack	wd	Chilliwack	
+1884386			Queenstown Estate	
+3037044	Argenteuil	wd	Argenteuil	
+1503772	Khanty-Mansiïsk	wd	Khanty-Mansiysk	
+1710470	Isulan	wd	Isulan	
+2248698	Mbacké	wd	Mbaké	
+697889	Pavlohrad	wd	Pavlohrad	
+741385	Mustafakemalpaşa	wd	Mustafakemalpaşa	
+12640444			Burayu	
+1274213	Chilakaluripet	wd	Chilakalūrupet	
+1264154	Malappuram	wd	Malappuram	
+2232283	Ebolowa	wd	Ébolowa	
+5935277	Dartmouth	wd	Dartmouth	
+2513076	Orihuela	wd	Orihuela	
+1837706	Sangju	wd	Sangju	
+12750652			Perling	
+5106834	Albany	wd	Albany	
+3449310			São Cristóvão	
+2298330	Madina	wd	Medina Estates	reviewed
+1181636	Chakwal	wd	Chakwal	
+9534547			Ngã Bảy	
+2648657	Gillingham	wd	Gillingham	
+300075	Suruç	wd	Suruç	
+1807738			Huacheng	
+3673662			Ocaña	
+1580400	Hong Ngu	wd	Hồng Ngự	
+2290412	Daoukro	wd	Daoukro	
+1850152	Tokuyama	wd	Tokuyama	
+347296	Tima	wd	Ţimā	
+1892823	Donghae	fix	Donghae City	
+952747	Standerton	wd	Standerton	
+1860112	Kanoya	wd	Kanoya	
+964315	Mokopane	fix	Mokopane	
+358172	Dikirnis	wd	Dikirnis	
+4945121	New Bedford	wd	New Bedford	
+126015	Lahijan	wd	Lāhījān	
+2792482	Louvain	wd	Leuven	
+1498920	Mejdouretchensk	wd	Mezhdurechensk	
+1277214	Bânsvâra	wd	Bānswāra	
+1710141			Jolo	
+783263	Elbasan	wd	Elbasan	
+1769014			Ijok	
+5406602	Vista	wd	Vista	
+4152820	Davie	wd	Davie	
+7280528	Errachidia	wd	Errachidia	
+2294308			Twifu Praso	
+6118158	Red Deer	wd	Red Deer	
+491023	Solikamsk	wd	Solikamsk	
+3610613	El Progreso	wd	El Progreso	
+12495083			Chirmiri	
+3470691	Barra do Piraí	gn	Barra do Piraí	
+6822097	Chikusei	wd	Chikusei	
+1625958	Sungai Liat	wd	Sungailiat	
+3182884	Arezzo	fix	Arezzo	
+1720508	Calasiao	wd	Calasiao	
+561347	Glazov	wd	Glazov	
+3988392	Rosarito	wd	Rosarito	
+144616	Ahar	wd	Ahar	
+261414	Kallithéa	wd	Kallithéa	
+3708306	Juan Díaz	wd	Juan Díaz	
+1560349	Yên Bái	wd	Yên Bái	
+1643761			Grogol	
+99226	Iskandariyah	wd	Nāḩiyat al Iskandarīyah	
+3591062			Puerto Barrios	
+220075			Bakwa	
+1269653	Itarsi	wd	Itārsi	
+3444864			Votuporanga	
+1606291			Si Maha Phot	
+1581052	Hà Tiên	wd	Hà Tiên	
+3633677	Los Rastrojos	wd	Los Rastrojos	
+124620	Masjed Soleiman	wd	Masjed Soleymān	
+1253367	Vasco da Gama	wd	Vasco da Gama	
+3109453			Barakaldo	
+1005125	Ermelo	wd	Ermelo	
+2774326	Klagenfurt	wd	Klagenfurt am Wörthersee	
+1803334			Linxi	
+2244616			Tiébo	
+1271631	Gangtok	wd	Gangtok	
+1273403	Datia	wd	Datia	
+1853209	Sakado	gn	Sakado	
+1853140	Sakata	wd	Sakata	
+2013952	Oust-Ilimsk	wd	Ust’-Ilimsk	
+3121456	Gérone	fix	Girona	
+5808189	Renton	wd	Renton	
+1514192	Chust	wd	Chust	
+1242110	Kalmunai	wd	Kalmunai	
+3165072			Udine	
+1788492			Xinzhai	
+1259827	Phagwara	wd	Phagwāra	
+1861091			Izumisano	
+2821164	Trèves	wd	Trier	
+1863627	Ginowan	wd	Ginowan	
+334227	Shire	wd	Inda Silasē	reviewed
+1634266			Negara	
+3468562			Caçapava	
+2213618			Qaşr Bin Ghashīr	
+1166933	Renala Khurd	wd	Renala Khurd	
+3494242	Punta Cana	wd	Punta Cana	
+4782167	Roanoke	wd	Roanoke	
+7279599			Airoli	
+2350523			Alasia	
+13061022			Bandar Mahkota Cheras	
+1802171	Kangding	fix	Kangding	
+1170157			Model Town	
+201650	Nyagatare	fix	Nyagatare	
+1871871	Pyongsong	wd	P’yŏngsŏng	
+1167386	Raja Jang	wd	Raja Jang	
+11670045			Sabt Alalayah	
+2467242	Sakiet Ezzit	wd	Sakiet ez Zit	
+1744763			Sentul	
+7792200			Seri Manjung	
+6663569			Shahrak-e Pardīsān	
+3189595	Subotica	wd	Subotica	
+2034657	Suifenhe	wd	Suifenhe	
+2210394	Tadjourah	wd	Tājūrā’	
+1787188	Yanjia	fix	Yanjia	
+1252416	Thimphou	wd	Thimphu	
+3374036	Bridgetown	wd	Bridgetown	
+2139521	Nouméa	wd	Nouméa	
+3570675	Fort-de-France	wd	Fort-de-France	
+2198148	Suva	wd	Suva	
+2960316	Luxembourg	wd	Luxembourg	
+934985	Mbabane	wd	Mbabane	
+921772	Moroni	wd	Moroni	
+426272	Gitega	wd	Gitega	
+1820906	Bandar Seri Begawan	wd	Bandar Seri Begawan	
+3382160	Cayenne	wd	Cayenne	
+285787	Koweït	wd	Kuwait City	
+2108502	Honiara	wd	Honiara	
+921815	Mamoudzou	wd	Mamoudzou	
+2410763	São Tomé	wd	São Tomé	
+3576022	Saint John's	wd	Saint John’s	
+3573890	Port-d'Espagne	wd	Port of Spain	
+7828758	Saïpan	wd	Saipan	
+4035413	Apia	wd	Apia	
+2110257	Tarawa-Sud	wd	Tarawa	
+2413876	Banjul	wd	Banjul	
+2135171	Port-Vila	wd	Port-Vila	
+2993458	Monaco	gn	Monaco	
+3577154	Oranjestad	wd	Oranjestad	
+3580661	George Town	wd	George Town	
+3042091	Saint-Hélier	wd	Saint Helier	
+2411585	Gibraltar	wd	Gibraltar	
+4033936	Papeete	wd	Papeete	
+3042237	Douglas	wd	Douglas	
+2113779	Majuro	wd	Majuro	
+3577887	Kingstown	wd	Kingstown	
+241131	Victoria	wd	Victoria	
+4032402	Nuku'alofa	gn	Nuku‘alofa	
+3041563	Andorre-la-Vieille	wd	Andorra la Vella	
+3576812	Castries	wd	Castries	
+4795467	Charlotte-Amélie	wd	Charlotte Amalie	
+3575635	Roseau	wd	Roseau	
+3042287	Saint-Pierre-Port	wd	Saint Peter Port	
+3421319	Nuuk	wd	Nuuk	
+3582672	Belmopan	wd	Belmopan	
+4035715	Avarua	wd	Avarua	
+2611396	Tórshavn	wd	Tórshavn	
+3575551	Basseterre	wd	Basseterre	
+5881576	Pago Pago	wd	Pago Pago	
+3579732	Basse-Terre	wd	Basse-Terre	
+3041732	Mariehamn	wd	Mariehamn	
+3513563	Kralendijk	wd	Kralendijk	
+3577430	Road Town	wd	Road Town	
+3579925	Saint-Georges	wd	Saint George's	
+2081986	Palikir	wd	Palikir	
+2562305	La Valette	wd	Valletta	
+2110394	Funafuti	wd	Funafuti	
+3424934	Saint-Pierre	wd	Saint-Pierre	
+3579132	Gustavia	wd	Gustavia	
+3578851	Marigot	wd	Marigot	
+3042030	Vaduz	gn	Vaduz	
+3168070	Saint-Marin	wd	San Marino	
+3576994	Cockburn Town	wd	Cockburn Town	
+2729907	Longyearbyen	wd	Longyearbyen	
+3426691	Port Stanley	wd	Stanley	
+3573374	The Valley	wd	The Valley	
+12226438	Ciudad de la Paz	wd	Ciudad de la Paz	
+3513392	Philipsburg	wd	Philipsburg	
+2078127	Flying Fish Cove	wd	Flying Fish Cove	
+4034821	Mata Utu	wd	Mata-Utu	
+7626461			Yaren	
+4044012	Hagåtña	wd	Hagåtña	
+3573197	Hamilton	wd	Hamilton	
+2161314	Kingston	wd	Kingston	
+6691831	Vatican	gn	Vatican City	
+3370903	Jamestown	wd	Jamestown	
+4036284	Alofi	wd	Alofi	
+7304591			West Island	
+4030723	Adamstown	wd	Adamstown	
+1546102	Port-aux-Français	wd	Port-aux-Français	
+3426466	Grytviken	wd	Grytviken	
+8063361	Ngerulmud	wd	Ngerulmud	
+3578069	Plymouth	wd	Plymouth	

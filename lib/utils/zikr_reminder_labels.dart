@@ -29,9 +29,11 @@ String reminderDaysLabel(
   if (days.length == 7) return l10n.occasionEveryDay;
   final ordered = orderedWeekdays(days, firstDayOfWeek);
   if (days.length <= 2 || long) {
-    return joinList([
-      for (final day in ordered) l10n.occasionWeekly(weekdayName(day % 7)),
-    ], l10n);
+    return capitalizeFirst(
+      joinList([
+        for (final day in ordered) l10n.occasionWeekly(weekdayName(day % 7)),
+      ], l10n),
+    );
   }
   return ordered.map((day) => shortWeekdayName(day, l10n)).join(', ');
 }

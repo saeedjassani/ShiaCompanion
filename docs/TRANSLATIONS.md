@@ -1,7 +1,7 @@
 # Translations
 
-The app is prepared for **Urdu (`ur`), Persian (`fa`), Arabic (`ar`) and
-Gujarati (`gu`)** alongside English. Nothing is translated yet: until a
+The app is prepared for **Urdu (`ur`), Persian (`fa`), Arabic (`ar`),
+Gujarati (`gu`) and French (`fr`)** alongside English. Nothing is translated yet: until a
 language ships files of its own, the app looks and behaves exactly as it
 always has, and no language picker appears anywhere.
 
@@ -67,7 +67,7 @@ change to any `.arb` file if your IDE shows missing `l10n` getters.
      `android:localeConfig` at it in `AndroidManifest.xml`).
 
 Material's own strings (date pickers, "OK", tooltips) come from
-`flutter_localizations`, which already covers all four languages, and dates
+`flutter_localizations`, which already covers all of them, and dates
 and numbers formatted with `intl` follow the app language automatically.
 
 ### Writing new UI text
@@ -146,6 +146,31 @@ A key still missing from a language shows in English there, and a key
 removed from `app_en.arb` but still in an `app_<code>.arb` is ignored, so
 nothing breaks if one slips through. Hold off translating a screen that is
 about to be redesigned - its strings are likely to change.
+
+### French
+
+French (`app_fr.arb`) ships app text only, in Standard French addressed
+as *vous*, with French typography (a no-break space before `:` `;` `!` `?`,
+« guillemets ») and ’ for apostrophes - never ASCII `'`, which ICU treats
+as an escape. Content names (duas, ziyarats, surahs, Hijri months, prayer
+names) keep the app's English spelling, since zikr titles show in English;
+the terms (Coran, sourate, verset, doua, ziyarat, adhan, qibla, tasbih,
+prière, sanctuaire) are those `app_fr.arb` already uses.
+
+Besides the app text it has the Quran collections' notes, the Sajdah
+rulings and the city picker's place names (`assets/cities_fr.tsv`), but
+no zikr translations, calendar events, hadith collection or Ziyarat
+Guide of its own, and reads each of those in English: with no
+`assets/zikr_i18n/fr/`, its translation language is English (so the
+Quran's and duas' English and transliteration show as in English);
+`CalendarEvents` and the Ziyarat Guide (`ziyaratGuideLanguages`) fall back
+to English; and the Home hadith uses the English collection, as French is not
+in `localizedHadithLanguages`. Shipping a partial `assets/zikr_i18n/fr/`
+(the Quran alone, say) would make French the translation language, and
+every untranslated dua would then show its Arabic alone - so a French Quran
+needs either all the zikrs or an English fallback per zikr for French. It
+should also be a Shia translation, as the English is: the French
+one on Tanzil (Hamidullah) is not.
 
 ## Zikr content (`assets/zikr_i18n/<code>/`)
 
@@ -379,7 +404,8 @@ translation where one exists (Nahj al-Balagha: Mufti Jafar Husain's Urdu,
 Mohammad Dashti's Persian, the Haji Naji Trust's Gujarati). Arabic readers
 see the Arabic alone, everyone else the Arabic and then its translation,
 each with the reference in their language. Which language follows the app
-language. **Only English readers ever see the English collection**: if the
+language. **Only English and French readers (any language outside
+`localizedHadithLanguages`) see the English collection**: if the
 collection cannot be read, the card is hidden rather than shown in English.
 
 Each entry has `id`, `speaker` (a key of `speakers`, whose attribution -
@@ -450,7 +476,7 @@ given for a spot within 10 km of it and in that language
 Urdu is set in Nastaliq (Google's Noto Nastaliq Urdu), always - there is no
 font choice for it. The theme switches to it (`LanguageProvider.usesUrduFont`)
 when the app language is Urdu, or the translation language is and the app is
-in English or Gujarati; a Persian or Arabic app keeps its Naskh menus, so
+in English, Gujarati or French; a Persian or Arabic app keeps its Naskh menus, so
 Urdu zikr translations there stay in the system font. Arabic text names its
 own font (Qalam or Scheherazade) and is unaffected.
 

@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:material_ui/material_ui.dart';
-import 'package:intl/intl.dart' show DateFormat;
 import 'package:shia_companion/data/uid_title_data.dart';
 import 'package:shia_companion/data/universal_data.dart';
 import 'package:shia_companion/l10n/hijri_l10n.dart';
@@ -46,8 +45,8 @@ class _TodaysRecitationPageState extends State<TodaysRecitationPage> {
         final today = todaysLunarDays();
         final hijri = today.day.hijri;
         final dates =
-            '${DateFormat('EEEE d MMMM').format(today.day.civilDate)}'
-            ' · ${localizeDigits('${hijri.hDay}', context.l10n)} '
+            '${civilDayMonth(today.day.civilDate, context.l10n, true)}'
+            ' · ${dayOfMonthLabel(hijri.hDay, context.l10n)} '
             '${hijriMonthName(hijri.hMonth, context.l10n).replaceAll(' Al-', ' al-')} '
             '${localizeDigits('${hijri.hYear}', context.l10n)}';
 
@@ -127,7 +126,7 @@ String todaysRecitationGroupLabel(
   AppLocalizations l10n,
 ) {
   String date(LunarDay lunarDay) => l10n.occasionDaysOfMonth(
-    localizeDigits('${lunarDay.hijri.hDay}', l10n),
+    dayOfMonthLabel(lunarDay.hijri.hDay, l10n),
     zikrMonthName(lunarDay.hijri.hMonth, l10n),
   );
   return switch (kind) {

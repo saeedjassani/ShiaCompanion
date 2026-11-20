@@ -1,4 +1,5 @@
 import 'package:hijri/hijri_calendar.dart';
+import 'package:intl/intl.dart' show DateFormat;
 
 import 'l10n.dart';
 
@@ -41,6 +42,27 @@ String hijriMonthShortName(int month, [AppLocalizations? l10n]) {
     11 => s.hijriMonthShort11,
     _ => s.hijriMonthShort12,
   };
+}
+
+/// [day] of a month as a date writes it before the month's name, in the
+/// app language's digits: "15" - and in French "1er" for the first.
+String dayOfMonthLabel(int day, [AppLocalizations? l10n]) {
+  final s = l10n ?? L10n.current;
+  return localizeDigits(s.dayOfMonth('$day'), s);
+}
+
+/// A civil date as `DateFormat('d MMMM')` (or `'EEEE d MMMM'` with
+/// [weekday]) writes it, but with its day through [dayOfMonthLabel]:
+/// "jeudi 1er mai", not "jeudi 1 mai".
+String civilDayMonth(
+  DateTime date, [
+  AppLocalizations? l10n,
+  bool weekday = false,
+]) {
+  final day =
+      '${dayOfMonthLabel(date.day, l10n)} '
+      '${DateFormat('MMMM').format(date)}';
+  return weekday ? '${DateFormat('EEEE').format(date)} $day' : day;
 }
 
 /// [HijriCalendar.toFormat] with the month name (`MMMM`) and the digits in

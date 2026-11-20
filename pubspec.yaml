@@ -85,6 +85,7 @@ flutter:
     - assets/cities.tsv
     - assets/cities_ar.tsv
     - assets/cities_fa.tsv
+    - assets/cities_fr.tsv
     - assets/cities_gu.tsv
     - assets/cities_ur.tsv
     - assets/books.json

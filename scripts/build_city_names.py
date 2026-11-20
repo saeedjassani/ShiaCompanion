@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-"""Gathers the city list's names in Arabic, Persian, Urdu and Gujarati into
+"""Gathers the city list's names in Arabic, Persian, Urdu, Gujarati and French
+into
 scripts/city_names/<code>.tsv, the reviewed source that build_city_list.py
 turns into assets/cities_<code>.tsv.
 
@@ -53,18 +54,23 @@ import zipfile
 sys.path.insert(0, os.path.dirname(__file__))
 from build_city_list import fetch, load_places  # noqa: E402
 
-LANGUAGES = ['ar', 'fa', 'ur', 'gu']
+LANGUAGES = ['ar', 'fa', 'ur', 'gu', 'fr']
 OUT_DIR = os.path.join(os.path.dirname(__file__), 'city_names')
 CLDR = ('https://cdn.jsdelivr.net/npm/cldr-localenames-full@45.0.0/main/'
         '{}/territories.json')
 SPARQL = 'https://query.wikidata.org/sparql'
 USER_AGENT = 'ShiaCompanionCityNames/1.0 (scripts/build_city_names.py)'
 KEPT_SOURCES = {'tr', 'fix'}
+# Languages in Latin letters, which can take Wikidata's "mul" label.
+LATIN_LANGUAGES = {'fr'}
 
 # Vowel marks and tatweel: names are shown without them, as everywhere else.
 HARAKAT = re.compile('[ً-ْٰـ]')
 ARABIC_SCRIPT = re.compile('^[؀-ۿ‌ ]+$')
 GUJARATI_SCRIPT = re.compile('^[\u0A80-\u0AFF -]+$')
+# French: Latin letters with their accents (Saint-Étienne, Eskişehir),
+# hyphens and apostrophes kept.
+LATIN_SCRIPT = re.compile("^[A-Za-z\u00C0-\u024F\u1E00-\u1EFF'’. -]+$")
 LETTER_FORMS = {
     'fa': {'ي': 'ی', 'ى': 'ی', 'ك': 'ک', 'ە': 'ه'},
     'ur': {'ي': 'ی', 'ى': 'ی', 'ك': 'ک', 'ه': 'ہ', 'ە': 'ہ'},
@@ -76,6 +82,10 @@ UNIT_WORDS = {
     'fa': ['استان', 'شهرستان', 'بخش', 'ناحیه', 'منطقه', 'ایالت'],
     'ur': ['ضلع', 'صوبہ', 'تحصیل', 'ریاست', 'علاقہ', 'شہرستان'],
     'gu': ['જિલ્લો', 'જિલ્લા', 'તાલુકો', 'તાલુકા', 'પ્રાંત', 'રાજ્ય'],
+    'fr': ['district', 'sous-district', 'province', 'gouvernorat',
+           'préfecture', 'département', 'arrondissement', 'comté',
+           'municipalité', 'oblast', 'raion', 'xian', 'bourg', 'ville',
+           'kabupaten', 'canton', 'région'],
 }
 
 
@@ -90,6 +100,9 @@ def clean(name, language):
     if language == 'gu':
         name = re.sub(r'\s+', ' ', name)
         return name if GUJARATI_SCRIPT.match(name) else None
+    if language == 'fr':
+        name = re.sub(r'\s+', ' ', name)
+        return name if LATIN_SCRIPT.match(name) else None
     name = HARAKAT.sub('', name)
     name = name.replace('-', ' ').replace('‐', ' ')
     for wrong, right in LETTER_FORMS[language].items():
@@ -99,7 +112,9 @@ def clean(name, language):
 
 
 def needs_check(name, language):
-    return any(re.search(rf'(^|\s){re.escape(word)}(\s|$)', name)
+    # A hyphen ends a word too: "sous-district de ...".
+    return any(re.search(rf'(^|[\s-]){re.escape(word)}(\s|$)', name,
+                         re.IGNORECASE if language == 'fr' else 0)
                for word in UNIT_WORDS[language])
 
 
@@ -188,7 +203,9 @@ def wikidata_labels(geoname_ids, linked_qids, links, cache_dir):
                for g in ids}
     qids = sorted({q for q in qid_for.values() if q})
     labels = {}
-    languages = ', '.join(f'"{l}"' for l in LANGUAGES + ['en'])
+    # "mul": the label Wikidata now keeps once for every language that
+    # writes the name alike, in place of a French (or English) one.
+    languages = ', '.join(f'"{l}"' for l in LANGUAGES + ['en', 'mul'])
     for start in range(0, len(qids), 300):
         values = ' '.join(f'wd:{q}' for q in qids[start:start + 300])
         rows = sparql(
@@ -319,6 +336,8 @@ def main():
             if not name and geoname_id:
                 labels = wikidata.get(geoname_id, {})
                 name = clean(labels.get(language), language)
+                if not name and language in LATIN_LANGUAGES:
+                    name = clean(labels.get('mul'), language)
                 source = 'wd' if name else ''
                 mismatch = bool(name) and not same_place(
                     english, labels.get('en', ''))

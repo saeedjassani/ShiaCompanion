@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- The watch app's own wording. Prayer names, times, hijri months and event
      names arrive from the phone already in the phone's language, so only the
-     screens' chrome lives here. Keep values-ur, values-fa, values-ar and
-     values-gu in step (see docs/WEAR_OS.md). -->
+     screens' chrome lives here. Keep values-ur, values-fa, values-ar,
+     values-gu and values-fr in step (see docs/WEAR_OS.md). -->
 <resources>
     <string name="app_name" translatable="false">Shia Companion</string>
 

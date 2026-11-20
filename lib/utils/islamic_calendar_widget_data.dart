@@ -3,7 +3,6 @@ import 'package:hijri/hijri_calendar.dart';
 import 'hijri_date.dart';
 import 'widget_prayer_time_selection.dart';
 import '../l10n/hijri_l10n.dart';
-import '../l10n/l10n.dart';
 
 /// How far ahead the calendar widgets can run without the app being opened.
 /// Each day is its own entry, so the widget rolls over at midnight by itself
@@ -251,7 +250,7 @@ List<Map<String, Object>> buildUpcomingCalendarWidgetEvents({
       'day': hijri.hDay,
       'month': _monthName(hijri),
       'monthShort': _monthShort(hijri),
-      'hijri': localizeDigits('${hijri.hDay} ${_monthName(hijri)}'),
+      'hijri': '${dayOfMonthLabel(hijri.hDay)} ${_monthName(hijri)}',
       'title': event['title']!,
       'short': event['short']!,
       'kind': event['kind']!,

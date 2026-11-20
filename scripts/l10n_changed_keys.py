@@ -18,7 +18,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-LANGS = ["ur", "fa", "ar", "gu"]
+LANGS = ["ur", "fa", "ar", "gu", "fr"]
 L10N = Path("lib/l10n")
 
 
