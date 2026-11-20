@@ -38,7 +38,7 @@ behaviour. They only render inside the canvas: `support.js` and the
 | `Rakaat-A.dc.html`, `Rakaat-B.dc.html` | Rakaat counter and dim mode | Tools |
 | `Settings-A.dc.html`, `Settings-A-signedin.dc.html` | Settings signed out / in | Settings |
 | `Nudge-C.dc.html` | Back-up banner (shown on Favorites) | Back-up nudges |
-| `R3-Search.dc.html`, `R3-Search-results.dc.html`, `R3-Search-none.dc.html` | Search before typing (keyboard up), with results (sources as sections, Library folded), with none; the field at the bottom is the only control | Navigation → Search |
+| `R3-Search.dc.html`, `R3-Search-results.dc.html`, `R3-Search-none.dc.html` | Search before typing (keyboard up), with results (sources as sections), with none; the field at the bottom is the only control | Navigation → Search |
 | `R3-List.dc.html`, `R3-List-group.dc.html` | A zikr list (Duas), and one with a group row (Ziyarats); the find field at the bottom | Lists |
 | `R3-Todays-recitations.dc.html` | Today's Recitations | Lists |
 | `R3-Azan.dc.html` | Azan (prayer notifications) | Azan |

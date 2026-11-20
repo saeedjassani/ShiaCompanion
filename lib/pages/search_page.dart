@@ -111,7 +111,7 @@ enum SearchSource {
 /// Before anything is typed it offers example searches and the last few
 /// searches made here. Results come as one section per kind - duas & more,
 /// the Quran, the Library - best match first, each of which can be folded
-/// to a single row; the Library starts folded.
+/// to a single row. All start open.
 class SearchPage extends StatefulWidget {
   const SearchPage({
     super.key,
@@ -128,20 +128,16 @@ class SearchPage extends StatefulWidget {
 
   final String initialQuery;
 
-  /// Remembers which sections are open, the rest folded. It held which
-  /// sources the old filter chips had on, and means the same thing.
-  static const String sourcesPrefKey = 'search_sources';
+  /// The sections the reader has hidden; every other one is open.
+  static const String foldedPrefKey = 'search_folded';
+
+  /// Held the open sections, Library left out by default, so it started
+  /// folded; most installs still have that default saved. Dropped so the
+  /// Library opens for them too.
+  static const String legacySourcesPrefKey = 'search_sources';
 
   /// The last few searches made on this device, newest first.
   static const String recentPrefKey = 'search_recent';
-
-  /// Duas & more and the Quran open: most searches are for a dua, ziyarat
-  /// or surah, and a hundred book titles matching a common word like
-  /// "prayer" would bury them.
-  static const Set<SearchSource> defaultSources = {
-    SearchSource.zikr,
-    SearchSource.quran,
-  };
 
   static const int recentCount = 3;
 
@@ -153,7 +149,7 @@ class _SearchPageState extends State<SearchPage> {
   late final TextEditingController _query = TextEditingController(
     text: widget.initialQuery,
   );
-  Set<SearchSource> _openSources = _loadSources();
+  Set<SearchSource> _folded = _loadFolded();
   List<String> _recent = _loadRecent();
 
   /// Where each zikr sits in the lists, for its row's sub-line.
@@ -190,11 +186,12 @@ class _SearchPageState extends State<SearchPage> {
     super.dispose();
   }
 
-  static Set<SearchSource> _loadSources() {
-    final saved = SP.isInitialized
-        ? SP.prefs.getStringList(SearchPage.sourcesPrefKey)
-        : null;
-    if (saved == null) return {...SearchPage.defaultSources};
+  static Set<SearchSource> _loadFolded() {
+    if (!SP.isInitialized) return {};
+    if (SP.prefs.containsKey(SearchPage.legacySourcesPrefKey)) {
+      unawaited(SP.prefs.remove(SearchPage.legacySourcesPrefKey));
+    }
+    final saved = SP.prefs.getStringList(SearchPage.foldedPrefKey) ?? const [];
     return {
       for (final source in SearchSource.values)
         if (saved.contains(source.name)) source,
@@ -209,13 +206,13 @@ class _SearchPageState extends State<SearchPage> {
 
   void _setOpen(SearchSource source, bool open) {
     setState(() {
-      _openSources = {..._openSources};
-      open ? _openSources.add(source) : _openSources.remove(source);
+      _folded = {..._folded};
+      open ? _folded.remove(source) : _folded.add(source);
     });
     if (SP.isInitialized) {
       unawaited(
-        SP.prefs.setStringList(SearchPage.sourcesPrefKey, [
-          for (final s in _openSources) s.name,
+        SP.prefs.setStringList(SearchPage.foldedPrefKey, [
+          for (final s in _folded) s.name,
         ]),
       );
     }
@@ -522,16 +519,14 @@ class _SearchPageState extends State<SearchPage> {
 
     var open = [
       for (final source in SearchSource.values)
-        if (_openSources.contains(source) && bySource[source]!.isNotEmpty)
-          source,
+        if (!_folded.contains(source) && bySource[source]!.isNotEmpty) source,
     ];
     // Folded sections still say they have matches, after the open ones -
     // otherwise a search only a book matches would look like it found
     // nothing.
     var folded = [
       for (final source in SearchSource.values)
-        if (!_openSources.contains(source) && bySource[source]!.isNotEmpty)
-          source,
+        if (_folded.contains(source) && bySource[source]!.isNotEmpty) source,
     ];
     // When only folded sections matched ("Mutahhari" finds only books),
     // their lists show anyway: a lone "41 matches in Library" row would
@@ -566,8 +561,8 @@ class _SearchPageState extends State<SearchPage> {
               onRequest: () => showContentRequestDialog(
                 context,
                 initialType:
-                    _openSources.length == 1 &&
-                        _openSources.contains(SearchSource.library)
+                    _folded.length == SearchSource.values.length - 1 &&
+                        !_folded.contains(SearchSource.library)
                     ? ContentRequestType.book
                     : ContentRequestType.zikr,
                 initialTitle: query,
