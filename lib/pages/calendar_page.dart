@@ -293,10 +293,10 @@ String _hijriMonth(BuildContext context, int month) =>
     hijriMonthName(month, context.l10n).replaceAll(' Al-', ' al-');
 
 /// "26 Rabi' al-Thani 1448".
-String _hijriLabel(BuildContext context, HijriCalendar hijri) => localizeDigits(
-  '${hijri.hDay} ${_hijriMonth(context, hijri.hMonth)} ${hijri.hYear}',
-  context.l10n,
-);
+String _hijriLabel(BuildContext context, HijriCalendar hijri) =>
+    '${dayOfMonthLabel(hijri.hDay, context.l10n)} '
+    '${_hijriMonth(context, hijri.hMonth)} '
+    '${localizeDigits('${hijri.hYear}', context.l10n)}';
 
 /// The Hijri months a Gregorian month runs across: "Rabi' al-Thani –
 /// Jumada al-Awwal 1448", with both years when it crosses into a new one.
@@ -678,7 +678,7 @@ class _DayCell extends StatelessWidget {
     final eventName = event == null ? '' : eventHeadline(event!).name;
 
     final label = [
-      DateFormat('d MMMM').format(day),
+      civilDayMonth(day, context.l10n),
       _hijriLabel(context, hijri),
       if (event != null)
         eventName.isNotEmpty ? eventName : context.l10n.calendarHasEvent,
@@ -796,7 +796,7 @@ class _DayHeading extends StatelessWidget {
         Semantics(
           header: true,
           child: Text(
-            DateFormat('EEEE d MMMM').format(day),
+            civilDayMonth(day, context.l10n, true),
             style: ShiaText.sectionTitle.copyWith(
               fontSize: 22,
               height: 28 / 22,
@@ -1372,7 +1372,7 @@ class _OtherCityRow extends StatelessWidget {
                       const SizedBox(height: 1),
                       Text(
                         context.l10n.calendarOtherCityFor(
-                          DateFormat('d MMMM').format(date),
+                          civilDayMonth(date, context.l10n),
                         ),
                         style: ShiaText.secondary.copyWith(
                           fontSize: 14,

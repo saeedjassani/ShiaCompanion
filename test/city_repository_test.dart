@@ -225,6 +225,34 @@ void main() {
     });
   });
 
+  group('in French', () {
+    setUp(() async {
+      L10n.current = lookupAppLocalizations(const Locale('fr'));
+      await repository.load();
+    });
+    tearDown(() async {
+      L10n.current = lookupAppLocalizations(const Locale('en'));
+      await repository.load();
+    });
+
+    test('names cities and countries in French', () {
+      final baghdad = repository.search('Baghdad').first.city;
+      expect(baghdad.name, 'Bagdad');
+      expect(baghdad.englishName, 'Baghdad');
+      expect(baghdad.countryName, 'Irak');
+      // A place French spells alike keeps its English name.
+      expect(repository.search('Karbala').first.city.name, 'Karbala');
+    });
+
+    test('finds a city by its French or its English name', () {
+      String first(String query) =>
+          repository.search(query).first.city.englishName;
+      expect(first('Londres'), 'London');
+      expect(first('London'), 'London');
+      expect(first('Téhéran'), 'Tehran');
+    });
+  });
+
   test('keeps the list small: big cities and capitals only', () {
     // The picker is the fallback for when GPS is unavailable, and the list
     // ships in every install.

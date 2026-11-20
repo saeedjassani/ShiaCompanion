@@ -52,7 +52,7 @@ OUT = os.path.join(os.path.dirname(__file__), '..', 'assets', 'cities.tsv')
 
 NAMES_DIR = os.path.join(os.path.dirname(__file__), 'city_names')
 # The app's other languages; see scripts/build_city_names.py.
-NAME_LANGUAGES = ['ar', 'fa', 'ur', 'gu']
+NAME_LANGUAGES = ['ar', 'fa', 'ur', 'gu', 'fr']
 
 MIN_POPULATION = 100000
 ALIAS_MIN_POPULATION = 250000

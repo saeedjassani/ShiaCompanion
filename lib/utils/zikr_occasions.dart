@@ -1,5 +1,6 @@
 import 'package:intl/intl.dart' show DateFormat;
 
+import '../l10n/hijri_l10n.dart';
 import '../l10n/l10n.dart';
 import 'lunar_date_matcher.dart';
 
@@ -127,8 +128,15 @@ String? describeZikrOccasions(
     clauses.add(s.occasionNightsOf(count(nights), _dates(nights, s)));
   }
 
-  return clauses.isEmpty ? null : clauses.join(' · ');
+  return clauses.isEmpty ? null : clauses.map(capitalizeFirst).join(' · ');
 }
+
+/// [text] with its first letter a capital. The weekly phrases start in
+/// lower case where a language writes them so mid-list (French "tous les
+/// mardis et tous les vendredis"), so a label starts its own capital here;
+/// English already has one, and Arabic-script and Gujarati have none.
+String capitalizeFirst(String text) =>
+    text.isEmpty ? text : text[0].toUpperCase() + text.substring(1);
 
 /// Whether [patterns] name an every-day recitation ("*-*"), which the lists
 /// never mark as Today: it always is.
@@ -200,10 +208,12 @@ List<String> _runs(List<int> days, AppLocalizations s) {
       end++;
     }
     if (end - start >= 2) {
-      parts.add(localizeDigits('${days[start]}–${days[end]}', s));
+      parts.add(
+        '${dayOfMonthLabel(days[start], s)}–${dayOfMonthLabel(days[end], s)}',
+      );
     } else {
       for (var i = start; i <= end; i++) {
-        parts.add(localizeDigits('${days[i]}', s));
+        parts.add(dayOfMonthLabel(days[i], s));
       }
     }
     start = end + 1;

@@ -4667,5 +4667,15 @@
         "example": "13 Rajab"
       }
     }
+  },
+  "dayOfMonth": "{day}",
+  "@dayOfMonth": {
+    "description": "A day of the month as a date writes it, before the month's name: '15 Shawwal'. French writes the first as '1er'.",
+    "placeholders": {
+      "day": {
+        "type": "String",
+        "example": "15"
+      }
+    }
   }
 }

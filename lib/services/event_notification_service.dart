@@ -166,9 +166,8 @@ class EventNotificationService extends ChangeNotifier {
           title: eventNotificationTitle(plan[i].event),
           body: l10n.eventNotificationBody(
             l10n.homeEventTonight,
-            localizeDigits(
-              '${plan[i].hijriDay} ${hijriMonthName(plan[i].hijriMonth)}',
-            ),
+            '${dayOfMonthLabel(plan[i].hijriDay)} '
+            '${hijriMonthName(plan[i].hijriMonth)}',
           ),
           scheduledDate: tz.TZDateTime.from(plan[i].fireAt, tz.local),
           notificationDetails: details,

@@ -96,21 +96,27 @@
   - merits notes.
 
 - **French: app text shipped, content still English.** `app_fr.arb`, the
-  Quran collections' notes, the Sajdah rulings and the Wear OS strings are
-  French (reviewed by independent agents); zikrs, the Quran, calendar
-  events, hadith, the Ziyarat Guide and place names read in English (see
+  Quran collections' notes, the Sajdah rulings, the city picker's names
+  and the Wear OS strings are French (reviewed by independent agents);
+  zikrs, the Quran, calendar events, hadith and the Ziyarat Guide read in
+  English (see
   "French" in `docs/TRANSLATIONS.md`). Left:
   - a **Shia** French Quran - Fakhri's (Ansariyan) is the candidate, but
     no machine-readable copy was found (al-islam.org blocks cloud
     sessions); Hamidullah (Tanzil) is Sunni. Shipping it also needs an
     English fallback per zikr for French, or every untranslated dua shows
     its Arabic alone;
-  - `joinList` (`lib/utils/zikr_occasions.dart`, `reminderDaysLabel`)
-    joins whole phrases, so French reads "Tous les mardis et Tous les
-    vendredis";
-  - Hijri dates print "1 Shawwal" where French writes "1er";
+  - French weekly phrases are lower case (`occasionWeekly`...) and each
+    label's clause gets its capital from `capitalizeFirst`; a day of the
+    month goes through `dayOfMonthLabel` (`1er` in French), a civil
+    "d MMMM" through `civilDayMonth` - keep new
+    date and occasion code on both;
   - owner questions: 11:86 Baqiyyatullah as « le reste d’Allah », 98:7
-    « tes chiites » (Collections notes).
+    « tes chiites » (Collections notes); Najaf, Karbala, Mashhad kept in
+    their English spelling in app text and city names (`fix` in
+    `scripts/city_names/fr.tsv`) rather than Nadjaf, Kerbala, Machhad.
+    Most city names have no `gn`/`tr` fill-in: ~1,100 places show their
+    English, which French mostly spells the same.
 
 - **Trim Firestore cost of the synced-data managers.** Zikr bookmarks
   (`lib/services/zikr_bookmarks_manager.dart`, PR #176) copied

@@ -157,13 +157,14 @@ names) keep the app's English spelling, since zikr titles show in English;
 the terms (Coran, sourate, verset, doua, ziyarat, adhan, qibla, tasbih,
 prière, sanctuaire) are those `app_fr.arb` already uses.
 
-Besides the app text it has the Quran collections' notes and the Sajdah
-rulings, but no zikr translations, calendar events, hadith collection,
-Ziyarat Guide or place names of its own, and reads each of those in English: with no
+Besides the app text it has the Quran collections' notes, the Sajdah
+rulings and the city picker's place names (`assets/cities_fr.tsv`), but
+no zikr translations, calendar events, hadith collection or Ziyarat
+Guide of its own, and reads each of those in English: with no
 `assets/zikr_i18n/fr/`, its translation language is English (so the
 Quran's and duas' English and transliteration show as in English);
-`CalendarEvents`, `CityRepository` and the Ziyarat Guide
-(`ziyaratGuideLanguages`) fall back to English; and the Home hadith uses the English collection, as French is not
+`CalendarEvents` and the Ziyarat Guide (`ziyaratGuideLanguages`) fall back
+to English; and the Home hadith uses the English collection, as French is not
 in `localizedHadithLanguages`. Shipping a partial `assets/zikr_i18n/fr/`
 (the Quran alone, say) would make French the translation language, and
 every untranslated dua would then show its Arabic alone - so a French Quran

@@ -238,7 +238,7 @@
   "qazaEditCount": "Modifier le nombre",
   "qazaMissedAWhile": "Des prières manquées depuis un moment ?",
   "qazaMissedAWhileBody": "Indiquez depuis combien de temps, et nous ajouterons une de chaque prière quotidienne pour chaque jour manqué.",
-  "qazaPrayedFullDay": "Journée complète priée",
+  "qazaPrayedFullDay": "J’ai rattrapé une journée complète",
   "qazaLoggedFullDay": "Une de chaque prière quotidienne enregistrée",
   "qazaFullDayNeedsEach": "Il faut qu’il reste au moins une de chaque prière quotidienne à rattraper.",
   "qazaAddedToList": "Ajouté à votre liste de qaza",
@@ -990,9 +990,9 @@
   "zikrMonth12": "Dhul Hijjah",
   "occasionEveryDay": "Chaque jour",
   "occasionEveryNight": "Chaque nuit",
-  "occasionWeekly": "Tous les {weekday}s",
-  "occasionWeeklyNight": "Tous les {weekday}s soir",
-  "occasionWeeklyInMonth": "Tous les {weekday}s de {month}",
+  "occasionWeekly": "tous les {weekday}s",
+  "occasionWeeklyNight": "tous les {weekday}s soir",
+  "occasionWeeklyInMonth": "tous les {weekday}s de {month}",
   "occasionNthWeekday": "{ordinal, select, 1{Premier} 2{Deuxième} 3{Troisième} 4{Quatrième} other{Cinquième}} {weekday} de {month}",
   "occasionNthWeekdayNight": "Nuit du {ordinal, select, 1{premier} 2{deuxième} 3{troisième} 4{quatrième} other{cinquième}} {weekday} de {month}",
   "occasionNthWeekdayMonthly": "{ordinal, select, 1{Premier} 2{Deuxième} 3{Troisième} 4{Quatrième} other{Cinquième}} {weekday} de chaque mois",
@@ -1023,7 +1023,7 @@
   "listGroupContents": "{names} · {count, plural, =1{1 section} other{{count} sections}}",
   "todaysGroupMonth": "En {month}",
   "todaysGroupWeekday": "Pour le {weekday}",
-  "occasionWeeklyNightInMonth": "Tous les {weekday}s soir de {month}",
+  "occasionWeeklyNightInMonth": "tous les {weekday}s soir de {month}",
   "findClear": "Effacer la recherche",
   "searchHint": "Doua, sourate ou livre",
   "searchClose": "Fermer la recherche",
@@ -1413,5 +1413,6 @@
   "eventKindOtherHint": "Le début de Ramazan, les nuits du Qadr, les batailles",
   "eventKindsNoneChosen": "Choisissez au moins un type d’événement",
   "eventNotificationsFootnote": "À chaque ouverture de l’application, tous les événements des semaines à venir sont programmés. Si elle reste fermée, ce qui est déjà programmé est réparti sur les mois à venir, pour que même les mois calmes aient leur notification. Tant que l’application ne connaît pas votre position, les notifications arrivent à {time}.",
-  "eventNotificationBody": "{when} · {date}"
+  "eventNotificationBody": "{when} · {date}",
+  "dayOfMonth": "{day, select, 1{1er} other{{day}}}"
 }

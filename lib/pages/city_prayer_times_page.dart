@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:material_ui/material_ui.dart';
-import 'package:intl/intl.dart' show DateFormat;
 import 'package:timezone/timezone.dart' as tz;
 
 import '../constants.dart';
@@ -110,12 +109,10 @@ class _CityPrayerTimesPageState extends State<CityPrayerTimesPage> {
     final hijri =
         islamicDay?.day.hijri ??
         hijriForCivilDate(_day, offsetDays: hijriOffsetInEffect);
-    final hijriLabel = localizeDigits(
-      '${hijri.hDay} '
-      '${hijriMonthName(hijri.hMonth, context.l10n).replaceAll(' Al-', ' al-')} '
-      '${hijri.hYear}',
-      context.l10n,
-    );
+    final hijriLabel =
+        '${dayOfMonthLabel(hijri.hDay, context.l10n)} '
+        '${hijriMonthName(hijri.hMonth, context.l10n).replaceAll(' Al-', ' al-')} '
+        '${localizeDigits('${hijri.hYear}', context.l10n)}';
     // Midday, so a day the clocks change on compares the hours that count.
     final difference = zone == null
         ? null
@@ -173,7 +170,7 @@ class _CityPrayerTimesPageState extends State<CityPrayerTimesPage> {
                           child: Column(
                             children: [
                               Text(
-                                DateFormat('EEEE d MMMM').format(_day),
+                                civilDayMonth(_day, context.l10n, true),
                                 textAlign: TextAlign.center,
                                 style: ShiaText.cardTitle.copyWith(
                                   color: colors.text,
