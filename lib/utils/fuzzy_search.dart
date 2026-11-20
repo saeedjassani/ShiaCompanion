@@ -32,7 +32,11 @@ class FuzzyQuery {
   /// worth matching by sound (only generic words like "dua", or only
   /// one-letter skeletons).
   static FuzzyQuery? parse(String query) {
-    final tokens = _tokens(foldSearchText(query))
+    final folded = foldSearchText(query);
+    // Numbers alone have no sound to match. Word by word, the "2" of a
+    // verse reference "2:55" is too short to count and "55" found Surah 55.
+    if (!_letter.hasMatch(folded)) return null;
+    final tokens = _tokens(folded)
         .where((t) => !t.isStopword && t.key.length >= 2)
         .toList();
     if (tokens.isEmpty) return null;
@@ -156,6 +160,9 @@ class FuzzyQuery {
 }
 
 final RegExp _digit = RegExp('[0-9]');
+
+/// A letter in any script.
+final RegExp _letter = RegExp(r'\p{L}', unicode: true);
 
 /// [word]'s consonant skeleton; see [FuzzyQuery].
 String phoneticKey(String word) => _tokenFor(word)?.key ?? '';

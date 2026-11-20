@@ -48,35 +48,52 @@ void main() {
     await tester.pump(const Duration(seconds: 1));
   }
 
-  testWidgets('library books are folded by default but counted',
+  testWidgets('library books are open by default, with their author',
       (tester) async {
     await openSearch(tester, 'kumayl');
 
     expect(find.text('Dua Kumayl', findRichText: true), findsOneWidget);
-    expect(find.text('Commentary on Dua Kumayl', findRichText: true),
-        findsNothing);
-    expect(find.text('1 match in Library'), findsOneWidget);
-  });
-
-  testWidgets('showing the library lists books with their author',
-      (tester) async {
-    await openSearch(tester, 'kumayl');
-
-    await tester.tap(find.text('1 match in Library'));
-    await tester.pumpAndSettle();
-
     expect(find.text('LIBRARY · 1'), findsOneWidget);
     expect(find.text('Commentary on Dua Kumayl', findRichText: true),
         findsOneWidget);
     expect(find.text('Ansariyan'), findsOneWidget);
     expect(find.text('1 match in Library'), findsNothing);
-    // Remembered for next time.
-    expect(SP.prefs.getStringList(SearchPage.sourcesPrefKey),
-        containsAll(['zikr', 'quran', 'library']));
   });
 
-  testWidgets('a search only the library matches lists the books',
+  testWidgets('the old saved default no longer folds the library',
       (tester) async {
+    SharedPreferences.setMockInitialValues({
+      SearchPage.legacySourcesPrefKey: ['zikr', 'quran'],
+    });
+    await SP.init();
+    await openSearch(tester, 'kumayl');
+
+    expect(find.text('LIBRARY · 1'), findsOneWidget);
+    expect(SP.prefs.containsKey(SearchPage.legacySourcesPrefKey), isFalse);
+  });
+
+  testWidgets('a hidden library stays hidden and shows again',
+      (tester) async {
+    await openSearch(tester, 'kumayl');
+
+    await tester.tap(find.bySemanticsLabel('Hide Library'));
+    await tester.pumpAndSettle();
+    expect(find.text('Commentary on Dua Kumayl', findRichText: true),
+        findsNothing);
+    expect(SP.prefs.getStringList(SearchPage.foldedPrefKey), ['library']);
+
+    await tester.tap(find.text('1 match in Library'));
+    await tester.pumpAndSettle();
+    expect(find.text('LIBRARY · 1'), findsOneWidget);
+    expect(SP.prefs.getStringList(SearchPage.foldedPrefKey), isEmpty);
+  });
+
+  testWidgets('a search only a hidden library matches lists the books',
+      (tester) async {
+    SharedPreferences.setMockInitialValues({
+      SearchPage.foldedPrefKey: ['library'],
+    });
+    await SP.init();
     await openSearch(tester, 'ansariyan');
 
     expect(find.textContaining('Nothing called'), findsNothing);
@@ -85,17 +102,17 @@ void main() {
     expect(find.text('2 matches in Library'), findsNothing);
     // Nothing to hide it under, and the preference is left as it was.
     expect(find.bySemanticsLabel('Hide Library'), findsNothing);
-    expect(SP.prefs.getStringList(SearchPage.sourcesPrefKey), isNull);
+    expect(SP.prefs.getStringList(SearchPage.foldedPrefKey), ['library']);
   });
 
-  testWidgets('duas & more and the Quran are sections, both open by default',
+  testWidgets('every source is a section, all open by default',
       (tester) async {
     await openSearch(tester, 'a');
 
     expect(find.text('DUAS & MORE · 3'), findsOneWidget);
     expect(find.text('QURAN · 2'), findsOneWidget);
+    expect(find.text('LIBRARY · 2'), findsOneWidget);
     expect(find.text('Ayat al-Kursi', findRichText: true), findsOneWidget);
-    expect(find.text('2 matches in Library'), findsOneWidget);
   });
 
   testWidgets('Hide folds a section to one row after the others',
@@ -250,6 +267,19 @@ void main() {
       await openSearch(tester, '2:255');
 
       expect(find.text('Al-Baqarah 2:255'), findsOneWidget);
+    });
+
+    testWidgets('does not also list the surah its verse number names',
+        (tester) async {
+      isUserAdmin = true;
+      await openSearch(tester, '2 55', entries: [
+        UidTitleData('A6', '2: Al-Baqarah البقرة'),
+        UidTitleData('A59', '55: Ar-Rahman الرحمن'),
+      ]);
+
+      expect(find.text('Al-Baqarah 2:55'), findsOneWidget);
+      expect(find.textContaining('Ar-Rahman', findRichText: true), findsNothing);
+      expect(find.textContaining('QURAN'), findsNothing);
     });
 
     testWidgets('is left out where the reader cannot open at a verse',

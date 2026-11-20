@@ -135,6 +135,14 @@ void main() {
       expect(find('surah 114'), ['A118']);
     });
 
+    test('numbers alone are not matched by sound', () {
+      // A verse reference: the "2" is too short to count, and "55" found
+      // Surah 55 when searching for al-Baqarah 2:55.
+      expect(FuzzyQuery.parse('2:55'), isNull);
+      expect(FuzzyQuery.parse('2 55'), isNull);
+      expect(FuzzyQuery.parse('٢:٥٥'), isNull);
+    });
+
     test('a diphthong before a consonant is a vowel', () {
       expect(find('joshan'), ['E29', 'E30']);
     });

@@ -292,11 +292,10 @@ bar. Results scroll behind it under the same fade.
   control**: nothing sits at the top.
 - **No source chips.** Every source is a section of the results, best
   match first (today's order), labelled with its name and count ("Duas &
-  more · 6", "Zikr" renamed to match Favorites) and a **Hide** link. Library
-  starts folded to one row, "11 matches in Library · Show", after the
-  others. What is folded is remembered in `search_sources`, the pref the
-  chips use today, with the same defaults, so Library stays folded until
-  someone opens it.
+  more · 6", "Zikr" renamed to match Favorites) and a **Hide** link. A
+  hidden section folds to one row, "11 matches in Library · Show", after
+  the others. Every section starts open (Library started folded until
+  2026-11); what the reader hides is remembered in `search_folded`.
 - Before typing: the large title "Search", then **Try**: four examples in a
   2 × 2 grid (Kumayl, Yasin, 2:255, Mutahhari, each labelled with what it
   is) that fill in the field when tapped, so verse and author search are
