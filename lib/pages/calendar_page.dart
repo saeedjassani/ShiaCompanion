@@ -18,6 +18,7 @@ import 'package:shia_companion/widgets/responsive_content.dart';
 import 'package:shia_companion/widgets/widget_prayer_times_dialog.dart';
 
 import '../constants.dart';
+import '../l10n/app_language.dart';
 import '../l10n/hijri_l10n.dart';
 import '../l10n/l10n.dart';
 import '../theme/shia_colors.dart';
@@ -724,9 +725,12 @@ class _DayCell extends StatelessWidget {
                   bottom: wide ? 6 : 4,
                   end: wide ? 9 : 6,
                   child: Text(
-                    // Eastern digits even in English, to set the Hijri
-                    // day apart; otherwise the app language's own.
-                    context.l10n.localeName == 'en'
+                    // Eastern digits even in a language written in 0-9
+                    // (English, French), to set the Hijri day apart;
+                    // otherwise the app language's own.
+                    (appLanguageFor(context.l10n.localeName)?.zeroDigit ??
+                                '0') ==
+                            '0'
                         ? convertNumberToUrdu('${hijri.hDay}')
                         : localizeDigits('${hijri.hDay}', context.l10n),
                     style: ShiaText.caption.copyWith(

@@ -99,6 +99,7 @@ const List<AppLanguage> appLanguages = [
     nativeName: 'ગુજરાતી',
     zeroDigit: '\u0AE6',
   ),
+  AppLanguage(code: 'fr', englishName: 'French', nativeName: 'Français'),
 ];
 
 /// The catalog entry for [code], or null for a language the app does not

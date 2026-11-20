@@ -51,8 +51,8 @@ void main() {
       }
     });
 
-    test('all 5 supported languages provide localized titles, badges and rulings', () {
-      final languages = ['en', 'ur', 'fa', 'ar', 'gu'];
+    test('every supported language provides localized titles, badges and rulings', () {
+      final languages = ['en', 'ur', 'fa', 'ar', 'gu', 'fr'];
 
       for (final sajdah in quranSajdahVerses.values) {
         for (final lang in languages) {

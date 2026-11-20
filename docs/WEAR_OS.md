@@ -20,7 +20,7 @@ The same three things as the Apple Watch app, plus a tile:
 Prayer names, times, the location, hijri months and event names arrive from
 the phone already in the phone's language. The screens' own words are in
 `android/wear/app/src/main/res/values*/strings.xml`, in English, Urdu, Persian,
-Arabic and Gujarati - keep the five in step when adding one.
+Arabic, Gujarati and French - keep the six in step when adding one.
 
 ## How it is built
 

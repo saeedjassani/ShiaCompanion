@@ -8,6 +8,9 @@ import 'package:shia_companion/l10n/app_language.dart';
 
 void main() {
   final latin = RegExp('[A-Za-z]');
+  // Languages written in Latin letters: still English means the English
+  // text itself, not any Latin letter.
+  const latinScript = {'fr'};
 
   test('every app language but English has the collections translated', () {
     expect(
@@ -20,36 +23,47 @@ void main() {
     group(entry.key, () {
       final text = entry.value;
 
-      void coversExactly(
-          Map<String, String> translated, Iterable<String> keys, String what) {
-        expect(translated.keys.toSet(), keys.toSet(),
+      void coversExactly(Map<String, String> translated,
+          Map<String, String> english, String what,
+          {bool sameAsEnglishOk = false}) {
+        expect(translated.keys.toSet(), english.keys.toSet(),
             reason: '${entry.key} $what should cover exactly the entries');
         for (final MapEntry(:key, :value) in translated.entries) {
           expect(value.trim(), isNotEmpty, reason: '$what $key is empty');
-          expect(value.contains(latin), isFalse,
+          final stillEnglish = latinScript.contains(entry.key)
+              ? value == english[key] && !sameAsEnglishOk
+              : value.contains(latin);
+          expect(stillEnglish, isFalse,
               reason: '$what $key is still in English: $value');
         }
       }
 
       test('covers every dua', () {
-        coversExactly(text.duas, quranDuas.map((d) => '${d.verse}'), 'duas');
+        coversExactly(
+            text.duas, {for (final d in quranDuas) '${d.verse}': d.note}, 'duas');
       });
 
       test('covers every verse about Imam Ali (a.s.)', () {
-        coversExactly(
-            text.imamAli, quranAliVerses.keys.map((v) => '$v'), 'imamAli');
+        coversExactly(text.imamAli,
+            {for (final e in quranAliVerses.entries) '${e.key}': e.value},
+            'imamAli');
       });
 
       test('covers every verse about Imam al-Mahdi (a.t.f.s.)', () {
-        coversExactly(text.imamMahdi, quranMahdiVerses.keys.map((v) => '$v'),
+        coversExactly(text.imamMahdi,
+            {for (final e in quranMahdiVerses.entries) '${e.key}': e.value},
             'imamMahdi');
       });
 
       test("covers every prophet's stories and heading", () {
         coversExactly(text.stories,
-            quranProphetStories.map((s) => '${s.verse}'), 'stories');
-        coversExactly(text.prophets, quranProphetStories.map((s) => s.prophet),
-            'prophets');
+            {for (final s in quranProphetStories) '${s.verse}': s.title},
+            'stories');
+        coversExactly(text.prophets,
+            {for (final s in quranProphetStories) s.prophet: s.prophet},
+            'prophets',
+            // A name can be spelt alike: Adam (a.s.).
+            sameAsEnglishOk: true);
       });
     });
   }

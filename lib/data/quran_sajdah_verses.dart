@@ -143,6 +143,18 @@ const Map<String, _SajdahTexts> _translations = {
     duaHeading: 'સજદા-એ-તિલાવતની દુઆ:',
     duaTranslation: 'અલ્લાહ સિવાય કોઈ માબૂદ નથી, આ હક છે, આ હક છે. અલ્લાહ સિવાય કોઈ માબૂદ નથી, ઈમાન અને તસ્દીક સાથે. અલ્લાહ સિવાય કોઈ માબૂદ નથી, બંદગી અને ગુલામી સાથે. હે પરવરદિગાર! મેં બંદગી અને ગુલામી રૂપે તને સજદો કર્યો, ન તો શરમ સમજીને અને ન તો ઘમંડથી, બલ્કે હું એક હકીર, કમજોર, ડરતો અને પનાહ માંગનારો બંદો છું.',
   ),
+  'fr': _SajdahTexts(
+    titleWajib: 'Prosternation obligatoire (fiqh ja‘farite)',
+    titleMustahabb: 'Prosternation recommandée (fiqh ja‘farite)',
+    badgeWajib: 'Sajdah obligatoire',
+    badgeMustahabb: 'Sajdah recommandée',
+    wajibPill: 'OBLIGATOIRE',
+    rulingWajib: 'Se prosterner (sajdah) est obligatoire dès que l’on récite ou entend ce verset. Dans la jurisprudence chiite (ja‘farite), cette sourate ne peut pas être récitée dans une prière obligatoire.',
+    rulingMustahabb:
+        'Dans la jurisprudence chiite (ja‘farite), se prosterner à la récitation de ce verset est recommandé, et non obligatoire.',
+    duaHeading: 'Doua à réciter pendant la sajdah\u00A0:',
+    duaTranslation: 'Il n’y a de dieu qu’Allah, en vérité, en vérité\u00A0! Il n’y a de dieu qu’Allah, avec foi et conviction\u00A0! Il n’y a de dieu qu’Allah, en adoration et en servitude\u00A0! Je me suis prosterné devant Toi, mon Seigneur, par dévotion et servitude, sans dédain ni orgueil\u00A0; je suis au contraire un serviteur humble, faible, craintif, qui cherche refuge auprès de Toi.',
+  ),
 };
 
 /// All 15 Sajdah verses across the Quran, with 4 marked as Wajib and 11
