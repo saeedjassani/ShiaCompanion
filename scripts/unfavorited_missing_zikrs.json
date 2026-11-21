@@ -4,10 +4,10 @@
  "counts": {
   "total": 209,
   "menuCategory": 7,
-  "retired": 64,
-  "restored": 31,
-  "toRestoreHasArabic": 59,
-  "toRestoreProseOnly": 48
+  "retired": 69,
+  "restored": 33,
+  "toRestoreHasArabic": 56,
+  "toRestoreProseOnly": 44
  },
  "uids": [
   {
@@ -466,38 +466,46 @@
   {
    "uid": "AL2",
    "title": "The Holy Shrine of the Two Imams",
-   "kind": "prose-only",
-   "itemsBytes": 1506
+   "kind": "retired",
+   "itemsBytes": 1506,
+   "note": "The house of the two Imams and its mosque, now in AL1's merits (2026-11-19).",
+   "retiredTo": "AL1"
   },
   {
    "uid": "AL3",
    "title": "Other Ziyarah",
-   "kind": "prose-only",
-   "itemsBytes": 886
+   "kind": "retired",
+   "itemsBytes": 886,
+   "note": "Which forms to recite at the two Imams' shrine, now in AL1's merits (2026-11-19).",
+   "retiredTo": "AL1"
   },
   {
    "uid": "AL4",
    "title": "Permission to Enter Holy Place of Imam Ali Al Naqi Al Hadi",
-   "kind": "has-arabic",
-   "itemsBytes": 3151
+   "kind": "retired",
+   "itemsBytes": 3151,
+   "note": "Ibn Tawus's permission to enter, already AL5's first part; its introduction is AL5's merits (2026-11-19).",
+   "retiredTo": "AL5"
   },
   {
    "uid": "AL8",
    "title": "Ziyarah of the Mother of Imam Al Qaem (a)",
-   "kind": "has-arabic",
+   "kind": "restored",
    "itemsBytes": 8133
   },
   {
    "uid": "AL9",
    "title": "Ziyarah of Lady Hakimah; Daughter of Imam Muhammad Al Jawad",
-   "kind": "has-arabic",
+   "kind": "restored",
    "itemsBytes": 9213
   },
   {
    "uid": "AL10",
    "title": "The Tomb of Imam Husayn Ibn Ali Ibn Muhammad",
-   "kind": "prose-only",
-   "itemsBytes": 1288
+   "kind": "retired",
+   "itemsBytes": 1288,
+   "note": "Al-Husayn son of Imam al-Naqi, now in AL1's merits (2026-11-19).",
+   "retiredTo": "AL1"
   },
   {
    "uid": "AL13",
@@ -509,8 +517,10 @@
   {
    "uid": "AL16",
    "title": "Other Rites at the Sardaab",
-   "kind": "prose-only",
-   "itemsBytes": 787
+   "kind": "retired",
+   "itemsBytes": 787,
+   "note": "Ibn Tawus's Sardab appendix (Nudba, AL17, Ahad, E12), now in AL11's merits (2026-11-19).",
+   "retiredTo": "AL11"
   },
   {
    "uid": "AM1",
