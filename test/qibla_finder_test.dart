@@ -104,8 +104,9 @@ void main() {
     }
   }
 
-  testWidgets('starts on the Kaaba and reports the great-circle direction',
-      (tester) async {
+  testWidgets('starts on the Kaaba and reports the great-circle direction', (
+    tester,
+  ) async {
     await pumpPage(tester);
 
     expect(find.text('Kaaba, Makkah'), findsOneWidget);
@@ -118,8 +119,9 @@ void main() {
     expect(find.text(formatBearing(expected)), findsOneWidget);
   });
 
-  testWidgets('corrects a magnetic reading for local declination',
-      (tester) async {
+  testWidgets('corrects a magnetic reading for local declination', (
+    tester,
+  ) async {
     final compass = await pumpPage(tester);
 
     // The device says it is pointing at magnetic north. True north is about
@@ -147,8 +149,9 @@ void main() {
     expect(find.textContaining('N · 0°'), findsOneWidget);
   });
 
-  testWidgets('says which way to turn, and confirms when you are facing it',
-      (tester) async {
+  testWidgets('says which way to turn, and confirms when you are facing it', (
+    tester,
+  ) async {
     final compass = await pumpPage(tester);
     final qibla = qiblaBearingDegrees(_berkeley);
     final declination = magneticDeclinationDegrees(_berkeley);
@@ -162,29 +165,33 @@ void main() {
     expect(find.text('Facing Kaaba'), findsOneWidget);
   });
 
-  testWidgets('switches to another shrine and remembers the choice',
-      (tester) async {
+  testWidgets('switches to another shrine and remembers the choice', (
+    tester,
+  ) async {
     await pumpPage(tester);
 
     await tester.tap(find.text('Change'));
     await tester.pumpAndSettle();
 
-    final karbala =
-        otherHolySites.firstWhere((site) => site.id == 'imam_husayn_karbala');
+    final karbala = otherHolySites.firstWhere(
+      (site) => site.id == 'imam_husayn_karbala',
+    );
     await tester.tap(find.text(karbala.name));
     await tester.pumpAndSettle();
 
     expect(find.text('${karbala.name}, ${karbala.city}'), findsOneWidget);
     expect(
       find.text(
-          formatBearing(initialBearingDegrees(_berkeley, karbala.location))),
+        formatBearing(initialBearingDegrees(_berkeley, karbala.location)),
+      ),
       findsOneWidget,
     );
     expect(SP.prefs.getString('qibla_target_site'), karbala.id);
   });
 
-  testWidgets('falls back to a north-up dial when there is no compass',
-      (tester) async {
+  testWidgets('falls back to a north-up dial when there is no compass', (
+    tester,
+  ) async {
     await pumpPage(tester, available: false);
     await tester.pump();
 
@@ -214,18 +221,57 @@ void main() {
     expect(find.text('Turn on the compass'), findsNothing);
   });
 
-  testWidgets('prompts for calibration when the reading is coarse',
-      (tester) async {
+  testWidgets('prompts for calibration once readings stay coarse', (
+    tester,
+  ) async {
     final compass = await pumpPage(tester);
+    const card = 'Compass needs calibrating';
 
     compass.emit(30, accuracy: 5);
     await tester.pump();
-    expect(find.text('Compass needs calibrating'), findsNothing);
+    expect(find.text(card), findsNothing);
 
-    compass.emit(30, accuracy: 35);
+    // Android's "medium" (30°) is where most phones sit: never a warning.
+    compass.emit(30, accuracy: 30);
+    await tester.pump(const Duration(seconds: 5));
+    expect(find.text(card), findsNothing);
+
+    // A brief coarse spike, as from a tilt, passes without one too.
+    compass.emit(30, accuracy: 45);
+    await tester.pump(const Duration(seconds: 1));
+    compass.emit(30, accuracy: 15);
+    await tester.pump(const Duration(seconds: 5));
+    expect(find.text(card), findsNothing);
+
+    // Coarse for a few seconds: now it asks.
+    compass.emit(30, accuracy: 45);
+    await tester.pump(const Duration(seconds: 3));
+    expect(find.text(card), findsOneWidget);
+    expect(find.textContaining('45°'), findsOneWidget);
+
+    // A good reading that lasts takes it away...
+    compass.emit(30, accuracy: 10);
+    await tester.pump(const Duration(seconds: 2));
+    expect(find.text(card), findsNothing);
+
+    // ...and having just calibrated, a short relapse does not bring it back.
+    compass.emit(30, accuracy: 45);
+    await tester.pump(const Duration(seconds: 5));
+    expect(find.text(card), findsNothing);
+    await tester.pump(const Duration(seconds: 6));
+    expect(find.text(card), findsOneWidget);
+  });
+
+  testWidgets('the calibration card does not move the dial', (tester) async {
+    final compass = await pumpPage(tester);
+    compass.emit(30, accuracy: 10);
     await tester.pump();
+    final before = tester.getTopLeft(find.byType(QiblaCompassDial));
+
+    compass.emit(30, accuracy: 45);
+    await tester.pump(const Duration(seconds: 3));
     expect(find.text('Compass needs calibrating'), findsOneWidget);
-    expect(find.textContaining('35°'), findsOneWidget);
+    expect(tester.getTopLeft(find.byType(QiblaCompassDial)), before);
   });
 
   testWidgets('asks for a location when there is none', (tester) async {
