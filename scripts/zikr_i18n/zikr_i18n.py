@@ -72,7 +72,7 @@ ANCHORS = os.path.join(ROOT, 'scripts', 'zikr_i18n', 'segment_anchors.json')
 DEFAULT_OUT = os.path.join(ROOT, 'build', 'zikr_i18n_templates')
 
 # Mirrors lib/l10n/app_language.dart.
-LANGUAGES = {'ur', 'fa', 'ar', 'gu'}
+LANGUAGES = {'ur', 'fa', 'ar', 'gu', 'fr'}
 
 # ---------------------------------------------------------------------------
 # A port of ZikrContentParser (lib/pages/zikr/zikr_content_parser.dart):

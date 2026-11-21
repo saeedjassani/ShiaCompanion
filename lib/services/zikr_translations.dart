@@ -150,6 +150,20 @@ class ZikrTranslations extends ChangeNotifier {
   /// with no translation lines.
   bool get isArabic => _language.code == arabicLanguageCode;
 
+  /// Whether the reader can be shown transliteration lines: in English, and
+  /// in a language that [AppLanguage.readsEnglishWhereUntranslated] - French
+  /// readers read the Latin letters it is spelled in.
+  bool get showsTransliteration =>
+      isEnglish || _language.readsEnglishWhereUntranslated;
+
+  /// Whether a zikr whose translation is [translation] (null: nothing of it
+  /// translated) is read in English: always in English, and in a language
+  /// that [AppLanguage.readsEnglishWhereUntranslated] while nothing of it is
+  /// translated.
+  bool readsInEnglish(ZikrDocumentTranslation? translation) =>
+      isEnglish ||
+      (translation == null && _language.readsEnglishWhereUntranslated);
+
   /// Codes of the languages that ship zikr translations, English included.
   ///
   /// Discovered from the bundle rather than listed in code, so adding a
@@ -305,11 +319,14 @@ class ZikrTranslations extends ChangeNotifier {
   /// The label of recording [file] as the reader is shown it: in English,
   /// [englishLabel]; in another language, its translation, or null while it
   /// has none - the caller then names the recording some other way (the
-  /// zikr's title, "Recording 2"), never in English.
+  /// zikr's title, "Recording 2"), never in English. A language that
+  /// [AppLanguage.readsEnglishWhereUntranslated] falls back to
+  /// [englishLabel].
   String? audioLabelFor(String file, String? englishLabel) {
     if (englishLabel == null || isEnglish) return englishLabel;
     final label = _index?.audioLabels[file]?.trim();
-    return label == null || label.isEmpty ? null : label;
+    if (label != null && label.isNotEmpty) return label;
+    return _language.readsEnglishWhereUntranslated ? englishLabel : null;
   }
 
   /// Reciter [englishName] as the reader is shown it: in English, as is; in
@@ -318,7 +335,8 @@ class ZikrTranslations extends ChangeNotifier {
   String? reciterName(String englishName) {
     if (isEnglish) return englishName;
     final name = _index?.reciters[englishName]?.trim();
-    return name == null || name.isEmpty ? null : name;
+    if (name != null && name.isNotEmpty) return name;
+    return _language.readsEnglishWhereUntranslated ? englishName : null;
   }
 
   @visibleForTesting
@@ -355,11 +373,12 @@ String zikrDisplayTitle(String uid, String englishTitle) =>
     ZikrTranslations.instance.displayTitle(uid, englishTitle);
 
 /// Whether the reader shows transliteration lines: the reader's own setting,
-/// and only while zikrs are read in English. Transliteration is the Arabic
-/// spelled out in English letters - an aid for English readers that someone
-/// reading in Urdu, Persian, Arabic or Gujarati has no use for.
+/// and only while zikrs are read in English or French
+/// ([ZikrTranslations.showsTransliteration]). Transliteration is the Arabic
+/// spelled out in Latin letters - an aid for English and French readers that
+/// someone reading in Urdu, Persian, Arabic or Gujarati has no use for.
 bool get transliterationShown =>
-    showTransliteration && ZikrTranslations.instance.isEnglish;
+    showTransliteration && ZikrTranslations.instance.showsTransliteration;
 
 /// Whether the reader shows translation lines: the reader's own setting,
 /// except in Arabic, where the zikr is already in the reader's language and

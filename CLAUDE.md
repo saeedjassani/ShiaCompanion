@@ -95,17 +95,19 @@
     legacy "Gujrati" font, decode pending; E8 not in Jafri catalog;
   - merits notes.
 
-- **French: app text shipped, content still English.** `app_fr.arb`, the
-  Quran collections' notes, the Sajdah rulings, the city picker's names
-  and the Wear OS strings are French (reviewed by independent agents);
-  zikrs, the Quran, calendar events, hadith and the Ziyarat Guide read in
-  English (see
-  "French" in `docs/TRANSLATIONS.md`). Left:
-  - a **Shia** French Quran - Fakhri's (Ansariyan) is the candidate, but
-    no machine-readable copy was found (al-islam.org blocks cloud
-    sessions); Hamidullah (Tanzil) is Sunni. Shipping it also needs an
-    English fallback per zikr for French, or every untranslated dua shows
-    its Arabic alone;
+- **French: app text and the Quran shipped, other content English.**
+  `app_fr.arb`, the Quran collections' notes, the Sajdah rulings, the city
+  picker's names and the Wear OS strings are French (reviewed by
+  independent agents), and the Quran is Fakhri's Shia translation
+  (`assets/zikr_i18n/fr/`, built by `scripts/zikr_i18n/quran_fr.py`,
+  2026-11-20). Every other zikr, a juz, calendar events, hadith and the
+  Ziyarat Guide read in English: French
+  `readsEnglishWhereUntranslated` (see "French" in `docs/TRANSLATIONS.md`).
+  Left:
+  - the owner's call on Fakhri's rights: lenoblecoran.fr gives the book
+    away but states no licence (`scripts/zikr_i18n/SOURCES.md`, "French");
+  - the surahs' merits notes (113, ~14,000 words): hidden in French, as in
+    every other language, until translated;
   - French weekly phrases are lower case (`occasionWeekly`...) and each
     label's clause gets its capital from `capitalizeFirst`; a day of the
     month goes through `dayOfMonthLabel` (`1er` in French), a civil
@@ -289,7 +291,9 @@ stay English literals. Zikr translations are overlays in
 line and tab label of a zikr, numbered 0, 1, 2...), never by English text -
 see "Zikr content" in `docs/TRANSLATIONS.md`. **Outside English the reader
 sees no English at all**: untranslated lines, merits and labels are hidden
-(the Arabic alone shows), and transliteration is off. If you change the
+(the Arabic alone shows), and transliteration is off. French is the one
+exception (`AppLanguage.readsEnglishWhereUntranslated`): a zikr with no
+French file reads wholly in English, and transliteration stays. If you change the
 content of a translated zikr (one with a file under `assets/zikr_i18n/`),
 run `python3 scripts/zikr_i18n/zikr_i18n.py rebase` and commit what it
 renumbers; `test/zikr_translations_test.dart` fails until you do.

@@ -521,7 +521,7 @@ class _SettingsPageState extends State<SettingsPage> {
   String _readingSummary(AppLocalizations l10n) {
     final aids = [
       if (ReadingSwitch.transliteration.value &&
-          ZikrTranslations.instance.isEnglish)
+          ZikrTranslations.instance.showsTransliteration)
         l10n.readerTransliteration,
       if (ReadingSwitch.translation.value &&
           !ZikrTranslations.instance.isArabic)

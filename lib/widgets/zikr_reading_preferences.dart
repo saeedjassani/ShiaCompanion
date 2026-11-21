@@ -149,13 +149,13 @@ class ReadingSwitch {
 
 /// Whether "Arabic as one paragraph" can be turned on: only with both
 /// English aids hidden - see isArabicOnlyReadingView. An aid the reading
-/// language never shows (transliteration outside English, translation in
-/// Arabic) counts as hidden whatever its stored switch says, since the
-/// reader has no switch for it to turn off.
+/// language never shows (transliteration outside English and French,
+/// translation in Arabic) counts as hidden whatever its stored switch says,
+/// since the reader has no switch for it to turn off.
 bool arabicParagraphAvailable() {
   final translations = ZikrTranslations.instance;
   final transliteration =
-      ReadingSwitch.transliteration.value && translations.isEnglish;
+      ReadingSwitch.transliteration.value && translations.showsTransliteration;
   final translation = ReadingSwitch.translation.value && !translations.isArabic;
   return !transliteration && !translation;
 }

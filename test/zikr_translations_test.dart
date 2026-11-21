@@ -42,6 +42,13 @@ const _urdu = AppLanguage(
   isRtl: true,
 );
 
+const _french = AppLanguage(
+  code: 'fr',
+  englishName: 'French',
+  nativeName: 'Français',
+  readsEnglishWhereUntranslated: true,
+);
+
 // Arabic / transliteration / translation, plus a standalone instruction.
 // Segments: 0 the instruction, 1 and 2 the verses.
 const _content = 'Say the following:\n'
@@ -210,6 +217,27 @@ void main() {
         isTrue,
       );
     });
+
+    test('in French, an untranslated zikr is read in English', () {
+      expect(
+        identical(parsed.localizedTo(_french, null, firstSegment: 0), parsed),
+        isTrue,
+      );
+    });
+
+    test('in French, a translated zikr keeps its transliteration', () {
+      const french = ZikrDocumentTranslation(
+        language: _french,
+        segments: {1: 'Ô Allah, bénis Muhammad'},
+      );
+      final read = parsed.localizedTo(_french, french, firstSegment: 0);
+      expect(read.displayLine(3), 'Ô Allah, bénis Muhammad');
+      expect(read.directionOf(3), TextDirection.ltr);
+      expect(read.isHiddenEnglish(2), isFalse); // transliteration
+      expect(read.isHiddenEnglish(5), isFalse); // transliteration
+      expect(read.isHiddenEnglish(6), isTrue); // 'O Allah, forgive me'
+      expect(read.isHiddenEnglish(0), isTrue); // the instruction
+    });
   });
 
   group('ZikrContentParser.localizedTabHeader', () {
@@ -242,6 +270,23 @@ void main() {
         ZikrContentParser.localizedTabHeader('زيارة\nO Allah', 0,
             offsets: const [0], language: _urdu),
         'زيارة',
+      );
+    });
+
+    test('is the English label in French while nothing is translated', () {
+      expect(
+        ZikrContentParser.localizedTabHeader(tab, 1,
+            offsets: const [0, 3], language: _french),
+        'Part two',
+      );
+      const french = ZikrDocumentTranslation(
+        language: _french,
+        segments: {0: 'Première partie'},
+      );
+      expect(
+        ZikrContentParser.localizedTabHeader(tab, 1,
+            offsets: const [0, 3], language: _french, translation: french),
+        isNull,
       );
     });
   });
@@ -422,6 +467,36 @@ void main() {
       expect(transliterationShown, isTrue);
       await translations.setLanguage('ur', bundle);
       expect(transliterationShown, isFalse);
+    });
+
+    test('French names recordings in English while untranslated, and shows '
+        'transliteration', () async {
+      final french = _FakeBundle({
+        'assets/zikr_i18n/fr/index.json': jsonEncode({
+          'audio': {
+            'labels': {'quran/surah-001.mp3': 'Al-Fâtiha'},
+          },
+        }),
+      });
+      showTransliteration = true;
+      await translations.setLanguage('fr', french);
+      expect(translations.language.code, 'fr');
+      expect(translations.audioLabelFor('quran/surah-001.mp3', 'Al-Fatihah'),
+          'Al-Fâtiha');
+      expect(translations.audioLabelFor('quran/surah-002.mp3', 'Al-Baqarah'),
+          'Al-Baqarah');
+      expect(translations.reciterName('Ali Fani'), 'Ali Fani');
+      expect(transliterationShown, isTrue);
+      // A zikr with nothing in French is read in English, merits and all; one
+      // with a French file is read in French, its untranslated merits hidden.
+      expect(translations.readsInEnglish(null), isTrue);
+      expect(
+        translations.readsInEnglish(const ZikrDocumentTranslation(
+          language: _french,
+          segments: {0: 'Louange à DIEU'},
+        )),
+        isFalse,
+      );
     });
 
     test('a language with nothing shipped leaves everything in English',

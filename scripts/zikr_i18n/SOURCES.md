@@ -1266,3 +1266,32 @@ Alqama.
   3/64 (existing 0, 12, 63).** Do not re-extract this chapter for G52.
   The remaining segments need the mafatihuljinan.org Gujarati *Mafatih*
   page (post 2285), whose body is JS-rendered and still unextracted.
+
+## French
+
+### The Quran: Fakhri (2026-11-20)
+
+`fr/A5.json` ... `fr/A118.json` are Dr. G.H. Abolqasemi Fakhri's *Le
+Coran* (Ansariyan, Qom, 2008), a Shia translation by a Tabriz professor
+who worked from the Shia commentaries. The text is the "Lecture en ligne"
+HTML from lenoblecoran.fr (https://www.lenoblecoran.fr/docteur-fakhri/,
+electronic version 1.2, 07/13), which offers the book as a free download;
+the site states no licence for reuse, so the owner has to decide whether
+that is enough to ship it. `quran_fr.py` builds the files from that HTML;
+its docstring lists every change made to Fakhri's text (two verses the
+export split in two, six mismatched brackets, two chat-alphabet digits,
+curly quotes). Fakhri's style is kept: "DIEU" in capitals, his
+[bracketed additions] and (glosses).
+
+Each surah's Bismillah is the one the edition prints above it ("[Commencer]
+par le Nom de DIEU..."), the same wording as its 1:1. Al-Baqarah's two
+notes (segments 0 and 1) are our own wording from the English. The surahs'
+merits notes are not translated, so French readers, like Urdu ones, see no
+merits on a surah yet.
+
+### Turned down
+
+- Hamidullah (Tanzil's `fr.hamidullah`), Rashid Maash and the other
+  QuranEnc French translations: Sunni.
+- al-islam.org's copy of Fakhri: it refuses scripted downloads (403), also
+  from the owner's Mac.

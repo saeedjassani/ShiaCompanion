@@ -100,6 +100,7 @@ flutter:
     - assets/ziyarat_plans/
     - assets/zikr_i18n/ar/
     - assets/zikr_i18n/fa/
+    - assets/zikr_i18n/fr/
     - assets/zikr_i18n/ur/
     - assets/hadith/
     - assets/hadith_i18n/hadith.json

@@ -1945,11 +1945,13 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
 
   /// The merits note, in the reader's translation language. Outside English
   /// an untranslated note is not shown at all (nor is the button for it):
-  /// someone reading in Urdu should not be handed English.
+  /// someone reading in Urdu should not be handed English. A zikr French
+  /// has no translation of at all is read in English, its note included (see
+  /// ZikrTranslations.readsInEnglish).
   String _merits() {
     final translated = _translation?.merits?.trim();
     if (translated != null && translated.isNotEmpty) return translated;
-    if (!ZikrTranslations.instance.isEnglish) return '';
+    if (!ZikrTranslations.instance.readsInEnglish(_translation)) return '';
     return zikrData?['merits']?.toString().trim() ?? '';
   }
 

@@ -306,9 +306,10 @@ class _ReaderTextSheetState extends State<ReaderTextSheet> {
           const SizedBox(height: 12),
           CardList(
             children: [
-              // Transliteration is only ever shown with English - see
-              // transliterationShown - so there is nothing to switch otherwise.
-              if (ZikrTranslations.instance.isEnglish)
+              // Transliteration is only ever shown with English and French -
+              // see transliterationShown - so there is nothing to switch
+              // otherwise.
+              if (ZikrTranslations.instance.showsTransliteration)
                 CardSwitchRow(
                   label: l10n.readerTransliteration,
                   value: ReadingSwitch.transliteration.value,
@@ -317,15 +318,18 @@ class _ReaderTextSheetState extends State<ReaderTextSheet> {
               // Read in Arabic there is no translation to switch. A zikr
               // nobody has translated yet says so rather than offering a
               // switch that would do nothing; the stored setting is left as
-              // it is for the zikrs that do have one.
-              if (untranslated != null)
-                _TranslationUnavailableRow(zikr: untranslated)
-              else if (!translations.isArabic)
+              // it is for the zikrs that do have one. In French such a zikr
+              // reads in English, which can be switched as before.
+              if (untranslated == null
+                  ? !translations.isArabic
+                  : translations.language.readsEnglishWhereUntranslated)
                 CardSwitchRow(
                   label: l10n.readerTranslation,
                   value: ReadingSwitch.translation.value,
                   onChanged: (v) => _toggle(ReadingSwitch.translation, v),
                 ),
+              if (untranslated != null)
+                _TranslationUnavailableRow(zikr: untranslated),
               CardSwitchRow(
                 label: l10n.readerArabicParagraph,
                 hint: l10n.readerArabicParagraphHint,
