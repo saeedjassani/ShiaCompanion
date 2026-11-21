@@ -4158,7 +4158,7 @@
   },
   "settingsPrayerMethod": "Calculation method",
   "@settingsPrayerMethod": {
-    "description": "Settings, Prayer times: how Fajr, Maghrib and Isha are worked out. Both choices are Shia (Ja'fari) methods."
+    "description": "Settings, Prayer times: how Fajr, Maghrib and Isha are worked out. All its choices are Shia (Ja'fari) methods."
   },
   "settingsPrayerMethodBody": "How Fajr, Maghrib and Isha are worked out from the sun. All are Shia methods: Maghrib comes once the redness in the east has gone, not at sunset.",
   "@settingsPrayerMethodBody": {
