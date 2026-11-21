@@ -161,9 +161,12 @@ Besides the app text it has the Quran collections' notes, the Sajdah
 rulings, the city picker's place names (`assets/cities_fr.tsv`) and the
 Quran: `assets/zikr_i18n/fr/A5.json` ... `A118.json` are Fakhri's Shia
 translation (Ansariyan), built by `scripts/zikr_i18n/quran_fr.py` - see
-"French" in `scripts/zikr_i18n/SOURCES.md`. `fr/index.json` has no titles,
-so zikr titles stay English. There are no other zikr translations,
-calendar events, hadith collection or Ziyarat Guide of its own:
+"French" in `scripts/zikr_i18n/SOURCES.md`. Twelve famous duas and
+ziyarats (Kumayl, Ashura, Tawassul, Kisa, Nudba, Iftitah, Abu Hamza,
+Sabah, Warith, Aal-e-Yasin, Arbaeen, Jamia Kabira) are French from a
+published French Mafatih (lechiisme.com, same section). `fr/index.json`
+has no titles, so zikr titles stay English. There are no other zikr
+translations, calendar events, hadith collection or Ziyarat Guide of its own:
 `CalendarEvents` and the Ziyarat Guide (`ziyaratGuideLanguages`) fall back
 to English, and the Home hadith uses the English collection, as French is
 not in `localizedHadithLanguages`.
@@ -173,7 +176,7 @@ language whose `AppLanguage` sets `readsEnglishWhereUntranslated`, since its
 readers read Latin letters and only the Quran is in French. So, unlike the
 rules below:
 
-- a zikr with no `fr/` file (every dua, ziyarat and juz today) is read
+- a zikr with no `fr/` file (every dua, ziyarat and juz but the twelve above) is read
   exactly as in English - translation, instructions, tab labels, merits
   (`ParsedZikrContent.localizedTo` and `localizedTabHeader` return the
   English when there is no translation);
