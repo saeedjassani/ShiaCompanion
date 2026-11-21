@@ -1256,7 +1256,7 @@
   "settingsHijriAutomaticNoLocation": "પહેલાં તમારું સ્થાન નક્કી કરો. ત્યાં સુધી ઉમ્મુલ કુરા કેલેન્ડર",
   "settingsHijriNoneHint": "સાઉદી અરેબિયાનું ઉમ્મુલ કુરા કેલેન્ડર",
   "settingsPrayerMethod": "ગણતરીની પદ્ધતિ",
-  "settingsPrayerMethodBody": "ફજર, મગરિબ અને ઇશાનો સમય સૂરજ પરથી કેવી રીતે ગણાય છે. બંને શિયા પદ્ધતિઓ છે: મગરિબ સૂર્યાસ્તે નહીં, પણ પૂર્વની લાલી જતી રહે ત્યારે થાય છે.",
+  "settingsPrayerMethodBody": "ફજર, મગરિબ અને ઇશાનો સમય સૂર્યની સ્થિતિ પરથી કેવી રીતે ગણાય છે. બંને શિયા પદ્ધતિઓ છે: મગરિબ સૂર્યાસ્તે નહીં, પણ પૂર્વની લાલી જતી રહે ત્યારે થાય છે.",
   "settingsPrayerMethodJafari": "લેવા ઇન્સ્ટિટ્યૂટ, કુમ",
   "settingsPrayerMethodJafariHint": "ફજર ૧૬°, મગરિબ ૪°, ઇશા ૧૪°",
   "settingsPrayerMethodTehran": "તેહરાન યુનિવર્સિટી",

@@ -1256,7 +1256,7 @@
   "settingsHijriAutomaticNoLocation": "پہلے اپنا مقام مقرر کریں۔ تب تک اُمّ القریٰ کیلنڈر",
   "settingsHijriNoneHint": "سعودی عرب کا اُمّ القریٰ کیلنڈر",
   "settingsPrayerMethod": "حساب کا طریقہ",
-  "settingsPrayerMethodBody": "فجر، مغرب اور عشاء کے اوقات سورج سے کیسے نکالے جاتے ہیں۔ دونوں شیعہ طریقے ہیں: مغرب غروبِ آفتاب پر نہیں بلکہ مشرق کی سرخی ختم ہونے پر ہوتی ہے۔",
+  "settingsPrayerMethodBody": "فجر، مغرب اور عشاء کے اوقات سورج کے مقام سے کیسے نکالے جاتے ہیں۔ دونوں شیعہ طریقے ہیں: مغرب غروب آفتاب پر نہیں بلکہ مشرق کی سرخی ختم ہونے پر ہوتی ہے۔",
   "settingsPrayerMethodJafari": "لیوا انسٹی ٹیوٹ، قم",
   "settingsPrayerMethodJafariHint": "فجر ۱۶°، مغرب ۴°، عشاء ۱۴°",
   "settingsPrayerMethodTehran": "تہران یونیورسٹی",

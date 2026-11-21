@@ -1256,7 +1256,7 @@
   "settingsHijriAutomaticNoLocation": "ابتدا مکان خود را تعیین کنید. تا آن زمان، تقویم ام‌القری",
   "settingsHijriNoneHint": "تقویم ام‌القری عربستان سعودی",
   "settingsPrayerMethod": "روش محاسبه",
-  "settingsPrayerMethodBody": "اینکه وقت صبح، مغرب و عشا چگونه از روی خورشید محاسبه شود. هر دو روش شیعی‌اند: مغرب پس از برطرف شدن سرخی مشرق است، نه هنگام غروب آفتاب.",
+  "settingsPrayerMethodBody": "نحوهٔ محاسبهٔ وقت صبح، مغرب و عشا بر اساس موقعیت خورشید. هر دو روش شیعی‌اند: وقت مغرب پس از از بین رفتن سرخی طرف مشرق است، نه هنگام غروب آفتاب.",
   "settingsPrayerMethodJafari": "مؤسسه لوا، قم",
   "settingsPrayerMethodJafariHint": "صبح ۱۶°، مغرب ۴°، عشا ۱۴°",
   "settingsPrayerMethodTehran": "دانشگاه تهران",

@@ -1256,7 +1256,7 @@
   "settingsHijriAutomaticNoLocation": "Définissez d’abord votre position. D’ici là, le calendrier Umm al-Qura",
   "settingsHijriNoneHint": "Le calendrier Umm al-Qura d’Arabie saoudite",
   "settingsPrayerMethod": "Méthode de calcul",
-  "settingsPrayerMethodBody": "Comment Fajr, Maghrib et Isha sont calculés d’après le soleil. Les deux méthodes sont chiites : le Maghrib vient une fois la rougeur à l’est disparue, et non au coucher du soleil.",
+  "settingsPrayerMethodBody": "Comment les horaires de Fajr, Maghrib et Isha sont calculés d’après le soleil. Les deux méthodes sont chiites : le Maghrib commence une fois la rougeur à l’est disparue, et non au coucher du soleil.",
   "settingsPrayerMethodJafari": "Institut Leva, Qom",
   "settingsPrayerMethodJafariHint": "Fajr 16°, Maghrib 4°, Isha 14°",
   "settingsPrayerMethodTehran": "Université de Téhéran",
