@@ -1,8 +1,9 @@
-import 'package:flutter/widgets.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shia_companion/l10n/l10n.dart';
 import 'package:shia_companion/services/audio_playback_speed.dart';
+import 'package:shia_companion/theme/app_theme.dart';
 import 'package:shia_companion/utils/shared_preferences.dart';
 
 void main() {
@@ -38,5 +39,47 @@ void main() {
     L10n.current = lookupAppLocalizations(const Locale('fr'));
     expect(AudioPlaybackSpeed.label(0.75), '0,75×');
     L10n.current = lookupAppLocalizations(const Locale('en'));
+  });
+
+  testWidgets('the picker offers every speed and applies the one chosen', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: buildAppTheme(Brightness.light),
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        home: Builder(
+          builder: (context) => Scaffold(
+            body: TextButton(
+              onPressed: () => AudioPlaybackSpeed.pick(context),
+              child: const Text('Open'),
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.tap(find.text('Open'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Playback speed'), findsOneWidget);
+    for (final label in [
+      '0.5×',
+      '0.75×',
+      '1×',
+      '1.25×',
+      '1.5×',
+      '1.75×',
+      '2×',
+    ]) {
+      expect(find.text(label), findsOneWidget);
+    }
+    expect(find.text('Normal'), findsOneWidget);
+
+    await tester.tap(find.text('1.5×'));
+    await tester.pumpAndSettle();
+    expect(find.text('Playback speed'), findsNothing);
+    expect(AudioPlaybackSpeed.current.value, 1.5);
+    expect(SP.prefs.getDouble(AudioPlaybackSpeed.prefKey), 1.5);
   });
 }
