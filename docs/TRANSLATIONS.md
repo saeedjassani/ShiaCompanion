@@ -149,7 +149,7 @@ about to be redesigned - its strings are likely to change.
 
 ### French
 
-French (`app_fr.arb`) ships app text only, in Standard French addressed
+French (`app_fr.arb`) ships app text, in Standard French addressed
 as *vous*, with French typography (a no-break space before `:` `;` `!` `?`,
 « guillemets ») and ’ for apostrophes - never ASCII `'`, which ICU treats
 as an escape. Content names (duas, ziyarats, surahs, Hijri months, prayer
@@ -158,19 +158,34 @@ the terms (Coran, sourate, verset, doua, ziyarat, adhan, qibla, tasbih,
 prière, sanctuaire) are those `app_fr.arb` already uses.
 
 Besides the app text it has the Quran collections' notes, the Sajdah
-rulings and the city picker's place names (`assets/cities_fr.tsv`), but
-no zikr translations, calendar events, hadith collection or Ziyarat
-Guide of its own, and reads each of those in English: with no
-`assets/zikr_i18n/fr/`, its translation language is English (so the
-Quran's and duas' English and transliteration show as in English);
+rulings, the city picker's place names (`assets/cities_fr.tsv`) and the
+Quran: `assets/zikr_i18n/fr/A5.json` ... `A118.json` are Fakhri's Shia
+translation (Ansariyan), built by `scripts/zikr_i18n/quran_fr.py` - see
+"French" in `scripts/zikr_i18n/SOURCES.md`. `fr/index.json` has no titles,
+so zikr titles stay English. There are no other zikr translations,
+calendar events, hadith collection or Ziyarat Guide of its own:
 `CalendarEvents` and the Ziyarat Guide (`ziyaratGuideLanguages`) fall back
-to English; and the Home hadith uses the English collection, as French is not
-in `localizedHadithLanguages`. Shipping a partial `assets/zikr_i18n/fr/`
-(the Quran alone, say) would make French the translation language, and
-every untranslated dua would then show its Arabic alone - so a French Quran
-needs either all the zikrs or an English fallback per zikr for French. It
-should also be a Shia translation, as the English is: the French
-one on Tanzil (Hamidullah) is not.
+to English, and the Home hadith uses the English collection, as French is
+not in `localizedHadithLanguages`.
+
+**French reads English where nothing is translated.** French is the one
+language whose `AppLanguage` sets `readsEnglishWhereUntranslated`, since its
+readers read Latin letters and only the Quran is in French. So, unlike the
+rules below:
+
+- a zikr with no `fr/` file (every dua, ziyarat and juz today) is read
+  exactly as in English - translation, instructions, tab labels, merits
+  (`ParsedZikrContent.localizedTo` and `localizedTabHeader` return the
+  English when there is no translation);
+- in a zikr that has a French file, untranslated lines and an
+  untranslated merits note are hidden as in any other language (no surah's
+  merits are translated yet, so the Quran has no merits button in French),
+  but transliteration stays;
+- transliteration can be switched on (`ZikrTranslations.showsTransliteration`);
+- recordings and reciters fall back to their English names;
+- the Text & reading sheet keeps the translation switch for an
+  untranslated zikr and adds the "Not yet available in French" request row
+  below it.
 
 ## Zikr content (`assets/zikr_i18n/<code>/`)
 
@@ -189,7 +204,7 @@ its place:
 | The merits note | No merits button |
 | A recording's label | The zikr's (translated) title, or "Recording 2" |
 | A reciter's name | The app's name on the lock screen, nothing in the list |
-| Transliteration | Never shown outside English (and its switch is hidden) |
+| Transliteration | Never shown outside English and French (and its switch is hidden) |
 
 So translating is never all-or-nothing: Dua Ahad can ship with no Urdu at
 all and be read in Arabic, and its Urdu added later. Titles are the one
@@ -197,9 +212,11 @@ exception - a title has to show something, so an untranslated one stays
 English; translate all of a language's titles before shipping it.
 
 Transliteration is the Arabic spelled out in English letters, an aid for
-English readers; it is off whenever the translation language is not English,
-whatever the reader's own setting (`transliterationShown` in
+English readers; it is off whenever the translation language is not English
+(or French), whatever the reader's own setting (`transliterationShown` in
 `lib/services/zikr_translations.dart`).
+
+French is the exception to all of this table - see "French" above.
 
 ### Files
 

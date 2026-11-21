@@ -16,6 +16,7 @@ class AppLanguage {
     required this.nativeName,
     this.isRtl = false,
     this.zeroDigit = '0',
+    this.readsEnglishWhereUntranslated = false,
     String? formattingLocale,
   }) : _formattingLocale = formattingLocale;
 
@@ -35,6 +36,17 @@ class AppLanguage {
   /// Gujarati). intl's own data writes Urdu and Gujarati in 0-9, so the app
   /// sets this rather than reading it from there.
   final String zeroDigit;
+
+  /// Whether a zikr nobody has translated into this language is read in
+  /// English - translation, transliteration, instructions, merits - rather
+  /// than as its Arabic alone, and transliteration stays available in the
+  /// zikrs that are translated.
+  ///
+  /// For a language written in Latin letters whose readers can read the
+  /// English, while only part of the corpus is translated into it: French
+  /// has the Quran, and every dua would otherwise lose its meaning. Urdu,
+  /// Persian, Arabic and Gujarati readers see no English at all.
+  final bool readsEnglishWhereUntranslated;
 
   final String? _formattingLocale;
 
@@ -99,7 +111,12 @@ const List<AppLanguage> appLanguages = [
     nativeName: 'ગુજરાતી',
     zeroDigit: '\u0AE6',
   ),
-  AppLanguage(code: 'fr', englishName: 'French', nativeName: 'Français'),
+  AppLanguage(
+    code: 'fr',
+    englishName: 'French',
+    nativeName: 'Français',
+    readsEnglishWhereUntranslated: true,
+  ),
 ];
 
 /// The catalog entry for [code], or null for a language the app does not
