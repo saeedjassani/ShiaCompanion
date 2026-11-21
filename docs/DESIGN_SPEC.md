@@ -568,8 +568,9 @@ Every launch plans again from that day.
   colours: Kaaba marker, the phone's forward line), the instruction in
   large words ("Turn right 12°", "Facing the Kaaba"), and Distance /
   Direction / You face tiles. "About this compass" behind the ⓘ button;
-  permission and calibration states keep today's copy, as cards above the
-  dial.
+  permission states keep today's copy, as cards above the dial; the
+  calibration card sits below the instruction, so it never moves the dial,
+  and shows only after a few seconds of coarse readings (worse than 30°).
 - **Qaza:** a summary card (left to make up in large type, done, a progress
   bar) with **Prayed a full day** and **Work out how many I owe** (today's
   "Calculate my qaza" sheet) as buttons rather than an app-bar icon. One

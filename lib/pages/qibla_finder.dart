@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math' as math;
 
 import 'package:flutter/foundation.dart';
 import 'package:material_ui/material_ui.dart';
@@ -85,6 +86,27 @@ class _QiblaFinderState extends State<QiblaFinder> {
   /// still feel immediate when the user turns.
   static const double _smoothing = 0.25;
 
+  /// Claimed error, in degrees, above which a reading counts as coarse.
+  ///
+  /// Android only ever says 15, 30 or 45 (the sensor framework's high,
+  /// medium and low), and medium is where most phones sit most of the time,
+  /// so only low should warn. Core Location's figure is continuous and climbs
+  /// into the twenties whenever the phone is tilted, which is not a reason to
+  /// interrupt someone lining it up either.
+  static const double _coarseAccuracyDegrees = 30;
+
+  /// How long readings must stay coarse before the calibration card shows.
+  /// One coarse sample is routine - a tilt, a passing car - and a card that
+  /// flickers in on each one cries wolf.
+  static const Duration _calibrationShowDelay = Duration(seconds: 3);
+
+  /// The same, once the card has already come and gone: someone who has just
+  /// calibrated should not be asked again a moment later over a wobble.
+  static const Duration _calibrationReshowDelay = Duration(seconds: 10);
+
+  /// How long readings must stay fine before the card goes away again.
+  static const Duration _calibrationHideDelay = Duration(milliseconds: 1500);
+
   late final CompassSource _compass;
   final LocationService _location = LocationService.instance;
 
@@ -100,6 +122,14 @@ class _QiblaFinderState extends State<QiblaFinder> {
   _CompassStatus _status = _CompassStatus.waiting;
   double? _accuracyDegrees;
   bool _hasHeading = false;
+
+  /// Whether the latest reading was coarse, and whether the calibration card
+  /// is up. Kept apart so the card follows the readings with a lag either
+  /// way, through [_calibrationTimer], instead of sample by sample.
+  bool _readingIsCoarse = false;
+  bool _showCalibration = false;
+  bool _calibrationShownBefore = false;
+  Timer? _calibrationTimer;
   bool _wasAligned = false;
 
   HolySite _target = kaaba;
@@ -124,6 +154,7 @@ class _QiblaFinderState extends State<QiblaFinder> {
   @override
   void dispose() {
     _firstReadingTimer?.cancel();
+    _calibrationTimer?.cancel();
     unawaited(_subscription?.cancel());
     _location.removeListener(_onLocationChanged);
     _heading.dispose();
@@ -184,16 +215,44 @@ class _QiblaFinderState extends State<QiblaFinder> {
       _heading.value = normalizeBearing(_heading.value + step * _smoothing);
     }
 
-    final accuracyChanged = _accuracyDegrees != reading.accuracyDegrees;
-    if (!_hasHeading || _status != _CompassStatus.live || accuracyChanged) {
+    // Not a rebuild on its own: Core Location's figure changes with nearly
+    // every sample. The card reads it when it next builds.
+    _accuracyDegrees = reading.accuracyDegrees;
+    if (!_hasHeading || _status != _CompassStatus.live) {
       setState(() {
         _hasHeading = true;
         _status = _CompassStatus.live;
-        _accuracyDegrees = reading.accuracyDegrees;
       });
     }
 
+    _trackCalibration(reading.accuracyDegrees);
     _reportAlignment();
+  }
+
+  /// Shows the calibration card once readings have been coarse for a while,
+  /// and takes it away once they have been fine for a while.
+  void _trackCalibration(double? accuracy) {
+    final coarse = accuracy != null && accuracy > _coarseAccuracyDegrees;
+    if (coarse == _readingIsCoarse) return;
+    _readingIsCoarse = coarse;
+    _calibrationTimer?.cancel();
+    _calibrationTimer = null;
+    // Already showing what the readings say: nothing to wait for.
+    if (coarse == _showCalibration) return;
+
+    final delay = !coarse
+        ? _calibrationHideDelay
+        : _calibrationShownBefore
+        ? _calibrationReshowDelay
+        : _calibrationShowDelay;
+    _calibrationTimer = Timer(delay, () {
+      _calibrationTimer = null;
+      if (!mounted) return;
+      setState(() {
+        _showCalibration = coarse;
+        if (coarse) _calibrationShownBefore = true;
+      });
+    });
   }
 
   /// One short buzz the moment the needle lines up, so the phone can be held
@@ -291,9 +350,10 @@ class _QiblaFinderState extends State<QiblaFinder> {
     final gutter = pageGutter(context, maxWidth: widePageWidth);
 
     final target = _TargetCard(target: _target, onTap: _pickTarget);
-    // Permission and calibration come first: until they are sorted, the
-    // dial below cannot be trusted.
+    // Location and permission come first: until they are sorted, the dial
+    // below cannot be trusted.
     final notices = _notices();
+    final calibration = _calibrationNotice();
     final dial = ValueListenableBuilder<double>(
       valueListenable: _heading,
       builder: (context, heading, _) => QiblaCompassDial(
@@ -382,6 +442,7 @@ class _QiblaFinderState extends State<QiblaFinder> {
                         child: column([
                           target,
                           ...notices,
+                          ?calibration,
                           stats,
                           locationStrip,
                         ]),
@@ -402,6 +463,7 @@ class _QiblaFinderState extends State<QiblaFinder> {
                     ),
                   ),
                   instruction,
+                  ?calibration,
                   stats,
                   locationStrip,
                 ]);
@@ -472,18 +534,23 @@ class _QiblaFinderState extends State<QiblaFinder> {
         break;
     }
 
-    final accuracy = _accuracyDegrees;
-    if (_isLive && accuracy != null && accuracy > 15) {
-      notices.add(
-        _NoticeCard(
-          icon: Icons.refresh,
-          title: context.l10n.qiblaNeedsCalibrating,
-          body: context.l10n.qiblaNeedsCalibratingBody(accuracy.round()),
-        ),
-      );
-    }
-
     return notices;
+  }
+
+  /// Asks for a figure of eight when readings have stayed coarse. Kept out of
+  /// [_notices], which sit above the dial: this one comes and goes while the
+  /// phone is being turned, and above the dial it would shove the dial down
+  /// just as the needle lined up.
+  Widget? _calibrationNotice() {
+    if (!_isLive || !_showCalibration) return null;
+    final accuracy = _accuracyDegrees;
+    return _NoticeCard(
+      icon: Icons.refresh,
+      title: context.l10n.qiblaNeedsCalibrating,
+      body: context.l10n.qiblaNeedsCalibratingBody(
+        math.max(accuracy ?? 0, _coarseAccuracyDegrees).round(),
+      ),
+    );
   }
 }
 
