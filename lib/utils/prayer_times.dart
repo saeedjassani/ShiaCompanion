@@ -26,6 +26,7 @@ class PrayerTime {
   late int Egypt; // Egyptian General Authority of Survey
   late int Custom; // Custom Setting
   late int Tehran; // Institute of Geophysics, University of Tehran
+  late int IraqShrines; // The holy shrines of Najaf and Karbala
   // Juristic Methods
   late int Shafii; // Shafii (standard)
   late int Hanafi; // Hanafi
@@ -78,6 +79,7 @@ class PrayerTime {
     this.setEgypt(5); // Egyptian General Authority of Survey
     this.setTehran(6); // Institute of Geophysics, University of Tehran
     this.setCustom(7); // Custom Setting
+    this.setIraqShrines(8); // The holy shrines of Najaf and Karbala
 
     // Juristic Methods
     this.setShafii(0); // Shafii (standard)
@@ -141,6 +143,12 @@ class PrayerTime {
     // Tehran
     List<double> Tvalues = [17.7, 0, 4.5, 0, 14];
     methodParams.addAll({getTehran(): Tvalues});
+
+    // The holy shrines of Iraq: Jafari's Maghrib and Isha with an 18° Fajr,
+    // as the Imam Ali shrine's site sets PrayTimes.js and the Abbas shrine's
+    // published times fit.
+    List<double> IQvalues = [18, 0, 4, 0, 14];
+    methodParams.addAll({getIraqShrines(): IQvalues});
 
     // Custom
     List<double> Cvalues = [18, 1, 0, 0, 17];
@@ -733,6 +741,14 @@ class PrayerTime {
 
   void setCustom(int custom) {
     Custom = custom;
+  }
+
+  int getIraqShrines() {
+    return IraqShrines;
+  }
+
+  void setIraqShrines(int iraqShrines) {
+    IraqShrines = iraqShrines;
   }
 
   int getTehran() {

@@ -177,17 +177,17 @@ void main() {
     expect(find.text('1 day ahead'), findsOneWidget);
   });
 
-  testWidgets('Calculation method offers the two Shia methods',
+  testWidgets('Calculation method: Automatic, or one of the Shia methods',
       (tester) async {
-    addTearDown(
-      () => prayerCalculationMethod.value = PrayerCalculationMethod.jafari,
-    );
+    addTearDown(resetPrayerCalculationMethodForTest);
     await _pump(tester, const SettingsPage());
 
     await _reveal(tester, find.text('Calculation method'));
-    expect(find.text('Leva Institute, Qum'), findsOneWidget);
+    expect(find.text('Automatic'), findsOneWidget);
     await tester.tap(find.text('Calculation method'));
     await tester.pumpAndSettle();
+    expect(find.text('By your location: Leva Institute, Qum'), findsOneWidget);
+    expect(find.text('Holy shrines of Iraq'), findsOneWidget);
     await tester.tap(find.text('University of Tehran'));
     await tester.pumpAndSettle();
 

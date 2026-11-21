@@ -4160,7 +4160,7 @@
   "@settingsPrayerMethod": {
     "description": "Settings, Prayer times: how Fajr, Maghrib and Isha are worked out. Both choices are Shia (Ja'fari) methods."
   },
-  "settingsPrayerMethodBody": "How Fajr, Maghrib and Isha are worked out from the sun. Both are Shia methods: Maghrib comes once the redness in the east has gone, not at sunset.",
+  "settingsPrayerMethodBody": "How Fajr, Maghrib and Isha are worked out from the sun. All are Shia methods: Maghrib comes once the redness in the east has gone, not at sunset.",
   "@settingsPrayerMethodBody": {
     "description": "Under the title of the Calculation method sheet."
   },
@@ -4171,6 +4171,47 @@
   "settingsPrayerMethodTehran": "University of Tehran",
   "@settingsPrayerMethodTehran": {
     "description": "A Shia prayer time method, from the Institute of Geophysics, University of Tehran. Also beside Calculation method in Settings when chosen."
+  },
+  "settingsPrayerMethodAutomatic": "Automatic",
+  "@settingsPrayerMethodAutomatic": {
+    "description": "In the Calculation method sheet, and beside Calculation method in Settings: the method follows the country of the reader's location (holy shrines of Iraq in Iraq, University of Tehran in Iran, Leva Institute elsewhere)."
+  },
+  "settingsPrayerMethodAutomaticHint": "By your location: {method}",
+  "@settingsPrayerMethodAutomaticHint": {
+    "description": "Under Automatic in the Calculation method sheet: the method it uses at the reader's location, e.g. 'By your location: Holy shrines of Iraq'.",
+    "placeholders": {
+      "method": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsPrayerMethodIraq": "Holy shrines of Iraq",
+  "@settingsPrayerMethodIraq": {
+    "description": "A Shia prayer time method: the times the holy shrines of Najaf and Karbala announce. Also beside Calculation method in Settings when chosen."
+  },
+  "prayerMethodNoticeIraqTitle": "Prayer times now match the holy shrines",
+  "@prayerMethodNoticeIraqTitle": {
+    "description": "Shown once on Home's prayer times card, to a reader in Iraq whose times an update moved onto the holy shrines' method."
+  },
+  "prayerMethodNoticeIraqBody": "Fajr is now earlier, as the shrines of Najaf and Karbala announce it.",
+  "@prayerMethodNoticeIraqBody": {
+    "description": "Under 'Prayer times now match the holy shrines' on Home's prayer times card."
+  },
+  "prayerMethodNoticeIranTitle": "Prayer times now match Iran's official times",
+  "@prayerMethodNoticeIranTitle": {
+    "description": "Shown once on Home's prayer times card, to a reader in Iran whose times an update moved onto the University of Tehran's method."
+  },
+  "prayerMethodNoticeIranBody": "They follow the University of Tehran, so Fajr is now a little earlier.",
+  "@prayerMethodNoticeIranBody": {
+    "description": "Under 'Prayer times now match Iran's official times' on Home's prayer times card."
+  },
+  "prayerMethodNoticeOk": "OK",
+  "@prayerMethodNoticeOk": {
+    "description": "Button on the prayer times card's notice about the new method: keeps it and closes the notice."
+  },
+  "prayerMethodNoticeChange": "Change",
+  "@prayerMethodNoticeChange": {
+    "description": "Button on the prayer times card's notice about the new method: opens the Calculation method sheet."
   },
   "settingsPrayerTimesShownValue": "{count, plural, =1{1 time} other{{count} times}}",
   "@settingsPrayerTimesShownValue": {

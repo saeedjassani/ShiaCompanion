@@ -34,6 +34,7 @@ import '../services/zikr_translations.dart';
 import '../widgets/language_settings.dart';
 import '../widgets/outline_icon.dart';
 import '../widgets/page_chrome.dart';
+import '../widgets/prayer_method_sheet.dart';
 import '../widgets/reader_text_sheet.dart';
 import '../widgets/theme_mode_picker.dart';
 import '../widgets/theme_palette_picker.dart';
@@ -290,8 +291,16 @@ class _SettingsPageState extends State<SettingsPage> {
                     _SettingsRow(
                       icon: const _RowGlyph(OutlineGlyph.clock),
                       title: l10n.settingsPrayerMethod,
-                      value: _prayerMethodLabel(prayerCalculationMethod.value),
-                      onTap: _pickPrayerMethod,
+                      value: prayerCalculationMethodChoice == null
+                          ? l10n.settingsPrayerMethodAutomatic
+                          : prayerMethodLabel(
+                              l10n,
+                              prayerCalculationMethod.value,
+                            ),
+                      onTap: () async {
+                        final changed = await showPrayerMethodSheet(context);
+                        if (changed && mounted) setState(() {});
+                      },
                     ),
                     _SettingsRow(
                       icon: const _RowGlyph(OutlineGlyph.calendar),
@@ -574,44 +583,6 @@ class _SettingsPageState extends State<SettingsPage> {
       return Text(l10n.settingsLocationUpdatePrompt);
     }
     return null;
-  }
-
-  String _prayerMethodLabel(PrayerCalculationMethod method) => switch (method) {
-    PrayerCalculationMethod.jafari => context.l10n.settingsPrayerMethodJafari,
-    PrayerCalculationMethod.tehran => context.l10n.settingsPrayerMethodTehran,
-  };
-
-  Future<void> _pickPrayerMethod() async {
-    final l10n = context.l10n;
-    final current = prayerCalculationMethod.value;
-    final picked = await showChoiceSheet<PrayerCalculationMethod>(
-      context,
-      title: l10n.settingsPrayerMethod,
-      body: l10n.settingsPrayerMethodBody,
-      current: current,
-      choices: [
-        Choice(
-          PrayerCalculationMethod.jafari,
-          _prayerMethodLabel(PrayerCalculationMethod.jafari),
-        ),
-        Choice(
-          PrayerCalculationMethod.tehran,
-          _prayerMethodLabel(PrayerCalculationMethod.tehran),
-        ),
-      ],
-    );
-    if (picked == null || picked == current) return;
-    await setPrayerCalculationMethod(picked);
-    unawaited(
-      AnalyticsService.feature(
-        'prayer_method_changed',
-        label: 'Prayer method changed',
-        parameters: {'method': picked.storageId},
-      ),
-    );
-    if (mounted) setState(() {});
-    await HomeScreenWidgetService.instance.publishAll();
-    await reschedulePrayerTimeNotifications();
   }
 
   /// Automatic, or the manual offset (null in Automatic).

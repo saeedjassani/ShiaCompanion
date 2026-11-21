@@ -14,6 +14,7 @@ import 'package:shia_companion/models/azaan_option.dart';
 import 'package:shia_companion/services/analytics_service.dart';
 import 'package:shia_companion/services/azan_playback_service.dart';
 import 'package:shia_companion/services/city_repository.dart';
+import 'package:shia_companion/services/home_screen_widget_service.dart';
 import 'package:http/http.dart' as http;
 import 'package:date_format/date_format.dart';
 import 'package:intl/intl.dart' show DateFormat;
@@ -646,6 +647,11 @@ Future<bool> initializeLocation({
     long = currentLocation.longitude;
     applyHijriSighting();
     final locationChanged = hasPrayerScheduleLocationMoved();
+    // Automatic's method goes by the country, which a move can change. The
+    // city list it is read from is worth not holding the fix up for.
+    if (locationChanged || !hasPrayerLocationCountry) {
+      unawaited(refreshPrayerLocationCountry());
+    }
     if (locationChanged) {
       needToSchedule = true;
     }
@@ -887,13 +893,17 @@ Future<void> applyChosenPrayerLocation({
   required double latitude,
   required double longitude,
   required String label,
+  String? countryCode,
 }) async {
   lat = latitude;
   long = longitude;
   applyHijriSighting();
   lastLocationFailure = null;
   lastLocationFixAt = DateTime.now();
-  final locationChanged = hasPrayerScheduleLocationMoved();
+  final methodChanged = await setPrayerLocationCountry(
+    countryCode ?? await countryForPrayerLocation(latitude, longitude),
+  );
+  final locationChanged = hasPrayerScheduleLocationMoved() || methodChanged;
   if (locationChanged || city != label) needToSchedule = true;
   city = label;
   if (SP.isInitialized) {
@@ -921,6 +931,66 @@ Future<void> reschedulePrayerTimeNotifications() async {
   await setUpNotifications();
   await ZikrReminderService.instance.rescheduleAll();
   await EventNotificationService.instance.rescheduleAll();
+}
+
+/// How far from the nearest city of the bundled list a location may be
+/// and still count as in its country, for Automatic's prayer method. The
+/// list has only cities of 100,000+ people, so this is wider than the
+/// distance a place is named by.
+const double prayerCountryMaxDistanceKm = 300;
+
+/// The country ([City.countryCode]) [latitude], [longitude] is in, as far
+/// as the nearest big city tells; empty when none is near or the list
+/// can't be read.
+Future<String> countryForPrayerLocation(
+  double latitude,
+  double longitude,
+) async {
+  try {
+    await CityRepository.instance.load();
+    return CityRepository.instance
+            .nearest(
+              latitude,
+              longitude,
+              maxDistanceKm: prayerCountryMaxDistanceKm,
+            )
+            ?.countryCode ??
+        '';
+  } catch (e) {
+    debugPrint('Could not tell the prayer location\'s country: $e');
+    return '';
+  }
+}
+
+/// Works out the country of the stored location for Automatic's prayer
+/// method. If that changes the method, the times are rescheduled and
+/// republished; with [announce] (an existing reader on the first launch
+/// after the update), Home's prayer card also says so once.
+Future<void> refreshPrayerLocationCountry({bool announce = false}) async {
+  final latitude = lat, longitude = long;
+  if (latitude == null || longitude == null) return;
+  final changed = await setPrayerLocationCountry(
+    await countryForPrayerLocation(latitude, longitude),
+  );
+  if (!changed) return;
+  if (announce && prayerCalculationMethodChoice == null) {
+    await notePrayerMethodChangedOnUpdate();
+  }
+  try {
+    await HomeScreenWidgetService.instance.publishAll();
+  } catch (e) {
+    debugPrint('Prayer method changed, but publishing it failed: $e');
+  }
+  await reschedulePrayerTimeNotifications();
+}
+
+/// A location stored before Automatic's prayer method existed has no
+/// country yet: works it out, once.
+Future<void> resolvePrayerLocationCountryOnLaunch({
+  required bool freshInstall,
+}) async {
+  if (hasPrayerLocationCountry) return;
+  await refreshPrayerLocationCountry(announce: !freshInstall);
 }
 
 /// Sanity-checks a reverse-geocode label before we show it.

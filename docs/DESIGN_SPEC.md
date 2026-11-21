@@ -414,8 +414,9 @@ Sign-in card first (signed out: what's at stake + Google/Apple buttons, and
 that opens it again; signed in: name, email, "Backed up · 2 minutes ago", opens Account with Log
 out / Delete account). Then Appearance (Theme, Color, Arabic font with
 sample, Text size), Prayer times (Location, Azan,
-Calculation method: Leva Institute, Qum or University of Tehran, both Shia;
-Adjust Hijri date, Prayer times shown), Notifications, Reading, Offline audio, Support (... What's
+Calculation method: Automatic by the location's country - holy shrines of
+Iraq in Iraq, University of Tehran in Iran, Leva Institute, Qum elsewhere -
+or one of the three, all Shia; Adjust Hijri date, Prayer times shown), Notifications, Reading, Offline audio, Support (... What's
 new, About).
 
 **Account** (`R3-Account`): name, email and provider, "Backed up · 2
