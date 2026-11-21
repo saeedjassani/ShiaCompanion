@@ -11,6 +11,7 @@ import '../models/zikr_playlist.dart';
 import '../utils/network_utils.dart';
 import 'analytics_service.dart';
 import 'audio_download_store.dart';
+import 'audio_playback_speed.dart';
 import 'exclusive_audio.dart';
 import 'zikr_audio_index.dart';
 import 'zikr_translations.dart';
@@ -83,6 +84,7 @@ class PlaylistAudioService extends ChangeNotifier {
   List<PlaylistQueueEntry> _queue = const [];
   final List<StreamSubscription<dynamic>> _subscriptions = [];
   bool _isStarting = false;
+  VoidCallback? _stopFollowingSpeed;
 
   /// Zikrs of the current run already counted by [_countPlayingZikr], so a
   /// zikr with several recordings, a pause and resume, or a repeat of the
@@ -245,6 +247,7 @@ class PlaylistAudioService extends ChangeNotifier {
       _playlist = playlist;
       _countedZikrUids.clear();
       _queue = List.unmodifiable(queue);
+      _stopFollowingSpeed = AudioPlaybackSpeed.follow(player);
       _subscriptions
         ..add(
           player.playerStateStream.listen((_) {
@@ -406,6 +409,8 @@ class PlaylistAudioService extends ChangeNotifier {
   }
 
   Future<void> _disposePlayer() async {
+    _stopFollowingSpeed?.call();
+    _stopFollowingSpeed = null;
     for (final subscription in _subscriptions) {
       await subscription.cancel();
     }

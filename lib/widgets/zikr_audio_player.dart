@@ -8,6 +8,7 @@ import '../data/uid_title_data.dart';
 import '../models/zikr_audio_track.dart';
 import '../services/analytics_service.dart';
 import '../services/audio_download_store.dart';
+import '../services/audio_playback_speed.dart';
 import '../services/exclusive_audio.dart';
 import '../services/preferences_sync_service.dart';
 import '../utils/network_utils.dart';
@@ -68,6 +69,7 @@ class _ZikrAudioPlayerState extends State<ZikrAudioPlayer> {
   bool _hasCountedPlay = false;
   double? _dragValue;
   StreamSubscription<PlayerState>? _stateSub;
+  VoidCallback? _stopFollowingSpeed;
 
   // setAudioSource is what attaches the MediaItem tag (the zikr/track title)
   // that the notification and lock screen read. _togglePlay awaits this so a
@@ -100,6 +102,8 @@ class _ZikrAudioPlayerState extends State<ZikrAudioPlayer> {
     super.initState();
     _trackIndex = _savedTrackIndex();
     _player = AudioPlayer();
+    _stopFollowingSpeed = AudioPlaybackSpeed.follow(_player!);
+    AudioPlaybackSpeed.current.addListener(_onSpeedChanged);
     _stateSub = _player?.playerStateStream.listen((_) {
       if (mounted) setState(() {});
     });
@@ -121,8 +125,19 @@ class _ZikrAudioPlayerState extends State<ZikrAudioPlayer> {
     }
   }
 
+  void _onSpeedChanged() {
+    if (mounted) setState(() {});
+  }
+
+  void _stopSpeed() {
+    _stopFollowingSpeed?.call();
+    _stopFollowingSpeed = null;
+  }
+
   @override
   void dispose() {
+    AudioPlaybackSpeed.current.removeListener(_onSpeedChanged);
+    _stopSpeed();
     _stateSub?.cancel();
     ExclusiveAudio.relinquish(this);
     _player?.dispose();
@@ -135,6 +150,7 @@ class _ZikrAudioPlayerState extends State<ZikrAudioPlayer> {
   Future<void> _releaseToOtherPlayer() async {
     await _stateSub?.cancel();
     _stateSub = null;
+    _stopSpeed();
     final player = _player;
     _player = null;
     await player?.dispose();
@@ -414,8 +430,57 @@ class _ZikrAudioPlayerState extends State<ZikrAudioPlayer> {
     );
   }
 
+  /// The current speed ("1×"), which opens the speed picker.
+  Widget _buildSpeedButton() {
+    final colors = ShiaColors.of(context);
+    final l10n = context.l10n;
+    final speed = AudioPlaybackSpeed.current.value;
+    final changed = speed != AudioPlaybackSpeed.normal;
+    final text = AudioPlaybackSpeed.label(speed, l10n);
+    return Semantics(
+      button: true,
+      label: '${l10n.audioPlaybackSpeed}: $text',
+      excludeSemantics: true,
+      onTap: () => AudioPlaybackSpeed.pick(context),
+      child: Tooltip(
+        message: l10n.audioPlaybackSpeed,
+        excludeFromSemantics: true,
+        child: InkWell(
+          onTap: () => AudioPlaybackSpeed.pick(context),
+          borderRadius: BorderRadius.circular(8),
+          child: Container(
+            constraints: const BoxConstraints(minWidth: 36),
+            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
+            decoration: BoxDecoration(
+              color: changed
+                  ? colors.accent.withValues(alpha: 0.14)
+                  : Colors.transparent,
+              border: Border.all(
+                color: changed ? colors.accent : colors.divider,
+              ),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            alignment: Alignment.center,
+            child: Text(
+              text,
+              maxLines: 1,
+              style: ShiaText.caption.copyWith(
+                fontSize: 11,
+                height: 14 / 11,
+                fontWeight: FontWeight.w600,
+                color: changed ? colors.accent : colors.textMuted,
+                fontFeatures: const [FontFeature.tabularFigures()],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   /// What is playing - the recording's name, which opens the other
-  /// recordings when there are some - over the seek bar.
+  /// recordings when there are some - over the seek bar, with the speed
+  /// at the end of the name's line.
   Widget _buildBody(AudioPlayer player) {
     final colors = ShiaColors.of(context);
     final track = _currentTrack;
@@ -457,8 +522,27 @@ class _ZikrAudioPlayerState extends State<ZikrAudioPlayer> {
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        if (several)
-          Semantics(
+        Row(
+          children: [
+            Expanded(
+              child: Align(
+                alignment: AlignmentDirectional.centerStart,
+                child: _buildTitle(several, label, title),
+              ),
+            ),
+            const SizedBox(width: 8),
+            _buildSpeedButton(),
+            const SizedBox(width: 4),
+          ],
+        ),
+        _buildProgress(player),
+      ],
+    );
+  }
+
+  Widget _buildTitle(bool several, String label, Widget title) {
+    return several
+        ? Semantics(
             button: true,
             label: '${context.l10n.audioChooseRecording}: $label',
             excludeSemantics: true,
@@ -472,14 +556,10 @@ class _ZikrAudioPlayerState extends State<ZikrAudioPlayer> {
               ),
             ),
           )
-        else
-          Padding(
+        : Padding(
             padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
             child: title,
-          ),
-        _buildProgress(player),
-      ],
-    );
+          );
   }
 
   Widget _buildProgress(AudioPlayer player) {
