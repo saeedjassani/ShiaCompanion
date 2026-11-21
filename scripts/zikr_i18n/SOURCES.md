@@ -1289,6 +1289,80 @@ notes (segments 0 and 1) are our own wording from the English. The surahs'
 merits notes are not translated, so French readers, like Urdu ones, see no
 merits on a surah yet.
 
+### Duas and ziyarats: lechiisme.com's French Mafatih (2026-11-20)
+
+lechiisme.com's "Mafatih al-Jinan en Français" (category 1798, ~274
+posts; "Les Clés du Paradis") prints each phrase of Qummi's Mafatih as a
+box: the Arabic, a French phonetic transliteration and the French, with
+the book's own introductions and instructions as prose between the boxes.
+The site names no translator. The wording looks like the Éditions B.A.A.
+*Clés du Paradis*, whose app ASR publishes, but that is not confirmed. The
+site states no licence. As with Fakhri, the owner decides whether that is
+enough to ship it. al-islam.org's French "Anthologie des Clés des Paradis"
+(al-Bostani) is behind Cloudflare: 403 from a cloud session and from the
+owner's Mac.
+
+The posts come from the WordPress API and need no sign-in:
+`/wp-json/wp/v2/posts/<id>?_fields=id,link,title,content`, with the ids
+from `/wp-json/wp/v2/posts?categories=1798&per_page=100&page=N`. Their
+rows come from `web_source.py lechiisme`; after that, the workflow is
+`deck_source.py`'s, with `--lang fr`.
+
+| uid | Zikr | Post |
+| --- | --- | --- |
+| E31 | Dua Kumayl | 47909 invocation-kumayl-ziyad |
+| G4 | Ziyarat Ashura | 82771 ziyarat-achoura-imam-hussein |
+| E24 | Dua Tawassul | 71054 invocation-tawassul |
+| E14 | Hadith al-Kisa | 71247 hadith-al-kisa |
+| E34 | Dua Nudba | 71287 invocation-lamentation-nudbat |
+| AA10 | Dua Iftitah | 71157 invocation-ouverture-iftitah |
+| AA12 | Dua Abu Hamza Thumali | 71163 invocation-abu-hamzeh-thumali |
+| E35 | Dua Sabah | 47901 invocation-matin |
+| G6 | Ziyarat Warith | 83208 ziyarat-warith; tabs 2-3 (Ali al-Akbar, the martyrs) from 71273, tab 4 (al-Abbas) from 71277 |
+| G1 | Ziyarat Aal-e-Yasin | 87042 ziyarat-al-yasin-imam-mahdi |
+| G3 | Ziyarat Arbaeen | 83867 ziyarat-arbain-imam-hussein |
+| G13 | Ziyarat Jamia Kabira | 97932 ziyarate-jamiah-2-al-jamiah-al-kabirah |
+
+Each zikr was drafted by its own agent, and the "own" lines and merits
+were then reviewed by a different one. The book's spellings and style are
+kept: Dieu, Mohammed, Hussein, ziyârat, the honorifics (a) and (s),
+{braces} around Quran quotations with "(verse/SURAH)" references, and
+"tu" in instructions. The typography is the Quran's: ’, « », and U+00A0
+before `: ; ! ? »` and after `«`. Every Basmala reads « Par [la Grâce du]
+Nom de Dieu, le Tout-Miséricordieux, le Très-Miséricordieux ! », the
+book's own wording on the duas that print one.
+
+Our own wording (not the book's):
+- instructions and tab labels the book words differently or leaves out;
+- phrases our Arabic has and the book's lacks (e.g. E31 تقطع الرجاء,
+  G4 يا خيرة الله, G13 أنتم السبيل الأعظم);
+- the merits notes of G4 (all but the Alqama narration), E34, E24 and
+  AA10, which the book doesn't have in this form.
+
+Where the book's French plainly contradicts the Arabic, we corrected it:
+- E31 184 الإنعام read as الأنعام (« troupeaux »), 187 « la Question » for
+  القضية (now « la Sentence », which agrees with 188);
+- G4 61 « l’innocence de vos ennemis » for البراءة من;
+- AA12 96/285 (عائذ), 199-201 (rendered as commands though the Arabic is
+  past tense), 242 (العادلون بالله), 289 (تستزلني), 545 (meaning reversed),
+  625 (منطقي);
+- AA10 39 (the "by mistake" half), 43 (إجابتك), 124 (سيدة نساء العالمين);
+- E35 3 (« globe terrestre » for الفلك), 52 (توحد);
+- E34 91 (« ô Ali » left out), 237-240 (made plural though the Arabic is
+  singular), 242.
+
+Looser renderings were kept as the book has them. The drafts' notes list
+them for a French-reading reviewer, e.g. E31 72 « Tu as l’argument »,
+which follows a variant reading فلك الحجة.
+
+Still on the site, not yet used: Jawshan Kabir (51397) and Saghir
+(71047), Mujeer (50510), Simat (48653), Asharat (48414), Adeela (51183),
+Mashlool (48888), Arafah (71181), the fifteen Munajat (71074-71103),
+Faraj (71068), Sahifa Sajjadiya (category 2347, 54 posts), and the Rajab,
+Sha'ban and Ramadan aamal. Mujeer and Asharat align mostly one row to
+one segment; the Jawshans need care (the book prints each section's
+refrain once).
+
 ### Turned down
 
 - Hamidullah (Tanzil's `fr.hamidullah`), Rashid Maash and the other

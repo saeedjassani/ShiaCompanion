@@ -95,17 +95,28 @@
     legacy "Gujrati" font, decode pending; E8 not in Jafri catalog;
   - merits notes.
 
-- **French: app text and the Quran shipped, other content English.**
+- **French: app text, the Quran and twelve famous duas shipped, other
+  content English.**
   `app_fr.arb`, the Quran collections' notes, the Sajdah rulings, the city
   picker's names and the Wear OS strings are French (reviewed by
   independent agents), and the Quran is Fakhri's Shia translation
   (`assets/zikr_i18n/fr/`, built by `scripts/zikr_i18n/quran_fr.py`,
-  2026-11-20). Every other zikr, a juz, calendar events, hadith and the
-  Ziyarat Guide read in English: French
+  2026-11-20). Kumayl, Ashura, Tawassul, Kisa, Nudba, Iftitah, Abu Hamza,
+  Sabah, Warith, Aal-e-Yasin, Arbaeen and Jamia Kabira are French from
+  lechiisme.com's French Mafatih (2026-11-20; WordPress API, reachable
+  from cloud sessions too). Every other zikr, a juz, calendar events,
+  hadith and the Ziyarat Guide read in English: French
   `readsEnglishWhereUntranslated` (see "French" in `docs/TRANSLATIONS.md`).
   Left:
-  - the owner's call on Fakhri's rights: lenoblecoran.fr gives the book
-    away but states no licence (`scripts/zikr_i18n/SOURCES.md`, "French");
+  - the owner's call on the rights to Fakhri and to the French Mafatih:
+    neither lenoblecoran.fr nor lechiisme.com states a licence, and
+    lechiisme names no translator (`scripts/zikr_i18n/SOURCES.md`,
+    "French");
+  - the rest of the French Mafatih: the next duas are listed under "Still
+    on the site" in SOURCES.md (Jawshan Kabir, Mujeer, Simat, Asharat,
+    Adeela, the fifteen Munajat, Arafah, Sahifa Sajjadiya...);
+  - a French reader's look at the looser book renderings the drafts kept
+    (listed in SOURCES.md);
   - the surahs' merits notes (113, ~14,000 words): hidden in French, as in
     every other language, until translated;
   - French weekly phrases are lower case (`occasionWeekly`...) and each

@@ -29,6 +29,7 @@ batch inaccurate.
 A draft:
 
     {"segments": {"0": "...", "1": "..."},
+     "merits": "...",
      "splits": [{"n": 12, "parts": [{"ar", "tr", "en", "<lang>"}, ...]}],
      "own": [5, 96],
      "notes": ["..."]}
@@ -39,6 +40,8 @@ rejoin to the original lines exactly (English compared letters and digits
 only), so a split re-breaks lines and never changes the text. `own` lists
 segments translated by us rather than taken from the source (instructions,
 a phrase the source skipped); `notes` records typo fixes and the like.
+`merits`, when given, translates the zikr's merits note and is written to
+the translation file with its segments.
 """
 import argparse
 import collections
@@ -48,6 +51,7 @@ import json
 import os
 import re
 import sys
+import unicodedata
 import zipfile
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -290,6 +294,8 @@ def _foreign_letters(text, lang):
     text = re.sub(r'\]\([^)]*\)', '', text)
     if lang == 'gu':
         ok = lambda c: '\u0A80' <= c <= '\u0AFF'
+    elif lang == 'fr':
+        ok = lambda c: c.isascii() or 'LATIN' in unicodedata.name(c, '')
     else:
         ok = lambda c: ('\u0600' <= c <= '\u06FF' or '\u0750' <= c <= '\u077F'
                         or '\uFB50' <= c <= '\uFDFF' or '\uFE70' <= c <= '\uFEFF')
@@ -302,6 +308,13 @@ def check_draft(doc, draft, lang):
     where = verse_lines(doc)
     wanted = {n for n, s in enumerate(segments) if z.translatable(s)}
     errors, done = [], set()
+    if draft.get('merits'):
+        if not (doc.get('merits') or '').strip():
+            errors.append('merits: the zikr has no merits note to translate')
+        stray = _foreign_letters(draft['merits'], lang)
+        if stray:
+            errors.append(f'merits: letters outside the language\'s script: '
+                          f'{"".join(sorted(stray))}')
     for key, value in draft.get('segments', {}).items():
         if not key.isdigit() or int(key) not in wanted:
             errors.append(f'segment {key}: not a translatable segment')
@@ -403,6 +416,8 @@ def cmd_apply(args):
     target = os.path.join(z.I18N_DIR, args.lang, f'{args.uid}.json')
     translation = z.load_json(target) if os.path.exists(target) else {}
     translation['segments'] = z.ordered_segments({str(k): v for k, v in result.items()})
+    if draft.get('merits', '').strip():
+        translation['merits'] = draft['merits'].strip()
     z.write_json(target, translation)
     print(f'{args.uid}: {len(result)} segment(s) -> {os.path.relpath(target, z.ROOT)}'
           + (f'; {len(splits)} line(s) split in assets/zikr/{args.uid}' if splits else ''))
