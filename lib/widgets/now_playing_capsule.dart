@@ -10,6 +10,7 @@ import '../l10n/l10n.dart';
 import '../pages/playlists_page.dart';
 import '../pages/zikr/zikr_page.dart';
 import '../services/analytics_service.dart';
+import '../services/audio_playback_speed.dart';
 import '../services/playlist_audio_service.dart';
 import '../theme/shia_colors.dart';
 import 'glass_surface.dart';
@@ -464,6 +465,7 @@ class _CapsuleBody extends StatelessWidget {
                 tooltip: l10n.commonPrevious,
                 onPressed: audio.previous,
               ),
+              const _SpeedButton(),
               const Spacer(),
               TextButton.icon(
                 onPressed: onOpenPlaylist,
@@ -673,6 +675,50 @@ class _SeekBarState extends State<_SeekBar> {
             Text(formatPlaybackTime(duration), style: caption),
             const SizedBox(width: 8),
           ],
+        );
+      },
+    );
+  }
+}
+
+/// The playing speed ("1×"), which opens the speed picker. Shared with the
+/// zikr page's player ([AudioPlaybackSpeed]).
+class _SpeedButton extends StatelessWidget {
+  const _SpeedButton();
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = ShiaColors.of(context);
+    final l10n = context.l10n;
+    return ValueListenableBuilder<double>(
+      valueListenable: AudioPlaybackSpeed.current,
+      builder: (context, speed, _) {
+        final text = AudioPlaybackSpeed.label(speed, l10n);
+        final changed = speed != AudioPlaybackSpeed.normal;
+        return Tooltip(
+          message: l10n.audioPlaybackSpeed,
+          excludeFromSemantics: true,
+          child: Semantics(
+            button: true,
+            label: '${l10n.audioPlaybackSpeed}: $text',
+            excludeSemantics: true,
+            onTap: () => AudioPlaybackSpeed.pick(context),
+            child: TextButton(
+              onPressed: () => AudioPlaybackSpeed.pick(context),
+              style: TextButton.styleFrom(
+                minimumSize: const Size(48, 48),
+                padding: const EdgeInsets.symmetric(horizontal: 8),
+              ),
+              child: Text(
+                text,
+                style: ShiaText.caption.copyWith(
+                  color: changed ? colors.accent : colors.chevron,
+                  fontWeight: FontWeight.w700,
+                  fontFeatures: const [FontFeature.tabularFigures()],
+                ),
+              ),
+            ),
+          ),
         );
       },
     );

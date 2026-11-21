@@ -1584,6 +1584,18 @@
   "audioChooseRecording": "Choose recording",
   "audioRecitation": "Recitation",
   "audioRecitationAudio": "Recitation audio",
+  "audioPlaybackSpeed": "Playback speed",
+  "audioSpeedValue": "{speed}×",
+  "@audioSpeedValue": {
+    "description": "A playback speed, e.g. 1.25× - the multiplication sign after the number, as media players show it.",
+    "placeholders": {
+      "speed": {
+        "type": "double",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "audioSpeedNormal": "Normal",
   "librarySavedChapterGone": "Saved chapter is no longer available",
   "libraryUnavailable": "Library unavailable",
   "libraryNoBooks": "No books found",
