@@ -22,6 +22,7 @@ import '../theme/shia_colors.dart';
 import '../utils/app_text_scale.dart';
 import '../utils/external_launch.dart';
 import '../utils/font_preferences.dart';
+import '../utils/prayer_calculation_method.dart';
 import '../utils/shared_preferences.dart';
 import '../utils/sign_in_flow.dart';
 import '../utils/theme_mode.dart';
@@ -286,6 +287,12 @@ class _SettingsPageState extends State<SettingsPage> {
                           if (mounted) setState(() {});
                         },
                       ),
+                    _SettingsRow(
+                      icon: const _RowGlyph(OutlineGlyph.clock),
+                      title: l10n.settingsPrayerMethod,
+                      value: _prayerMethodLabel(prayerCalculationMethod.value),
+                      onTap: _pickPrayerMethod,
+                    ),
                     _SettingsRow(
                       icon: const _RowGlyph(OutlineGlyph.calendar),
                       title: l10n.settingsAdjustHijriDate,
@@ -567,6 +574,46 @@ class _SettingsPageState extends State<SettingsPage> {
       return Text(l10n.settingsLocationUpdatePrompt);
     }
     return null;
+  }
+
+  String _prayerMethodLabel(PrayerCalculationMethod method) => switch (method) {
+    PrayerCalculationMethod.jafari => context.l10n.settingsPrayerMethodJafari,
+    PrayerCalculationMethod.tehran => context.l10n.settingsPrayerMethodTehran,
+  };
+
+  Future<void> _pickPrayerMethod() async {
+    final l10n = context.l10n;
+    final current = prayerCalculationMethod.value;
+    final picked = await showChoiceSheet<PrayerCalculationMethod>(
+      context,
+      title: l10n.settingsPrayerMethod,
+      body: l10n.settingsPrayerMethodBody,
+      current: current,
+      choices: [
+        Choice(
+          PrayerCalculationMethod.jafari,
+          _prayerMethodLabel(PrayerCalculationMethod.jafari),
+          hint: l10n.settingsPrayerMethodJafariHint,
+        ),
+        Choice(
+          PrayerCalculationMethod.tehran,
+          _prayerMethodLabel(PrayerCalculationMethod.tehran),
+          hint: l10n.settingsPrayerMethodTehranHint,
+        ),
+      ],
+    );
+    if (picked == null || picked == current) return;
+    await setPrayerCalculationMethod(picked);
+    unawaited(
+      AnalyticsService.feature(
+        'prayer_method_changed',
+        label: 'Prayer method changed',
+        parameters: {'method': picked.storageId},
+      ),
+    );
+    if (mounted) setState(() {});
+    await HomeScreenWidgetService.instance.publishAll();
+    await reschedulePrayerTimeNotifications();
   }
 
   /// Automatic, or the manual offset (null in Automatic).

@@ -10,6 +10,7 @@ import '../../services/analytics_service.dart';
 import '../../services/location_service.dart';
 import '../../services/zikr_translations.dart';
 import '../../theme/shia_colors.dart';
+import '../../utils/prayer_calculation_method.dart';
 import '../../utils/todays_recitation.dart';
 import '../../widgets/home_glyph.dart';
 import '../../widgets/responsive_content.dart' show MouseDragScroll;
@@ -254,6 +255,8 @@ class _TodaySectionState extends State<TodaySection> {
       listenable: Listenable.merge([
         zikrIndexReady,
         LocationService.instance,
+        // ...and with the calculation method.
+        prayerCalculationMethod,
         // The titles, when the app language changes or they load.
         ZikrTranslations.instance,
       ]),

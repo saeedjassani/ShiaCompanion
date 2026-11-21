@@ -35,6 +35,7 @@ import 'package:shia_companion/utils/timezone_database.dart';
 import 'package:timezone/timezone.dart' as tz;
 import 'package:shia_companion/utils/prayer_time_entries.dart';
 import 'package:shia_companion/utils/prayer_times.dart';
+import 'package:shia_companion/utils/prayer_calculation_method.dart';
 import 'package:cupertino_ui/cupertino_ui.dart';
 
 import 'l10n/l10n.dart';
@@ -374,16 +375,22 @@ bool shouldRefreshPrayerNotificationSchedule(
 
 PrayerTime? prayerTime;
 
+/// The one [PrayerTime] every prayer time is computed with, set to the
+/// reader's [prayerCalculationMethod].
 PrayerTime getPrayerTimeObject() {
-  if (prayerTime != null) return prayerTime!;
+  final existing = prayerTime;
+  if (existing != null) {
+    // Cheap, and it means a method changed in Settings needs no reset here.
+    existing.setCalcMethod(prayerCalculationMethod.value.idIn(existing));
+    return existing;
+  }
 
-  prayerTime = PrayerTime();
-
-  prayerTime!.setCalcMethod(prayerTime!.getJafari());
-  prayerTime!.setAsrJuristic(prayerTime!.getHanafi());
-  prayerTime!.setAdjustHighLats(prayerTime!.getAngleBased());
-
-  return prayerTime!;
+  final created = PrayerTime();
+  created.setCalcMethod(prayerCalculationMethod.value.idIn(created));
+  created.setAsrJuristic(created.getHanafi());
+  created.setAdjustHighLats(created.getAngleBased());
+  prayerTime = created;
+  return created;
 }
 
 class PrayerNotificationScheduleEntry {
@@ -466,6 +473,7 @@ void restoreDayPreferences() {
   city = SP.prefs.getString('city');
   lat = SP.prefs.getDouble('lat');
   long = SP.prefs.getDouble('long');
+  restorePrayerCalculationMethod();
   applyHijriSighting();
 }
 
@@ -901,6 +909,18 @@ Future<void> applyChosenPrayerLocation({
     await ZikrReminderService.instance.rescheduleAll();
     await EventNotificationService.instance.rescheduleAll();
   }
+}
+
+/// Reschedules what fires at a prayer time - the azan, and the reminders
+/// and events tied to a prayer - after the reader picks another
+/// [prayerCalculationMethod]. Republishing the widgets is the caller's.
+Future<void> reschedulePrayerTimeNotifications() async {
+  if (flutterLocalNotificationsPlugin == null || kIsWeb) return;
+  // The schedule's fingerprint carries every minute it fires at, so it would
+  // be rebuilt at the next app open anyway; this does it now.
+  await setUpNotifications();
+  await ZikrReminderService.instance.rescheduleAll();
+  await EventNotificationService.instance.rescheduleAll();
 }
 
 /// Sanity-checks a reverse-geocode label before we show it.

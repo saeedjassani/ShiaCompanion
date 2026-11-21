@@ -8,6 +8,7 @@ import 'package:shia_companion/pages/settings_page.dart';
 import 'package:shia_companion/theme/app_theme.dart';
 import 'package:shia_companion/utils/app_text_scale.dart';
 import 'package:shia_companion/utils/language_provider.dart';
+import 'package:shia_companion/utils/prayer_calculation_method.dart';
 import 'package:shia_companion/utils/shared_preferences.dart';
 import 'package:shia_companion/utils/theme_mode.dart';
 import 'package:shia_companion/utils/theme_palette.dart';
@@ -166,8 +167,7 @@ void main() {
       (tester) async {
     await _pump(tester, const SettingsPage());
 
-    await tester.drag(find.byType(CustomScrollView), const Offset(0, -360));
-    await tester.pumpAndSettle();
+    await _reveal(tester, find.text('Adjust Hijri date'));
     await tester.tap(find.text('Adjust Hijri date'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('1 day ahead'));
@@ -175,6 +175,27 @@ void main() {
 
     expect(SP.prefs.getInt('adjust_hijri_date'), 1);
     expect(find.text('1 day ahead'), findsOneWidget);
+  });
+
+  testWidgets('Calculation method offers the two Shia methods',
+      (tester) async {
+    addTearDown(
+      () => prayerCalculationMethod.value = PrayerCalculationMethod.jafari,
+    );
+    await _pump(tester, const SettingsPage());
+
+    await _reveal(tester, find.text('Calculation method'));
+    expect(find.text('Leva Institute, Qum'), findsOneWidget);
+    await tester.tap(find.text('Calculation method'));
+    await tester.pumpAndSettle();
+    expect(find.text('Fajr 16°, Maghrib 4°, Isha 14°'), findsOneWidget);
+    expect(find.text('Fajr 17.7°, Maghrib 4.5°, Isha 14°'), findsOneWidget);
+    await tester.tap(find.text('University of Tehran'));
+    await tester.pumpAndSettle();
+
+    expect(SP.prefs.getString(prayerCalculationMethodKey), 'tehran');
+    expect(prayerCalculationMethod.value, PrayerCalculationMethod.tehran);
+    expect(find.text('University of Tehran'), findsOneWidget);
   });
 
   testWidgets('App text size opens a slider', (tester) async {
@@ -214,6 +235,12 @@ void main() {
     );
     expect(tester.takeException(), isNull);
   });
+}
+
+/// Scrolls [finder] to the middle of the page, clear of the app bar.
+Future<void> _reveal(WidgetTester tester, Finder finder) async {
+  await Scrollable.ensureVisible(tester.element(finder), alignment: 0.5);
+  await tester.pumpAndSettle();
 }
 
 Future<void> _pump(

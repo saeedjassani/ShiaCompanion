@@ -17,6 +17,7 @@ import 'package:shia_companion/widgets/widget_prayer_times_dialog.dart';
 
 import '../constants.dart';
 import '../l10n/l10n.dart';
+import '../utils/prayer_calculation_method.dart';
 import 'page_chrome.dart';
 
 /// Home's prayer card: the next of the times the reader picked, large and
@@ -107,6 +108,7 @@ class PrayerTimesState extends State<HomePrayerTimesCard> {
   void initState() {
     super.initState();
     _location.addListener(_onLocationChanged);
+    prayerCalculationMethod.addListener(_onMethodChanged);
     unawaited(_readPermissions());
     // The order of the times, and near midnight the list itself, move
     // forward on their own even when nothing else changes. Without a tick the
@@ -119,8 +121,14 @@ class PrayerTimesState extends State<HomePrayerTimesCard> {
   @override
   void dispose() {
     _location.removeListener(_onLocationChanged);
+    prayerCalculationMethod.removeListener(_onMethodChanged);
     _ticker?.cancel();
     super.dispose();
+  }
+
+  /// Settings' Calculation method moves the times.
+  void _onMethodChanged() {
+    if (mounted) setState(() {});
   }
 
   void _onLocationChanged() {
