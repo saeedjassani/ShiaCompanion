@@ -188,8 +188,6 @@ void main() {
     expect(find.text('Leva Institute, Qum'), findsOneWidget);
     await tester.tap(find.text('Calculation method'));
     await tester.pumpAndSettle();
-    expect(find.text('Fajr 16°, Maghrib 4°, Isha 14°'), findsOneWidget);
-    expect(find.text('Fajr 17.7°, Maghrib 4.5°, Isha 14°'), findsOneWidget);
     await tester.tap(find.text('University of Tehran'));
     await tester.pumpAndSettle();
 

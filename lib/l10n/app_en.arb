@@ -4168,17 +4168,9 @@
   "@settingsPrayerMethodJafari": {
     "description": "A Shia prayer time method, from the Leva Research Institute in Qum. Also beside Calculation method in Settings when chosen."
   },
-  "settingsPrayerMethodJafariHint": "Fajr 16°, Maghrib 4°, Isha 14°",
-  "@settingsPrayerMethodJafariHint": {
-    "description": "Under Leva Institute, Qum in the Calculation method sheet: how far the sun is below the horizon at each prayer."
-  },
   "settingsPrayerMethodTehran": "University of Tehran",
   "@settingsPrayerMethodTehran": {
     "description": "A Shia prayer time method, from the Institute of Geophysics, University of Tehran. Also beside Calculation method in Settings when chosen."
-  },
-  "settingsPrayerMethodTehranHint": "Fajr 17.7°, Maghrib 4.5°, Isha 14°",
-  "@settingsPrayerMethodTehranHint": {
-    "description": "Under University of Tehran in the Calculation method sheet: how far the sun is below the horizon at each prayer."
   },
   "settingsPrayerTimesShownValue": "{count, plural, =1{1 time} other{{count} times}}",
   "@settingsPrayerTimesShownValue": {

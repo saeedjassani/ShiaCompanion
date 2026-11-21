@@ -593,12 +593,10 @@ class _SettingsPageState extends State<SettingsPage> {
         Choice(
           PrayerCalculationMethod.jafari,
           _prayerMethodLabel(PrayerCalculationMethod.jafari),
-          hint: l10n.settingsPrayerMethodJafariHint,
         ),
         Choice(
           PrayerCalculationMethod.tehran,
           _prayerMethodLabel(PrayerCalculationMethod.tehran),
-          hint: l10n.settingsPrayerMethodTehranHint,
         ),
       ],
     );
