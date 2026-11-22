@@ -469,8 +469,8 @@
   "site.kazimayn_shrine.tips.2": "مردوں اور خواتین کے داخلی راستے اور جوتے رکھنے کی جگہ (کیشوانیہ) صحن کے دروازوں پر ہیں؛ نشانات اور روضے کے خادموں کی رہنمائی پر چلیں۔",
   "site.kazimayn_shrine.tips.3": "شیخ مفید کی قبر دونوں اماموں کی پائنتی کے قریب ہے؛ روضے کے خادموں سے ان کی اور خواجہ نصیر الدین طوسی کی قبریں دکھانے کو کہیں اور ان کے لیے سورۂ فاتحہ پڑھیں۔",
   "site.kazimayn_shrine.ziyarat.0.note": "روضے کے دروازے پر۔",
-  "site.kazimayn_shrine.ziyarat.1.label": "زیارت امام موسیٰ کاظم (ع) (شیخ مفید سے)",
-  "site.kazimayn_shrine.ziyarat.2.label": "امام موسیٰ کاظم (ع) کی دوسری زیارت",
+  "site.kazimayn_shrine.ziyarat.1.label": "زیارت امام موسیٰ کاظم (ع) (سید ابن طاؤس کی نقل کردہ)",
+  "site.kazimayn_shrine.ziyarat.2.label": "زیارت امام موسیٰ کاظم (ع) (شیخ مفید کی نقل کردہ)",
   "site.kazimayn_shrine.ziyarat.4.label": "زیارت امام محمد جواد (ع)",
   "site.kazimayn_shrine.ziyarat.4.note": "اس کا آغاز ان آداب دخول سے ہوتا ہے جو روضے کے دروازے پر پڑھے جاتے ہیں۔",
   "site.kazimayn_shrine.ziyarat.5.label": "باقیات الصالحات سے زیارت امام محمد جواد (ع)",
@@ -499,8 +499,8 @@
   "site.sharif_murtada_radi_tombs.buried.sharif_al_radi.note": "«نہج البلاغہ» کے مؤلف اور سید مرتضیٰ کے بڑے بھائی؛ ان کا مزار ان کے بھائی کے مزار کے پہلو میں ہے، اور یہ ان جگہوں میں سے ہے جہاں ان کے دفن ہونے کی روایت ہے۔",
   "plan.kazimayn_haram.kazim_tomb.name": "ضریح امام موسیٰ کاظم (ع)",
   "plan.kazimayn_haram.kazim_tomb.note": "ایک ہی ضریح میں دونوں امام ہیں: امام موسیٰ کاظم (ع) اس کے جنوبی سرے پر، جنوبی گنبد کے نیچے مدفون ہیں۔",
-  "plan.kazimayn_haram.kazim_tomb.ziyarat.0.label": "زیارت امام موسیٰ کاظم (ع) (شیخ مفید سے)",
-  "plan.kazimayn_haram.kazim_tomb.ziyarat.1.label": "امام موسیٰ کاظم (ع) کی دوسری زیارت",
+  "plan.kazimayn_haram.kazim_tomb.ziyarat.0.label": "زیارت امام موسیٰ کاظم (ع) (سید ابن طاؤس کی نقل کردہ)",
+  "plan.kazimayn_haram.kazim_tomb.ziyarat.1.label": "زیارت امام موسیٰ کاظم (ع) (شیخ مفید کی نقل کردہ)",
   "plan.kazimayn_haram.kazim_tomb.ziyarat.3.note": "کسی بھی امام (ع) کے روضے پر پڑھی جا سکتی ہے۔",
   "plan.kazimayn_haram.kazim_tomb.ziyarat.4.note": "دونوں اماموں کو ایک ساتھ خطاب کرتی ہے اور وداع پر ختم ہوتی ہے۔",
   "plan.kazimayn_haram.jawad_tomb.name": "ضریح امام محمد جواد (ع)",
@@ -939,5 +939,9 @@
   "site.sardab_al_ghayba.ziyarat.10.note": "جب واپس جانا چاہیں تو سرداب میں لوٹ آئیں، جتنی چاہیں نماز پڑھیں، پھر قبلہ رخ ہو کر امام علی رضا (ع) کی یہ دعا پڑھیں جو امام مہدی (عج) کے لیے ہے۔",
   "plan.samarra_haram.sardab.ziyarat.7.note": "سید ابن طاؤس نے اسے سرداب کے اعمال میں شامل کیا ہے۔",
   "plan.samarra_haram.sardab.ziyarat.10.label": "سرداب سے رخصت ہوتے وقت کی دعا",
-  "plan.samarra_haram.sardab.ziyarat.10.note": "جب واپس جانا چاہیں تو سرداب میں لوٹ آئیں، جتنی چاہیں نماز پڑھیں، پھر قبلہ رخ ہو کر امام علی رضا (ع) کی یہ دعا پڑھیں جو امام مہدی (عج) کے لیے ہے۔"
+  "plan.samarra_haram.sardab.ziyarat.10.note": "جب واپس جانا چاہیں تو سرداب میں لوٹ آئیں، جتنی چاہیں نماز پڑھیں، پھر قبلہ رخ ہو کر امام علی رضا (ع) کی یہ دعا پڑھیں جو امام مہدی (عج) کے لیے ہے۔",
+  "site.kazimayn_shrine.ziyarat.1.note": "اس کا آغاز روضے کے دروازے پر داخلے کی اجازت طلب کرنے سے ہوتا ہے۔",
+  "site.kazimayn_shrine.ziyarat.10.note": "حاجی علی بغدادی کے واقعے میں امام مہدی (عج) نے یہاں دونوں اماموں کے لیے یہ زیارت پڑھی اور فرمایا کہ یہ افضل ہے۔",
+  "site.kazimayn_shrine.ziyarat.11.note": "شب جمعہ یہاں سے یہ زیارت پڑھ کر امام حسین (ع) کی زیارت کریں، جیسا کہ اسی واقعے میں ہے۔",
+  "plan.kazimayn_haram.kazim_tomb.ziyarat.0.note": "اس کا آغاز روضے کے دروازے پر داخلے کی اجازت طلب کرنے سے ہوتا ہے۔"
 }

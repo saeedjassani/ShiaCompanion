@@ -3019,12 +3019,13 @@
                 {
                   "uid": "AH2",
                   "tab": 1,
-                  "label": "Ziyarat of Imam Musa al-Kazim (a.s.) (by Shaykh al-Mufid)"
+                  "label": "Ziyarat of Imam Musa al-Kazim (a.s.) (by Sayyid Ibn Tawus)",
+                  "note": "Opens with the permission to enter at the door of the shrine."
                 },
                 {
                   "uid": "AH2",
                   "tab": 2,
-                  "label": "Second Ziyarat of Imam Musa al-Kazim (a.s.)"
+                  "label": "Ziyarat of Imam Musa al-Kazim (a.s.) (by Shaykh al-Mufid)"
                 },
                 {
                   "uid": "AH4"
@@ -3058,7 +3059,7 @@
                 },
                 {
                   "uid": "G2",
-                  "note": "In the story of Hajj Ali al-Baghdadi, Imam al-Mahdi (a.t.f.s.) recited it here for both Imams, calling it the most favoured form."
+                  "note": "In the story of Hajj Ali al-Baghdadi, Imam al-Mahdi (a.t.f.s.) recited it here for both Imams, saying it is the best."
                 },
                 {
                   "uid": "G6",
@@ -3188,12 +3189,13 @@
                     {
                       "uid": "AH2",
                       "tab": 1,
-                      "label": "Ziyarat of Imam Musa al-Kazim (a.s.) (by Shaykh al-Mufid)"
+                      "label": "Ziyarat of Imam Musa al-Kazim (a.s.) (by Sayyid Ibn Tawus)",
+                      "note": "Opens with the permission to enter at the door of the shrine."
                     },
                     {
                       "uid": "AH2",
                       "tab": 2,
-                      "label": "Second Ziyarat of Imam Musa al-Kazim (a.s.)"
+                      "label": "Ziyarat of Imam Musa al-Kazim (a.s.) (by Shaykh al-Mufid)"
                     },
                     {
                       "uid": "AH4"

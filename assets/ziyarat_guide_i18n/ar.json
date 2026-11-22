@@ -469,8 +469,8 @@
   "site.kazimayn_shrine.tips.2": "مداخل الرجال والنساء وأماكن حفظ الأحذية (الكشوانية) عند أبواب الصحن؛ فاتبع الإرشادات وخدّام المرقد.",
   "site.kazimayn_shrine.tips.3": "قبر الشيخ المفيد قريب من جهة رجلي الإمامين؛ فاسأل خدّام المرقد أن يدلّوك على قبره وقبر الخواجة نصير الدين الطوسي، واقرأ لهما الفاتحة.",
   "site.kazimayn_shrine.ziyarat.0.note": "عند باب المرقد.",
-  "site.kazimayn_shrine.ziyarat.1.label": "زيارة الإمام موسى الكاظم (ع) (للشيخ المفيد)",
-  "site.kazimayn_shrine.ziyarat.2.label": "الزيارة الثانية للإمام موسى الكاظم (ع)",
+  "site.kazimayn_shrine.ziyarat.1.label": "زيارة الإمام موسى الكاظم (ع) (للسيد ابن طاووس)",
+  "site.kazimayn_shrine.ziyarat.2.label": "زيارة الإمام موسى الكاظم (ع) (للشيخ المفيد)",
   "site.kazimayn_shrine.ziyarat.4.label": "زيارة الإمام محمد الجواد (ع)",
   "site.kazimayn_shrine.ziyarat.4.note": "تبدأ بآداب الدخول التي تُقرأ عند باب المرقد.",
   "site.kazimayn_shrine.ziyarat.5.label": "زيارة الإمام الجواد (ع) من الباقيات الصالحات",
@@ -499,8 +499,8 @@
   "site.sharif_murtada_radi_tombs.buried.sharif_al_radi.note": "جامع نهج البلاغة والأخ الأكبر للمرتضى؛ ويقوم مرقده بجوار مرقد أخيه، وهو أحد المواضع التي يقال إنه دُفن فيها.",
   "plan.kazimayn_haram.kazim_tomb.name": "ضريح الإمام موسى الكاظم (ع)",
   "plan.kazimayn_haram.kazim_tomb.note": "ضريح واحد يضم الإمامين: فالإمام الكاظم (ع) مدفون في طرفه الجنوبي، تحت القبة الجنوبية.",
-  "plan.kazimayn_haram.kazim_tomb.ziyarat.0.label": "زيارة الإمام موسى الكاظم (ع) (للشيخ المفيد)",
-  "plan.kazimayn_haram.kazim_tomb.ziyarat.1.label": "الزيارة الثانية للإمام موسى الكاظم (ع)",
+  "plan.kazimayn_haram.kazim_tomb.ziyarat.0.label": "زيارة الإمام موسى الكاظم (ع) (للسيد ابن طاووس)",
+  "plan.kazimayn_haram.kazim_tomb.ziyarat.1.label": "زيارة الإمام موسى الكاظم (ع) (للشيخ المفيد)",
   "plan.kazimayn_haram.kazim_tomb.ziyarat.3.note": "يمكن قراءتها في مرقد أي إمام من الأئمة (ع).",
   "plan.kazimayn_haram.kazim_tomb.ziyarat.4.note": "تخاطب الإمامين معًا وتُختم بالوداع.",
   "plan.kazimayn_haram.jawad_tomb.name": "ضريح الإمام محمد الجواد (ع)",
@@ -939,5 +939,9 @@
   "site.sardab_al_ghayba.ziyarat.10.note": "إذا أردت الانصراف فعُد إلى السرداب وصلِّ ما شئت، ثم استقبل القبلة واقرأ هذا الدعاء المرويّ عن الإمام الرضا (ع) للإمام المهدي (عج).",
   "plan.samarra_haram.sardab.ziyarat.7.note": "ألحقها السيد ابن طاووس بأعمال السرداب.",
   "plan.samarra_haram.sardab.ziyarat.10.label": "الدعاء عند مغادرة السرداب",
-  "plan.samarra_haram.sardab.ziyarat.10.note": "إذا أردت الانصراف فعُد إلى السرداب وصلِّ ما شئت، ثم استقبل القبلة واقرأ هذا الدعاء المرويّ عن الإمام الرضا (ع) للإمام المهدي (عج)."
+  "plan.samarra_haram.sardab.ziyarat.10.note": "إذا أردت الانصراف فعُد إلى السرداب وصلِّ ما شئت، ثم استقبل القبلة واقرأ هذا الدعاء المرويّ عن الإمام الرضا (ع) للإمام المهدي (عج).",
+  "site.kazimayn_shrine.ziyarat.1.note": "تبدأ بالاستئذان في الدخول عند باب المرقد.",
+  "site.kazimayn_shrine.ziyarat.10.note": "في حكاية الحاج علي البغدادي، قرأها الإمام المهدي (عج) هنا للإمامين كليهما، وقال إنها الأفضل.",
+  "site.kazimayn_shrine.ziyarat.11.note": "في ليلة الجمعة زُر بها الإمام الحسين (ع) من هنا، كما في الحكاية نفسها.",
+  "plan.kazimayn_haram.kazim_tomb.ziyarat.0.note": "تبدأ بالاستئذان في الدخول عند باب المرقد."
 }
