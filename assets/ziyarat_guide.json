@@ -11,6 +11,9 @@
     },
     {
       "uid": "G30"
+    },
+    {
+      "uid": "G31"
     }
   ],
   "regions": [
@@ -3612,6 +3615,8 @@
               "ziyarat": [
                 {
                   "uid": "B6",
+                  "tab": 2,
+                  "label": "Izn-e-Dukhool Reported by Allamah al-Majlisi",
                   "note": "Permission to enter the Sardab."
                 },
                 {
@@ -3767,6 +3772,8 @@
                   "ziyarat": [
                     {
                       "uid": "B6",
+                      "tab": 2,
+                      "label": "Izn-e-Dukhool Reported by Allamah al-Majlisi",
                       "note": "Permission to enter the Sardab."
                     },
                     {

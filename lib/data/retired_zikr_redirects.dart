@@ -517,4 +517,10 @@ const Map<String, RetiredZikrRedirect> retiredZikrRedirects = {
   /// all now in AG1. Their targets' slugAliases keep the old titles' slugs.
   'AG15': RetiredZikrRedirect('AG14'),
   'AG20': RetiredZikrRedirect('AG1'),
+
+  /// B5 (Asking Permission for Entering The Holy Shrines) was Shaykh
+  /// al-Kaf'ami's permission to enter, Mafatih al-Jinan's first form; B6
+  /// carried only the second, al-Majlisi's. B6 now has both, Kaf'ami's as
+  /// its first tab, and its slugAliases keep B5's slug.
+  'B5': RetiredZikrRedirect('B6'),
 };

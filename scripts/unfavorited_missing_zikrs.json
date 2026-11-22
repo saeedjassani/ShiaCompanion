@@ -4,9 +4,9 @@
  "counts": {
   "total": 209,
   "menuCategory": 7,
-  "retired": 72,
-  "restored": 33,
-  "toRestoreHasArabic": 55,
+  "retired": 75,
+  "restored": 35,
+  "toRestoreHasArabic": 50,
   "toRestoreProseOnly": 42
  },
  "uids": [
@@ -234,9 +234,10 @@
   {
    "uid": "AG15",
    "title": "Explanations about the additions in Ziyarah Warith)",
-   "kind": "has-arabic",
+   "kind": "retired",
    "itemsBytes": 2257,
-   "note": "NOT a clean duplicate: AG14 carries its \"Commentary\" paragraph but drops the \"However, some books add...\" tail - merge that tail into AG14, then retire AG15 to AG14."
+   "note": "Its tail (the lines some books add after Warith's last salutation, and Shaykh al-Nuri's verdict) is in AG14's merits (2026-11-22).",
+   "retiredTo": "AG14"
   },
   {
    "uid": "AG16",
@@ -253,13 +254,15 @@
   {
    "uid": "AG20",
    "title": "Visiting Imam Husayn (a) on Special Occasions",
-   "kind": "has-arabic",
-   "itemsBytes": 5042
+   "kind": "retired",
+   "itemsBytes": 5042,
+   "retiredTo": "AG1",
+   "note": "Prose (the blessed times, visiting from far away) and one greeting, now AG1's merits and recited lines (2026-11-22)."
   },
   {
    "uid": "AG21",
    "title": "Merits And Etiquettes of the Soil of Imam Husayn's (a) Tomb",
-   "kind": "has-arabic",
+   "kind": "restored",
    "itemsBytes": 30453
   },
   {
@@ -673,8 +676,10 @@
   {
    "uid": "B5",
    "title": "Asking Permission for Entering The Holy Shrines (Izn Dukhool)",
-   "kind": "has-arabic",
-   "itemsBytes": 4928
+   "kind": "retired",
+   "itemsBytes": 4928,
+   "retiredTo": "B6",
+   "note": "Kaf'ami's permission to enter, now B6's first tab beside al-Majlisi's (2026-11-22)."
   },
   {
    "uid": "B~AR9",
@@ -913,7 +918,7 @@
   {
    "uid": "G31",
    "title": "Bidding Farewell to the Holy Imams",
-   "kind": "has-arabic",
+   "kind": "restored",
    "itemsBytes": 7042
   },
   {
