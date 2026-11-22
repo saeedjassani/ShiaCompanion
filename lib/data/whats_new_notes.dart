@@ -97,4 +97,13 @@ final List<WhatsNewEntry> whatsNewNotes = <WhatsNewEntry>[
       (l10n) => l10n.whatsNew144WearOs,
     ],
   ),
+  WhatsNewEntry(
+    buildNumber: 146,
+    versionName: '4.3.0',
+    bullets: [
+      (l10n) => l10n.whatsNew146French,
+      (l10n) => l10n.whatsNew146PrayerMethod,
+      (l10n) => l10n.whatsNew146PlaybackSpeed,
+    ],
+  ),
 ];
