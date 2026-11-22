@@ -4,10 +4,10 @@
  "counts": {
   "total": 209,
   "menuCategory": 7,
-  "retired": 69,
+  "retired": 72,
   "restored": 33,
-  "toRestoreHasArabic": 56,
-  "toRestoreProseOnly": 44
+  "toRestoreHasArabic": 55,
+  "toRestoreProseOnly": 42
  },
  "uids": [
   {
@@ -265,14 +265,18 @@
   {
    "uid": "AH1",
    "title": "Mertis and Method of Visiting Kazimayn",
-   "kind": "prose-only",
-   "itemsBytes": 2807
+   "kind": "retired",
+   "itemsBytes": 2807,
+   "note": "Merits of visiting the two Imams, now in AH9's merits (2026-11-19).",
+   "retiredTo": "AH9"
   },
   {
    "uid": "AH3",
    "title": "Another Ziyarah of Imam al-Kazim (a)",
-   "kind": "has-arabic",
-   "itemsBytes": 6730
+   "kind": "retired",
+   "itemsBytes": 6730,
+   "note": "Al-Mufid's ziyarat, now AH2's second tab in place of a duplicate (2026-11-19).",
+   "retiredTo": "AH2 tabs[0]"
   },
   {
    "uid": "AH6",
@@ -291,8 +295,10 @@
   {
    "uid": "AH11",
    "title": "Story of Ali Al Baghdadi",
-   "kind": "prose-only",
-   "itemsBytes": 16621
+   "kind": "retired",
+   "itemsBytes": 16621,
+   "note": "The story of Hajj Ali al-Baghdadi, condensed into AH9's merits (2026-11-19).",
+   "retiredTo": "AH9"
   },
   {
    "uid": "AI1",

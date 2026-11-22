@@ -497,4 +497,14 @@ const Map<String, RetiredZikrRedirect> retiredZikrRedirects = {
   'AL4': RetiredZikrRedirect('AL5'),
   'AL10': RetiredZikrRedirect('AL1'),
   'AL16': RetiredZikrRedirect('AL11'),
+
+  /// Kazimayn: AH3 (Another Ziyarah of Imam al-Kazim) is al-Mufid's
+  /// ziyarat, now AH2's second tab in place of a duplicate of its first.
+  /// AH1 (the merits of visiting the two Imams) and AH11 (the story of Hajj
+  /// Ali al-Baghdadi) were Mafatih al-Jinan's prose, with nothing to recite,
+  /// and are the merits of AH9, the ziyarat common to both Imams. Their
+  /// targets' slugAliases keep the old titles' slugs.
+  'AH1': RetiredZikrRedirect('AH9'),
+  'AH3': RetiredZikrRedirect('AH2', tabIndex: 0),
+  'AH11': RetiredZikrRedirect('AH9'),
 };
