@@ -14,6 +14,7 @@ import 'package:shia_companion/models/azaan_option.dart';
 import 'package:shia_companion/services/analytics_service.dart';
 import 'package:shia_companion/services/azan_playback_service.dart';
 import 'package:shia_companion/services/city_repository.dart';
+import 'package:shia_companion/services/home_screen_widget_service.dart';
 import 'package:http/http.dart' as http;
 import 'package:date_format/date_format.dart';
 import 'package:intl/intl.dart' show DateFormat;
@@ -35,6 +36,7 @@ import 'package:shia_companion/utils/timezone_database.dart';
 import 'package:timezone/timezone.dart' as tz;
 import 'package:shia_companion/utils/prayer_time_entries.dart';
 import 'package:shia_companion/utils/prayer_times.dart';
+import 'package:shia_companion/utils/prayer_calculation_method.dart';
 import 'package:cupertino_ui/cupertino_ui.dart';
 
 import 'l10n/l10n.dart';
@@ -374,16 +376,22 @@ bool shouldRefreshPrayerNotificationSchedule(
 
 PrayerTime? prayerTime;
 
+/// The one [PrayerTime] every prayer time is computed with, set to the
+/// reader's [prayerCalculationMethod].
 PrayerTime getPrayerTimeObject() {
-  if (prayerTime != null) return prayerTime!;
+  final existing = prayerTime;
+  if (existing != null) {
+    // Cheap, and it means a method changed in Settings needs no reset here.
+    existing.setCalcMethod(prayerCalculationMethod.value.idIn(existing));
+    return existing;
+  }
 
-  prayerTime = PrayerTime();
-
-  prayerTime!.setCalcMethod(prayerTime!.getJafari());
-  prayerTime!.setAsrJuristic(prayerTime!.getHanafi());
-  prayerTime!.setAdjustHighLats(prayerTime!.getAngleBased());
-
-  return prayerTime!;
+  final created = PrayerTime();
+  created.setCalcMethod(prayerCalculationMethod.value.idIn(created));
+  created.setAsrJuristic(created.getHanafi());
+  created.setAdjustHighLats(created.getAngleBased());
+  prayerTime = created;
+  return created;
 }
 
 class PrayerNotificationScheduleEntry {
@@ -466,6 +474,7 @@ void restoreDayPreferences() {
   city = SP.prefs.getString('city');
   lat = SP.prefs.getDouble('lat');
   long = SP.prefs.getDouble('long');
+  restorePrayerCalculationMethod();
   applyHijriSighting();
 }
 
@@ -638,6 +647,11 @@ Future<bool> initializeLocation({
     long = currentLocation.longitude;
     applyHijriSighting();
     final locationChanged = hasPrayerScheduleLocationMoved();
+    // Automatic's method goes by the country, which a move can change. The
+    // city list it is read from is worth not holding the fix up for.
+    if (locationChanged || !hasPrayerLocationCountry) {
+      unawaited(refreshPrayerLocationCountry());
+    }
     if (locationChanged) {
       needToSchedule = true;
     }
@@ -879,13 +893,17 @@ Future<void> applyChosenPrayerLocation({
   required double latitude,
   required double longitude,
   required String label,
+  String? countryCode,
 }) async {
   lat = latitude;
   long = longitude;
   applyHijriSighting();
   lastLocationFailure = null;
   lastLocationFixAt = DateTime.now();
-  final locationChanged = hasPrayerScheduleLocationMoved();
+  final methodChanged = await setPrayerLocationCountry(
+    countryCode ?? await countryForPrayerLocation(latitude, longitude),
+  );
+  final locationChanged = hasPrayerScheduleLocationMoved() || methodChanged;
   if (locationChanged || city != label) needToSchedule = true;
   city = label;
   if (SP.isInitialized) {
@@ -901,6 +919,78 @@ Future<void> applyChosenPrayerLocation({
     await ZikrReminderService.instance.rescheduleAll();
     await EventNotificationService.instance.rescheduleAll();
   }
+}
+
+/// Reschedules what fires at a prayer time - the azan, and the reminders
+/// and events tied to a prayer - after the reader picks another
+/// [prayerCalculationMethod]. Republishing the widgets is the caller's.
+Future<void> reschedulePrayerTimeNotifications() async {
+  if (flutterLocalNotificationsPlugin == null || kIsWeb) return;
+  // The schedule's fingerprint carries every minute it fires at, so it would
+  // be rebuilt at the next app open anyway; this does it now.
+  await setUpNotifications();
+  await ZikrReminderService.instance.rescheduleAll();
+  await EventNotificationService.instance.rescheduleAll();
+}
+
+/// How far from the nearest city of the bundled list a location may be
+/// and still count as in its country, for Automatic's prayer method. The
+/// list has only cities of 100,000+ people, so this is wider than the
+/// distance a place is named by.
+const double prayerCountryMaxDistanceKm = 300;
+
+/// The country ([City.countryCode]) [latitude], [longitude] is in, as far
+/// as the nearest big city tells; empty when none is near or the list
+/// can't be read.
+Future<String> countryForPrayerLocation(
+  double latitude,
+  double longitude,
+) async {
+  try {
+    await CityRepository.instance.load();
+    return CityRepository.instance
+            .nearest(
+              latitude,
+              longitude,
+              maxDistanceKm: prayerCountryMaxDistanceKm,
+            )
+            ?.countryCode ??
+        '';
+  } catch (e) {
+    debugPrint('Could not tell the prayer location\'s country: $e');
+    return '';
+  }
+}
+
+/// Works out the country of the stored location for Automatic's prayer
+/// method. If that changes the method, the times are rescheduled and
+/// republished; with [announce] (an existing reader on the first launch
+/// after the update), Home's prayer card also says so once.
+Future<void> refreshPrayerLocationCountry({bool announce = false}) async {
+  final latitude = lat, longitude = long;
+  if (latitude == null || longitude == null) return;
+  final changed = await setPrayerLocationCountry(
+    await countryForPrayerLocation(latitude, longitude),
+  );
+  if (!changed) return;
+  if (announce && prayerCalculationMethodChoice == null) {
+    await notePrayerMethodChangedOnUpdate();
+  }
+  try {
+    await HomeScreenWidgetService.instance.publishAll();
+  } catch (e) {
+    debugPrint('Prayer method changed, but publishing it failed: $e');
+  }
+  await reschedulePrayerTimeNotifications();
+}
+
+/// A location stored before Automatic's prayer method existed has no
+/// country yet: works it out, once.
+Future<void> resolvePrayerLocationCountryOnLaunch({
+  required bool freshInstall,
+}) async {
+  if (hasPrayerLocationCountry) return;
+  await refreshPrayerLocationCountry(announce: !freshInstall);
 }
 
 /// Sanity-checks a reverse-geocode label before we show it.

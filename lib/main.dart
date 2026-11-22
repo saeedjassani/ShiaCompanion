@@ -149,6 +149,12 @@ void main() async {
     // Setup's theme step offers the colors; Home's card is for updates.
     await HomeColorCard.markDismissed();
   }
+  // A location stored before Automatic's prayer method: find its country.
+  unawaited(
+    resolvePrayerLocationCountryOnLaunch(
+      freshInstall: FirstRunSetup.freshInstallThisLaunch,
+    ),
+  );
   await WhatsNewService.resolveOnLaunch(
     freshInstall: FirstRunSetup.freshInstallThisLaunch,
   );

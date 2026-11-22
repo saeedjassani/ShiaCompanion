@@ -12,6 +12,7 @@ import 'package:shia_companion/services/azaan_opt_in_service.dart';
 import 'package:shia_companion/services/first_run_setup.dart';
 import 'package:shia_companion/services/location_service.dart';
 import 'package:shia_companion/utils/permission_explainers.dart';
+import 'package:shia_companion/utils/prayer_calculation_method.dart';
 import 'package:shia_companion/utils/shared_preferences.dart';
 import 'package:shia_companion/utils/widget_prayer_time_selection.dart';
 import 'package:shia_companion/utils/timezone_database.dart';
@@ -433,6 +434,68 @@ void main() {
 
     expect(tapped, isTrue);
   });
+  group('the notice about a new prayer method', () {
+    setUp(() async {
+      ensureTimeZoneDatabaseInitialized();
+      tz.setLocalLocation(tz.UTC);
+      lat = 32.02;
+      long = 44.34;
+      city = 'Najaf';
+      // The azan question waits its turn; keep it out of the way.
+      await SP.prefs.setBool(AzaanOptInService.askedKey, true);
+      await setPrayerLocationCountry('IQ');
+    });
+
+    tearDown(resetPrayerCalculationMethodForTest);
+
+    testWidgets('is said once to a reader an update moved', (tester) async {
+      await notePrayerMethodChangedOnUpdate();
+      await pumpCard(tester);
+      expect(
+        find.text('Prayer times now match the holy shrines'),
+        findsOneWidget,
+      );
+
+      await tester.tap(find.text('OK'));
+      await tester.pumpAndSettle();
+      expect(
+        find.text('Prayer times now match the holy shrines'),
+        findsNothing,
+      );
+
+      await tester.pumpWidget(const SizedBox());
+      await pumpCard(tester);
+      expect(
+        find.text('Prayer times now match the holy shrines'),
+        findsNothing,
+      );
+    });
+
+    testWidgets('Change opens the methods, and a choice answers it',
+        (tester) async {
+      await notePrayerMethodChangedOnUpdate();
+      await pumpCard(tester);
+      await tester.tap(find.text('Change'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Leva Institute, Qum'));
+      await tester.pumpAndSettle();
+
+      expect(prayerCalculationMethod.value, PrayerCalculationMethod.jafari);
+      expect(
+        find.text('Prayer times now match the holy shrines'),
+        findsNothing,
+      );
+    });
+
+    testWidgets('is not said when nothing moved', (tester) async {
+      await pumpCard(tester);
+      expect(
+        find.text('Prayer times now match the holy shrines'),
+        findsNothing,
+      );
+    });
+  });
+
   group('the azan question under the times', () {
     const question = 'Hear the azan at prayer time?';
 

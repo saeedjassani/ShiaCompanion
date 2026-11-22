@@ -334,6 +334,7 @@ class LocationService extends ChangeNotifier {
       latitude: chosen.latitude,
       longitude: chosen.longitude,
       label: chosen.name,
+      countryCode: chosen.countryCode,
     );
     _updatedAt = DateTime.now();
     if (SP.isInitialized) {

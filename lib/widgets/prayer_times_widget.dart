@@ -17,6 +17,8 @@ import 'package:shia_companion/widgets/widget_prayer_times_dialog.dart';
 
 import '../constants.dart';
 import '../l10n/l10n.dart';
+import '../utils/prayer_calculation_method.dart';
+import 'prayer_method_sheet.dart';
 import 'page_chrome.dart';
 
 /// Home's prayer card: the next of the times the reader picked, large and
@@ -107,6 +109,7 @@ class PrayerTimesState extends State<HomePrayerTimesCard> {
   void initState() {
     super.initState();
     _location.addListener(_onLocationChanged);
+    prayerCalculationMethod.addListener(_onMethodChanged);
     unawaited(_readPermissions());
     // The order of the times, and near midnight the list itself, move
     // forward on their own even when nothing else changes. Without a tick the
@@ -119,8 +122,14 @@ class PrayerTimesState extends State<HomePrayerTimesCard> {
   @override
   void dispose() {
     _location.removeListener(_onLocationChanged);
+    prayerCalculationMethod.removeListener(_onMethodChanged);
     _ticker?.cancel();
     super.dispose();
+  }
+
+  /// Settings' Calculation method moves the times.
+  void _onMethodChanged() {
+    if (mounted) setState(() {});
   }
 
   void _onLocationChanged() {
@@ -165,6 +174,17 @@ class PrayerTimesState extends State<HomePrayerTimesCard> {
       ),
     );
     await _chooseCity();
+  }
+
+  Future<void> _dismissMethodNotice() async {
+    await dismissPrayerMethodNotice();
+    if (mounted) setState(() {});
+  }
+
+  /// Picking a method answers the notice; closing the sheet leaves it.
+  Future<void> _changeMethodFromNotice() async {
+    await showPrayerMethodSheet(context);
+    if (mounted) setState(() {});
   }
 
   bool _answeringAzan = false;
@@ -257,8 +277,12 @@ class PrayerTimesState extends State<HomePrayerTimesCard> {
     // azan would follow depend on it. Not on the web, which has no azan; on
     // iOS only once notifications are allowed, since the question's Not now
     // may not stand before the OS prompt. Settings' Azan switch asks there.
+    // An update moved this reader onto their country's method (Iraq or
+    // Iran): said once, after the city question.
+    final methodNotice = askStillInCity ? null : pendingPrayerMethodNotice;
     final askAzan =
         !askStillInCity &&
+        methodNotice == null &&
         !kIsWeb &&
         !FirstRunSetup.isPending &&
         !AzaanOptInService.hasBeenAsked &&
@@ -322,6 +346,22 @@ class PrayerTimesState extends State<HomePrayerTimesCard> {
                           onPrimary: _changeCityFromNudge,
                           secondaryLabel: context.l10n.prayerYesStillHere,
                           onSecondary: _stillInCity,
+                        ),
+                      ),
+                    if (methodNotice != null)
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 6),
+                        child: _CardNudge(
+                          title: methodNotice == PrayerCalculationMethod.tehran
+                              ? context.l10n.prayerMethodNoticeIranTitle
+                              : context.l10n.prayerMethodNoticeIraqTitle,
+                          body: methodNotice == PrayerCalculationMethod.tehran
+                              ? context.l10n.prayerMethodNoticeIranBody
+                              : context.l10n.prayerMethodNoticeIraqBody,
+                          primaryLabel: context.l10n.prayerMethodNoticeOk,
+                          onPrimary: _dismissMethodNotice,
+                          secondaryLabel: context.l10n.prayerMethodNoticeChange,
+                          onSecondary: _changeMethodFromNotice,
                         ),
                       ),
                     if (askAzan)

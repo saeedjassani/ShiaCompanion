@@ -163,6 +163,16 @@
   `assets/zikr_i18n/` translations are checked against the compilation's,
   which then serve both).
 
+- **Prayer calculation method: follow-ups.** Settings' Calculation method
+  (`lib/utils/prayer_calculation_method.dart`) is Automatic by the prayer
+  location's country: Iraq gets the holy shrines' 18° Fajr / 4° Maghrib
+  (the Imam Ali shrine's PrayTimes.js and alkafeel.net's times, checked
+  2026-11-21), Iran the University of Tehran, everywhere else Leva. Open:
+  the Imam Husayn shrine's times were never read (its site hid them from a
+  headless browser) - check they agree; and if readers still ask to edit
+  times, a per-prayer minute adjustment (`PrayerTime.tune`) on top of the
+  method, not hand-typed times.
+
 - **Hijri months: publish announced month starts (step 3).** Settings'
   "Automatic" (the default unless someone had moved the date by hand)
   predicts each month's start from naked-eye crescent visibility at the

@@ -22,6 +22,7 @@ import '../theme/shia_colors.dart';
 import '../utils/app_text_scale.dart';
 import '../utils/external_launch.dart';
 import '../utils/font_preferences.dart';
+import '../utils/prayer_calculation_method.dart';
 import '../utils/shared_preferences.dart';
 import '../utils/sign_in_flow.dart';
 import '../utils/theme_mode.dart';
@@ -33,6 +34,7 @@ import '../services/zikr_translations.dart';
 import '../widgets/language_settings.dart';
 import '../widgets/outline_icon.dart';
 import '../widgets/page_chrome.dart';
+import '../widgets/prayer_method_sheet.dart';
 import '../widgets/reader_text_sheet.dart';
 import '../widgets/theme_mode_picker.dart';
 import '../widgets/theme_palette_picker.dart';
@@ -286,6 +288,20 @@ class _SettingsPageState extends State<SettingsPage> {
                           if (mounted) setState(() {});
                         },
                       ),
+                    _SettingsRow(
+                      icon: const _RowGlyph(OutlineGlyph.clock),
+                      title: l10n.settingsPrayerMethod,
+                      value: prayerCalculationMethodChoice == null
+                          ? l10n.settingsPrayerMethodAutomatic
+                          : prayerMethodLabel(
+                              l10n,
+                              prayerCalculationMethod.value,
+                            ),
+                      onTap: () async {
+                        final changed = await showPrayerMethodSheet(context);
+                        if (changed && mounted) setState(() {});
+                      },
+                    ),
                     _SettingsRow(
                       icon: const _RowGlyph(OutlineGlyph.calendar),
                       title: l10n.settingsAdjustHijriDate,
