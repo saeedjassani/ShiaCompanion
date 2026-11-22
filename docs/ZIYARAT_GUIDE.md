@@ -971,6 +971,14 @@ The list as found in session 1:
   pushed; its work was replayed from the transcript on 2026-11-22 and
   every step reproduced its recorded output.
 
+**Session 10 (2026-11-22): Karbala batch, not started.**
+
+- Started without the repository selected: it could clone master and
+  reach mafatih.duas.co, but not push (attaching the repo was blocked by
+  the permission check), and Flutter came only from running the startup
+  hook by hand. Only this to-do was updated; Karbala (step 4) is next and
+  nothing of it is done yet.
+
 **What's left (start here):**
 
 1. **The owner's device check** (as an admin): the three pages, the ten
@@ -1038,12 +1046,18 @@ lost what was not pushed (session 9's was recovered from its
 transcript). Commit and push after each step, before long agent runs,
 not at the end. A batch needs mafatih.duas.co (the Urdu Mafatih, the
 main online check), Flutter (the tests) and push access. Start the
-session in the **"Shia Companion"** cloud environment (unrestricted
-network, so mafatih.duas.co loads) **with this repository selected** (its
-startup hook installs Flutter, and only a selected repository can be
-pushed). The "Default" environment has none of these: on 2026-11-22 a
-session there with no repository attached could clone but not push, had
-no Flutter, and mafatih.duas.co was refused - so check all three first.
+session **with this repository selected**, best in the **"Shia
+Companion"** cloud environment: only a selected (or attached) repository
+can be pushed, and the startup hook that installs Flutter runs only for
+a selected one. Check all three before any work:
+- push: `git push` of a scratch branch, or `gh api repos/saeedjassani/ShiaCompanion`;
+  a session started without the repo can clone it (it is public) but
+  not push, and attaching it later (`add_repo`) was blocked by the
+  permission check on 2026-11-22 until the owner allowed it;
+- Flutter: `flutter --version`; if missing, run the hook by hand:
+  `CLAUDE_CODE_REMOTE=true CLAUDE_PROJECT_DIR=$PWD bash .claude/hooks/session-start.sh`;
+- mafatih.duas.co: `curl -s https://mafatih.duas.co/ | head -c 200`
+  (refused once in "Default" on 2026-11-22, loaded there later that day).
 
 Re-running a region's content: the agents' brief is below; they write
 `{"regions": [...]}` fragments that merge into the asset (Iraq's cities in

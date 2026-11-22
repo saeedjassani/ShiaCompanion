@@ -33,10 +33,10 @@
   Kufa done 2026-11-15, Mada'in 11-16, Samarra 11-19, Kazimayn 11-22), then
   ungating it. The checklist is "What's left"
   under "Status and resume here" in `docs/ZIYARAT_GUIDE.md`; read it
-  before resuming, and run it in the "Shia Companion" cloud environment
-  with this repo selected (the Default one has no Flutter, no
-  mafatih.duas.co and no push; see "Before a batch" there). Next batch:
-  Karbala.
+  before resuming. Start the session with this repo selected (best in
+  the "Shia Companion" cloud environment): without it there is no push
+  and no Flutter. Check push, Flutter and mafatih.duas.co first ("Before
+  a batch" there). Next batch: Karbala (AG21, AG20, AG15, G31, B5).
 
 - **Missing-zikr restoration is mid-way.** 97 unfavorited uids are still
   missing from the corpus. Before resuming, read the "Resume here" section at
