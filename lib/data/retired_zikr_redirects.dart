@@ -507,4 +507,14 @@ const Map<String, RetiredZikrRedirect> retiredZikrRedirects = {
   'AH1': RetiredZikrRedirect('AH9'),
   'AH3': RetiredZikrRedirect('AH2', tabIndex: 0),
   'AH11': RetiredZikrRedirect('AH9'),
+
+  /// Karbala: AG15 (Explanations about the additions in Ziyarah Warith) was
+  /// Mafatih al-Jinan's note that the lines some books add after Ziyarat
+  /// Warith's last salutation are not narrated; AG14 carried its first part
+  /// already, and now its tail too. AG20 (Visiting Imam Husayn on Special
+  /// Occasions) was prose - the blessed times to visit him and two
+  /// narrations on visiting him from far away - with one short greeting,
+  /// all now in AG1. Their targets' slugAliases keep the old titles' slugs.
+  'AG15': RetiredZikrRedirect('AG14'),
+  'AG20': RetiredZikrRedirect('AG1'),
 };

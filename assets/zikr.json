@@ -934,11 +934,17 @@
   },
   "AG1": {
     "title": "Merits of Visiting Imam Husayn (a.s.)",
-    "slug": "merits-of-visiting-imam-al-husayn-a-s"
+    "slug": "merits-of-visiting-imam-al-husayn-a-s",
+    "slugAliases": [
+      "visiting-imam-husayn-a-on-special-occasions"
+    ]
   },
   "AG14": {
     "title": "Ziyarat Warith — Karbala",
-    "slug": "ziyarah-warith-karbala"
+    "slug": "ziyarah-warith-karbala",
+    "slugAliases": [
+      "explanations-about-the-additions-in-ziyarah-warith"
+    ]
   },
   "AG18": {
     "title": "Ziyarat of Hazrat Abbas (a.s.) — Karbala",
