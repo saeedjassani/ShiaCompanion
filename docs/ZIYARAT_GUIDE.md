@@ -1018,15 +1018,29 @@ The list as found in session 1:
 4. **Phase 3, the rest of "Missing ziyarats"** (Najaf and Kufa done in
    session 6, but for Hud and Salih and Maytham, which the corpus never
    had; Mada'in in session 7; Samarra in session 8; Kazimayn in session
-   9): Karbala (AG21, AG20, AG15, G31, B5), Baghdad (AM1, AM4),
+   9, but for the Kazimayn leftovers in its entry: Imam al-Jawad's other
+   forms against AH5, the shared forms and farewell against AH9): Karbala
+   (AG21, AG20, AG15, G31, B5), Baghdad (AM1, AM4),
    Madinah (AP12, AP5/AP6, the graves without uids), Makkah, Iran (Imam
    Reza's other forms, AE14, G28). One batch per city, each checked
    against an online copy, `source_check.py` baselined, linked from its
    site and plan feature, counts recounted in
-   `scripts/RESTORING_MISSING_ZIKRS.md`.
+   `scripts/RESTORING_MISSING_ZIKRS.md`. Re-run `source_check.py .
+   baseline` after the merits and links are final, too: a new link can
+   make an older accepted flag stop firing, which also fails
+   `test/zikr_source_check_test.dart` (PR #444's first CI run).
 5. **Phase 5, ship:** point the Ziyarats list's `G0~B` row at the
    guide, ungate `ziyaratGuideMenuItem` (move it into `homeMenuItems`
    after Ziyarats, update `test/widget_test.dart`), What's New note.
+
+**Before a batch:** sessions 4, 6 and 9 ran out of usage mid-batch and
+lost what was not pushed (session 9's was recovered from its
+transcript). Commit and push after each step, before long agent runs,
+not at the end. A batch needs mafatih.duas.co (the Urdu Mafatih, the
+main online check) and Flutter (the tests): the cloud environment used
+on 2026-11-22 had neither (mafatih.duas.co refused by the network proxy),
+while the 2026-11-19 one had both, so check first and use that
+environment or allow the host.
 
 Re-running a region's content: the agents' brief is below; they write
 `{"regions": [...]}` fragments that merge into the asset (Iraq's cities in
