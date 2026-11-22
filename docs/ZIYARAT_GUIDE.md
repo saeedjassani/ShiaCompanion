@@ -1037,10 +1037,13 @@ The list as found in session 1:
 lost what was not pushed (session 9's was recovered from its
 transcript). Commit and push after each step, before long agent runs,
 not at the end. A batch needs mafatih.duas.co (the Urdu Mafatih, the
-main online check) and Flutter (the tests): the cloud environment used
-on 2026-11-22 had neither (mafatih.duas.co refused by the network proxy),
-while the 2026-11-19 one had both, so check first and use that
-environment or allow the host.
+main online check), Flutter (the tests) and push access. Start the
+session in the **"Shia Companion"** cloud environment (unrestricted
+network, so mafatih.duas.co loads) **with this repository selected** (its
+startup hook installs Flutter, and only a selected repository can be
+pushed). The "Default" environment has none of these: on 2026-11-22 a
+session there with no repository attached could clone but not push, had
+no Flutter, and mafatih.duas.co was refused - so check all three first.
 
 Re-running a region's content: the agents' brief is below; they write
 `{"regions": [...]}` fragments that merge into the asset (Iraq's cities in
