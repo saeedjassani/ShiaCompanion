@@ -2046,6 +2046,18 @@
   "@whatsNew144WearOs": {
     "description": "Release note on the What's new page (build 144), Android only: the new Wear OS watch app. Keep Shia Companion, Wear OS and Play Store in Latin letters. Use the watch app's own words (android/wear/app/src/main/res/values-<code>/strings.xml): prayer times (tile_prayer_label), Islamic Calendar (islamic_calendar), Tasbeeh Counter (tasbeeh_counter). A tile is the swipe-to screen of a Wear OS watch; complications are the small readouts on a watch face."
   },
+  "whatsNew146French": "Shia Companion is now in French: the app, the Quran and twelve famous duas and ziyarats, among them Dua Kumayl and Ziyarat Ashura. Choose it in Settings › App language.",
+  "@whatsNew146French": {
+    "description": "Release note on the What's new page (build 146): French is a new app language (settingsAppLanguage, under Settings - actionSettings). The app text, the Quran and twelve famous duas and ziyarats are in French; Dua Kumayl and Ziyarat Ashura are named as examples. Keep Shia Companion in Latin letters."
+  },
+  "whatsNew146PrayerMethod": "Choose how prayer times are calculated in Settings › Calculation method: Leva Institute, University of Tehran or the holy shrines of Iraq. Automatic, now the default, uses the one for your country.",
+  "@whatsNew146PrayerMethod": {
+    "description": "Release note on the What's new page (build 146): Settings (actionSettings) gains Calculation method (settingsPrayerMethod), with the three Shia methods named as settingsPrayerMethodJafari, settingsPrayerMethodTehran and settingsPrayerMethodIraq name them. Automatic (settingsPrayerMethodAutomatic), the new default, follows the country of the prayer location."
+  },
+  "whatsNew146PlaybackSpeed": "Play recitations slower or faster in the player, from 0.5× to 2×.",
+  "@whatsNew146PlaybackSpeed": {
+    "description": "Release note on the What's new page (build 146): recitations (the zikr page's player and the playlist player) can play at 0.5x to 2x speed (audioPlaybackSpeed). Write the speeds as audioSpeedValue does."
+  },
   "pickerChooseZikr": "Choose a zikr",
   "pickerSearchZikrHint": "Search zikr, dua, ziyarat...",
   "todaysNone": "No recitations configured.",
