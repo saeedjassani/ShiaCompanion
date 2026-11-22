@@ -469,8 +469,8 @@
   "site.kazimayn_shrine.tips.2": "ورودی‌های مردان و زنان و کفشداری کنار درهای صحن است؛ تابلوها و خادمان حرم را دنبال کنید.",
   "site.kazimayn_shrine.tips.3": "قبر شیخ مفید نزدیک پایین پای دو امام است؛ از خادمان حرم بخواهید قبر او و قبر خواجه نصیرالدین طوسی را نشانتان دهند و برایشان سورهٔ فاتحه بخوانید.",
   "site.kazimayn_shrine.ziyarat.0.note": "کنار درِ حرم.",
-  "site.kazimayn_shrine.ziyarat.1.label": "زیارت امام موسی کاظم (ع) (به نقل شیخ مفید)",
-  "site.kazimayn_shrine.ziyarat.2.label": "زیارت دوم امام موسی کاظم (ع)",
+  "site.kazimayn_shrine.ziyarat.1.label": "زیارت امام موسی کاظم (ع) (به نقل سید بن طاووس)",
+  "site.kazimayn_shrine.ziyarat.2.label": "زیارت امام موسی کاظم (ع) (به نقل شیخ مفید)",
   "site.kazimayn_shrine.ziyarat.4.label": "زیارت امام محمد جواد (ع)",
   "site.kazimayn_shrine.ziyarat.4.note": "با آداب ورود که کنار درِ حرم خوانده می‌شود آغاز می‌شود.",
   "site.kazimayn_shrine.ziyarat.5.label": "زیارت امام جواد (ع) از «باقیات الصالحات»",
@@ -499,8 +499,8 @@
   "site.sharif_murtada_radi_tombs.buried.sharif_al_radi.note": "گردآورندهٔ «نهج‌البلاغه» و برادر بزرگ‌تر سید مرتضی؛ حرم او کنار حرم برادرش است، یکی از جاهایی که گفته می‌شود در آن مدفون است.",
   "plan.kazimayn_haram.kazim_tomb.name": "ضریح امام موسی کاظم (ع)",
   "plan.kazimayn_haram.kazim_tomb.note": "یک ضریح هر دو امام را در بر می‌گیرد: امام کاظم (ع) در انتهای جنوبی آن، زیر گنبد جنوبی، آرمیده است.",
-  "plan.kazimayn_haram.kazim_tomb.ziyarat.0.label": "زیارت امام موسی کاظم (ع) (به نقل شیخ مفید)",
-  "plan.kazimayn_haram.kazim_tomb.ziyarat.1.label": "زیارت دوم امام موسی کاظم (ع)",
+  "plan.kazimayn_haram.kazim_tomb.ziyarat.0.label": "زیارت امام موسی کاظم (ع) (به نقل سید بن طاووس)",
+  "plan.kazimayn_haram.kazim_tomb.ziyarat.1.label": "زیارت امام موسی کاظم (ع) (به نقل شیخ مفید)",
   "plan.kazimayn_haram.kazim_tomb.ziyarat.3.note": "در حرم هر یک از امامان (ع) می‌توان آن را خواند.",
   "plan.kazimayn_haram.kazim_tomb.ziyarat.4.note": "هر دو امام را با هم خطاب می‌کند و با وداع پایان می‌یابد.",
   "plan.kazimayn_haram.jawad_tomb.name": "ضریح امام محمد جواد (ع)",
@@ -939,5 +939,9 @@
   "site.sardab_al_ghayba.ziyarat.10.note": "هنگامی که آمادهٔ رفتن شدید، به سرداب بازگردید، هر قدر خواستید نماز بخوانید، سپس رو به قبله این دعای امام رضا (ع) برای امام مهدی (عج) را بخوانید.",
   "plan.samarra_haram.sardab.ziyarat.7.note": "سید بن طاووس آن را به اعمال سرداب افزوده است.",
   "plan.samarra_haram.sardab.ziyarat.10.label": "دعای هنگام وداع با سرداب",
-  "plan.samarra_haram.sardab.ziyarat.10.note": "هنگامی که آمادهٔ رفتن شدید، به سرداب بازگردید، هر قدر خواستید نماز بخوانید، سپس رو به قبله این دعای امام رضا (ع) برای امام مهدی (عج) را بخوانید."
+  "plan.samarra_haram.sardab.ziyarat.10.note": "هنگامی که آمادهٔ رفتن شدید، به سرداب بازگردید، هر قدر خواستید نماز بخوانید، سپس رو به قبله این دعای امام رضا (ع) برای امام مهدی (عج) را بخوانید.",
+  "site.kazimayn_shrine.ziyarat.1.note": "با اذن دخول بر درِ حرم آغاز می‌شود.",
+  "site.kazimayn_shrine.ziyarat.10.note": "در داستان حاج علی بغدادی، امام مهدی (عج) آن را این‌جا برای هر دو امام خواند و فرمود که این زیارت برترین است.",
+  "site.kazimayn_shrine.ziyarat.11.note": "در شب جمعه، چنان‌که در همان داستان آمده است، امام حسین (ع) را از این‌جا با آن زیارت کنید.",
+  "plan.kazimayn_haram.kazim_tomb.ziyarat.0.note": "با اذن دخول بر درِ حرم آغاز می‌شود."
 }

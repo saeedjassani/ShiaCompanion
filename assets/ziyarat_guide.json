@@ -3019,12 +3019,13 @@
                 {
                   "uid": "AH2",
                   "tab": 1,
-                  "label": "Ziyarat of Imam Musa al-Kazim (a.s.) (by Shaykh al-Mufid)"
+                  "label": "Ziyarat of Imam Musa al-Kazim (a.s.) (by Sayyid Ibn Tawus)",
+                  "note": "Opens with the permission to enter at the door of the shrine."
                 },
                 {
                   "uid": "AH2",
                   "tab": 2,
-                  "label": "Second Ziyarat of Imam Musa al-Kazim (a.s.)"
+                  "label": "Ziyarat of Imam Musa al-Kazim (a.s.) (by Shaykh al-Mufid)"
                 },
                 {
                   "uid": "AH4"
@@ -3055,6 +3056,14 @@
                 {
                   "uid": "AH9",
                   "note": "Addresses both Imams together and ends with the farewell (wida)."
+                },
+                {
+                  "uid": "G2",
+                  "note": "In the story of Hajj Ali al-Baghdadi, Imam al-Mahdi (a.t.f.s.) recited it here for both Imams, saying it is the best."
+                },
+                {
+                  "uid": "G6",
+                  "note": "On the eve of Friday, visit Imam al-Husayn (a.s.) from here with it, as in the same story."
                 }
               ],
               "buried": [
@@ -3180,12 +3189,13 @@
                     {
                       "uid": "AH2",
                       "tab": 1,
-                      "label": "Ziyarat of Imam Musa al-Kazim (a.s.) (by Shaykh al-Mufid)"
+                      "label": "Ziyarat of Imam Musa al-Kazim (a.s.) (by Sayyid Ibn Tawus)",
+                      "note": "Opens with the permission to enter at the door of the shrine."
                     },
                     {
                       "uid": "AH2",
                       "tab": 2,
-                      "label": "Second Ziyarat of Imam Musa al-Kazim (a.s.)"
+                      "label": "Ziyarat of Imam Musa al-Kazim (a.s.) (by Shaykh al-Mufid)"
                     },
                     {
                       "uid": "AH4"

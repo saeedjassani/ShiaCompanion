@@ -469,8 +469,8 @@
   "site.kazimayn_shrine.tips.2": "પુરુષો અને સ્ત્રીઓના પ્રવેશ અને જૂતાઘર (કિશ્વાનિય્યા) સહનના દરવાજાઓ પર છે; નિશાનીઓ અને રોઝાના કર્મચારીઓનું માર્ગદર્શન અનુસરો.",
   "site.kazimayn_shrine.tips.3": "શૈખ મુફીદની કબર બંને ઇમામોના પગ તરફ નજીકમાં છે; રોઝાના કર્મચારીઓને તેમની અને ખ્વાજા નસીરુદ્દીન તૂસીની કબરો બતાવવા કહો અને તેમના માટે સૂરએ ફાતેહા પઢો.",
   "site.kazimayn_shrine.ziyarat.0.note": "રોઝાના દરવાજે.",
-  "site.kazimayn_shrine.ziyarat.1.label": "ઇમામ મૂસા કાઝિમ (અ.સ.)ની ઝિયારત (શૈખ મુફીદથી)",
-  "site.kazimayn_shrine.ziyarat.2.label": "ઇમામ મૂસા કાઝિમ (અ.સ.)ની બીજી ઝિયારત",
+  "site.kazimayn_shrine.ziyarat.1.label": "ઇમામ મૂસા કાઝિમ (અ.સ.)ની ઝિયારત (સૈયદ ઇબ્ને તાઉસ મુજબ)",
+  "site.kazimayn_shrine.ziyarat.2.label": "ઇમામ મૂસા કાઝિમ (અ.સ.)ની ઝિયારત (શૈખ મુફીદ મુજબ)",
   "site.kazimayn_shrine.ziyarat.4.label": "ઇમામ મુહમ્મદ જવાદ (અ.સ.)ની ઝિયારત",
   "site.kazimayn_shrine.ziyarat.4.note": "તેની શરૂઆત રોઝાના દરવાજે પઢાતા પ્રવેશના આમાલથી થાય છે.",
   "site.kazimayn_shrine.ziyarat.5.label": "બાકિયાતુસ્સાલેહાતમાંથી ઇમામ જવાદ (અ.સ.)ની ઝિયારત",
@@ -499,8 +499,8 @@
   "site.sharif_murtada_radi_tombs.buried.sharif_al_radi.note": "નહજુલ બલાગાના સંકલનકાર અને સૈયદ મુર્તઝાના મોટા ભાઈ; તેમનો રોઝો તેમના ભાઈના રોઝાની બાજુમાં છે, એ જગ્યાઓમાંની એક જ્યાં તેઓ દફન હોવાનું કહેવાય છે.",
   "plan.kazimayn_haram.kazim_tomb.name": "ઇમામ મૂસા કાઝિમ (અ.સ.)ની ઝરીહ",
   "plan.kazimayn_haram.kazim_tomb.note": "એક જ ઝરીહમાં બંને ઇમામો છે: ઇમામ કાઝિમ (અ.સ.) તેના દક્ષિણ છેડે, દક્ષિણી ગુંબદ નીચે છે.",
-  "plan.kazimayn_haram.kazim_tomb.ziyarat.0.label": "ઇમામ મૂસા કાઝિમ (અ.સ.)ની ઝિયારત (શૈખ મુફીદથી)",
-  "plan.kazimayn_haram.kazim_tomb.ziyarat.1.label": "ઇમામ મૂસા કાઝિમ (અ.સ.)ની બીજી ઝિયારત",
+  "plan.kazimayn_haram.kazim_tomb.ziyarat.0.label": "ઇમામ મૂસા કાઝિમ (અ.સ.)ની ઝિયારત (સૈયદ ઇબ્ને તાઉસ મુજબ)",
+  "plan.kazimayn_haram.kazim_tomb.ziyarat.1.label": "ઇમામ મૂસા કાઝિમ (અ.સ.)ની ઝિયારત (શૈખ મુફીદ મુજબ)",
   "plan.kazimayn_haram.kazim_tomb.ziyarat.3.note": "કોઈ પણ ઇમામ (અ.સ.)ના રોઝા પર પઢી શકાય છે.",
   "plan.kazimayn_haram.kazim_tomb.ziyarat.4.note": "બંને ઇમામોને સાથે સંબોધે છે અને વિદાય (વિદાઅ)થી પૂરી થાય છે.",
   "plan.kazimayn_haram.jawad_tomb.name": "ઇમામ મુહમ્મદ જવાદ (અ.સ.)ની ઝરીહ",
@@ -939,5 +939,9 @@
   "site.sardab_al_ghayba.ziyarat.10.note": "જ્યારે પાછા જવા ઇચ્છો ત્યારે સરદાબમાં પાછા આવો, જેટલી ચાહો તેટલી નમાઝ પઢો, પછી કિબલા તરફ મોં કરીને ઇમામ મહદી (અ.ત.ફ.શ.) માટેની ઇમામ રઝા (અ.સ.)ની આ દુઆ પઢો.",
   "plan.samarra_haram.sardab.ziyarat.7.note": "સૈયદ ઇબ્ને તાઉસે તેને સરદાબના આમાલમાં ઉમેરી છે.",
   "plan.samarra_haram.sardab.ziyarat.10.label": "સરદાબમાંથી વિદાય લેતી વખતની દુઆ",
-  "plan.samarra_haram.sardab.ziyarat.10.note": "જ્યારે પાછા જવા ઇચ્છો ત્યારે સરદાબમાં પાછા આવો, જેટલી ચાહો તેટલી નમાઝ પઢો, પછી કિબલા તરફ મોં કરીને ઇમામ મહદી (અ.ત.ફ.શ.) માટેની ઇમામ રઝા (અ.સ.)ની આ દુઆ પઢો."
+  "plan.samarra_haram.sardab.ziyarat.10.note": "જ્યારે પાછા જવા ઇચ્છો ત્યારે સરદાબમાં પાછા આવો, જેટલી ચાહો તેટલી નમાઝ પઢો, પછી કિબલા તરફ મોં કરીને ઇમામ મહદી (અ.ત.ફ.શ.) માટેની ઇમામ રઝા (અ.સ.)ની આ દુઆ પઢો.",
+  "site.kazimayn_shrine.ziyarat.1.note": "તેની શરૂઆત રોઝાના દરવાજે અંદર દાખલ થવાની રજા માગવાથી થાય છે.",
+  "site.kazimayn_shrine.ziyarat.10.note": "હાજી અલી બગદાદીના કિસ્સામાં ઇમામ મહદી (અ.ત.ફ.શ.)એ અહીં બંને ઇમામો માટે આ ઝિયારત પઢી, અને કહ્યું કે તે સૌથી અફઝલ છે.",
+  "site.kazimayn_shrine.ziyarat.11.note": "એ જ કિસ્સા મુજબ, જુમ્આની રાતે અહીંથી આ ઝિયારત વડે ઇમામ હુસૈન (અ.સ.)ની ઝિયારત કરો.",
+  "plan.kazimayn_haram.kazim_tomb.ziyarat.0.note": "તેની શરૂઆત રોઝાના દરવાજે અંદર દાખલ થવાની રજા માગવાથી થાય છે."
 }

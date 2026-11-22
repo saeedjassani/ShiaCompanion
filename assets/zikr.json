@@ -966,7 +966,10 @@
   },
   "AH2": {
     "title": "Ziyarat of Imam Musa al-Kazim (a.s.) — Kazimayn",
-    "slug": "ziyarah-imam-musa-kazim"
+    "slug": "ziyarah-imam-musa-kazim",
+    "slugAliases": [
+      "another-ziyarah-of-imam-al-kazim"
+    ]
   },
   "AH4": {
     "title": "Salawat Upon Imam Musa al-Kazim (a.s.) — Kazimayn",
@@ -982,7 +985,11 @@
   },
   "AH9": {
     "title": "Ziyarat Common to Imam al-Kazim & Imam al-Jawad (a.s.) — Kazimayn",
-    "slug": "ziyarah-common-kazim-jawad"
+    "slug": "ziyarah-common-kazim-jawad",
+    "slugAliases": [
+      "merits-and-method-of-visiting-kazimayn",
+      "story-of-ali-al-baghdadi"
+    ]
   },
   "AI10|H17": {
     "title": "The Whispered Prayer (Munajat) of Amir al-Mu'minin (a.s.)",

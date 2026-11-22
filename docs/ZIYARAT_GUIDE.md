@@ -605,6 +605,53 @@ Transliteration is `translit.py` output read line by line.
   the hamzat al-wasl of «اتَّكَلْتُ»; `silah.py` skips «وَاٰلِهٖ» and a hā
   ending the last line.
 
+## Restored in session 9: for the owner to review
+
+The Kazimayn batch, checked against our history (Ansariyan's
+`assets/items/AH1`, `AH2`, `AH3`, `AH11`), mafatih.duas.co's Kazimayn
+pages (`ziarat-imam-kazim`, `ziarat-imam-kazim-2`, `ziarat-kazmain-merits`,
+`ali-baghdadi-story`) and duas.org's `ziyarat-of-imam-musa-al-kazim`.
+Details are in the commit "AH2: Ibn Tawus's ziyarat completed; AH3
+(al-Mufid's) replaces the duplicate tab".
+
+- **AH2 tab 1, now "Ziyarat by Sayyid Ibn Tawus".** It was labelled
+  al-Mufid's, but history, Ansariyan and the Urdu Mafatih all give it as
+  Ibn Tawus's (al-Mazar). Its lost opening is back (ghusl, the takbirs and
+  dua at the door, the entry, the twelve «ءَاَدْخُلُ», takbir four times),
+  in the tab's import style, with hand-written transliteration; so is the
+  step the import skipped (lean over the grave, kiss it, lay each cheek on
+  it; Ansariyan has no kiss, the Urdu Mafatih does). Check:
+  - the names after «ءَاَدْخُلُ يَا»: fatha (history, Mafatih), where AH5's
+    copy of the same rites has damma («مُحَمَّدُ بْنَ», «ٱلْحَسَنُ»...);
+    AH5 was not changed;
+  - «صَلَّىٰ ٱللَّهُ عَلَيْهِ وَآلِهِ» after «مِلَّةِ رَسُولِ ٱللَّهِ»: in history,
+    AH5 and duas.org, not in mafatih.duas.co's Arabic. Kept;
+  - «مَاْتِيٍّ» (AH5 «مَاتِيٍّ», history «مَأْتِيٍّ»).
+- **AH2 tab 2, "Ziyarat by Shaykh al-Mufid", is AH3.** The old tab 2 was
+  tab 1 again with worse readings, so it was dropped. History's Arabic
+  through `normalize`, `join_wa` and `silah`, `translit.py` read against
+  it. Check:
+  - «شُكْرًا» once under "say 100 times", where the sources print «شُكْرًا
+    شُكْرًا»;
+  - the cheeks laid "on the ground" (Ansariyan, duas.org) or "on the
+    grave" (Urdu Mafatih) - kept "on the ground";
+  - "Ask permission at its door" links Izn-e-Dukhool (B6); the source
+    only says to ask permission;
+  - Ansariyan's English, reworded in about ten places (listed in the
+    commit).
+- **AH9's merits** are new English condensing AH1 and AH11 (from
+  Ansariyan's prose and the Urdu Mafatih). The story is cut to its
+  events; check the wording of what the Imam said at the tomb ("asked for
+  the best ziyarat, he said it is Ziyarat Aminullah"), which the guide's
+  G2 note repeats in all four languages.
+- **Translations dropped by the rebase:** the stale labels (old 0 and
+  101) and the duplicate's prayer line in all four languages, and the
+  Persian of the duplicate's verses, except seven that recur in
+  al-Mufid's form (148, 153-155, 165-167).
+- **Gujarati review:** the reviewer's fixes were applied, but it stopped
+  (the session ran out of usage) before sending its report, so a native
+  reader's look at the Gujarati strings is worth having.
+
 ## Missing ziyarats (phase 3 work list)
 
 Found while writing phase 1's content. Uids are from
@@ -639,7 +686,16 @@ see `scripts/RESTORING_MISSING_ZIKRS.md`); URLs hold a text to check against.
   ziyarat of Uthman ibn Sa'id (Bihar al-Anwar 102:292 - duas.org's mobile
   page has its English but its Arabic lacks the first seven salutations, so
   it was left out); Masjid Buratha AM1, al-Kulayni AM4.
-- **Kazimayn:** AH3 (another ziyarat of Imam al-Kazim), AH1, AH11.
+- **Kazimayn: done (session 9)** - AH3 (al-Mufid's ziyarat of Imam
+  al-Kazim) is AH2's second tab, in place of a duplicate of its first,
+  and AH2's first tab (Ibn Tawus's, not al-Mufid's as it was labelled)
+  gets back the opening the import lost; AH1 (the merits of visiting the
+  two Imams) and AH11 (the story of Hajj Ali al-Baghdadi) are AH9's
+  merits. The shrine lists Ziyarat Aminullah (G2) and Ziyarat Warith (G6)
+  from the story. Not done: Imam al-Jawad's other forms on
+  mafatih.duas.co (`ziarat-imam-taqi-2` to `-4`) against AH5's tabs, and
+  the shared forms and farewell (`ziarat-kazmain-common`,
+  `ziarat-kazmain-wida`) against AH9.
 - **Samarra: done (session 8)** - AL8 (Lady Narjis) and AL9 (Lady
   Hakimah, Lady Masuma's ziyarat with her names) restored and linked at
   the shrine and its zarih; AL4 was AL5's opening (its permission to
@@ -895,12 +951,34 @@ The list as found in session 1:
   and instruction (0, 1) and 14 guide keys plus the changed tip. Verses
   and merits are not translated. Review items: "Restored in session 8".
 
+**Session 9 (2026-11-19, finished 2026-11-22): Kazimayn batch.**
+
+- AH2 rebuilt by an opus agent in its own worktree: tab 1 is Ibn
+  Tawus's ziyarat with its lost opening restored, and tab 2 is now AH3
+  (al-Mufid's) in place of a duplicate of tab 1. Retired: AH3 -> AH2
+  tab 2, AH1 and AH11 -> AH9's merits (slugAliases keep their slugs).
+  Guide: the AH2 labels name Ibn Tawus and al-Mufid (at the shrine and
+  on the plan's tomb), and the shrine lists Ziyarat Aminullah (G2) and
+  Ziyarat Warith (G6), as in Hajj Ali al-Baghdadi's story. The Arabic
+  "أي> سورة" typo in AH2's prayer line was fixed.
+- Translated in all four languages, each language then read by an
+  independent reviewer (opus) and its fixes applied: AH2's two labels
+  and 14 instruction lines (0, 1, 17, 24, 37, 122, 123, 141, 142, 147,
+  168, 178, 186, 189, 194, 196) and 8 guide keys (5 new, 3 changed).
+  Verses and merits are not translated. Review items: "Restored in
+  session 9".
+- The session ran out of usage during the reviews, before anything was
+  pushed; its work was replayed from the transcript on 2026-11-22 and
+  every step reproduced its recorded output.
+
 **What's left (start here):**
 
 1. **The owner's device check** (as an admin): the three pages, the ten
    shrine plans (tap a gate or tomb, its card opens the ziyarat), the
    restored entries. Anything found comes first.
 2. **Reviews waiting on the owner or a native reader:**
+   - "Restored in session 9: for the owner to review" (AH2's two tabs,
+     AH9's merits, the Gujarati strings) - every item there.
    - "Restored in session 8: for the owner to review" (AL8, AL9, AL5's
      permission, G78's broken line) - every item there.
    - "Restored in session 6: for the owner to review" (AK4, AK17, AK19,
@@ -925,7 +1003,9 @@ The list as found in session 1:
 3. **Translations still missing:** merits and verses of AE3, AP8, AQ2,
    AQ5, AM3, AE17, AK4, AK17, AK19, G60, G61, AJ3 (its Quran lines are
    done; the Imam's words are not), AL8, AL9 and AJ2's new merits (and
-   AK7's Hannanah dua), the new merits of AL1, AL5 and AL11,
+   AK7's Hannanah dua), the new merits of AL1, AL5, AL11 and AH9, AH2's
+   verses (tab 1's new opening, 2-38, and all of tab 2 but Persian's
+   seven; mafatih.duas.co's `ziarat-imam-kazim` and `-2` have the Urdu),
    and AP2's Arabic lines - mafatih.duas.co's Urdu pages for the session-6
    entries are in "Najaf"/"Kufa" there, AL8's and AL9's are
    `ziarat-bibi-narjis` and `ziarat-bibi-hakima`, and all scrape with
@@ -937,16 +1017,30 @@ The list as found in session 1:
    each language read by an independent agent.
 4. **Phase 3, the rest of "Missing ziyarats"** (Najaf and Kufa done in
    session 6, but for Hud and Salih and Maytham, which the corpus never
-   had; Mada'in in session 7; Samarra in session 8): Kazimayn (AH3,
-   AH1, AH11), Karbala (AG21, AG20, AG15, G31, B5), Baghdad (AM1, AM4),
+   had; Mada'in in session 7; Samarra in session 8; Kazimayn in session
+   9, but for the Kazimayn leftovers in its entry: Imam al-Jawad's other
+   forms against AH5, the shared forms and farewell against AH9): Karbala
+   (AG21, AG20, AG15, G31, B5), Baghdad (AM1, AM4),
    Madinah (AP12, AP5/AP6, the graves without uids), Makkah, Iran (Imam
    Reza's other forms, AE14, G28). One batch per city, each checked
    against an online copy, `source_check.py` baselined, linked from its
    site and plan feature, counts recounted in
-   `scripts/RESTORING_MISSING_ZIKRS.md`.
+   `scripts/RESTORING_MISSING_ZIKRS.md`. Re-run `source_check.py .
+   baseline` after the merits and links are final, too: a new link can
+   make an older accepted flag stop firing, which also fails
+   `test/zikr_source_check_test.dart` (PR #444's first CI run).
 5. **Phase 5, ship:** point the Ziyarats list's `G0~B` row at the
    guide, ungate `ziyaratGuideMenuItem` (move it into `homeMenuItems`
    after Ziyarats, update `test/widget_test.dart`), What's New note.
+
+**Before a batch:** sessions 4, 6 and 9 ran out of usage mid-batch and
+lost what was not pushed (session 9's was recovered from its
+transcript). Commit and push after each step, before long agent runs,
+not at the end. A batch needs mafatih.duas.co (the Urdu Mafatih, the
+main online check) and Flutter (the tests): the cloud environment used
+on 2026-11-22 had neither (mafatih.duas.co refused by the network proxy),
+while the 2026-11-19 one had both, so check first and use that
+environment or allow the host.
 
 Re-running a region's content: the agents' brief is below; they write
 `{"regions": [...]}` fragments that merge into the asset (Iraq's cities in
