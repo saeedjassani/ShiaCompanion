@@ -1436,7 +1436,10 @@
   },
   "B6": {
     "title": "Izn-e-Dukhool (Permission to Enter)",
-    "slug": "another-izn-dukhool"
+    "slug": "another-izn-dukhool",
+    "slugAliases": [
+      "asking-permission-for-entering-the-holy-shrines-izn-dukhool"
+    ]
   },
   "B~AE7": {
     "title": "Iran",
