@@ -1081,11 +1081,18 @@
   },
   "AL1": {
     "title": "Combined Ziyarat of Imam Ali al-Naqi & Imam al-Hasan al-Askari — Samarra",
-    "slug": "combined-ziyarah-naqi-askari"
+    "slug": "combined-ziyarah-naqi-askari",
+    "slugAliases": [
+      "the-holy-shrine-of-the-two-imams",
+      "the-tomb-of-imam-husayn-ibn-ali-ibn-muhammad"
+    ]
   },
   "AL11": {
     "title": "Ziyarat at the Holy Sardab (Occultation Cellar) — Samarra",
-    "slug": "ziyarat-holy-sardaab"
+    "slug": "ziyarat-holy-sardaab",
+    "slugAliases": [
+      "other-rites-at-the-sardaab"
+    ]
   },
   "AL12|G1": {
     "title": "Ziyarat Aal-e-Yasin",
@@ -1112,7 +1119,10 @@
   },
   "AL5": {
     "title": "Ziyarat of Imam Ali al-Naqi al-Hadi (a.s.) — Samarra",
-    "slug": "ziyarah-imam-ali-naqi"
+    "slug": "ziyarah-imam-ali-naqi",
+    "slugAliases": [
+      "permission-to-enter-holy-place-of-imam-ali-al-naqi-al-hadi"
+    ]
   },
   "AL6": {
     "title": "Ziyarat of Imam al-Hasan al-Askari (a.s.) — Samarra",
@@ -1121,6 +1131,14 @@
   "AL7": {
     "title": "Bidding Farewell to the Two Imams (Naqi & Askari) — Samarra",
     "slug": "farewell-two-imams-samarra"
+  },
+  "AL8": {
+    "title": "Ziyarat of Lady Narjis (s.a.), Mother of Imam al-Mahdi (a.t.f.s.) — Samarra",
+    "slug": "ziyarah-of-the-mother-of-imam-al-qaem"
+  },
+  "AL9": {
+    "title": "Ziyarat of Lady Hakimah (s.a.), Daughter of Imam al-Jawad (a.s.) — Samarra",
+    "slug": "ziyarah-of-lady-hakimah-daughter-of-imam-muhammad-al-jawad"
   },
   "AM3": {
     "title": "Ziyarat of the Four Deputies of Imam al-Mahdi (a.t.f.s.)",
