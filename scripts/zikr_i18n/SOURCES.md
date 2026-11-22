@@ -190,6 +190,11 @@ joined in order.
   widely translated ziyaratnameh (beginning أَشهَدُ أَن لا إلهَ إلا الله)
   is a different, longer text. No published Urdu translation of this text
   found; all 8 segments left blank and no file created.
+  Update 2026-11-22: segments 0 and 7 filled by documented cross-zikr
+  reuse of the identical Arabic phrases from the same published Urdu
+  Mafatih — see "G81 — partial fill (2026-11-22)" under Persian.
+  Segments 1–6 still blank: no published Urdu translation of this
+  ziyarat exists.
 ### Urdu Mafatih al-Jinan — Firebase Batch (2026-10-26)
 
 Published Urdu *Mafatih al-Jinan* (Sheikh Abbas Qummi, translated by Allama Riaz Husain Najafi / Allama Syed Zeeshan Haider Jawadi) on mafatih.duas.co was used to fill user-requested Urdu translations:
@@ -777,6 +782,64 @@ under its Arabic.
   different text) or quote this one's Arabic without a translation. No
   published Persian translation found; all 8 segments left blank and no
   file created.
+  Update 2026-11-22: segments 0 and 7 filled by documented cross-zikr
+  reuse of the identical Arabic phrases from the same published Persian
+  Mafatih (Ansarian) — see "G81 — partial fill (2026-11-22)" below.
+  Segments 1–6 still blank: no published Persian translation of this
+  ziyarat exists.
+### G81 — partial fill (2026-11-22)
+
+| uid | Zikr | Source | Segments |
+| --- | --- | --- | --- |
+| G81 | Ziyarat of Lady Umm al-Baneen (sa) | Cross-zikr reuse of identical Arabic phrases from published translations (see below) | ur 2/8, fa 2/8, gu 0/8 |
+
+- **No dedicated published translation exists** (re-verified live
+  2026-11-22): the ziyarat is not in *Mafatih al-Jinan*; every published
+  Persian "Ziyarat Umm al-Baneen" with a translation (alamto.com,
+  salamdonya.com, aghigh.ir, khedmatgozaran.com) is the longer
+  ziyaratnameh beginning أَشهَدُ أَن لا إلهَ إلا الله — a different text;
+  none of the app's 8 anchors occur in it (salamdonya.com states it
+  "در مفاتیح الجنان نیامده است"). duas.org's materials for this ziyarat
+  are Arabic + English only; mafatih.duas.co has no Umm al-Baneen page;
+  no Gujarati translation found in mafatihuljinan.org, Jafri Library, or
+  Jannat ni Chaavio (the book has no Umm al-Baneen chapter — Nov 22
+  sweep finding). The app's Arabic recension was confirmed verbatim
+  against duas.org's "First Ziyarat".
+- **Shipped segments are documented cross-zikr reuse** (E6 Basmala
+  precedent: an identical Arabic phrase takes its published rendering
+  from the same published book, flagged for reviewer). Each is a verbatim
+  substring of the published block containing the identical anchor, and
+  translates its own anchor; per-anchor audit 4/4, monotonic, no drift
+  (audit 2026-11-22):
+  - ur 0 «آپ پر سلام ہو اے خدا کے ولی کی زوجہ» — the identical anchor
+    (G52 seg 25) in the published Urdu Mafatih,
+    https://mafatih.net/?p=2985, block «آپ پر سلام ہو اے خدا کے ولی کی
+    زوجہ جو رسول(ص) کے بعد ساری مخلوق میں بہترین ہیں» (verified live).
+  - ur 7 «آپ پر اللہ کی رحمت وبرکات ہوں» — the identical anchor (G52
+    seg 38) in the same book, block «آپ پر سلام ہو اے اللہ کے رسول کی
+    دختر فاطمہ زہرا(ع) آپ پر اللہ کی رحمت وبرکات ہوں» (verified live).
+  - fa 0 «سلام بر تو ای همسر ولی خدا» — the identical anchor (G52 seg
+    25) in Ostad Hossein Ansarian's published Persian Mafatih,
+    https://valasr.app/library/mafatih/زیارت-حضرت-فاطمهع, block «سلام بر
+    تو ای همسر ولی خدا و بهترین خلق بعد از رسول خدا؛» (verified live).
+  - fa 7 «و رحمت و برکات خدا بر تو باد» — the identical anchor (AL5 seg
+    25) in the same published Ansarian translation,
+    https://erfan.ir/mafatih303, block «سلام بر تو ای ابا الحسن علی بن
+    محمّد، امام پاک و راهنما و نور تابان و رحمت و برکات خدا بر تو باد»
+    (verified live).
+- **Gujarati 0/8:** the identical closing phrase exists in the repo as
+  G13 gu seg 19 («આપ પર અલ્લાહની રહેમતો અને બરકતો ઉતરે.»), but its
+  published source — the duas.org Jamia Kabira deck — no longer serves
+  Gujarati text at the documented URL (the file served 2026-11-22 is
+  Arabic + English only, 0 Gujarati characters in 416 slides), so the
+  rendering could not be re-verified live and was NOT shipped. Filling gu
+  awaits a re-verifiable published Gujarati source.
+- **Left blank:** ur 1–6, fa 1–6 (no published translation of this
+  ziyarat), gu 0–7. No machine translation was used. The Nov 22 sweep's
+  reverted agy draft of G81 gu (segments 3/4 misaligned, no citations)
+  was not reused.
+- Checker: `zikr_i18n.py check ur fa gu` — 0 errors. `rebase` pinned
+  G81's 8 anchors.
 ### valasr.app — G52 (2026-10-25)
 
 | uid | Zikr | Source | Segments |
