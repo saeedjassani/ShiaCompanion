@@ -523,4 +523,10 @@ const Map<String, RetiredZikrRedirect> retiredZikrRedirects = {
   /// carried only the second, al-Majlisi's. B6 now has both, Kaf'ami's as
   /// its first tab, and its slugAliases keep B5's slug.
   'B5': RetiredZikrRedirect('B6'),
+
+  /// Baghdad: AM4 (Visiting the Tomb of Shaykh al-Kulayni) was Mafatih
+  /// al-Jinan's paragraph after the deputies' ziyarat, on its own page, with
+  /// nothing to recite; it closes AM3's merits now, and AM3's slugAliases
+  /// keep its slug.
+  'AM4': RetiredZikrRedirect('AM3'),
 };

@@ -4,10 +4,10 @@
  "counts": {
   "total": 209,
   "menuCategory": 7,
-  "retired": 75,
-  "restored": 35,
+  "retired": 76,
+  "restored": 36,
   "toRestoreHasArabic": 50,
-  "toRestoreProseOnly": 42
+  "toRestoreProseOnly": 40
  },
  "uids": [
   {
@@ -534,7 +534,7 @@
   {
    "uid": "AM1",
    "title": "Visiting and offering Prayers in Masjid Burasa",
-   "kind": "prose-only",
+   "kind": "restored",
    "itemsBytes": 6201
   },
   {
@@ -552,8 +552,10 @@
   {
    "uid": "AM4",
    "title": "Visiting the Tomb of Shaykh Al Kulayni",
-   "kind": "prose-only",
-   "itemsBytes": 1089
+   "kind": "retired",
+   "itemsBytes": 1089,
+   "note": "Mafatih's paragraph on al-Kulayni after the deputies' ziyarat, now the end of AM3's merits (2026-11-23).",
+   "retiredTo": "AM3"
   },
   {
    "uid": "AP1",

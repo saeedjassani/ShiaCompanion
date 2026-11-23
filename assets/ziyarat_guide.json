@@ -3432,6 +3432,10 @@
                   "tab": 5,
                   "label": "At the Grave of a Believer",
                   "note": "The general visit to a believer's grave."
+                },
+                {
+                  "uid": "AM3",
+                  "note": "For Ali ibn Muhammad al-Samarri, the fourth deputy, said to be buried nearby; its merits end with Mafatih al-Jinan's words on visiting al-Kulayni."
                 }
               ],
               "buried": [
@@ -3452,6 +3456,7 @@
                 "https://fa.wikishia.net/view/محمد_بن_یعقوب_کلینی",
                 "https://fa.wikifeqh.ir/زیارتگاه_سمری‌",
                 "https://www.al-islam.org/ziyarat/iraq.htm",
+                "https://mafatih.duas.co/ziarat-nawab-arba",
                 "https://nominatim.openstreetmap.org/ (المدرسة الآصفية, المدرسة المستنصرية)"
               ]
             },
@@ -3465,7 +3470,12 @@
                 44.361
               ],
               "about": "An ancient mosque on the west bank of Baghdad, on the road between Kazimayn and the city, built where a monastery once stood. By narration, Imam Ali (a.s.) stopped and prayed here on his return from the battle of Nahrawan, and a spring of cold, sweet water came up where he struck the ground. Mafatih al-Jinan recommends praying in it; the present building is modern (1954).",
-              "ziyarat": [],
+              "ziyarat": [
+                {
+                  "uid": "AM1",
+                  "note": "Mafatih al-Jinan's merits of the mosque: the house of Lady Maryam (a.s.), the spring and the rock Imam Ali (a.s.) brought out, and the prophets who prayed here."
+                }
+              ],
               "buried": [],
               "tips": [
                 "Pray two rak'ats of greeting the mosque (tahiyyat al-masjid); a stone inside marks the place associated with Imam Ali (a.s.)'s prayer.",
@@ -3475,6 +3485,7 @@
                 "https://en.wikipedia.org/wiki/List_of_mosques_in_Baghdad",
                 "https://al-islam.org/your-personal-guide-hajj-umrah-ziyarat-mahmud-habib-zehra-habib/ziyarat-iraq",
                 "https://www.wikidata.org/wiki/Q12204312",
+                "https://mafatih.duas.co/masjid-burasa",
                 "https://nominatim.openstreetmap.org/ (جامع براثا)"
               ]
             }

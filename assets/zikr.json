@@ -1157,11 +1157,16 @@
     "title": "Ziyarat of Lady Hakimah (s.a.), Daughter of Imam al-Jawad (a.s.) — Samarra",
     "slug": "ziyarah-of-lady-hakimah-daughter-of-imam-muhammad-al-jawad"
   },
+  "AM1": {
+    "title": "Prayer at Masjid Buratha — Baghdad",
+    "slug": "visiting-and-offering-prayers-in-masjid-burasa"
+  },
   "AM3": {
     "title": "Ziyarat of the Four Deputies of Imam al-Mahdi (a.t.f.s.)",
     "slug": "ziyarah-of-the-four-emissaries",
     "slugAliases": [
-      "visitation-to-naeb-khaas-special-deputies-of-imam-mahdi-a"
+      "visitation-to-naeb-khaas-special-deputies-of-imam-mahdi-a",
+      "visiting-the-tomb-of-shaykh-al-kulayni"
     ]
   },
   "AN1": {
