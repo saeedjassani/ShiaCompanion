@@ -74,6 +74,12 @@
                   "note": "After the ziyarat."
                 },
                 {
+                  "uid": "AP12",
+                  "tab": 1,
+                  "label": "Acts in Madinah and the Prophet's Mosque",
+                  "note": "Praying as much as you can here and in the Rawdah, visiting daily, blessings and alms while in Madinah."
+                },
+                {
                   "uid": "AP2",
                   "tab": 2,
                   "label": "Farewell to the Holy Prophet (s.a.w.a.)",
@@ -350,7 +356,20 @@
                 39.6175
               ],
               "about": "The first mosque of Islam, built by the Prophet (s.a.w.a.) on his arrival from Makkah, where he waited for Amir al-Mu'minin (a.s.) to join him; the Quran calls it the mosque founded on piety (9:108). The Prophet (s.a.w.a.) is narrated to have said that two rak'at prayed in it equal an Umrah, and Imam al-Sadiq (a.s.) said to begin with it when visiting the mosques around Madinah.",
-              "ziyarat": [],
+              "ziyarat": [
+                {
+                  "uid": "AP12",
+                  "tab": 2,
+                  "label": "Masjid Quba",
+                  "note": "Mafatih al-Jinan's acts here: the greeting prayer, the Tasbih al-Zahra, Ziyarat Jamia Saghira and a dua."
+                },
+                {
+                  "uid": "AP12",
+                  "tab": 4,
+                  "label": "Other Mosques and Houses",
+                  "note": "Mashrabat Umm Ibrahim and Masjid al-Fadikh, near Quba, and the other places to pray in Madinah."
+                }
+              ],
               "buried": [],
               "tips": [
                 "Pray the two rak'at greeting of the mosque and as many prayers as you can; making wudu before setting out is recommended.",
@@ -372,7 +391,14 @@
                 39.5957
               ],
               "about": "A small mosque on the slope of Mount Sal' where the Prophet (s.a.w.a.) prayed for victory during the Battle of the Trench (al-Khandaq or al-Ahzab), in which Amir al-Mu'minin (a.s.) killed Amr ibn Abd Wudd. Below it stand the small mosques named after Amir al-Mu'minin (a.s.), Lady Fatimah (s.a.) and Salman, together known as the Seven Mosques.",
-              "ziyarat": [],
+              "ziyarat": [
+                {
+                  "uid": "AP12",
+                  "tab": 3,
+                  "label": "Masjid al-Fath",
+                  "note": "Two rak'at and the dua Mafatih al-Jinan gives for after them."
+                }
+              ],
               "buried": [],
               "tips": [
                 "Pray two rak'at in the mosque and supplicate, as the Prophet (s.a.w.a.) supplicated here for victory.",
