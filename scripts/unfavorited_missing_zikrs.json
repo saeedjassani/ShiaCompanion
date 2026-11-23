@@ -4,9 +4,9 @@
  "counts": {
   "total": 209,
   "menuCategory": 7,
-  "retired": 81,
-  "restored": 36,
-  "toRestoreHasArabic": 47,
+  "retired": 83,
+  "restored": 37,
+  "toRestoreHasArabic": 44,
   "toRestoreProseOnly": 38
  },
  "uids": [
@@ -577,20 +577,24 @@
   {
    "uid": "AP5",
    "title": "Visiting The Holy Prophet from a Distance",
-   "kind": "has-arabic",
+   "kind": "restored",
    "itemsBytes": 30401
   },
   {
    "uid": "AP6",
    "title": "Ziyarah of Holy Prophet (s) and The Holy Infallibles on Friday from a Distance",
-   "kind": "has-arabic",
-   "itemsBytes": 3577
+   "kind": "retired",
+   "itemsBytes": 3577,
+   "note": "The Friday ziyarat of the Prophet and the Imams from afar, now AP5's first tab (2026-11-23).",
+   "retiredTo": "AP5 tabs[0]"
   },
   {
    "uid": "AP7",
    "title": "Merits of greeting The Holy Prophet (s)",
-   "kind": "has-arabic",
-   "itemsBytes": 5268
+   "kind": "retired",
+   "itemsBytes": 5268,
+   "note": "Imam Ali's salawat from his Friday sermon, now AP5's second tab; its narrations are AP5's merits (2026-11-23).",
+   "retiredTo": "AP5 tabs[1]"
   },
   {
    "uid": "AP8",
