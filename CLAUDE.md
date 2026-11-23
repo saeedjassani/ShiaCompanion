@@ -29,16 +29,17 @@
   tips, directions and tappable shrine plans; the guide's text is in all
   four languages. Left: the owner's device check, the review items the
   doc lists, translations of the restored entries' merits and verses, the
-  remaining missing ziyarats (Karbala, Baghdad, Madinah...; Najaf and
-  Kufa done 2026-11-15, Mada'in 11-16, Samarra 11-19, Kazimayn 11-22), then
+  remaining missing ziyarats (Baghdad, Madinah, Makkah, Iran; Najaf and
+  Kufa done 2026-11-15, Mada'in 11-16, Samarra 11-19, Kazimayn and
+  Karbala 11-22), then
   ungating it. The checklist is "What's left"
   under "Status and resume here" in `docs/ZIYARAT_GUIDE.md`; read it
   before resuming. Start the session with this repo selected (best in
   the "Shia Companion" cloud environment): without it there is no push
   and no Flutter. Check push, Flutter and mafatih.duas.co first ("Before
-  a batch" there). Next batch: Karbala (AG21, AG20, AG15, G31, B5).
+  a batch" there). Next batch: Baghdad (AM1, AM4).
 
-- **Missing-zikr restoration is mid-way.** 97 unfavorited uids are still
+- **Missing-zikr restoration is mid-way.** 92 unfavorited uids are still
   missing from the corpus. Before resuming, read the "Resume here" section at
   the top of `scripts/RESTORING_MISSING_ZIKRS.md`: next batches (taweez and
   funeral rites `I40`-`I126`, then calendar pages, then ziyarat last and
