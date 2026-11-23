@@ -4,9 +4,9 @@
  "counts": {
   "total": 209,
   "menuCategory": 7,
-  "retired": 77,
+  "retired": 78,
   "restored": 35,
-  "toRestoreHasArabic": 50,
+  "toRestoreHasArabic": 49,
   "toRestoreProseOnly": 40
  },
  "uids": [
@@ -603,8 +603,9 @@
   {
    "uid": "AP10",
    "title": "Part of Poetry of Shaykh Al Azari (r)",
-   "kind": "has-arabic",
-   "itemsBytes": 5646
+   "kind": "retired",
+   "itemsBytes": 5646,
+   "note": "Verses of al-Uzri's qasida that Mafatih quotes in the Madinah section, not recited; dropped without a redirect, never favorited (the owner, 2026-11-23)."
   },
   {
    "uid": "AP11",
