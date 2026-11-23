@@ -934,11 +934,17 @@
   },
   "AG1": {
     "title": "Merits of Visiting Imam Husayn (a.s.)",
-    "slug": "merits-of-visiting-imam-al-husayn-a-s"
+    "slug": "merits-of-visiting-imam-al-husayn-a-s",
+    "slugAliases": [
+      "visiting-imam-husayn-a-on-special-occasions"
+    ]
   },
   "AG14": {
     "title": "Ziyarat Warith — Karbala",
-    "slug": "ziyarah-warith-karbala"
+    "slug": "ziyarah-warith-karbala",
+    "slugAliases": [
+      "explanations-about-the-additions-in-ziyarah-warith"
+    ]
   },
   "AG18": {
     "title": "Ziyarat of Hazrat Abbas (a.s.) — Karbala",
@@ -951,6 +957,10 @@
   "AG2": {
     "title": "Etiquettes to be Observed During the Journey to Imam Husayn (a.s.)'s Tomb and Inside His Holy Shrine",
     "slug": "etiquettes-to-be-observed-during-journey-to-imam-husayn-s-a-tomb-and-inside-his-holy-shrine"
+  },
+  "AG21": {
+    "title": "Merits and Etiquettes of the Soil (Turbah) of Imam Husayn (a.s.)",
+    "slug": "merits-and-etiquettes-of-the-soil-of-imam-husayn-s-a-tomb"
   },
   "AG5": {
     "title": "Post-Ziyarat Prayers, Dua & Salawat — Karbala",
@@ -1426,7 +1436,10 @@
   },
   "B6": {
     "title": "Izn-e-Dukhool (Permission to Enter)",
-    "slug": "another-izn-dukhool"
+    "slug": "another-izn-dukhool",
+    "slugAliases": [
+      "asking-permission-for-entering-the-holy-shrines-izn-dukhool"
+    ]
   },
   "B~AE7": {
     "title": "Iran",
@@ -2494,6 +2507,10 @@
   "G30": {
     "title": "The Comprehensive Ziyarat of the Imams (a.s.)",
     "slug": "the-comprehensive-ziyarat-of-the-imams-a"
+  },
+  "G31": {
+    "title": "Bidding Farewell (Wida) to the Holy Imams (a.s.)",
+    "slug": "bidding-farewell-to-the-holy-imams"
   },
   "G4": {
     "title": "Ziyarat Ashura",

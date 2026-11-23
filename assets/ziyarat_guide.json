@@ -11,6 +11,9 @@
     },
     {
       "uid": "G30"
+    },
+    {
+      "uid": "G31"
     }
   ],
   "regions": [
@@ -2089,6 +2092,14 @@
                   "note": "On the Day of Arafah, 9 Dhul Hijjah."
                 },
                 {
+                  "uid": "AG1",
+                  "note": "Its merits, the best times to visit him, and the greeting to send him from far away."
+                },
+                {
+                  "uid": "AG21",
+                  "note": "The soil of his tomb (khak-e-shifa): taking it and eating it for healing, and the tasbih on a rosary made of it."
+                },
+                {
                   "uid": "AG6"
                 }
               ],
@@ -3604,6 +3615,8 @@
               "ziyarat": [
                 {
                   "uid": "B6",
+                  "tab": 2,
+                  "label": "Izn-e-Dukhool Reported by Allamah al-Majlisi",
                   "note": "Permission to enter the Sardab."
                 },
                 {
@@ -3759,6 +3772,8 @@
                   "ziyarat": [
                     {
                       "uid": "B6",
+                      "tab": 2,
+                      "label": "Izn-e-Dukhool Reported by Allamah al-Majlisi",
                       "note": "Permission to enter the Sardab."
                     },
                     {

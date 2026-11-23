@@ -24,9 +24,10 @@ AK17, AK19, with AK1, AK18 retired into them, AI13/AI14 into the
 completed G60/G61, AI17 into AI16; 2026-11-16, Mada'in: AJ3, with AJ1 and
 AJ4 retired into AJ2's merits; 2026-11-19, Samarra: AL8, AL9, with AL4
 retired into AL5, AL2/AL3/AL10 into AL1's merits and AL16 into AL11's;
-Kazimayn: AH3 retired into AH2's second tab, AH1/AH11 into AH9's merits -
-see `docs/ZIYARAT_GUIDE.md`).
-**97 remain** (55 with Arabic, 42 prose-only),
+Kazimayn: AH3 retired into AH2's second tab, AH1/AH11 into AH9's merits;
+2026-11-22, Karbala: AG21, G31, with AG15 retired into AG14, AG20 into
+AG1 and B5 into B6's first tab - see `docs/ZIYARAT_GUIDE.md`).
+**92 remain** (50 with Arabic, 42 prose-only),
 each still marked `has-arabic`/`prose-only` in that JSON. When a batch
 ships, set its uids' `kind` to `restored`/`retired` there and recount
 `counts`.
@@ -43,10 +44,10 @@ ships, set its uids' `kind` to `restored`/`retired` there and recount
    S6 S8`, Rabi `T1 T3 U1`, Rajab `X12 X16 X17 X18` (`X9` is retired to G74). Give each a `day`
    pattern in `assets/zikr.json` (see `lib/utils/lunar_date_matcher.dart`;
    only canonical uids carry `day`).
-3. **Odds and ends** - `E98`, `E145`, `B1 B2 B5`, `G25 G27 G28 G31 G32`;
-   plus two half-duplicates: `AG15` (merge its missing "However, some books
-   add..." tail into `AG14`, then retire it there) and `AI17` (its Masjid
-   Sa'sa'ah section is not live anywhere - restore it).
+3. **Odds and ends** - `E98`, `E145`, `B1 B2`, `G25 G27 G28 G32`; plus
+   `AI17`'s Masjid Sa'sa'ah section, which is not live anywhere (AI17
+   itself retired to AI16 in session 6 of the Ziyarat Guide - check).
+   (`B5`, `G31` and `AG15` were done in the Karbala batch, 2026-11-22.)
 4. **Ziyarat sections, last** - Mashhad/Qom `AE*`, Karbala `AG*`, Najaf
    `AK*`, Samarra `AL*`, Kazimayn `AH*`, Kufa `AI*`, Mada'in `AJ*`, Baghdad
    `AM*`, Madinah `AP*`, Uhud `AQ*`. The owner wants these **checked against
