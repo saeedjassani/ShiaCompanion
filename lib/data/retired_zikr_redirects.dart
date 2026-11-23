@@ -529,4 +529,12 @@ const Map<String, RetiredZikrRedirect> retiredZikrRedirects = {
   /// nothing to recite; it closes AM3's merits now, and AM3's slugAliases
   /// keep its slug.
   'AM4': RetiredZikrRedirect('AM3'),
+
+  /// Madinah: AP1 (the merits of visiting the Holy Prophet, Lady Fatimah
+  /// and the Imams of al-Baqi) and AP3 (where Lady Fatimah is visited from,
+  /// and the three opinions on her burial) were Mafatih al-Jinan's prose,
+  /// with nothing to recite. They are in the merits of AP2, AP4 and AP8;
+  /// their targets' slugAliases keep the old titles' slugs.
+  'AP1': RetiredZikrRedirect('AP2'),
+  'AP3': RetiredZikrRedirect('AP4'),
 };

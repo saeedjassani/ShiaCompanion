@@ -4,10 +4,10 @@
  "counts": {
   "total": 209,
   "menuCategory": 7,
-  "retired": 78,
+  "retired": 80,
   "restored": 35,
   "toRestoreHasArabic": 49,
-  "toRestoreProseOnly": 40
+  "toRestoreProseOnly": 38
  },
  "uids": [
   {
@@ -561,14 +561,18 @@
   {
    "uid": "AP1",
    "title": "Ziyarah of The Holy Prophet, Lady Fatimah Al-Zahra and The Imams in Al Baqi Cemetery",
-   "kind": "prose-only",
-   "itemsBytes": 5105
+   "kind": "retired",
+   "itemsBytes": 5105,
+   "note": "Merits of visiting the Prophet, Lady Fatimah and the Imams of al-Baqi, now in the merits of AP2 (the Prophet), AP4 (the three-day greeting) and AP8 (Imams al-Hasan, al-Baqir, al-Sadiq) (2026-11-23).",
+   "retiredTo": "AP2"
   },
   {
    "uid": "AP3",
    "title": "Aamal e Rouza e Munawwara",
-   "kind": "prose-only",
-   "itemsBytes": 626
+   "kind": "retired",
+   "itemsBytes": 626,
+   "note": "Where Lady Fatimah is visited from (the Rawdah; three opinions on her burial), now in AP4's merits (2026-11-23).",
+   "retiredTo": "AP4"
   },
   {
    "uid": "AP5",

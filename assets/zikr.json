@@ -1173,12 +1173,16 @@
     "title": "Method of Ziyarat of the Holy Prophet (s.a.w.a.) in Madinah",
     "slug": "method-of-ziyarah-of-holy-prophet-s-in-madinah",
     "slugAliases": [
-      "bidding-farewell-wida-to-the-holy-prophet-s"
+      "bidding-farewell-wida-to-the-holy-prophet-s",
+      "ziyarah-of-the-holy-prophet-lady-fatimah-al-zahra-and-the-imams-in-al-baqi-cemetery"
     ]
   },
   "AP4": {
     "title": "Ziyarat of Lady Fatimah al-Zahra (s.a.)",
-    "slug": "ziyarah-of-lady-fatimah-al-zahra"
+    "slug": "ziyarah-of-lady-fatimah-al-zahra",
+    "slugAliases": [
+      "aamal-e-rouza-e-munawwara"
+    ]
   },
   "AP8": {
     "title": "Ziyarat of the Imams of al-Baqi (a.s.)",
