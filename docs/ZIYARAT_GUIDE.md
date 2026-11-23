@@ -761,6 +761,9 @@ into AM3".
   lacks it). Al-Kulayni's tomb links AM3 after G29, with a note naming
   al-Samarri (the site's tip says his tomb is near): check that this
   link is wanted, since AM3 is not al-Kulayni's own ziyarat.
+- Lady Maryam is "(s.a.)" in AM1 and the guide, the ladies' honorific
+  in the house style; the English corpus had no other use of her name
+  with an honorific.
 
 ## Missing ziyarats (phase 3 work list)
 
@@ -1132,9 +1135,14 @@ The list as found in session 1:
   last paragraph of AM3's merits and redirects there. Linked in the
   guide: Masjid Buratha -> AM1; al-Kulayni's tomb -> AM3 after G29 (for
   al-Samarri, no key shifted). Review items: "Restored in session 12".
-- Translated in all four languages: AM1's title and instruction (0) and
-  the two new guide notes; each language is with an independent reviewer
-  (opus), whose fixes are not applied yet. Merits are not translated.
+- Translated in all four languages, each language then read by an
+  independent reviewer (opus) and its fixes applied: AM1's title and
+  instruction (0) and the two new guide notes. Merits are not
+  translated. From the reviews: al-Kulayni's AM3 note no longer says
+  "its merits end with..." (outside English the merits are hidden);
+  Lady Maryam is (s.a.) as the other ladies are (Urdu and Persian (س),
+  Gujarati (સ.અ.), Arabic (ع) as for Lady Zaynab); Gujarati કરેલાં
+  (spring and rock), Persian مدفون.
 
 
 
