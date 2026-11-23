@@ -1064,9 +1064,28 @@ The list as found in session 1:
   Husayn's shrine (before the farewell, so no key shifted), G31 in the
   general list, and the Sardab's two B6 links on tab 2 (al-Majlisi's).
 - The session ran out of usage while its translators were working, so
-  nothing of the translations was committed; the doc updates above were
-  replayed from its transcript in session 11. Review items: "Restored in
+  nothing of the translations was committed. Review items: "Restored in
   session 10".
+
+**Session 11 (2026-11-23): session 10's write-up and translations.**
+
+- Session 10's doc updates (its review items, status and counts) were
+  replayed from its transcript.
+- Translated in all four languages, each language then read by an
+  independent reviewer (opus) and its fixes applied: the titles of AG21
+  and G31, their labels and instruction lines (AG21 0, 1, 9-13, 18, 21,
+  22, 24-26, 45, 51, 52; G31 0), B6's new labels and instructions (0, 1,
+  13, 20, 24), AG1's 1, AP2's changed 2 (its izn link) and 4 guide keys.
+  Verses and merits are not translated.
+- The reviewers' questions for the owner (all small): Urdu and Persian
+  call the soil تربت where the Urdu Mafatih says خاک شفا; Arabic
+  «برواية الشيخ الكفعمي» (he recorded the form rather than narrated it -
+  «كما أورده»?) and «تربة قبره (تربة الشفاء)» («التربة الحسينية»?);
+  B6.13 keeps (ع) inside the quoted name, as the English does; Gujarati
+  spells ઇમામ in the index and guide but ઈમામ in most zikr files (486 to
+  188) - one pass to standardise would help.
+
+
 
 **What's left (start here):**
 
