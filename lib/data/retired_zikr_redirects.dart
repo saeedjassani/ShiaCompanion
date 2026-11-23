@@ -537,4 +537,9 @@ const Map<String, RetiredZikrRedirect> retiredZikrRedirects = {
   /// their targets' slugAliases keep the old titles' slugs.
   'AP1': RetiredZikrRedirect('AP2'),
   'AP3': RetiredZikrRedirect('AP4'),
+
+  /// AP14 (Recommended deeds in the Holy city of Madinah) is the main part
+  /// of AP12, Madinah's acts and its mosques (Quba, al-Fath and the others
+  /// are AP12's tabs); AP12's slugAliases keep its slug.
+  'AP14': RetiredZikrRedirect('AP12'),
 };

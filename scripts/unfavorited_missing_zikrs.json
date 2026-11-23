@@ -4,9 +4,9 @@
  "counts": {
   "total": 209,
   "menuCategory": 7,
-  "retired": 80,
-  "restored": 35,
-  "toRestoreHasArabic": 49,
+  "retired": 81,
+  "restored": 36,
+  "toRestoreHasArabic": 47,
   "toRestoreProseOnly": 38
  },
  "uids": [
@@ -620,7 +620,7 @@
   {
    "uid": "AP12",
    "title": "The revered Mosques in Al Madinah",
-   "kind": "has-arabic",
+   "kind": "restored",
    "itemsBytes": 4678
   },
   {
@@ -632,8 +632,10 @@
   {
    "uid": "AP14",
    "title": "Recommended deeds in the Holy city of Madinah",
-   "kind": "has-arabic",
-   "itemsBytes": 7699
+   "kind": "retired",
+   "itemsBytes": 7699,
+   "note": "Madinah's acts and the Prophet's Mosque, now AP12's main part (2026-11-23).",
+   "retiredTo": "AP12"
   },
   {
    "uid": "AQ1",
