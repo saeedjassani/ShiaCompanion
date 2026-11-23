@@ -4,8 +4,8 @@
  "counts": {
   "total": 209,
   "menuCategory": 7,
-  "retired": 76,
-  "restored": 36,
+  "retired": 77,
+  "restored": 35,
   "toRestoreHasArabic": 50,
   "toRestoreProseOnly": 40
  },
@@ -534,8 +534,9 @@
   {
    "uid": "AM1",
    "title": "Visiting and offering Prayers in Masjid Burasa",
-   "kind": "restored",
-   "itemsBytes": 6201
+   "kind": "retired",
+   "itemsBytes": 6201,
+   "note": "Mafatih's merits of Masjid Buratha, nothing to recite; dropped without a redirect, never favorited (the owner, 2026-11-23). The guide's Buratha page covers the mosque."
   },
   {
    "uid": "AM2",

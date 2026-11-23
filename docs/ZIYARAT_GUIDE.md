@@ -734,36 +734,17 @@ The Baghdad batch, checked against our history (Ansariyan's
 the commit "Baghdad batch: restore AM1 (Masjid Buratha); AM4 retires
 into AM3".
 
-- **AM1, "Prayer at Masjid Buratha — Baghdad"**: Mafatih gives nothing
-  to recite at Buratha, only that the mosque is worth travelling to for
-  prayer and dua. So the body is one instruction line (visit, pray and
-  supplicate, where Imam Ali (a.s.) prayed with his two sons) and the
-  rest is merits. Check:
-  - whether an entry with no text to recite is wanted at all. The
-    alternative is to retire AM1 and leave the site's about and tips to
-    say it, but no other entry fits as a redirect target;
-  - where history and the Urdu Mafatih differ, the Urdu was followed:
-    al-Hamawi "of the seventh century AH" (history: fifth; Yaqut died
-    626), the commander named as Bajkam al-Makani (the Urdu has «حکم
-    ماکانی», history "the Emir-in-chief"), a reed mat (history: a tree
-    leaf), Prophet Yusha's grave "outside Kazimayn, opposite Buratha"
-    (history: "in the yard opposite");
-  - left out: that the Shia gathered there "to revile the Companions"
-    (al-Hamawi's charge, history and Urdu both have it) and the
-    shopping from "the Jews of Baghdad" (the Urdu: "impure people");
-    the raid and Shaykh Abbas al-Qummi's complaint are kept;
-  - Mafatih (al-Hamawi) has Imam Ali (a.s.) pass through on his way to
-    al-Nahrawan; the guide's about says on his return (the narration of
-    the spring). Both are reported; left as they are.
+- **AM1** (Masjid Buratha) was restored, then dropped on the owner's
+  word (2026-11-23): Mafatih gives nothing to recite there, and no one
+  had it as a favorite, so it was retired with no redirect. The site's
+  about and tips cover the mosque; it links nothing. Its draft (merits
+  from the Urdu Mafatih) is in commit 49996fe8 if it is ever wanted.
 - **AM4** (al-Kulayni): Mafatih's paragraph after the deputies'
   ziyarat, now the last paragraph of AM3's merits. Ibn al-Athir's
   "reviver of the Imami school" line is history's (the Urdu Mafatih
   lacks it). Al-Kulayni's tomb links AM3 after G29, with a note naming
   al-Samarri (the site's tip says his tomb is near): check that this
   link is wanted, since AM3 is not al-Kulayni's own ziyarat.
-- Lady Maryam is "(s.a.)" in AM1 and the guide, the ladies' honorific
-  in the house style; the English corpus had no other use of her name
-  with an honorific.
 
 ## Missing ziyarats (phase 3 work list)
 
@@ -795,9 +776,9 @@ see `scripts/RESTORING_MISSING_ZIKRS.md`); URLs hold a text to check against.
 - **Makkah (no uid):** Abd Manaf, Qasim (both on madina-mecca-rites.html).
   Lady Khadijah is restored as AQ5.
 - **Baghdad: done (session 12)** - the Four Deputies AM3 (session 3, AM2
-  retired into it, linked from Muhammad ibn Uthman's tomb); AM1 (Masjid
-  Buratha, an instruction and Mafatih's merits, linked from its site);
-  AM4 (al-Kulayni) is the end of AM3's merits. Not in the corpus:
+  retired into it, linked from Muhammad ibn Uthman's tomb); AM4
+  (al-Kulayni) is the end of AM3's merits; AM1 (Masjid Buratha, prose
+  with nothing to recite) was dropped, the guide's page covers it. Not in the corpus:
   Allamah al-Majlisi's own ziyarat of Uthman ibn Sa'id (Bihar al-Anwar
   102:292 - duas.org's mobile page has its English but its Arabic lacks
   the first seven salutations, so it was left out).
@@ -1128,21 +1109,12 @@ The list as found in session 1:
 
 **Session 12 (2026-11-23): Baghdad batch.**
 
-- AM1 restored as "Prayer at Masjid Buratha — Baghdad": Mafatih has
-  nothing to recite there, so one instruction line and its merits (the
-  quarter's history, Abu Shu'ayb, the twelve merits, the author's
-  complaint), checked against the Urdu Mafatih. AM4 (al-Kulayni) is the
-  last paragraph of AM3's merits and redirects there. Linked in the
-  guide: Masjid Buratha -> AM1; al-Kulayni's tomb -> AM3 after G29 (for
-  al-Samarri, no key shifted). Review items: "Restored in session 12".
-- Translated in all four languages, each language then read by an
-  independent reviewer (opus) and its fixes applied: AM1's title and
-  instruction (0) and the two new guide notes. Merits are not
-  translated. From the reviews: al-Kulayni's AM3 note no longer says
-  "its merits end with..." (outside English the merits are hidden);
-  Lady Maryam is (s.a.) as the other ladies are (Urdu and Persian (س),
-  Gujarati (સ.અ.), Arabic (ع) as for Lady Zaynab); Gujarati કરેલાં
-  (spring and rock), Persian مدفون.
+- AM4 (al-Kulayni) is the last paragraph of AM3's merits and redirects
+  there; al-Kulayni's tomb links AM3 after G29 (for al-Samarri, no key
+  shifted), its note translated in all four languages and read by an
+  independent reviewer each. AM1 (Masjid Buratha) was restored, then
+  dropped on the owner's word: nothing to recite, never favorited, no
+  redirect. Review items: "Restored in session 12".
 
 
 
@@ -1152,9 +1124,8 @@ The list as found in session 1:
    shrine plans (tap a gate or tomb, its card opens the ziyarat), the
    restored entries. Anything found comes first.
 2. **Reviews waiting on the owner or a native reader:**
-   - "Restored in session 12: for the owner to review" (AM1 with
-     nothing to recite, its readings from the Urdu Mafatih and the lines
-     left out; AM3's link at al-Kulayni's tomb) - every item there.
+   - "Restored in session 12: for the owner to review" (AM3's
+     al-Kulayni paragraph and its link at his tomb).
    - "Restored in session 10: for the owner to review" (AG21's readings
      and English, G31, B6's two tabs and which shrines link it, AG1's
      new merits) - every item there.
@@ -1183,7 +1154,7 @@ The list as found in session 1:
    - "For the owner (translations)" above: the Urdu Jamkaran label.
 3. **Translations still missing:** merits and verses of AE3, AP8, AQ2,
    AQ5, AM3, AE17, AK4, AK17, AK19, G60, G61, AJ3 (its Quran lines are
-   done; the Imam's words are not), AL8, AL9, AM1, AJ2's new merits and
+   done; the Imam's words are not), AL8, AL9, AJ2's new merits and
    AM3's al-Kulayni paragraph (and
    AK7's Hannanah dua), the new merits of AL1, AL5, AL11 and AH9, AH2's
    verses (tab 1's new opening, 2-38, and all of tab 2 but Persian's
