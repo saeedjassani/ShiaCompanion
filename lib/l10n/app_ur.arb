@@ -1430,7 +1430,6 @@
   "eventNotificationsFootnote": "جب بھی آپ ایپ کھولتے ہیں، آنے والے ہفتوں کے تمام ایام کی اطلاعات مقرر ہو جاتی ہیں۔ ایپ بند رہے تو پہلے سے مقرر اطلاعات آنے والے مہینوں پر پھیلی ہوتی ہیں، تاکہ جن مہینوں میں کم ایام ہوں ان میں بھی ایک اطلاع آئے۔ جب تک ایپ کو آپ کا مقام معلوم نہ ہو، اطلاعات {time} پر آئیں گی۔",
   "eventNotificationBody": "{when} · {date}",
   "dayOfMonth": "{day}",
-  "playlistDefaultQuranDayByDay": "قرآن، روزانہ ایک حصہ",
   "quranDailyItemTitle": "روزانہ قرآن",
   "quranDailyPickHint": "ہر روز وہیں سے آگے چلتا ہے جہاں آپ نے چھوڑا تھا",
   "quranDailyNext": "اگلی آیت: {verse}",

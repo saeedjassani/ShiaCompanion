@@ -1499,8 +1499,7 @@ class _AddRecitationsPageState extends State<AddRecitationsPage> {
     final favoriteCount = others.takeWhile((uid) => rank(uid) == 0).length;
     final dailyMatches =
         query.isEmpty ||
-        L10n.current.quranDailyItemTitle.toLowerCase().contains(query) ||
-        L10n.current.playlistDefaultQuranDayByDay.toLowerCase().contains(query);
+        L10n.current.quranDailyItemTitle.toLowerCase().contains(query);
     final visible = <String>[
       if (dailyMatches) quranDailyUid,
       ...others.take(favoriteCount),

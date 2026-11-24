@@ -41,7 +41,7 @@ String quranDailyStatus(QuranListeningState state, [AppLocalizations? l10n]) {
       '${quranDailyGoalLabel(state.goal, strings)}';
 }
 
-/// Plays the Quran day by day: in the reader's "Quran, Day by Day" playlist
+/// Plays the Quran day by day: in the reader's "Daily Quran" playlist
 /// when they still have it, so the capsule's "Open playlist" has somewhere
 /// to go, or on its own.
 Future<void> playQuranDaily() async {
@@ -55,7 +55,7 @@ Future<void> playQuranDaily() async {
       ZikrPlaylistStore.instance.byId(ZikrPlaylistStore.quranDayByDay.id) ??
       ZikrPlaylist(
         id: '${PlaylistAudioService.singleZikrIdPrefix}$quranDailyUid',
-        name: L10n.current.playlistDefaultQuranDayByDay,
+        name: L10n.current.quranDailyItemTitle,
         zikrUids: const [quranDailyUid],
         updatedAt: DateTime.now().toUtc(),
       );

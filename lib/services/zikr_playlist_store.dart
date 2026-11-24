@@ -28,7 +28,8 @@ class ZikrPlaylistStore extends ChangeNotifier {
   /// (first called Daily Quran), Mahe Ramazan Nights, Mahe Ramazan Suhoor and Shaban added.
   static const String seededV2Key = 'zikr_playlists_seeded_v2';
 
-  /// Set once the third has been: Quran, Day by Day, at the top.
+  /// Set once the third has been: Daily Quran (first called Quran, Day by
+  /// Day), at the top.
   static const String seededV3Key = 'zikr_playlists_seeded_v3';
 
   static final DateTime _v1Date = DateTime.utc(2026, 9, 25);
@@ -39,7 +40,7 @@ class ZikrPlaylistStore extends ChangeNotifier {
   /// from where the last one stopped. Added first, for every reader.
   static final ZikrPlaylist quranDayByDay = ZikrPlaylist(
     id: 'default-quran-day-by-day',
-    name: 'Quran, Day by Day',
+    name: 'Daily Quran',
     zikrUids: const [quranDailyUid],
     updatedAt: _v3Date,
   );
@@ -177,25 +178,34 @@ class ZikrPlaylistStore extends ChangeNotifier {
   }
 
   /// Renames starter playlists whose names changed after they were handed
-  /// out, unless the reader renamed them: Daily Quran (four surahs) became
-  /// Daily Surahs, so it is not mistaken for the Daily Quran item that plays
-  /// through the whole Quran. Returns [stored] itself when nothing changed.
+  /// out, unless the reader renamed them: Quran, Day by Day became Daily
+  /// Quran, after the item it holds, and the four surahs first called Daily
+  /// Quran became Daily Surahs, so the two are not mistaken for each other.
+  /// Returns [stored] itself when nothing changed.
   @visibleForTesting
   static List<ZikrPlaylist> renameStarters(List<ZikrPlaylist> stored) {
-    if (!stored.any(_isOldDailyQuran)) return stored;
+    if (!stored.any((playlist) => _renamedStarter(playlist) != null)) {
+      return stored;
+    }
     return List.unmodifiable([
       for (final playlist in stored)
-        _isOldDailyQuran(playlist)
-            ? playlist.copyWith(name: 'Daily Surahs')
-            : playlist,
+        switch (_renamedStarter(playlist)) {
+          final name? => playlist.copyWith(name: name),
+          null => playlist,
+        },
     ]);
   }
 
-  static bool _isOldDailyQuran(ZikrPlaylist playlist) =>
-      playlist.id == 'default-daily-quran' && playlist.name == 'Daily Quran';
+  /// The new name of a starter [playlist] still under its old one.
+  static String? _renamedStarter(ZikrPlaylist playlist) =>
+      switch ((playlist.id, playlist.name)) {
+        ('default-daily-quran', 'Daily Quran') => 'Daily Surahs',
+        ('default-quran-day-by-day', 'Quran, Day by Day') => 'Daily Quran',
+        _ => null,
+      };
 
-  /// Brings a reader who got the second set up to the third: Quran, Day by
-  /// Day goes first, ahead of their own.
+  /// Brings a reader who got the second set up to the third: Daily Quran
+  /// goes first, ahead of their own.
   @visibleForTesting
   static List<ZikrPlaylist> upgradeFromSecondSet(List<ZikrPlaylist> stored) => [
     if (!stored.any((mine) => mine.id == quranDayByDay.id)) quranDayByDay,

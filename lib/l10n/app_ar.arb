@@ -1430,7 +1430,6 @@
   "eventNotificationsFootnote": "كلما فتحت التطبيق ضُبطت إشعارات كل مناسبات الأسابيع القادمة. وإن بقي مغلقًا فما ضُبط منها موزَّع على الأشهر القادمة، فلا يخلو من إشعار حتى أقلّ الأشهر مناسبات. وإلى أن يعرف التطبيق موقعك، تصل الإشعارات في الساعة {time}.",
   "eventNotificationBody": "{when} · {date}",
   "dayOfMonth": "{day}",
-  "playlistDefaultQuranDayByDay": "القرآن يومًا بيوم",
   "quranDailyItemTitle": "القرآن اليومي",
   "quranDailyPickHint": "يتابع كل يوم من حيث توقفت",
   "quranDailyNext": "التالي: {verse}",

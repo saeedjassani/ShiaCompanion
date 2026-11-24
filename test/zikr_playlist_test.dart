@@ -136,7 +136,7 @@ void main() {
       final store = ZikrPlaylistStore.instance..resetForTest();
 
       expect(store.playlists.map((playlist) => playlist.name), [
-        'Quran, Day by Day',
+        'Daily Quran',
         'Morning',
         'Daily Surahs',
         'Thursday Night',
@@ -166,7 +166,7 @@ void main() {
       final store = ZikrPlaylistStore.instance..resetForTest();
       expect(store.playlists.map((playlist) => playlist.name), [
         'Mine',
-        'Quran, Day by Day',
+        'Daily Quran',
         'Morning',
         'Daily Surahs',
         'Thursday Night',
@@ -186,7 +186,7 @@ void main() {
 
       store.resetForTest();
       expect(store.playlists.map((playlist) => playlist.name), [
-        'Quran, Day by Day',
+        'Daily Quran',
         'Morning',
         'Daily Surahs',
         'Friday Morning',
@@ -231,7 +231,7 @@ void main() {
             firstSet('default-friday', 'Friday', ['E34', 'J3', 'E26', 'E144']),
           ]);
           expect(store.playlists.map((playlist) => playlist.name), [
-            'Quran, Day by Day',
+            'Daily Quran',
             'Morning',
             'Thursday Night',
             'Mine',
@@ -265,7 +265,7 @@ void main() {
             ], updatedAt: '2026-10-02T00:00:00.000Z'),
           ]);
           expect(store.playlists.map((playlist) => playlist.name), [
-            'Quran, Day by Day',
+            'Daily Quran',
             'Kumayl night',
             'Friday',
             'Daily Surahs',
@@ -299,7 +299,7 @@ void main() {
         return ZikrPlaylistStore.instance..resetForTest();
       }
 
-      test('gets Quran, Day by Day at the top, once', () async {
+      test('gets Daily Quran at the top, once', () async {
         final store = await upgrade([
           {
             'id': 'mine',
@@ -309,7 +309,7 @@ void main() {
           },
         ]);
         expect(store.playlists.map((playlist) => playlist.name), [
-          'Quran, Day by Day',
+          'Daily Quran',
           'Mine',
         ]);
         expect(store.playlists.first.zikrUids, [quranDailyUid]);
@@ -347,6 +347,28 @@ void main() {
         expect(store.playlists.single.name, 'My surahs');
       },
     );
+
+    test('Quran, Day by Day becomes Daily Quran unless renamed', () async {
+      Map<String, Object> dayByDay(String name) => {
+        'id': ZikrPlaylistStore.quranDayByDay.id,
+        'name': name,
+        'zikrUids': [quranDailyUid],
+        'updatedAt': '2026-11-20T00:00:00.000Z',
+      };
+      await _freshStore({
+        ZikrPlaylistStore.storageKey: jsonEncode([
+          dayByDay('Quran, Day by Day'),
+        ]),
+      });
+      final store = ZikrPlaylistStore.instance;
+      expect(store.playlists.single.name, 'Daily Quran');
+      expect(store.playlists.single.zikrUids, [quranDailyUid]);
+
+      await _freshStore({
+        ZikrPlaylistStore.storageKey: jsonEncode([dayByDay('My Quran')]),
+      });
+      expect(store.playlists.single.name, 'My Quran');
+    });
 
     test('every recording of a zikr with several has a label', () {
       // The playlist page shows such a recording by its label alone, so the

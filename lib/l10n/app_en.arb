@@ -4746,13 +4746,9 @@
       }
     }
   },
-  "playlistDefaultQuranDayByDay": "Quran, Day by Day",
-  "@playlistDefaultQuranDayByDay": {
-    "description": "A starter playlist: the whole Quran, verse by verse, a portion each day, carrying on from where the reader left off."
-  },
   "quranDailyItemTitle": "Daily Quran",
   "@quranDailyItemTitle": {
-    "description": "A playlist item that plays the Quran verse by verse, a portion each day, continuing from the verse the reader stopped at. Shown with 'Next: <verse>' under it. Not the same as playlistDefaultDailySurahs, a playlist of four surahs."
+    "description": "A playlist item that plays the Quran verse by verse, a portion each day, continuing from the verse the reader stopped at. Shown with 'Next: <verse>' under it. Also the name of the starter playlist that holds it. Not the same as playlistDefaultDailySurahs, a playlist of four surahs."
   },
   "quranDailyPickHint": "Plays on each day from where you left off",
   "@quranDailyPickHint": {

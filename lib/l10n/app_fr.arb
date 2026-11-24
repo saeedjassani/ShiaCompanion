@@ -1430,7 +1430,6 @@
   "eventNotificationsFootnote": "À chaque ouverture de l’application, tous les événements des semaines à venir sont programmés. Si elle reste fermée, ce qui est déjà programmé est réparti sur les mois à venir, pour que même les mois calmes aient leur notification. Tant que l’application ne connaît pas votre position, les notifications arrivent à {time}.",
   "eventNotificationBody": "{when} · {date}",
   "dayOfMonth": "{day, select, 1{1er} other{{day}}}",
-  "playlistDefaultQuranDayByDay": "Coran, jour après jour",
   "quranDailyItemTitle": "Le Coran au quotidien",
   "quranDailyPickHint": "Reprend chaque jour là où vous en étiez",
   "quranDailyNext": "Suite : {verse}",

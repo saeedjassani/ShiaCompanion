@@ -38,11 +38,12 @@ VerseKey verseAtOrdinal(int ordinal) {
   return VerseKey(surahCount, surahAyahCounts[surahCount - 1]);
 }
 
-int ordinalOfVerse(VerseKey verse) => verseOrdinal(verse.surah, verse.ayah ?? 1);
+int ordinalOfVerse(VerseKey verse) =>
+    verseOrdinal(verse.surah, verse.ayah ?? 1);
 
 /// The playlist item that plays the Quran a portion a day, carrying on each
 /// day from where the last one stopped. It sits among a playlist's zikr uids
-/// - alone in "Quran, Day by Day", or after the duas of a morning playlist -
+/// - alone in the "Daily Quran" playlist, or after the duas of a morning playlist -
 /// and turns into verses only when the playlist is played.
 const String quranDailyUid = '~quran-daily';
 
@@ -310,8 +311,7 @@ class QuranListeningState {
 
   @override
   bool operator ==(Object other) =>
-      other is QuranListeningState &&
-      mapEquals(other.toJson(), toJson());
+      other is QuranListeningState && mapEquals(other.toJson(), toJson());
 
   @override
   int get hashCode => Object.hashAll(toJson().values);
