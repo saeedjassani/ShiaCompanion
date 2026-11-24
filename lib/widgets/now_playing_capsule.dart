@@ -8,6 +8,7 @@ import '../constants.dart' show appNavigatorKey, items;
 import '../data/uid_title_data.dart';
 import '../l10n/l10n.dart';
 import '../pages/playlists_page.dart';
+import '../pages/quran/quran_navigation.dart';
 import '../pages/zikr/zikr_page.dart';
 import '../services/analytics_service.dart';
 import '../services/audio_playback_speed.dart';
@@ -254,6 +255,19 @@ class _NowPlayingCapsuleState extends State<NowPlayingCapsule> {
     _entry.markNeedsBuild();
     // A dua started on its own (a play link, Siri) has no playlist page.
     final zikrUid = audio.singleZikrUid;
+    // Nor do verses started from the reader: they open where they are.
+    final verse = audio.current?.verse;
+    if (zikrUid != null && verse != null) {
+      final context = navigator.context;
+      if (context.mounted) {
+        await openQuranVerse(
+          context,
+          verse,
+          source: ZikrOpenSource.playlist,
+        );
+      }
+      return;
+    }
     await navigator.push(
       MaterialPageRoute(
         builder: (_) => zikrUid == null
@@ -397,11 +411,17 @@ class _CapsuleBody extends StatelessWidget {
                 ),
               ),
               Text(
-                l10n.playlistNowPlayingPosition(
-                  audio.playlist?.displayName ?? '',
-                  audio.zikrPosition ?? 1,
-                  audio.zikrCount,
-                ),
+                // A verse names its surah already; under it goes who
+                // recites, or the playlist it is part of.
+                current.verse != null
+                    ? audio.singleZikrUid != null
+                          ? current.track.artist
+                          : audio.playlist?.displayName ?? ''
+                    : l10n.playlistNowPlayingPosition(
+                        audio.playlist?.displayName ?? '',
+                        audio.zikrPosition ?? 1,
+                        audio.zikrCount,
+                      ),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: caption,
@@ -448,6 +468,7 @@ class _CapsuleBody extends StatelessWidget {
           _SeekBar(audio: audio, player: player),
           Row(
             children: [
+              if (audio.canRepeat)
               IconButton(
                 icon: OutlineIcon(
                   OutlineGlyph.repeat,
