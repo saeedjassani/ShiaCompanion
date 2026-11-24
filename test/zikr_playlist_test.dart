@@ -6,6 +6,7 @@ import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shia_companion/constants.dart';
+import 'package:shia_companion/models/quran_listening.dart';
 import 'package:shia_companion/pages/playlists_page.dart';
 import 'package:shia_companion/services/exclusive_audio.dart';
 import 'package:shia_companion/services/playlist_audio_service.dart';
@@ -20,6 +21,7 @@ Future<void> _freshStore([Map<String, Object> values = const {}]) async {
   SharedPreferences.setMockInitialValues({
     ZikrPlaylistStore.seededKey: true,
     ZikrPlaylistStore.seededV2Key: true,
+    ZikrPlaylistStore.seededV3Key: true,
     ...values,
   });
   await SP.init();
@@ -119,6 +121,7 @@ void main() {
       final store = ZikrPlaylistStore.instance..resetForTest();
 
       expect(store.playlists.map((playlist) => playlist.name), [
+        'Quran, Day by Day',
         'Morning',
         'Daily Quran',
         'Thursday Night',
@@ -143,6 +146,7 @@ void main() {
       final store = ZikrPlaylistStore.instance..resetForTest();
       expect(store.playlists.map((playlist) => playlist.name), [
         'Mine',
+        'Quran, Day by Day',
         'Morning',
         'Daily Quran',
         'Thursday Night',
@@ -162,6 +166,7 @@ void main() {
 
       store.resetForTest();
       expect(store.playlists.map((playlist) => playlist.name), [
+        'Quran, Day by Day',
         'Morning',
         'Daily Quran',
         'Friday Morning',
@@ -201,6 +206,7 @@ void main() {
           firstSet('default-friday', 'Friday', ['E34', 'J3', 'E26', 'E144']),
         ]);
         expect(store.playlists.map((playlist) => playlist.name), [
+          'Quran, Day by Day',
           'Morning',
           'Thursday Night',
           'Mine',
@@ -214,9 +220,10 @@ void main() {
         expect(store.byId('default-friday-morning')!.zikrUids,
             ['E34', 'J3', 'A66']);
         expect(SP.prefs.getBool(ZikrPlaylistStore.seededV2Key), isTrue);
+        expect(SP.prefs.getBool(ZikrPlaylistStore.seededV3Key), isTrue);
 
         store.resetForTest();
-        expect(store.playlists, hasLength(9), reason: 'upgrades only once');
+        expect(store.playlists, hasLength(10), reason: 'upgrades only once');
       });
 
       test('keeps an edited Friday and a renamed Thursday as they are',
@@ -227,6 +234,7 @@ void main() {
               updatedAt: '2026-10-02T00:00:00.000Z'),
         ]);
         expect(store.playlists.map((playlist) => playlist.name), [
+          'Quran, Day by Day',
           'Kumayl night',
           'Friday',
           'Daily Quran',
@@ -243,6 +251,38 @@ void main() {
         expect(store.byId('default-friday-morning'), isNull);
         expect(store.byId('default-friday-afternoon'), isNull);
         expect(store.byId('default-shaban'), isNotNull);
+      });
+    });
+
+    group('a reader who got the second set', () {
+      Future<ZikrPlaylistStore> upgrade(List<Map<String, Object>> stored) async {
+        SharedPreferences.setMockInitialValues({
+          ZikrPlaylistStore.seededKey: true,
+          ZikrPlaylistStore.seededV2Key: true,
+          ZikrPlaylistStore.storageKey: jsonEncode(stored),
+        });
+        await SP.init();
+        return ZikrPlaylistStore.instance..resetForTest();
+      }
+
+      test('gets Quran, Day by Day at the top, once', () async {
+        final store = await upgrade([
+          {
+            'id': 'mine',
+            'name': 'Mine',
+            'zikrUids': ['E1'],
+            'updatedAt': '2026-10-01T00:00:00.000Z',
+          },
+        ]);
+        expect(store.playlists.map((playlist) => playlist.name),
+            ['Quran, Day by Day', 'Mine']);
+        expect(store.playlists.first.zikrUids, [quranDailyUid]);
+        expect(SP.prefs.getBool(ZikrPlaylistStore.seededV3Key), isTrue);
+
+        await store.delete(ZikrPlaylistStore.quranDayByDay.id);
+        store.resetForTest();
+        expect(store.playlists.map((playlist) => playlist.name), ['Mine'],
+            reason: 'deleted, it stays deleted');
       });
     });
 
@@ -265,7 +305,8 @@ void main() {
       final audio =
           jsonDecode(File(ZikrAudioIndex.assetPath).readAsStringSync()) as Map;
       for (final playlist in ZikrPlaylistStore.defaultPlaylists) {
-        for (final uid in playlist.zikrUids) {
+        // The day-by-day Quran is verses, not a zikr recording.
+        for (final uid in playlist.zikrUids.where((u) => u != quranDailyUid)) {
           expect(audio.containsKey(uid), isTrue,
               reason: '${playlist.name}: $uid has no audio');
         }
