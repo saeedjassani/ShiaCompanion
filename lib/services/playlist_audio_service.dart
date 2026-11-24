@@ -159,6 +159,12 @@ class PlaylistAudioService extends ChangeNotifier {
   static const String singleZikrIdPrefix = 'zikr:';
 
   AudioPlayer? get player => _player;
+
+  /// The surah being recited verse by verse from its own page - the one
+  /// that page's reciter choice applies to - or null for a juz, a playlist
+  /// or a zikr. Set by [playVerses]' `surah`.
+  int? get recitedSurah => _recitedSurah;
+  int? _recitedSurah;
   ZikrPlaylist? get playlist => _playlist;
 
   /// The zikr playing on its own, by [playZikr], rather than in a playlist -
@@ -295,8 +301,7 @@ class PlaylistAudioService extends ChangeNotifier {
         playlist.zikrUids,
         tracksFor: (uid) => playlist.tracksFor(uid, audio.tracksFor(uid)),
         titleFor: _indexTitle,
-        dailyQuran: () =>
-            dailyVerses(QuranListeningStore.instance.state.next),
+        dailyQuran: () => dailyVerses(QuranListeningStore.instance.state.next),
       );
       if (queue.isEmpty) return PlaylistStartResult.nothingToPlay;
 
@@ -356,6 +361,7 @@ class PlaylistAudioService extends ChangeNotifier {
     required VerseKey from,
     required VerseKey to,
     required String title,
+    int? surah,
   }) async {
     if (_isStarting) return PlaylistStartResult.failed;
     final first = ordinalOfVerse(from);
@@ -381,6 +387,7 @@ class PlaylistAudioService extends ChangeNotifier {
         queue,
         0,
       );
+      _recitedSurah = surah;
       unawaited(
         AnalyticsService.feature(
           'quran_verse_play',
@@ -411,6 +418,7 @@ class PlaylistAudioService extends ChangeNotifier {
     final player = AudioPlayer();
     _player = player;
     _playlist = playlist;
+    _recitedSurah = null;
     _countedZikrUids.clear();
     _queue = List.unmodifiable(queue);
     _lastIndex = null;
@@ -747,6 +755,7 @@ class PlaylistAudioService extends ChangeNotifier {
     _countedDailyRun = false;
     await _disposePlayer();
     _playlist = null;
+    _recitedSurah = null;
     _queue = const [];
     notifyListeners();
   }

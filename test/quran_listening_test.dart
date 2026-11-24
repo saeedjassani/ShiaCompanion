@@ -10,6 +10,17 @@ import 'package:shia_companion/utils/quran_index.dart';
 import 'package:shia_companion/utils/shared_preferences.dart';
 
 void main() {
+  group('QuranListenReciter', () {
+    test('Listen recites verse by verse unless the reader chose otherwise', () {
+      expect(QuranListenReciter.fromCode(null), QuranListenReciter.verses);
+      expect(QuranListenReciter.fromCode('junk'), QuranListenReciter.verses);
+      expect(
+        QuranListenReciter.fromCode(QuranListenReciter.recording.code),
+        QuranListenReciter.recording,
+      );
+    });
+  });
+
   final monday = DateTime(2026, 11, 23, 9);
   final tuesday = DateTime(2026, 11, 24, 9);
 

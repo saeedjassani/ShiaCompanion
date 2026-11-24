@@ -50,12 +50,18 @@ class ZikrAudioPlayer extends StatefulWidget {
   /// this widget stops playback, so closing is also how a reader stops.
   final VoidCallback onClose;
 
+  /// Opens the page's own choice of who recites instead of the choice
+  /// between [tracks] - a Quran surah, whose other reciter recites verse by
+  /// verse outside this player. The recording is then named by its reciter.
+  final VoidCallback? onChooseReciter;
+
   const ZikrAudioPlayer({
     Key? key,
     required this.tracks,
     required this.zikrUid,
     required this.zikrTitle,
     required this.onClose,
+    this.onChooseReciter,
   }) : super(key: key);
 
   @override
@@ -484,8 +490,11 @@ class _ZikrAudioPlayerState extends State<ZikrAudioPlayer> {
   Widget _buildBody(AudioPlayer player) {
     final colors = ShiaColors.of(context);
     final track = _currentTrack;
-    final several = widget.tracks.length > 1;
-    final label = several
+    final chooseReciter = widget.onChooseReciter != null;
+    final several = widget.tracks.length > 1 || chooseReciter;
+    final label = chooseReciter && track != null
+        ? track.artist
+        : several
         ? (track?.displayLabel ?? context.l10n.audioRecitation)
         : context.l10n.audioRecitationAudio;
     final style = ShiaText.caption.copyWith(
@@ -544,11 +553,13 @@ class _ZikrAudioPlayerState extends State<ZikrAudioPlayer> {
     return several
         ? Semantics(
             button: true,
-            label: '${context.l10n.audioChooseRecording}: $label',
+            label: widget.onChooseReciter != null
+                ? '${context.l10n.quranChooseReciter}: $label'
+                : '${context.l10n.audioChooseRecording}: $label',
             excludeSemantics: true,
-            onTap: _showTrackPicker,
+            onTap: widget.onChooseReciter ?? _showTrackPicker,
             child: InkWell(
-              onTap: _showTrackPicker,
+              onTap: widget.onChooseReciter ?? _showTrackPicker,
               borderRadius: BorderRadius.circular(8),
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),

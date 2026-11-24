@@ -1456,5 +1456,8 @@
   "quranDailyKhatmDone": "Vous avez écouté tout le Coran. L’écoute reprend à Al-Fatihah.",
   "quranVersesNeedConnection": "Vous êtes hors ligne. La récitation verset par verset nécessite une connexion.",
   "quranPlayFromVerse": "Écouter à partir de ce verset",
-  "quranTapVerseToJump": "Touchez un verset pour écouter à partir de celui-ci. Appuyez longuement pour ouvrir son menu."
+  "quranTapVerseToJump": "Touchez un verset pour écouter à partir de celui-ci. Appuyez longuement pour ouvrir son menu.",
+  "quranChooseReciter": "Choisir le récitateur",
+  "quranReciterVerseByVerse": "Verset par verset, en suivant le texte",
+  "quranReciterWholeSurah": "La sourate entière en un seul enregistrement"
 }
