@@ -64,7 +64,7 @@ int ordinalOfVerse(VerseKey verse) =>
 
 /// The playlist item that plays the Quran a portion a day, carrying on each
 /// day from where the last one stopped. It sits among a playlist's zikr uids
-/// - alone in "Quran, Day by Day", or after the duas of a morning playlist -
+/// - alone in the "Daily Quran" playlist, or after the duas of a morning playlist -
 /// and turns into verses only when the playlist is played.
 const String quranDailyUid = '~quran-daily';
 

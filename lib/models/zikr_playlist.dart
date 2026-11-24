@@ -66,10 +66,10 @@ class ZikrPlaylist {
         strings.playlistDefaultFridayMorning,
       ('default-friday-afternoon', 'Friday Afternoon') =>
         strings.playlistDefaultFridayAfternoon,
-      ('default-quran-day-by-day', 'Quran, Day by Day') =>
-        strings.playlistDefaultQuranDayByDay,
-      ('default-daily-quran', 'Daily Quran') =>
-        strings.playlistDefaultDailyQuran,
+      ('default-quran-day-by-day', 'Daily Quran') =>
+        strings.quranDailyItemTitle,
+      ('default-daily-quran', 'Daily Surahs') =>
+        strings.playlistDefaultDailySurahs,
       ('default-ramazan-nights', 'Mahe Ramazan Nights') =>
         strings.playlistDefaultRamazanNights,
       ('default-ramazan-suhoor', 'Mahe Ramazan Suhoor') =>

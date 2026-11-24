@@ -24,7 +24,6 @@ import '../../widgets/page_chrome.dart';
 import 'go_to_verse_sheet.dart';
 import 'listen_and_follow_sheet.dart';
 import 'quran_collections_tab.dart';
-import 'quran_daily_listening.dart';
 import 'quran_navigation.dart';
 import '../../data/quran_sajdah_verses.dart';
 import 'recent_recitations_page.dart';
@@ -182,12 +181,6 @@ class _QuranPageState extends State<QuranPage>
         SliverToBoxAdapter(child: _RecitationTrackCards(gutter: gutter)),
         const SliverToBoxAdapter(child: _MyReadingPortNotice()),
         const SliverToBoxAdapter(child: _TrackingHint()),
-        // Listening through the Quran a portion a day, carrying on from
-        // where it stopped.
-        SliverPadding(
-          padding: gutter.copyWith(top: 14),
-          sliver: const SliverToBoxAdapter(child: QuranDailyListeningCard()),
-        ),
         SliverPadding(
           padding: gutter.copyWith(top: 14, bottom: 14),
           sliver: SliverToBoxAdapter(

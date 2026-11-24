@@ -41,7 +41,7 @@ String quranDailyStatus(QuranListeningState state, [AppLocalizations? l10n]) {
       '${quranDailyGoalLabel(state.goal, strings)}';
 }
 
-/// Plays the Quran day by day: in the reader's "Quran, Day by Day" playlist
+/// Plays the Quran day by day: in the reader's "Daily Quran" playlist
 /// when they still have it, so the capsule's "Open playlist" has somewhere
 /// to go, or on its own.
 Future<void> playQuranDaily() async {
@@ -55,7 +55,7 @@ Future<void> playQuranDaily() async {
       ZikrPlaylistStore.instance.byId(ZikrPlaylistStore.quranDayByDay.id) ??
       ZikrPlaylist(
         id: '${PlaylistAudioService.singleZikrIdPrefix}$quranDailyUid',
-        name: L10n.current.playlistDefaultQuranDayByDay,
+        name: L10n.current.quranDailyItemTitle,
         zikrUids: const [quranDailyUid],
         updatedAt: DateTime.now().toUtc(),
       );
@@ -268,78 +268,6 @@ class _QuranDailySheet extends StatelessWidget {
                   onPressed: playQuranDaily,
                 );
               },
-            ),
-          ],
-        );
-      },
-    );
-  }
-}
-
-/// The Quran screen's way into listening day by day: where it carries on
-/// from, a play button, and the settings behind a tap.
-class QuranDailyListeningCard extends StatelessWidget {
-  const QuranDailyListeningCard({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = context.l10n;
-    final colors = ShiaColors.of(context);
-    return ListenableBuilder(
-      listenable: Listenable.merge([
-        QuranListeningStore.instance,
-        PlaylistAudioService.instance,
-      ]),
-      builder: (context, _) {
-        final audio = PlaylistAudioService.instance;
-        final current = audio.current;
-        final daily = current != null && current.daily;
-        final playing = daily && audio.isPlaying;
-        final state = QuranListeningStore.instance.state;
-        return CardList(
-          children: [
-            CardListRow(
-              first: true,
-              last: true,
-              minHeight: 68,
-              leading: Semantics(
-                button: true,
-                label: playing ? l10n.commonPause : l10n.quranDailyListen,
-                excludeSemantics: true,
-                onTap: playQuranDaily,
-                child: Material(
-                  color: colors.accent,
-                  shape: const CircleBorder(),
-                  clipBehavior: Clip.antiAlias,
-                  child: InkWell(
-                    onTap: playQuranDaily,
-                    child: SizedBox.square(
-                      dimension: 44,
-                      child: Center(
-                        child: OutlineIcon(
-                          playing ? OutlineGlyph.pause : OutlineGlyph.play,
-                          size: 20,
-                          color: colors.onAccent,
-                          strokeWidth: 2.2,
-                          filled: !playing,
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-              title: Text(l10n.playlistDefaultQuranDayByDay),
-              titleStyle: ShiaText.cardTitle,
-              subtitle: Text(
-                daily ? current.title : quranDailyStatus(state, l10n),
-                style: daily ? TextStyle(color: colors.accent) : null,
-              ),
-              trailing: OutlineIcon(
-                OutlineGlyph.chevronRight,
-                size: 16,
-                color: colors.chevron,
-              ),
-              onTap: () => showQuranDailySheet(context),
             ),
           ],
         );

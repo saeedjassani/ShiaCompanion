@@ -4550,7 +4550,10 @@
   "playlistDefaultThursdayNight": "Thursday Night",
   "playlistDefaultFridayMorning": "Friday Morning",
   "playlistDefaultFridayAfternoon": "Friday Afternoon",
-  "playlistDefaultDailyQuran": "Daily Quran",
+  "playlistDefaultDailySurahs": "Daily Surahs",
+  "@playlistDefaultDailySurahs": {
+    "description": "A starter playlist of four surahs (Ya-Sin, Ar-Rahman, Al-Waqi'ah, Al-Mulk) to recite every day. Not the same as quranDailyItemTitle, which plays through the whole Quran."
+  },
   "playlistDefaultRamazanNights": "Mahe Ramazan Nights",
   "playlistDefaultRamazanSuhoor": "Mahe Ramazan Suhoor",
   "playlistDefaultShaban": "Shaban",
@@ -4743,13 +4746,9 @@
       }
     }
   },
-  "playlistDefaultQuranDayByDay": "Quran, Day by Day",
-  "@playlistDefaultQuranDayByDay": {
-    "description": "A starter playlist: the whole Quran, verse by verse, a portion each day, carrying on from where the reader left off."
-  },
-  "quranDailyItemTitle": "Quran, from where you left off",
+  "quranDailyItemTitle": "Daily Quran",
   "@quranDailyItemTitle": {
-    "description": "A playlist item that plays the Quran verse by verse, continuing each day from the verse the reader stopped at."
+    "description": "A playlist item that plays the Quran verse by verse, a portion each day, continuing from the verse the reader stopped at. Shown with 'Next: <verse>' under it. Also the name of the starter playlist that holds it. Not the same as playlistDefaultDailySurahs, a playlist of four surahs."
   },
   "quranDailyPickHint": "Plays on each day from where you left off",
   "@quranDailyPickHint": {
@@ -4816,6 +4815,10 @@
   "quranDailySheetTitle": "Listening through the Quran",
   "@quranDailySheetTitle": {
     "description": "Title of the sheet with the settings of listening to the Quran a portion a day."
+  },
+  "quranDailyChange": "Change amount or verse",
+  "@quranDailyChange": {
+    "description": "Menu item on the Daily Quran playlist item (quranDailyItemTitle): opens its settings, the daily amount and the verse it carries on from."
   },
   "quranDailySheetHint": "Each day carries on from where you left off, and pauses after your daily amount, always between two verses.",
   "@quranDailySheetHint": {
