@@ -1456,5 +1456,8 @@
   "quranDailyKhatmDone": "کل قرآن را شنیدید. دوباره از سورهٔ حمد ادامه می‌یابد.",
   "quranVersesNeedConnection": "آفلاین هستید. تلاوت آیه به آیه به اینترنت نیاز دارد.",
   "quranPlayFromVerse": "پخش از این آیه",
-  "quranTapVerseToJump": "روی هر آیه ضربه بزنید تا تلاوت از همان‌جا پخش شود. برای منو، آیه را نگه دارید."
+  "quranTapVerseToJump": "روی هر آیه ضربه بزنید تا تلاوت از همان‌جا پخش شود. برای منو، آیه را نگه دارید.",
+  "quranChooseReciter": "انتخاب قاری",
+  "quranReciterVerseByVerse": "آیه به آیه، همراه با متن",
+  "quranReciterWholeSurah": "کل سوره در یک صوت"
 }

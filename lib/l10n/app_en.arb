@@ -4893,5 +4893,17 @@
   "quranTapVerseToJump": "Tap any verse to play from there. Long-press for its menu.",
   "@quranTapVerseToJump": {
     "description": "Shown once, the first time verse-by-verse recitation starts in the reader."
+  },
+  "quranChooseReciter": "Choose reciter",
+  "@quranChooseReciter": {
+    "description": "Title of the sheet, opened from Listen on a Quran page, choosing who recites the surah."
+  },
+  "quranReciterVerseByVerse": "Verse by verse, following the text",
+  "@quranReciterVerseByVerse": {
+    "description": "Under the verse-by-verse reciter's name in the reciter sheet: each verse is played and highlighted in turn."
+  },
+  "quranReciterWholeSurah": "The whole surah in one recording",
+  "@quranReciterWholeSurah": {
+    "description": "Under the other reciter's name in the reciter sheet: the surah is one continuous recording."
   }
 }

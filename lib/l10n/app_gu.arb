@@ -1456,5 +1456,8 @@
   "quranDailyKhatmDone": "તમે આખું કુરઆન સાંભળી લીધું. હવે સૂરહ ફાતેહાથી ફરી ચાલશે.",
   "quranVersesNeedConnection": "તમે ઓફલાઇન છો. આયતવાર પઠન માટે ઇન્ટરનેટ કનેક્શન જોઈએ.",
   "quranPlayFromVerse": "આ આયતથી ચલાવો",
-  "quranTapVerseToJump": "કોઈ પણ આયત પર ટૅપ કરો તો પઠન ત્યાંથી ચાલશે. તેના મેનૂ માટે દબાવી રાખો."
+  "quranTapVerseToJump": "કોઈ પણ આયત પર ટૅપ કરો તો પઠન ત્યાંથી ચાલશે. તેના મેનૂ માટે દબાવી રાખો.",
+  "quranChooseReciter": "પઠનકર્તા પસંદ કરો",
+  "quranReciterVerseByVerse": "આયતવાર, લખાણની સાથે સાથે",
+  "quranReciterWholeSurah": "આખી સૂરહ એક રેકોર્ડિંગમાં"
 }

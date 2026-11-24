@@ -1456,5 +1456,8 @@
   "quranDailyKhatmDone": "أتممت الاستماع إلى القرآن كاملًا، ويُستأنف من سورة الفاتحة.",
   "quranVersesNeedConnection": "أنت غير متصل. تحتاج التلاوة آيةً آيةً إلى اتصال بالإنترنت.",
   "quranPlayFromVerse": "تشغيل التلاوة من هذه الآية",
-  "quranTapVerseToJump": "اضغط أي آية لتشغيل التلاوة منها، واضغط مطوّلًا لفتح قائمتها."
+  "quranTapVerseToJump": "اضغط أي آية لتشغيل التلاوة منها، واضغط مطوّلًا لفتح قائمتها.",
+  "quranChooseReciter": "اختيار القارئ",
+  "quranReciterVerseByVerse": "آيةً آيةً مع متابعة النص",
+  "quranReciterWholeSurah": "السورة كاملة في تسجيل واحد"
 }

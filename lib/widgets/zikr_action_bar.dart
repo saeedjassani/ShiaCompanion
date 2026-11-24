@@ -50,6 +50,10 @@ class ZikrActionBar extends StatelessWidget {
   final VoidCallback onShare;
   final VoidCallback onListen;
 
+  /// A long press on Listen - choosing who recites, on a Quran page that
+  /// has more than one reciter. Null when there is nothing to choose.
+  final VoidCallback? onListenLongPress;
+
   /// Opens the Text & reading sheet.
   final VoidCallback onText;
   final VoidCallback onCounter;
@@ -67,6 +71,7 @@ class ZikrActionBar extends StatelessWidget {
     required this.onBookmark,
     required this.onShare,
     required this.onListen,
+    this.onListenLongPress,
     required this.onText,
     required this.onCounter,
   }) : super(key: key);
@@ -134,6 +139,7 @@ class ZikrActionBar extends StatelessWidget {
               ),
               label: context.l10n.actionListen,
               onTap: onListen,
+              onLongPress: onListenLongPress,
             ),
           ),
         Expanded(
@@ -193,12 +199,14 @@ class _ZikrAction extends StatefulWidget {
   final String label;
   final bool isActive;
   final VoidCallback? onTap;
+  final VoidCallback? onLongPress;
 
   const _ZikrAction({
     required this.icon,
     required this.label,
     this.isActive = false,
     required this.onTap,
+    this.onLongPress,
   });
 
   @override
@@ -266,6 +274,7 @@ class _ZikrActionState extends State<_ZikrAction>
         ),
         child: InkWell(
           onTap: widget.onTap,
+          onLongPress: isEnabled ? widget.onLongPress : null,
           borderRadius: radius,
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 2),

@@ -20,6 +20,27 @@ ZikrAudioTrack quranVerseTrack(int surah, int ayah) => ZikrAudioTrack(
   reciter: quranVerseReciter,
 );
 
+/// Who Listen plays on a Quran page, as the reader last chose: the
+/// verse-by-verse recitation - the default, which marks and follows each
+/// verse - or the surah's own recording in the action bar's player.
+enum QuranListenReciter {
+  verses,
+  recording;
+
+  /// Where the choice is kept, on this device.
+  static const String prefKey = 'quran_listen_reciter';
+
+  /// The saved [code], or [verses] when there is none.
+  static QuranListenReciter fromCode(String? code) {
+    for (final value in values) {
+      if (value.code == code) return value;
+    }
+    return verses;
+  }
+
+  String get code => name;
+}
+
 /// Every verse in the Quran - the last ordinal [verseOrdinal] gives.
 final int quranVerseTotal = verseOrdinal(
   surahCount,
@@ -38,7 +59,8 @@ VerseKey verseAtOrdinal(int ordinal) {
   return VerseKey(surahCount, surahAyahCounts[surahCount - 1]);
 }
 
-int ordinalOfVerse(VerseKey verse) => verseOrdinal(verse.surah, verse.ayah ?? 1);
+int ordinalOfVerse(VerseKey verse) =>
+    verseOrdinal(verse.surah, verse.ayah ?? 1);
 
 /// The playlist item that plays the Quran a portion a day, carrying on each
 /// day from where the last one stopped. It sits among a playlist's zikr uids
@@ -310,8 +332,7 @@ class QuranListeningState {
 
   @override
   bool operator ==(Object other) =>
-      other is QuranListeningState &&
-      mapEquals(other.toJson(), toJson());
+      other is QuranListeningState && mapEquals(other.toJson(), toJson());
 
   @override
   int get hashCode => Object.hashAll(toJson().values);

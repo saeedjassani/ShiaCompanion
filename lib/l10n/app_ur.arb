@@ -1456,5 +1456,8 @@
   "quranDailyKhatmDone": "آپ نے پورا قرآن سن لیا۔ اب تلاوت سورۂ فاتحہ سے پھر شروع ہو گی۔",
   "quranVersesNeedConnection": "آپ آف لائن ہیں۔ آیت بہ آیت تلاوت کے لیے انٹرنیٹ چاہیے۔",
   "quranPlayFromVerse": "اس آیت سے سنیں",
-  "quranTapVerseToJump": "کسی بھی آیت پر ٹیپ کریں تو تلاوت وہیں سے چلے گی۔ اس کا مینو کھولنے کے لیے دیر تک دبائیں۔"
+  "quranTapVerseToJump": "کسی بھی آیت پر ٹیپ کریں تو تلاوت وہیں سے چلے گی۔ اس کا مینو کھولنے کے لیے دیر تک دبائیں۔",
+  "quranChooseReciter": "قاری منتخب کریں",
+  "quranReciterVerseByVerse": "آیت بہ آیت، متن کے ساتھ ساتھ",
+  "quranReciterWholeSurah": "پوری سورہ ایک ہی ریکارڈنگ میں"
 }
