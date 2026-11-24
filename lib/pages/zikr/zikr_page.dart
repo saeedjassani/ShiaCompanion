@@ -40,6 +40,7 @@ import 'package:shia_companion/models/zikr_audio_track.dart';
 import '../../constants.dart';
 import '../../theme/shia_colors.dart';
 import '../../widgets/choice_sheet.dart';
+import '../../widgets/quran_reciter_sheet.dart';
 import '../../widgets/responsive_content.dart';
 import '../../widgets/zikr_action_bar.dart';
 import '../../widgets/zikr_audio_player.dart';
@@ -47,6 +48,7 @@ import '../../widgets/zikr_auto_scroll.dart';
 import '../../widgets/zikr_reading_preferences.dart';
 import '../../widgets/favorite_icon.dart';
 import '../../services/playlist_audio_service.dart';
+import '../../services/preferences_sync_service.dart';
 import '../../utils/shared_preferences.dart';
 import '../../widgets/now_playing_capsule.dart';
 import '../../widgets/outline_icon.dart';
@@ -442,6 +444,7 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
     _autoScroll.addListener(_handleAutoScrollChanged);
     PlaylistAudioService.instance.visible.addListener(_handlePlaylistShown);
     PlaylistAudioService.instance.playingVerse.addListener(_handlePlayingVerse);
+    quranRecordingRequest.addListener(_handleRecordingRequest);
     // A portion spans surahs, so it has no single surah of its own; its index
     // carries one per verse instead.
     _surahNumber = widget.portion != null
@@ -991,11 +994,24 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
   /// rather than reciting it verse by verse - see [QuranListenReciter].
   bool _listensToRecording(List<ZikrAudioTrack> tracks) =>
       tracks.isNotEmpty &&
-      SP.isInitialized &&
-      QuranListenReciter.fromCode(
-            SP.prefs.getString(QuranListenReciter.prefKey),
-          ) ==
+      PreferencesSyncService.instance.quranReciter ==
           QuranListenReciter.recording;
+
+  /// Opens this surah's recording when the now-playing capsule asked for
+  /// it ([quranRecordingRequest]) - the reader switched reciter there while
+  /// this surah was being recited verse by verse.
+  void _handleRecordingRequest() {
+    final surah = quranRecordingRequest.value;
+    if (!mounted ||
+        surah == null ||
+        widget.portion != null ||
+        surah != _surahNumber ||
+        !_isCurrentRoute) {
+      return;
+    }
+    quranRecordingRequest.value = null;
+    if (!_showAudioPlayer) _openAudioPlayer();
+  }
 
   /// Where Listen recites from: the first verse of the surah or the juz.
   VerseKey _listenStart() {
@@ -1032,7 +1048,6 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
   /// surah's recording - remembers the answer, and plays it.
   Future<void> _chooseQuranReciter(List<ZikrAudioTrack> tracks) async {
     if (tracks.isEmpty) return;
-    final l10n = context.l10n;
     final audio = PlaylistAudioService.instance;
     final current = _showAudioPlayer
         ? QuranListenReciter.recording
@@ -1041,27 +1056,13 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
         : _listensToRecording(tracks)
         ? QuranListenReciter.recording
         : QuranListenReciter.verses;
-    final picked = await showChoiceSheet<QuranListenReciter>(
+    final picked = await showQuranReciterSheet(
       context,
-      title: l10n.quranChooseReciter,
+      recording: tracks.first,
       current: current,
-      choices: [
-        Choice(
-          QuranListenReciter.verses,
-          quranVerseTrack(1, 1).artist,
-          hint: l10n.quranReciterVerseByVerse,
-        ),
-        Choice(
-          QuranListenReciter.recording,
-          tracks.first.artist,
-          hint: l10n.quranReciterWholeSurah,
-        ),
-      ],
     );
     if (picked == null || !mounted) return;
-    if (SP.isInitialized) {
-      unawaited(SP.prefs.setString(QuranListenReciter.prefKey, picked.code));
-    }
+    unawaited(PreferencesSyncService.instance.setQuranReciter(picked));
     if (picked == QuranListenReciter.recording) {
       if (_showAudioPlayer) return;
       // The verses stop; the recording starts from the top of the surah.
@@ -1089,6 +1090,7 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
       from: verse,
       to: _playThroughEnd(verse),
       title: title,
+      surah: portion == null ? verse.surah : null,
     );
     final message = result.message;
     if (message != null) {
@@ -1358,6 +1360,7 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
     PlaylistAudioService.instance.playingVerse.removeListener(
       _handlePlayingVerse,
     );
+    quranRecordingRequest.removeListener(_handleRecordingRequest);
     ZikrTranslations.instance.removeListener(_loadTranslation);
     SavedVersesManager.instance.removeListener(_handleSavedVersesChanged);
     VerseNotesManager.instance.removeListener(_handleVerseNotesChanged);
@@ -2668,6 +2671,10 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
   void didPush() {
     _isCurrentRoute = true;
     _syncWakelock();
+    // Opened by the capsule to play this surah's recording.
+    WidgetsBinding.instance.addPostFrameCallback(
+      (_) => _handleRecordingRequest(),
+    );
     _previousBrowserUri ??= widget.returnBrowserUri ?? Uri.base;
     _scheduleCurrentWebRouteSync();
   }
@@ -2676,6 +2683,9 @@ class _ZikrPageState extends State<ZikrPage> with RouteAware {
   void didPopNext() {
     _isCurrentRoute = true;
     _syncWakelock();
+    WidgetsBinding.instance.addPostFrameCallback(
+      (_) => _handleRecordingRequest(),
+    );
     // Covers Focus mode being flipped from the global settings page while
     // this route sat underneath it - refreshState only runs from this
     // page's own drawer.

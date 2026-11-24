@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'dart:math' as math;
 
 import 'package:material_ui/material_ui.dart';
@@ -7,16 +9,22 @@ import 'package:just_audio/just_audio.dart';
 import '../constants.dart' show appNavigatorKey, items;
 import '../data/uid_title_data.dart';
 import '../l10n/l10n.dart';
+import '../models/quran_listening.dart';
+import '../models/zikr_audio_track.dart';
 import '../pages/playlists_page.dart';
 import '../pages/quran/quran_navigation.dart';
 import '../pages/zikr/zikr_page.dart';
 import '../services/analytics_service.dart';
 import '../services/audio_playback_speed.dart';
 import '../services/playlist_audio_service.dart';
+import '../services/preferences_sync_service.dart';
+import '../services/zikr_audio_index.dart';
 import '../theme/shia_colors.dart';
+import '../utils/quran_index.dart';
 import 'glass_surface.dart';
 import 'outline_icon.dart';
 import 'page_chrome.dart';
+import 'quran_reciter_sheet.dart';
 
 /// "3:12", "1:02:45".
 String formatPlaybackTime(Duration d) {
@@ -260,11 +268,7 @@ class _NowPlayingCapsuleState extends State<NowPlayingCapsule> {
     if (zikrUid != null && verse != null) {
       final context = navigator.context;
       if (context.mounted) {
-        await openQuranVerse(
-          context,
-          verse,
-          source: ZikrOpenSource.playlist,
-        );
+        await openQuranVerse(context, verse, source: ZikrOpenSource.playlist);
       }
       return;
     }
@@ -278,6 +282,50 @@ class _NowPlayingCapsuleState extends State<NowPlayingCapsule> {
               ),
       ),
     );
+  }
+
+  /// The surah's own recording, when a surah is being recited verse by
+  /// verse from its page and it has one to switch to.
+  static ZikrAudioTrack? _recordingToSwitchTo(PlaylistAudioService audio) {
+    final surah = audio.recitedSurah;
+    final uid = surah == null ? null : uidForSurah(surah);
+    if (uid == null) return null;
+    final tracks = ZikrAudioIndex.instance.tracksFor(uid);
+    return tracks.isEmpty ? null : tracks.first;
+  }
+
+  /// Who recites the surah playing, chosen from the reciter's name: picking
+  /// the surah's recording stops the verses and opens the recording in the
+  /// surah's player, on its page.
+  Future<void> _chooseReciter() async {
+    final audio = PlaylistAudioService.instance;
+    final surah = audio.recitedSurah;
+    final recording = _recordingToSwitchTo(audio);
+    final navigator = appNavigatorKey.currentState;
+    if (surah == null || recording == null || navigator == null) return;
+    final picked = await showQuranReciterSheet(
+      navigator.context,
+      recording: recording,
+      current: QuranListenReciter.verses,
+    );
+    if (picked == null) return;
+    unawaited(PreferencesSyncService.instance.setQuranReciter(picked));
+    if (picked != QuranListenReciter.recording || audio.recitedSurah != surah) {
+      return;
+    }
+    await audio.stop();
+    // The surah's page takes the request up at once when it is the one
+    // showing; otherwise it is opened, and takes it up as it opens.
+    quranRecordingRequest.value = surah;
+    if (quranRecordingRequest.value != surah) return;
+    final context = navigator.context;
+    if (context.mounted) {
+      await openQuranVerse(
+        context,
+        VerseKey(surah, 1),
+        source: ZikrOpenSource.playlist,
+      );
+    }
   }
 
   @override
@@ -339,6 +387,10 @@ class _NowPlayingCapsuleState extends State<NowPlayingCapsule> {
                               expanded: _expanded,
                               onToggleExpanded: _toggleExpanded,
                               onOpenPlaylist: _openPlaylist,
+                              onChooseReciter:
+                                  _recordingToSwitchTo(audio) == null
+                                  ? null
+                                  : () => unawaited(_chooseReciter()),
                             )
                           : const SizedBox(
                               key: ValueKey('hidden'),
@@ -365,6 +417,7 @@ class _CapsuleBody extends StatelessWidget {
     required this.expanded,
     required this.onToggleExpanded,
     required this.onOpenPlaylist,
+    this.onChooseReciter,
   });
 
   final PlaylistAudioService audio;
@@ -373,6 +426,10 @@ class _CapsuleBody extends StatelessWidget {
   final bool expanded;
   final VoidCallback onToggleExpanded;
   final VoidCallback onOpenPlaylist;
+
+  /// Opens the choice of who recites, from the reciter's name - a surah
+  /// recited verse by verse from its page. Null otherwise.
+  final VoidCallback? onChooseReciter;
 
   @override
   Widget build(BuildContext context) {
@@ -410,22 +467,29 @@ class _CapsuleBody extends StatelessWidget {
                   fontWeight: FontWeight.w600,
                 ),
               ),
-              Text(
-                // A verse names its surah already; under it goes who
-                // recites, or the playlist it is part of.
-                current.verse != null
-                    ? audio.singleZikrUid != null
-                          ? current.track.artist
-                          : audio.playlist?.displayName ?? ''
-                    : l10n.playlistNowPlayingPosition(
-                        audio.playlist?.displayName ?? '',
-                        audio.zikrPosition ?? 1,
-                        audio.zikrCount,
-                      ),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: caption,
-              ),
+              if (onChooseReciter case final choose?)
+                _ReciterName(
+                  name: current.track.artist,
+                  style: caption,
+                  onTap: choose,
+                )
+              else
+                Text(
+                  // A verse names its surah already; under it goes who
+                  // recites, or the playlist it is part of.
+                  current.verse != null
+                      ? audio.singleZikrUid != null
+                            ? current.track.artist
+                            : audio.playlist?.displayName ?? ''
+                      : l10n.playlistNowPlayingPosition(
+                          audio.playlist?.displayName ?? '',
+                          audio.zikrPosition ?? 1,
+                          audio.zikrCount,
+                        ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: caption,
+                ),
             ],
           ),
         ),
@@ -469,18 +533,18 @@ class _CapsuleBody extends StatelessWidget {
           Row(
             children: [
               if (audio.canRepeat)
-              IconButton(
-                icon: OutlineIcon(
-                  OutlineGlyph.repeat,
-                  size: 22,
-                  color: audio.isRepeating ? colors.accent : colors.chevron,
+                IconButton(
+                  icon: OutlineIcon(
+                    OutlineGlyph.repeat,
+                    size: 22,
+                    color: audio.isRepeating ? colors.accent : colors.chevron,
+                  ),
+                  tooltip: audio.isRepeating
+                      ? l10n.playlistRepeatOn
+                      : l10n.playlistRepeat,
+                  isSelected: audio.isRepeating,
+                  onPressed: audio.toggleRepeat,
                 ),
-                tooltip: audio.isRepeating
-                    ? l10n.playlistRepeatOn
-                    : l10n.playlistRepeat,
-                isSelected: audio.isRepeating,
-                onPressed: audio.toggleRepeat,
-              ),
               IconButton(
                 icon: Icon(Icons.skip_previous_rounded, color: colors.accent),
                 tooltip: l10n.commonPrevious,
@@ -534,6 +598,58 @@ class _CapsuleBody extends StatelessWidget {
               ),
             ),
           ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Who recites, under the surah's name, opening the choice of reciter - as
+/// the recording's name does in the zikr player.
+class _ReciterName extends StatelessWidget {
+  const _ReciterName({
+    required this.name,
+    required this.style,
+    required this.onTap,
+  });
+
+  final String name;
+  final TextStyle style;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = ShiaColors.of(context);
+    return Semantics(
+      button: true,
+      label: '${context.l10n.quranChooseReciter}: $name',
+      excludeSemantics: true,
+      onTap: onTap,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(6),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Flexible(
+              child: Text(
+                name,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: style.copyWith(
+                  color: colors.accent,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+            const SizedBox(width: 2),
+            OutlineIcon(
+              OutlineGlyph.chevronDown,
+              size: 12,
+              color: colors.accent,
+              strokeWidth: 2.2,
+            ),
+          ],
         ),
       ),
     );

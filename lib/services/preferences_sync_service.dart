@@ -5,6 +5,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 
 import '../constants.dart';
+import '../models/quran_listening.dart';
 import '../utils/font_preferences.dart';
 import '../utils/shared_preferences.dart';
 import 'event_notification_service.dart';
@@ -13,7 +14,7 @@ import 'home_shortcuts_store.dart';
 /// Syncs the reading preferences that used to live only in SharedPreferences
 /// — Hijri date (Automatic or the manual adjustment), Arabic/English font
 /// size, Arabic font, the recording chosen on each zikr page that has
-/// several, and Home's shortcuts — to the signed-in account, the same way
+/// several, who recites the Quran's Listen, and Home's shortcuts — to the signed-in account, the same way
 /// [FavoritesManager] and [QazaTrackerManager] already sync favorites and
 /// qaza.
 ///
@@ -42,6 +43,11 @@ class PreferencesSyncService {
 
   /// Content uid -> the [ZikrAudioTrack.file] chosen in that zikr's player.
   static const String _audioTracksField = 'audioTracks';
+
+  /// [QuranListenReciter.code]: who Listen plays on a Quran page. Absent
+  /// until the reader first chooses, so an untouched device never overwrites
+  /// a choice made on another.
+  static const String _quranReciterField = 'quranReciter';
 
   /// [HomeShortcutsStore.ids], in order. Absent until the reader first
   /// edits their shortcuts, so an untouched device never overwrites a choice
@@ -123,6 +129,22 @@ class PreferencesSyncService {
     });
   }
 
+  /// Who Listen plays on a Quran page, as last chosen here or on another
+  /// device: the verse-by-verse recitation unless the reader chose the
+  /// surah's recording.
+  QuranListenReciter get quranReciter => QuranListenReciter.fromCode(
+    SP.isInitialized ? SP.prefs.getString(QuranListenReciter.prefKey) : null,
+  );
+
+  /// Remembers [reciter] for the Quran's Listen, here and on the reader's
+  /// other devices.
+  Future<void> setQuranReciter(QuranListenReciter reciter) async {
+    if (SP.isInitialized) {
+      await SP.prefs.setString(QuranListenReciter.prefKey, reciter.code);
+    }
+    await _pushIfSignedIn({_quranReciterField: reciter.code});
+  }
+
   /// Removes the synced document. Called when an account is deleted, so
   /// "delete my account" genuinely deletes everything it says it does.
   Future<void> deleteSyncedPreferences(String userId) async {
@@ -146,6 +168,8 @@ class PreferencesSyncService {
         if (key.startsWith(_audioTrackPrefPrefix))
           key.substring(_audioTrackPrefPrefix.length): SP.prefs.getString(key),
     },
+    if (SP.prefs.getString(QuranListenReciter.prefKey) case final reciter?)
+      _quranReciterField: reciter,
     if (HomeShortcutsStore.instance.isCustomized)
       _homeShortcutsField: HomeShortcutsStore.instance.ids,
   };
@@ -201,6 +225,16 @@ class PreferencesSyncService {
         if (file is! String || file.isEmpty) continue;
         await SP.prefs.setString(audioTrackPrefKey('${entry.key}'), file);
       }
+    }
+
+    final reciter = data[_quranReciterField];
+    final localReciter = SP.prefs.getString(QuranListenReciter.prefKey);
+    if (reciter is String &&
+        QuranListenReciter.values.any((value) => value.code == reciter)) {
+      await SP.prefs.setString(QuranListenReciter.prefKey, reciter);
+    } else if (reciter == null && localReciter != null) {
+      // Chosen on this device before the choice synced: share it.
+      await _pushIfSignedIn({_quranReciterField: localReciter});
     }
 
     final shortcuts = data[_homeShortcutsField];
