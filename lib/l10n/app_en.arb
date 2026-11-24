@@ -4550,7 +4550,10 @@
   "playlistDefaultThursdayNight": "Thursday Night",
   "playlistDefaultFridayMorning": "Friday Morning",
   "playlistDefaultFridayAfternoon": "Friday Afternoon",
-  "playlistDefaultDailyQuran": "Daily Quran",
+  "playlistDefaultDailySurahs": "Daily Surahs",
+  "@playlistDefaultDailySurahs": {
+    "description": "A starter playlist of four surahs (Ya-Sin, Ar-Rahman, Al-Waqi'ah, Al-Mulk) to recite every day. Not the same as quranDailyItemTitle, which plays through the whole Quran."
+  },
   "playlistDefaultRamazanNights": "Mahe Ramazan Nights",
   "playlistDefaultRamazanSuhoor": "Mahe Ramazan Suhoor",
   "playlistDefaultShaban": "Shaban",
@@ -4747,9 +4750,9 @@
   "@playlistDefaultQuranDayByDay": {
     "description": "A starter playlist: the whole Quran, verse by verse, a portion each day, carrying on from where the reader left off."
   },
-  "quranDailyItemTitle": "Whole Quran",
+  "quranDailyItemTitle": "Daily Quran",
   "@quranDailyItemTitle": {
-    "description": "A playlist item that plays the Quran verse by verse, a portion each day, continuing from the verse the reader stopped at. Shown with 'Next: <verse>' under it. Not the same as playlistDefaultDailyQuran, a playlist of four surahs."
+    "description": "A playlist item that plays the Quran verse by verse, a portion each day, continuing from the verse the reader stopped at. Shown with 'Next: <verse>' under it. Not the same as playlistDefaultDailySurahs, a playlist of four surahs."
   },
   "quranDailyPickHint": "Plays on each day from where you left off",
   "@quranDailyPickHint": {
@@ -4819,7 +4822,7 @@
   },
   "quranDailyChange": "Change amount or verse",
   "@quranDailyChange": {
-    "description": "Menu item on the Whole Quran playlist item (quranDailyItemTitle): opens its settings, the daily amount and the verse it carries on from."
+    "description": "Menu item on the Daily Quran playlist item (quranDailyItemTitle): opens its settings, the daily amount and the verse it carries on from."
   },
   "quranDailySheetHint": "Each day carries on from where you left off, and pauses after your daily amount, always between two verses.",
   "@quranDailySheetHint": {
