@@ -59,6 +59,14 @@ void main() {
   }
 
   Future<void> openCollection(WidgetTester tester, String chip) async {
+    // Tall enough that the listening card above the tabs leaves them and a
+    // collection's first rows on screen.
+    tester.view.physicalSize = Size(
+      tester.view.physicalSize.width,
+      1000 * tester.view.devicePixelRatio,
+    );
+    addTearDown(tester.view.resetPhysicalSize);
+    await tester.pumpAndSettle();
     await tester.tap(find.text('Collections'));
     await tester.pumpAndSettle();
     // The pills are one sideways row, so the later ones start off screen.

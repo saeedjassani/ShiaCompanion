@@ -3,6 +3,7 @@ import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 
+import '../models/quran_listening.dart';
 import '../models/zikr_playlist.dart';
 import '../utils/shared_preferences.dart';
 
@@ -27,8 +28,21 @@ class ZikrPlaylistStore extends ChangeNotifier {
   /// Mahe Ramazan Nights, Mahe Ramazan Suhoor and Shaban added.
   static const String seededV2Key = 'zikr_playlists_seeded_v2';
 
+  /// Set once the third has been: Quran, Day by Day, at the top.
+  static const String seededV3Key = 'zikr_playlists_seeded_v3';
+
   static final DateTime _v1Date = DateTime.utc(2026, 9, 25);
   static final DateTime _v2Date = DateTime.utc(2026, 10, 13);
+  static final DateTime _v3Date = DateTime.utc(2026, 11, 23);
+
+  /// The whole Quran, verse by verse, a portion a day - each day carrying on
+  /// from where the last one stopped. Added first, for every reader.
+  static final ZikrPlaylist quranDayByDay = ZikrPlaylist(
+    id: 'default-quran-day-by-day',
+    name: 'Quran, Day by Day',
+    zikrUids: const [quranDailyUid],
+    updatedAt: _v3Date,
+  );
 
   static final ZikrPlaylist _fridayMorning = ZikrPlaylist(
     id: 'default-friday-morning',
@@ -83,6 +97,7 @@ class ZikrPlaylistStore extends ChangeNotifier {
   /// own. Only zikrs with a recording belong here - see
   /// assets/zikr_audio.json.
   static final List<ZikrPlaylist> defaultPlaylists = List.unmodifiable([
+    quranDayByDay,
     ZikrPlaylist(
       id: 'default-morning',
       name: 'Morning',
@@ -122,7 +137,14 @@ class ZikrPlaylistStore extends ChangeNotifier {
   List<ZikrPlaylist> _read() {
     if (!SP.isInitialized) return const [];
     final stored = _readStored();
-    if (SP.prefs.getBool(seededV2Key) ?? false) return stored;
+    if (SP.prefs.getBool(seededV3Key) ?? false) return stored;
+    if (SP.prefs.getBool(seededV2Key) ?? false) {
+      final upgraded = List<ZikrPlaylist>.unmodifiable(
+        upgradeFromSecondSet(stored),
+      );
+      _save(upgraded);
+      return upgraded;
+    }
 
     final seeded = List<ZikrPlaylist>.unmodifiable(
       (SP.prefs.getBool(seededKey) ?? false)
@@ -133,6 +155,12 @@ class ZikrPlaylistStore extends ChangeNotifier {
                 if (!stored.any((mine) => mine.id == playlist.id)) playlist,
             ],
     );
+    _save(seeded);
+    return seeded;
+  }
+
+  /// Writes the seeded list and marks every set handed out.
+  void _save(List<ZikrPlaylist> seeded) {
     unawaited(
       SP.prefs.setString(
         storageKey,
@@ -141,8 +169,16 @@ class ZikrPlaylistStore extends ChangeNotifier {
     );
     unawaited(SP.prefs.setBool(seededKey, true));
     unawaited(SP.prefs.setBool(seededV2Key, true));
-    return seeded;
+    unawaited(SP.prefs.setBool(seededV3Key, true));
   }
+
+  /// Brings a reader who got the second set up to the third: Quran, Day by
+  /// Day goes first, ahead of their own.
+  @visibleForTesting
+  static List<ZikrPlaylist> upgradeFromSecondSet(List<ZikrPlaylist> stored) => [
+    if (!stored.any((mine) => mine.id == quranDayByDay.id)) quranDayByDay,
+    ...stored,
+  ];
 
   /// Brings a reader who got the first set up to the second. An untouched
   /// Friday becomes Friday Morning and Friday Afternoon in its place; one they
@@ -164,11 +200,11 @@ class ZikrPlaylistStore extends ChangeNotifier {
         else
           playlist,
     ];
-    return [
+    return upgradeFromSecondSet([
       ...upgraded,
       for (final playlist in _v2Additions)
         if (!upgraded.any((mine) => mine.id == playlist.id)) playlist,
-    ];
+    ]);
   }
 
   List<ZikrPlaylist> _readStored() {

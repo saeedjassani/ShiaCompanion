@@ -66,6 +66,8 @@ class ZikrPlaylist {
         strings.playlistDefaultFridayMorning,
       ('default-friday-afternoon', 'Friday Afternoon') =>
         strings.playlistDefaultFridayAfternoon,
+      ('default-quran-day-by-day', 'Quran, Day by Day') =>
+        strings.playlistDefaultQuranDayByDay,
       ('default-daily-quran', 'Daily Quran') =>
         strings.playlistDefaultDailyQuran,
       ('default-ramazan-nights', 'Mahe Ramazan Nights') =>

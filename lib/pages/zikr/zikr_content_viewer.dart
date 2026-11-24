@@ -68,7 +68,13 @@ class AyahActionRequest {
     this.aliNote,
     this.mahdiNote,
     this.sajdahVerse,
+    this.longPress = false,
   });
+
+  /// Whether the verse was long-pressed rather than tapped: a tap on a verse
+  /// of the recitation playing jumps the recitation there, a long press
+  /// always opens the menu.
+  final bool longPress;
 
   /// Which verse was tapped, surah included - in a juz the surah is not the
   /// one the page as a whole is showing.
@@ -608,6 +614,11 @@ class ZikrContentViewerWidget extends StatefulWidget {
   /// page's Sections menu. Null when there is no such menu.
   final ZikrSectionsController? sections;
 
+  /// The verse whose recitation is playing or paused, marked in the text and
+  /// kept in view as it moves on - unless the reader has just scrolled away
+  /// to read somewhere else.
+  final VerseKey? playingVerse;
+
   const ZikrContentViewerWidget({
     Key? key,
     required this.tabContents,
@@ -639,6 +650,7 @@ class ZikrContentViewerWidget extends StatefulWidget {
     this.translation,
     this.autoScroll,
     this.sections,
+    this.playingVerse,
   }) : super(key: key);
 
   @override
@@ -686,6 +698,11 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget>
   /// scroll via [ScrollPosition.jumpTo] and so never fire a pointer event -
   /// so a lookup can be told apart from recitation. See [QuranReadingPosition].
   bool _sawUserScrollInput = false;
+
+  /// When the reader last scrolled the text by hand. Following the verse
+  /// being recited waits a while after, so it never pulls the text out from
+  /// under someone reading ahead.
+  DateTime? _lastUserScrollAt;
 
   bool _didScrollToInitialVerse = false;
 
@@ -877,6 +894,85 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget>
       oldWidget.sections?.detach(_jumpToSection);
       widget.sections?.attach(_jumpToSection);
     }
+    final playing = widget.playingVerse;
+    if (playing != null && playing != oldWidget.playingVerse) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted && widget.playingVerse == playing) {
+          unawaited(_followPlayingVerse(playing));
+        }
+      });
+    }
+  }
+
+  /// Keeps [verse], the one being recited, in view: left alone while it is
+  /// on screen, eased into view when it is close, and jumped to when it is
+  /// not built yet. Waits for a few seconds after the reader's own scroll.
+  Future<void> _followPlayingVerse(VerseKey verse) async {
+    final last = _lastUserScrollAt;
+    if (last != null &&
+        DateTime.now().difference(last) < const Duration(seconds: 6)) {
+      return;
+    }
+    final tabIndex = _selectedTabIndex;
+    if (tabIndex >= _tabScrollControllers.length) return;
+    final ayahIndex = _ayahIndexFor(tabIndex);
+    final spanIndex = ayahIndex?.spanIndexForVerse(verse);
+    if (ayahIndex == null || spanIndex == null) return;
+    final controller = _tabScrollControllers[tabIndex];
+    if (!controller.hasClients) return;
+    final position = controller.position;
+    if (position.isScrollingNotifier.value) return;
+
+    final leadingItems = _leadingItemCount(tabIndex);
+    final paragraphs = _tabQuranParagraphs[tabIndex];
+    final paragraphIndex = paragraphs?.paragraphIndexForSpan(spanIndex);
+    final item = _builtItem(
+      tabIndex,
+      (paragraphIndex ?? spanIndex) + leadingItems,
+    );
+    if (item == null) {
+      await _scrollToSpan(tabIndex, ayahIndex, spanIndex, leadingItems);
+      return;
+    }
+
+    var top = item.offset;
+    var bottom = item.offset + item.box.size.height;
+    if (paragraphIndex != null) {
+      final paragraph = paragraphs!.items[paragraphIndex];
+      final member = paragraph.spanIndexes.indexOf(spanIndex);
+      final memberTop = _memberTopInFlow(item.box, paragraph, member) ?? 0;
+      final nextTop = member + 1 < paragraph.spanIndexes.length
+          ? _memberTopInFlow(item.box, paragraph, member + 1)
+          : null;
+      top = item.offset + memberTop;
+      // A verse in a paragraph ends where the next one's row begins - or,
+      // for the last, a couple of rows down at most.
+      bottom = nextTop == null
+          ? math.min(bottom, top + 160)
+          : item.offset + nextTop + 60;
+    }
+
+    // In the list's own coordinates, which start below its top padding: a
+    // verse at [position.pixels] sits just under the reading chrome.
+    final visibleTop = position.pixels;
+    final visibleBottom =
+        position.pixels +
+        position.viewportDimension -
+        widget.listPadding.top -
+        widget.listPadding.bottom;
+    if (top >= visibleTop - _scrollToVerseMargin &&
+        bottom <= visibleBottom) {
+      return;
+    }
+    final target = (top - _scrollToVerseMargin)
+        .clamp(position.minScrollExtent, position.maxScrollExtent)
+        .toDouble();
+    if ((target - visibleTop).abs() < 1) return;
+    await controller.animateTo(
+      target,
+      duration: const Duration(milliseconds: 450),
+      curve: Curves.easeInOutCubic,
+    );
   }
 
   /// Brings the heading on [lineIndex] of the open part to the top of the
@@ -2434,9 +2530,15 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget>
       // makes a mouse-wheel or trackpad scroll (desktop, web) count the same
       // way a touch drag does.
       onPointerSignal: (event) {
-        if (event is PointerScrollEvent) _sawUserScrollInput = true;
+        if (event is PointerScrollEvent) {
+          _sawUserScrollInput = true;
+          _lastUserScrollAt = DateTime.now();
+        }
       },
-      onPointerPanZoomStart: (event) => _sawUserScrollInput = true,
+      onPointerPanZoomStart: (event) {
+        _sawUserScrollInput = true;
+        _lastUserScrollAt = DateTime.now();
+      },
       onPointerDown: (event) => _autoScrollHolds.add(event.pointer),
       // A bookmark being carried is also followed from here, not just from
       // its [Draggable]: auto-scrolling takes the label off screen, the list
@@ -2463,6 +2565,10 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget>
           if (notification is ScrollStartNotification &&
               notification.dragDetails != null) {
             _sawUserScrollInput = true;
+          }
+          if (notification is ScrollUpdateNotification &&
+              notification.dragDetails != null) {
+            _lastUserScrollAt = DateTime.now();
           }
           if (tabIndex == _selectedTabIndex && ayahIndex != null) {
             _scheduleVerseReport(tabIndex, controller);
@@ -2888,15 +2994,24 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget>
       aliNote: verse == null ? null : aliRelatedNoteFor(verse),
       mahdiNote: verse == null ? null : mahdiRelatedNoteFor(verse),
       sajdahVerse: verse == null ? null : sajdahVerseFor(verse),
+      isPlaying: verse != null && verse == widget.playingVerse,
       onAction: verse == null || widget.onAyahAction == null
           ? null
-          : () => _requestAyahAction(parsedContent, span),
+          : (longPress) => _requestAyahAction(
+              parsedContent,
+              span,
+              longPress: longPress,
+            ),
       children: lines,
     );
   }
 
   /// Opens the per-verse menu for [span], when the page offers one.
-  void _requestAyahAction(ParsedZikrContent parsedContent, AyahSpan span) {
+  void _requestAyahAction(
+    ParsedZikrContent parsedContent,
+    AyahSpan span, {
+    bool longPress = false,
+  }) {
     final verse = span.verse;
     final onAction = widget.onAyahAction;
     if (verse == null || onAction == null) return;
@@ -2908,6 +3023,7 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget>
         aliNote: aliRelatedNoteFor(verse),
         mahdiNote: mahdiRelatedNoteFor(verse),
         sajdahVerse: sajdahVerseFor(verse),
+        longPress: longPress,
       ),
     );
   }
@@ -2961,8 +3077,14 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget>
         parsedContent.lines[span.start].trim(),
       );
       final isBookmarked = span == bookmarkedSpan;
+      final isPlaying =
+          span.verse != null && span.verse == widget.playingVerse;
       final verseSpan = TextSpan(
-        style: isBookmarked
+        style: isPlaying
+            ? TextStyle(
+                backgroundColor: colorScheme.primary.withValues(alpha: 0.16),
+              )
+            : isBookmarked
             ? TextStyle(
                 backgroundColor: colorScheme.primaryContainer.withValues(
                   alpha: 0.55,
@@ -2984,12 +3106,20 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget>
     final first = spans.first;
 
     final canAct = widget.onAyahAction != null;
-    void actAt(RenderParagraph text, Offset globalPosition) {
+    void actAt(
+      RenderParagraph text,
+      Offset globalPosition, {
+      bool longPress = false,
+    }) {
       final position = text.getPositionForOffset(
         text.globalToLocal(globalPosition),
       );
       final spanIndex = paragraph.spanIndexAtTextOffset(position.offset);
-      _requestAyahAction(parsedContent, ayahIndex.spans[spanIndex]);
+      _requestAyahAction(
+        parsedContent,
+        ayahIndex.spans[spanIndex],
+        longPress: longPress,
+      );
     }
 
     Widget ruled = Padding(
@@ -3008,7 +3138,9 @@ class _ZikrContentViewerWidgetState extends State<ZikrContentViewerWidget>
         },
         onLongPressStart: (details) {
           final laidOut = paragraph.laidOutText;
-          if (laidOut != null) actAt(laidOut, details.globalPosition);
+          if (laidOut != null) {
+            actAt(laidOut, details.globalPosition, longPress: true);
+          }
         },
         child: ruled,
       );
@@ -3418,9 +3550,13 @@ class _AyahBlock extends StatelessWidget {
     required this.aliNote,
     required this.mahdiNote,
     this.sajdahVerse,
+    this.isPlaying = false,
     required this.onAction,
     required this.children,
   });
+
+  /// Whether this verse's recitation is playing (or paused on it).
+  final bool isPlaying;
 
   /// Null for the Bismillah heading a surah, which is drawn without a badge
   /// because it is not a numbered verse.
@@ -3455,7 +3591,8 @@ class _AyahBlock extends StatelessWidget {
   /// Sajdah verse in the Holy Quran.
   final QuranSajdahVerse? sajdahVerse;
 
-  final VoidCallback? onAction;
+  /// Called with whether it was a long press.
+  final void Function(bool longPress)? onAction;
   final List<Widget> children;
 
   @override
@@ -3521,7 +3658,7 @@ class _AyahBlock extends StatelessWidget {
             ],
           );
 
-    final decorated = isBookmarked
+    final bookmarked = isBookmarked
         ? Container(
             decoration: BoxDecoration(
               color: colorScheme.primaryContainer.withValues(alpha: 0.4),
@@ -3532,10 +3669,28 @@ class _AyahBlock extends StatelessWidget {
             child: marked,
           )
         : marked;
+    // The verse being recited, tinted softly so it can be followed without
+    // the page shouting; it fades as the recitation moves on.
+    final decorated = AnimatedContainer(
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeOut,
+      decoration: BoxDecoration(
+        color: isPlaying
+            ? colorScheme.primary.withValues(alpha: 0.10)
+            : colorScheme.primary.withValues(alpha: 0),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: bookmarked,
+    );
 
-    if (onAction == null) return decorated;
+    final act = onAction;
+    if (act == null) return decorated;
 
-    return InkWell(onTap: onAction, onLongPress: onAction, child: decorated);
+    return InkWell(
+      onTap: () => act(false),
+      onLongPress: () => act(true),
+      child: decorated,
+    );
   }
 }
 
