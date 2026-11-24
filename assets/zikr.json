@@ -1161,7 +1161,8 @@
     "title": "Ziyarat of the Four Deputies of Imam al-Mahdi (a.t.f.s.)",
     "slug": "ziyarah-of-the-four-emissaries",
     "slugAliases": [
-      "visitation-to-naeb-khaas-special-deputies-of-imam-mahdi-a"
+      "visitation-to-naeb-khaas-special-deputies-of-imam-mahdi-a",
+      "visiting-the-tomb-of-shaykh-al-kulayni"
     ]
   },
   "AN1": {
@@ -1172,12 +1173,24 @@
     "title": "Method of Ziyarat of the Holy Prophet (s.a.w.a.) in Madinah",
     "slug": "method-of-ziyarah-of-holy-prophet-s-in-madinah",
     "slugAliases": [
-      "bidding-farewell-wida-to-the-holy-prophet-s"
+      "bidding-farewell-wida-to-the-holy-prophet-s",
+      "ziyarah-of-the-holy-prophet-lady-fatimah-al-zahra-and-the-imams-in-al-baqi-cemetery"
     ]
   },
   "AP4": {
     "title": "Ziyarat of Lady Fatimah al-Zahra (s.a.)",
-    "slug": "ziyarah-of-lady-fatimah-al-zahra"
+    "slug": "ziyarah-of-lady-fatimah-al-zahra",
+    "slugAliases": [
+      "aamal-e-rouza-e-munawwara"
+    ]
+  },
+  "AP5": {
+    "title": "Ziyarat of the Holy Prophet (s.a.w.a.) from a Distance",
+    "slug": "visiting-the-holy-prophet-from-a-distance",
+    "slugAliases": [
+      "ziyarah-of-holy-prophet-s-and-the-holy-infallibles-on-friday-from-a-distance",
+      "merits-of-greeting-the-holy-prophet-s"
+    ]
   },
   "AP8": {
     "title": "Ziyarat of the Imams of al-Baqi (a.s.)",
@@ -1186,6 +1199,13 @@
       "bidding-farewell-to-the-imams-in-al-baqi",
       "ziyarah-of-ibrahim-son-of-the-holy-prophet-s",
       "visiting-the-tomb-of-lady-fatimah-bint-asad-imam-ali-s-mother"
+    ]
+  },
+  "AP12": {
+    "title": "Recommended Acts (Aamal) in Madinah and Its Mosques",
+    "slug": "the-revered-mosques-in-al-madinah",
+    "slugAliases": [
+      "recommended-deeds-in-the-holy-city-of-madinah"
     ]
   },
   "AQ2": {

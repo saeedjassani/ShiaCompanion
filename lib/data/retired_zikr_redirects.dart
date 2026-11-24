@@ -523,4 +523,31 @@ const Map<String, RetiredZikrRedirect> retiredZikrRedirects = {
   /// carried only the second, al-Majlisi's. B6 now has both, Kaf'ami's as
   /// its first tab, and its slugAliases keep B5's slug.
   'B5': RetiredZikrRedirect('B6'),
+
+  /// Baghdad: AM4 (Visiting the Tomb of Shaykh al-Kulayni) was Mafatih
+  /// al-Jinan's paragraph after the deputies' ziyarat, on its own page, with
+  /// nothing to recite; it closes AM3's merits now, and AM3's slugAliases
+  /// keep its slug.
+  'AM4': RetiredZikrRedirect('AM3'),
+
+  /// Madinah: AP1 (the merits of visiting the Holy Prophet, Lady Fatimah
+  /// and the Imams of al-Baqi) and AP3 (where Lady Fatimah is visited from,
+  /// and the three opinions on her burial) were Mafatih al-Jinan's prose,
+  /// with nothing to recite. They are in the merits of AP2, AP4 and AP8;
+  /// their targets' slugAliases keep the old titles' slugs.
+  'AP1': RetiredZikrRedirect('AP2'),
+  'AP3': RetiredZikrRedirect('AP4'),
+
+  /// AP14 (Recommended deeds in the Holy city of Madinah) is the main part
+  /// of AP12, Madinah's acts and its mosques (Quba, al-Fath and the others
+  /// are AP12's tabs); AP12's slugAliases keep its slug.
+  'AP14': RetiredZikrRedirect('AP12'),
+
+  /// The Holy Prophet (s.a.w.a.) from a distance is one tabbed entry, AP5
+  /// (al-Majlisi's ziyarat from afar first): AP6 (the Friday ziyarat of the
+  /// Prophet and the Imams from afar) is its first tab, and AP7 (Imam Ali's
+  /// salawat from his Friday sermon, its narrations on greeting the Prophet
+  /// now AP5's merits) its second. AP5's slugAliases keep their slugs.
+  'AP6': RetiredZikrRedirect('AP5', tabIndex: 0),
+  'AP7': RetiredZikrRedirect('AP5', tabIndex: 1),
 };

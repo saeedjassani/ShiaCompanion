@@ -726,6 +726,92 @@ soil of Imam Husayn (a.s.)", "G31: restore the farewell to the Holy Imams
   ([Izn-e-Dukhool](B6))"), dropping the old "for a second form, see" pointer;
   the four translations follow.
 
+## Restored in session 12: for the owner to review
+
+The Baghdad batch, checked against our history (Ansariyan's
+`assets/items/AM1`, `AM4`) and mafatih.duas.co's `masjid-burasa` and
+`ziarat-nawab-arba`; duas.org's data store has neither. Details are in
+the commit "Baghdad batch: restore AM1 (Masjid Buratha); AM4 retires
+into AM3".
+
+- **AM1** (Masjid Buratha) was restored, then dropped on the owner's
+  word (2026-11-23): Mafatih gives nothing to recite there, and no one
+  had it as a favorite, so it was retired with no redirect. The site's
+  about and tips cover the mosque; it links nothing. Its draft (merits
+  from the Urdu Mafatih) is in commit 49996fe8 if it is ever wanted.
+- **AM4** (al-Kulayni): Mafatih's paragraph after the deputies'
+  ziyarat, now the last paragraph of AM3's merits. Ibn al-Athir's
+  "reviver of the Imami school" line is history's (the Urdu Mafatih
+  lacks it). Al-Kulayni's tomb links AM3 after G29, with a note naming
+  al-Samarri (the site's tip says his tomb is near): check that this
+  link is wanted, since AM3 is not al-Kulayni's own ziyarat.
+
+### Madinah (session 12)
+
+Checked against our history (Ansariyan's `assets/items/AP1`-`AP14`) and
+mafatih.duas.co's Madinah pages (`ziaraat-madina-intro`,
+`ziarat-bibi-fatima`, `ziarat-rasoolullah-distance`,
+`ziarat-rasoolullah-juma`, `salawat-rasool-by-imam-ali`, `madina-masajid`,
+`wazaef-zawaar-madina`), one opus agent per entry in its own worktree.
+Details are in the commits "AP1 and AP3 retire into...", "Madinah batch:
+AP12..." and "Madinah batch: AP5...".
+
+- **AP5, "Ziyarat of the Holy Prophet (s.a.w.a.) from a Distance"**:
+  al-Majlisi's ziyarat from afar (Zad al-Ma'ad, under 17 Rabi al-Awwal),
+  with AP6 (the Friday ziyarat of the Prophet and the Imams from afar) and
+  AP7 (Imam Ali's salawat from his Friday sermon) as its tabs; AP7's
+  narrations are its merits. Listed last at the Prophet's Mosque. Check:
+  - Arabic kept from history where the Urdu Mafatih differs: «وَهْبٍ»,
+    «الْفِئَةِ», «جِئْتُ», «الْاٰفِكَةِ» and «مُهْطِعِيْنَ اِلَى الدَّاعِ» (Mafatih
+    «الدَّاعِيْ»); taken from Mafatih: «وَحِرَاسَتِهٖ», «وَلَا يَسْاَلُ حَمِيْمٌ»
+    (as Quran 70:10);
+  - the Urdu Mafatih names al-Mufid and Ibn Tawus only; history adds
+    al-Shahid (kept);
+  - Ansariyan's English mended in about twenty places (listed in the
+    commit); AP6's «السَّيِّدَةُ الْكُبْرٰى» stays "O grand lady" (the Urdu
+    reads Lady Khadijah);
+  - AP7's pointers became links: the two Saturday forms are K3 (one
+    entry, no tab), "another form at the end of this section" is E128
+    (the salawat on the fourteen Infallibles that closes Mafatih's
+    ziyarat chapter);
+  - optional: a `day` of 03-17 (Zad al-Ma'ad lists it under the
+    Prophet's birthday, as G50 is tagged), and a link from T2's merits
+    (17th night of Rabi al-Awwal) or AK17's - not done;
+  - transliteration is `translit.py` output, 12 lines fixed by hand.
+- **AP12, "Recommended Acts (Aamal) in Madinah and Its Mosques"**: AP14
+  (the acts in Madinah and the Prophet's Mosque) is its main part, the
+  mosques its tabs (Masjid Quba, Masjid al-Fath, Other Mosques and
+  Houses); linked from the Prophet's Mosque (before the farewell, whose
+  keys moved from 7 to 8), Masjid Quba and Masjid al-Fath. Check:
+  - at Quba, Ansariyan says Ziyarat Jamia Kabira, "the first of the
+    comprehensive forms"; the Urdu Mafatih quotes «السلام علی اولیاء ﷲ»
+    and links Jamia Saghira, so G12 is linked;
+  - the Quba dua «يَا كَاۤئِنًا قَبْلَ كُلِّ شَيْءٍ» is named only: Mafatih
+    omits its text (it is in Bihar al-Anwar's Mazar) and no checked copy
+    was found (I64 and X7 only share its opening);
+  - followed the Urdu over Ansariyan: Masjid Salman (not "Sulayman"),
+    Imam Ali's mosque "facing" Hamzah's tomb, two units at the Mashrabah
+    and al-Fadikh, the burial places "more honourable than Makkah" (not
+    "the Ka'bah"); "our master scholar, in al-Tahiyyah" is given as "His
+    teacher writes in Tahiyyat al-Za'ir" (al-Nuri);
+  - one prayer in the Prophet's Mosque is "ten thousand" here and "one
+    thousand" in AP2's merits, each as its source has it;
+  - the two poems are left out (the first verse in English in the
+    merits); the Fath dua's English reworded in five places.
+- **AP1 and AP3** (prose): AP1's merits of visiting the Prophet open
+  AP2's merits, its three-day greeting joins AP4's and its Imams of
+  al-Baqi join AP8's; AP3 (visiting Lady Fatimah from the Rawdah, the
+  three opinions on her grave) opens AP4's merits. Check: al-Shahid's
+  "the Imam would have to make them go" (Ansariyan: "the supreme
+  religious authority"), al-Saduq's "seal his hajj by visiting us",
+  Abu al-Salt's question and conclusion filled from the Urdu, Imam
+  al-Sadiq at the tomb on a day of Eid (Ansariyan: "a celebration"),
+  Yazid ibn Abd al-Malik "from his father, from his grandfather". AP4's
+  first line could say to stand in the Rawdah (it would need
+  re-translating in four languages): not done.
+- **AP10** (al-Uzri's qasida) dropped on the owner's word, no redirect;
+  AP2's merits mention the poem and al-Jawahiri's wish.
+
 ## Missing ziyarats (phase 3 work list)
 
 Found while writing phase 1's content. Uids are from
@@ -744,9 +830,11 @@ see `scripts/RESTORING_MISSING_ZIKRS.md`); URLs hold a text to check against.
 - **Iran, other:** (Abd al-Azim al-Hasani AE17 is restored, with AE16's
   biography in its merits, and linked); farewell to Lady Masuma (AE14 was prose only); descendants of the Imams in
   general G28 (prose only, would serve Rey and Shiraz).
-- **Madinah**, all on https://www.duas.org/mobile/madina-mecca-rites.html:
-  acts in Madinah's mosques AP12, ziyarat of the Prophet from a distance
-  AP5/AP6; no uid: Abbas ibn Abd al-Muttalib, Aqil and Abdullah ibn
+- **Madinah: done (session 12)** but for the graves without uids -
+  AP5 (from a distance, AP6 and AP7 its tabs), AP12 (the acts and the
+  mosques, AP14 its main part), AP1/AP3 in the merits of AP2, AP4 and
+  AP8, AP10 dropped. Still without a uid, all on
+  https://www.duas.org/mobile/madina-mecca-rites.html: Abbas ibn Abd al-Muttalib, Aqil and Abdullah ibn
   Ja'far, the Prophet's wives, daughters and aunts, Isma'il ibn Ja'far,
   Halimah (duas.org's ziaratbaqi.htm has texts for the first three).
   Restored: al-Baqi as AP8's tabs (the four Imams, their farewell,
@@ -755,11 +843,13 @@ see `scripts/RESTORING_MISSING_ZIKRS.md`); URLs hold a text to check against.
   and the martyrs of Uhud as AQ2 (AQ3/AQ4 retired into it).
 - **Makkah (no uid):** Abd Manaf, Qasim (both on madina-mecca-rites.html).
   Lady Khadijah is restored as AQ5.
-- **Baghdad:** (the Four Deputies AM3 is restored, AM2 retired into it,
-  and linked from Muhammad ibn Uthman's tomb); Allamah al-Majlisi's own
-  ziyarat of Uthman ibn Sa'id (Bihar al-Anwar 102:292 - duas.org's mobile
-  page has its English but its Arabic lacks the first seven salutations, so
-  it was left out); Masjid Buratha AM1, al-Kulayni AM4.
+- **Baghdad: done (session 12)** - the Four Deputies AM3 (session 3, AM2
+  retired into it, linked from Muhammad ibn Uthman's tomb); AM4
+  (al-Kulayni) is the end of AM3's merits; AM1 (Masjid Buratha, prose
+  with nothing to recite) was dropped, the guide's page covers it. Not in the corpus:
+  Allamah al-Majlisi's own ziyarat of Uthman ibn Sa'id (Bihar al-Anwar
+  102:292 - duas.org's mobile page has its English but its Arabic lacks
+  the first seven salutations, so it was left out).
 - **Kazimayn: done (session 9)** - AH3 (al-Mufid's ziyarat of Imam
   al-Kazim) is AH2's second tab, in place of a duplicate of its first,
   and AH2's first tab (Ibn Tawus's, not al-Mufid's as it was labelled)
@@ -1085,7 +1175,40 @@ The list as found in session 1:
   spells ઇમામ in the index and guide but ઈમામ in most zikr files (486 to
   188) - one pass to standardise would help.
 
+**Session 12 (2026-11-23): Baghdad batch.**
 
+- AM4 (al-Kulayni) is the last paragraph of AM3's merits and redirects
+  there; al-Kulayni's tomb links AM3 after G29 (for al-Samarri, no key
+  shifted), its note translated in all four languages and read by an
+  independent reviewer each. AM1 (Masjid Buratha) was restored, then
+  dropped on the owner's word: nothing to recite, never favorited, no
+  redirect. Review items: "Restored in session 12".
+- Madinah batch (the owner: "continue with the Madinah batch"), one opus
+  agent per entry in its own worktree: AP5 (the Prophet from a distance;
+  AP6, AP7 its tabs), AP12 (the acts in Madinah and its mosques; AP14 its
+  main part), AP1 and AP3 into the merits of AP2, AP4 and AP8; AP10
+  dropped. Linked in the guide: the Prophet's Mosque (AP12 before the
+  farewell, AP5 last), Masjid Quba and Masjid al-Fath (AP12's tabs).
+  Review items: "Madinah (session 12)".
+- Translated in all four languages: AP5's and AP12's titles, labels
+  and instruction lines and nine guide notes. The session ran out of
+  usage while its reviewers were reading them.
+
+**Session 13 (2026-11-24): session 12's reviews.**
+
+- Each language of the Madinah translations read by an independent
+  reviewer (opus) and its fixes applied (wording only, no link or
+  meaning changes). Verses and merits are not translated; the Urdu
+  Mafatih has them (`ziarat-rasoolullah-distance`, `-juma`,
+  `madina-masajid`, `salawat-rasool-by-imam-ali`).
+- The reviewers' questions for the owner: Persian AP12 25 says مسجد
+  ردّالشمس where the guide says مسجد شمس for Masjid al-Fadikh; Gujarati
+  spells Mubahalah three ways (મુબાહેલા in AP12 27, મુબાહિલા, and AC21's
+  મુબાહલા), and AP5 257's "desert" is ખુલ્લા મેદાન (some books: સહરા).
+- `zikr_i18n.py check <code>` fails in all four languages on
+  `unknown reciter 'Shahriar Parhizkar'` (PR #450's Quran reciter in each
+  `index.json`): the check knows only `zikr_audio.json`'s reciters. Not
+  from this batch.
 
 **What's left (start here):**
 
@@ -1093,6 +1216,8 @@ The list as found in session 1:
    shrine plans (tap a gate or tomb, its card opens the ziyarat), the
    restored entries. Anything found comes first.
 2. **Reviews waiting on the owner or a native reader:**
+   - "Restored in session 12: for the owner to review" (AM3's
+     al-Kulayni paragraph and its link at his tomb).
    - "Restored in session 10: for the owner to review" (AG21's readings
      and English, G31, B6's two tabs and which shrines link it, AG1's
      new merits) - every item there.
@@ -1121,7 +1246,8 @@ The list as found in session 1:
    - "For the owner (translations)" above: the Urdu Jamkaran label.
 3. **Translations still missing:** merits and verses of AE3, AP8, AQ2,
    AQ5, AM3, AE17, AK4, AK17, AK19, G60, G61, AJ3 (its Quran lines are
-   done; the Imam's words are not), AL8, AL9 and AJ2's new merits (and
+   done; the Imam's words are not), AL8, AL9, AJ2's new merits and
+   AM3's al-Kulayni paragraph (and
    AK7's Hannanah dua), the new merits of AL1, AL5, AL11 and AH9, AH2's
    verses (tab 1's new opening, 2-38, and all of tab 2 but Persian's
    seven; mafatih.duas.co's `ziarat-imam-kazim` and `-2` have the Urdu),
@@ -1142,8 +1268,9 @@ The list as found in session 1:
    had; Mada'in in session 7; Samarra in session 8; Kazimayn in session
    9, but for the Kazimayn leftovers in its entry: Imam al-Jawad's other
    forms against AH5, the shared forms and farewell against AH9; Karbala
-   in session 10, but for the leftovers in its entry): Baghdad (AM1, AM4),
-   Madinah (AP12, AP5/AP6, the graves without uids), Makkah, Iran (Imam
+   in session 10, but for the leftovers in its entry; Baghdad in session
+   12; Madinah in session 12, but for the graves without uids): Makkah
+   (Abd Manaf, Qasim), Iran (Imam
    Reza's other forms, AE14, G28). One batch per city, each checked
    against an online copy, `source_check.py` baselined, linked from its
    site and plan feature, counts recounted in
