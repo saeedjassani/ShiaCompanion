@@ -18,8 +18,8 @@
   "site.masjid_al_nabawi.ziyarat.4.label": "જનાબે ફાતિમા ઝહરા (સ.અ.)ની ઝિયારત: લાંબા સ્વરૂપ સાથે",
   "site.masjid_al_nabawi.ziyarat.5.note": "૩ જમાદિલ આખિર માટે, જે તેમની શહાદતની રિવાયત કરાયેલી તારીખોમાંની એક છે.",
   "site.masjid_al_nabawi.ziyarat.6.note": "ઝિયારત પછી.",
-  "site.masjid_al_nabawi.ziyarat.7.label": "રસૂલે ખુદા (સ.અ.વ.)ને વિદાય",
-  "site.masjid_al_nabawi.ziyarat.7.note": "મદીનાથી રવાના થતાં પહેલાં.",
+  "site.masjid_al_nabawi.ziyarat.8.label": "રસૂલે ખુદા (સ.અ.વ.)ને વિદાય",
+  "site.masjid_al_nabawi.ziyarat.8.note": "મદીનાથી રવાના થતાં પહેલાં.",
   "site.masjid_al_nabawi.buried.prophet_muhammad.name": "રસૂલે ખુદા હઝરત મુહમ્મદ (સ.અ.વ.)",
   "site.masjid_al_nabawi.buried.prophet_muhammad.note": "ખાતમુલ અંબિયા, જેઓ પોતાના ઘરમાં દફન છે; તે ઘર હવે લીલા ગુંબદ નીચેનો હુજરો છે.",
   "site.masjid_al_nabawi.buried.lady_fatimah_al_zahra.name": "જનાબે ફાતિમા ઝહરા (સ.અ.)",
@@ -947,5 +947,15 @@
   "site.imam_husayn_shrine.ziyarat.19.note": "તેમની ઝિયારતની ફઝીલત, ઝિયારતના બહેતરીન સમયો, અને દૂરથી તેમને સલામ મોકલવાની રીત.",
   "site.imam_husayn_shrine.ziyarat.20.note": "તેમની કબરની માટી (ખાકે શફા): શફા માટે તે લેવી અને ખાવી, અને તેમાંથી બનેલી તસ્બીહ પર ઝિક્ર.",
   "site.sardab_al_ghayba.ziyarat.0.label": "અલ્લામા મજલિસીથી નકલ થયેલ ઇઝ્ને દુખૂલ",
-  "plan.samarra_haram.sardab.ziyarat.0.label": "અલ્લામા મજલિસીથી નકલ થયેલ ઇઝ્ને દુખૂલ"
+  "plan.samarra_haram.sardab.ziyarat.0.label": "અલ્લામા મજલિસીથી નકલ થયેલ ઇઝ્ને દુખૂલ",
+  "site.kulayni_tomb.ziyarat.1.note": "ચોથા નાએબ અલી ઇબ્ને મુહમ્મદ સમરી માટે, જેઓ નજીકમાં જ દફન હોવાનું કહેવાય છે.",
+  "site.masjid_al_nabawi.ziyarat.7.label": "મદીના અને મસ્જિદે નબવીના આમાલ",
+  "site.masjid_al_nabawi.ziyarat.7.note": "અહીં અને રવઝામાં બને તેટલી નમાઝ, દરરોજ ઝિયારત, અને મદીનામાં હો ત્યાં સુધી સલવાત અને સદકો.",
+  "site.masjid_al_nabawi.ziyarat.9.note": "મદીનાથી દૂર: અલ્લામા મજલિસીની દૂરથી પઢવાની ઝિયારત, રસૂલે ખુદા અને ઇમામોની જુમ્આની ઝિયારત, અને ઇમામ અલી (અ.સ.)ની સલવાત.",
+  "site.masjid_quba.ziyarat.0.label": "મસ્જિદે કુબા",
+  "site.masjid_quba.ziyarat.0.note": "અહીંના મફાતીહુલ જિનાનના આમાલ: તહિય્યતુલ મસ્જિદની નમાઝ, તસ્બીહે ઝહરા (સ.અ.), ઝિયારતે જામેઅ સગીરા અને એક દુઆ.",
+  "site.masjid_quba.ziyarat.1.label": "બીજી મસ્જિદો અને ઘરો",
+  "site.masjid_quba.ziyarat.1.note": "કુબાની નજીક મશ્રબએ ઉમ્મે ઇબ્રાહીમ અને મસ્જિદે ફઝીખ, અને મદીનામાં નમાઝ પઢવાની બીજી જગ્યાઓ.",
+  "site.masjid_al_fath.ziyarat.0.label": "મસ્જિદે ફત્હ",
+  "site.masjid_al_fath.ziyarat.0.note": "બે રકાત નમાઝ, અને તે પછી પઢવાની દુઆ જે મફાતીહુલ જિનાનમાં આપેલી છે."
 }

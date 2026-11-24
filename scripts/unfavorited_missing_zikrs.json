@@ -4,10 +4,10 @@
  "counts": {
   "total": 209,
   "menuCategory": 7,
-  "retired": 75,
-  "restored": 35,
-  "toRestoreHasArabic": 50,
-  "toRestoreProseOnly": 42
+  "retired": 83,
+  "restored": 37,
+  "toRestoreHasArabic": 44,
+  "toRestoreProseOnly": 38
  },
  "uids": [
   {
@@ -534,8 +534,9 @@
   {
    "uid": "AM1",
    "title": "Visiting and offering Prayers in Masjid Burasa",
-   "kind": "prose-only",
-   "itemsBytes": 6201
+   "kind": "retired",
+   "itemsBytes": 6201,
+   "note": "Mafatih's merits of Masjid Buratha, nothing to recite; dropped without a redirect, never favorited (the owner, 2026-11-23). The guide's Buratha page covers the mosque."
   },
   {
    "uid": "AM2",
@@ -552,38 +553,48 @@
   {
    "uid": "AM4",
    "title": "Visiting the Tomb of Shaykh Al Kulayni",
-   "kind": "prose-only",
-   "itemsBytes": 1089
+   "kind": "retired",
+   "itemsBytes": 1089,
+   "note": "Mafatih's paragraph on al-Kulayni after the deputies' ziyarat, now the end of AM3's merits (2026-11-23).",
+   "retiredTo": "AM3"
   },
   {
    "uid": "AP1",
    "title": "Ziyarah of The Holy Prophet, Lady Fatimah Al-Zahra and The Imams in Al Baqi Cemetery",
-   "kind": "prose-only",
-   "itemsBytes": 5105
+   "kind": "retired",
+   "itemsBytes": 5105,
+   "note": "Merits of visiting the Prophet, Lady Fatimah and the Imams of al-Baqi, now in the merits of AP2 (the Prophet), AP4 (the three-day greeting) and AP8 (Imams al-Hasan, al-Baqir, al-Sadiq) (2026-11-23).",
+   "retiredTo": "AP2"
   },
   {
    "uid": "AP3",
    "title": "Aamal e Rouza e Munawwara",
-   "kind": "prose-only",
-   "itemsBytes": 626
+   "kind": "retired",
+   "itemsBytes": 626,
+   "note": "Where Lady Fatimah is visited from (the Rawdah; three opinions on her burial), now in AP4's merits (2026-11-23).",
+   "retiredTo": "AP4"
   },
   {
    "uid": "AP5",
    "title": "Visiting The Holy Prophet from a Distance",
-   "kind": "has-arabic",
+   "kind": "restored",
    "itemsBytes": 30401
   },
   {
    "uid": "AP6",
    "title": "Ziyarah of Holy Prophet (s) and The Holy Infallibles on Friday from a Distance",
-   "kind": "has-arabic",
-   "itemsBytes": 3577
+   "kind": "retired",
+   "itemsBytes": 3577,
+   "note": "The Friday ziyarat of the Prophet and the Imams from afar, now AP5's first tab (2026-11-23).",
+   "retiredTo": "AP5 tabs[0]"
   },
   {
    "uid": "AP7",
    "title": "Merits of greeting The Holy Prophet (s)",
-   "kind": "has-arabic",
-   "itemsBytes": 5268
+   "kind": "retired",
+   "itemsBytes": 5268,
+   "note": "Imam Ali's salawat from his Friday sermon, now AP5's second tab; its narrations are AP5's merits (2026-11-23).",
+   "retiredTo": "AP5 tabs[1]"
   },
   {
    "uid": "AP8",
@@ -600,8 +611,9 @@
   {
    "uid": "AP10",
    "title": "Part of Poetry of Shaykh Al Azari (r)",
-   "kind": "has-arabic",
-   "itemsBytes": 5646
+   "kind": "retired",
+   "itemsBytes": 5646,
+   "note": "Verses of al-Uzri's qasida that Mafatih quotes in the Madinah section, not recited; dropped without a redirect, never favorited (the owner, 2026-11-23)."
   },
   {
    "uid": "AP11",
@@ -612,7 +624,7 @@
   {
    "uid": "AP12",
    "title": "The revered Mosques in Al Madinah",
-   "kind": "has-arabic",
+   "kind": "restored",
    "itemsBytes": 4678
   },
   {
@@ -624,8 +636,10 @@
   {
    "uid": "AP14",
    "title": "Recommended deeds in the Holy city of Madinah",
-   "kind": "has-arabic",
-   "itemsBytes": 7699
+   "kind": "retired",
+   "itemsBytes": 7699,
+   "note": "Madinah's acts and the Prophet's Mosque, now AP12's main part (2026-11-23).",
+   "retiredTo": "AP12"
   },
   {
    "uid": "AQ1",
