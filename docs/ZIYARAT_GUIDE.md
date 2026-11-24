@@ -1190,8 +1190,25 @@ The list as found in session 1:
   dropped. Linked in the guide: the Prophet's Mosque (AP12 before the
   farewell, AP5 last), Masjid Quba and Masjid al-Fath (AP12's tabs).
   Review items: "Madinah (session 12)".
+- Translated in all four languages: AP5's and AP12's titles, labels
+  and instruction lines and nine guide notes. The session ran out of
+  usage while its reviewers were reading them.
 
+**Session 13 (2026-11-24): session 12's reviews.**
 
+- Each language of the Madinah translations read by an independent
+  reviewer (opus) and its fixes applied (wording only, no link or
+  meaning changes). Verses and merits are not translated; the Urdu
+  Mafatih has them (`ziarat-rasoolullah-distance`, `-juma`,
+  `madina-masajid`, `salawat-rasool-by-imam-ali`).
+- The reviewers' questions for the owner: Persian AP12 25 says مسجد
+  ردّالشمس where the guide says مسجد شمس for Masjid al-Fadikh; Gujarati
+  spells Mubahalah three ways (મુબાહેલા in AP12 27, મુબાહિલા, and AC21's
+  મુબાહલા), and AP5 257's "desert" is ખુલ્લા મેદાન (some books: સહરા).
+- `zikr_i18n.py check <code>` fails in all four languages on
+  `unknown reciter 'Shahriar Parhizkar'` (PR #450's Quran reciter in each
+  `index.json`): the check knows only `zikr_audio.json`'s reciters. Not
+  from this batch.
 
 **What's left (start here):**
 
