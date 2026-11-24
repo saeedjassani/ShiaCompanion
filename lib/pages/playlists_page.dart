@@ -595,8 +595,11 @@ String _playlistSummary(ZikrPlaylist playlist, List<ZikrAudioTrack> tracks) {
             (uid) =>
                 uid != quranDailyUid &&
                 !downloads.allDownloaded(
-              playlist.tracksFor(uid, ZikrAudioIndex.instance.tracksFor(uid)),
-            ),
+                  playlist.tracksFor(
+                    uid,
+                    ZikrAudioIndex.instance.tracksFor(uid),
+                  ),
+                ),
           )
           .length,
     ),
@@ -1188,10 +1191,7 @@ Widget _buildDailyRow(
     subtitle: playing && audio.current != null
         ? Text(
             audio.current!.title,
-            style: TextStyle(
-              color: colors.accent,
-              fontWeight: FontWeight.w600,
-            ),
+            style: TextStyle(color: colors.accent, fontWeight: FontWeight.w600),
           )
         : Text(quranDailyStatus(state, l10n)),
     trailing: editing
@@ -1216,7 +1216,7 @@ Widget _buildDailyRow(
                 final value = await showMenuAt<String>(anchor, [
                   PopupMenuItem(
                     value: 'settings',
-                    child: Text(l10n.quranDailySheetTitle),
+                    child: Text(l10n.quranDailyChange),
                   ),
                   PopupMenuItem(
                     value: 'open',
@@ -1380,18 +1380,15 @@ class _AddRecitationsPageState extends State<AddRecitationsPage> {
   }) {
     final l10n = context.l10n;
     final inPlaylist = surahs.where(playlist.zikrUids.contains).length;
-    final count = l10n.listCountSurahs(surahs.length);
     return Semantics(
       expanded: open,
       child: CardListRow(
         first: first,
         last: last && !open,
         title: Text(l10n.quranTitle),
-        subtitle: Text(
-          inPlaylist == 0
-              ? count
-              : '$count · ${l10n.playlistSectionAdded(inPlaylist)}',
-        ),
+        subtitle: inPlaylist == 0
+            ? null
+            : Text(l10n.playlistSectionAdded(inPlaylist)),
         trailing: AnimatedRotation(
           turns: open ? 0.5 : 0,
           duration: const Duration(milliseconds: 200),
@@ -1503,9 +1500,7 @@ class _AddRecitationsPageState extends State<AddRecitationsPage> {
     final dailyMatches =
         query.isEmpty ||
         L10n.current.quranDailyItemTitle.toLowerCase().contains(query) ||
-        L10n.current.playlistDefaultQuranDayByDay.toLowerCase().contains(
-          query,
-        );
+        L10n.current.playlistDefaultQuranDayByDay.toLowerCase().contains(query);
     final visible = <String>[
       if (dailyMatches) quranDailyUid,
       ...others.take(favoriteCount),

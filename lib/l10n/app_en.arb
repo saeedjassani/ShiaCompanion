@@ -4747,9 +4747,9 @@
   "@playlistDefaultQuranDayByDay": {
     "description": "A starter playlist: the whole Quran, verse by verse, a portion each day, carrying on from where the reader left off."
   },
-  "quranDailyItemTitle": "Quran, from where you left off",
+  "quranDailyItemTitle": "Whole Quran",
   "@quranDailyItemTitle": {
-    "description": "A playlist item that plays the Quran verse by verse, continuing each day from the verse the reader stopped at."
+    "description": "A playlist item that plays the Quran verse by verse, a portion each day, continuing from the verse the reader stopped at. Shown with 'Next: <verse>' under it. Not the same as playlistDefaultDailyQuran, a playlist of four surahs."
   },
   "quranDailyPickHint": "Plays on each day from where you left off",
   "@quranDailyPickHint": {
@@ -4816,6 +4816,10 @@
   "quranDailySheetTitle": "Listening through the Quran",
   "@quranDailySheetTitle": {
     "description": "Title of the sheet with the settings of listening to the Quran a portion a day."
+  },
+  "quranDailyChange": "Change amount or verse",
+  "@quranDailyChange": {
+    "description": "Menu item on the Whole Quran playlist item (quranDailyItemTitle): opens its settings, the daily amount and the verse it carries on from."
   },
   "quranDailySheetHint": "Each day carries on from where you left off, and pauses after your daily amount, always between two verses.",
   "@quranDailySheetHint": {
