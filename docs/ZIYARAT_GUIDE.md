@@ -608,17 +608,19 @@ see `scripts/RESTORING_MISSING_ZIKRS.md`); URLs hold a text to check against.
 - **Najaf: restored (session 6)** - AK4 (the rites on the way and the
   permission at the door of the dome; the shrine and its gates link it
   instead of B6), AK17 (the Prophet's birthday), AK19 (the Mab'ath), and
-  the dua of Masjid al-Hannanah as AK7's second tab. Not in the corpus,
-  seen on mafatih.duas.co's Najaf list and duas.org: the ziyarat of
-  Prophets Hud and Salih (duas.org `ziyarat-hud-saleh`; the guide's
-  `hud_salih_tomb` links nothing), the Mafatih's farewell remarks
+  the dua of Masjid al-Hannanah as AK7's second tab. Prophets Hud and
+  Salih (session 16): none of their own is narrated (not in Mafatih or on
+  mafatih.duas.co; duas.org has no page), and fzic.org's "Prophet Hud &
+  Saleh" is Ziyarat Jamia Saghira word for word, so `hud_salih_tomb` links
+  G12 with a note. Not in the corpus, seen on mafatih.duas.co's Najaf
+  list: the Mafatih's farewell remarks
   (`ziarat-najaf-wida`, AK15 may cover it) and al-Uzri's qasida verses at
   the sight of the dome (AK4's merits mention them, without the verses).
 - **Kufa: done (session 6)** - G60 (Muslim) and G61 (Hani) now carry
   Mafatih's full texts (AI13/AI14 retired into them); AI17 was AI16's
-  merits word for word (retired). Not in the corpus: Maytham al-Tammar's
-  ziyarat (duas.org `ziyarat-maitham-al-tammar`; the guide's
-  `maytham_al_tammar_tomb` links nothing).
+  merits word for word (retired). Maytham al-Tammar (session 16): AI18,
+  a new uid (not in Mafatih), from fzic.org's pilgrims' library checked
+  against forums.alkafeel.net's copy, linked from `maytham_al_tammar_tomb`.
 - **Karbala: done (session 10)** - AG21 (the soil of Imam Husayn) and
   G31 (the farewell to the Imams) restored; AG15 is AG14's merits, AG20 is
   AG1's merits and greeting from far away, B5 (Kaf'ami's izn) is B6's
@@ -955,13 +957,30 @@ phase 1": add any the owner can confirm.
   (AE3's merits have none in any language). Review items: "Mashhad
   (session 15)".
 
+**Session 16 (2026-11-26): Najaf and Kufa leftovers.**
+
+- Maytham al-Tammar: AI18, a new uid (Mafatih has no ziyarat for him),
+  from fzic.org's pilgrims' library (Iraq > Kufa) checked against
+  forums.alkafeel.net's copy (same body; its longer opening and close are
+  on the review list). Linked from his tomb. duas.org's and
+  mafatih.duas.co's pages for him and for Hud and Salih do not exist
+  (404; the doc's old slugs were guesses).
+- Prophets Hud and Salih: no ziyarat of their own; fzic.org's is G12
+  word for word, so their tomb links G12 with a note.
+- Translated in all four languages, each read by an independent reviewer
+  (opus): AI18's title and instruction line, the Hud and Salih note. An
+  independent opus reviewer read AI18's Arabic, transliteration, English
+  and merits; its fixes are in. Review items: "Najaf and Kufa leftovers"
+  in the review file. New uid, so `source_check.py` has nothing to flag
+  and the missing-uid counts stand.
+
 **What's left (start here):**
 
 1. **The owner's device check** (as an admin): the three pages, the ten
    shrine plans (tap a gate or tomb, its card opens the ziyarat), the
    restored entries. Anything found comes first.
 2. **Reviews waiting on the owner or a native reader:** all in
-   `docs/ZIYARAT_GUIDE_REVIEW.md` (159 items). Apply any the owner has
+   `docs/ZIYARAT_GUIDE_REVIEW.md` (166 items). Apply any the owner has
    answered (ticked or a decision written next to it) before new work.
 3. **Translations still missing:** merits and verses of AE3, AP8, AQ2,
    AQ5, AM3, AE17, AK4, AK17, AK19, G60, G61, AJ3 (its Quran lines are
@@ -973,8 +992,9 @@ phase 1": add any the owner can confirm.
    AG21's verses and merits (`khake-shifa` has the Urdu), G31's
    (`ziarat-imams-wida`), B6's Kaf'ami tab (`izn-dukhool-common`), AG1's
    new merits and greeting, AG14's new merits paragraph,
-   AQ6's and AQ7's verses and merits (no published Urdu, Persian or
-   Gujarati found), G78's merits in fa/ar/gu and AE17's whole merits
+   AQ6's, AQ7's and AI18's verses and merits (no published Urdu, Persian
+   or Gujarati found; fzic.org has an Urdu rendering of AI18 of unstated
+   origin), G78's merits in fa/ar/gu and AE17's whole merits
    (`ziarat-shah-abdul-azeem` and `ziarat-imamzadah-hamza` have the
    Urdu), AE3's whole merits (the four Mashhad prose pages and
    `ziarat-imam-reza` have the Urdu), and AP2's Arabic lines - mafatih.duas.co's Urdu pages for the session-6
@@ -995,9 +1015,10 @@ phase 1": add any the owner can confirm.
    12; Madinah in session 12, but for the graves without uids; Makkah in
    session 14, but for the Hijr Isma'il; Iran in session 15, but for
    Imam Reza's other forms, which are not in Mafatih, and AE1, which
-   goes with the travel etiquette B1/B2): **next are** the
+   goes with the travel etiquette B1/B2; Najaf's Hud and Salih and Kufa's
+   Maytham in session 16): **next are** the
    leftovers listed in each city's entry under "Missing ziyarats"
-   (Najaf's Hud and Salih, Kufa's Maytham, Kazimayn's al-Jawad forms
+   (Kazimayn's al-Jawad forms
    and farewell, Samarra's farewell, Karbala's acts in the shrine,
    Makkah's Hijr Isma'il, Madinah's graves without uids, Imam Reza's
    Sahifa Radawiyya forms). One batch per city, each checked
