@@ -4625,7 +4625,8 @@
                 "https://lastsecond.ir/blog/9142-fatima-masumeh-shrine",
                 "https://lastsecond.ir/attractions/8885-fatima-masumeh-shrine",
                 "https://vtour.amfm.ir/",
-                "https://www.openstreetmap.org/node/4355253033"
+                "https://www.openstreetmap.org/node/4355253033",
+                "https://mafatih.duas.co/ziarat-bibi-masooma"
               ]
             },
             {
@@ -5273,6 +5274,11 @@
               "ziyarat": [
                 {
                   "uid": "AE17"
+                },
+                {
+                  "uid": "AE17",
+                  "label": "Ziyarat of Imamzadeh Hamzah",
+                  "note": "No ziyarat of his own is recorded, so he is visited with Abd al-Azim's, leaving out the greeting «O Abu al-Qasim» and the line after it."
                 }
               ],
               "buried": [
@@ -5310,7 +5316,8 @@
                 "https://en.wikishia.net/view/Abu_l-Futuh_al-Razi",
                 "https://en.wikishia.net/view/List_of_Figures_Buried_in_The_Holy_Shrine_of_'Abd_al-'Azim_al-Hasani",
                 "https://www.openstreetmap.org/search?query=حرم%20عبدالعظیم%20الحسنی",
-                "https://mafatih.duas.co/ziarat-shah-abdul-azeem"
+                "https://mafatih.duas.co/ziarat-shah-abdul-azeem",
+                "https://mafatih.duas.co/ziarat-imamzadah-hamza"
               ]
             },
             {

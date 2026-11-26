@@ -957,5 +957,7 @@
   "site.masjid_quba.ziyarat.1.label": "مساجد و خانه‌های دیگر",
   "site.masjid_quba.ziyarat.1.note": "مشربهٔ ام‌ابراهیم و مسجد فضیخ، در نزدیکی قبا، و دیگر جاهای نماز در مدینه.",
   "site.masjid_al_fath.ziyarat.0.label": "مسجد فتح",
-  "site.masjid_al_fath.ziyarat.0.note": "دو رکعت نماز و دعایی که مفاتیح الجنان برای پس از آن آورده است."
+  "site.masjid_al_fath.ziyarat.0.note": "دو رکعت نماز و دعایی که مفاتیح الجنان برای پس از آن آورده است.",
+  "site.shah_abdul_azim_shrine.ziyarat.1.label": "زیارت امامزاده حمزه",
+  "site.shah_abdul_azim_shrine.ziyarat.1.note": "زیارت مخصوصی برای ایشان نقل نشده است، از این رو ایشان را با زیارت حضرت عبدالعظیم زیارت می‌کنند، بی‌آنکه سلامِ «یا اباالقاسم» و جملهٔ پس از آن را بخوانند."
 }

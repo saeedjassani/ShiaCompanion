@@ -540,9 +540,19 @@ see `scripts/RESTORING_MISSING_ZIKRS.md`); URLs hold a text to check against.
   source is Sahifa-e-Mahdiyya, p. 610; G76 tab 2 has a short form); the
   farewell tab's first line was written fresh because AP13 was missing
   then; it is now AP2's second tab, so that line can be checked against it.
-- **Iran, other:** (Abd al-Azim al-Hasani AE17 is restored, with AE16's
-  biography in its merits, and linked); farewell to Lady Masuma (AE14 was prose only); descendants of the Imams in
-  general G28 (prose only, would serve Rey and Shiraz).
+- **Iran, other: done (session 15)** - AE17 (Abd al-Azim, session 3,
+  AE16's biography in its merits); AE14 (Lady Masuma's shrine and
+  merits, prose: there is no farewell to her in Mafatih) and G28 (the
+  introduction to visiting the Imams' descendants, prose leading into
+  Lady Masuma) are G78's merits; AE18 (Imamzadeh Hamzah) closes AE17's
+  merits, and Abd al-Azim's shrine links AE17 as his ziyarat too.
+  Mashhad's prose (session 15): AE2 (the ten narrations), AE9 (a need at
+  the tomb, Salat Ja'far), AE10 (the journey, the Golden Chain), AE11
+  (Shah Abbas), AE12 and AE13 (the miracles, al-Jami) are AE3's merits,
+  checked against mafatih.duas.co's `mashhad` pages. Left: AE1 (Safi the
+  servant's rings and journey, with two travel duas) belongs with the
+  travel etiquette (B1, B2) rather than the shrine. Shiraz's shrines (Shah Cheragh,
+  Alaeddin Husayn) link nothing: Mafatih has no ziyarat for them.
 - **Madinah: done (session 12)** but for the graves without uids -
   AP5 (from a distance, AP6 and AP7 its tabs), AP12 (the acts and the
   mosques, AP14 its main part), AP1/AP3 in the merits of AP2, AP4 and
@@ -920,13 +930,38 @@ phase 1": add any the owner can confirm.
   reviewer (opus); verses and merits not translated (no published source).
   The new uids are not on the missing-uid list, so its counts stand.
 
+**Session 15 (2026-11-26): Iran and Mashhad batches.**
+
+- AE14 and G28 (Mafatih's prose on Lady Masuma and on the Imams'
+  descendants) retired into G78's merits, with the third narration
+  (Sa'd al-Ash'ari) the takbir instruction comes from; AE18 (Imamzadeh
+  Hamzah, Abu al-Futuh, al-Saduq) into AE17's merits. Checked against
+  history and mafatih.duas.co's `qum-tehran` pages. Abd al-Azim's shrine
+  links AE17 a second time as the ziyarat of Imamzadeh Hamzah (appended,
+  no key shifts). AE3's farewell opening checked against
+  `ziarat-wida-imam-reza`: it is Mafatih's line word for word (noted on
+  its review item).
+- Translated in all four languages, each read by an independent reviewer
+  (opus): the two new guide keys. G78's merits are in Urdu, from the
+  Urdu Mafatih (adapted to the English: third person, the AE17 link);
+  AE17's new paragraphs and G78's merits in the other languages are not.
+  Review items: "Iran (session 15)".
+- Then, at the owner's word ("do next batch too"), Mashhad's prose: AE2,
+  AE9-AE13 retired into AE3's merits (the ten narrations first, the
+  tab notes, then the need at the tomb, Salat Ja'far, the journey and the
+  Golden Chain, Shah Abbas, the miracles and al-Jami's verses), checked
+  against mafatih.duas.co's four Mashhad prose pages; the Urdu was
+  followed where it and our history differ. No new translated strings
+  (AE3's merits have none in any language). Review items: "Mashhad
+  (session 15)".
+
 **What's left (start here):**
 
 1. **The owner's device check** (as an admin): the three pages, the ten
    shrine plans (tap a gate or tomb, its card opens the ziyarat), the
    restored entries. Anything found comes first.
 2. **Reviews waiting on the owner or a native reader:** all in
-   `docs/ZIYARAT_GUIDE_REVIEW.md` (150 items). Apply any the owner has
+   `docs/ZIYARAT_GUIDE_REVIEW.md` (159 items). Apply any the owner has
    answered (ticked or a decision written next to it) before new work.
 3. **Translations still missing:** merits and verses of AE3, AP8, AQ2,
    AQ5, AM3, AE17, AK4, AK17, AK19, G60, G61, AJ3 (its Quran lines are
@@ -939,7 +974,10 @@ phase 1": add any the owner can confirm.
    (`ziarat-imams-wida`), B6's Kaf'ami tab (`izn-dukhool-common`), AG1's
    new merits and greeting, AG14's new merits paragraph,
    AQ6's and AQ7's verses and merits (no published Urdu, Persian or
-   Gujarati found), and AP2's Arabic lines - mafatih.duas.co's Urdu pages for the session-6
+   Gujarati found), G78's merits in fa/ar/gu and AE17's whole merits
+   (`ziarat-shah-abdul-azeem` and `ziarat-imamzadah-hamza` have the
+   Urdu), AE3's whole merits (the four Mashhad prose pages and
+   `ziarat-imam-reza` have the Urdu), and AP2's Arabic lines - mafatih.duas.co's Urdu pages for the session-6
    entries are in "Najaf"/"Kufa" there, AL8's and AL9's are
    `ziarat-bibi-narjis` and `ziarat-bibi-hakima`, and all scrape with
    `scripts/zikr_i18n/web_source.py duasco` (verses need a published
@@ -955,9 +993,14 @@ phase 1": add any the owner can confirm.
    forms against AH5, the shared forms and farewell against AH9; Karbala
    in session 10, but for the leftovers in its entry; Baghdad in session
    12; Madinah in session 12, but for the graves without uids; Makkah in
-   session 14, but for the Hijr Isma'il): **next is Iran** (Imam Reza's
-   other forms, AE14, G28), then the leftovers listed in each city's
-   entry under "Missing ziyarats". One batch per city, each checked
+   session 14, but for the Hijr Isma'il; Iran in session 15, but for
+   Imam Reza's other forms, which are not in Mafatih, and AE1, which
+   goes with the travel etiquette B1/B2): **next are** the
+   leftovers listed in each city's entry under "Missing ziyarats"
+   (Najaf's Hud and Salih, Kufa's Maytham, Kazimayn's al-Jawad forms
+   and farewell, Samarra's farewell, Karbala's acts in the shrine,
+   Makkah's Hijr Isma'il, Madinah's graves without uids, Imam Reza's
+   Sahifa Radawiyya forms). One batch per city, each checked
    against an online copy, `source_check.py` baselined, linked from its
    site and plan feature, counts recounted in
    `scripts/RESTORING_MISSING_ZIKRS.md`. Re-run `source_check.py .
