@@ -270,25 +270,14 @@ map preview to shrink to a row (done).
 
 **As listed for the owner in session 2:**
 
-- `madinah_haram.baqi_imams`, `mashhad_haram.sahn_payambar_azam` and
-  `qom_haram.sahn_atiq` have `location`s read off Esri's satellite
-  imagery, not OSM; Esri's terms may not allow taking positions from it.
-  Confirm or replace (e.g. by mapping them in OSM first). Typed, not from
-  OSM, too: `madinah_haram.house_of_fatimah` and
-  `damascus_old_city.ras_al_husayn` (from descriptions, a few metres out).
+- Locations for the owner to confirm (Esri-read and typed `location`s,
+  Najaf's Bab Muslim ibn Aqil and Sahn Fatimah): `docs/ZIYARAT_GUIDE_REVIEW.md`,
+  section "Shrine plans: locations".
 - Al-Baqi's other graves (Fatimah bint Asad, Umm al-Banin, the aunts,
   Ibrahim...) stay off the plan: no current plan of the cemetery places
   them, and the one old description (Ibn Battuta's, quoted on duas.org)
   goes by a gate that has since moved. They are `buried` entries of
   `jannat_al_baqi`, each noting that its exact spot is not marked today.
-- Najaf (reworked 2026-11-09 after the owner's device check; see "Najaf:
-  what the shrine's own sources say" below): Bab Muslim ibn Aqil is OSM's
-  node, 5 m north of Bab al-Sa'a's. The direction is right (the shrine's
-  site and its library both put it to the right of Bab al-Sa'a, Wikipedia
-  north of it), but the true gap is probably larger, so its marker hides
-  under Bab al-Sa'a's until zoomed right in. Sahn Fatimah is OSM's unnamed
-  courtyard building west of the shrine (r14118576, tagged name:fa "صحن
-  حضرت زهرا" in 2023, reverted only because the name was Persian).
 
 **Checked 2026-11-09** (sites in Iran - razavi.ir, news.razavi.ir,
 amfm.ir, WikiShia - and web.archive.org's copies of them refuse a cloud
@@ -416,89 +405,32 @@ whole HEAD corpus, with `assets/items/*` at `d11c1f16^` for Divine Pearls.
 
 ## Restored in session 3: for the owner to review
 
-Transliteration of all of these is `translit.py` output read line by line,
-not native-checked. Instruction lines and tab labels are new English.
-
-- **AE3 Imam Reza.** Tab 1 (izn) is duas.org's (Sahifa Radawiyya),
-  Mafatih's general izn with his name; its ending «فَاَنْتَ اَهْلٌ لَهٗ» may
-  read «لِذٰلِكَ» in Mafatih - check. Tab 4 (al-Jawadiyya) rests on
-  duas.org alone (Bihar 102); six vowel slips fixed from grammar, «اِمَامَ
-  قَصِيْبٍ» left as is, bracketed alternates dropped (two named in
-  merits), nine English lines written fresh. Tab 6's first line ("May
-  Allah not make this my last greeting to you.") was written fresh: the
-  Prophet's farewell it opens with is now AP2 tab 2 - compare. AE6's
-  salawat (tab 5) also sits in G68 («تامة»/«نامية»). Three translators
-  (session 4) found its instruction "pray the two-unit prayer of the
-  ziyarat, glorify Allah, and offer them as a gift" vague: if the source
-  means the Tasbih of Lady Fatimah (s.a.), say so (and link it); the four
-  translations say only "glorify".
-- **AP8 al-Baqi / AP2.** History checked against duas.org's
-  ziaratbaqi.htm; three small fixes (AP13 «السَّلَامَ», AQ1 and AP8 stray
-  marks). AP13's "to send blessings upon you" for «وَاَقْرَاُ عَلَيْكَ
-  السَّلَامَ» kept from the source (it means "greet you with peace").
-  Fatimah bint Asad's variants «الْمَرْضِيَّةُ» and «مُؤْثِرَةً هَوَاهُ»
-  not carried over. `silah.py` skips words ending in «اله» (fixed
-  «حَلَالَهُ» by hand). Not added: ziaratbaqi.htm's ziyarats of the
-  Prophet's wives, daughters, Aqil and Abdullah ibn Ja'far.
-- **AQ2 Uhud.** Two phrases added from duas.org that our history lacked
-  («اِلَى اللّٰهِ عَزَّ وَجَلَّ بِزِيَارَتِكَ وَمُتَقَرِّبًا», «وَسَخَطِكَ
-  وَمَقْتِكَ»); al-Qadr placed after the martyrs (Mafatih), not after
-  Hamzah's dua (duas.org). `day` 15 Shawwal.
-- **AQ5 Lady Khadijah** (new uid; AQ was history's Makkah series). From
-  duas.org checked against alkafeel's post of Kashif al-Ghita's Murshid
-  al-Anam; the first four salutations are alkafeel's alone, with fresh
-  English; readings «وَمَلِكَةَ الْبَطْحَاۤءِ», «الْعِقْيَانِ», «وَاَنَّ
-  اللّٰهَ» kept from duas.org; «الْمُزَوَّجَةِ» may want a fatha. A shorter
-  form by Muhsin al-Amin (alkafeel node/1005886) is a possible second tab.
-  `day` 10 Ramadan. Its four `index.json` titles need a native check.
-- **AM3 Four Deputies.** The 15 opening salutations' Arabic is duas.org's
-  (Tahdhib); two-reading brackets resolved to mafatih.duas.co's text;
-  the greeting "O (name) son of (name)" and instructions are new English.
-- **AE17 Abd al-Azim.** Matches mafatih.duas.co line for line; English
-  edits: «السلام على العبد الصالح» as "Peace be upon the righteous
-  servant", a clause with no Arabic («وبه راض») dropped. AE16 (biography)
-  retired into its merits.
+Transliteration of all of these is `translit.py` output read line by
+line, not native-checked. Instruction lines and tab labels are new English.
+Restored: AE3 Imam Reza (duas.org's Sahifa Radawiyya, Mafatih's izn,
+al-Jawadiyya from Bihar 102), AP8 al-Baqi and AP2's farewell (history
+checked against duas.org's ziaratbaqi.htm), AQ2 Uhud, AQ5 Lady Khadijah
+(new uid; duas.org checked against alkafeel's post of Kashif al-Ghita's
+Murshid al-Anam), AM3 Four Deputies (duas.org's Tahdhib text, resolved to
+mafatih.duas.co) and AE17 Abd al-Azim (matches mafatih.duas.co line for
+line; AE16, the biography, retired into its merits). Review items:
+`docs/ZIYARAT_GUIDE_REVIEW.md`, sections "AE3 Imam Reza, AE6 and G68
+(session 3)", "AP8 al-Baqi and AP2", "AQ2 Uhud", "AQ5 Lady Khadijah", "AM3
+Four Deputies" and "AE17 Abd al-Azim".
 
 ## Restored in session 6: for the owner to review
 
-Transliteration of all of these is `translit.py` output read line by line,
-not native-checked; instruction lines are new English. Each agent's
-source disagreements and choices are in its commit message.
-
-- **AK4 rites on the way (Najaf).** Our history has no Arabic, so it rests
-  on duas.org's text checked word by word against mafatih.duas.co (its 112
-  "not in source" flags are accepted). Check: the opening praise's
-  «وَسُبْحَانَ… وَلَا…» (mafatih.duas.co alone; duas.org has no wa);
-  «تَنْعَشُنِيْ» or «تُنْعِشُنِيْ»; "gate of Najaf" / "first door of the
-  shrine" follow the Urdu Mafatih (Ansariyan: "fortress", "first
-  doorstep"). English reworded to fit the Arabic in about 25 lines (the
-  agent's list is in commit `0bdd8527`); the merged opening-praise line is
-  fresh.
-- **AK17 the Prophet's birthday.** Check «وَكَانَ شُهُوْدُهَا الْمَلَاۤئِكَةَ
-  الْاَصْفِيَاۤءَ»: the three sources differ in case endings; history's
-  (grammatical) reading kept. Sham'un al-Safa is now "(Simon Peter)" (the
-  English said Simon the Zealot); «خَاتِمَ الْحَصٰى» "sealer of the
-  pebbles"; lines 179-184 put in the third person as the Arabic is. No
-  surahs or dua after the six-unit prayer in the sources.
-- **AK19 the Mab'ath.** Mafatih's third form. «وَاَمْرُكَ حِلْمٌ وَعَزْمٌ»
-  added (in mafatih.duas.co, the PDF and history's own English, not its
-  Arabic). The merits describe the second form («اَلسَّلَامُ عَلٰى اَبِي
-  الْاَئِمَّةِ وَمَعْدِنِ النُّبُوَّةِ», al-Majlisi's "seventh" in Tuhfat
-  al-Za'ir) without a link: AK5's Seventh Ziyarat is a different text, and
-  AK5's Fourth opens «… وَخَلِيْلِ النُّبُوَّةِ» - the same ziyarat? Loose
-  source English kept: "the spoken by Allah", "the most favorite reward",
-  "with love and reverence" for «رَغَبًا وَرَهَبًا».
-- **AK7 tab 2, Masjid al-Hannanah.** History's Arabic and English
-  (Ansariyan), identical in mafatih.duas.co.
-- **G60 Muslim ibn Aqil / G61 Hani (Kufa).** «وَمَنْ اَلَّبَ عَلَيْكَ» (form
-  II, "rallied against") taken against history and mafatih.duas.co's
-  «اَلَبَّ». The dua after G60's prayer (the one after al-Abbas's) is
-  copied in, as AG18 has no tabs to link; the farewell links AG18.
-  Titles still say "Aqeel" (G62 too) and give Muslim and Hani (a.s.).
-- `translit.py` errors the agents fixed by hand (the tool still makes
-  them): WA glued or split wrongly (WAQUTILTA, WA A'DAKUM for وَعَدَكُمْ,
-  WA FAA for وَفٰى, WA QAFT), BI-SAL for بِئْسَ, AN-NAASIHOO, final ح read as
-  the pronoun (FAATIHEE).
+Each agent's source disagreements and choices are in its commit message.
+Restored: AK4 (rites on the way to Najaf), AK17 (the Prophet's birthday),
+AK19 (the Mab'ath, Mafatih's third form), AK7 tab 2 (Masjid al-Hannanah,
+history's Arabic and English), G60 Muslim ibn Aqil and G61 Hani (Kufa)
+completed. `translit.py` errors the agents fixed by hand (the tool still
+makes them): WA glued or split wrongly (WAQUTILTA, WA A'DAKUM for
+وَعَدَكُمْ, WA FAA for وَفٰى, WA QAFT), BI-SAL for بِئْسَ, AN-NAASIHOO,
+final ح read as the pronoun (FAATIHEE). Review items:
+`docs/ZIYARAT_GUIDE_REVIEW.md`, sections "AK4 rites on the way to Najaf",
+"AK17 the Prophet's birthday", "AK19 the Mab'ath" and "AK7 tab 2, G60 and
+G61".
 
 ## Restored in session 7: for the owner to review
 
@@ -506,48 +438,12 @@ The Mada'in batch, checked against our history (Ansariyan's English) and
 mafatih.duas.co's three Mada'in pages (`ziarat-salman-farsi`,
 `eewan-kisra-visit`, `ziarat-huzaifa-yamani`); duas.org's data store has
 no Mada'in page. Details are in commits `d53fa6cd` and `6ea6745c`.
-
-- **AJ3 Prayer at Taq Kasra (new).** What is recited: the prayer (an
-  instruction line), Surah Ad-Dukhan 44:25-29 and Imam Ali's words after
-  them («اِنَّ هٰؤُلَاۤءِ كَانُوْا وَارِثِيْنَ…»), the two things the Imam
-  said should be said at the ruins; the reports of the Imam with Dalaf
-  ibn Bujayr and of the line of poetry are merits. Check:
-  - the verses are A48's lines (its Arabic, transliteration and English,
-    so their transliteration is in the Quran's older style, not
-    `translit.py`'s); history had «وَنِعْمَةٍ», the Quran «وَنَعْمَةٍ»;
-  - «لَا تَحِلُّ بِكُمُ النِّقَمُ» (history) or «لَا تَحُلُّ» (mafatih.duas.co);
-  - the Imam's words in reworded English: "These people were
-    inheritors, then they became the inherited", "They were not grateful
-    for the blessing, so they were stripped of their world for their
-    disobedience", "Beware of ingratitude for blessings, lest punishments
-    befall you" (history's reworded to the Arabic);
-  - the poem is in English only ("Winds blew over the traces of their
-    homes, as if they had kept an appointment"; history: "flew");
-    Mafatih's Arabic, «جَرَتِ الرِّيَاحُ عَلٰى رُسُوْمِ دِيَارِهِمْ…», and
-    Khaqani's Persian verses on the Iwan are not in the corpus.
-- **AJ2 Salman: AJ1 and AJ4 retired into its merits.** Salman's
-  thirteen-point list is one paragraph, every point kept. Fresh English
-  where history was blank, from the Urdu Mafatih: the Prophet's "Salman
-  is a sea that does not run dry and a treasure that does not run out
-  ... he grants wisdom and gives proof" and Imam al-Sadiq's "Salman
-  attained the first knowledge and the last; he is a sea that does not
-  run dry, and he is one of us, the Ahl al-Bayt". Disagreements:
-  - Hudhayfah got al-Mada'in back when the second caliph died (history)
-    or when Salman died (Urdu); the merits say only that he governed it
-    again until Imam Ali's caliphate;
-  - the mosque near Salman's tomb is ascribed to Imam al-Hasan
-    al-Askari (a.s.) for no known reason (history, kept) or because he
-    built it and prayed in it (Urdu);
-  - the Ibn Tawus note: history (and so AJ2) says the *first* form is
-    also in Tahdhib al-Ahkam, the Urdu ties Tahdhib to the *fourth*,
-    the one in Hadiyyat al-Za'ir.
-  AJ2's data gains Mafatih's closing line, "Then supplicate Allah at
-  length before you leave." (segment 73), and "bid farewell farewell"
-  is fixed. Its Arabic (an unnormalized duas.org import) was not
-  touched; against the Urdu Mafatih it has «مَنْ اَعْنَتَكَ فِيْ اَهْلِ
-  بَيْتِ نَبِيِّكَ» for «اَهْلِ بَيْتِكَ» and an extra «صَلَّى اللّٰهُ عَلَيْهِ
-  وَآلِهِ» after «يَا صَاحِبَ رَسُوْلِ اللّٰهِ». Mafatih gives no text for
-  Hudhayfah's tomb.
+Restored: AJ3 (prayer at Taq Kasra, new: the prayer, Ad-Dukhan 44:25-29
+and Imam Ali's words); AJ2 (Salman) with AJ1 and AJ4 retired into its
+merits and Mafatih's closing line added (segment 73, "Then supplicate
+Allah at length before you leave."; "bid farewell farewell" fixed). Review
+items: `docs/ZIYARAT_GUIDE_REVIEW.md`, section "AJ3 Prayer at Taq Kasra and
+AJ2 Salman (session 7)".
 
 ## Restored in session 8: for the owner to review
 
@@ -556,54 +452,16 @@ mafatih.duas.co's Samarra pages (`ziarat-bibi-narjis`,
 `ziarat-bibi-hakima`, `ziarat-imam-naqi`, `ziarat-syed-hussain-merits`);
 duas.org's data store has no Samarra page. Details are in commits
 `4f5b2430` (AL8), `ccc130b0` (AL9) and `974218ed` (the rest).
-Transliteration is `translit.py` output read line by line.
-
-- **AL8 Lady Narjis.** Check:
-  - «صَلَّى اللّٰهُ عَلَيْهِ وَاٰلِهِ» after the opening «رَسُوْلِ اللّٰهِ»: in
-    history and an alkafeel copy, not in mafatih.duas.co's Arabic. Kept;
-  - «اَحْسَنْتِ الْكَفَالَةَ» (mafatih.duas.co, alkafeel) or «الْكِفَالَةَ»
-    (history);
-  - the last word «وَاَمْرَاكِ» (form IV, paired with «فَهَنَّاكِ»), from
-    mafatih.duas.co; history's «وَ امْرَاَكِ» is wrong;
-  - "betrothed from the Honest Spirit of Allah" («الْمَخْطُوْبَةُ مِنْ رُوْحِ
-    اللّٰهِ الْاَمِيْنِ») kept from history; the Urdu Mafatih reads the
-    Spirit as Gabriel, the merits follow Kamal al-Din, where Jesus (a.s.)
-    gives her hand;
-  - English reworded to fit the Arabic in about 15 lines (listed in the
-    commit); both instruction lines and all the merits are new English,
-    the Kamal al-Din paragraph from summaries (wikishia, al-islam.org),
-    not the book;
-  - one part: the dua follows the ziyarat after "Then raise your head
-    towards the sky and say:".
-- **AL9 Lady Hakimah.** Mafatih records no ziyarat of her own, so this is
-  Lady Masuma's (G78) with her names: «بِنْتَ مُحَمَّدِ بْنِ عَلِيٍّ
-  التَّقِيِّ», «يَا حَكِيْمَةُ اشْفَعِيْ لِيْ», and no 34/33/33 takbir
-  opening. Check:
-  - «مُحَمَّدٍ صَلَّى اللّٰهُ عَلَيْهِ وَاٰلِهٖ»: history, G78 and AE17 have
-    the blessing, mafatih.duas.co's Hakimah and Masuma pages do not.
-    Kept (WikiShia was down, so the Arabic Mafatih was not seen);
-  - «فَلَا تَسْلُبْ» (jussive; mafatih.duas.co, G78, AE17) over history's
-    «تَسْلُبَ»; «سِبْطَيِ الرَّحْمَةِ» and «صَفْوَةِ» kept (history and
-    mafatih.duas.co) where G78 has «سِبْطَيْ نَبِيِّ الرَّحْمَةِ» and
-    «صِفْوَةِ»;
-  - Ansariyan's English, with "O Haldmah" fixed; loose wording left
-    ("Moses the spoken by Allah", "O my Master Allah").
-- **AL5's permission to enter (AL4).** The names after «يَا مَوْلَايَ» now
-  take the fatha both sources print («الْحَسَنَ بْنَ عَلِيٍّ», «عَلِيَّ بْنَ
-  مُوْسٰى»...), where AL5 had damma; its scaffolding lines became a label
-  and one instruction line, its new merits are AL4's introduction.
-- **AL1's and AL11's new merits** condense AL2, AL3, AL10 and AL16 (fresh
-  English from Ansariyan's prose and the Urdu Mafatih).
-- **G78 (Lady Masuma), found while restoring AL9, not changed:** its
-  «سِبْطَيْ نَبِيِّ الرَّحْمَةِ» line has no transliteration or English, so
-  the parser reads the next line's transliteration as its English (its
-  overlays may be keyed to that); «صِفْوَةِ» has a kasra its
-  transliteration doesn't; its takbir opening is not house style ("Allah
-  O Akbar", "Allah Is The Great").
-- `translit.py` errors fixed by hand (the tool still makes them):
-  ATAWAJJAHOO for «اَتَوَجَّهُ», WAZIYAARATIHAA; `batch.py plan` vowelled
-  the hamzat al-wasl of «اتَّكَلْتُ»; `silah.py` skips «وَاٰلِهٖ» and a hā
-  ending the last line.
+Transliteration is `translit.py` output read line by line. Restored: AL8
+(Lady Narjis), AL9 (Lady Hakimah, Lady Masuma's G78 text with her names,
+as Mafatih records none of her own), AL5's permission to enter (AL4)
+with the fatha on the names, and AL1's and AL11's new merits. `translit.py`
+errors fixed by hand (the tool still makes them): ATAWAJJAHOO for
+«اَتَوَجَّهُ», WAZIYAARATIHAA; `batch.py plan` vowelled the hamzat al-wasl
+of «اتَّكَلْتُ»; `silah.py` skips «وَاٰلِهٖ» and a hā ending the last
+line. Review items: `docs/ZIYARAT_GUIDE_REVIEW.md`, sections "AL8 Lady
+Narjis", "AL9 Lady Hakimah", "AL5, AL1, AL11" (session 8) and "G78 Lady
+Masuma".
 
 ## Restored in session 9: for the owner to review
 
@@ -612,45 +470,14 @@ The Kazimayn batch, checked against our history (Ansariyan's
 pages (`ziarat-imam-kazim`, `ziarat-imam-kazim-2`, `ziarat-kazmain-merits`,
 `ali-baghdadi-story`) and duas.org's `ziyarat-of-imam-musa-al-kazim`.
 Details are in the commit "AH2: Ibn Tawus's ziyarat completed; AH3
-(al-Mufid's) replaces the duplicate tab".
-
-- **AH2 tab 1, now "Ziyarat by Sayyid Ibn Tawus".** It was labelled
-  al-Mufid's, but history, Ansariyan and the Urdu Mafatih all give it as
-  Ibn Tawus's (al-Mazar). Its lost opening is back (ghusl, the takbirs and
-  dua at the door, the entry, the twelve «ءَاَدْخُلُ», takbir four times),
-  in the tab's import style, with hand-written transliteration; so is the
-  step the import skipped (lean over the grave, kiss it, lay each cheek on
-  it; Ansariyan has no kiss, the Urdu Mafatih does). Check:
-  - the names after «ءَاَدْخُلُ يَا»: fatha (history, Mafatih), where AH5's
-    copy of the same rites has damma («مُحَمَّدُ بْنَ», «ٱلْحَسَنُ»...);
-    AH5 was not changed;
-  - «صَلَّىٰ ٱللَّهُ عَلَيْهِ وَآلِهِ» after «مِلَّةِ رَسُولِ ٱللَّهِ»: in history,
-    AH5 and duas.org, not in mafatih.duas.co's Arabic. Kept;
-  - «مَاْتِيٍّ» (AH5 «مَاتِيٍّ», history «مَأْتِيٍّ»).
-- **AH2 tab 2, "Ziyarat by Shaykh al-Mufid", is AH3.** The old tab 2 was
-  tab 1 again with worse readings, so it was dropped. History's Arabic
-  through `normalize`, `join_wa` and `silah`, `translit.py` read against
-  it. Check:
-  - «شُكْرًا» once under "say 100 times", where the sources print «شُكْرًا
-    شُكْرًا»;
-  - the cheeks laid "on the ground" (Ansariyan, duas.org) or "on the
-    grave" (Urdu Mafatih) - kept "on the ground";
-  - "Ask permission at its door" links Izn-e-Dukhool (B6); the source
-    only says to ask permission;
-  - Ansariyan's English, reworded in about ten places (listed in the
-    commit).
-- **AH9's merits** are new English condensing AH1 and AH11 (from
-  Ansariyan's prose and the Urdu Mafatih). The story is cut to its
-  events; check the wording of what the Imam said at the tomb ("asked for
-  the best ziyarat, he said it is Ziyarat Aminullah"), which the guide's
-  G2 note repeats in all four languages.
-- **Translations dropped by the rebase:** the stale labels (old 0 and
-  101) and the duplicate's prayer line in all four languages, and the
-  Persian of the duplicate's verses, except seven that recur in
-  al-Mufid's form (148, 153-155, 165-167).
-- **Gujarati review:** the reviewer's fixes were applied, but it stopped
-  (the session ran out of usage) before sending its report, so a native
-  reader's look at the Gujarati strings is worth having.
+(al-Mufid's) replaces the duplicate tab". AH2 tab 1 is now Ibn Tawus's
+ziyarat with its lost opening restored, tab 2 is AH3 (al-Mufid's); AH9's
+merits condense AH1 and AH11. The rebase dropped the stale labels (old 0
+and 101) and the duplicate's prayer line in all four languages, and the
+Persian of the duplicate's verses, except seven that recur in al-Mufid's
+form (148, 153-155, 165-167). Review items:
+`docs/ZIYARAT_GUIDE_REVIEW.md`, sections "AH2 Kazimayn (session 9)", "AH9
+Kazimayn merits (session 9)" and "Translations" (the Gujarati read).
 
 ## Restored in session 10: for the owner to review
 
@@ -661,70 +488,13 @@ The Karbala batch, checked against our history (Ansariyan's
 duas.org's `izn-e-dukhool`. Details are in the commits "AG21: restore the
 soil of Imam Husayn (a.s.)", "G31: restore the farewell to the Holy Imams
 (a.s.)" and "B6: Kaf'ami's permission to enter (B5) as the first tab".
-
-- **AG14's merits** gain AG15's tail: the lines some books add after
-  Warith's «فَيَا لَيْتَنِي كُنْتُ مَعَكُمْ فَأَفُوزَ مَعَكُمْ» (in
-  al-Ha'ir...), and Shaykh al-Nuri's verdict (al-Lu'lu' wa al-Marjan) that
-  they are not narrated. G6 (Warith as commonly recited) does not carry
-  them. Check the wording "should not be recited as part of this ziyarat",
-  which condenses the Mafatih's longer complaint.
-- **AG1** gains AG20: its merits (the blessed times, two narrations on
-  visiting from far away) and the greeting Imam al-Sadiq taught Sadir as
-  two recited lines with an instruction. Check:
-  - Ansariyan's "I could find a form of ziyarah restricted to these
-    occasions" is a slip: the Urdu Mafatih says none is reported, and AG1
-    says so;
-  - Ibn Qulawayh's narration says "on Friday night" (Urdu Mafatih); 
-    Ansariyan has "on Fridays";
-  - the greeting's English and transliteration are new (`translit.py`).
-- **AG21, the soil (turbah) of Imam Husayn (a.s.)**, four parts: taking
-  it for healing, eating it, the tasbih on a turbah rosary, Dua al-I'tisam.
-  No dua was in the corpus already; I11 (the rosary) shares two
-  narrations with AG21's merits and is linked. Check:
-  - Dua al-I'tisam: history's «عَلَيْهِمُ السَّلَامُ» after «نَبِيِّكَ» dropped
-    (not in the Urdu Mafatih or the alkafeel copy of the Arabic
-    Mafatih); the blessing after «مُحَمَّدٍ» kept (history, alkafeel; not
-    in the Urdu Mafatih's Arabic); «وَلَاۤءُ» over history's «وِلَاۤءُ»;
-    «مُحْتَجِزًا» over history's bracketed «مُحْتَجِبًا»; «اِنَّا جَعَلْنَا»
-    kept as every source has it (36:9 itself reads «وَجَعَلْنَا»); the
-    "say Amsaytu in the evening" instruction (25) comes from history's
-    bracket, neither online copy has it;
-  - Ansariyan and the Urdu Mafatih disagree, the Urdu followed: the
-    serpent blind at a thousand years (not a hundred), fennel (not "dry
-    rush"), Ibn Abi Ya'fur, broken prostration tablets, a termeh comb;
-  - from the Arabic, not checked against a book: "feed bags" in Abu
-    Hamzah's tradition (Ansariyan's "where camels excrete" looks like a
-    misreading of «مخلاة»), "sells his flesh" left open (the Urdu says the
-    Imam's), "place the rosary on your forehead" (the Urdu says rub it);
-  - English: «بِحَقِّ» is "by the right of" throughout; Dua al-I'tisam
-    mostly reworded (e.g. «طَارِقٍ» "night-comer"); instructions, labels
-    and merits are new English; Rumi's Persian verses (Urdu Mafatih only)
-    left out; AD3 and R1 mention eating the soil and could link AG21.
-- **G31, the farewell for any Imam's shrine** (al-Mashhadi, Misbah
-  al-Za'ir), from history checked word by word against the Urdu
-  Mafatih's `ziarat-imams-wida` (duas.org's "Common Farewell" is a
-  different, two-Imam text). It is in the guide's general list, beside
-  G30, whose last tab could point to it. Check «بِهُدَاكُمْ» and «مُعَافًى»
-  (Urdu Mafatih, over history's «بِهُدٰئكُمْ» and «مُعَافًا»), «الصَّلٰوةِ»
-  kept from history, Ansariyan's English reworded in five places.
-- **B6, both forms of permission to enter**: tab 1 is Kaf'ami's (B5),
-  tab 2 the old B6 (al-Majlisi's), whose «طَاهِرِيْنِ» became «طَاهِرِيْنَ».
-  Check:
-  - every bare B6 link now opens Kaf'ami's form, which names the
-    Prophet's Mosque and "the shrines of the Imams": the Madinah gates,
-    the Karbala, Kazimayn and Samarra shrines, the general list. The
-    Sardab (site and plan feature) links tab 2, al-Majlisi's, which names
-    the Sardab;
-  - Qom (Lady Masuma and its 22 gates) and Damascus (Lady Zaynab, Lady
-    Ruqayya) link B6, but both forms ask leave of "the Imam" and "O Proof
-    of Allah" - should these shrines link something else, or nothing?
-  - «وَاَعْلَمُ» (both sources) for history's «وَ اعْلَمْ»; Kaf'ami's English
-    is history's, mended in four places;
-  - al-Majlisi's tab is still one long triplet in the older style
-    (unjoined «وَ», old transliteration) - not restyled.
-- **AP2**: its izn line now links B6 once ("ask permission to enter
-  ([Izn-e-Dukhool](B6))"), dropping the old "for a second form, see" pointer;
-  the four translations follow.
+Restored: AG14's merits gain AG15's tail; AG1 gains AG20 (merits and the
+greeting from far away); AG21 (the soil of Imam Husayn, four parts); G31
+(the farewell for any Imam's shrine, in the guide's general list); B6 is
+now both forms of permission to enter, Kaf'ami's (B5) as tab 1 and
+al-Majlisi's as tab 2; AP2's izn line links B6 once. Review items:
+`docs/ZIYARAT_GUIDE_REVIEW.md`, section "AG14, AG1, AG21, G31 (Karbala,
+session 10)" and "B6 permission to enter (session 10)".
 
 ## Restored in session 12: for the owner to review
 
@@ -732,19 +502,12 @@ The Baghdad batch, checked against our history (Ansariyan's
 `assets/items/AM1`, `AM4`) and mafatih.duas.co's `masjid-burasa` and
 `ziarat-nawab-arba`; duas.org's data store has neither. Details are in
 the commit "Baghdad batch: restore AM1 (Masjid Buratha); AM4 retires
-into AM3".
-
-- **AM1** (Masjid Buratha) was restored, then dropped on the owner's
-  word (2026-11-23): Mafatih gives nothing to recite there, and no one
-  had it as a favorite, so it was retired with no redirect. The site's
-  about and tips cover the mosque; it links nothing. Its draft (merits
-  from the Urdu Mafatih) is in commit 49996fe8 if it is ever wanted.
-- **AM4** (al-Kulayni): Mafatih's paragraph after the deputies'
-  ziyarat, now the last paragraph of AM3's merits. Ibn al-Athir's
-  "reviver of the Imami school" line is history's (the Urdu Mafatih
-  lacks it). Al-Kulayni's tomb links AM3 after G29, with a note naming
-  al-Samarri (the site's tip says his tomb is near): check that this
-  link is wanted, since AM3 is not al-Kulayni's own ziyarat.
+into AM3". AM1 (Masjid Buratha) was restored, then dropped on the owner's
+word (2026-11-23), retired with no redirect (its draft is in commit
+49996fe8); AM4 (al-Kulayni) is now the last paragraph of AM3's merits,
+and al-Kulayni's tomb links AM3 after G29. Review items:
+`docs/ZIYARAT_GUIDE_REVIEW.md`, sections "AM3 Four Deputies" and "Baghdad
+(session 12)".
 
 ### Madinah (session 12)
 
@@ -754,63 +517,13 @@ mafatih.duas.co's Madinah pages (`ziaraat-madina-intro`,
 `ziarat-rasoolullah-juma`, `salawat-rasool-by-imam-ali`, `madina-masajid`,
 `wazaef-zawaar-madina`), one opus agent per entry in its own worktree.
 Details are in the commits "AP1 and AP3 retire into...", "Madinah batch:
-AP12..." and "Madinah batch: AP5...".
-
-- **AP5, "Ziyarat of the Holy Prophet (s.a.w.a.) from a Distance"**:
-  al-Majlisi's ziyarat from afar (Zad al-Ma'ad, under 17 Rabi al-Awwal),
-  with AP6 (the Friday ziyarat of the Prophet and the Imams from afar) and
-  AP7 (Imam Ali's salawat from his Friday sermon) as its tabs; AP7's
-  narrations are its merits. Listed last at the Prophet's Mosque. Check:
-  - Arabic kept from history where the Urdu Mafatih differs: «وَهْبٍ»,
-    «الْفِئَةِ», «جِئْتُ», «الْاٰفِكَةِ» and «مُهْطِعِيْنَ اِلَى الدَّاعِ» (Mafatih
-    «الدَّاعِيْ»); taken from Mafatih: «وَحِرَاسَتِهٖ», «وَلَا يَسْاَلُ حَمِيْمٌ»
-    (as Quran 70:10);
-  - the Urdu Mafatih names al-Mufid and Ibn Tawus only; history adds
-    al-Shahid (kept);
-  - Ansariyan's English mended in about twenty places (listed in the
-    commit); AP6's «السَّيِّدَةُ الْكُبْرٰى» stays "O grand lady" (the Urdu
-    reads Lady Khadijah);
-  - AP7's pointers became links: the two Saturday forms are K3 (one
-    entry, no tab), "another form at the end of this section" is E128
-    (the salawat on the fourteen Infallibles that closes Mafatih's
-    ziyarat chapter);
-  - optional: a `day` of 03-17 (Zad al-Ma'ad lists it under the
-    Prophet's birthday, as G50 is tagged), and a link from T2's merits
-    (17th night of Rabi al-Awwal) or AK17's - not done;
-  - transliteration is `translit.py` output, 12 lines fixed by hand.
-- **AP12, "Recommended Acts (Aamal) in Madinah and Its Mosques"**: AP14
-  (the acts in Madinah and the Prophet's Mosque) is its main part, the
-  mosques its tabs (Masjid Quba, Masjid al-Fath, Other Mosques and
-  Houses); linked from the Prophet's Mosque (before the farewell, whose
-  keys moved from 7 to 8), Masjid Quba and Masjid al-Fath. Check:
-  - at Quba, Ansariyan says Ziyarat Jamia Kabira, "the first of the
-    comprehensive forms"; the Urdu Mafatih quotes «السلام علی اولیاء ﷲ»
-    and links Jamia Saghira, so G12 is linked;
-  - the Quba dua «يَا كَاۤئِنًا قَبْلَ كُلِّ شَيْءٍ» is named only: Mafatih
-    omits its text (it is in Bihar al-Anwar's Mazar) and no checked copy
-    was found (I64 and X7 only share its opening);
-  - followed the Urdu over Ansariyan: Masjid Salman (not "Sulayman"),
-    Imam Ali's mosque "facing" Hamzah's tomb, two units at the Mashrabah
-    and al-Fadikh, the burial places "more honourable than Makkah" (not
-    "the Ka'bah"); "our master scholar, in al-Tahiyyah" is given as "His
-    teacher writes in Tahiyyat al-Za'ir" (al-Nuri);
-  - one prayer in the Prophet's Mosque is "ten thousand" here and "one
-    thousand" in AP2's merits, each as its source has it;
-  - the two poems are left out (the first verse in English in the
-    merits); the Fath dua's English reworded in five places.
-- **AP1 and AP3** (prose): AP1's merits of visiting the Prophet open
-  AP2's merits, its three-day greeting joins AP4's and its Imams of
-  al-Baqi join AP8's; AP3 (visiting Lady Fatimah from the Rawdah, the
-  three opinions on her grave) opens AP4's merits. Check: al-Shahid's
-  "the Imam would have to make them go" (Ansariyan: "the supreme
-  religious authority"), al-Saduq's "seal his hajj by visiting us",
-  Abu al-Salt's question and conclusion filled from the Urdu, Imam
-  al-Sadiq at the tomb on a day of Eid (Ansariyan: "a celebration"),
-  Yazid ibn Abd al-Malik "from his father, from his grandfather". AP4's
-  first line could say to stand in the Rawdah (it would need
-  re-translating in four languages): not done.
-- **AP10** (al-Uzri's qasida) dropped on the owner's word, no redirect;
-  AP2's merits mention the poem and al-Jawahiri's wish.
+AP12..." and "Madinah batch: AP5...". Restored: AP5 (the Prophet from a
+distance, al-Majlisi's ziyarat from Zad al-Ma'ad, with AP6 and AP7 as its
+tabs), AP12 (the acts in Madinah and its mosques, AP14 its main part, the
+mosques its tabs), AP1 and AP3 (prose) into the merits of AP2, AP4 and AP8;
+AP10 (al-Uzri's qasida) dropped on the owner's word, no redirect.
+Review items: `docs/ZIYARAT_GUIDE_REVIEW.md`, section "AP5, AP12, AP1, AP3,
+AP10 Madinah (session 12)".
 
 ## Missing ziyarats (phase 3 work list)
 
@@ -907,22 +620,10 @@ Salman al-Farsi (r.a.) — Mada'in" and G63 retired into it; the stub lines
 of AG14, AK6, AK7, AI5, AI15 and AL1 removed; AL6 tab 1 relabelled "Ziyarat
 of Imam Hasan al-Askari (a.s.)" (the lint's 40-character limit dropped the
 "al-"); G68 retitled "Short Ziyarat of Imam Ali al-Reza (a.s.)". The owner
-chose to leave AH5's entry rites where they are. Still open from these:
+chose to leave AH5's entry rites where they are. What was still open from these, and the session-1 items not decided yet, is in `docs/ZIYARAT_GUIDE_REVIEW.md`, sections "Corpus problems: still open ..." and "Corpus problems: session-1 items not decided yet".
 
-- G82's `day`s: the owner chose 5 Safar (Lady Ruqayya's death as mostly
-  marked) *and* kept 10 Safar / 20 Rajab (`events.json`'s Sakina dates,
-  as many treat them as one person): `["02-05", "02-10", "07-20"]`.
-- G78's line «السلام عليكما يا سبطي نبي الرحمة…» has no English: AE15 read
-  «يا سبطي الرحمة», so its translation didn't fit.
-- G78's three new tasbih lines have no ur/fa/ar/gu translation; the
-  Ruqayya spellings in the four `index.json` titles (رقیہ / رقیه / رقية /
-  રુકૈયા) need a native speaker's check.
-- G63's four one-word variants against AJ2 (ابن/بن, وَسَيِّدِ, الملٰئكة,
-  السادات/السادة) were not carried over.
-- Other heading-like lines remain in AG14, AI5, AL1 ("Permission to enter",
-  "Z I Y A R A T", ...); not part of the decision.
-
-The list as found in session 1:
+The list as found in session 1 (history; the items not decided yet are
+in `docs/ZIYARAT_GUIDE_REVIEW.md`):
 
 - **G82** is titled "Ziyarat of Lady Sakina (s.a.)" but is the ziyarat of
   Lady Ruqayya of Damascus; check its `day`s (02-10, 07-20) too. The guide
@@ -959,24 +660,10 @@ The list as found in session 1:
 
 ## Unverified, left out of phase 1
 
-- Tombs of Uthman ibn Sa'id, Husayn ibn Ruh and Ali al-Samarri (no
-  coordinates; mentioned in Baghdad's text), Ali ibn Babawayh in Qom, Hujr
-  ibn Adi at Adra (shrine desecrated 2013), Ghadir Khumm/al-Juhfa, Hilla/
-  al-Kifl, Nishapur.
-- OSM-only coordinates: the Sardab (Samarra), Balad. Masjid Zayd has none:
-  it shares Masjid Sa'sa'ah's site. The Maqam of Imam al-Mahdi in Wadi
-  al-Salam is in the text only (no coordinates). Awn ibn Abdullah's shrine
-  left out (who lies there is disputed).
-- Najaf: Muhaddith al-Nuri and Shaykh Abbas al-Qummi are said by WikiShia
-  alone to be in room 15 / "the third iwan on the right entering from the
-  qibla side", so their notes say only "a chamber of the courtyard".
-  Mirza al-Na'ini (WikiShia: fifth room south of the bazaar gate),
-  al-Hububi (the southern iwan bears his name), Mirza Hasan Ashtiani (the
-  shrine's site: Chamber of Abu Talib) and Adud al-Dawla's exact place are
-  single-source; left out or kept general. WikiShia was down again
-  (2026-11-09), so it was seen only as search snippets.
-- Death years where sources disagree (Shaykh Baha'i 1030/1031) or are not
-  established are omitted.
+What phase 1 left out as unverified (tombs without coordinates, OSM-only
+coordinates, single-source Najaf burials, disputed death years) is one
+item in `docs/ZIYARAT_GUIDE_REVIEW.md`, section "Unverified, left out of
+phase 1": add any the owner can confirm.
 
 ## Status and resume here
 
@@ -1062,8 +749,8 @@ The list as found in session 1:
   Muharram is મોહર્રમ everywhere, as the community's own texts write it
   (the owner: "whichever is widely used"); the app's month names, the
   events overlay and four zikr titles followed.
-- Urdu: the Jamkaran tahiyyat label reads `تحیۃ المسجد` while tips say
-  `نماز تحیت مسجد`; left as it is.
+- Urdu: the Jamkaran tahiyyat label is a question for the owner, now in
+  `docs/ZIYARAT_GUIDE_REVIEW.md`, section "Translations".
 
 **Session 5 (2026-11-13): merged to master, still admin-only.**
 
@@ -1215,35 +902,8 @@ The list as found in session 1:
 1. **The owner's device check** (as an admin): the three pages, the ten
    shrine plans (tap a gate or tomb, its card opens the ziyarat), the
    restored entries. Anything found comes first.
-2. **Reviews waiting on the owner or a native reader:**
-   - "Restored in session 12: for the owner to review" (AM3's
-     al-Kulayni paragraph and its link at his tomb).
-   - "Restored in session 10: for the owner to review" (AG21's readings
-     and English, G31, B6's two tabs and which shrines link it, AG1's
-     new merits) - every item there.
-   - "Restored in session 9: for the owner to review" (AH2's two tabs,
-     AH9's merits, the Gujarati strings) - every item there.
-   - "Restored in session 8: for the owner to review" (AL8, AL9, AL5's
-     permission, G78's broken line) - every item there.
-   - "Restored in session 6: for the owner to review" (AK4, AK17, AK19,
-     AK7's Hannanah tab, G60/G61) - every item there.
-   - "Restored in session 3: for the owner to review" - every item there:
-     AE3's izn ending (لِذٰلِكَ?), al-Jawadiyya resting on duas.org alone,
-     the fresh English lines, and the vague "glorify Allah" instruction
-     (if the source means the Tasbih of Lady Fatimah (s.a.), say so and
-     link it, then fix the four translations); AQ5's four titles, its
-     الْمُزَوَّجَةِ fatha and a possible second tab; AP13's "send
-     blessings" line; transliteration of all of them (`translit.py`
-     output, not native-checked).
-   - "Corpus problems found": the "Still open from these" list (G82's
-     `day`s, G78's untranslated line and tasbih lines, the Ruqayya
-     spellings, G63's variants, heading-like lines in AG14/AI5/AL1) and
-     the session-1 items not decided yet (AK8 = G2, AK13 = AK5 tab 7,
-     G7/G57/AG18, G6 in AG14, G55/G56, H17's label, G51's source).
-   - "Shrine plans": the Esri-read and typed `location`s (confirm or
-     replace), Bab Muslim ibn Aqil's position in Najaf, Sahn Fatimah.
-   - "Unverified, left out of phase 1": add any the owner can confirm.
-   - "For the owner (translations)" above: the Urdu Jamkaran label.
+2. **Reviews waiting on the owner or a native reader:** all in
+   `docs/ZIYARAT_GUIDE_REVIEW.md` (143 items).
 3. **Translations still missing:** merits and verses of AE3, AP8, AQ2,
    AQ5, AM3, AE17, AK4, AK17, AK19, G60, G61, AJ3 (its Quran lines are
    done; the Imam's words are not), AL8, AL9, AJ2's new merits and
