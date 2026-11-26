@@ -954,7 +954,7 @@ phase 1": add any the owner can confirm.
    shrine plans (tap a gate or tomb, its card opens the ziyarat), the
    restored entries. Anything found comes first.
 2. **Reviews waiting on the owner or a native reader:** all in
-   `docs/ZIYARAT_GUIDE_REVIEW.md` (154 items). Apply any the owner has
+   `docs/ZIYARAT_GUIDE_REVIEW.md` (155 items). Apply any the owner has
    answered (ticked or a decision written next to it) before new work.
 3. **Translations still missing:** merits and verses of AE3, AP8, AQ2,
    AQ5, AM3, AE17, AK4, AK17, AK19, G60, G61, AJ3 (its Quran lines are

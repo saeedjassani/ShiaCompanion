@@ -520,6 +520,12 @@ and AE17 (AE18), lightly reworded (no first person).
 - [ ] **G28 into G78.** G28 (visiting the Imams' descendants in general)
   is Mafatih's introduction to Lady Masuma's section, so its old links now
   open her ziyarat. Keep, or give G28 its own prose page?
+- [ ] **G78's Urdu merits** start from the Urdu Mafatih, rewritten by the
+  reviewer to follow the English paragraph by paragraph. Two of the
+  reviewer's questions: Imam «محمد جواد (ع)» (as the English and the guide)
+  or «محمد تقی» (as the Urdu Mafatih and most Urdu zikr files)? And «حضرت
+  معصومہ» without (س), as the English has it, or with (س), as the guide's
+  notes have it?
 - [ ] **Shiraz:** Shah Cheragh and Alaeddin Husayn link no ziyarat (Mafatih
   has none for the Imams' sons there). Leave, or link a general form
   (e.g. Ziyarat Jamia) with a note?
