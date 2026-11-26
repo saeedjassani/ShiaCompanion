@@ -554,8 +554,15 @@ see `scripts/RESTORING_MISSING_ZIKRS.md`); URLs hold a text to check against.
   Ibrahim, Fatimah bint Asad; AP9/AP11/AQ1 redirect there), the farewell
   to the Prophet as AP2's second tab (AP13 redirects there), and Hamzah
   and the martyrs of Uhud as AQ2 (AQ3/AQ4 retired into it).
-- **Makkah (no uid):** Abd Manaf, Qasim (both on madina-mecca-rites.html).
-  Lady Khadijah is restored as AQ5.
+- **Makkah: done (session 14)** - Abd Manaf (AQ6) and Qasim, son of the
+  Prophet (AQ7), new uids as AQ5 (Lady Khadijah) was, linked from Jannat
+  al-Mu'alla after G80. Review items: `docs/ZIYARAT_GUIDE_REVIEW.md`,
+  "AQ6 Abd Manaf and AQ7 Qasim (session 14)". Not in the corpus, on the
+  same duas.org page and al7ajj.wordpress.com's `aadab-ziyarat-makka`: the
+  ziyarat of Isma'il, his mother and the prophets at the Hijr Isma'il (the
+  guide's `ismail_and_hajar` at Masjid al-Haram links nothing), Lady
+  Aminah's (buried at al-Abwa', not Makkah) and the martyrs of Fakhkh
+  (al7ajj: with Isma'il ibn al-Sadiq's ziyarat).
 - **Baghdad: done (session 12)** - the Four Deputies AM3 (session 3, AM2
   retired into it, linked from Muhammad ibn Uthman's tomb); AM4
   (al-Kulayni) is the end of AM3's merits; AM1 (Masjid Buratha, prose
@@ -897,13 +904,30 @@ phase 1": add any the owner can confirm.
   `index.json`): the check knows only `zikr_audio.json`'s reciters. Not
   from this batch.
 
+**Session 14 (2026-11-26): the review checklist; Makkah batch.**
+
+- `docs/ZIYARAT_GUIDE_REVIEW.md` is now the one list of everything
+  waiting on the owner (gathered from the "for the owner to review"
+  sections, the open corpus problems, the plan locations and the
+  reviewers' questions); those sections here summarise and point to it.
+- Makkah batch: AQ6 (Abd Manaf) and AQ7 (Qasim, son of the Prophet),
+  from duas.org's `madina-mecca-rites` page checked against
+  al7ajj.wordpress.com (Abd Manaf, full) and ar.al-shia.org (Qasim's first
+  six salutations, citing al-Golpayegani's Manasik al-Hajj p. 171).
+  WikiHaj, hajj.ir and shiaonlinelibrary.com (the Manasik itself) refuse
+  a cloud session. Linked from Jannat al-Mu'alla; titles and instruction
+  lines translated in all four languages, each read by an independent
+  reviewer (opus); verses and merits not translated (no published source).
+  The new uids are not on the missing-uid list, so its counts stand.
+
 **What's left (start here):**
 
 1. **The owner's device check** (as an admin): the three pages, the ten
    shrine plans (tap a gate or tomb, its card opens the ziyarat), the
    restored entries. Anything found comes first.
 2. **Reviews waiting on the owner or a native reader:** all in
-   `docs/ZIYARAT_GUIDE_REVIEW.md` (143 items).
+   `docs/ZIYARAT_GUIDE_REVIEW.md` (150 items). Apply any the owner has
+   answered (ticked or a decision written next to it) before new work.
 3. **Translations still missing:** merits and verses of AE3, AP8, AQ2,
    AQ5, AM3, AE17, AK4, AK17, AK19, G60, G61, AJ3 (its Quran lines are
    done; the Imam's words are not), AL8, AL9, AJ2's new merits and
@@ -914,7 +938,8 @@ phase 1": add any the owner can confirm.
    AG21's verses and merits (`khake-shifa` has the Urdu), G31's
    (`ziarat-imams-wida`), B6's Kaf'ami tab (`izn-dukhool-common`), AG1's
    new merits and greeting, AG14's new merits paragraph,
-   and AP2's Arabic lines - mafatih.duas.co's Urdu pages for the session-6
+   AQ6's and AQ7's verses and merits (no published Urdu, Persian or
+   Gujarati found), and AP2's Arabic lines - mafatih.duas.co's Urdu pages for the session-6
    entries are in "Najaf"/"Kufa" there, AL8's and AL9's are
    `ziarat-bibi-narjis` and `ziarat-bibi-hakima`, and all scrape with
    `scripts/zikr_i18n/web_source.py duasco` (verses need a published
@@ -929,9 +954,10 @@ phase 1": add any the owner can confirm.
    9, but for the Kazimayn leftovers in its entry: Imam al-Jawad's other
    forms against AH5, the shared forms and farewell against AH9; Karbala
    in session 10, but for the leftovers in its entry; Baghdad in session
-   12; Madinah in session 12, but for the graves without uids): Makkah
-   (Abd Manaf, Qasim), Iran (Imam
-   Reza's other forms, AE14, G28). One batch per city, each checked
+   12; Madinah in session 12, but for the graves without uids; Makkah in
+   session 14, but for the Hijr Isma'il): **next is Iran** (Imam Reza's
+   other forms, AE14, G28), then the leftovers listed in each city's
+   entry under "Missing ziyarats". One batch per city, each checked
    against an online copy, `source_check.py` baselined, linked from its
    site and plan feature, counts recounted in
    `scripts/RESTORING_MISSING_ZIKRS.md`. Re-run `source_check.py .

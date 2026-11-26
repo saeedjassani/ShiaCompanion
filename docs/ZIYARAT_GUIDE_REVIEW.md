@@ -467,6 +467,39 @@ AP12..." and "Madinah batch: AP5...".
 (AM3's al-Kulayni link and the AM4 paragraph are under "AM3 Four Deputies"
 above.)
 
+## AQ6 Abd Manaf and AQ7 Qasim (session 14)
+
+New uids (the corpus never had them), from duas.org's
+`mobile/madina-mecca-rites.html`, checked against al7ajj.wordpress.com's
+`aadab-ziyarat-makka` (Abd Manaf, full text) and ar.al-shia.org's page on
+al-Qasim (his first six salutations, citing al-Golpayegani's Manasik
+al-Hajj p. 171). The Manasik itself (shiaonlinelibrary.com) and WikiHaj
+could not be reached. Instruction lines, English and merits are new.
+
+- [ ] **AQ6: readings fixed against duas.org.** «الطَّاهِرِيْنَ» (al7ajj; duas.org
+  «الظَّهِرِيْنَ»), «يَا صَاحِبَ» (duas.org «صَاحِبِ»), «يَا سَيِّدَ الْحَرَمِ» (duas.org
+  «يَا لسَّيَّدَ»), «السَّيِّدُ» for «السَّيَّدُ». Confirm.
+- [ ] **AQ7: «يَا قَاسِمُ بْنَ»** kept with duas.org's damma (al-shia.org is
+  unvowelled); fatha «قَاسِمَ بْنَ» is the other reading (compare the
+  fatha/damma item under AH2). Which?
+- [ ] **AQ7: its last three lines** («رَضِيَ اللّٰهُ تَعَالٰى عَنْكُمْ…» on) rest on
+  duas.org alone: al-shia.org's quote stops at «اَحْسَنَ الرِّضَا». «مَنْزِلَكُمْ»
+  is from grammar (duas.org «مَنْزَلَكُمْ»). Check against the Manasik.
+- [ ] **AQ6's merits** say the Hajj manuals give the ziyarat "as in Sayyid
+  Muhammad Rida al-Golpayegani's Manasik al-Hajj": seen only in a search
+  snippet of shiaonlinelibrary.com's pp. 168-169, and al7ajj's page names
+  no book. Keep, or drop the book's name?
+- [ ] **Honorifics.** Abd Manaf has none in any language (English title,
+  guide, translations), where Abu Talib and Abdul Muttalib have (a.s.):
+  add (a.s.) / Urdu «جناب»? Qasim has none in English, Persian, Arabic and
+  Gujarati, but Urdu says «حضرت قاسم» (as the guide's Urdu does): align?
+- [ ] **"Forefather" in the titles:** Urdu «جد» (or «جد امجد»?), Persian
+  «نیای» (the reviewer's change from «جد», as the guide's note), Gujarati
+  «વડવા» (the reviewer's change from «જદ્દ», as the guide's note). Confirm.
+- [ ] **Hijr Isma'il:** the same two sources have a ziyarat of Isma'il, his
+  mother and the prophets buried there; the guide's `ismail_and_hajar` at
+  Masjid al-Haram links nothing. Restore it as a new uid?
+
 ## Corpus problems: still open from the owner's session-2 decisions
 
 Decisions applied (history, in the guide): G82 retitled "Ziyarat of Lady
