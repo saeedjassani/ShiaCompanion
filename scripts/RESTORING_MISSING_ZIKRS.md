@@ -29,7 +29,8 @@ Kazimayn: AH3 retired into AH2's second tab, AH1/AH11 into AH9's merits;
 AG1 and B5 into B6's first tab; 2026-11-23, Baghdad: AM4 retired into
 AM3's merits, AM1 dropped with no redirect; Madinah: AP5 and AP12, with
 AP6/AP7 retired into AP5's tabs, AP14 into AP12, AP1/AP3 into the merits
-of AP2, AP4 and AP8, AP10 dropped - see `docs/ZIYARAT_GUIDE.md`).
+of AP2, AP4 and AP8, AP10 dropped; 2026-11-26, Makkah: AQ6 and AQ7 are new
+uids, not on the list - see `docs/ZIYARAT_GUIDE.md`).
 **82 remain** (44 with Arabic, 38 prose-only),
 each still marked `has-arabic`/`prose-only` in that JSON. When a batch
 ships, set its uids' `kind` to `restored`/`retired` there and recount
