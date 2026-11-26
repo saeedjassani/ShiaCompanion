@@ -4,10 +4,10 @@
  "counts": {
   "total": 209,
   "menuCategory": 7,
-  "retired": 83,
+  "retired": 86,
   "restored": 37,
   "toRestoreHasArabic": 44,
-  "toRestoreProseOnly": 38
+  "toRestoreProseOnly": 35
  },
  "uids": [
   {
@@ -157,8 +157,10 @@
   {
    "uid": "AE14",
    "title": "Visiting Lady Fatimah Al Masumah in Qum",
-   "kind": "prose-only",
-   "itemsBytes": 1258
+   "kind": "retired",
+   "itemsBytes": 1258,
+   "retiredTo": "G78",
+   "note": "Mafatih's merits of Lady Masuma, prose only; now G78's merits, with the third narration (2026-11-26)."
   },
   {
    "uid": "AE16",
@@ -175,8 +177,10 @@
   {
    "uid": "AE18",
    "title": "The Shrine of Hamzah - the Son of Imam Al Kazim",
-   "kind": "prose-only",
-   "itemsBytes": 1469
+   "kind": "retired",
+   "itemsBytes": 1469,
+   "retiredTo": "AE17",
+   "note": "Imamzadeh Hamzah in Rey (recite Abd al-Azim's ziyarat without its two lines naming him), Abu al-Futuh and al-Saduq; now the end of AE17's merits (2026-11-26)."
   },
   {
    "uid": "AF~AM5",
@@ -926,8 +930,10 @@
   {
    "uid": "G28",
    "title": "Visiting the Tombs of descendants of the Holy Imams (a)",
-   "kind": "prose-only",
-   "itemsBytes": 1884
+   "kind": "retired",
+   "itemsBytes": 1884,
+   "retiredTo": "G78",
+   "note": "Mafatih's introduction to visiting the Imams' descendants, prose only; it leads into Lady Masuma's section and opens G78's merits (2026-11-26)."
   },
   {
    "uid": "G31",

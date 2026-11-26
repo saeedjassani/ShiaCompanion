@@ -550,4 +550,15 @@ const Map<String, RetiredZikrRedirect> retiredZikrRedirects = {
   /// now AP5's merits) its second. AP5's slugAliases keep their slugs.
   'AP6': RetiredZikrRedirect('AP5', tabIndex: 0),
   'AP7': RetiredZikrRedirect('AP5', tabIndex: 1),
+
+  /// Iran: AE14 (Visiting Lady Fatimah al-Masumah in Qum) and G28 (Visiting
+  /// the Tombs of the Descendants of the Holy Imams) were Mafatih al-Jinan's
+  /// prose, with nothing to recite: G28 introduces the Imams' descendants and
+  /// leads into Lady Masuma, AE14 is her shrine and merits. Both are G78's
+  /// merits now. AE18 (the shrine of Hamzah, son of Imam al-Kazim, in Rey)
+  /// was prose too - visit him with Abd al-Azim's ziyarat - and closes AE17's
+  /// merits. Their targets' slugAliases keep the old titles' slugs.
+  'AE14': RetiredZikrRedirect('G78'),
+  'AE18': RetiredZikrRedirect('AE17'),
+  'G28': RetiredZikrRedirect('G78'),
 };
