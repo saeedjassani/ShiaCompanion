@@ -123,8 +123,9 @@ const Map<String, RetiredZikrRedirect> retiredZikrRedirects = {
   /// verbatim the entrance/Izn-Dukhool preamble already embedded at the top
   /// of AH5's main data ("Ziyarah of Imam Muhammad al-Jawad - Kazimayn").
   /// AH10 also never actually delivers on its own title: it has zero
-  /// farewell/wida content despite promising it.
-  'AH10': RetiredZikrRedirect('AH5'),
+  /// farewell/wida content despite promising it. Its farewell (Ansariyan's,
+  /// from the old item) is now AH9's last tab, so it shows that tab alone.
+  'AH10': RetiredZikrRedirect('AH9', tabs: [1]),
 
   /// I12 ("Merits of reciting Ayah Kursi, Ayah Al Shahadah, Ayah Al Mulk
   /// after every Namaz") is a reworded/retranslated duplicate of I9's

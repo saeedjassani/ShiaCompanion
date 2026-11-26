@@ -2148,6 +2148,11 @@
                 },
                 {
                   "uid": "AG6"
+                },
+                {
+                  "uid": "AG5",
+                  "tab": 7,
+                  "label": "Istikhara at the Head Side"
                 }
               ],
               "buried": [
@@ -2383,6 +2388,11 @@
                     {
                       "uid": "AG5",
                       "note": "The ziyarat prayer at the head side, and the duas after it."
+                    },
+                    {
+                      "uid": "AG5",
+                      "tab": 7,
+                      "label": "Istikhara at the Head Side"
                     }
                   ],
                   "location": [
