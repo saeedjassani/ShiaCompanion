@@ -1215,6 +1215,34 @@
       "recommended-deeds-in-the-holy-city-of-madinah"
     ]
   },
+  "AP15": {
+    "title": "Ziyarat of Abbas ibn Abd al-Muttalib, Uncle of the Holy Prophet (s.a.w.a.)",
+    "slug": "ziyarat-of-abbas-ibn-abd-al-muttalib-uncle-of-the-holy-prophet-s-a-w-a"
+  },
+  "AP16": {
+    "title": "Ziyarat of Aqil ibn Abi Talib and Abdullah ibn Ja'far (r.a.)",
+    "slug": "ziyarat-of-aqil-ibn-abi-talib-and-abdullah-ibn-ja-far-r-a"
+  },
+  "AP17": {
+    "title": "Ziyarat of the Wives of the Holy Prophet (s.a.w.a.)",
+    "slug": "ziyarat-of-the-wives-of-the-holy-prophet-s-a-w-a"
+  },
+  "AP18": {
+    "title": "Ziyarat of the Daughters of the Holy Prophet (s.a.w.a.)",
+    "slug": "ziyarat-of-the-daughters-of-the-holy-prophet-s-a-w-a"
+  },
+  "AP19": {
+    "title": "Ziyarat of Safiyyah and Atikah, Aunts of the Holy Prophet (s.a.w.a.)",
+    "slug": "ziyarat-of-safiyyah-and-atikah-aunts-of-the-holy-prophet-s-a-w-a"
+  },
+  "AP20": {
+    "title": "Ziyarat of Isma'il, Son of Imam Ja'far al-Sadiq (a.s.)",
+    "slug": "ziyarat-of-isma-il-son-of-imam-ja-far-al-sadiq-a-s"
+  },
+  "AP21": {
+    "title": "Ziyarat of Halimah al-Sa'diyyah (r.a.), Foster Mother of the Holy Prophet (s.a.w.a.)",
+    "slug": "ziyarat-of-halimah-al-sa-diyyah-r-a-foster-mother-of-the-holy-prophet-s-a-w-a"
+  },
   "AQ2": {
     "title": "Ziyarat of Hamzah (a.s.) and the Martyrs of Uhud",
     "slug": "visiting-the-tomb-of-hamzah-at-uhud",
@@ -1236,6 +1264,10 @@
   "AQ7": {
     "title": "Ziyarat of Qasim, Son of the Holy Prophet (s.a.w.a.)",
     "slug": "ziyarat-of-qasim-son-of-the-holy-prophet-s-a-w-a"
+  },
+  "AQ8": {
+    "title": "Ziyarat of Prophet Isma'il (a.s.), Lady Hajar (s.a.) and the Prophets Buried in the Hijr",
+    "slug": "ziyarat-of-prophet-isma-il-a-s-lady-hajar-s-a-and-the-prophets-buried-in-the-hijr"
   },
   "AS1": {
     "title": "Sahifa Sajjadiya 1: In Praise of Allah",
