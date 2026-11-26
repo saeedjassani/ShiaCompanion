@@ -33,7 +33,11 @@ instruction lines, tab labels and new merits are new English.
   written fresh. Acceptable as it stands, or compare with a book?
 - [ ] **AE3 tab 6, first line.** "May Allah not make this my last greeting
   to you." was written fresh; the Prophet's farewell it opens with is now
-  AP2 tab 2. Compare the two.
+  AP2 tab 2. Compare the two. *Checked in session 15:* AP2's farewell
+  does not contain this line; Mafatih's own farewell to Imam Reza
+  (mafatih.duas.co `ziarat-wida-imam-reza`) opens with exactly «لَا جَعَلَهُ
+  اللهُ اٰخِرَ تَسْلِيْمِيْ عَلَيْكَ» as "the farewell said to the Prophet", and
+  its Urdu means what the English says. Tick if that settles it.
 - [ ] **AE3's salawat (AE6's, tab 5)** also sits in G68 («تامة»/«نامية»).
   Which reading, and should G68 and AE3 tab 5 agree?
 - [ ] **AE3's instruction "pray the two-unit prayer of the ziyarat,
@@ -499,6 +503,26 @@ could not be reached. Instruction lines, English and merits are new.
 - [ ] **Hijr Isma'il:** the same two sources have a ziyarat of Isma'il, his
   mother and the prophets buried there; the guide's `ismail_and_hajar` at
   Masjid al-Haram links nothing. Restore it as a new uid?
+
+## Iran (session 15)
+
+AE14, G28 and AE18 were prose in history (Ansariyan's English), checked
+against mafatih.duas.co's `ziarat-imamzadah-merits`, `ziarat-bibi-masooma`
+and `ziarat-imamzadah-hamza`; they are now the merits of G78 (AE14, G28)
+and AE17 (AE18), lightly reworded (no first person).
+
+- [ ] **G78's merits, last paragraph** (Sa'd al-Ash'ari's narration, from
+  al-Majlisi) is new English, rendered from the Urdu Mafatih: our history
+  stops after the second narration. Check against a Mafatih.
+- [ ] **AE17's merits, Hamzah paragraph:** credited to "Fakhr
+  al-Muhaqqiqin, Aqa Jamal al-Din" as the Urdu Mafatih says; our history
+  (Ansariyan) says "al-Muhaqqiq al-Damad added". Which?
+- [ ] **G28 into G78.** G28 (visiting the Imams' descendants in general)
+  is Mafatih's introduction to Lady Masuma's section, so its old links now
+  open her ziyarat. Keep, or give G28 its own prose page?
+- [ ] **Shiraz:** Shah Cheragh and Alaeddin Husayn link no ziyarat (Mafatih
+  has none for the Imams' sons there). Leave, or link a general form
+  (e.g. Ziyarat Jamia) with a note?
 
 ## Corpus problems: still open from the owner's session-2 decisions
 
