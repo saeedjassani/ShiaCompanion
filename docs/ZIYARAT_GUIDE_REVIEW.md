@@ -590,6 +590,88 @@ reviewer (opus) read the Arabic, transliteration and English.
   narrated; pilgrims' manuals give Ziyarat Jamia Saghira here." Keep, or
   leave the tomb with no link?
 
+## Batch 17: Kazimayn, Samarra, Najaf, Karbala, Makkah, al-Baqi (session 17)
+
+Four opus agents, one per group, each checked against mafatih.duas.co (the
+Urdu Mafatih) or, for the new uids, duas.org plus a second copy:
+al7ajj.wordpress.com `aadab-ziyarat-makka`, al-islam.org's *Adab
+al-Haramayn* (Shahrudi), saleh14.com's *Mi'raj al-Wafidin*. No independent
+reviewer has read this batch's Arabic or English yet.
+
+**AH5, AH9 Kazimayn**
+- [ ] **AH9: the old "Common Farewell Wida" / "Farewell" block (old lines
+  119-252) was removed.** It is in no Mafatih text and parts of its Arabic
+  are not Arabic («كَأَوْسِبْتِ لِلأَلْبَابِ»); it looked like a garbled
+  expansion of the Samarra farewell. AH9's tab 3 is now Mafatih's farewell
+  (al-Tusi's Tahdhib, Ansariyan's English from the retired AH10). Confirm,
+  or name a source to rebuild it from (Ibn al-Mashhadi's al-Mazar?).
+- [ ] **AH10 now opens AH9's farewell tab alone** (`RetiredZikrRedirect('AH9',
+  tabs: [1])`; it opened AH5). Agree?
+- [ ] **Sajdah of thanks** (AH5 line ~193, and AH2): Mafatih has «شُكْرًا
+  شُكْرًا» 100 times; the corpus has one «شكرا». Double it in both?
+- [ ] **AH5 part 1** bundles the entry rites (duplicating AH2's) and three
+  authors' forms. Split into tabs per author, as AH2 is? (Shifts the
+  guide's AH5 tab numbers.) AH5 tab 3 («اللهم انت الرب») is unchecked: its
+  full text is not on mafatih.duas.co.
+- [ ] **AH5 fixes:** the izn's names after «يا» in the accusative
+  («مُحَمَّدَ، ٱلْحَسَنَ...»), Ibn Tawus's opening likewise, «ءَاَدْخُلُ»,
+  «ٱلدِّينِ», «مَاْتِيٍّ». Confirm.
+- [ ] **AH9 tab 2** opens with the Kamil al-Ziyarat narration and the
+  "Actually, this form... highly considered" line: move both to merits?
+
+**AL7, AK15, AL11 Samarra and Najaf**
+- [ ] **AK15:** «وَحُسْنِ» restored before «ٱلْمُؤَازَرَةِ»; segment 1 reworded
+  (no "previously cited fifth form"); a merits sentence links AK5.
+  Confirm.
+- [ ] **AL11's new merits** (five paragraphs from `samara-basement-adaab`):
+  the books are named as al-Qummi's Hadiyyat al-Za'irin quoting Tahiyyat
+  al-Za'ir (the Urdu says only «ہدیہ» and «تحیہ»). Keep?
+- [ ] **AL11 tab 1, lines ~988-993:** instruction lines with no Arabic
+  after them ("go to the cellar, stand on its door and say:" ...), and line
+  ~165 repeats line ~168. Restore the Arabic from a source, or drop them?
+- [ ] **AL7 structure:** the entry opens with the dua after Imam al-Naqi's
+  ziyarat (move it to AL5, or split into tabs?); Imam al-Hadi's saying
+  (segment 71) could move to merits; Mafatih's «وَافْعَلْ بِي كَذَا وَكَذَا»
+  is absent (not added, it would shift segments).
+- [ ] **G1** lacks the Imam's letter that introduces Ziyarat Aal-e-Yasin
+  (al-Ihtijaj, al-Himyari): add it to G1's merits?
+
+**AG5, AG18 Karbala**
+- [ ] **AG5 tab 7, istikhara at the head side** (Mafatih's §6, from the old
+  `assets/items/AG5`), and the weeping narrations (§7) in merits: restored.
+  The praise line «ٱلْحَمْدُ لِلَّهِ وَلاَ إِلٰهَ إِلاَّ ٱللَّهُ وَسُبْحَانَ ٱللَّهِ» reads
+  like a description in the narration: keep it as a recited line, or make
+  it an instruction?
+- [ ] **AG5 merits, the two-unit prayer's reward:** 20 hajj (Ansariyan's
+  English) or 25 (the Urdu Mafatih, پچیس)?
+- [ ] **AG2 tabs 4 and 6 duplicate AG5 tabs 1 and 3:** make AG2's copies
+  tab-level aliases?
+- [ ] **AG18 (al-Abbas):** around line 215 Mafatih's remark (best said
+  behind the tomb facing the qibla) became an instruction plus a repeated
+  «السلام عليك أيها العبد الصالح» - make it a note and drop the repeat?
+  Line 25 adds «صَلَّىٰ ٱللَّهُ عَلَيْهِ وَآلِهِ» inside «لِخَلَفِ ٱلنَّبِيِّ ٱلْمُرْسَلِ»,
+  which Mafatih lacks - keep?
+- [ ] **AG5 tab 2:** Mafatih also asks for the short salawat on Imam
+  Husayn; link that entry?
+
+**AQ8 Hijr Isma'il, AP15-AP21 al-Baqi (new uids)**
+- [ ] **AP15 (Abbas ibn Abd al-Muttalib) and AP17 (the Prophet's wives)
+  rest on duas.org alone;** the others have a second copy. Acceptable?
+- [ ] **AP15:** the Imams' names after «يَا سَيِّدَنَا» put in the accusative
+  (duas.org nominative); two tabs (with the four Imams, and a short form) -
+  keep both?
+- [ ] **AQ8 «يَا بُنَيَّ»:** in duas.org and al7ajj, not in the two books. Keep,
+  drop, or add al7ajj's «فَلَمَّا بَلَغَ مَعَهُ السَّعْيَ»?
+- [ ] **AP18 «وَخِيَرَةِ رَسُوْلِ اللّٰهِ اَجْمَعِيْنَ»:** kept («the chosen of the
+  Messenger of Allah, all of them»); duas.org's transliteration reads
+  «رُسُلِ» ("choicest of all Allah's messengers"). Which?
+- [ ] **AP21 «فَرَضِيَ»:** duas.org has the «فَ», Mi'raj al-Wafidin not. Kept.
+- [ ] **Honorifics:** (r.a.) for Aqil, Abdullah ibn Ja'far and Halimah; none
+  for Abbas (duas.org gives (a.s.)) or the aunts. Align?
+- [ ] **Not done:** the ziyarat of Abdullah, the Prophet's father, and the
+  martyrs of al-Harrah (duas.org has both; Adab al-Haramayn and Mi'raj
+  al-Wafidin have Abdullah's). Add?
+
 ## Corpus problems: still open from the owner's session-2 decisions
 
 Decisions applied (history, in the guide): G82 retitled "Ziyarat of Lady
@@ -696,6 +778,9 @@ they are.
   books: સહરા). Which?
 
 ## Tooling
+
+- [ ] **`translit.py`** gives "LAHUBI-RA" for «لَهٗ بِئْرَ» (fixed by hand in
+  batch 17's new uids).
 
 - [ ] **`zikr_i18n.py check <code>` fails in all four languages** on
   `unknown reciter 'Shahriar Parhizkar'` (PR #450's Quran reciter in each

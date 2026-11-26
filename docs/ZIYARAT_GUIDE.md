@@ -556,10 +556,14 @@ see `scripts/RESTORING_MISSING_ZIKRS.md`); URLs hold a text to check against.
 - **Madinah: done (session 12)** but for the graves without uids -
   AP5 (from a distance, AP6 and AP7 its tabs), AP12 (the acts and the
   mosques, AP14 its main part), AP1/AP3 in the merits of AP2, AP4 and
-  AP8, AP10 dropped. Still without a uid, all on
-  https://www.duas.org/mobile/madina-mecca-rites.html: Abbas ibn Abd al-Muttalib, Aqil and Abdullah ibn
-  Ja'far, the Prophet's wives, daughters and aunts, Isma'il ibn Ja'far,
-  Halimah (duas.org's ziaratbaqi.htm has texts for the first three).
+  AP8, AP10 dropped. The graves without uids are new uids since
+  session 17, linked from al-Baqi: AP15 Abbas ibn Abd al-Muttalib, AP16
+  Aqil and Abdullah ibn Ja'far, AP17 the Prophet's wives, AP18 his
+  daughters, AP19 his aunts, AP20 Isma'il ibn Ja'far, AP21 Halimah (from
+  duas.org's `madina-mecca-rites` / `ziaratbaqi.htm`, checked against
+  al-islam.org's Adab al-Haramayn and saleh14.com's Mi'raj al-Wafidin;
+  AP15 and AP17 on duas.org alone). Not done: Abdullah, the Prophet's
+  father, and the martyrs of al-Harrah (duas.org has both).
   Restored: al-Baqi as AP8's tabs (the four Imams, their farewell,
   Ibrahim, Fatimah bint Asad; AP9/AP11/AQ1 redirect there), the farewell
   to the Prophet as AP2's second tab (AP13 redirects there), and Hamzah
@@ -568,9 +572,9 @@ see `scripts/RESTORING_MISSING_ZIKRS.md`); URLs hold a text to check against.
   Prophet (AQ7), new uids as AQ5 (Lady Khadijah) was, linked from Jannat
   al-Mu'alla after G80. Review items: `docs/ZIYARAT_GUIDE_REVIEW.md`,
   "AQ6 Abd Manaf and AQ7 Qasim (session 14)". Not in the corpus, on the
-  same duas.org page and al7ajj.wordpress.com's `aadab-ziyarat-makka`: the
-  ziyarat of Isma'il, his mother and the prophets at the Hijr Isma'il (the
-  guide's `ismail_and_hajar` at Masjid al-Haram links nothing), Lady
+  same duas.org page and al7ajj.wordpress.com's `aadab-ziyarat-makka`
+  (the Hijr Isma'il's ziyarat is AQ8 since session 17, linked from
+  Masjid al-Haram): Lady
   Aminah's (buried at al-Abwa', not Makkah) and the martyrs of Fakhkh
   (al7ajj: with Isma'il ibn al-Sadiq's ziyarat).
 - **Baghdad: done (session 12)** - the Four Deputies AM3 (session 3, AM2
@@ -586,10 +590,10 @@ see `scripts/RESTORING_MISSING_ZIKRS.md`); URLs hold a text to check against.
   gets back the opening the import lost; AH1 (the merits of visiting the
   two Imams) and AH11 (the story of Hajj Ali al-Baghdadi) are AH9's
   merits. The shrine lists Ziyarat Aminullah (G2) and Ziyarat Warith (G6)
-  from the story. Not done: Imam al-Jawad's other forms on
-  mafatih.duas.co (`ziarat-imam-taqi-2` to `-4`) against AH5's tabs, and
-  the shared forms and farewell (`ziarat-kazmain-common`,
-  `ziarat-kazmain-wida`) against AH9.
+  from the story. Session 17: AH5 matches `ziarat-imam-taqi` to `-4`
+  (case endings fixed); AH9 has three tabs (both Imams together, each
+  separately, and Mafatih's farewell from al-Tusi), its garbled old
+  farewell block removed; AH10 redirects to the farewell tab.
 - **Samarra: done (session 8)** - AL8 (Lady Narjis) and AL9 (Lady
   Hakimah, Lady Masuma's ziyarat with her names) restored and linked at
   the shrine and its zarih; AL4 was AL5's opening (its permission to
@@ -597,9 +601,9 @@ see `scripts/RESTORING_MISSING_ZIKRS.md`); URLs hold a text to check against.
   mosque, which forms to recite, Sayyid Husayn son of Imam al-Naqi) are
   AL1's merits; AL16 (Ibn Tawus's Sardab appendix) is AL11's merits, and
   the Sardab now lists Dua Nudba (E34) and the dua on leaving (E12).
-  Not in the corpus: mafatih.duas.co's `ziarat-samara-wida` (compare
-  with AL7's farewell), the Sardab etiquette page
-  (`samara-basement-adaab`), Sayyid Muhammad's merits page (Balad).
+  Session 17: AL7 matches `ziarat-samara-wida` (three vowel fixes);
+  `samara-basement-adaab` is the end of AL11's merits. Not in the corpus:
+  Sayyid Muhammad's merits page (Balad).
 - **Mada'in: done (session 7)** - AJ3 (the prayer at Taq Kasra, linked
   from its site); AJ1 (Salman's merits) and AJ4 (Hudhayfah, the mosque of
   al-Mada'in) are AJ2's merits now and redirect there. Mafatih has no
@@ -612,9 +616,8 @@ see `scripts/RESTORING_MISSING_ZIKRS.md`); URLs hold a text to check against.
   Salih (session 16): none of their own is narrated (not in Mafatih or on
   mafatih.duas.co; duas.org has no page), and fzic.org's "Prophet Hud &
   Saleh" is Ziyarat Jamia Saghira word for word, so `hud_salih_tomb` links
-  G12 with a note. Not in the corpus, seen on mafatih.duas.co's Najaf
-  list: the Mafatih's farewell remarks
-  (`ziarat-najaf-wida`, AK15 may cover it) and al-Uzri's qasida verses at
+  G12 with a note. `ziarat-najaf-wida` is AK15 (session 17: a lost
+  phrase restored). Not in the corpus: al-Uzri's qasida verses at
   the sight of the dome (AK4's merits mention them, without the verses).
 - **Kufa: done (session 6)** - G60 (Muslim) and G61 (Hani) now carry
   Mafatih's full texts (AI13/AI14 retired into them); AI17 was AI16's
@@ -624,9 +627,9 @@ see `scripts/RESTORING_MISSING_ZIKRS.md`); URLs hold a text to check against.
 - **Karbala: done (session 10)** - AG21 (the soil of Imam Husayn) and
   G31 (the farewell to the Imams) restored; AG15 is AG14's merits, AG20 is
   AG1's merits and greeting from far away, B5 (Kaf'ami's izn) is B6's
-  first tab. Not in the corpus: mafatih.duas.co's `karbala-haram-amaal`
-  (the acts in the shrine - compare with AG5 and AG2),
-  `modifications-in-hadees` (prose) and `marsiya-ummul-baneen` (Umm
+  first tab. `karbala-haram-amaal` is AG5 (session 17: its istikhara,
+  AG5 tab 7, and the weeping narrations restored). Not in the corpus:
+  mafatih.duas.co's `modifications-in-hadees` (prose) and `marsiya-ummul-baneen` (Umm
   al-Baneen's elegy, not recited); al-Hurr al-Riyahi, the Mukhayyam and
   Tall al-Zaynabiyya have no ziyarat in the corpus.
 
@@ -974,13 +977,46 @@ phase 1": add any the owner can confirm.
   in the review file. New uid, so `source_check.py` has nothing to flag
   and the missing-uid counts stand.
 
+**Session 17 (2026-11-26): batch 17, four groups at once** (the owner:
+"do next batch too ... make the batch size bigger, at least 3x").
+
+- One opus agent per group, each in its own worktree, merged here:
+  Kazimayn (AH5 case endings; AH9 in three tabs with Mafatih's farewell,
+  its garbled old farewell removed; AH10 redirects to that tab), Samarra
+  and Najaf (AL7 and AK15 match Mafatih's farewells, small fixes; AL11's
+  merits gain the Sardab etiquette page), Karbala (AG5 gets back the
+  istikhara as tab 7, linked at the shrine and the zarih, and the weeping
+  narrations; AG18 two fixes), and eight new uids: AQ8 (the Hijr Isma'il,
+  linked from Masjid al-Haram) and AP15-AP21 (al-Baqi's graves without
+  uids, linked from al-Baqi). New uids, so the missing-uid counts stand.
+- `zikr_i18n.py rebase` run (AH9 94 -> 67 segments; two dropped headings'
+  translations gone) and `source_check.py . baseline` re-run.
+- **Stopped at the usage warning before the translations.** Not yet done:
+  the new titles, labels and instruction lines in ur/fa/ar/gu (22 zikr
+  segments, 8 titles, 2 guide keys: the list is below in What's left),
+  each read by an independent reviewer; and an independent read of the
+  batch's Arabic and English (the four agents wrote it; nobody else has
+  read it). Review items: "Batch 17" in the review file.
+
 **What's left (start here):**
 
+0. **Finish batch 17 first:** translate into ur/fa/ar/gu, each language
+   read by an independent opus reviewer: the titles of AQ8, AP15-AP21
+   (`assets/zikr_i18n/<code>/index.json`); zikr segments AQ8 0, 29; AP15
+   0, 1, 14; AP16-AP21 0; AG5 193, 194, 196, 197; AH9 0, 32 (replaces the
+   old heading's translation), 49, 50, 58, 66; AK15 1 (reworded: replace
+   the old translation); guide keys
+   `site.imam_husayn_shrine.ziyarat.22.label` and
+   `plan.karbala_haramayn.husayn_tomb.ziyarat.5.label` ("Istikhara at the
+   Head Side"). Urdu for AH9's farewell verses is on mafatih.duas.co's
+   `ziarat-kazmain-wida`. Then have an opus agent read the batch's new
+   Arabic, transliteration and English (AH9 tab 3, AG5 tab 7, AQ8,
+   AP15-AP21) against the sources named in the review file.
 1. **The owner's device check** (as an admin): the three pages, the ten
    shrine plans (tap a gate or tomb, its card opens the ziyarat), the
    restored entries. Anything found comes first.
 2. **Reviews waiting on the owner or a native reader:** all in
-   `docs/ZIYARAT_GUIDE_REVIEW.md` (166 items). Apply any the owner has
+   `docs/ZIYARAT_GUIDE_REVIEW.md` (190 items). Apply any the owner has
    answered (ticked or a decision written next to it) before new work.
 3. **Translations still missing:** merits and verses of AE3, AP8, AQ2,
    AQ5, AM3, AE17, AK4, AK17, AK19, G60, G61, AJ3 (its Quran lines are
@@ -1016,12 +1052,14 @@ phase 1": add any the owner can confirm.
    session 14, but for the Hijr Isma'il; Iran in session 15, but for
    Imam Reza's other forms, which are not in Mafatih, and AE1, which
    goes with the travel etiquette B1/B2; Najaf's Hud and Salih and Kufa's
-   Maytham in session 16): **next are** the
-   leftovers listed in each city's entry under "Missing ziyarats"
-   (Kazimayn's al-Jawad forms
-   and farewell, Samarra's farewell, Karbala's acts in the shrine,
-   Makkah's Hijr Isma'il, Madinah's graves without uids, Imam Reza's
-   Sahifa Radawiyya forms). One batch per city, each checked
+   Maytham in session 16; Kazimayn, Samarra's farewell, Karbala's acts,
+   the Hijr Isma'il and al-Baqi's graves in session 17): **next are**
+   the leftovers still listed under "Missing ziyarats": Imam Reza's
+   Sahifa Radawiyya forms, al-Baqi's Abdullah (the Prophet's father) and
+   the martyrs of al-Harrah, Lady Aminah and the martyrs of Fakhkh,
+   al-Majlisi's ziyarat of Uthman ibn Sa'id, Balad's Sayyid Muhammad, and
+   AE1 with the travel etiquette. The owner asked for bigger batches
+   (session 17: four groups, one opus agent each, in parallel). Each each checked
    against an online copy, `source_check.py` baselined, linked from its
    site and plan feature, counts recounted in
    `scripts/RESTORING_MISSING_ZIKRS.md`. Re-run `source_check.py .
