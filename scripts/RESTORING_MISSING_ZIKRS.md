@@ -16,7 +16,7 @@ real, correctly-formatted content — not just a title.
 **Done:** every favorited missing uid (the eight passes below). Of the 209
 *unfavorited* missing uids listed in
 [unfavorited_missing_zikrs.json](unfavorited_missing_zikrs.json), 7 are
-old menu nodes (skip), 86 are retired, 37 are restored (F16-F65,
+old menu nodes (skip), 92 are retired, 37 are restored (F16-F65,
 E131-E136, P1; and for the Ziyarat Guide, 2026-11-09: AE3, AE17, AM3,
 AP8, AQ2 as tabbed shrine entries, with AE4-AE8, AE16, AM2, AP9, AP11,
 AP13, AQ1, AQ3, AQ4 retired into them; 2026-11-15, Najaf and Kufa: AK4,
@@ -31,8 +31,9 @@ AM3's merits, AM1 dropped with no redirect; Madinah: AP5 and AP12, with
 AP6/AP7 retired into AP5's tabs, AP14 into AP12, AP1/AP3 into the merits
 of AP2, AP4 and AP8, AP10 dropped; 2026-11-26, Makkah: AQ6 and AQ7 are new
 uids, not on the list - see `docs/ZIYARAT_GUIDE.md`; Iran: AE14 and G28
-retired into G78's merits, AE18 into AE17's).
-**79 remain** (44 with Arabic, 35 prose-only),
+retired into G78's merits, AE18 into AE17's; Mashhad: AE2, AE9-AE13
+retired into AE3's merits).
+**73 remain** (44 with Arabic, 29 prose-only),
 each still marked `has-arabic`/`prose-only` in that JSON. When a batch
 ships, set its uids' `kind` to `restored`/`retired` there and recount
 `counts`.

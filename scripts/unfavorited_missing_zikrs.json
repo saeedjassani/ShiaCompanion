@@ -4,10 +4,10 @@
  "counts": {
   "total": 209,
   "menuCategory": 7,
-  "retired": 86,
+  "retired": 92,
   "restored": 37,
   "toRestoreHasArabic": 44,
-  "toRestoreProseOnly": 35
+  "toRestoreProseOnly": 29
  },
  "uids": [
   {
@@ -85,8 +85,10 @@
   {
    "uid": "AE2",
    "title": "Merits and Methods of Visiting Imam Ali Ibn Moosa Al Reza",
-   "kind": "prose-only",
-   "itemsBytes": 8769
+   "kind": "retired",
+   "itemsBytes": 8769,
+   "retiredTo": "AE3",
+   "note": "Mafatih's ten narrations on the merits of visiting Imam al-Reza, prose only; now the opening of AE3's merits (2026-11-26)."
   },
   {
    "uid": "AE3",
@@ -127,32 +129,42 @@
   {
    "uid": "AE9",
    "title": "Granting of requests at Imam Al Reza's Tomb",
-   "kind": "prose-only",
-   "itemsBytes": 1940
+   "kind": "retired",
+   "itemsBytes": 1940,
+   "retiredTo": "AE3",
+   "note": "Asking for a need at the tomb and Salat Ja'far there, prose only; now in AE3's merits (2026-11-26)."
   },
   {
    "uid": "AE10",
    "title": "Imam Al Reza's Journey To Khurasan",
-   "kind": "prose-only",
-   "itemsBytes": 4090
+   "kind": "retired",
+   "itemsBytes": 4090,
+   "retiredTo": "AE3",
+   "note": "The Imam's journey to Khurasan and the Golden Chain hadith (its Arabic lines from the Urdu Mafatih), prose; now in AE3's merits (2026-11-26)."
   },
   {
    "uid": "AE11",
    "title": "Visitation of a king to the shrine of Imam Al Reza (a)",
-   "kind": "prose-only",
-   "itemsBytes": 3041
+   "kind": "retired",
+   "itemsBytes": 3041,
+   "retiredTo": "AE3",
+   "note": "Shah Abbas I and the shrine (Matla' al-Shams), prose; now in AE3's merits (2026-11-26)."
   },
   {
    "uid": "AE12",
    "title": "Miracles Shown in Imam Al Reza's Holy Shrine",
-   "kind": "prose-only",
-   "itemsBytes": 1588
+   "kind": "retired",
+   "itemsBytes": 1588,
+   "retiredTo": "AE3",
+   "note": "Al-Tabrisi and al-Hurr al-Amili on the shrine's miracles, prose; now in AE3's merits (2026-11-26)."
   },
   {
    "uid": "AE13",
    "title": "Poetic verses composed by Al Jami praising Al Reza",
-   "kind": "prose-only",
-   "itemsBytes": 780
+   "kind": "retired",
+   "itemsBytes": 780,
+   "retiredTo": "AE3",
+   "note": "Shaykh Abbas al-Qummi's close and al-Jami's verses, not recited; now the end of AE3's merits (2026-11-26)."
   },
   {
    "uid": "AE14",

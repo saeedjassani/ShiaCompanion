@@ -530,6 +530,30 @@ and AE17 (AE18), lightly reworded (no first person).
   has none for the Imams' sons there). Leave, or link a general form
   (e.g. Ziyarat Jamia) with a note?
 
+## Mashhad (session 15)
+
+AE2 and AE9-AE13 (prose in history, Ansariyan's English) are AE3's merits
+now, checked against mafatih.duas.co's `ziarat-imam-reza-merits`,
+`imam-reza-khorasan-journey`, `shah-abbas-mashhad-visit` and
+`imam-reza-miracles`; tightened, no first person.
+
+- [ ] **Narration 4's "a million hajjs"** follows our history (Arabic «ألف
+  ألف حجة»); the Urdu Mafatih says ایک لاکھ (a hundred thousand). Keep?
+- [ ] **Where history and the Urdu differ, the Urdu was followed:** the
+  plunderer is Abd al-Mu'min Khan the Uzbek (history: Abd al-Rahman), Shah
+  Abbas took Herat (history: brought the loot back from it), and the
+  candle-trimming with Shaykh al-Baha'i's verses (history has neither) is
+  in, the Persian verses paraphrased in English. The Persian verses of
+  Tarikh-e Alam-ara and al-Jami's Persian lines are left out. Agree?
+- [ ] **The Golden Chain's Arabic** («لَا اِلٰهَ اِلَّا اللّٰهُ حِصْنِيْ…»,
+  «بِشُرُوْطِهَا وَاَنَا مِنْ شُرُوْطِهَا») is from the Urdu Mafatih: our history
+  lost it. Al-Jami's second half-line is written «سَلَامٌ عَلٰى اٰلِ خَيْرِ
+  النَّبِيِّيْنَ» as the Urdu's translation ("the best of the prophets") reads,
+  but its Arabic prints «اٰلِ النَّبِيِّيْن». Which?
+- [ ] **AE1** (Safi the servant's two rings and his journey to Tus, with a
+  travel dua and Imam Zayn al-Abidin's protection) is left for the travel
+  etiquette batch (B1, B2), not put in AE3. Agree?
+
 ## Corpus problems: still open from the owner's session-2 decisions
 
 Decisions applied (history, in the guide): G82 retitled "Ziyarat of Lady

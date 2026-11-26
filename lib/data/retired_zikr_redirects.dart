@@ -561,4 +561,17 @@ const Map<String, RetiredZikrRedirect> retiredZikrRedirects = {
   'AE14': RetiredZikrRedirect('G78'),
   'AE18': RetiredZikrRedirect('AE17'),
   'G28': RetiredZikrRedirect('G78'),
+
+  /// Mashhad: AE2 (the merits of visiting Imam al-Reza), AE9 (asking for a
+  /// need at his tomb, Salat Ja'far there), AE10 (his journey to Khurasan
+  /// and the Golden Chain), AE11 (Shah Abbas I and the shrine), AE12 (the
+  /// shrine's miracles) and AE13 (al-Jami's verses) were Mafatih al-Jinan's
+  /// prose around the ziyarat, with nothing to recite. They are AE3's
+  /// merits now, and its slugAliases keep their slugs.
+  'AE2': RetiredZikrRedirect('AE3'),
+  'AE9': RetiredZikrRedirect('AE3'),
+  'AE10': RetiredZikrRedirect('AE3'),
+  'AE11': RetiredZikrRedirect('AE3'),
+  'AE12': RetiredZikrRedirect('AE3'),
+  'AE13': RetiredZikrRedirect('AE3'),
 };
