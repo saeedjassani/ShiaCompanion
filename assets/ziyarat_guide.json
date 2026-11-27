@@ -181,6 +181,27 @@
                   "tab": 2,
                   "label": "Farewell to the Four Imams (a.s.)",
                   "note": "When leaving al-Baqi."
+                },
+                {
+                  "uid": "AP15"
+                },
+                {
+                  "uid": "AP16"
+                },
+                {
+                  "uid": "AP17"
+                },
+                {
+                  "uid": "AP18"
+                },
+                {
+                  "uid": "AP19"
+                },
+                {
+                  "uid": "AP20"
+                },
+                {
+                  "uid": "AP21"
                 }
               ],
               "buried": [
@@ -690,7 +711,11 @@
               ],
               "holySiteId": "kaaba",
               "about": "The Sacred Mosque around the Kaaba, the qiblah of every prayer, built by Prophet Ibrahim (a.s.) and Ismail (a.s.). Amir al-Mu'minin (a.s.) was born inside the Kaaba. The rites of Hajj and Umrah performed here are outside this guide; follow a reliable manual of your marja for them.",
-              "ziyarat": [],
+              "ziyarat": [
+                {
+                  "uid": "AQ8"
+                }
+              ],
               "buried": [
                 {
                   "id": "ismail_and_hajar",
@@ -2148,6 +2173,11 @@
                 },
                 {
                   "uid": "AG6"
+                },
+                {
+                  "uid": "AG5",
+                  "tab": 7,
+                  "label": "Istikhara at the Head Side"
                 }
               ],
               "buried": [
@@ -2383,6 +2413,11 @@
                     {
                       "uid": "AG5",
                       "note": "The ziyarat prayer at the head side, and the duas after it."
+                    },
+                    {
+                      "uid": "AG5",
+                      "tab": 7,
+                      "label": "Istikhara at the Head Side"
                     }
                   ],
                   "location": [
