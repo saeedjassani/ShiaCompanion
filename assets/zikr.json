@@ -891,7 +891,8 @@
     "title": "Ziyarat of Abd al-Azim al-Hasani",
     "slug": "ziyarah-of-abd-al-azim-al-hasani",
     "slugAliases": [
-      "short-biography-of-abd-al-azim-al-hasani"
+      "short-biography-of-abd-al-azim-al-hasani",
+      "the-shrine-of-hamzah-the-son-of-imam-al-kazim"
     ]
   },
   "AE3": {
@@ -901,7 +902,13 @@
       "dua-after-ziyarah-of-imam-al-rezas-tomb",
       "al-ziyarah-al-jawadiyyah",
       "another-ziyarah-of-imam-al-rida",
-      "bidding-farewell-to-imam-al-reza"
+      "bidding-farewell-to-imam-al-reza",
+      "merits-and-methods-of-visiting-imam-ali-ibn-moosa-al-reza",
+      "granting-of-requests-at-imam-al-reza-s-tomb",
+      "imam-al-reza-s-journey-to-khurasan",
+      "visitation-of-a-king-to-the-shrine-of-imam-al-reza-a",
+      "miracles-shown-in-imam-al-reza-s-holy-shrine",
+      "poetic-verses-composed-by-al-jami-praising-al-reza"
     ]
   },
   "AF~AG3": {
@@ -934,11 +941,17 @@
   },
   "AG1": {
     "title": "Merits of Visiting Imam Husayn (a.s.)",
-    "slug": "merits-of-visiting-imam-al-husayn-a-s"
+    "slug": "merits-of-visiting-imam-al-husayn-a-s",
+    "slugAliases": [
+      "visiting-imam-husayn-a-on-special-occasions"
+    ]
   },
   "AG14": {
     "title": "Ziyarat Warith — Karbala",
-    "slug": "ziyarah-warith-karbala"
+    "slug": "ziyarah-warith-karbala",
+    "slugAliases": [
+      "explanations-about-the-additions-in-ziyarah-warith"
+    ]
   },
   "AG18": {
     "title": "Ziyarat of Hazrat Abbas (a.s.) — Karbala",
@@ -951,6 +964,10 @@
   "AG2": {
     "title": "Etiquettes to be Observed During the Journey to Imam Husayn (a.s.)'s Tomb and Inside His Holy Shrine",
     "slug": "etiquettes-to-be-observed-during-journey-to-imam-husayn-s-a-tomb-and-inside-his-holy-shrine"
+  },
+  "AG21": {
+    "title": "Merits and Etiquettes of the Soil (Turbah) of Imam Husayn (a.s.)",
+    "slug": "merits-and-etiquettes-of-the-soil-of-imam-husayn-s-a-tomb"
   },
   "AG5": {
     "title": "Post-Ziyarat Prayers, Dua & Salawat — Karbala",
@@ -1013,6 +1030,10 @@
     "slugAliases": [
       "zayd-and-sasah"
     ]
+  },
+  "AI18": {
+    "title": "Ziyarat of Maytham al-Tammar (r.a.)",
+    "slug": "ziyarat-of-maytham-al-tammar-r-a"
   },
   "AI3": {
     "title": "Recommended Acts (Aamal) of Masjid al-Kufah",
@@ -1151,7 +1172,8 @@
     "title": "Ziyarat of the Four Deputies of Imam al-Mahdi (a.t.f.s.)",
     "slug": "ziyarah-of-the-four-emissaries",
     "slugAliases": [
-      "visitation-to-naeb-khaas-special-deputies-of-imam-mahdi-a"
+      "visitation-to-naeb-khaas-special-deputies-of-imam-mahdi-a",
+      "visiting-the-tomb-of-shaykh-al-kulayni"
     ]
   },
   "AN1": {
@@ -1162,12 +1184,24 @@
     "title": "Method of Ziyarat of the Holy Prophet (s.a.w.a.) in Madinah",
     "slug": "method-of-ziyarah-of-holy-prophet-s-in-madinah",
     "slugAliases": [
-      "bidding-farewell-wida-to-the-holy-prophet-s"
+      "bidding-farewell-wida-to-the-holy-prophet-s",
+      "ziyarah-of-the-holy-prophet-lady-fatimah-al-zahra-and-the-imams-in-al-baqi-cemetery"
     ]
   },
   "AP4": {
     "title": "Ziyarat of Lady Fatimah al-Zahra (s.a.)",
-    "slug": "ziyarah-of-lady-fatimah-al-zahra"
+    "slug": "ziyarah-of-lady-fatimah-al-zahra",
+    "slugAliases": [
+      "aamal-e-rouza-e-munawwara"
+    ]
+  },
+  "AP5": {
+    "title": "Ziyarat of the Holy Prophet (s.a.w.a.) from a Distance",
+    "slug": "visiting-the-holy-prophet-from-a-distance",
+    "slugAliases": [
+      "ziyarah-of-holy-prophet-s-and-the-holy-infallibles-on-friday-from-a-distance",
+      "merits-of-greeting-the-holy-prophet-s"
+    ]
   },
   "AP8": {
     "title": "Ziyarat of the Imams of al-Baqi (a.s.)",
@@ -1177,6 +1211,41 @@
       "ziyarah-of-ibrahim-son-of-the-holy-prophet-s",
       "visiting-the-tomb-of-lady-fatimah-bint-asad-imam-ali-s-mother"
     ]
+  },
+  "AP12": {
+    "title": "Recommended Acts (Aamal) in Madinah and Its Mosques",
+    "slug": "the-revered-mosques-in-al-madinah",
+    "slugAliases": [
+      "recommended-deeds-in-the-holy-city-of-madinah"
+    ]
+  },
+  "AP15": {
+    "title": "Ziyarat of Abbas ibn Abd al-Muttalib, Uncle of the Holy Prophet (s.a.w.a.)",
+    "slug": "ziyarat-of-abbas-ibn-abd-al-muttalib-uncle-of-the-holy-prophet-s-a-w-a"
+  },
+  "AP16": {
+    "title": "Ziyarat of Aqil ibn Abi Talib and Abdullah ibn Ja'far (r.a.)",
+    "slug": "ziyarat-of-aqil-ibn-abi-talib-and-abdullah-ibn-ja-far-r-a"
+  },
+  "AP17": {
+    "title": "Ziyarat of the Wives of the Holy Prophet (s.a.w.a.)",
+    "slug": "ziyarat-of-the-wives-of-the-holy-prophet-s-a-w-a"
+  },
+  "AP18": {
+    "title": "Ziyarat of the Daughters of the Holy Prophet (s.a.w.a.)",
+    "slug": "ziyarat-of-the-daughters-of-the-holy-prophet-s-a-w-a"
+  },
+  "AP19": {
+    "title": "Ziyarat of Safiyyah and Atikah, Aunts of the Holy Prophet (s.a.w.a.)",
+    "slug": "ziyarat-of-safiyyah-and-atikah-aunts-of-the-holy-prophet-s-a-w-a"
+  },
+  "AP20": {
+    "title": "Ziyarat of Isma'il, Son of Imam Ja'far al-Sadiq (a.s.)",
+    "slug": "ziyarat-of-isma-il-son-of-imam-ja-far-al-sadiq-a-s"
+  },
+  "AP21": {
+    "title": "Ziyarat of Halimah al-Sa'diyyah (r.a.), Foster Mother of the Holy Prophet (s.a.w.a.)",
+    "slug": "ziyarat-of-halimah-al-sa-diyyah-r-a-foster-mother-of-the-holy-prophet-s-a-w-a"
   },
   "AQ2": {
     "title": "Ziyarat of Hamzah (a.s.) and the Martyrs of Uhud",
@@ -1191,6 +1260,18 @@
     "title": "Ziyarat of Lady Khadijah al-Kubra (s.a.)",
     "slug": "ziyarat-of-lady-khadijah-al-kubra-s-a",
     "day": "09-10"
+  },
+  "AQ6": {
+    "title": "Ziyarat of Abd Manaf, Forefather of the Holy Prophet (s.a.w.a.)",
+    "slug": "ziyarat-of-abd-manaf-forefather-of-the-holy-prophet-s-a-w-a"
+  },
+  "AQ7": {
+    "title": "Ziyarat of Qasim, Son of the Holy Prophet (s.a.w.a.)",
+    "slug": "ziyarat-of-qasim-son-of-the-holy-prophet-s-a-w-a"
+  },
+  "AQ8": {
+    "title": "Ziyarat of Prophet Isma'il (a.s.), Lady Hajar (s.a.) and the Prophets Buried in the Hijr",
+    "slug": "ziyarat-of-prophet-isma-il-a-s-lady-hajar-s-a-and-the-prophets-buried-in-the-hijr"
   },
   "AS1": {
     "title": "Sahifa Sajjadiya 1: In Praise of Allah",
@@ -1426,7 +1507,10 @@
   },
   "B6": {
     "title": "Izn-e-Dukhool (Permission to Enter)",
-    "slug": "another-izn-dukhool"
+    "slug": "another-izn-dukhool",
+    "slugAliases": [
+      "asking-permission-for-entering-the-holy-shrines-izn-dukhool"
+    ]
   },
   "B~AE7": {
     "title": "Iran",
@@ -2495,6 +2579,10 @@
     "title": "The Comprehensive Ziyarat of the Imams (a.s.)",
     "slug": "the-comprehensive-ziyarat-of-the-imams-a"
   },
+  "G31": {
+    "title": "Bidding Farewell (Wida) to the Holy Imams (a.s.)",
+    "slug": "bidding-farewell-to-the-holy-imams"
+  },
   "G4": {
     "title": "Ziyarat Ashura",
     "order": 0,
@@ -2715,7 +2803,9 @@
       "11-01"
     ],
     "slugAliases": [
-      "ziyarat-lady-masooma-qom"
+      "ziyarat-lady-masooma-qom",
+      "visiting-lady-fatimah-al-masumah-in-qum",
+      "visiting-the-tombs-of-descendants-of-the-holy-imams-a"
     ]
   },
   "G79": {

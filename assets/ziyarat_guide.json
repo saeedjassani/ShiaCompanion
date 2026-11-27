@@ -11,6 +11,9 @@
     },
     {
       "uid": "G30"
+    },
+    {
+      "uid": "G31"
     }
   ],
   "regions": [
@@ -71,10 +74,20 @@
                   "note": "After the ziyarat."
                 },
                 {
+                  "uid": "AP12",
+                  "tab": 1,
+                  "label": "Acts in Madinah and the Prophet's Mosque",
+                  "note": "Praying as much as you can here and in the Rawdah, visiting daily, blessings and alms while in Madinah."
+                },
+                {
                   "uid": "AP2",
                   "tab": 2,
                   "label": "Farewell to the Holy Prophet (s.a.w.a.)",
                   "note": "Before leaving Madinah."
+                },
+                {
+                  "uid": "AP5",
+                  "note": "Away from Madinah: al-Majlisi's ziyarat from afar, the Friday ziyarat of the Prophet and the Imams, and Imam Ali (a.s.)'s salawat."
                 }
               ],
               "buried": [
@@ -168,6 +181,27 @@
                   "tab": 2,
                   "label": "Farewell to the Four Imams (a.s.)",
                   "note": "When leaving al-Baqi."
+                },
+                {
+                  "uid": "AP15"
+                },
+                {
+                  "uid": "AP16"
+                },
+                {
+                  "uid": "AP17"
+                },
+                {
+                  "uid": "AP18"
+                },
+                {
+                  "uid": "AP19"
+                },
+                {
+                  "uid": "AP20"
+                },
+                {
+                  "uid": "AP21"
                 }
               ],
               "buried": [
@@ -347,7 +381,20 @@
                 39.6175
               ],
               "about": "The first mosque of Islam, built by the Prophet (s.a.w.a.) on his arrival from Makkah, where he waited for Amir al-Mu'minin (a.s.) to join him; the Quran calls it the mosque founded on piety (9:108). The Prophet (s.a.w.a.) is narrated to have said that two rak'at prayed in it equal an Umrah, and Imam al-Sadiq (a.s.) said to begin with it when visiting the mosques around Madinah.",
-              "ziyarat": [],
+              "ziyarat": [
+                {
+                  "uid": "AP12",
+                  "tab": 2,
+                  "label": "Masjid Quba",
+                  "note": "Mafatih al-Jinan's acts here: the greeting prayer, the Tasbih al-Zahra, Ziyarat Jamia Saghira and a dua."
+                },
+                {
+                  "uid": "AP12",
+                  "tab": 4,
+                  "label": "Other Mosques and Houses",
+                  "note": "Mashrabat Umm Ibrahim and Masjid al-Fadikh, near Quba, and the other places to pray in Madinah."
+                }
+              ],
               "buried": [],
               "tips": [
                 "Pray the two rak'at greeting of the mosque and as many prayers as you can; making wudu before setting out is recommended.",
@@ -369,7 +416,14 @@
                 39.5957
               ],
               "about": "A small mosque on the slope of Mount Sal' where the Prophet (s.a.w.a.) prayed for victory during the Battle of the Trench (al-Khandaq or al-Ahzab), in which Amir al-Mu'minin (a.s.) killed Amr ibn Abd Wudd. Below it stand the small mosques named after Amir al-Mu'minin (a.s.), Lady Fatimah (s.a.) and Salman, together known as the Seven Mosques.",
-              "ziyarat": [],
+              "ziyarat": [
+                {
+                  "uid": "AP12",
+                  "tab": 3,
+                  "label": "Masjid al-Fath",
+                  "note": "Two rak'at and the dua Mafatih al-Jinan gives for after them."
+                }
+              ],
               "buried": [],
               "tips": [
                 "Pray two rak'at in the mosque and supplicate, as the Prophet (s.a.w.a.) supplicated here for victory.",
@@ -657,7 +711,11 @@
               ],
               "holySiteId": "kaaba",
               "about": "The Sacred Mosque around the Kaaba, the qiblah of every prayer, built by Prophet Ibrahim (a.s.) and Ismail (a.s.). Amir al-Mu'minin (a.s.) was born inside the Kaaba. The rites of Hajj and Umrah performed here are outside this guide; follow a reliable manual of your marja for them.",
-              "ziyarat": [],
+              "ziyarat": [
+                {
+                  "uid": "AQ8"
+                }
+              ],
               "buried": [
                 {
                   "id": "ismail_and_hajar",
@@ -699,6 +757,12 @@
                 },
                 {
                   "uid": "G80"
+                },
+                {
+                  "uid": "AQ6"
+                },
+                {
+                  "uid": "AQ7"
                 }
               ],
               "buried": [
@@ -741,6 +805,8 @@
                 "https://www.duas.org/mobile/madina-mecca-rites.html",
                 "https://forums.alkafeel.net/node/1062588",
                 "https://www.duas.org/mobile/ziyarat-khadija.html",
+                "https://al7ajj.wordpress.com/aadab-ziyarat-makka/",
+                "https://ar.al-shia.org/%D8%A7%D9%84%D9%82%D8%A7%D8%B3%D9%85-%D8%A7%D8%A8%D9%86-%D8%B1%D8%B3%D9%88%D9%84-%D8%A7%D9%84%D9%84%D9%87/",
                 "https://en.wikipedia.org/wiki/Jannat_al-Mu%27alla",
                 "https://www.al-islam.org/shrines/baqi.htm",
                 "https://nominatim.openstreetmap.org/search?q=مقبرة%20المعلاة"
@@ -1048,7 +1114,12 @@
                 44.3165
               ],
               "about": "A domed shrine at the edge of Wadi al-Salam, a short walk north of Imam Ali (a.s.)'s shrine, holding two graves attributed by narration to Prophet Hud (a.s.), sent to the people of 'Ad, and Prophet Salih (a.s.), sent to Thamud. The building was first raised in the time of Sayyid Mahdi Bahr al-Ulum and has been renewed since.",
-              "ziyarat": [],
+              "ziyarat": [
+                {
+                  "uid": "G12",
+                  "note": "No ziyarat of their own is narrated; pilgrims' manuals give Ziyarat Jamia Saghira here."
+                }
+              ],
               "buried": [
                 {
                   "id": "prophet_hud",
@@ -1511,7 +1582,11 @@
                 44.395
               ],
               "about": "Maytham al-Tammar, the date-seller of Kufa, was a close companion of Imam Ali (a.s.), who foretold to him how he would die. He was crucified on the order of Ibn Ziyad shortly before Karbala in 60 AH, proclaiming the virtues of Imam Ali (a.s.) to the end. His shrine stands a little west of Masjid al-Kufa.",
-              "ziyarat": [],
+              "ziyarat": [
+                {
+                  "uid": "AI18"
+                }
+              ],
               "buried": [
                 {
                   "id": "maytham_al_tammar",
@@ -2089,7 +2164,20 @@
                   "note": "On the Day of Arafah, 9 Dhul Hijjah."
                 },
                 {
+                  "uid": "AG1",
+                  "note": "Its merits, the best times to visit him, and the greeting to send him from far away."
+                },
+                {
+                  "uid": "AG21",
+                  "note": "The soil of his tomb (khak-e-shifa): taking it and eating it for healing, and the tasbih on a rosary made of it."
+                },
+                {
                   "uid": "AG6"
+                },
+                {
+                  "uid": "AG5",
+                  "tab": 7,
+                  "label": "Istikhara at the Head Side"
                 }
               ],
               "buried": [
@@ -2325,6 +2413,11 @@
                     {
                       "uid": "AG5",
                       "note": "The ziyarat prayer at the head side, and the duas after it."
+                    },
+                    {
+                      "uid": "AG5",
+                      "tab": 7,
+                      "label": "Istikhara at the Head Side"
                     }
                   ],
                   "location": [
@@ -3421,6 +3514,10 @@
                   "tab": 5,
                   "label": "At the Grave of a Believer",
                   "note": "The general visit to a believer's grave."
+                },
+                {
+                  "uid": "AM3",
+                  "note": "For Ali ibn Muhammad al-Samarri, the fourth deputy, said to be buried nearby."
                 }
               ],
               "buried": [
@@ -3441,6 +3538,7 @@
                 "https://fa.wikishia.net/view/محمد_بن_یعقوب_کلینی",
                 "https://fa.wikifeqh.ir/زیارتگاه_سمری‌",
                 "https://www.al-islam.org/ziyarat/iraq.htm",
+                "https://mafatih.duas.co/ziarat-nawab-arba",
                 "https://nominatim.openstreetmap.org/ (المدرسة الآصفية, المدرسة المستنصرية)"
               ]
             },
@@ -3464,6 +3562,7 @@
                 "https://en.wikipedia.org/wiki/List_of_mosques_in_Baghdad",
                 "https://al-islam.org/your-personal-guide-hajj-umrah-ziyarat-mahmud-habib-zehra-habib/ziyarat-iraq",
                 "https://www.wikidata.org/wiki/Q12204312",
+                "https://mafatih.duas.co/masjid-burasa",
                 "https://nominatim.openstreetmap.org/ (جامع براثا)"
               ]
             }
@@ -3604,6 +3703,8 @@
               "ziyarat": [
                 {
                   "uid": "B6",
+                  "tab": 2,
+                  "label": "Izn-e-Dukhool Reported by Allamah al-Majlisi",
                   "note": "Permission to enter the Sardab."
                 },
                 {
@@ -3759,6 +3860,8 @@
                   "ziyarat": [
                     {
                       "uid": "B6",
+                      "tab": 2,
+                      "label": "Izn-e-Dukhool Reported by Allamah al-Majlisi",
                       "note": "Permission to enter the Sardab."
                     },
                     {
@@ -4566,7 +4669,8 @@
                 "https://lastsecond.ir/blog/9142-fatima-masumeh-shrine",
                 "https://lastsecond.ir/attractions/8885-fatima-masumeh-shrine",
                 "https://vtour.amfm.ir/",
-                "https://www.openstreetmap.org/node/4355253033"
+                "https://www.openstreetmap.org/node/4355253033",
+                "https://mafatih.duas.co/ziarat-bibi-masooma"
               ]
             },
             {
@@ -5214,6 +5318,11 @@
               "ziyarat": [
                 {
                   "uid": "AE17"
+                },
+                {
+                  "uid": "AE17",
+                  "label": "Ziyarat of Imamzadeh Hamzah",
+                  "note": "No ziyarat of his own is recorded, so he is visited with Abd al-Azim's, leaving out the greeting «O Abu al-Qasim» and the line after it."
                 }
               ],
               "buried": [
@@ -5251,7 +5360,8 @@
                 "https://en.wikishia.net/view/Abu_l-Futuh_al-Razi",
                 "https://en.wikishia.net/view/List_of_Figures_Buried_in_The_Holy_Shrine_of_'Abd_al-'Azim_al-Hasani",
                 "https://www.openstreetmap.org/search?query=حرم%20عبدالعظیم%20الحسنی",
-                "https://mafatih.duas.co/ziarat-shah-abdul-azeem"
+                "https://mafatih.duas.co/ziarat-shah-abdul-azeem",
+                "https://mafatih.duas.co/ziarat-imamzadah-hamza"
               ]
             },
             {

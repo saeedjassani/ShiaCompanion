@@ -4550,7 +4550,10 @@
   "playlistDefaultThursdayNight": "Thursday Night",
   "playlistDefaultFridayMorning": "Friday Morning",
   "playlistDefaultFridayAfternoon": "Friday Afternoon",
-  "playlistDefaultDailyQuran": "Daily Quran",
+  "playlistDefaultDailySurahs": "Daily Surahs",
+  "@playlistDefaultDailySurahs": {
+    "description": "A starter playlist of four surahs (Ya-Sin, Ar-Rahman, Al-Waqi'ah, Al-Mulk) to recite every day. Not the same as quranDailyItemTitle, which plays through the whole Quran."
+  },
   "playlistDefaultRamazanNights": "Mahe Ramazan Nights",
   "playlistDefaultRamazanSuhoor": "Mahe Ramazan Suhoor",
   "playlistDefaultShaban": "Shaban",
@@ -4742,5 +4745,168 @@
         "example": "15"
       }
     }
+  },
+  "quranDailyItemTitle": "Daily Quran",
+  "@quranDailyItemTitle": {
+    "description": "A playlist item that plays the Quran verse by verse, a portion each day, continuing from the verse the reader stopped at. Shown with 'Next: <verse>' under it. Also the name of the starter playlist that holds it. Not the same as playlistDefaultDailySurahs, a playlist of four surahs."
+  },
+  "quranDailyPickHint": "Plays on each day from where you left off",
+  "@quranDailyPickHint": {
+    "description": "Under quranDailyItemTitle when adding it to a playlist."
+  },
+  "quranDailyNext": "Next: {verse}",
+  "@quranDailyNext": {
+    "description": "Where listening through the Quran carries on. {verse} is a surah and verse, e.g. 'Al-Baqarah 2:142'.",
+    "placeholders": {
+      "verse": {
+        "type": "String"
+      }
+    }
+  },
+  "quranDailyDoneToday": "Done for today · next: {verse}",
+  "@quranDailyDoneToday": {
+    "description": "Today's portion of Quran listening is finished. {verse} is where tomorrow starts, e.g. 'Al-Baqarah 2:200'.",
+    "placeholders": {
+      "verse": {
+        "type": "String"
+      }
+    }
+  },
+  "quranDailyDoneTodayShort": "Today's listening is done",
+  "@quranDailyDoneTodayShort": {
+    "description": "In the Quran listening sheet, once today's portion is finished."
+  },
+  "quranDailyTodayMinutes": "{done} of {goal} min today",
+  "@quranDailyTodayMinutes": {
+    "description": "Minutes of Quran listened today against the daily goal.",
+    "placeholders": {
+      "done": {
+        "type": "int",
+        "format": "decimalPattern"
+      },
+      "goal": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "quranDailyGoalMinutes": "{minutes} min a day",
+  "@quranDailyGoalMinutes": {
+    "description": "A daily amount of Quran listening, in minutes.",
+    "placeholders": {
+      "minutes": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "quranDailyGoalJuz": "A juz a day",
+  "@quranDailyGoalJuz": {
+    "description": "A daily amount of Quran listening: one juz (one thirtieth of the Quran)."
+  },
+  "quranDailyGoalJuzHint": "The whole Quran in about a month",
+  "@quranDailyGoalJuzHint": {
+    "description": "Under quranDailyGoalJuz."
+  },
+  "quranDailyGoalOpen": "No daily limit",
+  "@quranDailyGoalOpen": {
+    "description": "A daily amount of Quran listening: none; it plays until paused."
+  },
+  "quranDailySheetTitle": "Listening through the Quran",
+  "@quranDailySheetTitle": {
+    "description": "Title of the sheet with the settings of listening to the Quran a portion a day."
+  },
+  "quranDailyChange": "Change amount or verse",
+  "@quranDailyChange": {
+    "description": "Menu item on the Daily Quran playlist item (quranDailyItemTitle): opens its settings, the daily amount and the verse it carries on from."
+  },
+  "quranDailySheetHint": "Each day carries on from where you left off, and pauses after your daily amount, always between two verses.",
+  "@quranDailySheetHint": {
+    "description": "Explains listening through the Quran a portion a day."
+  },
+  "quranDailyAmount": "Daily amount",
+  "@quranDailyAmount": {
+    "description": "How much Quran to listen to each day."
+  },
+  "quranDailyAmountHint": "Once it's reached, playback pauses at the end of the verse. You can always keep going.",
+  "@quranDailyAmountHint": {
+    "description": "Under the title of the daily amount choices."
+  },
+  "quranDailyStartFrom": "Continue from another verse",
+  "@quranDailyStartFrom": {
+    "description": "Lets the reader choose where Quran listening carries on from."
+  },
+  "quranDailyOpenReader": "Open in the reader",
+  "@quranDailyOpenReader": {
+    "description": "Opens the Quran reader at the verse listening carries on from."
+  },
+  "quranDailyStartOver": "Start again from Al-Fatihah",
+  "@quranDailyStartOver": {
+    "description": "Moves Quran listening back to the first verse of the Quran."
+  },
+  "quranDailyListen": "Listen",
+  "@quranDailyListen": {
+    "description": "Button: starts or resumes listening to the Quran from where the reader left off."
+  },
+  "quranDailyDaysListened": "{count, plural, =1{1 day} other{{count} days}}",
+  "@quranDailyDaysListened": {
+    "description": "Days on which the reader listened to some Quran.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "quranDailyKhatms": "{count, plural, =1{1 Khatm} other{{count} Khatms}}",
+  "@quranDailyKhatms": {
+    "description": "Times the reader has listened to the whole Quran.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "quranDailyDoneToast": "That's today's Quran. Tomorrow carries on from {verse}.",
+  "@quranDailyDoneToast": {
+    "description": "Shown when today's portion of Quran listening is finished. {verse} is a surah and verse, e.g. 'Al-Baqarah 2:200'.",
+    "placeholders": {
+      "verse": {
+        "type": "String"
+      }
+    }
+  },
+  "quranDailyKeepGoing": "Keep going",
+  "@quranDailyKeepGoing": {
+    "description": "Toast action: carry on listening past today's portion."
+  },
+  "quranDailyKhatmDone": "You've listened to the whole Quran. It carries on from Al-Fatihah.",
+  "@quranDailyKhatmDone": {
+    "description": "Shown when listening reaches the end of the Quran and starts again."
+  },
+  "quranVersesNeedConnection": "You're offline. The verse-by-verse recitation needs a connection.",
+  "@quranVersesNeedConnection": {
+    "description": "Shown when the verse-by-verse Quran recitation is started offline."
+  },
+  "quranPlayFromVerse": "Play from this verse",
+  "@quranPlayFromVerse": {
+    "description": "Verse menu: plays the recitation from this verse to the end of the surah (or juz)."
+  },
+  "quranTapVerseToJump": "Tap any verse to play from there. Long-press for its menu.",
+  "@quranTapVerseToJump": {
+    "description": "Shown once, the first time verse-by-verse recitation starts in the reader."
+  },
+  "quranChooseReciter": "Choose reciter",
+  "@quranChooseReciter": {
+    "description": "Title of the sheet, opened from Listen on a Quran page, choosing who recites the surah."
+  },
+  "quranReciterVerseByVerse": "Verse by verse, following the text",
+  "@quranReciterVerseByVerse": {
+    "description": "Under the verse-by-verse reciter's name in the reciter sheet: each verse is played and highlighted in turn."
+  },
+  "quranReciterWholeSurah": "The whole surah in one recording",
+  "@quranReciterWholeSurah": {
+    "description": "Under the other reciter's name in the reciter sheet: the surah is one continuous recording."
   }
 }

@@ -30,6 +30,7 @@ ZikrActionBar _bar({
   bool isCounterVisible = false,
   VoidCallback? onBookmark,
   VoidCallback? onListen,
+  VoidCallback? onListenLongPress,
   VoidCallback? onText,
 }) {
   return ZikrActionBar(
@@ -43,6 +44,7 @@ ZikrActionBar _bar({
     onBookmark: onBookmark ?? () {},
     onShare: () {},
     onListen: onListen ?? () {},
+    onListenLongPress: onListenLongPress,
     onText: onText ?? () {},
     onCounter: () {},
   );
@@ -181,6 +183,22 @@ void main() {
       await t.pump();
 
       expect(taps, 1);
+    });
+
+    testWidgets('long-pressing Listen chooses the reciter, when it can',
+        (t) async {
+      var taps = 0;
+      var holds = 0;
+      await t.pumpWidget(_host(_bar(
+        onListen: () => taps++,
+        onListenLongPress: () => holds++,
+      )));
+
+      await t.longPress(find.text('Listen'));
+      await t.pump();
+
+      expect(holds, 1);
+      expect(taps, 0);
     });
 
     testWidgets('tapping Text calls through', (t) async {

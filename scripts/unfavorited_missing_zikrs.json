@@ -4,10 +4,10 @@
  "counts": {
   "total": 209,
   "menuCategory": 7,
-  "retired": 72,
-  "restored": 33,
-  "toRestoreHasArabic": 55,
-  "toRestoreProseOnly": 42
+  "retired": 92,
+  "restored": 37,
+  "toRestoreHasArabic": 44,
+  "toRestoreProseOnly": 29
  },
  "uids": [
   {
@@ -85,8 +85,10 @@
   {
    "uid": "AE2",
    "title": "Merits and Methods of Visiting Imam Ali Ibn Moosa Al Reza",
-   "kind": "prose-only",
-   "itemsBytes": 8769
+   "kind": "retired",
+   "itemsBytes": 8769,
+   "retiredTo": "AE3",
+   "note": "Mafatih's ten narrations on the merits of visiting Imam al-Reza, prose only; now the opening of AE3's merits (2026-11-26)."
   },
   {
    "uid": "AE3",
@@ -127,38 +129,50 @@
   {
    "uid": "AE9",
    "title": "Granting of requests at Imam Al Reza's Tomb",
-   "kind": "prose-only",
-   "itemsBytes": 1940
+   "kind": "retired",
+   "itemsBytes": 1940,
+   "retiredTo": "AE3",
+   "note": "Asking for a need at the tomb and Salat Ja'far there, prose only; now in AE3's merits (2026-11-26)."
   },
   {
    "uid": "AE10",
    "title": "Imam Al Reza's Journey To Khurasan",
-   "kind": "prose-only",
-   "itemsBytes": 4090
+   "kind": "retired",
+   "itemsBytes": 4090,
+   "retiredTo": "AE3",
+   "note": "The Imam's journey to Khurasan and the Golden Chain hadith (its Arabic lines from the Urdu Mafatih), prose; now in AE3's merits (2026-11-26)."
   },
   {
    "uid": "AE11",
    "title": "Visitation of a king to the shrine of Imam Al Reza (a)",
-   "kind": "prose-only",
-   "itemsBytes": 3041
+   "kind": "retired",
+   "itemsBytes": 3041,
+   "retiredTo": "AE3",
+   "note": "Shah Abbas I and the shrine (Matla' al-Shams), prose; now in AE3's merits (2026-11-26)."
   },
   {
    "uid": "AE12",
    "title": "Miracles Shown in Imam Al Reza's Holy Shrine",
-   "kind": "prose-only",
-   "itemsBytes": 1588
+   "kind": "retired",
+   "itemsBytes": 1588,
+   "retiredTo": "AE3",
+   "note": "Al-Tabrisi and al-Hurr al-Amili on the shrine's miracles, prose; now in AE3's merits (2026-11-26)."
   },
   {
    "uid": "AE13",
    "title": "Poetic verses composed by Al Jami praising Al Reza",
-   "kind": "prose-only",
-   "itemsBytes": 780
+   "kind": "retired",
+   "itemsBytes": 780,
+   "retiredTo": "AE3",
+   "note": "Shaykh Abbas al-Qummi's close and al-Jami's verses, not recited; now the end of AE3's merits (2026-11-26)."
   },
   {
    "uid": "AE14",
    "title": "Visiting Lady Fatimah Al Masumah in Qum",
-   "kind": "prose-only",
-   "itemsBytes": 1258
+   "kind": "retired",
+   "itemsBytes": 1258,
+   "retiredTo": "G78",
+   "note": "Mafatih's merits of Lady Masuma, prose only; now G78's merits, with the third narration (2026-11-26)."
   },
   {
    "uid": "AE16",
@@ -175,8 +189,10 @@
   {
    "uid": "AE18",
    "title": "The Shrine of Hamzah - the Son of Imam Al Kazim",
-   "kind": "prose-only",
-   "itemsBytes": 1469
+   "kind": "retired",
+   "itemsBytes": 1469,
+   "retiredTo": "AE17",
+   "note": "Imamzadeh Hamzah in Rey (recite Abd al-Azim's ziyarat without its two lines naming him), Abu al-Futuh and al-Saduq; now the end of AE17's merits (2026-11-26)."
   },
   {
    "uid": "AF~AM5",
@@ -234,9 +250,10 @@
   {
    "uid": "AG15",
    "title": "Explanations about the additions in Ziyarah Warith)",
-   "kind": "has-arabic",
+   "kind": "retired",
    "itemsBytes": 2257,
-   "note": "NOT a clean duplicate: AG14 carries its \"Commentary\" paragraph but drops the \"However, some books add...\" tail - merge that tail into AG14, then retire AG15 to AG14."
+   "note": "Its tail (the lines some books add after Warith's last salutation, and Shaykh al-Nuri's verdict) is in AG14's merits (2026-11-22).",
+   "retiredTo": "AG14"
   },
   {
    "uid": "AG16",
@@ -253,13 +270,15 @@
   {
    "uid": "AG20",
    "title": "Visiting Imam Husayn (a) on Special Occasions",
-   "kind": "has-arabic",
-   "itemsBytes": 5042
+   "kind": "retired",
+   "itemsBytes": 5042,
+   "retiredTo": "AG1",
+   "note": "Prose (the blessed times, visiting from far away) and one greeting, now AG1's merits and recited lines (2026-11-22)."
   },
   {
    "uid": "AG21",
    "title": "Merits And Etiquettes of the Soil of Imam Husayn's (a) Tomb",
-   "kind": "has-arabic",
+   "kind": "restored",
    "itemsBytes": 30453
   },
   {
@@ -531,8 +550,9 @@
   {
    "uid": "AM1",
    "title": "Visiting and offering Prayers in Masjid Burasa",
-   "kind": "prose-only",
-   "itemsBytes": 6201
+   "kind": "retired",
+   "itemsBytes": 6201,
+   "note": "Mafatih's merits of Masjid Buratha, nothing to recite; dropped without a redirect, never favorited (the owner, 2026-11-23). The guide's Buratha page covers the mosque."
   },
   {
    "uid": "AM2",
@@ -549,38 +569,48 @@
   {
    "uid": "AM4",
    "title": "Visiting the Tomb of Shaykh Al Kulayni",
-   "kind": "prose-only",
-   "itemsBytes": 1089
+   "kind": "retired",
+   "itemsBytes": 1089,
+   "note": "Mafatih's paragraph on al-Kulayni after the deputies' ziyarat, now the end of AM3's merits (2026-11-23).",
+   "retiredTo": "AM3"
   },
   {
    "uid": "AP1",
    "title": "Ziyarah of The Holy Prophet, Lady Fatimah Al-Zahra and The Imams in Al Baqi Cemetery",
-   "kind": "prose-only",
-   "itemsBytes": 5105
+   "kind": "retired",
+   "itemsBytes": 5105,
+   "note": "Merits of visiting the Prophet, Lady Fatimah and the Imams of al-Baqi, now in the merits of AP2 (the Prophet), AP4 (the three-day greeting) and AP8 (Imams al-Hasan, al-Baqir, al-Sadiq) (2026-11-23).",
+   "retiredTo": "AP2"
   },
   {
    "uid": "AP3",
    "title": "Aamal e Rouza e Munawwara",
-   "kind": "prose-only",
-   "itemsBytes": 626
+   "kind": "retired",
+   "itemsBytes": 626,
+   "note": "Where Lady Fatimah is visited from (the Rawdah; three opinions on her burial), now in AP4's merits (2026-11-23).",
+   "retiredTo": "AP4"
   },
   {
    "uid": "AP5",
    "title": "Visiting The Holy Prophet from a Distance",
-   "kind": "has-arabic",
+   "kind": "restored",
    "itemsBytes": 30401
   },
   {
    "uid": "AP6",
    "title": "Ziyarah of Holy Prophet (s) and The Holy Infallibles on Friday from a Distance",
-   "kind": "has-arabic",
-   "itemsBytes": 3577
+   "kind": "retired",
+   "itemsBytes": 3577,
+   "note": "The Friday ziyarat of the Prophet and the Imams from afar, now AP5's first tab (2026-11-23).",
+   "retiredTo": "AP5 tabs[0]"
   },
   {
    "uid": "AP7",
    "title": "Merits of greeting The Holy Prophet (s)",
-   "kind": "has-arabic",
-   "itemsBytes": 5268
+   "kind": "retired",
+   "itemsBytes": 5268,
+   "note": "Imam Ali's salawat from his Friday sermon, now AP5's second tab; its narrations are AP5's merits (2026-11-23).",
+   "retiredTo": "AP5 tabs[1]"
   },
   {
    "uid": "AP8",
@@ -597,8 +627,9 @@
   {
    "uid": "AP10",
    "title": "Part of Poetry of Shaykh Al Azari (r)",
-   "kind": "has-arabic",
-   "itemsBytes": 5646
+   "kind": "retired",
+   "itemsBytes": 5646,
+   "note": "Verses of al-Uzri's qasida that Mafatih quotes in the Madinah section, not recited; dropped without a redirect, never favorited (the owner, 2026-11-23)."
   },
   {
    "uid": "AP11",
@@ -609,7 +640,7 @@
   {
    "uid": "AP12",
    "title": "The revered Mosques in Al Madinah",
-   "kind": "has-arabic",
+   "kind": "restored",
    "itemsBytes": 4678
   },
   {
@@ -621,8 +652,10 @@
   {
    "uid": "AP14",
    "title": "Recommended deeds in the Holy city of Madinah",
-   "kind": "has-arabic",
-   "itemsBytes": 7699
+   "kind": "retired",
+   "itemsBytes": 7699,
+   "note": "Madinah's acts and the Prophet's Mosque, now AP12's main part (2026-11-23).",
+   "retiredTo": "AP12"
   },
   {
    "uid": "AQ1",
@@ -673,8 +706,10 @@
   {
    "uid": "B5",
    "title": "Asking Permission for Entering The Holy Shrines (Izn Dukhool)",
-   "kind": "has-arabic",
-   "itemsBytes": 4928
+   "kind": "retired",
+   "itemsBytes": 4928,
+   "retiredTo": "B6",
+   "note": "Kaf'ami's permission to enter, now B6's first tab beside al-Majlisi's (2026-11-22)."
   },
   {
    "uid": "B~AR9",
@@ -907,13 +942,15 @@
   {
    "uid": "G28",
    "title": "Visiting the Tombs of descendants of the Holy Imams (a)",
-   "kind": "prose-only",
-   "itemsBytes": 1884
+   "kind": "retired",
+   "itemsBytes": 1884,
+   "retiredTo": "G78",
+   "note": "Mafatih's introduction to visiting the Imams' descendants, prose only; it leads into Lady Masuma's section and opens G78's merits (2026-11-26)."
   },
   {
    "uid": "G31",
    "title": "Bidding Farewell to the Holy Imams",
-   "kind": "has-arabic",
+   "kind": "restored",
    "itemsBytes": 7042
   },
   {

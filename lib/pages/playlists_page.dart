@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 
 import '../constants.dart';
 import '../data/uid_title_data.dart';
+import '../models/quran_listening.dart';
 import '../models/zikr_audio_track.dart';
 import '../models/zikr_playlist.dart';
 import '../services/analytics_service.dart';
@@ -13,6 +14,7 @@ import '../services/zikr_translations.dart';
 import '../services/audio_download_store.dart';
 import '../services/favorites_manager.dart';
 import '../services/playlist_audio_service.dart';
+import '../services/quran_listening_store.dart';
 import '../services/smart_actions_service.dart';
 import '../services/zikr_audio_index.dart';
 import '../services/zikr_playlist_store.dart';
@@ -26,6 +28,8 @@ import '../widgets/now_playing_capsule.dart';
 import '../widgets/outline_icon.dart';
 import '../widgets/page_chrome.dart';
 import 'downloaded_audio_page.dart';
+import 'quran/quran_daily_listening.dart';
+import 'quran/quran_navigation.dart';
 import 'zikr/zikr_page.dart';
 import '../l10n/l10n.dart';
 import '../widgets/app_toast.dart';
@@ -33,6 +37,7 @@ import '../widgets/app_toast.dart';
 /// The zikr's title as the index knows it, falling back to its uid while the
 /// index is still loading.
 String _zikrTitle(String uid) {
+  if (uid == quranDailyUid) return L10n.current.quranDailyItemTitle;
   final title = items[uid]?.toString().trim() ?? '';
   return title.isEmpty ? uid : zikrDisplayTitle(uid, title);
 }
@@ -461,7 +466,12 @@ class _PlaylistsPageState extends State<PlaylistsPage> {
     );
 
     return ListenableBuilder(
-      listenable: Listenable.merge([store, audio, downloads]),
+      listenable: Listenable.merge([
+        store,
+        audio,
+        downloads,
+        QuranListeningStore.instance,
+      ]),
       builder: (context, _) {
         final playlists = store.playlists;
         return LargeTitlePage(
@@ -562,6 +572,10 @@ class _PlaylistsPageState extends State<PlaylistsPage> {
 String _playlistSummary(ZikrPlaylist playlist, List<ZikrAudioTrack> tracks) {
   final l10n = L10n.current;
   final uids = playlist.zikrUids;
+  // A playlist of the Quran day by day alone says where it carries on.
+  if (uids.length == 1 && uids.single == quranDailyUid) {
+    return quranDailyStatus(QuranListeningStore.instance.state, l10n);
+  }
   final summary = uids.isNotEmpty && uids.length <= 2
       ? uids.map(_zikrTitle).join(l10n.listSeparator)
       : _countLabel(uids.length);
@@ -578,9 +592,14 @@ String _playlistSummary(ZikrPlaylist playlist, List<ZikrAudioTrack> tracks) {
       summary,
       uids
           .where(
-            (uid) => !downloads.allDownloaded(
-              playlist.tracksFor(uid, ZikrAudioIndex.instance.tracksFor(uid)),
-            ),
+            (uid) =>
+                uid != quranDailyUid &&
+                !downloads.allDownloaded(
+                  playlist.tracksFor(
+                    uid,
+                    ZikrAudioIndex.instance.tracksFor(uid),
+                  ),
+                ),
           )
           .length,
     ),
@@ -768,7 +787,12 @@ class _PlaylistDetailPageState extends State<PlaylistDetailPage> {
     final downloads = AudioDownloadStore.instance;
 
     return ListenableBuilder(
-      listenable: Listenable.merge([store, audio, downloads]),
+      listenable: Listenable.merge([
+        store,
+        audio,
+        downloads,
+        QuranListeningStore.instance,
+      ]),
       builder: (context, _) {
         final playlist = store.byId(playlistId);
         if (playlist == null) {
@@ -806,7 +830,12 @@ class _PlaylistDetailPageState extends State<PlaylistDetailPage> {
                     ),
                   )
                   .length;
-        final count = _countLabel(playlist.zikrUids.length);
+        final onlyDaily =
+            playlist.zikrUids.length == 1 &&
+            playlist.zikrUids.single == quranDailyUid;
+        final count = onlyDaily
+            ? quranDailyGoalLabel(QuranListeningStore.instance.state.goal, l10n)
+            : _countLabel(playlist.zikrUids.length);
         // Nothing to edit once the last one is removed.
         final editing = _editing && playlist.zikrUids.isNotEmpty;
 
@@ -926,6 +955,15 @@ class _PlaylistDetailPageState extends State<PlaylistDetailPage> {
     final store = ZikrPlaylistStore.instance;
     final downloads = AudioDownloadStore.instance;
     final uid = playlist.zikrUids[index];
+    if (uid == quranDailyUid) {
+      return _buildDailyRow(
+        context,
+        playlist,
+        index,
+        playing: playing,
+        editing: editing,
+      );
+    }
     final available = _audioReady
         ? ZikrAudioIndex.instance.tracksFor(uid)
         : const <ZikrAudioTrack>[];
@@ -1104,6 +1142,129 @@ class _PlaylistDetailPageState extends State<PlaylistDetailPage> {
   }
 }
 
+/// The row of a playlist's [quranDailyUid] item: where the Quran carries on
+/// from today rather than a recording, and its settings behind ⋯.
+Widget _buildDailyRow(
+  BuildContext context,
+  ZikrPlaylist playlist,
+  int index, {
+  required bool playing,
+  required bool editing,
+}) {
+  final l10n = context.l10n;
+  final colors = ShiaColors.of(context);
+  final store = ZikrPlaylistStore.instance;
+  final audio = PlaylistAudioService.instance;
+  final state = QuranListeningStore.instance.state;
+  final title = l10n.quranDailyItemTitle;
+  final last = index == playlist.zikrUids.length - 1;
+
+  final row = CardListRow(
+    first: index == 0,
+    last: last,
+    minHeight: 60,
+    leading: editing
+        ? RowRemoveButton(
+            label: l10n.playlistRemoveFrom(title),
+            onPressed: () => store.removeAt(playlist.id, index),
+          )
+        : playing
+        ? Container(
+            width: 32,
+            height: 32,
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              color: colors.accent,
+              shape: BoxShape.circle,
+            ),
+            child: OutlineIcon(
+              OutlineGlyph.speaker,
+              size: 18,
+              color: colors.onAccent,
+            ),
+          )
+        : NumberWell(index + 1, size: 32),
+    title: Text(title),
+    titleStyle: ShiaText.body.copyWith(
+      fontWeight: playing ? FontWeight.w600 : FontWeight.w400,
+    ),
+    subtitle: playing && audio.current != null
+        ? Text(
+            audio.current!.title,
+            style: TextStyle(color: colors.accent, fontWeight: FontWeight.w600),
+          )
+        : Text(quranDailyStatus(state, l10n)),
+    trailing: editing
+        ? ReorderableDragStartListener(
+            index: index,
+            child: ExcludeSemantics(
+              child: SizedBox.square(
+                dimension: 44,
+                child: Center(
+                  child: OutlineIcon(
+                    OutlineGlyph.dragHandle,
+                    color: colors.chevron,
+                  ),
+                ),
+              ),
+            ),
+          )
+        : Builder(
+            builder: (anchor) => MoreButton(
+              label: l10n.playlistMoreFor(title),
+              onPressed: () async {
+                final value = await showMenuAt<String>(anchor, [
+                  PopupMenuItem(
+                    value: 'settings',
+                    child: Text(l10n.quranDailyChange),
+                  ),
+                  PopupMenuItem(
+                    value: 'open',
+                    child: Text(l10n.quranDailyOpenReader),
+                  ),
+                  PopupMenuItem(
+                    value: 'remove',
+                    child: Text(l10n.playlistRemoveZikr),
+                  ),
+                ]);
+                if (!context.mounted) return;
+                switch (value) {
+                  case 'settings':
+                    await showQuranDailySheet(context);
+                  case 'open':
+                    await openQuranVerse(
+                      context,
+                      QuranListeningStore.instance.state.nextVerse,
+                      source: ZikrOpenSource.playlist,
+                    );
+                  case 'remove':
+                    await store.removeAt(playlist.id, index);
+                }
+              },
+            ),
+          ),
+    onTap: editing
+        ? null
+        : () => _startPlaylist(context, playlist, startZikrIndex: index),
+  );
+
+  return ReorderableDelayedDragStartListener(
+    key: const ValueKey(quranDailyUid),
+    index: index,
+    child: Semantics(
+      customSemanticsActions: {
+        if (index > 0)
+          CustomSemanticsAction(label: l10n.playlistMoveUp): () =>
+              store.move(playlist.id, index, index - 1),
+        if (!last)
+          CustomSemanticsAction(label: l10n.playlistMoveDown): () =>
+              store.move(playlist.id, index, index + 1),
+      },
+      child: row,
+    ),
+  );
+}
+
 /// "Playing · 3:12 of 9:40", kept up to date as the recording plays.
 class _PlayingPosition extends StatelessWidget {
   const _PlayingPosition({required this.color});
@@ -1219,18 +1380,15 @@ class _AddRecitationsPageState extends State<AddRecitationsPage> {
   }) {
     final l10n = context.l10n;
     final inPlaylist = surahs.where(playlist.zikrUids.contains).length;
-    final count = l10n.listCountSurahs(surahs.length);
     return Semantics(
       expanded: open,
       child: CardListRow(
         first: first,
         last: last && !open,
         title: Text(l10n.quranTitle),
-        subtitle: Text(
-          inPlaylist == 0
-              ? count
-              : '$count · ${l10n.playlistSectionAdded(inPlaylist)}',
-        ),
+        subtitle: inPlaylist == 0
+            ? null
+            : Text(l10n.playlistSectionAdded(inPlaylist)),
         trailing: AnimatedRotation(
           turns: open ? 0.5 : 0,
           duration: const Duration(milliseconds: 200),
@@ -1339,7 +1497,11 @@ class _AddRecitationsPageState extends State<AddRecitationsPage> {
     final quranOpen = _quranOpen || query.isNotEmpty;
     // The section sits after the reader's favorites, before everything else.
     final favoriteCount = others.takeWhile((uid) => rank(uid) == 0).length;
+    final dailyMatches =
+        query.isEmpty ||
+        L10n.current.quranDailyItemTitle.toLowerCase().contains(query);
     final visible = <String>[
+      if (dailyMatches) quranDailyUid,
       ...others.take(favoriteCount),
       if (surahs.isNotEmpty) _quranSectionRow,
       if (quranOpen) ...surahs,
@@ -1369,7 +1531,13 @@ class _AddRecitationsPageState extends State<AddRecitationsPage> {
                     : SliverCardList(
                         itemCount: visible.length,
                         itemBuilder: (context, index) =>
-                            visible[index] == _quranSectionRow
+                            visible[index] == quranDailyUid
+                            ? _buildDailyPickRow(
+                                playlist,
+                                first: index == 0,
+                                last: index == visible.length - 1,
+                              )
+                            : visible[index] == _quranSectionRow
                             ? _buildQuranSectionRow(
                                 context,
                                 playlist,
@@ -1391,6 +1559,27 @@ class _AddRecitationsPageState extends State<AddRecitationsPage> {
       },
     );
   }
+}
+
+/// The Quran day by day, to tick into [playlist]: it plays on each day from
+/// where the last stopped, whatever playlist it is in.
+Widget _buildDailyPickRow(
+  ZikrPlaylist playlist, {
+  required bool first,
+  required bool last,
+}) {
+  final store = ZikrPlaylistStore.instance;
+  final at = playlist.zikrUids.indexOf(quranDailyUid);
+  return CardListRow(
+    first: first,
+    last: last,
+    leading: _Tick(at >= 0),
+    title: Text(L10n.current.quranDailyItemTitle),
+    subtitle: Text(L10n.current.quranDailyPickHint),
+    onTap: () => at >= 0
+        ? store.removeAt(playlist.id, at)
+        : store.addZikr(playlist.id, quranDailyUid),
+  );
 }
 
 /// A zikr to tick into [playlist]. One with several recordings gets a row

@@ -123,8 +123,9 @@ const Map<String, RetiredZikrRedirect> retiredZikrRedirects = {
   /// verbatim the entrance/Izn-Dukhool preamble already embedded at the top
   /// of AH5's main data ("Ziyarah of Imam Muhammad al-Jawad - Kazimayn").
   /// AH10 also never actually delivers on its own title: it has zero
-  /// farewell/wida content despite promising it.
-  'AH10': RetiredZikrRedirect('AH5'),
+  /// farewell/wida content despite promising it. Its farewell (Ansariyan's,
+  /// from the old item) is now AH9's last tab, so it shows that tab alone.
+  'AH10': RetiredZikrRedirect('AH9', tabs: [1]),
 
   /// I12 ("Merits of reciting Ayah Kursi, Ayah Al Shahadah, Ayah Al Mulk
   /// after every Namaz") is a reworded/retranslated duplicate of I9's
@@ -507,4 +508,71 @@ const Map<String, RetiredZikrRedirect> retiredZikrRedirects = {
   'AH1': RetiredZikrRedirect('AH9'),
   'AH3': RetiredZikrRedirect('AH2', tabIndex: 0),
   'AH11': RetiredZikrRedirect('AH9'),
+
+  /// Karbala: AG15 (Explanations about the additions in Ziyarah Warith) was
+  /// Mafatih al-Jinan's note that the lines some books add after Ziyarat
+  /// Warith's last salutation are not narrated; AG14 carried its first part
+  /// already, and now its tail too. AG20 (Visiting Imam Husayn on Special
+  /// Occasions) was prose - the blessed times to visit him and two
+  /// narrations on visiting him from far away - with one short greeting,
+  /// all now in AG1. Their targets' slugAliases keep the old titles' slugs.
+  'AG15': RetiredZikrRedirect('AG14'),
+  'AG20': RetiredZikrRedirect('AG1'),
+
+  /// B5 (Asking Permission for Entering The Holy Shrines) was Shaykh
+  /// al-Kaf'ami's permission to enter, Mafatih al-Jinan's first form; B6
+  /// carried only the second, al-Majlisi's. B6 now has both, Kaf'ami's as
+  /// its first tab, and its slugAliases keep B5's slug.
+  'B5': RetiredZikrRedirect('B6'),
+
+  /// Baghdad: AM4 (Visiting the Tomb of Shaykh al-Kulayni) was Mafatih
+  /// al-Jinan's paragraph after the deputies' ziyarat, on its own page, with
+  /// nothing to recite; it closes AM3's merits now, and AM3's slugAliases
+  /// keep its slug.
+  'AM4': RetiredZikrRedirect('AM3'),
+
+  /// Madinah: AP1 (the merits of visiting the Holy Prophet, Lady Fatimah
+  /// and the Imams of al-Baqi) and AP3 (where Lady Fatimah is visited from,
+  /// and the three opinions on her burial) were Mafatih al-Jinan's prose,
+  /// with nothing to recite. They are in the merits of AP2, AP4 and AP8;
+  /// their targets' slugAliases keep the old titles' slugs.
+  'AP1': RetiredZikrRedirect('AP2'),
+  'AP3': RetiredZikrRedirect('AP4'),
+
+  /// AP14 (Recommended deeds in the Holy city of Madinah) is the main part
+  /// of AP12, Madinah's acts and its mosques (Quba, al-Fath and the others
+  /// are AP12's tabs); AP12's slugAliases keep its slug.
+  'AP14': RetiredZikrRedirect('AP12'),
+
+  /// The Holy Prophet (s.a.w.a.) from a distance is one tabbed entry, AP5
+  /// (al-Majlisi's ziyarat from afar first): AP6 (the Friday ziyarat of the
+  /// Prophet and the Imams from afar) is its first tab, and AP7 (Imam Ali's
+  /// salawat from his Friday sermon, its narrations on greeting the Prophet
+  /// now AP5's merits) its second. AP5's slugAliases keep their slugs.
+  'AP6': RetiredZikrRedirect('AP5', tabIndex: 0),
+  'AP7': RetiredZikrRedirect('AP5', tabIndex: 1),
+
+  /// Iran: AE14 (Visiting Lady Fatimah al-Masumah in Qum) and G28 (Visiting
+  /// the Tombs of the Descendants of the Holy Imams) were Mafatih al-Jinan's
+  /// prose, with nothing to recite: G28 introduces the Imams' descendants and
+  /// leads into Lady Masuma, AE14 is her shrine and merits. Both are G78's
+  /// merits now. AE18 (the shrine of Hamzah, son of Imam al-Kazim, in Rey)
+  /// was prose too - visit him with Abd al-Azim's ziyarat - and closes AE17's
+  /// merits. Their targets' slugAliases keep the old titles' slugs.
+  'AE14': RetiredZikrRedirect('G78'),
+  'AE18': RetiredZikrRedirect('AE17'),
+  'G28': RetiredZikrRedirect('G78'),
+
+  /// Mashhad: AE2 (the merits of visiting Imam al-Reza), AE9 (asking for a
+  /// need at his tomb, Salat Ja'far there), AE10 (his journey to Khurasan
+  /// and the Golden Chain), AE11 (Shah Abbas I and the shrine), AE12 (the
+  /// shrine's miracles) and AE13 (al-Jami's verses) were Mafatih al-Jinan's
+  /// prose around the ziyarat, with nothing to recite. They are AE3's
+  /// merits now, and its slugAliases keep their slugs.
+  'AE2': RetiredZikrRedirect('AE3'),
+  'AE9': RetiredZikrRedirect('AE3'),
+  'AE10': RetiredZikrRedirect('AE3'),
+  'AE11': RetiredZikrRedirect('AE3'),
+  'AE12': RetiredZikrRedirect('AE3'),
+  'AE13': RetiredZikrRedirect('AE3'),
 };
