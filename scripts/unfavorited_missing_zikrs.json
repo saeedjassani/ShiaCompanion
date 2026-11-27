@@ -4,9 +4,9 @@
  "counts": {
   "total": 209,
   "menuCategory": 7,
-  "retired": 92,
-  "restored": 37,
-  "toRestoreHasArabic": 44,
+  "retired": 94,
+  "restored": 38,
+  "toRestoreHasArabic": 41,
   "toRestoreProseOnly": 29
  },
  "uids": [
@@ -79,8 +79,10 @@
   {
    "uid": "AE1",
    "title": "News of Safi the Servant of Imam al Hadi (a) and his journey to Mashhad",
-   "kind": "has-arabic",
-   "itemsBytes": 8350
+   "kind": "retired",
+   "itemsBytes": 8350,
+   "retiredTo": "B1",
+   "note": "Safi's rings for the journey to Tus, part of Mafatih's etiquette of travel: the rings in B1's second tab, the story in its merits, the two duas in its third tab (2026-11-27)."
   },
   {
    "uid": "AE2",
@@ -694,14 +696,16 @@
   {
    "uid": "B1",
    "title": "Etiquettes of Travel",
-   "kind": "has-arabic",
+   "kind": "restored",
    "itemsBytes": 11100
   },
   {
    "uid": "B2",
    "title": "Etiquettes of Journey",
-   "kind": "has-arabic",
-   "itemsBytes": 9296
+   "kind": "retired",
+   "itemsBytes": 9296,
+   "retiredTo": "B1",
+   "note": "Mafatih's numbered etiquettes on the road, now B1's third tab, On the Way (2026-11-27)."
   },
   {
    "uid": "B5",
