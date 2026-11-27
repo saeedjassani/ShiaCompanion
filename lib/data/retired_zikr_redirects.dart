@@ -575,4 +575,14 @@ const Map<String, RetiredZikrRedirect> retiredZikrRedirects = {
   'AE11': RetiredZikrRedirect('AE3'),
   'AE12': RetiredZikrRedirect('AE3'),
   'AE13': RetiredZikrRedirect('AE3'),
+
+  /// Travel: Mafatih al-Jinan opens its chapter on ziyarat with one page on
+  /// the etiquette of travel, which the old corpus split in three. B1 is the
+  /// whole page now, in three tabs: setting out, what to take along, and on
+  /// the way. B2 (Etiquettes of Journey, the numbered etiquettes on the road)
+  /// is the third tab; AE1 (Safi, Imam al-Hadi's servant, and his rings on
+  /// the way to Mashhad) is the rings of the second, its story in B1's
+  /// merits, and its two duas in the third. B1's slugAliases keep their slugs.
+  'B2': RetiredZikrRedirect('B1', tabIndex: 1),
+  'AE1': RetiredZikrRedirect('B1', tabIndex: 0),
 };

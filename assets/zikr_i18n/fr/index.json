@@ -3,7 +3,10 @@
     "A3": "Doua Khatm al-Coran",
     "D12": "Doua après la prière pour demander la subsistance",
     "E150": "Doua du Saint Prophète (s)",
+    "E37": "Doua Sanamay Qoraych",
     "E93": "Doua avant de lire un livre",
+    "G64": "Ziyarat de l’Imam Zayn al-‘Abidîn (a)",
+    "G81": "Ziyarat de Dame Umm al-Banîn (a)",
     "H1": "1er Entretien intime des Repentants - Munajat al-Taibeen",
     "H10": "10e Entretien intime de ceux qui demandent l’intercession - Munajat al-Mutawassileen",
     "H11": "11e Entretien intime des Indigents - Munajat al-Muftaqireen",
@@ -18,6 +21,15 @@
     "H6": "6e Entretien intime des Reconnaissants - Munajat al-Shakireen",
     "H7": "7e Entretien intime des Obéissants à Dieu - Munajat al-Muteeen Lillah",
     "H8": "8e Entretien intime des Dévots - Munajat al-Mureedeen",
-    "H9": "9e Entretien intime de ceux qui aiment - Munajat al-Muhibbeen"
+    "H9": "9e Entretien intime de ceux qui aiment - Munajat al-Muhibbeen",
+    "X1": "Importance du mois de Rajab et de ses actes",
+    "X10": "Prière de Salmân (1er, 15 et dernier jour de Rajab)",
+    "X11": "Le treize de Rajab",
+    "X13": "Ziyarat du 15 Rajab",
+    "X2": "Actes généraux de Rajab",
+    "X3": "Invocations quotidiennes de Rajab",
+    "X4": "Ziyarat Rajabiyah",
+    "X5": "Actes divers pour le mois de Rajab",
+    "X7": "Première nuit de Rajab"
   }
 }

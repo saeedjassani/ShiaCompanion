@@ -1329,5 +1329,39 @@
       "label": "Ziyarat of Imam al-Mahdi (a.t.f.s.) after the Fajr Prayer (Allahumma Balligh)",
       "reciter": "Adel Elsheaf"
     }
+  ],
+  "X3": [
+    {
+      "file": "rajab_dua_khaab_alwafidun_musawi_96k.mp3",
+      "label": "Daily Supplications of Rajab",
+      "reciter": "Sayyid Mustafa Al-Musawi"
+    }
+  ],
+  "X5": [
+    {
+      "file": "rajab_dua_ya_man_arjuhu_abather_96k.mp3",
+      "label": "Miscellaneous Aamal for the Month of Rajab",
+      "reciter": "Abather Alhalwachi"
+    }
+  ],
+  "G79": [
+    {
+      "file": "ziyarat-abu-talib_mirza-jafar-abbas_96k.mp3",
+      "label": "Ziyarat of Hazrat Abu Talib (a.s.)",
+      "reciter": "Maulana Mirza Jafar Abbas"
+    }
+  ],
+  "G3": [
+    {
+      "file": "ziyarat_arbaeen_abather_96k.mp3",
+      "label": "Ziyarat Arbaeen",
+      "reciter": "Abather Alhalwachi"
+    }
+  ],
+  "G11": [
+    {
+      "file": "ziyarat_nahiya_duasorg_96k.mp3",
+      "label": "Ziyarat Nahiya"
+    }
   ]
 }

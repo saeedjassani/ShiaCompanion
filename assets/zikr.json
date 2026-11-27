@@ -895,6 +895,10 @@
       "the-shrine-of-hamzah-the-son-of-imam-al-kazim"
     ]
   },
+  "AE19": {
+    "title": "Ziyarat of Imam Ali al-Reza (a.s.) — Other Forms",
+    "slug": "ziyarat-of-imam-ali-al-reza-a-s-other-forms"
+  },
   "AE3": {
     "title": "Ziyarat of Imam Ali al-Reza (a.s.) — Mashhad (All Forms)",
     "slug": "method-of-visiting-imam-al-reza",
@@ -1176,6 +1180,10 @@
       "visiting-the-tomb-of-shaykh-al-kulayni"
     ]
   },
+  "AM6": {
+    "title": "Ziyarat of Uthman ibn Sa'id al-Amri (r.a.)",
+    "slug": "ziyarat-of-uthman-ibn-sa-id-al-amri-r-a"
+  },
   "AN1": {
     "title": "Ziyarat of Sayyid Muhammad, Son of Imam Ali al-Hadi (a.s.) — Balad",
     "slug": "ziyarah-sayed-mohammed-balad"
@@ -1247,6 +1255,14 @@
     "title": "Ziyarat of Halimah al-Sa'diyyah (r.a.), Foster Mother of the Holy Prophet (s.a.w.a.)",
     "slug": "ziyarat-of-halimah-al-sa-diyyah-r-a-foster-mother-of-the-holy-prophet-s-a-w-a"
   },
+  "AP22": {
+    "title": "Ziyarat of Abdullah ibn Abd al-Muttalib, Father of the Holy Prophet (s.a.w.a.)",
+    "slug": "ziyarat-of-abdullah-ibn-abd-al-muttalib-father-of-the-holy-prophet-s-a-w-a"
+  },
+  "AP23": {
+    "title": "Ziyarat of the Martyrs of al-Harrah",
+    "slug": "ziyarat-of-the-martyrs-of-al-harrah"
+  },
   "AQ2": {
     "title": "Ziyarat of Hamzah (a.s.) and the Martyrs of Uhud",
     "slug": "visiting-the-tomb-of-hamzah-at-uhud",
@@ -1272,6 +1288,10 @@
   "AQ8": {
     "title": "Ziyarat of Prophet Isma'il (a.s.), Lady Hajar (s.a.) and the Prophets Buried in the Hijr",
     "slug": "ziyarat-of-prophet-isma-il-a-s-lady-hajar-s-a-and-the-prophets-buried-in-the-hijr"
+  },
+  "AQ9": {
+    "title": "Ziyarat of Lady Aminah bint Wahb (s.a.), Mother of the Holy Prophet (s.a.w.a.)",
+    "slug": "ziyarat-of-lady-aminah-bint-wahb-s-a-mother-of-the-holy-prophet-s-a-w-a"
   },
   "AS1": {
     "title": "Sahifa Sajjadiya 1: In Praise of Allah",
@@ -1497,6 +1517,14 @@
   "AS9": {
     "title": "Sahifa Sajjadiya 9: Yearning for Forgiveness",
     "slug": "sahifa-sajjadiya-9-yearning-for-forgiveness"
+  },
+  "B1": {
+    "title": "Etiquettes of Travel",
+    "slug": "etiquettes-of-travel",
+    "slugAliases": [
+      "etiquettes-of-journey",
+      "news-of-safi-the-servant-of-imam-al-hadi-a-and-his-journey-to-mashhad"
+    ]
   },
   "B3": {
     "title": "Etiquettes of Ziyarat",
