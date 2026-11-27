@@ -1017,15 +1017,52 @@ phase 1": add any the owner can confirm.
 - `zikr_i18n.py rebase` pinned the eight new files; `source_check.py .
   baseline` unchanged.
 
+**Session 19 (2026-11-27): batch 19, four groups at once; stopped at
+the usage warning before the translations.**
+
+- One opus agent per group, each in its own worktree, merged here:
+  AP22 (Abdullah, the Prophet's father, two forms; linked from the
+  Prophet's Mosque, his grave being opposite Bab al-Salam) and AP23 (the
+  martyrs of al-Harrah, at al-Baqi), from duas.org checked against Adab
+  al-Haramayn; AQ9 (Lady Aminah), checked against al7ajj, Adab al-Haramayn
+  and alkafeel, with a new city `abwa` and a new Makkah site
+  `fakhkh_martyrs` (no ziyarat of its own: it links AP20, Isma'il ibn
+  al-Sadiq's, as the manuals say); B1 "Etiquettes of Travel" (Mafatih's one
+  page, three tabs; B2 and AE1 retired into it, missing-uid counts now 70
+  to restore), first in "Before you go"; AN1's merits completed from
+  Mafatih's Sayyid Muhammad page; AE19 (Imam Reza's five other forms from
+  the Sahifa Radawiyya, incl. the Seven Hadith ziyarat), linked at the
+  shrine and its plan's tomb; AM6 (al-Majlisi's ziyarat of Uthman ibn
+  Sa'id, full Arabic from Bihar in OpenITI), not linked: Baghdad has no
+  site for his tomb.
+- `source_check.py . baseline` accepted B1's six AE1 lines. Review items:
+  "Batch 19" in the review file.
+- **Not done (the usage warning):** translations of the new titles,
+  labels, instruction lines and 24 guide keys, and an independent read of
+  the batch's Arabic and English. The list is in What's left item 3.
+
 **What's left (start here):**
 
 1. **The owner's device check** (as an admin): the three pages, the ten
    shrine plans (tap a gate or tomb, its card opens the ziyarat), the
    restored entries. Anything found comes first.
 2. **Reviews waiting on the owner or a native reader:** all in
-   `docs/ZIYARAT_GUIDE_REVIEW.md` (193 items). Apply any the owner has
+   `docs/ZIYARAT_GUIDE_REVIEW.md` (203 items). Apply any the owner has
    answered (ticked or a decision written next to it) before new work.
-3. **Translations still missing:** merits and verses of AE3, AP8, AQ2,
+3. **First: batch 19's translations and independent read** (session 19
+   stopped before them). In ur/fa/ar/gu, each language then read by an
+   independent reviewer (opus): the titles of AP22, AP23, AQ9, B1, AE19,
+   AM6; zikr segments AP22 0, 1, 22; AP23 0; AQ9 1; B1 0-5, 14, 20, 24,
+   25, 33, 34, 36, 38, 40, 42, 44, 45, 47, 52-61 (26-32 are Quran 28:22-28,
+   from the app's Quran); AE19 0, 1, 13, 17, 40, 44, 54, 55, 64, 82, 86,
+   111, 120, 129, 139, 150, 156, 165-168, 252-254, 333, 348, 374, 401, 422,
+   438, 439; AM6 0, 44; and the 24 guide keys `guide_keys.py check <code>`
+   lists. Check segment numbers with `zikr_i18n.py template <code> --uids
+   ...` first. Then one independent opus reader for the batch's Arabic,
+   transliteration and English (AP22, AP23, AQ9, B1, AN1, AE19, AM6)
+   against the sources their merits name. B1's Urdu verses are on
+   mafatih.duas.co `ziarat-journey-adaab`.
+   **Then, translations still missing:** merits and verses of AE3, AP8, AQ2,
    AQ5, AM3, AE17, AK4, AK17, AK19, G60, G61, AJ3 (its Quran lines are
    done; the Imam's words are not), AL8, AL9, AJ2's new merits and
    AM3's al-Kulayni paragraph (and
@@ -1060,12 +1097,13 @@ phase 1": add any the owner can confirm.
    Imam Reza's other forms, which are not in Mafatih, and AE1, which
    goes with the travel etiquette B1/B2; Najaf's Hud and Salih and Kufa's
    Maytham in session 16; Kazimayn, Samarra's farewell, Karbala's acts,
-   the Hijr Isma'il and al-Baqi's graves in session 17): **next are**
-   the leftovers still listed under "Missing ziyarats": Imam Reza's
-   Sahifa Radawiyya forms, al-Baqi's Abdullah (the Prophet's father) and
-   the martyrs of al-Harrah, Lady Aminah and the martyrs of Fakhkh,
-   al-Majlisi's ziyarat of Uthman ibn Sa'id, Balad's Sayyid Muhammad, and
-   AE1 with the travel etiquette. The owner asked for bigger batches
+   the Hijr Isma'il and al-Baqi's graves in session 17): **batch 19 did** the last leftovers (al-Baqi's Abdullah and al-Harrah,
+   Lady Aminah, Fakhkh, B1/B2/AE1, Balad, Imam Reza's Sahifa Radawiyya
+   forms, Uthman ibn Sa'id). Left in phase 3: a guide site for Uthman ibn
+   Sa'id's tomb (AM6), Imam al-Zaman's ziyarat is AE19 tab 5; the rest of
+   "Missing ziyarats" is prose not recited. After the translations, the
+   next owner-free work is item 3's published translations (Urdu from
+   mafatih.duas.co). The owner asked for bigger batches
    (session 17: four groups, one opus agent each, in parallel). Each each checked
    against an online copy, `source_check.py` baselined, linked from its
    site and plan feature, counts recounted in
