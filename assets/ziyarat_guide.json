@@ -690,6 +690,50 @@
           ]
         },
         {
+          "id": "abwa",
+          "name": "Al-Abwa'",
+          "arabicName": "الأبواء",
+          "about": "A village on the old road between Makkah and Madinah, in the district of Rabigh. Lady Aminah (s.a.), the Prophet's (s.a.w.a.) mother, is buried here, and Imam Musa al-Kazim (a.s.) was born here.",
+          "sites": [
+            {
+              "id": "aminah_bint_wahb_grave",
+              "name": "Grave of Lady Aminah bint Wahb (s.a.)",
+              "arabicName": "قبر آمنة بنت وهب",
+              "kind": "tomb",
+              "location": [
+                23.1086,
+                39.0712
+              ],
+              "about": "Lady Aminah (s.a.) died here on her way back to Makkah from Madinah, where she had taken the six-year-old Prophet (s.a.w.a.) to visit relatives, and was buried here. The Prophet (s.a.w.a.) later stopped at her grave and wept. The tomb on the hill here was levelled in 1998, and the exact spot of the grave is no longer known.",
+              "ziyarat": [
+                {
+                  "uid": "AQ9"
+                }
+              ],
+              "buried": [
+                {
+                  "id": "aminah_bint_wahb",
+                  "name": "Lady Aminah bint Wahb (s.a.)",
+                  "arabicName": "آمنة بنت وهب",
+                  "note": "Mother of the Holy Prophet (s.a.w.a.)."
+                }
+              ],
+              "tips": [],
+              "sources": [
+                "https://www.duas.org/mobile/madina-mecca-rites.html",
+                "https://al7ajj.wordpress.com/aadab-ziyarat-makka/",
+                "https://www.al-islam.org/node/136221",
+                "https://forums.alkafeel.net/node/23363",
+                "https://en.wikipedia.org/wiki/Al-Abwa%27",
+                "https://en.wikipedia.org/wiki/Amina_bint_Wahb",
+                "https://en-archive.aawsat.com/2005/04/22/al-abwaa-south-of-al-medina-al-munawwarah/",
+                "https://www.islamiclandmarks.com/?p=1057",
+                "https://nominatim.openstreetmap.org/search?q=الأبواء"
+              ]
+            }
+          ]
+        },
+        {
           "id": "makkah",
           "name": "Makkah al-Mukarramah",
           "arabicName": "مكة المكرمة",
@@ -763,6 +807,10 @@
                 },
                 {
                   "uid": "AQ7"
+                },
+                {
+                  "uid": "AQ9",
+                  "note": "Some books place her grave here; most, at al-Abwa'."
                 }
               ],
               "buried": [
@@ -831,6 +879,41 @@
                 "https://en.wikipedia.org/wiki/Makkah_Al_Mukarramah_Library",
                 "https://www.islamiclandmarks.com/makkah-other/birthplace-of-the-prophet-saw",
                 "https://nominatim.openstreetmap.org/search?q=مكتبة%20مكة%20المكرمة"
+              ]
+            },
+            {
+              "id": "fakhkh_martyrs",
+              "name": "Fakhkh: Graves of the Martyrs",
+              "arabicName": "مقبرة شهداء فخ",
+              "kind": "cemetery",
+              "location": [
+                21.4532,
+                39.8068
+              ],
+              "about": "Fakhkh, the valley now called al-Zahir or al-Shuhada, about 4 km north-west of Masjid al-Haram, is where al-Husayn ibn Ali, a descendant of Imam al-Hasan (a.s.), rose against the Abbasid caliph al-Hadi and was killed with about a hundred of Lady Fatimah's (s.a.) descendants on 8 Dhul Hijjah 169 AH. Imam al-Jawad (a.s.) is narrated to have said that after Karbala there was no greater slaughter of the family than Fakhkh.",
+              "ziyarat": [
+                {
+                  "uid": "AP20",
+                  "note": "The manuals of Hajj say to visit the martyrs of Fakhkh with this ziyarat."
+                }
+              ],
+              "buried": [
+                {
+                  "id": "martyrs_of_fakhkh",
+                  "name": "The Martyrs of Fakhkh",
+                  "arabicName": "شهداء فخ",
+                  "diedAh": 169,
+                  "note": "Al-Husayn ibn Ali, Sahib Fakhkh, and the descendants of Lady Fatimah (s.a.) killed with him."
+                }
+              ],
+              "tips": [],
+              "sources": [
+                "https://al7ajj.wordpress.com/aadab-ziyarat-makka/",
+                "https://www.al-islam.org/node/136221",
+                "https://www.duas.org/mobile/madina-mecca-rites.html",
+                "https://forums.alkafeel.net/node/142612",
+                "https://en.wikipedia.org/wiki/Battle_of_Fakhkh",
+                "https://nominatim.openstreetmap.org/search?q=الشهداء،%20مكة"
               ]
             }
           ]
