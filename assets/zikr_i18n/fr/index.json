@@ -30,6 +30,17 @@
     "X3": "Invocations quotidiennes de Rajab",
     "X4": "Ziyarat Rajabiyah",
     "X5": "Actes divers pour le mois de Rajab",
-    "X7": "Première nuit de Rajab"
+    "X7": "Première nuit de Rajab",
+    "D3": "Ta‘qîbât de la prière du Fajr",
+    "E144": "Salawât d’Abû-l-Hassan az-Zarrâb al-Isfahânî",
+    "E155": "Doua Ma‘rifat - Allâhumma ‘Arrifnî",
+    "E8": "Doua ‘Alqamah",
+    "F2": "Prière de la Nuit (Salât al-Layl)",
+    "J5|E144": "Salawât d’Abû-l-Hassan az-Zarrâb al-Isfahânî",
+    "R12|E8": "Doua ‘Alqamah"
+  },
+  "audio": {
+    "labels": {},
+    "reciters": {}
   }
 }
