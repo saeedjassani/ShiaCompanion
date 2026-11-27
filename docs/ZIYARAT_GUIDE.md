@@ -998,25 +998,32 @@ phase 1": add any the owner can confirm.
   batch's Arabic and English (the four agents wrote it; nobody else has
   read it). Review items: "Batch 17" in the review file.
 
+**Session 18 (2026-11-27): batch 17's translations and independent read.**
+
+- Translated in all four languages, each language then read by an
+  independent reviewer (opus) and its fixes applied: the titles of AQ8
+  and AP15-AP21, zikr segments AQ8 0, 29; AP15 0, 1, 14; AP16-AP21 0;
+  AG5 193, 194, 196, 197; AH9 0, 32, 49, 50, 58, 66; AK15 1, and the two
+  "Istikhara at the Head Side" guide keys. Verses and merits are not
+  translated.
+- An independent opus reader checked batch 17's Arabic, transliteration
+  and English (AH9 tab 3, AG5 tab 7, AQ8, AP15-AP21) against
+  mafatih.duas.co, duas.org, al7ajj, the Arabic Mafatih (OpenITI) and
+  Adab al-Haramayn (al-islam.org's mobi export; saleh14.com's Mi'raj
+  al-Wafidin unreachable). The Arabic matched; fixed: AP16's English
+  ("son of Ja'far al-Tayyar"), and AG5's merits now say 25 hajj, as the
+  Arabic Mafatih does (the owner's 20-or-25 item is closed). Its other
+  findings and the translators' open calls are in the review file.
+- `zikr_i18n.py rebase` pinned the eight new files; `source_check.py .
+  baseline` unchanged.
+
 **What's left (start here):**
 
-0. **Finish batch 17 first:** translate into ur/fa/ar/gu, each language
-   read by an independent opus reviewer: the titles of AQ8, AP15-AP21
-   (`assets/zikr_i18n/<code>/index.json`); zikr segments AQ8 0, 29; AP15
-   0, 1, 14; AP16-AP21 0; AG5 193, 194, 196, 197; AH9 0, 32 (replaces the
-   old heading's translation), 49, 50, 58, 66; AK15 1 (reworded: replace
-   the old translation); guide keys
-   `site.imam_husayn_shrine.ziyarat.22.label` and
-   `plan.karbala_haramayn.husayn_tomb.ziyarat.5.label` ("Istikhara at the
-   Head Side"). Urdu for AH9's farewell verses is on mafatih.duas.co's
-   `ziarat-kazmain-wida`. Then have an opus agent read the batch's new
-   Arabic, transliteration and English (AH9 tab 3, AG5 tab 7, AQ8,
-   AP15-AP21) against the sources named in the review file.
 1. **The owner's device check** (as an admin): the three pages, the ten
    shrine plans (tap a gate or tomb, its card opens the ziyarat), the
    restored entries. Anything found comes first.
 2. **Reviews waiting on the owner or a native reader:** all in
-   `docs/ZIYARAT_GUIDE_REVIEW.md` (190 items). Apply any the owner has
+   `docs/ZIYARAT_GUIDE_REVIEW.md` (193 items). Apply any the owner has
    answered (ticked or a decision written next to it) before new work.
 3. **Translations still missing:** merits and verses of AE3, AP8, AQ2,
    AQ5, AM3, AE17, AK4, AK17, AK19, G60, G61, AJ3 (its Quran lines are
@@ -1028,7 +1035,7 @@ phase 1": add any the owner can confirm.
    AG21's verses and merits (`khake-shifa` has the Urdu), G31's
    (`ziarat-imams-wida`), B6's Kaf'ami tab (`izn-dukhool-common`), AG1's
    new merits and greeting, AG14's new merits paragraph,
-   AQ6's, AQ7's and AI18's verses and merits (no published Urdu, Persian
+   AQ6's, AQ7's, AI18's, AQ8's and AP15-AP21's verses and merits, AH9's farewell verses (`ziarat-kazmain-wida` has the Urdu), AG5 tab 7's lines and new merits (no published Urdu, Persian
    or Gujarati found; fzic.org has an Urdu rendering of AI18 of unstated
    origin), G78's merits in fa/ar/gu and AE17's whole merits
    (`ziarat-shah-abdul-azeem` and `ziarat-imamzadah-hamza` have the

@@ -641,9 +641,11 @@ reviewer has read this batch's Arabic or English yet.
   `assets/items/AG5`), and the weeping narrations (§7) in merits: restored.
   The praise line «ٱلْحَمْدُ لِلَّهِ وَلاَ إِلٰهَ إِلاَّ ٱللَّهُ وَسُبْحَانَ ٱللَّهِ» reads
   like a description in the narration: keep it as a recited line, or make
-  it an instruction?
-- [ ] **AG5 merits, the two-unit prayer's reward:** 20 hajj (Ansariyan's
-  English) or 25 (the Urdu Mafatih, پچیس)?
+  it an instruction? (Session 18's reader: the Arabic Mafatih has «يقف عند
+  رأس الحسين ويقول: الحمد لله...», which supports a recited line.)
+- [ ] **AG5 tab 6 ("Longer Dua at the Head Side")** ends on "...recite the
+  following forty times:" with nothing after it (pre-existing). Restore
+  what is recited from Mafatih, or drop the line?
 - [ ] **AG2 tabs 4 and 6 duplicate AG5 tabs 1 and 3:** make AG2's copies
   tab-level aliases?
 - [ ] **AG18 (al-Abbas):** around line 215 Mafatih's remark (best said
@@ -660,14 +662,21 @@ reviewer has read this batch's Arabic or English yet.
 - [ ] **AP15:** the Imams' names after «يَا سَيِّدَنَا» put in the accusative
   (duas.org nominative); two tabs (with the four Imams, and a short form) -
   keep both?
-- [ ] **AQ8 «يَا بُنَيَّ»:** in duas.org and al7ajj, not in the two books. Keep,
+- [ ] **AQ8 «يَا بُنَيَّ»:** in duas.org and al7ajj, not in the two books
+  (session 18 confirmed its absence from Adab al-Haramayn). Keep,
   drop, or add al7ajj's «فَلَمَّا بَلَغَ مَعَهُ السَّعْيَ»?
 - [ ] **AP18 «وَخِيَرَةِ رَسُوْلِ اللّٰهِ اَجْمَعِيْنَ»:** kept («the chosen of the
   Messenger of Allah, all of them»); duas.org's transliteration reads
-  «رُسُلِ» ("choicest of all Allah's messengers"). Which?
+  «رُسُلِ» ("choicest of all Allah's messengers"). Which? (Session 18:
+  Adab al-Haramayn also reads «خيرة رسول الله», so the text as kept is
+  supported.)
 - [ ] **AP21 «فَرَضِيَ»:** duas.org has the «فَ», Mi'raj al-Wafidin not. Kept.
 - [ ] **Honorifics:** (r.a.) for Aqil, Abdullah ibn Ja'far and Halimah; none
   for Abbas (duas.org gives (a.s.)) or the aunts. Align?
+- [ ] **AP20 line 6** names "Ali" in the English for «اَبِيْكَ الْمُرْتَضَى»,
+  which the Arabic does not name. Keep or drop?
+- [ ] **AH9 tab 3 English** ("We believed in Allah...") keeps Ansariyan's
+  past tense; "We believe" may read better. Change?
 - [ ] **Not done:** the ziyarat of Abdullah, the Prophet's father, and the
   martyrs of al-Harrah (duas.org has both; Adab al-Haramayn and Mi'raj
   al-Wafidin have Abdullah's). Add?
@@ -776,6 +785,25 @@ they are.
   AP12 27, મુબાહિલા, and AC21's મુબાહલા). Which?
 - [ ] **Session 13, Gujarati AP5 257's "desert"** is ખુલ્લા મેદાન (some
   books: સહરા). Which?
+
+- [ ] **Session 18, batch 17's titles and labels** (each language read by
+  an independent reviewer; these are their and the translators' open
+  calls):
+  - Hajar's honorific in AQ8's title: Persian/Urdu (س), Arabic (ع) (the
+    Arabic files never use (س)); the guide's burial name has none in any
+    language. Align the guide to the title, or drop it from the title?
+  - (r.a.) for women and pairs: Persian writes (ره) for Halimah (AP21) and
+    for the pair in AP16 ((ره) is masculine; (رض) or (س)?); Arabic and Urdu
+    (رض).
+  - Arabic AQ8 title repeats إسماعيل («...في حجر إسماعيل») - keep, or
+    «في الحِجر»? AP18 0 «قل رجاءً لثوابها» - or «اقرأ هذه الزيارة رجاءَ
+    ثوابها:»? مئة/مائة are mixed (33 to 34) - pick one?
+  - Urdu: "100 times" as سو مرتبہ (files split 46/57 with 100 مرتبہ); AG5 194
+    «اپنے لیے بہتر انتخاب چاہیں» or «اللہ سے اپنے لیے خیر طلب کرنا»; AP21
+    رضاعی ماں (as the guide) or رضاعی والدہ; AQ8 0 add «واقع»?
+  - Gujarati: the new AH9/AK15 lines spell ઇમામ beside older ઈમામ (see the
+    session 11 item); "head side" is સરહાના (guide) where AG5's older labels
+    say માથા તરફ; AQ8 29 «સવાબ ... હદિયો કરો» or «સવાબ બક્ષો».
 
 ## Tooling
 
