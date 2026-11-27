@@ -554,6 +554,42 @@ now, checked against mafatih.duas.co's `ziarat-imam-reza-merits`,
   travel dua and Imam Zayn al-Abidin's protection) is left for the travel
   etiquette batch (B1, B2), not put in AE3. Agree?
 
+## Najaf and Kufa leftovers: AI18 Maytham, G12 at Hud and Salih (session 16)
+
+AI18 is a new uid (the corpus never had Maytham's ziyarat; Mafatih has
+none). Arabic from fzic.org's pilgrims' library (Ziyarat > Iraq > Kufa),
+checked against the form posted on forums.alkafeel.net (node 893199): the
+same body. English, instruction line and merits are new; an independent
+reviewer (opus) read the Arabic, transliteration and English.
+
+- [ ] **AI18: alkafeel's longer form.** alkafeel opens with takbir and both
+  shahadas and longer greetings («سيد المرسلين», «علي أمير المؤمنين سيد
+  الوصيين», «أجمعين», «الحجج المعصومين»), and closes with «وَيَجْمَعَنَا وَاِيَّاكُمْ
+  فِيْ زُمْرَةِ الْفَاۤئِزِيْنَ مَعَ مُحَمَّدٍ وَاٰلِهِ الطَّاهِرِيْنَ وَالسَّلَامُ عَلَيْكَ اَيُّهَا
+  الشَّهِيْدُ» where fzic (and AI18) end at «وَرَحْمَةُ اللّٰهِ وَبَرَكَاتُهٗ». Keep fzic's
+  short form, or take alkafeel's?
+- [ ] **AI18: smaller variants.** alkafeel adds «شَهِيْدًا» after «مَظْلُوْمًا»,
+  lacks «وَمَنْ اَمَرَ بِقَتْلِكَ», and has «اَسْاَلُ» without «فَ» and «يَقْضِيَ
+  حَوَاۤئِجَنَا» without «لَنَا». AI18 follows fzic in all four. Change any?
+- [ ] **AI18: fixes from grammar** (fzic's vowels): «لِفَاطِمَةَ» (fzic kasra),
+  «جِهَادِهٖ» («جَهَادِهٖ»), «وَمَنِ افْتَرٰى» («وَمَنْ اِفْتَرٰی»), «حَشَا» («حَشَی»),
+  «الزَّهْرَاۤءُ» («الزَّهْرَائِ»), «مَيْثَمَ بْنَ» with alkafeel's fatha (fzic damma).
+  Confirm.
+- [ ] **AI18: «وَاَعَدَّ لَهُمْ عَذَابًا اَلِيْمًا»** is rendered as a prayer ("and
+  prepare for them"), like the curses before it and fzic's English;
+  grammatically it is past ("and He has prepared", as 33:57). Which?
+- [ ] **AI18's source line in merits:** "the form given in pilgrims'
+  manuals for the ziyarats of Iraq" - no classical book was found for it.
+  Name a book if you know one, or keep it vague?
+- [ ] **AI18: date of martyrdom.** alkafeel gives 22 Dhul Hijjah; add it to
+  the merits (and a `day` tag)?
+- [ ] **Hud and Salih: G12 with a note.** fzic.org's "Prophet Hud & Saleh"
+  ziyarat is Ziyarat Jamia Saghira (G12) word for word, and none of their
+  own is narrated (not in Mafatih or on mafatih.duas.co), so
+  `hud_salih_tomb` links G12 with the note "No ziyarat of their own is
+  narrated; pilgrims' manuals give Ziyarat Jamia Saghira here." Keep, or
+  leave the tomb with no link?
+
 ## Corpus problems: still open from the owner's session-2 decisions
 
 Decisions applied (history, in the guide): G82 retitled "Ziyarat of Lady

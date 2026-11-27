@@ -1089,7 +1089,12 @@
                 44.3165
               ],
               "about": "A domed shrine at the edge of Wadi al-Salam, a short walk north of Imam Ali (a.s.)'s shrine, holding two graves attributed by narration to Prophet Hud (a.s.), sent to the people of 'Ad, and Prophet Salih (a.s.), sent to Thamud. The building was first raised in the time of Sayyid Mahdi Bahr al-Ulum and has been renewed since.",
-              "ziyarat": [],
+              "ziyarat": [
+                {
+                  "uid": "G12",
+                  "note": "No ziyarat of their own is narrated; pilgrims' manuals give Ziyarat Jamia Saghira here."
+                }
+              ],
               "buried": [
                 {
                   "id": "prophet_hud",
@@ -1552,7 +1557,11 @@
                 44.395
               ],
               "about": "Maytham al-Tammar, the date-seller of Kufa, was a close companion of Imam Ali (a.s.), who foretold to him how he would die. He was crucified on the order of Ibn Ziyad shortly before Karbala in 60 AH, proclaiming the virtues of Imam Ali (a.s.) to the end. His shrine stands a little west of Masjid al-Kufa.",
-              "ziyarat": [],
+              "ziyarat": [
+                {
+                  "uid": "AI18"
+                }
+              ],
               "buried": [
                 {
                   "id": "maytham_al_tammar",
