@@ -1295,6 +1295,41 @@
       "label": "Munajat Shabaniyah"
     }
   ],
+  "G67": [
+    {
+      "file": "ziyarat-imam-musa-al-kazim_amer-al-kadhimi_96k.mp3",
+      "label": "Ziyarat of Imam Musa al-Kazim (a.s.)",
+      "reciter": "Amer al-Kadhimi"
+    }
+  ],
+  "X4": [
+    {
+      "file": "ziyarat_rajabiyah_saleh_sheikh_96k.mp3",
+      "label": "Ziyarat Rajabiyah",
+      "reciter": "Mullah Saleh Sheikh"
+    }
+  ],
+  "E27": [
+    {
+      "file": "dua_mashlool_husayn_ghareeb_96k.mp3",
+      "label": "Dua Mashlool",
+      "reciter": "Husayn Ghareeb"
+    }
+  ],
+  "X14": [
+    {
+      "file": "dua_umm_dawood_ali_hammadi_96k.mp3",
+      "label": "Aamal & Dua of Umm Dawood",
+      "reciter": "Ali Hammadi"
+    }
+  ],
+  "AL17": [
+    {
+      "file": "al17_adel_elsheaf_96k.mp3",
+      "label": "Ziyarat of Imam al-Mahdi (a.t.f.s.) after the Fajr Prayer (Allahumma Balligh)",
+      "reciter": "Adel Elsheaf"
+    }
+  ],
   "X3": [
     {
       "file": "rajab_dua_khaab_alwafidun_musawi_96k.mp3",
