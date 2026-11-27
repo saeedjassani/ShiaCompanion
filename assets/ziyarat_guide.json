@@ -4235,6 +4235,32 @@
                 {
                   "uid": "G26",
                   "note": "After the ziyarat."
+                },
+                {
+                  "uid": "AE19",
+                  "tab": 1,
+                  "label": "Ziyarat from al-Kitab al-Atiq al-Gharawi"
+                },
+                {
+                  "uid": "AE19",
+                  "tab": 2,
+                  "label": "Ziyarat from Rawdat al-Adhkar"
+                },
+                {
+                  "uid": "AE19",
+                  "tab": 3,
+                  "label": "Ziyarat of the Seven Hadith",
+                  "note": "Named for the seven narrations on visiting him that it quotes."
+                },
+                {
+                  "uid": "AE19",
+                  "tab": 4,
+                  "label": "Ziyarat from al-Majlisi's Tuhfat al-Za'ir"
+                },
+                {
+                  "uid": "AE19",
+                  "tab": 5,
+                  "label": "Imam al-Zaman (a.t.f.s.) in the shrine"
                 }
               ],
               "buried": [
@@ -4393,6 +4419,27 @@
                       "tab": 6,
                       "label": "Farewell to Imam Reza (a.s.)",
                       "note": "When leaving the shrine."
+                    },
+                    {
+                      "uid": "AE19",
+                      "tab": 1,
+                      "label": "Ziyarat from al-Kitab al-Atiq al-Gharawi"
+                    },
+                    {
+                      "uid": "AE19",
+                      "tab": 2,
+                      "label": "Ziyarat from Rawdat al-Adhkar"
+                    },
+                    {
+                      "uid": "AE19",
+                      "tab": 3,
+                      "label": "Ziyarat of the Seven Hadith",
+                      "note": "Named for the seven narrations on visiting him that it quotes."
+                    },
+                    {
+                      "uid": "AE19",
+                      "tab": 4,
+                      "label": "Ziyarat from al-Majlisi's Tuhfat al-Za'ir"
                     }
                   ],
                   "location": [
