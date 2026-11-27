@@ -11,12 +11,12 @@ memory note for the bug-report side of this.
 This doc is the restoration process for bringing an individual UID back with
 real, correctly-formatted content — not just a title.
 
-## Resume here (status as of 2026-11-26)
+## Resume here (status as of 2026-11-27)
 
 **Done:** every favorited missing uid (the eight passes below). Of the 209
 *unfavorited* missing uids listed in
 [unfavorited_missing_zikrs.json](unfavorited_missing_zikrs.json), 7 are
-old menu nodes (skip), 92 are retired, 37 are restored (F16-F65,
+old menu nodes (skip), 94 are retired, 38 are restored (F16-F65,
 E131-E136, P1; and for the Ziyarat Guide, 2026-11-09: AE3, AE17, AM3,
 AP8, AQ2 as tabbed shrine entries, with AE4-AE8, AE16, AM2, AP9, AP11,
 AP13, AQ1, AQ3, AQ4 retired into them; 2026-11-15, Najaf and Kufa: AK4,
@@ -32,8 +32,9 @@ AP6/AP7 retired into AP5's tabs, AP14 into AP12, AP1/AP3 into the merits
 of AP2, AP4 and AP8, AP10 dropped; 2026-11-26, Makkah: AQ6 and AQ7 are new
 uids, not on the list - see `docs/ZIYARAT_GUIDE.md`; Iran: AE14 and G28
 retired into G78's merits, AE18 into AE17's; Mashhad: AE2, AE9-AE13
-retired into AE3's merits).
-**73 remain** (44 with Arabic, 29 prose-only),
+retired into AE3's merits; 2026-11-27, travel: B1, Mafatih's etiquette of
+travel in three tabs, with B2 and AE1 retired into it).
+**70 remain** (41 with Arabic, 29 prose-only),
 each still marked `has-arabic`/`prose-only` in that JSON. When a batch
 ships, set its uids' `kind` to `restored`/`retired` there and recount
 `counts`.
@@ -50,10 +51,11 @@ ships, set its uids' `kind` to `restored`/`retired` there and recount
    S6 S8`, Rabi `T1 T3 U1`, Rajab `X12 X16 X17 X18` (`X9` is retired to G74). Give each a `day`
    pattern in `assets/zikr.json` (see `lib/utils/lunar_date_matcher.dart`;
    only canonical uids carry `day`).
-3. **Odds and ends** - `E98`, `E145`, `B1 B2`, `G25 G27 G32`; plus
+3. **Odds and ends** - `E98`, `E145`, `G25 G27 G32`; plus
    `AI17`'s Masjid Sa'sa'ah section, which is not live anywhere (AI17
    itself retired to AI16 in session 6 of the Ziyarat Guide - check).
-   (`B5`, `G31` and `AG15` were done in the Karbala batch, 2026-11-22.)
+   (`B5`, `G31` and `AG15` were done in the Karbala batch, 2026-11-22;
+   `B1`/`B2` with `AE1` on 2026-11-27.)
 4. **Ziyarat sections, last** - Mashhad/Qom `AE*`, Karbala `AG*`, Najaf
    `AK*`, Samarra `AL*`, Kazimayn `AH*`, Kufa `AI*`, Mada'in `AJ*`, Baghdad
    `AM*`, Madinah `AP*`, Uhud `AQ*`. The owner wants these **checked against

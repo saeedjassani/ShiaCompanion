@@ -681,6 +681,67 @@ reviewer has read this batch's Arabic or English yet.
   martyrs of al-Harrah (duas.org has both; Adab al-Haramayn and Mi'raj
   al-Wafidin have Abdullah's). Add?
 
+## Batch 19: al-Baqi, al-Abwa' and Fakhkh, travel etiquette, Balad, Imam Reza, Uthman ibn Sa'id (session 19)
+
+Four opus agents wrote these; nobody else has read their Arabic or English
+yet, and none of their titles, labels or instruction lines is translated
+(stopped at the usage warning).
+
+- [ ] **AP22 Abdullah, the Prophet's father: where to link it.** His grave
+  was opposite Bab al-Salam (now in the mosque's courtyard), so it is linked
+  from the Prophet's Mosque (`site.masjid_al_nabawi.ziyarat.10`, with a note),
+  not al-Baqi. Keep, move to al-Baqi, or both (or also the Bab al-Salam gate)?
+- [ ] **AP22 tab 2 rests on Adab al-Haramayn alone** (duas.org has its English
+  only). Keep it, or drop it until a printed copy is checked? Its readings:
+  seg 32 «يَا» added before «مَنْ سَلَكَ»; seg 35 «فَاَعْطَاهُ اللّٰهُ اَبَاهُ»
+  for the book's «فاعطاه الله وأباه» (or «لِاَبِيْهِ»); seg 29 «بِنُوْرِ جَبِيْنِهٖ»
+  read from a broken «بــور».
+- [ ] **AP22 seg 7** «مَنِ انْتَهٰى اِلَيْهِ الْوَدِيْعَةُ» (masculine verb, as both
+  sources) or «انْتَهَتْ»? Seg 16 keeps «مَرْضَاتِ». No honorific for Abdullah,
+  as for Abbas and Abd Manaf (see the honorifics item).
+- [ ] **AP23 martyrs of al-Harrah:** the merits' figures (eighty companions,
+  seven hundred of the Muhajirun and Ansar) follow duas.org; other histories
+  differ.
+- [ ] **AQ9 Lady Aminah:** (s.a.) in the title, or (r.a.) as Halimah (AP21)?
+  Her grave: al-Abwa' (most sources; a new city `abwa` in the guide) or
+  al-Hajun (Adab al-Haramayn); AQ9 is linked from both
+  (`site.jannat_al_mualla.ziyarat.6.note`). Keep both or drop al-Mu'alla?
+  Seg 1 names no place - or "...in al-Abwa'"? Al-Abwa' as its own city
+  (coordinates 23.1086, 39.0712, OSM) rather than a Makkah site - right?
+- [ ] **Fakhkh: no ziyarat of its own** (al7ajj and Adab al-Haramayn say to
+  visit them with Isma'il ibn al-Sadiq's, AP20). The new site
+  `fakhkh_martyrs` (21.4532, 39.8068) links AP20 with a note. Keep, make a
+  tab alias, or add G29's greeting to the believers? Its `about` gives 8
+  Dhul Hijjah 169 AH (alkafeel also 8 Dhul Qa'dah).
+- [ ] **B1 Etiquettes of Travel** (B2 is tab 2, AE1 - Safi's story - tab 1 and
+  merits; one Mafatih page): the old duas' English was lightly re-rendered
+  (tab 1) - worth a reader's look. Seg 52 "when you mount" (Arabic, Urdu) vs
+  French "on setting out"; seg 56 water from the previous stop vs French
+  "from home". Mafatih's second dua ends «...الدعاء»; only the quoted part is
+  in. B1 is first in the guide's "Before you go".
+- [ ] **AN1 Sayyid Muhammad (Balad):** Mafatih says no ziyarat is narrated for
+  him; AN1's body has no known source (alkafeel's is a different text). Keep,
+  note it at `balad`, or link the general descendants' ziyarat? «يَا أَبَا
+  جَعْفَرٍ ... وَأَخِيهِ الْحَسَنِ» - or «وَأَخَاهُ الْحَسَنَ»? The merits follow the
+  Urdu on al-Nuri's inscription (the French ends it sooner, and says the
+  Imam *wrote*).
+- [ ] **AE19 Imam Reza, other forms** (five tabs from duas.org's Sahifa
+  Radawiyya page; tabs 2, 4 and 5 have no second copy). Tab 2:
+  «قَادَةَ الْاُمَمِ» (source «قَآئِدَ»); «مَنَاصَّةَ / سُلْطَانَ الْعِبَادِ» kept,
+  probably corrupt («سَاسَةَ»?); «اَشْهَدُ» (source «اُشْهِدُ»); «اِمَامُ الْهُدٰى»
+  (source «الْاِمَامُ الْهُدٰى», or «الْهَادِيْ»); seg 166 points to a dua the
+  Sahifa does not give (Bihar's names Imam Husayn: bring it in, or keep the
+  pointer?). Tab 3: beytoote's variants left out (listed in the merits);
+  «وَتَسْاَلَ» subjunctive. Tab 4: «الظَّاعِنُ» (source «الطَّاعِنُ»),
+  «تُحْظِيْهِمْ» (source «تُخْطِيْهِمْ»), «السِّرَاجُ الطَّاهِرُ» (or «الزَّاهِرُ»);
+  al-Majlisi credits the form "probably" to al-Shahid.
+- [ ] **AM6 Uthman ibn Sa'id (al-Majlisi's ziyarat, Bihar 99:292 in
+  OpenITI):** not linked - Baghdad has no site for his tomb (Shorja bazaar,
+  Rusafa, per WikiShia; no second source for coordinates). Add a site, or
+  link it from Muhammad ibn Uthman's tomb with a note? Its first eight
+  salutations were vowelled by the agent (duas.org lacks them); «اَتَوَسَّلُ
+  اِلَى اللّٰهِ بِالشَّفَاعَةِ اِلَيْهِ» rendered "asking him to intercede".
+
 ## Corpus problems: still open from the owner's session-2 decisions
 
 Decisions applied (history, in the guide): G82 retitled "Ziyarat of Lady
