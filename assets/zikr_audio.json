@@ -1149,6 +1149,19 @@
       "label": "Dua after Ziyarat Warith"
     }
   ],
+  "G55": [
+    {
+      "file": "ziyarat_ali_akbar_abather_96k.mp3",
+      "label": "Ziyarat of Hazrat Ali Akbar (a.s.)",
+      "reciter": "Abather Alhalwachi"
+    }
+  ],
+  "G56": [
+    {
+      "file": "ziyarat_martyrs_karbala_96k.mp3",
+      "label": "Ziyarat of the Martyrs of Karbala (a.s.)"
+    }
+  ],
   "G6": [
     {
       "file": "ziyarat_warith_96k.mp3",
@@ -1362,6 +1375,42 @@
     {
       "file": "ziyarat_nahiya_duasorg_96k.mp3",
       "label": "Ziyarat Nahiya"
+    }
+  ],
+  "X2": [
+    {
+      "file": "dua_ya_man_yamliku_96k.mp3",
+      "label": "General Aamal in Rajab"
+    }
+  ],
+  "X15": [
+    {
+      "file": "dua_mabath_27rajab_96k.mp3",
+      "label": "Aamal of Laylat al-Mab'ath (27th Night)"
+    }
+  ],
+  "Y11": [
+    {
+      "file": "ziyarat_15shaban_husayn_96k.mp3",
+      "label": "Ziyarat on the 15th of Shaban"
+    }
+  ],
+  "Y9": [
+    {
+      "file": "dua_bihaqqi_laylatina_15shaban_96k.mp3",
+      "label": "Fifteenth Night of Shaban"
+    }
+  ],
+  "Y7": [
+    {
+      "file": "dua_3rd_shaban_96k.mp3",
+      "label": "Third of Shaban"
+    }
+  ],
+  "X7": [
+    {
+      "file": "dua_jawad_first_night_rajab_96k.mp3",
+      "label": "Dua of Imam al-Jawad (a.s.) after Isha"
     }
   ]
 }
