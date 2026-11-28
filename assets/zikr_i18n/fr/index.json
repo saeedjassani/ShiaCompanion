@@ -46,6 +46,17 @@
     "Y3": "Salawât quotidiennes de Cha‘bân",
     "Y4": "Munâjât Cha‘bâniyyah",
     "Y7": "Le trois de Cha‘bân",
-    "Y9": "Quinzième nuit de Cha‘bân"
+    "Y9": "Quinzième nuit de Cha‘bân",
+    "D3": "Ta‘qîbât de la prière du Fajr",
+    "E144": "Salawât d’Abû-l-Hassan az-Zarrâb al-Isfahânî",
+    "E155": "Doua Ma‘rifat - Allâhumma ‘Arrifnî",
+    "E8": "Doua ‘Alqamah",
+    "F2": "Prière de la Nuit (Salât al-Layl)",
+    "J5|E144": "Salawât d’Abû-l-Hassan az-Zarrâb al-Isfahânî",
+    "R12|E8": "Doua ‘Alqamah"
+  },
+  "audio": {
+    "labels": {},
+    "reciters": {}
   }
 }

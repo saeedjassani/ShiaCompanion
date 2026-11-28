@@ -980,13 +980,15 @@
       "r1_muharram-dua-salaat.mp3": "دعا و نماز امام رضا (ع)",
       "s1_safar-daily-dua.mp3": "دعای هر روز ماه صفر",
       "y3_shaban-daily-salawat.mp3": "شعبان - صلوات هر روز",
-      "munajat_shabaniyah_96k.mp3": "مناجات شعبانیه"
+      "munajat_shabaniyah_96k.mp3": "مناجات شعبانیه",
+      "taqibaat_fajr_abather_96k.mp3": "تعقیبات نماز صبح"
     },
     "reciters": {
       "Shahriar Parhizkar": "شهریار پرهیزگار",
       "Hamed Shakernejad": "حامد شاکرنژاد",
       "Mahdi Sahwan": "مهدی سهوان",
-      "Ali Fani": "علی فانی"
+      "Ali Fani": "علی فانی",
+      "Abather Alhalwachi": "اباذر الحلواچی"
     }
   }
 }
