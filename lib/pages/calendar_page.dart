@@ -5,6 +5,8 @@ import 'package:intl/intl.dart' show DateFormat;
 import 'package:shia_companion/pages/city_picker.dart';
 import 'package:shia_companion/pages/prayer_notifications_page.dart';
 import 'package:shia_companion/pages/event_notifications_page.dart';
+import 'package:shia_companion/pages/prayer_calendar_page.dart';
+import 'package:shia_companion/services/prayer_calendar_service.dart';
 import 'package:shia_companion/services/location_service.dart';
 import 'package:shia_companion/utils/islamic_calendar_widget_data.dart';
 import 'package:shia_companion/utils/prayer_time_entries.dart';
@@ -202,6 +204,11 @@ class _CalendarPageState extends State<CalendarPage> {
     );
     final eventCard = event == null ? null : _EventCard(event: event);
     final otherCity = _OtherCityRow(date: _selected);
+    // The phone's calendar is Android and iOS only, and its times need a
+    // location to be worked out from.
+    final phoneCalendar = PrayerCalendarService.isSupported && lat != null
+        ? const _PhoneCalendarRow()
+        : null;
 
     Widget column(List<Widget> children, {double gap = 14}) => Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -223,6 +230,7 @@ class _CalendarPageState extends State<CalendarPage> {
         if (eventCard != null) eventCard,
         _DayPrayerCard(date: _selected, vertical: false),
         otherCity,
+        ?phoneCalendar,
       ]),
       ScreenClass.tablet => column([
         topBar,
@@ -237,6 +245,7 @@ class _CalendarPageState extends State<CalendarPage> {
                 dayHeading,
                 if (eventCard != null) eventCard,
                 otherCity,
+                ?phoneCalendar,
               ]),
             ),
             const SizedBox(width: 24),
@@ -261,6 +270,7 @@ class _CalendarPageState extends State<CalendarPage> {
                 if (eventCard != null) eventCard,
                 _DayPrayerCard(date: _selected, vertical: true),
                 otherCity,
+                ?phoneCalendar,
               ]),
             ),
           ],
@@ -1329,6 +1339,63 @@ class _OtherCityRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    return _CardLinkRow(
+      glyph: OutlineGlyph.globe,
+      title: context.l10n.calendarOtherCity,
+      subtitle: context.l10n.calendarOtherCityFor(
+        civilDayMonth(date, context.l10n),
+      ),
+      onTap: () => lookUpCityFlow(context, date: date),
+    );
+  }
+}
+
+/// The prayer times in the phone's calendar (Google, Apple): where they
+/// are and how far they reach, or what the row does before there are any.
+class _PhoneCalendarRow extends StatelessWidget {
+  const _PhoneCalendarRow();
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final service = PrayerCalendarService.instance;
+    return ListenableBuilder(
+      listenable: service,
+      builder: (context, _) {
+        final through = service.filledThrough;
+        final name = service.calendarName;
+        return _CardLinkRow(
+          glyph: service.isOn
+              ? OutlineGlyph.calendarCheck
+              : OutlineGlyph.calendar,
+          title: l10n.prayerCalendarTitle,
+          subtitle: service.isOn && through != null && name != null
+              ? l10n.prayerCalendarRowOn(name, civilDayMonth(through, l10n))
+              : l10n.prayerCalendarRowHint,
+          onTap: () => showPrayerCalendarPage(context),
+        );
+      },
+    );
+  }
+}
+
+/// A card row under the prayer card: an icon in a well, what it opens and
+/// a line on it, and a chevron.
+class _CardLinkRow extends StatelessWidget {
+  const _CardLinkRow({
+    required this.glyph,
+    required this.title,
+    required this.subtitle,
+    required this.onTap,
+  });
+
+  final OutlineGlyph glyph;
+  final String title;
+  final String subtitle;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
     final colors = ShiaColors.of(context);
     return Material(
       color: colors.surface,
@@ -1338,7 +1405,7 @@ class _OtherCityRow extends StatelessWidget {
       ),
       clipBehavior: Clip.antiAlias,
       child: InkWell(
-        onTap: () => lookUpCityFlow(context, date: date),
+        onTap: onTap,
         child: ConstrainedBox(
           constraints: const BoxConstraints(minHeight: 60),
           child: Padding(
@@ -1353,11 +1420,7 @@ class _OtherCityRow extends StatelessWidget {
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Center(
-                    child: OutlineIcon(
-                      OutlineGlyph.globe,
-                      size: 22,
-                      color: colors.accent,
-                    ),
+                    child: OutlineIcon(glyph, size: 22, color: colors.accent),
                   ),
                 ),
                 const SizedBox(width: 12),
@@ -1366,14 +1429,12 @@ class _OtherCityRow extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        context.l10n.calendarOtherCity,
+                        title,
                         style: ShiaText.body.copyWith(color: colors.text),
                       ),
                       const SizedBox(height: 1),
                       Text(
-                        context.l10n.calendarOtherCityFor(
-                          civilDayMonth(date, context.l10n),
-                        ),
+                        subtitle,
                         style: ShiaText.secondary.copyWith(
                           fontSize: 14,
                           height: 18 / 14,

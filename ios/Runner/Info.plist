@@ -83,6 +83,10 @@
 	<array>
 		<string>audio</string>
 	</array>
+	<key>NSCalendarsFullAccessUsageDescription</key>
+	<string>Your calendar is used to add the prayer times to it, and to move or remove them when your city or settings change.</string>
+	<key>NSCalendarsUsageDescription</key>
+	<string>Your calendar is used to add the prayer times to it, and to move or remove them when your city or settings change.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Your location is used to calculate accurate prayer times for your current area, and to point the qibla compass towards Makkah.</string>
 	<key>NSMicrophoneUsageDescription</key>

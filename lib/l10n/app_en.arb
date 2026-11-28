@@ -4908,5 +4908,155 @@
   "quranReciterWholeSurah": "The whole surah in one recording",
   "@quranReciterWholeSurah": {
     "description": "Under the other reciter's name in the reciter sheet: the surah is one continuous recording."
+  },
+  "prayerCalendarTitle": "Prayer times in your calendar",
+  "@prayerCalendarTitle": {
+    "description": "Title of the page that adds the prayer times to a calendar on the phone (Google Calendar, Apple Calendar), and of its row on the Calendar page and in Settings."
+  },
+  "prayerCalendarSubtitle": "Google Calendar, Apple Calendar or any calendar on this phone",
+  "@prayerCalendarSubtitle": {
+    "description": "Under the title of the page that adds the prayer times to a calendar: which calendars it can use. Keep Google Calendar and Apple Calendar as the apps are called in the language."
+  },
+  "prayerCalendarRowHint": "Add them to Google or Apple Calendar",
+  "@prayerCalendarRowHint": {
+    "description": "Under 'Prayer times in your calendar' on the Calendar page, before any have been added: what the row does. 'Them' is the prayer times."
+  },
+  "prayerCalendarRowOn": "In {calendar} through {date}",
+  "@prayerCalendarRowOn": {
+    "placeholders": {
+      "calendar": {
+        "type": "String",
+        "example": "Home"
+      },
+      "date": {
+        "type": "String",
+        "example": "28 December"
+      }
+    },
+    "description": "Under 'Prayer times in your calendar' once they have been added: the calendar they are in (its name on the phone) and the last day they reach."
+  },
+  "prayerCalendarCalendarLabel": "Calendar",
+  "@prayerCalendarCalendarLabel": {
+    "description": "Group heading on the prayer-times-in-your-calendar page, over the calendar (Google, iCloud...) the times are in."
+  },
+  "prayerCalendarFilledThrough": "Through {date}",
+  "@prayerCalendarFilledThrough": {
+    "placeholders": {
+      "date": {
+        "type": "String",
+        "example": "28 December"
+      }
+    },
+    "description": "Under the calendar's name: the last day the prayer times in it reach."
+  },
+  "prayerCalendarTimesLabel": "Times",
+  "@prayerCalendarTimesLabel": {
+    "description": "Group heading over the prayer times (Fajr, Sunrise, Zuhr...) to tick for the calendar."
+  },
+  "prayerCalendarDaysLabel": "How far ahead",
+  "@prayerCalendarDaysLabel": {
+    "description": "Group heading over the choice of how many days of prayer times go in the calendar: 1 week, 2 weeks, 1 month."
+  },
+  "prayerCalendarDays7": "1 week",
+  "@prayerCalendarDays7": {
+    "description": "Choice under 'How far ahead': a week of prayer times in the calendar. Short: three of these share a row."
+  },
+  "prayerCalendarDays14": "2 weeks",
+  "@prayerCalendarDays14": {
+    "description": "Choice under 'How far ahead': two weeks of prayer times in the calendar. Short: three of these share a row."
+  },
+  "prayerCalendarDays30": "1 month",
+  "@prayerCalendarDays30": {
+    "description": "Choice under 'How far ahead': a month (30 days) of prayer times in the calendar. Short: three of these share a row."
+  },
+  "prayerCalendarFootnote": "Each time is a 15-minute event, marked free so it blocks nothing. A Google account's calendar shows in Google Calendar, an iCloud one in Apple Calendar. Opening the app keeps the times {range} ahead, and moves them if your city or calculation method changes.",
+  "@prayerCalendarFootnote": {
+    "placeholders": {
+      "range": {
+        "type": "String",
+        "example": "1 month"
+      }
+    },
+    "description": "Footnote on the prayer-times-in-your-calendar page. {range} is the choice under 'How far ahead' (prayerCalendarDays7/14/30). 'Marked free' is the calendar's free/busy setting. 'Calculation method' as in settingsPrayerMethod."
+  },
+  "prayerCalendarAdd": "Add to calendar",
+  "@prayerCalendarAdd": {
+    "description": "Button that puts the ticked prayer times in a calendar on the phone."
+  },
+  "prayerCalendarRemove": "Remove from calendar",
+  "@prayerCalendarRemove": {
+    "description": "Button that takes every prayer time the app added out of the calendar again, and stops adding them."
+  },
+  "prayerCalendarChoose": "Choose a calendar",
+  "@prayerCalendarChoose": {
+    "description": "Title of the list of the phone's calendars (Google, iCloud...) to put the prayer times in."
+  },
+  "prayerCalendarAdded": "{count, plural, =1{Added 1 prayer time to {calendar}} other{Added {count} prayer times to {calendar}}}",
+  "@prayerCalendarAdded": {
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "format": "decimalPattern"
+      },
+      "calendar": {
+        "type": "String",
+        "example": "Home"
+      }
+    },
+    "description": "Message after the prayer times went into a calendar: how many events, and the calendar's name on the phone."
+  },
+  "prayerCalendarUpToDate": "The prayer times in {calendar} are up to date",
+  "@prayerCalendarUpToDate": {
+    "placeholders": {
+      "calendar": {
+        "type": "String",
+        "example": "Home"
+      }
+    },
+    "description": "Message after choosing a calendar that already has every prayer time: nothing needed adding."
+  },
+  "prayerCalendarRemoved": "Prayer times removed from {calendar}",
+  "@prayerCalendarRemoved": {
+    "placeholders": {
+      "calendar": {
+        "type": "String",
+        "example": "Home"
+      }
+    },
+    "description": "Message after the prayer times the app added were taken out of the calendar."
+  },
+  "prayerCalendarNoAccess": "Shia Companion isn't allowed to use your calendar",
+  "@prayerCalendarNoAccess": {
+    "description": "Message when calendar access was refused, with an Open Settings button (commonOpenSettings). Keep Shia Companion in Latin letters."
+  },
+  "prayerCalendarNoCalendars": "There's no calendar on this phone to add events to. Add a Google or iCloud account in your phone's settings.",
+  "@prayerCalendarNoCalendars": {
+    "description": "Message when the phone has no calendar the app can write to."
+  },
+  "prayerCalendarFailed": "Couldn't update your calendar. Try again.",
+  "@prayerCalendarFailed": {
+    "description": "Message when adding prayer times to the calendar, or taking them out, failed."
+  },
+  "prayerCalendarCalendarGone": "That calendar is no longer on this phone. Choose another.",
+  "@prayerCalendarCalendarGone": {
+    "description": "Message when the calendar the prayer times were going in was deleted or its account removed."
+  },
+  "prayerCalendarNoLocation": "Choose your city first, so the times are right for where you are.",
+  "@prayerCalendarNoLocation": {
+    "description": "On the prayer-times-in-your-calendar page when no location is set yet, above a Choose city button (prayerChooseCity)."
+  },
+  "prayerCalendarEventNote": "Prayer time for {place}, from Shia Companion",
+  "@prayerCalendarEventNote": {
+    "placeholders": {
+      "place": {
+        "type": "String",
+        "example": "London"
+      }
+    },
+    "description": "Notes of each prayer-time event the app adds to the calendar. {place} is the city the times are for. Keep Shia Companion in Latin letters."
+  },
+  "prayerCalendarEventNoteNoPlace": "Prayer time from Shia Companion",
+  "@prayerCalendarEventNoteNoPlace": {
+    "description": "Notes of each prayer-time event the app adds to the calendar, when the place has no name. Keep Shia Companion in Latin letters."
   }
 }

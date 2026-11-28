@@ -40,6 +40,7 @@ import 'package:shia_companion/services/synced_data.dart';
 import 'package:shia_companion/services/zikr_bookmarks_manager.dart';
 import 'package:shia_companion/services/zikr_reminder_service.dart';
 import 'package:shia_companion/services/event_notification_service.dart';
+import 'package:shia_companion/services/prayer_calendar_service.dart';
 import 'package:shia_companion/utils/deep_links.dart';
 import 'package:shia_companion/utils/font_preferences.dart';
 import 'package:shia_companion/utils/hadith_loader.dart';
@@ -804,6 +805,8 @@ class _MyHomePageState extends State<MyHomePage>
       // From today, every launch: what was the year's spread-out plan when
       // the app was last opened becomes every event of the weeks ahead.
       await EventNotificationService.instance.rescheduleAll();
+      // Tops the prayer times in the phone's calendar up as the days go by.
+      unawaited(PrayerCalendarService.instance.refresh());
     }
     await HomeScreenWidgetService.instance.publishAll();
     setState(() {});

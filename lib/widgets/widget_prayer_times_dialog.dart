@@ -73,7 +73,9 @@ Future<bool> showWidgetPrayerTimesDialog(BuildContext context) async {
                               ),
                               trailing: SizedBox.square(
                                 dimension: 44,
-                                child: Center(child: _Tick(selected: shown)),
+                                child: Center(
+                                  child: SelectionTick(selected: shown),
+                                ),
                               ),
                               onTap: enabled
                                   ? () => setSheetState(() {
@@ -114,9 +116,10 @@ Future<bool> showWidgetPrayerTimesDialog(BuildContext context) async {
   return true;
 }
 
-/// A round tick: filled in the accent when on, an empty ring when off.
-class _Tick extends StatelessWidget {
-  const _Tick({required this.selected});
+/// A round tick: filled in the accent when on, an empty ring when off. Also
+/// ticks the times on the prayer-times-in-your-calendar page.
+class SelectionTick extends StatelessWidget {
+  const SelectionTick({super.key, required this.selected});
 
   final bool selected;
 

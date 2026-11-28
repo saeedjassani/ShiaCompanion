@@ -21,6 +21,7 @@ import 'package:intl/intl.dart' show DateFormat;
 import 'package:shia_companion/pages/zikr/zikr_page.dart';
 import 'package:shia_companion/services/zikr_reminder_service.dart';
 import 'package:shia_companion/services/event_notification_service.dart';
+import 'package:shia_companion/services/prayer_calendar_service.dart';
 import 'package:shia_companion/pages/calendar_page.dart';
 
 import 'data/live_streaming_data.dart';
@@ -668,6 +669,8 @@ Future<bool> initializeLocation({
       // follow the crescent where the reader is.
       await EventNotificationService.instance.rescheduleAll();
     }
+    // The prayer times in the phone's calendar move with the location too.
+    if (locationChanged) unawaited(PrayerCalendarService.instance.refresh());
     return true;
   } catch (e) {
     debugPrint(e.toString());
@@ -919,12 +922,17 @@ Future<void> applyChosenPrayerLocation({
     await ZikrReminderService.instance.rescheduleAll();
     await EventNotificationService.instance.rescheduleAll();
   }
+  if (locationChanged) unawaited(PrayerCalendarService.instance.refresh());
 }
 
 /// Reschedules what fires at a prayer time - the azan, and the reminders
-/// and events tied to a prayer - after the reader picks another
+/// and events tied to a prayer - and the times in the phone's calendar,
+/// after the reader picks another
 /// [prayerCalculationMethod]. Republishing the widgets is the caller's.
 Future<void> reschedulePrayerTimeNotifications() async {
+  // The prayer times in the phone's calendar are not notifications, but
+  // move with the method all the same.
+  unawaited(PrayerCalendarService.instance.refresh());
   if (flutterLocalNotificationsPlugin == null || kIsWeb) return;
   // The schedule's fingerprint carries every minute it fires at, so it would
   // be rebuilt at the next app open anyway; this does it now.

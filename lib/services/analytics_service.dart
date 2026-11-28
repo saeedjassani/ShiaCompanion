@@ -323,6 +323,23 @@ class AnalyticsService {
     parameters: {'prayer_times': ids.join(',')},
   );
 
+  /// Records the prayer times going into a phone calendar for the first
+  /// time: how many [days] ahead, and how many of the eight [times].
+  static Future<void> prayerCalendarAdded({
+    required int days,
+    required int times,
+  }) => feature(
+    'prayer_calendar_added',
+    label: 'Prayer times added to calendar',
+    parameters: {'days': days, 'times': times},
+  );
+
+  /// Records the prayer times being taken out of the phone calendar.
+  static Future<void> prayerCalendarRemoved() => feature(
+    'prayer_calendar_removed',
+    label: 'Prayer times removed from calendar',
+  );
+
   /// Records the search screen being opened.
   ///
   /// Counted separately from [search] because the two answer different
