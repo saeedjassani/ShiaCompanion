@@ -866,6 +866,33 @@ they are.
     session 11 item); "head side" is સરહાના (guide) where AG5's older labels
     say માથા તરફ; AQ8 29 «સવાબ ... હદિયો કરો» or «સવાબ બક્ષો».
 
+- [ ] **Session 20, batch 19's titles, labels and guide keys** (AP22, AP23,
+  AQ9, B1, AE19, AM6 and the 25 guide keys, all four languages). **Not yet
+  read by independent reviewers** (the run stopped at the usage warning);
+  the next run does that first. The translators' open calls:
+  - "Ziyarat of the Seven Hadith" (AE19 167, `site.imam_reza_shrine.ziyarat.14`,
+    `plan.mashhad_haram.reza_tomb.ziyarat.9`): Urdu/Persian زیارت هفت حدیث,
+    Gujarati ઝિયારતે હફ્ત હદીસ, Arabic زيارة الأحاديث السبعة (no established
+    Arabic name found). Or the plainer "سات حدیث" / "સાત હદીસવાળી ઝિયારત"?
+  - Lady Aminah's honorific: Arabic (ع)/(عليها السلام) as for Khadijah; some
+    Arabic texts use (رض). Keep (ع)?
+  - Abdullah ibn Abd al-Muttalib (AP22 title): no honorific in any
+    language, as the English; the guide gives Abd al-Muttalib حضرت/હઝરત
+    ... (ع). Add حضرت / (ع) to Abdullah too?
+  - Persian digits: B1's fa lines use Persian digits (۳۰ مرتبه), as
+    TRANSLATIONS.md says, but ~196 older fa zikr lines use ASCII digits.
+    Which, then one pass?
+  - Fakhkh, Imam al-Jawad's saying: Arabic keeps the known wording «لم يكن
+    لنا بعد الطفّ مصرع أعظم من فخ» (الطفّ where the English says Karbala);
+    Persian paraphrases. Keep?
+  - Added glosses: Urdu and Persian B1 33 add تحت الحنک for the turban end
+    under the chin; Gujarati AE19's Tuhfat al-Za'ir label adds અલ્લામા
+    before Majlisi, as the guide does elsewhere. Keep?
+  - Spelling splits found in older files (pick one, then a pass): Urdu
+    and Arabic A116 links سورہ توحید/سورة التوحيد vs اخلاص (≈120 to 19);
+    Gujarati સૂરએ ફાતિહા (155) vs ફાતેહા (57, and the index title);
+    Persian آیة الکرسی / آیت‌الکرسی / آیةالکرسی (23/8/7).
+
 ## Tooling
 
 - [ ] **`translit.py`** gives "LAHUBI-RA" for «لَهٗ بِئْرَ» (fixed by hand in
