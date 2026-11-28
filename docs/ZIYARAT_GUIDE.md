@@ -1041,24 +1041,42 @@ the usage warning before the translations.**
   labels, instruction lines and 24 guide keys, and an independent read of
   the batch's Arabic and English. The list is in What's left item 3.
 
+**Session 20 (2026-11-28): batch 19's translations; stopped at the
+usage warning before the reviews.**
+
+- Translated in all four languages by one opus agent per language: the
+  titles of AP22, AP23, AQ9, B1, AE19 and AM6, every non-verse segment of
+  them (AP22 0, 1, 22; AP23 0; AQ9 0 - not 1, a verse; B1 0-5, 14, 20, 24,
+  25, 33, 34, 36, 38, 40, 42, 44, 45, 47, 52-61; AE19's 31 labels and
+  instructions; AM6 0, 44) and the 25 guide keys. B1 26-32 (Quran
+  28:22-28) carry the app's own Quran translations in ur/fa/gu (Arabic
+  shows the verses alone). `zikr_i18n.py rebase` pinned the six files;
+  `guide_keys.py check` is clean in all four.
+- **Not done (the usage warning):** the independent review of these
+  strings, one fresh opus agent per language, and the independent read of
+  the batch's Arabic and English (an agent was started but its findings
+  were not kept). The translators' open calls are in the review file,
+  "Session 20" under "Translations".
+
 **What's left (start here):**
 
 1. **The owner's device check** (as an admin): the three pages, the ten
    shrine plans (tap a gate or tomb, its card opens the ziyarat), the
    restored entries. Anything found comes first.
 2. **Reviews waiting on the owner or a native reader:** all in
-   `docs/ZIYARAT_GUIDE_REVIEW.md` (203 items). Apply any the owner has
+   `docs/ZIYARAT_GUIDE_REVIEW.md` (204 items). Apply any the owner has
    answered (ticked or a decision written next to it) before new work.
-3. **First: batch 19's translations and independent read** (session 19
-   stopped before them). In ur/fa/ar/gu, each language then read by an
-   independent reviewer (opus): the titles of AP22, AP23, AQ9, B1, AE19,
-   AM6; zikr segments AP22 0, 1, 22; AP23 0; AQ9 1; B1 0-5, 14, 20, 24,
-   25, 33, 34, 36, 38, 40, 42, 44, 45, 47, 52-61 (26-32 are Quran 28:22-28,
-   from the app's Quran); AE19 0, 1, 13, 17, 40, 44, 54, 55, 64, 82, 86,
-   111, 120, 129, 139, 150, 156, 165-168, 252-254, 333, 348, 374, 401, 422,
-   438, 439; AM6 0, 44; and the 24 guide keys `guide_keys.py check <code>`
-   lists. Check segment numbers with `zikr_i18n.py template <code> --uids
-   ...` first. Then one independent opus reader for the batch's Arabic,
+3. **First: review batch 19's translations, then the independent read**
+   (session 20 translated them and stopped before the reviews). One fresh
+   opus reviewer per language (ur, fa, ar, gu), none of whom wrote them,
+   given the English and the translation of: the titles of AP22, AP23,
+   AQ9, B1, AE19, AM6 (`assets/zikr_i18n/<code>/index.json`), every
+   segment in `assets/zikr_i18n/<code>/{AP22,AP23,AQ9,B1,AE19,AM6}.json`
+   (`zikr_i18n.py template <code> --uids ...` shows the English beside
+   them), and the 25 guide keys the session-20 commits added to
+   `assets/ziyarat_guide_i18n/` (`git log --grep "Ziyarat Guide batch 19:"
+   -p -- assets/ziyarat_guide_i18n` lists them); apply their fixes, put their open questions in the review
+   file. Then one independent opus reader for the batch's Arabic,
    transliteration and English (AP22, AP23, AQ9, B1, AN1, AE19, AM6)
    against the sources their merits name. B1's Urdu verses are on
    mafatih.duas.co `ziarat-journey-adaab`.
