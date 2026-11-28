@@ -10,6 +10,7 @@ import '../services/analytics_service.dart';
 import '../services/home_screen_widget_service.dart';
 import '../services/smart_actions_service.dart';
 import '../services/event_notification_service.dart';
+import '../services/prayer_calendar_service.dart';
 import '../services/zikr_reminder_service.dart';
 import '../theme/shia_colors.dart';
 import '../utils/language_provider.dart';
@@ -69,12 +70,15 @@ Future<void> pickAppLanguage(
   if (picked == null) return;
   await provider.setAppLanguage(picked.code);
   if (republish) {
-    // The home screen widgets, scheduled prayer notifications and zikr
-    // reminders were written out in the old language: write them again.
+    // The home screen widgets, scheduled prayer notifications, zikr
+    // reminders and calendar events were written out in the old language:
+    // write them again.
     unawaited(HomeScreenWidgetService.instance.publishAll());
     unawaited(setUpNotifications());
     unawaited(ZikrReminderService.instance.rescheduleAll());
     unawaited(EventNotificationService.instance.rescheduleAll());
+    // So were the titles of the prayer times in the phone's calendar.
+    unawaited(PrayerCalendarService.instance.refresh());
   }
   // The playlist names Siri and Shortcuts show come from the app language.
   SmartActionsService.instance.syncCatalog();

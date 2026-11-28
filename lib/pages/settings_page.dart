@@ -13,6 +13,7 @@ import '../services/content_request_service.dart';
 import '../services/event_notification_service.dart';
 import '../services/home_screen_widget_service.dart';
 import '../services/location_service.dart';
+import '../services/prayer_calendar_service.dart';
 import '../services/preferences_sync_service.dart';
 import '../services/rating_prompt_service.dart';
 import '../services/session_refresh_service.dart';
@@ -45,6 +46,7 @@ import 'account_page.dart';
 import 'city_picker.dart';
 import 'downloaded_audio_page.dart';
 import 'event_notifications_page.dart';
+import 'prayer_calendar_page.dart';
 import 'prayer_notifications_page.dart';
 import 'scheduled_notifications_page.dart';
 import 'whats_new_page.dart';
@@ -321,6 +323,18 @@ class _SettingsPageState extends State<SettingsPage> {
                         if (changed && mounted) setState(() {});
                       },
                     ),
+                    if (PrayerCalendarService.isSupported)
+                      _SettingsRow(
+                        icon: const _RowGlyph(OutlineGlyph.calendarCheck),
+                        title: l10n.prayerCalendarTitle,
+                        value: PrayerCalendarService.instance.isOn
+                            ? l10n.settingsOn
+                            : l10n.settingsOff,
+                        onTap: () async {
+                          await showPrayerCalendarPage(context);
+                          if (mounted) setState(() {});
+                        },
+                      ),
                   ],
                 ),
               ],

@@ -473,11 +473,38 @@ it, its prayer times included (mockups `R5-Calendar`, `T-Calendar-R5`,
 - **Prayer times in another city** · "Times for 24 October somewhere
   else, e.g. Karbala": a card row opening the look-up city picker on that
   date. No footnote under it.
+- **Prayer times in your calendar** · "Add them to Google or Apple
+  Calendar" (calendar icon), or once added "In Personal through 27
+  December" (calendar-check icon): the same card row under it, opening the
+  page below. Android and iOS only, and only with a location.
 - **Tablet:** the month full width, then the day, its event and the city
   row on the left and the card on the right (340 px), listing all eight
   times top to bottom. **Desktop and web:** the month on the left, the day
   in a 360 px column on the right with the same vertical card. The cells
   are the phone's, 64 px tall: no event names in them on any screen.
+
+### Prayer times in your calendar
+From the Calendar page's row and Settings → Prayer times (On/Off). A
+large-title page that puts the prayer times in one of the phone's
+calendars - a Google account's shows in Google Calendar, iCloud's in Apple
+Calendar (`PrayerCalendarService`):
+- **Calendar** (once added): the calendar's name, "Through 27 December",
+  and a chevron that picks another (the times move there).
+- **Times**: the eight times with round ticks, the five prayers ticked by
+  default; at least one stays ticked.
+- **How far ahead**: 1 week · 2 weeks · 1 month (default), a segmented
+  switcher.
+- A footnote: each time is a 15-minute event marked free; opening the app
+  keeps them that far ahead and moves them when the city or method
+  changes.
+- Docked at the bottom, **Add to calendar** (filled): asks for calendar
+  access, then "Choose a calendar" (a sheet of the writable calendars,
+  each with its colour dot and account) when there is more than one, and
+  says "Added 150 prayer times to Personal". Once added it becomes
+  **Remove from calendar** (danger outline), which takes out every event
+  the app added. Until then the ticks and range are a draft; after, each
+  change is written as it is made.
+- No location: a note and **Choose city** instead of the button.
 
 ### Azan
 Today's prayer notifications page, from Settings → Prayer times → Azan:
